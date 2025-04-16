@@ -121,6 +121,7 @@ trait AssociationLinkTrait
             'title' => $targetLink['title'],
             'identifier' => $targetLink['identifier'],
             'uri' => $targetLink['uri'],
+            'targetLink' => ('1.1' === $caseVersion) ? $targetLink['targetType'] : null,
         ];
     }
 }

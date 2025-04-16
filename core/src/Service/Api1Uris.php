@@ -125,17 +125,23 @@ readonly class Api1Uris
     {
         $selector = strtolower($selector);
 
+        if (!in_array($selector, ['origin', 'destination'])) {
+            throw new \InvalidArgumentException('Selector may only be "origin" or "destination"');
+        }
+
         $uri = match ($selector) {
             'origin' => $obj->getOrigin(),
             'destination' => $obj->getDestination(),
-            default => throw new \InvalidArgumentException('Selector may only be "origin" or "destination"'),
         };
 
-        if (is_object($uri)) {
+        if ($uri instanceof IdentifiableInterface) {
             return $this->getLinkUri($uri);
         }
 
-        $identifier = $obj->{'get'.$selector.'NodeIdentifier'}();
+        $identifier = match ($selector) {
+            'origin' => $obj->getOriginNodeIdentifier(),
+            'destination' => $obj->getDestinationNodeIdentifier(),
+        };
 
         if (str_starts_with($uri, 'local:')) {
             $uri = $this->uriGenerator->getPublicUriForIdentifier($identifier);
@@ -145,6 +151,10 @@ readonly class Api1Uris
             'title' => $selector.' node',
             'identifier' => $identifier,
             'uri' => $uri,
+            'targetType' => match ($selector) {
+                'origin' => $obj->getOriginNodeTargetType(),
+                'destination' => $obj->getDestinationNodeTargetType(),
+            },
         ];
     }
 

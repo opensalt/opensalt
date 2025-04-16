@@ -142,7 +142,7 @@ class AssociationsTransformer
             return $association->setOrigin($otherDoc);
         }
 
-        $association->setOrigin($originNodeURI->uri, $identifier);
+        $association->setOrigin($originNodeURI->uri, $identifier, $originNodeURI->targetType);
 
         return $association;
     }
@@ -169,7 +169,7 @@ class AssociationsTransformer
             return $association->setDestination($otherDoc);
         }
 
-        $association->setDestination($destinationNodeURI->uri, $identifier);
+        $association->setDestination($destinationNodeURI->uri, $identifier, $destinationNodeURI->targetType);
 
         return $association;
     }

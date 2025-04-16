@@ -75,6 +75,8 @@ final class LsAssociationNormalizer implements NormalizerInterface
             throw new \InvalidArgumentException('Expecting "origin" or "destination" for which part of the association is wanted');
         }
 
+        $case10 = in_array('CASE-1.0', $context['groups'] ?? []);
+
         $targetLink = $this->api1Uris->getNodeLinkUri($which, $association);
 
         if (null === $targetLink) {
@@ -90,6 +92,7 @@ final class LsAssociationNormalizer implements NormalizerInterface
             'title' => $targetLink['title'],
             'identifier' => $targetLink['identifier'],
             'uri' => $targetLink['uri'],
+            'targetType' => $case10 ? null : $targetLink['targetType'] ?? 'CASE',
         ];
     }
 }

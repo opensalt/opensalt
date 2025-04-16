@@ -64,6 +64,9 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     #[ORM\Column(name: 'origin_node_uri', type: 'string', length: 300, nullable: true)]
     private ?string $originNodeUri = null;
 
+    #[ORM\Column(name: 'origin_node_target_type', type: 'string', length: 300, nullable: true)]
+    private ?string $originNodeTargetType = null;
+
     #[ORM\ManyToOne(targetEntity: LsDoc::class, inversedBy: 'associations')]
     #[ORM\JoinColumn(name: 'origin_lsdoc_id', referencedColumnName: 'id', onDelete: 'SET NULL')]
     private ?LsDoc $originLsDoc = null;
@@ -79,6 +82,9 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
 
     #[ORM\Column(name: 'destination_node_uri', type: 'string', length: 300, nullable: true)]
     private ?string $destinationNodeUri = null;
+
+    #[ORM\Column(name: 'destination_node_target_type', type: 'string', length: 300, nullable: true)]
+    private ?string $destinationNodeTargetType = null;
 
     #[ORM\ManyToOne(targetEntity: LsDoc::class, inversedBy: 'inverseAssociations')]
     #[ORM\JoinColumn(name: 'destination_lsdoc_id', referencedColumnName: 'id', onDelete: 'SET NULL')]
@@ -205,8 +211,10 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
      *
      * @throws \UnexpectedValueException
      */
-    public function setOrigin(IdentifiableInterface|string $origin, ?string $identifier = null): static
+    public function setOrigin(IdentifiableInterface|string $origin, ?string $identifier = null, ?string $targetType = null): static
     {
+        $this->setOriginNodeTargetType($targetType);
+
         if (is_string($origin)) {
             $this->setOriginNodeUri($origin);
             $this->setOriginNodeIdentifier($identifier ?? $origin);
@@ -262,8 +270,10 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
      *
      * @throws \UnexpectedValueException
      */
-    public function setDestination(IdentifiableInterface|string $destination, ?string $identifier = null): static
+    public function setDestination(IdentifiableInterface|string $destination, ?string $identifier = null, ?string $targetType = null): static
     {
+        $this->setDestinationNodeTargetType($targetType);
+
         if (is_string($destination)) {
             $this->setDestinationNodeUri($destination);
             $this->setDestinationNodeIdentifier($identifier ?? $destination);
@@ -603,6 +613,30 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     public function setNotes(?string $notes): static
     {
         $this->notes = $notes;
+
+        return $this;
+    }
+
+    public function getOriginNodeTargetType(): ?string
+    {
+        return $this->originNodeTargetType;
+    }
+
+    public function setOriginNodeTargetType(?string $originNodeTargetType): LsAssociation
+    {
+        $this->originNodeTargetType = $originNodeTargetType;
+
+        return $this;
+    }
+
+    public function getDestinationNodeTargetType(): ?string
+    {
+        return $this->destinationNodeTargetType;
+    }
+
+    public function setDestinationNodeTargetType(?string $destinationNodeTargetType): LsAssociation
+    {
+        $this->destinationNodeTargetType = $destinationNodeTargetType;
 
         return $this;
     }
