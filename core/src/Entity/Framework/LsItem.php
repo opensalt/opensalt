@@ -79,6 +79,23 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     #[ORM\Column(name: 'notes', type: 'text', nullable: true)]
     private ?string $notes = null;
 
+    /**
+     * @var string[]|null
+     */
+    #[ORM\Column(name: 'subject', type: 'json', nullable: true)]
+    #[Assert\All([new Assert\Type('string')])]
+    private ?array $subject = [];
+
+    /**
+     * @var Collection<array-key, LsDefSubject>
+     */
+    #[ORM\ManyToMany(targetEntity: LsDefSubject::class)]
+    #[ORM\JoinTable(name: 'ls_item_subject')]
+    #[ORM\JoinColumn(name: 'ls_item_id', referencedColumnName: 'id')]
+    #[ORM\InverseJoinColumn(name: 'subject_id', referencedColumnName: 'id')]
+    #[Assert\All([new Assert\Type(LsDefSubject::class)])]
+    private Collection $subjects;
+
     #[ORM\Column(name: 'language', type: 'string', length: 10, nullable: true)]
     #[Assert\Length(max: 10)]
     private ?string $language = null;
@@ -134,6 +151,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         $this->inverseAssociations = new ArrayCollection();
         $this->criteria = new ArrayCollection();
         $this->concepts = new ArrayCollection();
+        $this->subjects = new ArrayCollection();
     }
 
     /**
@@ -948,6 +966,67 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         foreach ($criteria as $criterion) {
             $this->addCriterion($criterion);
         }
+
+        return $this;
+    }
+
+    /**
+     * @return string[]|null
+     */
+    public function getSubject(): ?array
+    {
+        return $this->subject;
+    }
+
+    /**
+     * @param string|string[]|null $subject
+     */
+    public function setSubject(array|string|null $subject): LsItem
+    {
+        if (null === $subject) {
+            $this->subject = null;
+
+            return $this;
+        }
+
+        if (!is_array($subject)) {
+            $subject = [$subject];
+        }
+
+        $this->subject = $subject;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<array-key, LsDefSubject>
+     */
+    public function getSubjects(): Collection
+    {
+        return $this->subjects;
+    }
+
+    /**
+     * @psalm-param ?iterable<array-key, LsDefSubject> $subjects
+     */
+    public function setSubjects(?iterable $subjects): LsItem
+    {
+        $this->subjects = new ArrayCollection();
+
+        if (null === $subjects) {
+            return $this;
+        }
+
+        foreach ($subjects as $subject) {
+            $this->addSubject($subject);
+        }
+
+        return $this;
+    }
+
+    public function addSubject(LsDefSubject $subject): static
+    {
+        $this->subjects[] = $subject;
 
         return $this;
     }

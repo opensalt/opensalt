@@ -46,6 +46,8 @@ final class LsItemNormalizer implements NormalizerInterface
         $case10 = in_array('CASE-1.0', $context['groups'] ?? []);
         $conceptKeywords = $data->getConceptKeywordsArray();
         $conceptKeywordsUri = $data->getConcepts();
+        $subject = $data->getSubject();
+        $subjectURIs = $data->getSubjects();
         $ret = [
             '@context' => (null !== $addContext)
                 ? 'https://purl.imsglobal.org/spec/case/v1p0/context/imscasev1p0_context_v1p0.jsonld'
@@ -70,6 +72,12 @@ final class LsItemNormalizer implements NormalizerInterface
                 ? $this->api1Uris->getLinkUri($conceptKeywordsUri[0])
                 : null,
             'notes' => $data->getNotes(),
+            'subject' => $case10 ? null : (count($subject ?? []) > 0
+                ? $subject
+                : null),
+            'subjectURI' => $case10 ? null : (count($subjectURIs) > 0
+                ? $this->api1Uris->getLinkUriList($subjectURIs)
+                : null),
             'language' => $data->getLanguage(),
             'educationLevel' => $this->api1Uris->splitByComma($data->getEducationalAlignment()),
             'licenseURI' => $this->api1Uris->getLinkUri($data->getLicence()),

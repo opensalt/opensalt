@@ -35,7 +35,7 @@ class ItemsTransformer
 
         foreach ($cfItems as $cfItem) {
             $item = $items[$cfItem->identifier->toString()] ?? $this->createItem($cfItem, $doc);
-            $items[$cfItem->identifier->toString()] = $this->updateItem($item, $cfItem, $doc);
+            $items[$cfItem->identifier->toString()] = $this->updateItem($item, $cfItem, $doc, $definitions);
         }
 
         $this->removeUnknownItems($doc, array_keys($items));
@@ -82,7 +82,7 @@ class ItemsTransformer
         return $item;
     }
 
-    private function updateItem(LsItem $item, CFPackageItem $cfItem, LsDoc $doc): LsItem
+    private function updateItem(LsItem $item, CFPackageItem $cfItem, LsDoc $doc, Definitions $definitions): LsItem
     {
         if ($item->getLsDoc()->getIdentifier() !== $doc->getIdentifier()) {
             $this->error(sprintf('Attempt to change the document from %s to %s of item %s', $item->getLsDoc()->getIdentifier(), $doc->getIdentifier(), $cfItem->identifier->toString()));
@@ -99,6 +99,7 @@ class ItemsTransformer
         $item->setChangedAt($cfItem->lastChangeDateTime);
         $item->setListEnumInSource($cfItem->listEnumeration);
         $item->setNotes($cfItem->notes);
+        $item->setSubject($cfItem->subject);
         $item->setStatusStart($cfItem->statusStartDate);
         $item->setStatusEnd($cfItem->statusEndDate);
         $item->setExtensions($cfItem->extensions);
@@ -111,6 +112,14 @@ class ItemsTransformer
         $this->updateItemType($item, $cfItem->cfItemTypeURI);
         $this->updateConcepts($item, $cfItem->conceptKeywordsURI);
         $this->updateLicence($item, $cfItem->licenseURI);
+
+        $item->setSubjects(null);
+        foreach ($cfItem->subjectURI ?? [] as $subjectUri) {
+            $subject = $definitions->subjects[$subjectUri->identifier->toString()] ?? null;
+            if (null !== $subject) {
+                $item->addSubject($subject);
+            }
+        }
 
         return $item;
     }

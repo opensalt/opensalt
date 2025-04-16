@@ -38,7 +38,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     #[Assert\Type(User::class)]
     protected ?User $user = null;
 
-    #[ORM\Column(name: 'case_version', type: 'string', nullable: true)]
+    #[ORM\Column(name: 'case_version', type: 'string', length: 255, nullable: true)]
     private ?string $caseVersion = null;
 
     #[ORM\Column(name: 'official_uri', type: 'string', length: 300, nullable: true)]

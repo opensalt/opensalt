@@ -24,6 +24,13 @@ class CFPackageItem
 
     public ?LinkURI $conceptKeywordsURI = null;
     public ?string $notes = null;
+
+    /** @var string[]|string|null */
+    public string|array|null $subject = null;
+
+    /** @var LinkURI[] */
+    public ?array $subjectURI = [];
+
     public ?string $language = null;
 
     /** @var string[]|string|null */
