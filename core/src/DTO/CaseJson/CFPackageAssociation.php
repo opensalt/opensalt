@@ -13,10 +13,11 @@ class CFPackageAssociation
     public string $uri;
     public LinkGenURI $originNodeURI;
     public LinkGenURI $destinationNodeURI;
+    public ?string $notes = null;
 
     #[SerializedName('CFAssociationGroupingURI')]
     public ?LinkURI $cfAssociationGroupingURI = null;
 
     public \DateTimeInterface $lastChangeDateTime;
-    public ?array $extensions = null;
+    public ?array $extensions = [];
 }

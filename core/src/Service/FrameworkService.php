@@ -101,7 +101,7 @@ class FrameworkService
         $lsAssociation->setLsDoc($item->getLsDoc());
         $lsAssociation->setOriginLsItem($item);
         $lsAssociation->setType(LsAssociation::EXEMPLAR);
-        $lsAssociation->setAnnotation($annotation);
+        $lsAssociation->setNotes($annotation);
         $lsAssociation->setDestinationNodeUri($url);
         $lsAssociation->setDestinationNodeIdentifier(Uuid::uuid5(Uuid::NAMESPACE_URL, $url));
 
@@ -120,7 +120,7 @@ class FrameworkService
         $types = explode('|', $type, 2);
         $association->setType($types[0]);
         $association->setSubtype($types[1] ?? null);
-        $association->setAnnotation($annotation);
+        $association->setNotes($annotation);
 
         // deal with origin and dest items, which can be specified by id or by identifier
         // if externalDoc is specified for either one, mark this document as "autoLoad": "true" in the doc's externalDocuments

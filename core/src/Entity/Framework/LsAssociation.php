@@ -98,7 +98,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     private ?string $subtype = null;
 
     #[ORM\Column(name: 'annotation', type: 'text', length: 65534, nullable: true)]
-    private ?string $annotation = null;
+    private ?string $notes = null;
 
     public function __construct(UuidInterface|string|null $identifier = null)
     {
@@ -595,14 +595,14 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         return $this;
     }
 
-    public function getAnnotation(): ?string
+    public function getNotes(): ?string
     {
-        return $this->annotation;
+        return $this->notes;
     }
 
-    public function setAnnotation(?string $annotation): static
+    public function setNotes(?string $notes): static
     {
-        $this->annotation = $annotation;
+        $this->notes = $notes;
 
         return $this;
     }

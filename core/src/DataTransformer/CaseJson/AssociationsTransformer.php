@@ -104,11 +104,18 @@ class AssociationsTransformer
         $this->setOrigin($association, $cfAssociation->originNodeURI, $doc);
         $association->setType($cfAssociation->associationType);
         $this->setDestination($association, $cfAssociation->destinationNodeURI, $doc);
+        $association->setNotes($cfAssociation->notes);
 
         $association->setSequenceNumber($cfAssociation->sequenceNumber);
         $this->setGroup($association, $cfAssociation->cfAssociationGroupingURI);
         $association->setChangedAt($cfAssociation->lastChangeDateTime);
-        $association->setExtensions($cfAssociation->extensions);
+
+        $extensions = $cfAssociation->extensions ?? [];
+        if ((null !== ($extensions['subtype'] ?? null)) || (null !== $association->getSubtype())) {
+            $association->setSubtype($extensions['subtype'] ?? null);
+            unset($extensions['subtype']);
+        }
+        $association->setExtensions($extensions);
 
         return $association;
     }

@@ -321,9 +321,9 @@ class SubtypeUpdater
             $changed[] = 'Subtype set';
         }
 
-        $oldAnnotation = $assoc->getAnnotation();
+        $oldAnnotation = $assoc->getNotes();
         if ($oldAnnotation !== $annotation) {
-            $assoc->setAnnotation($annotation);
+            $assoc->setNotes($annotation);
             $changed[] = 'Annotation set';
         }
 

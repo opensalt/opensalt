@@ -16,6 +16,12 @@ trait ExtensionTrait
 
     public function setExtensions(?array $extensions): static
     {
+        if ([] === $extensions) {
+            $this->extensions = null;
+
+            return $this;
+        }
+
         $this->extensions = $extensions;
 
         return $this;
