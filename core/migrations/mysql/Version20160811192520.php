@@ -6,9 +6,6 @@ use Doctrine\DBAL\Schema\Schema;
 
 class Version20160811192520 extends AbstractMigration
 {
-    /**
-     * @throws \Doctrine\Migrations\Exception\AbortMigration
-     */
     public function up(Schema $schema): void
     {
         $this->addSql('
@@ -30,9 +27,6 @@ ALTER TABLE ls_doc
         ');
     }
 
-    /**
-     * @throws \Doctrine\DBAL\Migrations\AbortMigrationException
-     */
     public function down(Schema $schema): void
     {
         $this->addSql('

@@ -6,9 +6,6 @@ use Doctrine\DBAL\Schema\Schema;
 
 class Version20160811194318 extends AbstractMigration
 {
-    /**
-     * @throws \Doctrine\Migrations\Exception\AbortMigration
-     */
     public function up(Schema $schema): void
     {
         $this->addSql('DROP INDEX UNIQ_D8D02498841CB121 ON ls_item');
@@ -33,9 +30,6 @@ ALTER TABLE ls_item
         $this->addSql('DROP INDEX UNIQ_9AE8CF1F2D2FD50E ON ls_doc');
     }
 
-    /**
-     * @throws \Doctrine\DBAL\Migrations\AbortMigrationException
-     */
     public function down(Schema $schema): void
     {
         $this->addSql('CREATE UNIQUE INDEX UNIQ_9AE8CF1F2D2FD50E ON ls_doc (global_id)');
