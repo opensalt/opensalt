@@ -11,7 +11,7 @@ class JsonType extends DbalJsonType
      * {@inheritdoc}
      */
     #[\Override]
-    public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): mixed
+    public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
     {
         if ([] === $value) {
             return null;

@@ -18,7 +18,7 @@ class DateTimeType extends \Doctrine\DBAL\Types\DateTimeType
      * {@inheritdoc}
      */
     #[\Override]
-    public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): mixed
+    public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
     {
         if (null === $value) {
             return null;
@@ -65,7 +65,6 @@ class DateTimeType extends \Doctrine\DBAL\Types\DateTimeType
         return parent::getSQLDeclaration($column, $platform);
     }
 
-    #[\Override]
     public function requiresSQLCommentHint(AbstractPlatform $platform): bool
     {
         return true;
