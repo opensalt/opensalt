@@ -9,15 +9,15 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 #[ORM\Table(name: 'salt_change')]
-#[ORM\Index(columns: ['changed_at'], name: 'change_time_idx')]
-#[ORM\Index(columns: ['doc_id', 'changed_at'], name: 'doc_idx')]
+#[ORM\Index(name: 'change_time_idx', columns: ['changed_at'])]
+#[ORM\Index(name: 'doc_idx', columns: ['doc_id', 'changed_at'])]
 #[ORM\Entity(repositoryClass: ChangeEntryRepository::class)]
 class ChangeEntry
 {
     #[ORM\Id]
     #[ORM\Column(name: 'id', type: 'bigint')]
     #[ORM\GeneratedValue(strategy: 'AUTO')]
-    protected ?string $id = null;
+    protected string|int|null $id = null;
 
     #[ORM\Column(name: 'user_id', type: 'integer', nullable: true)]
     protected ?int $user;
@@ -50,7 +50,11 @@ class ChangeEntry
 
     public function getId(): ?string
     {
-        return $this->id;
+        if (null === $this->id) {
+            return null;
+        }
+
+        return (string) $this->id;
     }
 
     public function getDocId(): ?int

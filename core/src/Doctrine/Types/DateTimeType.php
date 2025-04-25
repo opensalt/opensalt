@@ -49,7 +49,7 @@ class DateTimeType extends \Doctrine\DBAL\Types\DateTimeType
 
         $val = \DateTime::createFromFormat($format, $value);
         if (!$val) {
-            throw ConversionException::conversionFailedFormat($value, $this->getName(), $platform->getDateTimeFormatString().'.u');
+            throw new ConversionException(sprintf('Could not convert %s to a DateTime (expecting format %s)', $value, $format));
         }
 
         return $val;
@@ -63,10 +63,5 @@ class DateTimeType extends \Doctrine\DBAL\Types\DateTimeType
         }
 
         return parent::getSQLDeclaration($column, $platform);
-    }
-
-    public function requiresSQLCommentHint(AbstractPlatform $platform): bool
-    {
-        return true;
     }
 }

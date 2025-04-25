@@ -68,9 +68,6 @@
             "ref": "64d8583af5ea57b7afa4aba4b159907f3a148b05"
         }
     },
-    "doctrine/cache": {
-        "version": "v1.7.1"
-    },
     "doctrine/collections": {
         "version": "v1.5.0"
     },

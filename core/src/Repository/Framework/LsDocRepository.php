@@ -271,7 +271,9 @@ DELETE FROM salt_object_lock
  WHERE doc_id = :lsDocId
 ;
 xENDx;
-        $conn->prepare($stmt)->executeStatement($params);
+        $preparedStatement = $conn->prepare($stmt);
+        $preparedStatement->bindValue('lsDocId', $lsDoc->getId());
+        $preparedStatement->executeStatement();
 
         $progressCallback('Deleting associations');
         $stmt = <<<'xENDx'
@@ -289,7 +291,9 @@ DELETE FROM ls_association
     )
 ;
 xENDx;
-        $conn->prepare($stmt)->executeStatement($params);
+        $preparedStatement = $conn->prepare($stmt);
+        $preparedStatement->bindValue('lsDocId', $lsDoc->getId());
+        $preparedStatement->executeStatement();
 
         $progressCallback('Deleting association groups');
         $stmt = <<<'xENDx'
@@ -297,7 +301,9 @@ DELETE FROM ls_def_association_grouping
  WHERE ls_doc_id = :lsDocId
 ;
 xENDx;
-        $conn->prepare($stmt)->executeStatement($params);
+        $preparedStatement = $conn->prepare($stmt);
+        $preparedStatement->bindValue('lsDocId', $lsDoc->getId());
+        $preparedStatement->executeStatement();
 
         $progressCallback('Deleting rubric references to items');
         $stmt = <<<'xENDx'
@@ -310,7 +316,9 @@ UPDATE rubric_criterion
  )
 ;
 xENDx;
-        $conn->prepare($stmt)->executeStatement($params);
+        $preparedStatement = $conn->prepare($stmt);
+        $preparedStatement->bindValue('lsDocId', $lsDoc->getId());
+        $preparedStatement->executeStatement();
 
         $progressCallback('Deleting items');
         $stmt = <<<'xENDx'
@@ -318,7 +326,9 @@ DELETE FROM ls_item
  WHERE ls_doc_id = :lsDocId
 ;
 xENDx;
-        $conn->prepare($stmt)->executeStatement($params);
+        $preparedStatement = $conn->prepare($stmt);
+        $preparedStatement->bindValue('lsDocId', $lsDoc->getId());
+        $preparedStatement->executeStatement();
 
         $progressCallback('Deleting document subjects');
         $stmt = <<<'xENDx'
@@ -326,7 +336,9 @@ DELETE FROM ls_doc_subject
  WHERE ls_doc_id = :lsDocId
 ;
 xENDx;
-        $conn->prepare($stmt)->executeStatement($params);
+        $preparedStatement = $conn->prepare($stmt);
+        $preparedStatement->bindValue('lsDocId', $lsDoc->getId());
+        $preparedStatement->executeStatement();
 
         $progressCallback('Deleting document import logs');
         $stmt = <<<'xENDx'
@@ -334,7 +346,9 @@ DELETE FROM import_logs
  WHERE ls_doc_id = :lsDocId
 ;
 xENDx;
-        $conn->prepare($stmt)->executeStatement($params);
+        $preparedStatement = $conn->prepare($stmt);
+        $preparedStatement->bindValue('lsDocId', $lsDoc->getId());
+        $preparedStatement->executeStatement();
 
         $progressCallback('Deleting acls');
         $stmt = <<<'xENDx'
@@ -342,7 +356,9 @@ DELETE FROM salt_user_doc_acl
  WHERE doc_id = :lsDocId
 ;
 xENDx;
-        $conn->prepare($stmt)->executeStatement($params);
+        $preparedStatement = $conn->prepare($stmt);
+        $preparedStatement->bindValue('lsDocId', $lsDoc->getId());
+        $preparedStatement->executeStatement();
 
         $progressCallback('Deleting document attributes');
         $stmt = <<<'xENDx'
@@ -350,7 +366,9 @@ DELETE FROM ls_doc_attribute
  WHERE ls_doc_id = :lsDocId
 ;
 xENDx;
-        $conn->prepare($stmt)->executeStatement($params);
+        $preparedStatement = $conn->prepare($stmt);
+        $preparedStatement->bindValue('lsDocId', $lsDoc->getId());
+        $preparedStatement->executeStatement();
 
         $progressCallback('Deleting document');
         $stmt = <<<'xENDx'
@@ -358,7 +376,9 @@ DELETE FROM ls_doc
  WHERE id = :lsDocId
 ;
 xENDx;
-        $conn->prepare($stmt)->executeStatement($params);
+        $preparedStatement = $conn->prepare($stmt);
+        $preparedStatement->bindValue('lsDocId', $lsDoc->getId());
+        $preparedStatement->executeStatement();
 
         $progressCallback('Done');
     }

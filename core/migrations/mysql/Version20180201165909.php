@@ -26,14 +26,12 @@ xENDx;
         $insertLicence = $this->connection->prepare($sql);
         $licence_text = 'https://creativecommons.org/licenses/by/4.0/legalcode';
         $uuid = Uuid::uuid5(Uuid::NAMESPACE_URL, $licence_text);
-        $params = [
-            'uuid' => $uuid->toString(),
-            'uri' => 'local:'.$uuid->toString(),
-            'title' => 'Attribution 4.0 International',
-            'licence_text' => $licence_text,
-            'description' => 'Creative Commons Attribution 4.0 International',
-        ];
-        $insertLicence->executeStatement($params);
+        $insertLicence->bindValue('uuid', $uuid->toString());
+        $insertLicence->bindValue('uri', 'local:'.$uuid->toString());
+        $insertLicence->bindValue('title', 'Attribution 4.0 International');
+        $insertLicence->bindValue('licence_text', $licence_text);
+        $insertLicence->bindValue('description', 'Creative Commons Attribution 4.0 International');
+        $insertLicence->executeStatement();
     }
 
     public function down(Schema $schema): void

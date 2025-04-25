@@ -98,7 +98,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     private ?string $type = null;
 
     #[ORM\Column(name: 'seq', type: 'bigint', nullable: true)]
-    private ?string $sequenceNumber = null;
+    private string|int|null $sequenceNumber = null;
 
     #[ORM\Column(name: 'subtype', type: 'string', nullable: true)]
     private ?string $subtype = null;

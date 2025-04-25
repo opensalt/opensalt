@@ -2,6 +2,7 @@
 
 namespace DoctrineMigrations;
 
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\Schema;
 use Ramsey\Uuid\Uuid;
 
@@ -52,22 +53,23 @@ xENDx;
 
             if (!array_key_exists($subject, $subjects)) {
                 $uuid = Uuid::uuid5(Uuid::fromString('cacee394-85b7-11e6-9d43-005056a32dda'), $subject);
-                $params = [
-                    'uuid' => $uuid->toString(),
-                    'uri' => 'local:'.$uuid->toString(),
-                    'title' => $subject,
-                    'hierarchy' => 1,
-                ];
-                $insertSubjectStmt->executeStatement($params);
+                $insertSubjectStmt->bindValue('uuid', $uuid->toString());
+                $insertSubjectStmt->bindValue('uri', 'local:'.$uuid->toString());
+                $insertSubjectStmt->bindValue('title', $subject);
+                $insertSubjectStmt->bindValue('hierarchy', 1, ParameterType::INTEGER);
+                $insertSubjectStmt->executeStatement();
 
-                $s = $fetchStmt->executeQuery(['uuid' => $uuid])->fetchOne();
+                $fetchStmt->bindValue('uuid', $uuid->toString());
+                $s = $fetchStmt->executeQuery()->fetchOne();
 
                 $subjects[$subject] = $s;
             } else {
                 $s = $subjects[$subject];
             }
 
-            $insertDocSubjectStmt->executeStatement(['doc_id' => $doc['id'], 'subj_id' => $s['id']]);
+            $insertDocSubjectStmt->bindValue('doc_id', $doc['id'], ParameterType::INTEGER);
+            $insertDocSubjectStmt->bindValue('subj_id', $s['id'], ParameterType::INTEGER);
+            $insertDocSubjectStmt->executeStatement();
         }
 
         $this->connection->commit();

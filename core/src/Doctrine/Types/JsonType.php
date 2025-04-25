@@ -19,10 +19,4 @@ class JsonType extends DbalJsonType
 
         return parent::convertToDatabaseValue($value, $platform);
     }
-
-    #[\Override]
-    public function requiresSQLCommentHint(AbstractPlatform $platform): bool
-    {
-        return true;
-    }
 }
