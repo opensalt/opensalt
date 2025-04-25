@@ -38,6 +38,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     private ?string $lsDocUri = null;
 
     #[ORM\ManyToOne(targetEntity: LsDoc::class, inversedBy: 'lsItems')]
+    #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotBlank]
     private LsDoc $lsDoc;
 
