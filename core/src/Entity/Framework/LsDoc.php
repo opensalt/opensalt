@@ -179,6 +179,12 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     #[ORM\OneToOne(inversedBy: 'framework', targetEntity: Framework::class)]
     private ?Framework $mirroredFramework = null;
 
+    #[ORM\Column(name: 'package_ext', type: 'json', nullable: true)]
+    private ?array $packageExtensions = null;
+
+    #[ORM\Column(name: 'def_ext', type: 'json', nullable: true)]
+    private ?array $definitionExtensions = null;
+
     public function __construct(UuidInterface|string|null $identifier = null)
     {
         parent::__construct($identifier);
@@ -939,6 +945,42 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     public function setCaseVersion(?string $caseVersion): LsDoc
     {
         $this->caseVersion = $caseVersion;
+
+        return $this;
+    }
+
+    public function getPackageExtensions(): array
+    {
+        return $this->packageExtensions ?? [];
+    }
+
+    public function setPackageExtensions(?array $packageExtensions): LsDoc
+    {
+        if ([] === $packageExtensions) {
+            $this->packageExtensions = null;
+
+            return $this;
+        }
+
+        $this->packageExtensions = $packageExtensions;
+
+        return $this;
+    }
+
+    public function getDefinitionExtensions(): array
+    {
+        return $this->definitionExtensions ?? [];
+    }
+
+    public function setDefinitionExtensions(?array $definitionExtensions): LsDoc
+    {
+        if ([] === $definitionExtensions) {
+            $this->definitionExtensions = null;
+
+            return $this;
+        }
+
+        $this->definitionExtensions = $definitionExtensions;
 
         return $this;
     }

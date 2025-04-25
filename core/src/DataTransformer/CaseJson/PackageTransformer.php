@@ -21,6 +21,8 @@ final readonly class PackageTransformer
         $definitions = $this->definitionsTransformer->transform($package->cfDefinitions);
 
         $doc = $this->documentTransformer->transform($package->cfDocument, $definitions);
+        $doc->setPackageExtensions($package->extensions);
+        $doc->setDefinitionExtensions($definitions->extensions);
         $items = $this->itemsTransformer->transform($package->cfItems, $doc, $definitions);
         $this->associationsTransformer->transform($package->cfAssociations, $doc, $items, $definitions);
         $this->rubricsTransformer->transform($package->cfRubrics, $items);

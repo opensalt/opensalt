@@ -29,6 +29,7 @@ final readonly class DefinitionsTransformer
         $defObjs->itemTypes = $this->itemTypesTransformer->transform($definitions->cfItemTypes);
         $defObjs->licences = $this->licencesTransformer->transform($definitions->cfLicenses);
         $defObjs->subjects = $this->subjectsTransformer->transform($definitions->cfSubjects);
+        $defObjs->extensions = $definitions->extensions;
 
         return $defObjs;
     }
