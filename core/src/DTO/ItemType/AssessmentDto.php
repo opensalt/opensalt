@@ -31,15 +31,13 @@ class AssessmentDto implements ItemTypeInterface
     #[\Override]
     public static function fromItem(LsItem $item): self
     {
-        $jobItemInfo = $item->getExtraProperty('extendedItem');
-
         return new self(
             $item->getAbbreviatedStatement(),
             $item->getFullStatement(),
-            $jobItemInfo[self::DELIVERY_TYPE_KEY] ?? null,
+            $item->getExtensionProperty(self::DELIVERY_TYPE_KEY),
             $item->getLanguage(),
             $item->getConceptKeywordsString(),
-            $jobItemInfo[self::WEBPAGE_KEY] ?? null,
+            $item->getExtensionProperty(self::WEBPAGE_KEY)
         );
     }
 
@@ -50,15 +48,8 @@ class AssessmentDto implements ItemTypeInterface
         $item->setFullStatement($this->description);
         $item->setConceptKeywordsString($this->keywords);
         $item->setLanguage($this->inLanguage);
-        $itemInfo = [
-            'type' => 'assessment',
-        ];
-        if ($this->webpage) {
-            $itemInfo[self::WEBPAGE_KEY] = $this->webpage;
-        }
-        if ($this->deliveryType) {
-            $itemInfo[self::DELIVERY_TYPE_KEY] = $this->deliveryType;
-        }
-        $item->setExtraProperty('extendedItem', $itemInfo);
+        $item->setExtensionProperty(LsItem::TYPE_KEY, 'assessment');
+        $item->setExtensionProperty(self::WEBPAGE_KEY, $this->webpage);
+        $item->setExtensionProperty(self::DELIVERY_TYPE_KEY, $this->deliveryType);
     }
 }

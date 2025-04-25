@@ -28,6 +28,8 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         'organization' => 5,
     ];
 
+    public const string TYPE_KEY = 'salt:type';
+
     #[ORM\Column(name: 'ls_doc_identifier', type: 'string', length: 300, nullable: false)]
     #[Assert\NotBlank]
     #[Assert\Length(max: 300)]

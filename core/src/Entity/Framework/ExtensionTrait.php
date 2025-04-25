@@ -29,7 +29,7 @@ trait ExtensionTrait
 
     public function getExtensionProperty(string $property): mixed
     {
-        return $this->extensions[$property] ?? null;
+        return $this->getExtensions()[$property] ?? null;
     }
 
     public function setExtensionProperty(string $property, mixed $value): static

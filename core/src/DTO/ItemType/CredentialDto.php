@@ -22,10 +22,8 @@ class CredentialDto implements ItemTypeInterface
     #[\Override]
     public static function fromItem(LsItem $item): self
     {
-        $jobItemInfo = $item->getExtraProperty('extendedItem');
-
         return new self(
-            $jobItemInfo[self::CREDENTIAL_KEY] ?? null,
+            $item->getExtensionProperty(self::CREDENTIAL_KEY)
         );
     }
 
@@ -33,7 +31,6 @@ class CredentialDto implements ItemTypeInterface
     public function applyToItem(LsItem $item, HtmlSanitizerInterface $htmlSanitizer): void
     {
         $credentialInfo = json5_decode($this->credential, true);
-        dump($credentialInfo);
         $description = $credentialInfo['description'] ?? null;
         if (null !== $description) {
             $credentialInfo['description'] = $htmlSanitizer->sanitizeFor('div', $description);
@@ -42,19 +39,13 @@ class CredentialDto implements ItemTypeInterface
         if (null !== $narrative) {
             $credentialInfo['criteria']['narrative'] = $htmlSanitizer->sanitizeFor('div', $narrative);
         }
-        dump($description, $narrative);
-        dump($credentialInfo);
 
         $item->setAbbreviatedStatement($credentialInfo['name'] ?? null);
         $item->setFullStatement($credentialInfo['description'] ?? null);
         $item->setHumanCodingScheme($credentialInfo['humanCode'] ?? null);
         $item->setLanguage($credentialInfo['inLanguage'] ?? null);
         $item->setConceptKeywordsArray($credentialInfo['tag'] ?? null);
-
-        $itemInfo = [
-            'type' => 'credential',
-        ];
-        $itemInfo[self::CREDENTIAL_KEY] = json_encode($credentialInfo, JSON_THROW_ON_ERROR|JSON_UNESCAPED_SLASHES);
-        $item->setExtraProperty('extendedItem', $itemInfo);
+        $item->setExtensionProperty(LsItem::TYPE_KEY, 'credential');
+        $item->setExtensionProperty(self::CREDENTIAL_KEY, json_encode($credentialInfo, JSON_THROW_ON_ERROR|JSON_UNESCAPED_SLASHES));
     }
 }

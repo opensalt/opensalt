@@ -31,14 +31,12 @@ class OrganizationDto implements ItemTypeInterface
     #[\Override]
     public static function fromItem(LsItem $item): self
     {
-        $jobItemInfo = $item->getExtraProperty('extendedItem');
-
         return new self(
             $item->getAbbreviatedStatement(),
             $item->getFullStatement(),
-            $jobItemInfo[self::TYPE_KEY] ?? null,
-            $jobItemInfo[self::WEBPAGE_KEY] ?? null,
-            $jobItemInfo[self::JURISDICTION_KEY] ?? null,
+            $item->getExtensionProperty(self::TYPE_KEY),
+            $item->getExtensionProperty(self::WEBPAGE_KEY),
+            $item->getExtensionProperty(self::JURISDICTION_KEY)
         );
     }
 
@@ -47,18 +45,9 @@ class OrganizationDto implements ItemTypeInterface
     {
         $item->setAbbreviatedStatement($this->name);
         $item->setFullStatement($this->description);
-        $itemInfo = [
-            'type' => 'organization',
-        ];
-        if ($this->type) {
-            $itemInfo[self::TYPE_KEY] = $this->type;
-        }
-        if ($this->webpage) {
-            $itemInfo[self::WEBPAGE_KEY] = $this->webpage;
-        }
-        if ($this->jurisdiction) {
-            $itemInfo[self::JURISDICTION_KEY] = $this->jurisdiction;
-        }
-        $item->setExtraProperty('extendedItem', $itemInfo);
+        $item->setExtensionProperty(LsItem::TYPE_KEY, 'organization');
+        $item->setExtensionProperty(self::TYPE_KEY, $this->type);
+        $item->setExtensionProperty(self::WEBPAGE_KEY, $this->webpage);
+        $item->setExtensionProperty(self::JURISDICTION_KEY, $this->jurisdiction);
     }
 }

@@ -29,14 +29,12 @@ class JobDto implements ItemTypeInterface
     #[\Override]
     public static function fromItem(LsItem $item): self
     {
-        $jobItemInfo = $item->getExtraProperty('extendedItem');
-
         return new self(
             $item->getAbbreviatedStatement(),
             $item->getFullStatement(),
             $item->getHumanCodingScheme(),
             $item->getConceptKeywordsString(),
-            $jobItemInfo[self::WEBPAGE_KEY] ?? null
+            $item->getExtensionProperty(self::WEBPAGE_KEY)
         );
     }
 
@@ -47,12 +45,7 @@ class JobDto implements ItemTypeInterface
         $item->setFullStatement($this->description);
         $item->setHumanCodingScheme($this->codedNotation);
         $item->setConceptKeywordsString($this->keywords);
-        $jobItemInfo = [
-            'type' => 'job',
-        ];
-        if ($this->webpage) {
-            $jobItemInfo[self::WEBPAGE_KEY] = $this->webpage;
-        }
-        $item->setExtraProperty('extendedItem', $jobItemInfo);
+        $item->setExtensionProperty(LsItem::TYPE_KEY, 'job');
+        $item->setExtensionProperty(self::WEBPAGE_KEY, $this->webpage);
     }
 }

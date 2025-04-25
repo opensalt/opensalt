@@ -103,6 +103,9 @@ class ItemsTransformer
         $item->setStatusStart($cfItem->statusStartDate);
         $item->setStatusEnd($cfItem->statusEndDate);
         $item->setExtensions($cfItem->extensions);
+        if (null !== $item->getExtensionProperty(LsItem::TYPE_KEY)) {
+            $item->setDiscriminator(LsItem::TYPES[$item->getExtensionProperty(LsItem::TYPE_KEY)] ?? 0);
+        }
 
         $item->setConceptKeywordsArray($cfItem->conceptKeywords);
         $edLevels = EducationLevelSet::fromStringOrArray($cfItem->educationLevel);

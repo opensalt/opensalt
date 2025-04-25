@@ -31,15 +31,13 @@ class CourseDto implements ItemTypeInterface
     #[\Override]
     public static function fromItem(LsItem $item): self
     {
-        $jobItemInfo = $item->getExtraProperty('extendedItem');
-
         return new self(
             $item->getAbbreviatedStatement(),
             $item->getFullStatement(),
-            $jobItemInfo[self::WEBPAGE_KEY] ?? null,
+            $item->getExtensionProperty(self::WEBPAGE_KEY),
             $item->getHumanCodingScheme(),
             $item->getLanguage(),
-            $jobItemInfo[self::DELIVERY_TYPE_KEY] ?? null
+            $item->getExtensionProperty(self::DELIVERY_TYPE_KEY)
         );
     }
 
@@ -50,15 +48,8 @@ class CourseDto implements ItemTypeInterface
         $item->setFullStatement($this->description);
         $item->setHumanCodingScheme($this->codedNotation);
         $item->setLanguage($this->inLanguage);
-        $itemInfo = [
-            'type' => 'course',
-        ];
-        if ($this->webpage) {
-            $itemInfo[self::WEBPAGE_KEY] = $this->webpage;
-        }
-        if ($this->deliveryType) {
-            $itemInfo[self::DELIVERY_TYPE_KEY] = $this->deliveryType;
-        }
-        $item->setExtraProperty('extendedItem', $itemInfo);
+        $item->setExtensionProperty(LsItem::TYPE_KEY, 'course');
+        $item->setExtensionProperty(self::WEBPAGE_KEY, $this->webpage);
+        $item->setExtensionProperty(self::DELIVERY_TYPE_KEY, $this->deliveryType);
     }
 }
