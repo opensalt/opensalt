@@ -29,7 +29,11 @@ class ValidPublicKeyValidator extends ConstraintValidator
         }
 
         try {
-            $key = JWKFactory::createFromValues(json_decode($value, true));
+            try {
+                JWKFactory::createFromJsonObject($value);
+            } catch (\Exception $e) {
+                JWKFactory::createFromKey($value);
+            }
 
             return;
         } catch (\Exception $e) {

@@ -20,7 +20,6 @@ class PublicKeyDto implements ItemTypeInterface
         public ?string $kid = null,
         #[Assert\NotNull()]
         #[Assert\NotBlank()]
-        #[Assert\Json(message: 'This must be a key in JWK format.')]
         #[ValidPublicKey()]
         public ?string $publicKey = null,
         public ?string $type = 'jwk',
@@ -40,8 +39,14 @@ class PublicKeyDto implements ItemTypeInterface
     #[\Override]
     public function applyToItem(LsItem $item, HtmlSanitizerInterface $htmlSanitizer): void
     {
+        try {
+            $key = JWKFactory::createFromJsonObject($this->publicKey);
+        } catch (\Exception $e) {
+            $key = JWKFactory::createFromKey($this->publicKey);
+        }
+
         /** @var JWK $key */
-        $key = JWKFactory::createFromValues(json_decode($this->publicKey, true));
+        $key = JWKFactory::createFromValues($key->jsonSerialize());
         if (null === ($key->jsonSerialize()['kid'] ?? null)) {
             $key = JWKFactory::createFromValues([...$key->jsonSerialize(), 'kid' => $key->thumbprint('sha256')]);
         }

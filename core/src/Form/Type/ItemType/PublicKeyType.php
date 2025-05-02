@@ -23,7 +23,7 @@ class PublicKeyType extends AbstractType
         $builder
             ->add('publicKey', TextareaType::class, [
                 'label' => 'Public Key',
-                'help' => 'The public key in JWK format.',
+                'help' => 'Paste the public key here as a JWK or certificate.',
             ])
             /*
             ->add('keyType', TextType::class, [
