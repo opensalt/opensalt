@@ -4,6 +4,7 @@ namespace App\DTO\ItemType;
 
 use App\Entity\Framework\LsItem;
 use App\Form\Type\ItemType\IdentifierType;
+use App\Form\Validator\ValidUri;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -17,6 +18,7 @@ class IdentifierDto implements ItemTypeInterface
         #[Assert\NotNull()]
         #[Assert\NotBlank()]
         #[Assert\Length(max: 255)]
+        #[ValidUri()]
         public ?string $identifier = null,
         #[Assert\NotNull()]
         #[Assert\NotBlank()]
@@ -39,6 +41,7 @@ class IdentifierDto implements ItemTypeInterface
     public function applyToItem(LsItem $item, HtmlSanitizerInterface $htmlSanitizer): void
     {
         $item->setAbbreviatedStatement($this->identifier);
+        $item->setUri($this->identifier);
         $item->setFullStatement($this->description);
         $item->setExtensionProperty(LsItem::TYPE_KEY, 'identifier');
         $item->setExtensionProperty(self::TYPE_KEY, $this->type);
