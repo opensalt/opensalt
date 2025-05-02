@@ -25,11 +25,9 @@ class CommentRepository extends ServiceEntityRepository
 
     public function addComment(string $itemType, LsItem|LsDoc $itemId, User $user, ?string $content = null, ?string $fileUrl = null, ?string $mimeType = null, ?int $parentId = null): Comment
     {
-        $comment = new Comment();
-        $comment->setContent(trim($content));
+        $comment = new Comment($user, trim($content));
         $comment->setFileUrl($fileUrl);
         $comment->setFileMimeType($mimeType);
-        $comment->setUser($user);
 
         if ('item' === $itemType) {
             $comment->setItem($itemId);
@@ -49,9 +47,7 @@ class CommentRepository extends ServiceEntityRepository
 
     public function addUpvoteForUser(Comment $comment, User $user): CommentUpvote
     {
-        $commentUpvote = new CommentUpvote();
-        $commentUpvote->setComment($comment);
-        $commentUpvote->setUser($user);
+        $commentUpvote = new CommentUpvote($user, $comment);
 
         $this->getEntityManager()->persist($commentUpvote);
 

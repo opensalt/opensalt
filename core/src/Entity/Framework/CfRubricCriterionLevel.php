@@ -29,6 +29,12 @@ class CfRubricCriterionLevel extends AbstractLsBase implements CaseApiInterface
     #[ORM\JoinColumn(name: 'criterion_id', referencedColumnName: 'id', nullable: false)]
     private CfRubricCriterion $criterion;
 
+    public function __construct(CfRubricCriterion $criterion, ?string $identifier = null)
+    {
+        parent::__construct($identifier);
+        $this->criterion = $criterion;
+    }
+
     public function getDescription(): ?string
     {
         return $this->description;

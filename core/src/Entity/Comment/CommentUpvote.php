@@ -34,6 +34,14 @@ class CommentUpvote
     #[Gedmo\Timestampable(on: 'update')]
     private \DateTimeInterface $updatedAt;
 
+    public function __construct(User $user, Comment $comment)
+    {
+        $this->user = $user;
+        $this->comment = $comment;
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
+    }
+
     public function getId(): ?int
     {
         return $this->id;

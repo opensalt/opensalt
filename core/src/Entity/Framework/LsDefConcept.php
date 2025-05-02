@@ -9,8 +9,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: LsDefConceptRepository::class)]
 class LsDefConcept extends AbstractLsBase implements CaseApiInterface
 {
-    #[ORM\Column(name: 'title', type: 'string', length: 1024, nullable: true)]
-    protected ?string $title = null;
+    #[ORM\Column(name: 'title', type: 'string', length: 1024)]
+    protected string $title;
 
     #[ORM\Column(name: 'description', type: 'text', nullable: true)]
     protected ?string $description = null;
@@ -21,14 +21,19 @@ class LsDefConcept extends AbstractLsBase implements CaseApiInterface
     #[ORM\Column(name: 'keywords', type: 'text', nullable: true)]
     private ?string $keywords = null;
 
-    public function setTitle(?string $title): static
+    public function __construct(?string $identifier = null)
+    {
+        parent::__construct($identifier);
+    }
+
+    public function setTitle(string $title): static
     {
         $this->title = $title;
 
         return $this;
     }
 
-    public function getTitle(): ?string
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -70,6 +75,6 @@ class LsDefConcept extends AbstractLsBase implements CaseApiInterface
      */
     public function __toString(): string
     {
-        return $this->getTitle() ?? ('Concept: '.$this->getIdentifier());
+        return $this->getTitle();
     }
 }

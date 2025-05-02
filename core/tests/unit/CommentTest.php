@@ -19,13 +19,11 @@ class CommentTest extends \Codeception\Test\Unit
         $this->tester->ensureUserExistsWithRole('Editor');
         $user = $this->tester->getLastUser();
         $em = $this->getModule('Doctrine')->em;
-        $comment = new Comment();
+        $comment = new Comment($user, 'unit test comment');
         $itemId = $this->addLsItem();
         $item = $em->getRepository(LsItem::class)->find($itemId);
 
-        $comment->setContent('unit test comment');
         $comment->setParent(null);
-        $comment->setUser($user);
         $comment->setItem($item);
 
         $em->persist($comment);
@@ -75,9 +73,7 @@ class CommentTest extends \Codeception\Test\Unit
 
         $user = $this->tester->getLastUser();
 
-        $commentUpvote = new CommentUpvote();
-        $commentUpvote->setComment($comment);
-        $commentUpvote->setUser($user);
+        $commentUpvote = new CommentUpvote($user, $comment);
         $em->persist($commentUpvote);
         $em->flush();
 
@@ -141,11 +137,7 @@ class CommentTest extends \Codeception\Test\Unit
         $this->tester->ensureUserExistsWithRole('Editor');
         $user = $this->tester->getLastUser();
         $em = $this->getModule('Doctrine')->em;
-        $comment = new Comment();
-        $itemId = $this->addLsItem();
-        $item = $em->getRepository(LsItem::class)->find($itemId);
-        $comment->setItem($item);
-        $comment->setContent("Lorem Ipsum is simply dummy text of the printing and
+        $comment = new Comment($user, "Lorem Ipsum is simply dummy text of the printing and
             typesetting industry. Lorem Ipsum has been the industry's standard dummy
             text ever since the 1500s, when an unknown printer took a galley of type
             and scrambled it to make a type specimen book. It has survived not only
@@ -154,8 +146,10 @@ class CommentTest extends \Codeception\Test\Unit
             release of Letraset sheets containing Lorem Ipsum passages, and more recently
             with desktop publishing software like Aldus PageMaker including versions of
             Lorem Ipsum.");
+        $itemId = $this->addLsItem();
+        $item = $em->getRepository(LsItem::class)->find($itemId);
+        $comment->setItem($item);
         $comment->setParent(null);
-        $comment->setUser($user);
 
         $em->persist($comment);
         $em->flush();

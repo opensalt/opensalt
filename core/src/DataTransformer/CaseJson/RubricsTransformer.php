@@ -117,8 +117,7 @@ class RubricsTransformer
             return $criterion;
         }
 
-        $criterion = new CfRubricCriterion($cfCriterion->identifier->toString());
-        $criterion->setRubric($rubric);
+        $criterion = new CfRubricCriterion($rubric, $cfCriterion->identifier->toString());
         $this->em->persist($criterion);
 
         return $criterion;
@@ -187,8 +186,7 @@ class RubricsTransformer
             return $level;
         }
 
-        $level = new CfRubricCriterionLevel($cfCriterionLevel->identifier->toString());
-        $level->setCriterion($criterion);
+        $level = new CfRubricCriterionLevel($criterion, $cfCriterionLevel->identifier->toString());
         $this->em->persist($level);
 
         return $level;

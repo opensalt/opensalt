@@ -24,6 +24,8 @@ parameters:
 		- './vendor/autoload.php'
 	level: 6
 	reportUnmatchedIgnoredErrors: false
+	#checkUninitializedProperties: true
+	checkDynamicProperties: true
 	paths:
 		- './src'
 		- './migrations'

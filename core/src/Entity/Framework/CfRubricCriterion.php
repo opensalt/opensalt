@@ -39,9 +39,10 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
     #[ORM\OneToMany(mappedBy: 'criterion', targetEntity: CfRubricCriterionLevel::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $levels;
 
-    public function __construct(UuidInterface|string|null $identifier = null)
+    public function __construct(CfRubric $rubric, ?string $identifier = null)
     {
         parent::__construct($identifier);
+        $this->rubric = $rubric;
         $this->levels = new ArrayCollection();
     }
 

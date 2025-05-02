@@ -27,7 +27,7 @@ class AssociationSubtype
     #[ORM\Column(type: 'string', length: 255)]
     #[Assert\NotBlank]
     #[Assert\NotNull]
-    #[Assert\Choice(['Is Child Of', 'Exact Match Of', 'Is Related To', 'Is Part Of', 'Replaced By', 'Precedes', 'Has Skill Level', 'Is Peer Of', 'Exemplar'])]
+    #[Assert\Choice(['Is Child Of', 'Exact Match Of', 'Is Related To', 'Is Part Of', 'Replaced By', 'Precedes', 'Has Skill Level', 'Is Peer Of', 'Exemplar', 'Is Translation Of'])]
     private string $parentType;
 
     #[ORM\Column(type: 'integer')]

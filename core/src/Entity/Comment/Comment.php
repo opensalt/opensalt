@@ -63,8 +63,10 @@ class Comment
 
     private bool $userHasUpvoted = false;
 
-    public function __construct()
+    public function __construct(User $user, string $content)
     {
+        $this->content = $content;
+        $this->user = $user;
         $this->upvotes = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = $this->createdAt;
