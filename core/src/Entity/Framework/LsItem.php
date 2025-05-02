@@ -2,7 +2,15 @@
 
 namespace App\Entity\Framework;
 
+use App\DTO\ItemType\AssessmentDto;
+use App\DTO\ItemType\CourseDto;
+use App\DTO\ItemType\CredentialDto;
+use App\DTO\ItemType\IdentifierDto;
+use App\DTO\ItemType\JobDto;
+use App\DTO\ItemType\OrganizationDto;
+use App\DTO\ItemType\PublicKeyDto;
 use App\Entity\LockableInterface;
+use App\Form\Type\LsItemType;
 use App\Repository\Framework\LsItemRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -26,7 +34,22 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         'assessment' => 3,
         'credential' => 4,
         'organization' => 5,
+        'identifier' => 6,
+        'public_key' => 7,
     ];
+
+    public const array DTO = [
+        0 => LsItem::class,
+        1 => JobDto::class,
+        2 => CourseDto::class,
+        3 => AssessmentDto::class,
+        4 => CredentialDto::class,
+        5 => OrganizationDto::class,
+        6 => IdentifierDto::class,
+        7 => PublicKeyDto::class,
+    ];
+
+    public const string ITEM_TYPE_FORM = LsItemType::class;
 
     public const string TYPE_KEY = 'salt:type';
 

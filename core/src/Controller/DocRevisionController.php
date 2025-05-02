@@ -26,6 +26,10 @@ class DocRevisionController extends AbstractController
 
         $response->setCallback(function () use ($doc, $limit, $offset) {
             $fd = fopen('php://output', 'wb+');
+            if (false === $fd) {
+                throw new \Exception('Could not open output stream');
+            }
+
             fwrite($fd, '{"data": [');
 
             $history = $this->entryRepository->getChangeEntriesForDoc($doc, $limit, $offset);
@@ -57,6 +61,9 @@ class DocRevisionController extends AbstractController
 
         $response->setCallback(function () use ($doc) {
             $fd = fopen('php://output', 'wb+');
+            if (false === $fd) {
+                throw new \Exception('Could not open output stream');
+            }
 
             fputcsv($fd, ['Date/Time (UTC timezone)', 'Description', 'Username']);
 

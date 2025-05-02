@@ -29,8 +29,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
-#[Route(path: '/ims/case/v1p0')]
-class CaseV1P0Controller extends AbstractController
+#[Route(path: '/ims/case/v1p1')]
+class CaseV1P1Controller extends AbstractController
 {
     use LoggerTrait;
 
@@ -41,7 +41,7 @@ class CaseV1P0Controller extends AbstractController
     ) {
     }
 
-    #[Route(path: '/CFDocuments.{_format}', name: 'api_v1p0_cfdocuments', defaults: ['_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFDocuments.{_format}', name: 'api_v1p1_cfdocuments', defaults: ['_format' => 'json'], methods: ['GET'])]
     public function getPublicCfDocuments(Request $request, LsDocRepository $docRepository): Response
     {
         $limit = (int) $request->query->get('limit', '100');
@@ -88,7 +88,7 @@ class CaseV1P0Controller extends AbstractController
             return $response;
         }
 
-        $groups = ['default', 'LsDoc', 'CASE-1.0'];
+        $groups = ['default', 'LsDoc', 'CASE-1.1'];
         if ('updatedAt' === $sort) {
             $groups[] = 'updatedAt';
         }
@@ -103,7 +103,7 @@ class CaseV1P0Controller extends AbstractController
         return $response;
     }
 
-    #[Route(path: '/CFPackages/{id}.{_format}', name: 'api_v1p0_cfpackage', defaults: ['_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFPackages/{id}.{_format}', name: 'api_v1p1_cfpackage', defaults: ['_format' => 'json'], methods: ['GET'])]
     public function getCfPackage(Request $request, #[MapEntity(expr: 'repository.findOneByIdentifier(id)')] LsDoc $obj): Response
     {
         $id = $obj->getIdentifier();
@@ -125,17 +125,17 @@ class CaseV1P0Controller extends AbstractController
 
         $response->setContent(
             $this->serializer->serialize($obj, 'json', [
-                'groups' => ['default', 'CfPackage', 'CASE-1.0'],
+                'groups' => ['default', 'CfPackage', 'CASE-1.1'],
                 'json_encode_options' => \JSON_UNESCAPED_SLASHES|\JSON_PRESERVE_ZERO_FRACTION,
-                'generate-package' => 'v1p0',
+                'generate-package' => 'v1p1',
             ])
         );
 
         return $response;
     }
 
-    #[Route(path: '/CFItemAssociations/{id}.{_format}', name: 'api_v1p0_cfitemassociations', defaults: ['_format' => 'json'], methods: ['GET'])]
-    #[Route(path: '/CFItems/{id}/associations.{_format}', name: 'api_v1p0_cfitemassociations2', defaults: ['_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFItemAssociations/{id}.{_format}', name: 'api_v1p1_cfitemassociations', defaults: ['_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFItems/{id}/associations.{_format}', name: 'api_v1p1_cfitemassociations2', defaults: ['_format' => 'json'], methods: ['GET'])]
     public function getCfItemAssociations(Request $request, #[MapEntity(expr: 'repository.findOneByIdentifier(id)')] LsItem $obj, LsAssociationRepository $associationRepository): Response
     {
         $item = $obj;
@@ -189,7 +189,7 @@ class CaseV1P0Controller extends AbstractController
                 'CFItem' => $item,
                 'CFAssociations' => $associations,
             ], 'json', [
-                'groups' => ['default', 'LsItem', 'LsAssociation', 'CASE-1.0'],
+                'groups' => ['default', 'LsItem', 'LsAssociation', 'CASE-1.1'],
                 'json_encode_options' => \JSON_UNESCAPED_SLASHES|\JSON_PRESERVE_ZERO_FRACTION,
             ])
         );
@@ -201,14 +201,14 @@ class CaseV1P0Controller extends AbstractController
     /**
      * @param class-string $class
      */
-    #[Route(path: '/CFAssociationGroupings/{id}.{_format}', name: 'api_v1p0_cfassociationgrouping', defaults: ['class' => LsDefAssociationGrouping::class, '_format' => 'json'], methods: ['GET'])]
-    #[Route(path: '/CFAssociations/{id}.{_format}', name: 'api_v1p0_cfassociation', defaults: ['class' => LsAssociation::class, '_format' => 'json'], methods: ['GET'])]
-    #[Route(path: '/CFDocuments/{id}.{_format}', name: 'api_v1p0_cfdocument', defaults: ['class' => LsDoc::class, '_format' => 'json'], methods: ['GET'])]
-    #[Route(path: '/CFItems/{id}.{_format}', name: 'api_v1p0_cfitem', defaults: ['class' => LsItem::class, '_format' => 'json'], methods: ['GET'])]
-    #[Route(path: '/CFLicenses/{id}.{_format}', name: 'api_v1p0_cflicense', defaults: ['class' => LsDefLicence::class, '_format' => 'json'], methods: ['GET'])]
-    #[Route(path: '/CFRubrics/{id}.{_format}', name: 'api_v1p0_cfrubric', defaults: ['class' => CfRubric::class, '_format' => 'json'], methods: ['GET'])]
-    #[Route(path: '/CFRubricCriteria/{id}.{_format}', name: 'api_v1p0_cfrubriccriterion', defaults: ['class' => CfRubricCriterion::class, '_format' => 'json'], methods: ['GET'])]
-    #[Route(path: '/CFRubricCriterionLevels/{id}.{_format}', name: 'api_v1p0_cfrubriccriterionlevel', defaults: ['class' => CfRubricCriterionLevel::class, '_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFAssociationGroupings/{id}.{_format}', name: 'api_v1p1_cfassociationgrouping', defaults: ['class' => LsDefAssociationGrouping::class, '_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFAssociations/{id}.{_format}', name: 'api_v1p1_cfassociation', defaults: ['class' => LsAssociation::class, '_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFDocuments/{id}.{_format}', name: 'api_v1p1_cfdocument', defaults: ['class' => LsDoc::class, '_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFItems/{id}.{_format}', name: 'api_v1p1_cfitem', defaults: ['class' => LsItem::class, '_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFLicenses/{id}.{_format}', name: 'api_v1p1_cflicense', defaults: ['class' => LsDefLicence::class, '_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFRubrics/{id}.{_format}', name: 'api_v1p1_cfrubric', defaults: ['class' => CfRubric::class, '_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFRubricCriteria/{id}.{_format}', name: 'api_v1p1_cfrubriccriterion', defaults: ['class' => CfRubricCriterion::class, '_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFRubricCriterionLevels/{id}.{_format}', name: 'api_v1p1_cfrubriccriterionlevel', defaults: ['class' => CfRubricCriterionLevel::class, '_format' => 'json'], methods: ['GET'])]
     public function getObject(Request $request, LsDocRepository $repo, string $class, string $id): Response
     {
         $obj = $repo->apiFindOneByClassIdentifier(['class' => $class, 'id' => $id]);
@@ -219,9 +219,9 @@ class CaseV1P0Controller extends AbstractController
     /**
      * @param class-string $class
      */
-    #[Route(path: '/CFConcepts/{id}.{_format}', name: 'api_v1p0_cfconcept', defaults: ['class' => LsDefConcept::class, '_format' => 'json'], methods: ['GET'])]
-    #[Route(path: '/CFItemTypes/{id}.{_format}', name: 'api_v1p0_cfitemtype', defaults: ['class' => LsDefItemType::class, '_format' => 'json'], methods: ['GET'])]
-    #[Route(path: '/CFSubjects/{id}.{_format}', name: 'api_v1p0_cfsubject', defaults: ['class' => LsDefSubject::class, '_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFConcepts/{id}.{_format}', name: 'api_v1p1_cfconcept', defaults: ['class' => LsDefConcept::class, '_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFItemTypes/{id}.{_format}', name: 'api_v1p1_cfitemtype', defaults: ['class' => LsDefItemType::class, '_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/CFSubjects/{id}.{_format}', name: 'api_v1p1_cfsubject', defaults: ['class' => LsDefSubject::class, '_format' => 'json'], methods: ['GET'])]
     public function getObjectCollection(Request $request, LsDocRepository $repo, string $class, string $id): Response
     {
         $obj = $repo->apiFindOneByClassIdentifier(['class' => $class, 'id' => $id]);
@@ -262,7 +262,7 @@ class CaseV1P0Controller extends AbstractController
         $className = substr(strrchr($obj::class, '\\') ?: '', 1);
         $response->setContent(
             $this->serializer->serialize($obj, 'json', [
-                'groups' => ['default', $className, 'CASE-1.0'],
+                'groups' => ['default', $className, 'CASE-1.1'],
                 'json_encode_options' => \JSON_UNESCAPED_SLASHES|\JSON_PRESERVE_ZERO_FRACTION,
             ])
         );
@@ -288,7 +288,7 @@ class CaseV1P0Controller extends AbstractController
         $className = substr(strrchr($obj::class, '\\') ?: '', 1);
         $response->setContent(
             $this->serializer->serialize([$collection => [$obj]], 'json', [
-                'groups' => ['default', $className, 'CASE-1.0'],
+                'groups' => ['default', $className, 'CASE-1.1'],
                 'json_encode_options' => \JSON_UNESCAPED_SLASHES|\JSON_PRESERVE_ZERO_FRACTION,
             ])
         );

@@ -22,6 +22,9 @@ class AddCommentHandler extends BaseCommentHandler
         $user = $command->getUser();
         $content = $command->getContent();
         $parentId = $command->getParentId();
+        if (0 === $parentId) {
+            $parentId = null;
+        }
         $fileUrl = $command->getFileUrl();
         $mimeType = $command->getMimeType();
 

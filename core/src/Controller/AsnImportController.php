@@ -22,7 +22,7 @@ class AsnImportController extends AbstractController
     #[Route(path: '/cf/asn/import', name: 'import_from_asn')]
     public function importAsn(Request $request, #[CurrentUser] User $user): JsonResponse
     {
-        $fileUrl = $request->request->get('fileUrl');
+        $fileUrl = $request->request->getString('fileUrl');
         $command = new ImportAsnFromUrlCommand($fileUrl, null, $user->getOrg());
 
         try {

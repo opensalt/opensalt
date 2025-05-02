@@ -159,6 +159,7 @@ class FrameworkService
         // set assocGroup if provided
         if (null !== $assocGroup) {
             $assocGroupRepo = $this->em->getRepository(LsDefAssociationGrouping::class);
+            /** @var ?LsDefAssociationGrouping $assocGroupObj */
             $assocGroupObj = $assocGroupRepo->findOneBy(['id' => $assocGroup]);
             $association->setGroup($assocGroupObj);
         }
@@ -192,6 +193,7 @@ class FrameworkService
         // set assocGroup if supplied; pass this in when necessary below
         $assocGroup = null;
         if (array_key_exists('assocGroup', $updates)) {
+            /** @var ?LsDefAssociationGrouping $assocGroup */
             $assocGroup = $assocGroupRepo->find($updates['assocGroup']);
         }
 
@@ -373,6 +375,7 @@ class FrameworkService
 
         // delete childOf association if specified
         if ('all' !== $updates['deleteChildOf']['assocId']) {
+            /** @var ?LsAssociation $assoc */
             $assoc = $assocRepo->find($updates['deleteChildOf']['assocId']);
             if (null === $assoc) {
                 return;
@@ -394,7 +397,6 @@ class FrameworkService
                 $rv['changes']['assoc-d'] = [];
             }
             foreach ($deleted as $assoc) {
-                /** @var LsAssociation $assoc */
                 $rv['changes']['assoc-d'][$assoc->getId()] = $assoc->getIdentifier();
             }
         }
@@ -408,6 +410,7 @@ class FrameworkService
         $assocRepo = $this->em->getRepository(LsAssociation::class);
 
         // update childOf association if specified
+        /** @var ?LsAssociation $assoc */
         $assoc = $assocRepo->find($updates['updateChildOf']['assocId']);
         if (null === $assoc) {
             return;
@@ -439,9 +442,11 @@ class FrameworkService
         // parent could be a doc or item
         if ('item' === $updates['newChildOf']['parentType']) {
             $lsItemRepo = $this->em->getRepository(LsItem::class);
+            /** @var LsItem $parentItem */
             $parentItem = $lsItemRepo->find($updates['newChildOf']['parentId']);
         } else {
             $docRepo = $this->em->getRepository(LsDoc::class);
+            /** @var LsDoc $parentItem */
             $parentItem = $docRepo->find($updates['newChildOf']['parentId']);
         }
 

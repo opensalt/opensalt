@@ -11,10 +11,14 @@ class Version20160921225507 extends AbstractMigration
         $filename = __DIR__.'/../../src/DataFixtures/Data/USGrades.csv';
 
         $fd = fopen($filename, 'rb');
+        if (false === $fd) {
+            return;
+        }
 
         $keys = fgetcsv($fd, 0, ',');
 
-        while (FALSE !== ($rec = fgetcsv($fd, 0, ','))) {
+        while (false !== ($rec = fgetcsv($fd, 0, ','))) {
+            // @phpstan-ignore argument.type
             $level = array_combine($keys, $rec);
 
             $this->addSql('

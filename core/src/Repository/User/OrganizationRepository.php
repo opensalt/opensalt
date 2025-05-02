@@ -8,6 +8,7 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method Organization|null findOneByName(string $orgName)
+ * @method Organization[] findAll()
  */
 class OrganizationRepository extends ServiceEntityRepository
 {

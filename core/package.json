@@ -29,6 +29,7 @@
     "datatables.net-select": "^2.1.0",
     "datatables.net-select-bs5": "^2.1.0",
     "datatables.net-select-dt": "^2.1.0",
+    "esbuild": ">=0.25.0",
     "github-markdown-css": "^5.8.1",
     "html5-boilerplate": "9.0.1",
     "inline-attachment": "^2.0.3",
@@ -67,8 +68,6 @@
     "vite-plugin-symfony": "^8",
     "vue": "^3.0"
   },
-  "resolutions": {
-    "esbuild": ">=0.25.0"
-  },
+  "resolutions": {},
   "peerDependencies": {}
 }

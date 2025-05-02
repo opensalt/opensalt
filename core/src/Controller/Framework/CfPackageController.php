@@ -73,7 +73,7 @@ class CfPackageController extends AbstractController
         $response->setLastModified($lastModified);
         $response->setMaxAge(0);
         $response->setSharedMaxAge(0);
-        $response->setExpires(\DateTime::createFromFormat('U', $lastModified->format('U'))->sub(new \DateInterval('PT1S')));
+        $response->setExpires(\DateTime::createFromFormat('U', $lastModified->format('U'))->sub(new \DateInterval('PT1S'))); // @phpstan-ignore method.nonObject
         $response->setPublic();
         $response->headers->addCacheControlDirective('must-revalidate');
 

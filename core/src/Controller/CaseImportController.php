@@ -26,7 +26,7 @@ class CaseImportController extends AbstractController
     #[IsGranted(Permission::FRAMEWORK_CREATE)]
     public function import(Request $request, #[CurrentUser] User $user): JsonResponse
     {
-        $content = base64_decode($request->request->get('fileContent'));
+        $content = base64_decode($request->request->getString('fileContent'));
 
         $command = new ImportCaseJsonCommand($content, $user->getOrg(), $user);
         $this->sendCommand($command);

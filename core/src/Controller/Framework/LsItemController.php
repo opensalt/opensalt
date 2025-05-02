@@ -10,12 +10,7 @@ use App\Command\Framework\DeleteItemCommand;
 use App\Command\Framework\LockItemCommand;
 use App\Command\Framework\RemoveChildCommand;
 use App\Command\Framework\UpdateItemCommand;
-use App\DTO\ItemType\AssessmentDto;
-use App\DTO\ItemType\CourseDto;
-use App\DTO\ItemType\CredentialDto;
 use App\DTO\ItemType\ItemTypeInterface;
-use App\DTO\ItemType\JobDto;
-use App\DTO\ItemType\OrganizationDto;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Entity\Framework\LsDoc;
@@ -26,7 +21,6 @@ use App\Form\Command\ChangeLsItemParentCommand;
 use App\Form\Command\CopyToLsDocCommand;
 use App\Form\Type\LsDocListType;
 use App\Form\Type\LsItemParentType;
-use App\Form\Type\LsItemType;
 use App\Security\Permission;
 use App\Service\BucketService;
 use Doctrine\Persistence\ManagerRegistry;
@@ -374,42 +368,19 @@ class LsItemController extends AbstractController
 
     private function getNewItemForm(?string $itemType, LsItem $lsItem, Request $request): FormInterface
     {
-        $args = [];
-        switch ($itemType) {
-            case 'job':
-                $itemDto = JobDto::fromItem($lsItem);
-                $formType = $itemDto::ITEM_TYPE_FORM;
-                break;
+        $itemTypeIdentifier = LsItem::TYPES[$itemType] ?? 0;
+        $dtoClass = LsItem::DTO[$itemTypeIdentifier];
 
-            case 'course':
-                $itemDto = CourseDto::fromItem($lsItem);
-                $formType = $itemDto::ITEM_TYPE_FORM;
-                break;
+        $itemDto = match ($dtoClass) {
+            LsItem::class => $lsItem,
+            default => $dtoClass::fromItem($lsItem),
+        };
+        $formType = $itemDto::ITEM_TYPE_FORM;
 
-            case 'assessment':
-                $itemDto = AssessmentDto::fromItem($lsItem);
-                $formType = $itemDto::ITEM_TYPE_FORM;
-                break;
-
-            case 'credential':
-                $itemDto = CredentialDto::fromItem($lsItem);
-                $formType = $itemDto::ITEM_TYPE_FORM;
-                break;
-
-            case 'organization':
-                $itemDto = OrganizationDto::fromItem($lsItem);
-                $formType = $itemDto::ITEM_TYPE_FORM;
-                break;
-
-            default:
-                $itemDto = $lsItem;
-                $args = [
-                    'ajax' => $request->isXmlHttpRequest(),
-                ];
-                $formType = LsItemType::class;
-                break;
-        }
-
+        $args = match ($dtoClass) {
+            LsItem::class => ['ajax' => $request->isXmlHttpRequest()],
+            default => [],
+        };
         $form = $this->createForm($formType, $itemDto, $args);
 
         $form->handleRequest($request);
@@ -425,41 +396,18 @@ class LsItemController extends AbstractController
     private function getEditItemForm(LsItem $lsItem, Request $request): FormInterface
     {
         $itemTypeIdentifier = $lsItem->getDiscriminator();
+        $dtoClass = LsItem::DTO[$itemTypeIdentifier] ?? LsItem::class;
 
-        $args = [];
-        switch ($itemTypeIdentifier) {
-            case LsItem::TYPES['job']:
-                $itemDto = JobDto::fromItem($lsItem);
-                $formType = $itemDto::ITEM_TYPE_FORM;
-                break;
+        $itemDto = match ($dtoClass) {
+            LsItem::class => $lsItem,
+            default => $dtoClass::fromItem($lsItem),
+        };
+        $formType = $itemDto::ITEM_TYPE_FORM;
 
-            case LsItem::TYPES['course']:
-                $itemDto = CourseDto::fromItem($lsItem);
-                $formType = $itemDto::ITEM_TYPE_FORM;
-                break;
-
-            case LsItem::TYPES['assessment']:
-                $itemDto = AssessmentDto::fromItem($lsItem);
-                $formType = $itemDto::ITEM_TYPE_FORM;
-                break;
-
-            case LsItem::TYPES['credential']:
-                $itemDto = CredentialDto::fromItem($lsItem);
-                $formType = $itemDto::ITEM_TYPE_FORM;
-                break;
-
-            case LsItem::TYPES['organization']:
-                $itemDto = OrganizationDto::fromItem($lsItem);
-                $formType = $itemDto::ITEM_TYPE_FORM;
-                break;
-
-            default:
-                $args = ['ajax' => $request->isXmlHttpRequest()];
-                $itemDto = $lsItem;
-                $formType = LsItemType::class;
-                break;
-        }
-
+        $args = match ($dtoClass) {
+            LsItem::class => ['ajax' => $request->isXmlHttpRequest()],
+            default => [],
+        };
         $form = $this->createForm($formType, $itemDto, $args);
 
         $form->handleRequest($request);

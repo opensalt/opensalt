@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form\Type;
+namespace App\Form\Type\ItemType;
 
 use App\DTO\ItemType\CredentialDto;
 use Symfony\Component\Form\AbstractType;
@@ -11,7 +11,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * @extends AbstractType<CredentialDto>
  */
-class LsItemCredentialType extends AbstractType
+class CredentialType extends AbstractType
 {
     public function __construct()
     {

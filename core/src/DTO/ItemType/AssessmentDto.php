@@ -3,14 +3,14 @@
 namespace App\DTO\ItemType;
 
 use App\Entity\Framework\LsItem;
-use App\Form\Type\LsItemAssessmentType;
+use App\Form\Type\ItemType\AssessmentType;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class AssessmentDto implements ItemTypeInterface
 {
     public const int ITEM_TYPE_IDENTIFIER = LsItem::TYPES['assessment'];
-    public const string ITEM_TYPE_FORM = LsItemAssessmentType::class;
+    public const string ITEM_TYPE_FORM = AssessmentType::class;
     public const string WEBPAGE_KEY = 'ceterms:subjectWebpage';
     public const string DELIVERY_TYPE_KEY = 'ceterms:deliveryType';
 

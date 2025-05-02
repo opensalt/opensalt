@@ -43,7 +43,7 @@ class CaseImport
 
     private function validate(string $content): void
     {
-        $schema = Schema::import(json5_decode(file_get_contents(__DIR__.'/../../config/schema/case-v1p1-cfpackage-schema.json')));
+        $schema = Schema::import(json5_decode(file_get_contents(__DIR__.'/../../config/schema/case-v1p1-cfpackage-schema.json') ?: ''));
         $schema->in(json5_decode($content));
         $schema = null;
     }

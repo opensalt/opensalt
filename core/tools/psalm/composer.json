@@ -3,5 +3,9 @@
         "vimeo/psalm": "^6.0",
         "psalm/plugin-symfony": "^5.0",
         "weirdan/doctrine-psalm-plugin": "^2.9"
+    },
+    "replace": {
+        "symfony/polyfill-php83": "*",
+        "symfony/polyfill-php84": "*"
     }
 }

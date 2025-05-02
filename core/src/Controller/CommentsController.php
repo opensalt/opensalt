@@ -12,6 +12,7 @@ use App\Entity\Comment\Comment;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Entity\User\User;
+use App\Repository\Framework\LsItemRepository;
 use App\Security\Permission;
 use App\Service\BucketService;
 use Doctrine\Common\Collections\Collection;
@@ -76,7 +77,7 @@ class CommentsController extends AbstractController
     #[IsGranted(Permission::COMMENT_UPDATE, 'comment')]
     public function update(Request $request, Comment $comment): JsonResponse
     {
-        $command = new UpdateCommentCommand($comment, $request->request->get('content'));
+        $command = new UpdateCommentCommand($comment, $request->request->getString('content'));
         $this->sendCommand($command);
 
         return $this->apiResponse($comment);
@@ -124,6 +125,9 @@ class CommentsController extends AbstractController
         $response->setCallback(function () use ($itemType, $itemId) {
             $childIds = [];
             $handle = fopen('php://output', 'wb+');
+            if (false === $handle) {
+                throw new \Exception('Unable to open output.');
+            }
             $repo = $this->managerRegistry->getManager()->getRepository(Comment::class);
             $lsItemRepo = $this->managerRegistry->getManager()->getRepository(LsItem::class);
             $headers = ['Framework Name', 'Node Address', 'HumanCodingScheme', 'User', 'Organization', 'Comment', 'Attachment Url', 'Created Date', 'Updated Date'];
@@ -144,9 +148,10 @@ class CommentsController extends AbstractController
                     break;
 
                 case 'item':
+                    /** @var ?LsItem $lsItem */
                     $lsItem = $lsItemRepo->find($itemId);
 
-                    if (!is_null($lsItem)) {
+                    if (null !== $lsItem) {
                         $childIds = $lsItem->getDescendantIds();
                         $childIds[] = $itemId;
                     }
@@ -212,8 +217,8 @@ class CommentsController extends AbstractController
             return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
         }
 
-        $parentId = $request->request->get('parent');
-        $content = $request->request->get('content');
+        $parentId = $request->request->getInt('parent');
+        $content = $request->request->getString('content');
         $fileUrl = null;
         $fileMimeType = null;
 
@@ -226,7 +231,7 @@ class CommentsController extends AbstractController
             }
         }
 
-        $command = new AddCommentCommand($itemType, $item, $user, $content, $fileUrl, $fileMimeType, (int) $parentId);
+        $command = new AddCommentCommand($itemType, $item, $user, $content, $fileUrl, $fileMimeType, $parentId);
         $this->sendCommand($command);
 
         $comment = $command->getComment();

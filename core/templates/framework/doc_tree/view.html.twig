@@ -193,6 +193,10 @@
                                                         <li><a class="dropdown-item" data-bs-toggle="modal" href="#addNewChildModal" data-item-type="credential" data-alt-document-disabled="true">Add credential</a></li>
                                                         <li><a class="dropdown-item" data-bs-toggle="modal" href="#addNewChildModal" data-item-type="job" data-alt-document-disabled="true">Add job</a></li>
                                                         <li><a class="dropdown-item" data-bs-toggle="modal" href="#addNewChildModal" data-item-type="organization" data-alt-document-disabled="true">Add organization</a></li>
+                                                        {% if is_granted('ROLE_SUPER_USER') %}
+                                                            <li><a class="dropdown-item" data-bs-toggle="modal" href="#addNewChildModal" data-item-type="identifier" data-alt-document-disabled="true">Add identifier</a></li>
+                                                            <li><a class="dropdown-item" data-bs-toggle="modal" href="#addNewChildModal" data-item-type="public_key" data-alt-document-disabled="true">Add public key</a></li>
+                                                        {% endif %}
                                                     </ul>
                                                 </div>
                                             {% endif %}
@@ -242,6 +246,10 @@
                                                         <li><a class="dropdown-item" data-bs-toggle="modal" href="#addNewChildModal" data-item-type="credential" data-alt-document-disabled="true">Add credential</a></li>
                                                         <li><a class="dropdown-item" data-bs-toggle="modal" href="#addNewChildModal" data-item-type="job" data-alt-document-disabled="true">Add job</a></li>
                                                         <li><a class="dropdown-item" data-bs-toggle="modal" href="#addNewChildModal" data-item-type="organization" data-alt-document-disabled="true">Add organization</a></li>
+                                                        {% if is_granted('ROLE_SUPER_USER') %}
+                                                            <li><a class="dropdown-item" data-bs-toggle="modal" href="#addNewChildModal" data-item-type="identifier" data-alt-document-disabled="true">Add identifier</a></li>
+                                                            <li><a class="dropdown-item" data-bs-toggle="modal" href="#addNewChildModal" data-item-type="public_key" data-alt-document-disabled="true">Add public key</a></li>
+                                                        {% endif %}
                                                     </ul>
                                                 </div>
                                                 <button type="button" class="btn btn-default btn-sm" data-bs-toggle="modal" data-bs-target="#addChildrenModal" data-alt-document-disabled="true">

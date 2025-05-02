@@ -135,7 +135,7 @@ class UriController extends AbstractController
             }
         }
 
-        $className = $isPackage ? 'CFPackage' : substr(strrchr($obj::class, '\\'), 1);
+        $className = $isPackage ? 'CFPackage' : substr(strrchr($obj::class, '\\') ?: '', 1);
         $groups = ['default', 'CASE-1.1', $className];
         if ('opensalt' === $request->getRequestFormat()) {
             $groups[] = 'opensalt';
@@ -534,6 +534,7 @@ xENDx;
                 $this->stopwatch->start('fetchAssociations');
                 $cnt = 0;
                 $last = 0;
+                /** @var iterable<LsAssociation> $items */
                 $items = $this->docRepository->findAllAssociationsIterator($obj, Query::HYDRATE_OBJECT, $start, $limit);
                 foreach ($items as $key => $item) {
                     $this->entityManager->detach($item);

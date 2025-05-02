@@ -32,6 +32,12 @@ class ImportCaseJsonCommand extends BaseDoctrineCommand
 
         $fileContent = file_get_contents($filename);
 
+        if (false === $fileContent) {
+            $output->writeln('File not found.');
+
+            return Command::FAILURE;
+        }
+
         $org = $this->em->getRepository(Organization::class)->findOneByName('PCG');
 
         $command = new \App\Command\Import\ImportCaseJsonCommand($fileContent, $org);
@@ -40,6 +46,6 @@ class ImportCaseJsonCommand extends BaseDoctrineCommand
 
         $output->writeln('Done.');
 
-        return (int) Command::SUCCESS;
+        return Command::SUCCESS;
     }
 }

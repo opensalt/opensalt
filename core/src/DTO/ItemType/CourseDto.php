@@ -3,14 +3,14 @@
 namespace App\DTO\ItemType;
 
 use App\Entity\Framework\LsItem;
-use App\Form\Type\LsItemCourseType;
+use App\Form\Type\ItemType\CourseType;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class CourseDto implements ItemTypeInterface
 {
     public const int ITEM_TYPE_IDENTIFIER = LsItem::TYPES['course'];
-    public const string ITEM_TYPE_FORM = LsItemCourseType::class;
+    public const string ITEM_TYPE_FORM = CourseType::class;
     public const string WEBPAGE_KEY = 'ceterms:subjectWebpage';
     public const string DELIVERY_TYPE_KEY = 'ceterms:deliveryType';
 

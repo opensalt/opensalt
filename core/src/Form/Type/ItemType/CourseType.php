@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Form\Type;
+namespace App\Form\Type\ItemType;
 
-use App\DTO\ItemType\AssessmentDto;
+use App\DTO\ItemType\CourseDto;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\LanguageType;
@@ -13,9 +13,9 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * @extends AbstractType<AssessmentDto>
+ * @extends AbstractType<CourseDto>
  */
-class LsItemAssessmentType extends AbstractType
+class CourseType extends AbstractType
 {
     public function __construct()
     {
@@ -27,10 +27,27 @@ class LsItemAssessmentType extends AbstractType
         $builder
             ->add('name', TextType::class, [
                 'label' => 'Name',
+                'help' => 'Name or title of the course.',
             ])
             ->add('description', TextareaType::class, [
                 'label' => 'Description',
+                'help' => 'Description of this course.',
                 'sanitize_html' => true,
+            ])
+            ->add('webpage', UrlType::class, [
+                'label' => 'Webpage',
+                'required' => false,
+                'help' => 'Webpage that describes this course.',
+            ])
+            ->add('codedNotation', TextType::class, [
+                'label' => 'Coded Notation',
+                'required' => false,
+                'help' => 'Identifier for this course, eg. ENG101',
+            ])
+            ->add('inLanguage', LanguageType::class, [
+                'required' => false,
+                'preferred_choices' => ['en', 'es', 'fr'],
+                'help' => 'Language used to teach this course',
             ])
             ->add('deliveryType', ChoiceType::class, [
                 'label' => 'Delivery Type',
@@ -41,21 +58,6 @@ class LsItemAssessmentType extends AbstractType
                     'Hybrid' => 'hybrid',
                 ],
                 'help' => 'The method of delivering this course',
-            ])
-            ->add('inLanguage', LanguageType::class, [
-                'required' => false,
-                'preferred_choices' => ['en', 'es', 'fr'],
-                'help' => 'Language used to teach this course',
-            ])
-            ->add('keywords', TextType::class, [
-                'label' => 'Keywords',
-                'required' => false,
-                'help' => 'Separate keywords with a comma (,)',
-            ])
-            ->add('webpage', UrlType::class, [
-                'label' => 'Webpage',
-                'required' => false,
-                'help' => 'Webpage that describes this job',
             ])
         ;
     }
@@ -70,7 +72,7 @@ class LsItemAssessmentType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => AssessmentDto::class,
+            'data_class' => CourseDto::class,
         ]);
     }
 }

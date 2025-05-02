@@ -7,6 +7,8 @@ use App\Console\BaseDoctrineCommand;
 use App\Entity\User\Organization;
 use App\Entity\User\User;
 use App\Event\CommandEvent;
+use App\Repository\User\OrganizationRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
@@ -16,10 +18,16 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 #[AsCommand('salt:user:add', 'Add a local user')]
 class UserAddCommand extends BaseDoctrineCommand
 {
+    public function __construct(EventDispatcherInterface $dispatcher, EntityManagerInterface $em, private readonly OrganizationRepository $organizationRepository)
+    {
+        parent::__construct($dispatcher, $em);
+    }
+
     #[\Override]
     protected function configure(): void
     {
@@ -41,7 +49,7 @@ class UserAddCommand extends BaseDoctrineCommand
 
         $em = $this->em;
         if (empty($input->getArgument('org'))) {
-            $orgObjs = $em->getRepository(Organization::class)->findAll();
+            $orgObjs = $this->organizationRepository->findAll();
             $orgs = [];
             foreach ($orgObjs as $org) {
                 $orgs[] = $org->getName();
@@ -94,7 +102,9 @@ class UserAddCommand extends BaseDoctrineCommand
         if (empty($input->getOption('role'))) {
             $roleList = [];
             foreach (User::getUserRoles() as $role) {
-                $roleList[] = strtolower(preg_replace('/[^A-Z]/', ' ', str_replace('ROLE_', '', $role)));
+                /** @var string $roleName */
+                $roleName = str_replace('ROLE_', '', $role);
+                $roleList[] = strtolower(preg_replace('/[^A-Z]/', ' ', $roleName));
             }
             $question = new ChoiceQuestion('Role to give the new user: ', $roleList, 0);
             $role = $helper->ask($input, $output, $question);

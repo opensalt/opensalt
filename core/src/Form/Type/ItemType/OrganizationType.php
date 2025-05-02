@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form\Type;
+namespace App\Form\Type\ItemType;
 
 use App\DTO\ItemType\OrganizationDto;
 use Symfony\Component\Form\AbstractType;
@@ -14,7 +14,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * @extends AbstractType<OrganizationDto>
  */
-class LsItemOrganizationType extends AbstractType
+class OrganizationType extends AbstractType
 {
     public function __construct()
     {
