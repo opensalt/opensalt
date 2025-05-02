@@ -6,7 +6,6 @@ use App\Repository\Framework\CfRubricCriterionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\UuidInterface;
 
 #[ORM\MappedSuperclass]
 #[ORM\Table(name: 'rubric_criterion')]
