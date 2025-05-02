@@ -33,6 +33,10 @@ class SystemLogController extends AbstractController
 
         $response->setCallback(function () use ($limit, $offset) {
             $fd = fopen('php://output', 'wb+');
+            if (false === $fd) {
+                throw new \RuntimeException('Unable to open output stream');
+            }
+
             fwrite($fd, '{"data": [');
 
             $history = $this->entryRepository->getChangeEntriesForSystem($limit, $offset);
@@ -71,6 +75,9 @@ class SystemLogController extends AbstractController
 
         $response->setCallback(function () {
             $fd = fopen('php://output', 'wb+');
+            if (false === $fd) {
+                throw new \RuntimeException('Unable to open output stream');
+            }
 
             fputcsv($fd, ['Date/Time (UTC timezone)', 'Description', 'Username']);
 

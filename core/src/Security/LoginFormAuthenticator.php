@@ -48,12 +48,12 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
     #[\Override]
     public function authenticate(Request $request): Passport
     {
-        $username = $request->request->get('_username');
-        $password = $request->request->get('_password');
-        $csrfToken = $request->request->get('_csrf_token');
-        $targetPath = $request->request->get('_target_path');
+        $username = $request->request->getString('_username');
+        $password = $request->request->getString('_password');
+        $csrfToken = $request->request->getString('_csrf_token');
+        $targetPath = $request->request->getString('_target_path');
 
-        if (null !== $targetPath) {
+        if ('' !== $targetPath) {
             $this->saveTargetPath($request->getSession(), 'main', $targetPath);
         }
 

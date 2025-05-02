@@ -71,6 +71,7 @@ final class CfPackageNormalizer implements NormalizerAwareInterface, NormalizerI
             unset($items[$key]);
         }
 
+        /** @var iterable<LsAssociation> $items */
         $items = $this->docRepository->findAllAssociationsIterator($data, Query::HYDRATE_OBJECT);
         foreach ($items as $key => $obj) {
             $this->entityManager->detach($obj);

@@ -28,6 +28,7 @@ use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -85,6 +86,7 @@ class LsItemController extends AbstractController
                 $this->sendCommand($command);
 
                 // retrieve isChildOf assoc id for the new item
+                /** @var ?LsAssociation $assoc */
                 $assoc = $this->managerRegistry->getRepository(LsAssociation::class)->findOneBy(['originLsItem' => $lsItem, 'type' => LsAssociation::CHILD_OF]);
 
                 if ($ajax) {
@@ -375,6 +377,7 @@ class LsItemController extends AbstractController
             LsItem::class => $lsItem,
             default => $dtoClass::fromItem($lsItem),
         };
+        /** @var class-string<FormTypeInterface> $formType */
         $formType = $itemDto::ITEM_TYPE_FORM;
 
         $args = match ($dtoClass) {
@@ -402,6 +405,7 @@ class LsItemController extends AbstractController
             LsItem::class => $lsItem,
             default => $dtoClass::fromItem($lsItem),
         };
+        /** @var class-string<FormTypeInterface> $formType */
         $formType = $itemDto::ITEM_TYPE_FORM;
 
         $args = match ($dtoClass) {

@@ -158,10 +158,10 @@ class LsDocController extends AbstractController
     public function update(Request $request, LsDoc $lsDoc): Response
     {
         $response = new JsonResponse();
-        $fileContent = $request->request->get('content');
+        $fileContent = $request->request->getString('content');
         /** @var array $cfItemKeys - cfItemKeys is an array argument */
         $cfItemKeys = $request->request->all('cfItemKeys');
-        $frameworkToAssociate = $request->request->get('frameworkToAssociate');
+        $frameworkToAssociate = $request->request->getString('frameworkToAssociate');
 
         $command = new UpdateFrameworkCommand($lsDoc, base64_decode($fileContent), $frameworkToAssociate, $cfItemKeys);
         $this->sendCommand($command);
@@ -178,8 +178,8 @@ class LsDocController extends AbstractController
     #[IsGranted(Permission::FRAMEWORK_CREATE)]
     public function derive(Request $request, LsDoc $lsDoc): Response
     {
-        $fileContent = $request->request->get('content');
-        $frameworkToAssociate = $request->request->get('frameworkToAssociate');
+        $fileContent = $request->request->getString('content');
+        $frameworkToAssociate = $request->request->getString('frameworkToAssociate');
 
         $command = new DeriveDocumentCommand($lsDoc, base64_decode($fileContent), $frameworkToAssociate);
         $this->sendCommand($command);
@@ -261,7 +261,7 @@ class LsDocController extends AbstractController
     public function delete(Request $request, LsDoc $lsDoc): Response
     {
         if ($request->isXmlHttpRequest()) {
-            $token = $request->request->get('token');
+            $token = $request->request->getString('token');
             if ($this->isCsrfTokenValid('DELETE '.$lsDoc->getId(), $token)) {
                 try {
                     $this->deleteFramework($lsDoc);

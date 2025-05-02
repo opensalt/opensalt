@@ -3,8 +3,14 @@
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\CaseApiInterface;
+use App\Entity\Framework\CfRubric;
 use App\Entity\Framework\LsAssociation;
+use App\Entity\Framework\LsDefAssociationGrouping;
+use App\Entity\Framework\LsDefConcept;
+use App\Entity\Framework\LsDefItemType;
+use App\Entity\Framework\LsDefLicence;
 use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\LsItem;
 use App\Util\Compare;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Driver\Exception;
@@ -128,7 +134,7 @@ class LsDocRepository extends ServiceEntityRepository
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT i, t, a, g, adi, add
-            FROM App\Entity\Framework\LsItem i INDEX BY i.id
+            FROM '.LsItem::class.' i INDEX BY i.id
             LEFT JOIN i.itemType t
             LEFT JOIN i.associations a WITH a.lsDoc = :lsDocId AND a.type = :childOfType
             LEFT JOIN a.group g
@@ -212,7 +218,7 @@ class LsDocRepository extends ServiceEntityRepository
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT i.id
-            FROM App\Entity\Framework\LsItem i INDEX by i.id
+            FROM '.LsItem::class.' i INDEX by i.id
             JOIN i.associations a WITH a.lsDoc = :lsDocId AND a.type = :childOfType
             LEFT JOIN a.destinationLsItem p WITH p.lsDoc = :lsDocId
             LEFT JOIN a.destinationLsDoc pd WITH pd.id = :lsDocId
@@ -234,7 +240,7 @@ class LsDocRepository extends ServiceEntityRepository
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT i, a, add
-            FROM App\Entity\Framework\LsItem i INDEX BY i.id
+            FROM '.LsItem::class.' i INDEX BY i.id
             JOIN i.associations a WITH a.lsDoc = :lsDocId AND a.type = :childOfType
             JOIN a.destinationLsDoc add WITH add.id = :lsDocId
             WHERE i.lsDoc = :lsDocId
@@ -488,7 +494,7 @@ xENDx;
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT i, t, a, adi, add, c
-            FROM App\Entity\Framework\LsItem i INDEX BY i.id
+            FROM '.LsItem::class.' i INDEX BY i.id
             LEFT JOIN i.itemType t
             LEFT JOIN i.concepts c
             LEFT JOIN i.associations a WITH a.lsDoc = :lsDocId
@@ -518,7 +524,7 @@ xENDx;
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT i, t, c
-            FROM App\Entity\Framework\LsItem i INDEX BY i.id
+            FROM '.LsItem::class.' i INDEX BY i.id
             LEFT JOIN i.itemType t
             LEFT JOIN i.concepts c
             WHERE i.lsDoc = :lsDocId
@@ -545,7 +551,7 @@ xENDx;
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT DISTINCT t
-            FROM App\Entity\Framework\LsDefItemType t, App\Entity\Framework\LsItem i
+            FROM '.LsDefItemType::class.' t, '.LsItem::class.' i
             WHERE i.lsDoc = :lsDocId
               AND i.itemType = t
         ');
@@ -565,7 +571,7 @@ xENDx;
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT a, ag, adi, aoi, add
-            FROM App\Entity\Framework\LsAssociation a INDEX BY a.id
+            FROM '.LsAssociation::class.' a INDEX BY a.id
             LEFT JOIN a.group ag
             LEFT JOIN a.destinationLsItem adi WITH adi.lsDoc = :lsDocId
             LEFT JOIN a.originLsItem aoi WITH aoi.lsDoc = :lsDocId
@@ -588,7 +594,7 @@ xENDx;
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT a, ag, adi, aoi, add
-            FROM App\Entity\Framework\LsAssociation a INDEX BY a.id
+            FROM '.LsAssociation::class.' a INDEX BY a.id
             LEFT JOIN a.group ag
             LEFT JOIN a.destinationLsItem adi WITH adi.lsDoc = :lsDocId
             LEFT JOIN a.originLsItem aoi WITH aoi.lsDoc = :lsDocId
@@ -617,7 +623,7 @@ xENDx;
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT DISTINCT ag
-            FROM App\Entity\Framework\LsDefAssociationGrouping ag, App\Entity\Framework\LsAssociation a
+            FROM '.LsDefAssociationGrouping::class.' ag, '.LsAssociation::class.' a
             WHERE a.lsDoc = :lsDocId
               AND a.group = ag
         ');
@@ -637,7 +643,7 @@ xENDx;
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT DISTINCT c
-            FROM App\Entity\Framework\LsDefConcept c, App\Entity\Framework\LsItem i
+            FROM '.LsDefConcept::class.' c, '.LsItem::class.' i
             WHERE i.lsDoc = :lsDocId
               AND c MEMBER OF i.concepts
         ');
@@ -658,7 +664,7 @@ xENDx;
         // get licences for items
         $query = $this->getEntityManager()->createQuery('
             SELECT DISTINCT l
-            FROM App\Entity\Framework\LsDefLicence l INDEX BY l.id, App\Entity\Framework\LsItem i
+            FROM '.LsDefLicence::class.' l INDEX BY l.id, '.LsItem::class.' i
             WHERE (i.lsDoc = :lsDocId AND i.licence = l)
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
@@ -668,7 +674,7 @@ xENDx;
         // get licence for the doc
         $query = $this->getEntityManager()->createQuery('
             SELECT DISTINCT l
-            FROM App\Entity\Framework\LsDefLicence l INDEX BY l.id, App\Entity\Framework\LsDoc d
+            FROM '.LsDefLicence::class.' l INDEX BY l.id, '.LsDoc::class.' d
             WHERE (d.id = :lsDocId AND d.licence = l)
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
@@ -694,7 +700,7 @@ xENDx;
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT DISTINCT r
-            FROM App\Entity\Framework\CfRubric r
+            FROM '.CfRubric::class.' r
             JOIN r.criteria c
             JOIN c.item i
             WHERE i.lsDoc = :lsDocId
@@ -715,7 +721,7 @@ xENDx;
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT ag
-            FROM App\Entity\Framework\LsDefAssociationGrouping ag
+            FROM '.LsDefAssociationGrouping::class.' ag
             WHERE ag.lsDoc = :lsDocId
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
@@ -732,7 +738,7 @@ xENDx;
     {
         $query = $this->getEntityManager()->createQuery('
             SELECT a, ag, adi, add, odi, odd
-            FROM App\Entity\Framework\LSAssociation a INDEX BY a.id
+            FROM '.LsAssociation::class.' a INDEX BY a.id
             LEFT JOIN a.group ag
             LEFT JOIN a.originLsItem odi WITH odi.lsDoc = :lsDocId
             LEFT JOIN a.originLsDoc odd WITH odd.id = :lsDocId
@@ -879,7 +885,7 @@ xENDx;
             SELECT i, t,
               CASE WHEN a.sequenceNumber IS NULL THEN 1 ELSE 0 END as HIDDEN seq_is_null,
               a.sequenceNumber as HIDDEN seq
-            FROM App\Entity\Framework\LsItem i INDEX BY i.id
+            FROM '.LsItem::class.' i INDEX BY i.id
             LEFT JOIN i.itemType t
             LEFT JOIN i.associations a WITH a.lsDoc = :lsDocId AND a.type = :childOfType
             WHERE i.lsDoc = :lsDocId

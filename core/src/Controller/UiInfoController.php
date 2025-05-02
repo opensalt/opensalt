@@ -31,6 +31,7 @@ class UiInfoController extends AbstractController
         /** @var array $docs - argument passed as an array */
         $docs = $request->request->all('doc');
         foreach ($docs as $id) {
+            /** @var ?LsDoc $d */
             $d = $this->managerRegistry->getRepository(LsDoc::class)
                 ->find($id);
             if (null !== $d) {
@@ -41,6 +42,7 @@ class UiInfoController extends AbstractController
         /** @var array $items - argument passed as an array */
         $items = $request->request->all('item');
         foreach ($items as $id) {
+            /** @var ?LsItem $i */
             $i = $this->managerRegistry->getRepository(LsItem::class)
                 ->find($id);
             if (null !== $i) {
@@ -51,6 +53,7 @@ class UiInfoController extends AbstractController
         /** @var array $assocs - argument passed as an array */
         $assocs = $request->request->all('assoc');
         foreach ($assocs as $id) {
+            /** @var ?LsAssociation $a */
             $a = $this->managerRegistry->getRepository(LsAssociation::class)
                 ->find($id);
             if (null !== $a) {
@@ -116,6 +119,7 @@ class UiInfoController extends AbstractController
     protected function generateItemArray(LsItem $item): array
     {
         // retrieve isChildOf assoc id for the item
+        /** @var ?LsAssociation $assoc */
         $assoc = $this->managerRegistry->getRepository(LsAssociation::class)->findOneBy([
             'originLsItem' => $item,
             'type' => LsAssociation::CHILD_OF,

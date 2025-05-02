@@ -94,6 +94,7 @@ final class ExcelImport
             $children[$item->getIdentifier()] = $doc->getIdentifier();
 
             if (in_array($parentLevel, $itemSmartLevels, true)) {
+                /** @var ?LsAssociation $assoc */
                 $assoc = $this->getEntityManager()->getRepository(LsAssociation::class)->findOneBy([
                     'originNodeIdentifier' => $item->getIdentifier(),
                     'type' => LsAssociation::CHILD_OF,
@@ -106,6 +107,7 @@ final class ExcelImport
                     $assoc->setSequenceNumber($seq);
                 }
             } else {
+                /** @var ?LsAssociation $assoc */
                 $assoc = $this->getEntityManager()->getRepository(LsAssociation::class)->findOneBy([
                     'originNodeIdentifier' => $item->getIdentifier(),
                     'type' => LsAssociation::CHILD_OF,
@@ -233,6 +235,7 @@ final class ExcelImport
         if (empty($identifier)) {
             $identifier = null;
         } elseif (Uuid::isValid($identifier)) {
+            /** @var ?LsItem $item */
             $item = $this->getEntityManager()->getRepository(LsItem::class)
                 ->findOneBy(['identifier' => $identifier, 'lsDocIdentifier' => $doc->getIdentifier()]);
         }
@@ -303,11 +306,13 @@ final class ExcelImport
         if (empty($fields['identifier'])) {
             $fields['identifier'] = null;
         } elseif (Uuid::isValid($fields['identifier'])) {
+            /** @var ?LsAssociation $association */
             $association = $this->getEntityManager()->getRepository(LsAssociation::class)
                 ->findOneBy(['identifier' => $fields['identifier'], 'lsDocIdentifier' => $doc->getIdentifier()]);
         }
 
         if (null === $association) {
+            /** @var ?LsAssociation $association */
             $association = $this->getEntityManager()->getRepository(LsAssociation::class)->findOneBy([
                 'originNodeIdentifier' => $fields['originNodeIdentifier'],
                 'type' => $fields['associationType'],

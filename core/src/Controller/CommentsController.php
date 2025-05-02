@@ -12,7 +12,6 @@ use App\Entity\Comment\Comment;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Entity\User\User;
-use App\Repository\Framework\LsItemRepository;
 use App\Security\Permission;
 use App\Service\BucketService;
 use Doctrine\Common\Collections\Collection;

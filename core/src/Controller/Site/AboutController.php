@@ -16,9 +16,9 @@ class AboutController extends AbstractController
     public function about(): Response
     {
         if (file_exists($this->projectDir.'/public/version.txt')) {
-            $fullVersion = trim(file_get_contents($this->projectDir.'/public/version.txt'));
+            $fullVersion = trim(file_get_contents($this->projectDir.'/public/version.txt') ?: '');
         } elseif (file_exists($this->projectDir.'/VERSION')) {
-            $fullVersion = trim(file_get_contents($this->projectDir.'/VERSION'));
+            $fullVersion = trim(file_get_contents($this->projectDir.'/VERSION') ?: '');
         } else {
             $fullVersion = 'UNKNOWN';
         }

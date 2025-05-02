@@ -5,6 +5,7 @@ namespace App\DTO\ItemType;
 use App\Entity\Framework\LsItem;
 use App\Form\Type\ItemType\PublicKeyType;
 use App\Form\Validator\ValidPublicKey;
+use Jose\Component\Core\JWK;
 use Jose\Component\KeyManagement\JWKFactory;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -39,13 +40,14 @@ class PublicKeyDto implements ItemTypeInterface
     #[\Override]
     public function applyToItem(LsItem $item, HtmlSanitizerInterface $htmlSanitizer): void
     {
+        /** @var JWK $key */
         $key = JWKFactory::createFromValues(json_decode($this->publicKey, true));
         if (null === ($key->jsonSerialize()['kid'] ?? null)) {
             $key = JWKFactory::createFromValues([...$key->jsonSerialize(), 'kid' => $key->thumbprint('sha256')]);
         }
 
         $item->setAbbreviatedStatement($key->get('kid'));
-        $item->setFullStatement(json_encode($key->jsonSerialize()));
+        $item->setFullStatement(json_encode($key->jsonSerialize()) ?: null);
         $item->setExtensionProperty(LsItem::TYPE_KEY, 'public_key');
         $item->setExtensionProperty(self::TYPE_KEY, $this->type);
     }

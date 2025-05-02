@@ -38,6 +38,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         'public_key' => 7,
     ];
 
+    /** @var array<int, class-string> */
     public const array DTO = [
         0 => LsItem::class,
         1 => JobDto::class,
