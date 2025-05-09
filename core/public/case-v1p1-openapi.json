@@ -1,0 +1,2754 @@
+{
+    "openapi" : "3.0.0",
+    "info" : {
+        "version" : "1.1",
+        "title" : "Competencies and Academic Standards Exchange (CASE) Service OpenAPI (JSON) Definition",
+        "description" : "The Competencies and Academic Standards Exchange (CASE) Service enables the exchange of data between a Competency Records Service Provider and the consumers of the associated data. This service has been described using the 1EdTech Model Driven Specification development approach - this being the Platform Specific Model (PSM) of the service.",
+        "termsOfService" : "https://www.imsglobal.org/license.html",
+        "contact" : {
+            "name" : "Vice President of Operations, 1EdTech",
+            "url" : "https://www.1edtech.org",
+            "email" : "operations@1edtech.org"
+        },
+        "license" : {
+            "name" : "1EdTech",
+            "url" : "https://www.1edtech.org/license.html"
+        }
+    },
+    "servers" : [
+        {
+            "url" : "https://{hostName}{basePath}",
+            "description" : "The pattern for the Server URL should be configured for the actual server location.",
+            "variables" : {
+                "hostName" : {
+                    "description" : "This is the hostname for the server and MUST be set to the actual service provider (the 1EdTech URL is given as a default value).",
+                    "default" : "www.imsglobal.org"
+                },
+                "basePath" : {
+                    "description" : "This is the base-path for the full URL and MUST be a part of the service endpoints.",
+                    "enum" : ["/ims/case/v1p1"],
+                    "default" : "/ims/case/v1p1"
+                }
+            }
+        }
+    ],
+    "tags" : [
+        {
+            "name" : "AssociationsManager",
+            "description" : "The set of service operations that manage access to the Competency Framework Associations. Associations are to establish relationships between definitions from different sources. This interface manages the associations between CFDocuments and between CFItems."
+        },
+        {
+            "name" : "DefinitionsManager",
+            "description" : "The set of service operations that manage access to the Competency Framework Definitions. This interface manages the definitions of the: Competency Framework Concepts, Competency Framework Subjects, Competency Framework Licenses, Competency Framework Item Types and Competency Framework Association Groupings."
+        },
+        {
+            "name" : "DocumentsManager",
+            "description" : "The set of service operations that manage access to the Competency Framework Documents. Documents are the root entry point for the definition of an academic standard/competency. This interface manages the document descriptions only i.e. it does not support the management of Items, Associations, etc."
+        },
+        {
+            "name" : "ItemsManager",
+            "description" : "The set of service operations that manage access to the Competency Framework Items. Items are the containers for the definitions in an academic standard/competency. This interface manages the Item descriptions only i.e. it does not support the management of Associations, etc."
+        },
+        {
+            "name" : "PackagesManager",
+            "description" : "The set of service operations that manage access to the Competency Framework Packages as a whole. A Competency Framework Package is a package that contains all of the arefacts that are used for the definition of a Competency Framework Document."
+        },
+        {
+            "name" : "RubricsManager",
+            "description" : "The set of service operations that manage access to the Competency Framework Rubrics. Rubrics associate the set of rubric criteria being defined for a specific academic standard/competency (defined as either a CFItem or a CFDocument)."
+        }
+    ],
+    "paths" : {
+        "/CFAssociationGroupings/{sourcedId}" : {
+            "get" : {
+                "operationId" : "getCFAssociationGrouping",
+                "summary" : "The REST read request message for the getCFAssociationGrouping() API call.",
+                "tags" : [ "DefinitionsManager" ],
+                "description" : "This is a request to the Service Provider to provide the specified Competency Framework Association Grouping.  If the identified record cannot be found then the 'unknownobject' status code must be reported.",
+                "parameters" : [
+                    {
+                        "name" : "sourcedId",
+                        "in" : "path",
+                        "description" : "The UUID that identifies the Competency Framework AssociationGrouping that is to be read from the service provider.",
+                        "required" : true,
+                        "schema" : {
+                            "type" : "string"
+                        },
+                        "style" : "simple"
+                    }
+                ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "responses" : {
+                    "200" : {
+                        "description" : "This is the response when the request has been completed successfully. It is the CFAssociationGrouping from the service provider.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/CFAssociationGroupingDType"
+                                }
+                            }
+                        }
+                    },
+                    "400" : {
+                        "description" : "An invalid selection field was supplied and data filtering on the selection criteria was not possible i.e. 'invalid_selection_field'. This is accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "401" : {
+                        "description" : "The request was not correctly authorised i.e. 'unauthorisedrequest'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "403" : {
+                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action i.e. 'forbidden'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "404" : {
+                        "description" : "Either the supplied identifier is unknown in the Service Provider and so the object could not be changed or an invalid UUID has been supplied. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The statement 'Unknown Object' of 'Invalid UUID' should also be presented.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "429" : {
+                        "description" : "The server is receiving too many requests i.e. 'server_busy'. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "500" : {
+                        "description" : "This code should be used only if there is catastrophic error and there is not a more appropriate code i.e. 'internal_server_error'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "default" : {
+                        "description" : "This is the response data payload to be supplied when the HTTP code is NOT explicitly defined. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and the appropriate 'codeMinor' value. The associated HTTP code will also be supplied.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/CFAssociations/{sourcedId}" : {
+            "get" : {
+                "operationId" : "getCFAssociation",
+                "summary" : "The REST read request message for the getCFAssociation() API call.",
+                "tags" : [ "AssociationsManager" ],
+                "description" : "This is a request to the service provider to provide the information for the specific Competency Framework Association. If the identified record cannot be found then the 'unknownobject' status code must be reported.",
+                "parameters" : [
+                    {
+                        "name" : "sourcedId",
+                        "in" : "path",
+                        "description" : "The UUID that identifies the CFAssociation to be supplied.",
+                        "required" : true,
+                        "schema" : {
+                            "type" : "string"
+                        },
+                        "style" : "simple"
+                    }
+                ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "responses" : {
+                    "200" : {
+                        "description" : "This is the response when the request has been completed successfully. It is the CFAssociation from the service provider.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/CFAssociationDType"
+                                }
+                            }
+                        }
+                    },
+                    "400" : {
+                        "description" : "An invalid selection field was supplied and data filtering on the selection criteria was not possible i.e. 'invalid_selection_field'. This is accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "401" : {
+                        "description" : "The request was not correctly authorised i.e. 'unauthorisedrequest'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "403" : {
+                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action i.e. 'forbidden'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "404" : {
+                        "description" : "Either the supplied identifier is unknown in the Service Provider and so the object could not be changed or an invalid UUID has been supplied. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The statement 'Unknown Object' of 'Invalid UUID' should also be presented.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "429" : {
+                        "description" : "The server is receiving too many requests i.e. 'server_busy'. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "500" : {
+                        "description" : "This code should be used only if there is catastrophic error and there is not a more appropriate code i.e. 'internal_server_error'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "default" : {
+                        "description" : "This is the response data payload to be supplied when the HTTP code is NOT explicitly defined. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and the appropriate 'codeMinor' value. The associated HTTP code will also be supplied.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/CFConcepts/{sourcedId}" : {
+            "get" : {
+                "operationId" : "getCFConcept",
+                "summary" : "The REST read request message for the getCFConcept() API call.",
+                "tags" : [ "DefinitionsManager" ],
+                "description" : "This is a request to the Service Provider to provide the specified Competency Framework Concept and the set of children CFConcepts as identified by the hierarchy codes.  If the identified record cannot be found then the 'unknownobject' status code must be reported.",
+                "parameters" : [
+                    {
+                        "name" : "sourcedId",
+                        "in" : "path",
+                        "description" : "The UUID that identifies the Competency Framework Concept that is to be read from the service provider.",
+                        "required" : true,
+                        "schema" : {
+                            "type" : "string"
+                        },
+                        "style" : "simple"
+                    }
+                ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "responses" : {
+                    "200" : {
+                        "description" : "This is the response when the request has been completed successfully. It is the CFConcept and child CFConcepts from the service provider.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/CFConceptSetDType"
+                                }
+                            }
+                        }
+                    },
+                    "400" : {
+                        "description" : "An invalid selection field was supplied and data filtering on the selection criteria was not possible i.e. 'invalid_selection_field'. This is accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "401" : {
+                        "description" : "The request was not correctly authorised i.e. 'unauthorisedrequest'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "403" : {
+                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action i.e. 'forbidden'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "404" : {
+                        "description" : "Either the supplied identifier is unknown in the Service Provider and so the object could not be changed or an invalid UUID has been supplied. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The statement 'Unknown Object' of 'Invalid UUID' should also be presented.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "429" : {
+                        "description" : "The server is receiving too many requests i.e. 'server_busy'. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "500" : {
+                        "description" : "This code should be used only if there is catastrophic error and there is not a more appropriate code i.e. 'internal_server_error'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "default" : {
+                        "description" : "This is the response data payload to be supplied when the HTTP code is NOT explicitly defined. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and the appropriate 'codeMinor' value. The associated HTTP code will also be supplied.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/CFDocuments" : {
+            "get" : {
+                "operationId" : "getAllCFDocuments",
+                "summary" : "The REST read request message for the getAllCFDocuments() API call.",
+                "tags" : [ "DocumentsManager" ],
+                "description" : "This is a request to the Service Provider to provide all of the Competency Framework Documents. ",
+                "parameters" : [
+                    {
+                        "name" : "limit",
+                        "in" : "query",
+                        "description" : "This is used as part of the data pagination mechanism to control the download rate of data. The 'limit' defines the download segmentation value i.e. the maximum number of records to be contained in the response. The form of implementation is described in the corresponding binding document(s).",
+                        "required" : false,
+                        "schema" : {
+                            "type" : "integer",
+                            "format" : "int32",
+                            "minimum" : 1
+                        },
+                        "style" : "form",
+                        "allowEmptyValue" : false
+                    },
+                    {
+                        "name" : "offset",
+                        "in" : "query",
+                        "description" : "This is used as part of the data pagination mechanism to control the download rate of data. The 'offset' is the number of the first record to be supplied in the segmented response message. The form of implementation is described in the corresponding binding document(s).",
+                        "required" : false,
+                        "schema" : {
+                            "type" : "integer",
+                            "format" : "int32",
+                            "default" : 0,
+                            "minimum" : 0
+                        },
+                        "style" : "form",
+                        "allowEmptyValue" : false
+                    },
+                    {
+                        "name" : "sort",
+                        "in" : "query",
+                        "description" : "This is used as part of the sorting mechanism to be use by the service provider. The 'sort' identifies the sort criteria to be used for the records in the response message. Use with the orderBy parameter. The form of implementation is described in the corresponding binding document(s).",
+                        "required" : false,
+                        "schema" : {
+                            "type" : "string"
+                        },
+                        "style" : "form",
+                        "allowEmptyValue" : false
+                    },
+                    {
+                        "name" : "orderBy",
+                        "in" : "query",
+                        "description" : "This is used as part of the sorting mechanism to be use by the service provider. This defines the form of ordering for response to the sorted request i.e. ascending (asc) or descending (desc). The form of implementation is described in the corresponding binding document(s).",
+                        "required" : false,
+                        "schema" : {
+                            "type" : "string",
+                            "enum" : [ "asc","desc" ]
+                        },
+                        "style" : "form",
+                        "allowEmptyValue" : false
+                    },
+                    {
+                        "name" : "filter",
+                        "in" : "query",
+                        "description" : "This is used for the data filtering mechanism to be applied by the service provider. It defines the filtering rules to be applied when identifying the records to be supplied in the response message. The form of implementation is described in the corresponding binding document(s).",
+                        "required" : false,
+                        "schema" : {
+                            "type" : "string"
+                        },
+                        "style" : "form",
+                        "allowEmptyValue" : false
+                    },
+                    {
+                        "name" : "fields",
+                        "in" : "query",
+                        "description" : "This is used as part of the field selection mechanism to be applied by the service provider. This identifies the range of fields that should be supplied in the response message. The form of implementation is described in the corresponding binding document(s).",
+                        "required" : false,
+                        "schema" : {
+                            "type" : "array",
+                            "items" : {
+                                "type" : "string"
+                            }
+                        },
+                        "style" : "form",
+                        "allowEmptyValue" : false
+                    }
+                ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "responses" : {
+                    "200" : {
+                        "description" : "This is the response when the request has been completed successfully. It is the set of CFDocuments from the service provider.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/CFDocumentSetDType"
+                                }
+                            }
+                        },
+                        "headers" : {
+                            "X-Total-Count" : {
+                                "description" : "The total number of resources that are available to be returned",
+                                "schema" : {
+                                    "type" : "integer"
+                                }
+                            }
+                        },
+                        "links" : {
+                            "next" : {
+                                "description" : "Get the next set of resources i.e. from offset to offset+limit",
+                                "operationId" : "getAllCFDocuments",
+                                "parameters" : {
+                                    "limit" : "$request.path.limit",
+                                    "offset" : "$request.path.offset"
+                                }
+                            },
+                            "last" : {
+                                "description" : "Get the last set of resources i.e. from offset to end",
+                                "operationId" : "getAllCFDocuments",
+                                "parameters" : {
+                                    "limit" : "$request.path.limit",
+                                    "offset" : "$request.path.offset"
+                                }
+                            },
+                            "first" : {
+                                "description" : "Get the first set of resources i.e. from first to limit",
+                                "operationId" : "getAllCFDocuments",
+                                "parameters" : {
+                                    "limit" : "$request.path.limit",
+                                    "offset" : "$request.path.offset"
+                                }
+                            },
+                            "prev" : {
+                                "description" : "Get the previous set of resources i.e. from last_offset to last_offset+limit",
+                                "operationId" : "getAllCFDocuments",
+                                "parameters" : {
+                                    "limit" : "$request.path.limit",
+                                    "offset" : "$request.path.offset"
+                                }
+                            }
+                        }
+                    },
+                    "400" : {
+                        "description" : "An invalid selection field was supplied and data filtering on the selection criteria was not possible i.e. 'invalid_selection_field'. This is accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "401" : {
+                        "description" : "The request was not correctly authorised i.e. 'unauthorisedrequest'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "403" : {
+                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action i.e. 'forbidden'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "404" : {
+                        "description" : "Either the supplied identifier is unknown in the Service Provider and so the object could not be changed or an invalid UUID has been supplied. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The statement 'Unknown Object' of 'Invalid UUID' should also be presented.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "429" : {
+                        "description" : "The server is receiving too many requests i.e. 'server_busy'. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "500" : {
+                        "description" : "This code should be used only if there is catastrophic error and there is not a more appropriate code i.e. 'internal_server_error'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "default" : {
+                        "description" : "This is the response data payload to be supplied when the HTTP code is NOT explicitly defined. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and the appropriate 'codeMinor' value. The associated HTTP code will also be supplied.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/CFDocuments/{sourcedId}" : {
+            "get" : {
+                "operationId" : "getCFDocument",
+                "summary" : "The REST read request message for the getCFDocument() API call.",
+                "tags" : [ "DocumentsManager" ],
+                "description" : "This is a request to the service provider to provide the information for the specific Competency Framework Document. If the identified record cannot be found then the 'unknownobject' status code must be reported.",
+                "parameters" : [
+                    {
+                        "name" : "sourcedId",
+                        "in" : "path",
+                        "description" : "The UUID that identifies the Competency Framework Document that is to be read from the service provider.",
+                        "required" : true,
+                        "schema" : {
+                            "type" : "string"
+                        },
+                        "style" : "simple"
+                    }
+                ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "responses" : {
+                    "200" : {
+                        "description" : "This is the response when the request has been completed successfully. It is the CFDocument from the service provider.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/CFDocumentDType"
+                                }
+                            }
+                        }
+                    },
+                    "400" : {
+                        "description" : "An invalid selection field was supplied and data filtering on the selection criteria was not possible i.e. 'invalid_selection_field'. This is accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "401" : {
+                        "description" : "The request was not correctly authorised i.e. 'unauthorisedrequest'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "403" : {
+                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action i.e. 'forbidden'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "404" : {
+                        "description" : "Either the supplied identifier is unknown in the Service Provider and so the object could not be changed or an invalid UUID has been supplied. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The statement 'Unknown Object' of 'Invalid UUID' should also be presented.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "429" : {
+                        "description" : "The server is receiving too many requests i.e. 'server_busy'. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "500" : {
+                        "description" : "This code should be used only if there is catastrophic error and there is not a more appropriate code i.e. 'internal_server_error'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "default" : {
+                        "description" : "This is the response data payload to be supplied when the HTTP code is NOT explicitly defined. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and the appropriate 'codeMinor' value. The associated HTTP code will also be supplied.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/CFItemAssociations/{sourcedId}" : {
+            "get" : {
+                "operationId" : "getCFItemAssociations",
+                "summary" : "The REST read request message for the getCFItemAssociations() API call.",
+                "tags" : [ "AssociationsManager" ],
+                "description" : "This is a request to the Service Provider to provide the all of the Competency Associations for the specified CFItem and the information about the CFItem itself.  If the identified record cannot be found then the 'unknownobject' status code must be reported.",
+                "parameters" : [
+                    {
+                        "name" : "sourcedId",
+                        "in" : "path",
+                        "description" : "The UUID that identifies the CFItem for which ALL associations are to be supplied.",
+                        "required" : true,
+                        "schema" : {
+                            "type" : "string"
+                        },
+                        "style" : "simple"
+                    }
+                ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "responses" : {
+                    "200" : {
+                        "description" : "This is the response when the request has been completed successfully. It is the CFItem and set of CFAssociations from the service provider.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/CFAssociationSetDType"
+                                }
+                            }
+                        }
+                    },
+                    "400" : {
+                        "description" : "An invalid selection field was supplied and data filtering on the selection criteria was not possible i.e. 'invalid_selection_field'. This is accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "401" : {
+                        "description" : "The request was not correctly authorised i.e. 'unauthorisedrequest'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "403" : {
+                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action i.e. 'forbidden'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "404" : {
+                        "description" : "Either the supplied identifier is unknown in the Service Provider and so the object could not be changed or an invalid UUID has been supplied. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The statement 'Unknown Object' of 'Invalid UUID' should also be presented.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "429" : {
+                        "description" : "The server is receiving too many requests i.e. 'server_busy'. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "500" : {
+                        "description" : "This code should be used only if there is catastrophic error and there is not a more appropriate code i.e. 'internal_server_error'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "default" : {
+                        "description" : "This is the response data payload to be supplied when the HTTP code is NOT explicitly defined. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and the appropriate 'codeMinor' value. The associated HTTP code will also be supplied.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/CFItemTypes/{sourcedId}" : {
+            "get" : {
+                "operationId" : "getCFItemType",
+                "summary" : "The REST read request message for the getCFItemType() API call.",
+                "tags" : [ "DefinitionsManager" ],
+                "description" : "This is a request to the Service Provider to provide the specified Competency Framework Item Type and the set of children CFItemTypes as identified by the hierarchy codes.  If the identified record cannot be found then the 'unknownobject' status code must be reported.",
+                "parameters" : [
+                    {
+                        "name" : "sourcedId",
+                        "in" : "path",
+                        "description" : "The UUID that identifies the Competency Framework ItemType that is to be read from the service provider.",
+                        "required" : true,
+                        "schema" : {
+                            "type" : "string"
+                        },
+                        "style" : "simple"
+                    }
+                ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "responses" : {
+                    "200" : {
+                        "description" : "This is the response when the request has been completed successfully. It is the CFItemType and child CFItemTypes from the service provider.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/CFItemTypeSetDType"
+                                }
+                            }
+                        }
+                    },
+                    "400" : {
+                        "description" : "An invalid selection field was supplied and data filtering on the selection criteria was not possible i.e. 'invalid_selection_field'. This is accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "401" : {
+                        "description" : "The request was not correctly authorised i.e. 'unauthorisedrequest'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "403" : {
+                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action i.e. 'forbidden'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "404" : {
+                        "description" : "Either the supplied identifier is unknown in the Service Provider and so the object could not be changed or an invalid UUID has been supplied. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The statement 'Unknown Object' of 'Invalid UUID' should also be presented.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "429" : {
+                        "description" : "The server is receiving too many requests i.e. 'server_busy'. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "500" : {
+                        "description" : "This code should be used only if there is catastrophic error and there is not a more appropriate code i.e. 'internal_server_error'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "default" : {
+                        "description" : "This is the response data payload to be supplied when the HTTP code is NOT explicitly defined. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and the appropriate 'codeMinor' value. The associated HTTP code will also be supplied.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/CFItems/{sourcedId}" : {
+            "get" : {
+                "operationId" : "getCFItem",
+                "summary" : "The REST read request message for the getCFItem() API call.",
+                "tags" : [ "ItemsManager" ],
+                "description" : "This is a request to the Service Provider to provide the specified Competency Framework Item.  If the identified record cannot be found then the 'unknownobject' status code must be reported.",
+                "parameters" : [
+                    {
+                        "name" : "sourcedId",
+                        "in" : "path",
+                        "description" : "The UUID that identifies the Competency Framework Item that is to be read from the service provider.",
+                        "required" : true,
+                        "schema" : {
+                            "type" : "string"
+                        },
+                        "style" : "simple"
+                    }
+                ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "responses" : {
+                    "200" : {
+                        "description" : "This is the response when the request has been completed successfully. It is the CFItem from the service provider.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/CFItemDType"
+                                }
+                            }
+                        }
+                    },
+                    "400" : {
+                        "description" : "An invalid selection field was supplied and data filtering on the selection criteria was not possible i.e. 'invalid_selection_field'. This is accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "401" : {
+                        "description" : "The request was not correctly authorised i.e. 'unauthorisedrequest'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "403" : {
+                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action i.e. 'forbidden'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "404" : {
+                        "description" : "Either the supplied identifier is unknown in the Service Provider and so the object could not be changed or an invalid UUID has been supplied. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The statement 'Unknown Object' of 'Invalid UUID' should also be presented.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "429" : {
+                        "description" : "The server is receiving too many requests i.e. 'server_busy'. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "500" : {
+                        "description" : "This code should be used only if there is catastrophic error and there is not a more appropriate code i.e. 'internal_server_error'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "default" : {
+                        "description" : "This is the response data payload to be supplied when the HTTP code is NOT explicitly defined. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and the appropriate 'codeMinor' value. The associated HTTP code will also be supplied.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/CFLicenses/{sourcedId}" : {
+            "get" : {
+                "operationId" : "getCFLicense",
+                "summary" : "The REST read request message for the getCFLicense() API call.",
+                "tags" : [ "DefinitionsManager" ],
+                "description" : "This is a request to the Service Provider to provide the specified Competency Framework License.  If the identified record cannot be found then the 'unknownobject' status code must be reported.",
+                "parameters" : [
+                    {
+                        "name" : "sourcedId",
+                        "in" : "path",
+                        "description" : "The UUID that identifies the Competency Framework License that is to be read from the service provider.",
+                        "required" : true,
+                        "schema" : {
+                            "type" : "string"
+                        },
+                        "style" : "simple"
+                    }
+                ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "responses" : {
+                    "200" : {
+                        "description" : "This is the response when the request has been completed successfully. It is the CFLicense from the service provider.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/CFLicenseDType"
+                                }
+                            }
+                        }
+                    },
+                    "400" : {
+                        "description" : "An invalid selection field was supplied and data filtering on the selection criteria was not possible i.e. 'invalid_selection_field'. This is accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "401" : {
+                        "description" : "The request was not correctly authorised i.e. 'unauthorisedrequest'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "403" : {
+                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action i.e. 'forbidden'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "404" : {
+                        "description" : "Either the supplied identifier is unknown in the Service Provider and so the object could not be changed or an invalid UUID has been supplied. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The statement 'Unknown Object' of 'Invalid UUID' should also be presented.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "429" : {
+                        "description" : "The server is receiving too many requests i.e. 'server_busy'. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "500" : {
+                        "description" : "This code should be used only if there is catastrophic error and there is not a more appropriate code i.e. 'internal_server_error'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "default" : {
+                        "description" : "This is the response data payload to be supplied when the HTTP code is NOT explicitly defined. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and the appropriate 'codeMinor' value. The associated HTTP code will also be supplied.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/CFPackages/{sourcedId}" : {
+            "get" : {
+                "operationId" : "getCFPackage",
+                "summary" : "The REST read request message for the getCFPackage() API call.",
+                "tags" : [ "PackagesManager" ],
+                "description" : "This is a request to the service provider to provide the information for the specific Competency Framework Package. If the identified record cannot be found then the 'unknownobject' status code must be reported.",
+                "parameters" : [
+                    {
+                        "name" : "sourcedId",
+                        "in" : "path",
+                        "description" : "The UUID that identifies the Competency Framework Document that is to be read from the service provider and supplied with all of its component artefacts.",
+                        "required" : true,
+                        "schema" : {
+                            "type" : "string"
+                        },
+                        "style" : "simple"
+                    }
+                ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "responses" : {
+                    "200" : {
+                        "description" : "This is the response when the request has been completed successfully. It is the CFPackage from the service provider.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/CFPackageDType"
+                                }
+                            }
+                        }
+                    },
+                    "400" : {
+                        "description" : "An invalid selection field was supplied and data filtering on the selection criteria was not possible i.e. 'invalid_selection_field'. This is accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "401" : {
+                        "description" : "The request was not correctly authorised i.e. 'unauthorisedrequest'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "403" : {
+                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action i.e. 'forbidden'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "404" : {
+                        "description" : "Either the supplied identifier is unknown in the Service Provider and so the object could not be changed or an invalid UUID has been supplied. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The statement 'Unknown Object' of 'Invalid UUID' should also be presented.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "429" : {
+                        "description" : "The server is receiving too many requests i.e. 'server_busy'. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "500" : {
+                        "description" : "This code should be used only if there is catastrophic error and there is not a more appropriate code i.e. 'internal_server_error'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "default" : {
+                        "description" : "This is the response data payload to be supplied when the HTTP code is NOT explicitly defined. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and the appropriate 'codeMinor' value. The associated HTTP code will also be supplied.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/CFRubrics/{sourcedId}" : {
+            "get" : {
+                "operationId" : "getCFRubric",
+                "summary" : "The REST read request message for the getCFRubric() API call.",
+                "tags" : [ "RubricsManager" ],
+                "description" : "This is a request to the service provider to provide the information for the specific Competency Framework Rubric. If the identified record cannot be found then the 'unknownobject' status code must be reported.",
+                "parameters" : [
+                    {
+                        "name" : "sourcedId",
+                        "in" : "path",
+                        "description" : "The UUID that identifies the Competency Framework Rubric that is to be read from the service provider.",
+                        "required" : true,
+                        "schema" : {
+                            "type" : "string"
+                        },
+                        "style" : "simple"
+                    }
+                ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "responses" : {
+                    "200" : {
+                        "description" : "This is the response when the request has been completed successfully. It is the CFRubric from the service provider.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/CFRubricDType"
+                                }
+                            }
+                        }
+                    },
+                    "400" : {
+                        "description" : "An invalid selection field was supplied and data filtering on the selection criteria was not possible i.e. 'invalid_selection_field'. This is accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "401" : {
+                        "description" : "The request was not correctly authorised i.e. 'unauthorisedrequest'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "403" : {
+                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action i.e. 'forbidden'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "404" : {
+                        "description" : "Either the supplied identifier is unknown in the Service Provider and so the object could not be changed or an invalid UUID has been supplied. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The statement 'Unknown Object' of 'Invalid UUID' should also be presented.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "429" : {
+                        "description" : "The server is receiving too many requests i.e. 'server_busy'. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "500" : {
+                        "description" : "This code should be used only if there is catastrophic error and there is not a more appropriate code i.e. 'internal_server_error'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "default" : {
+                        "description" : "This is the response data payload to be supplied when the HTTP code is NOT explicitly defined. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and the appropriate 'codeMinor' value. The associated HTTP code will also be supplied.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/CFSubjects/{sourcedId}" : {
+            "get" : {
+                "operationId" : "getCFSubject",
+                "summary" : "The REST read request message for the getCFSubject() API call.",
+                "tags" : [ "DefinitionsManager" ],
+                "description" : "This is a request to the Service Provider to provide the specified Competency Framework Subject and the set of children CFSubjects as identified by the hierarchy codes.  If the identified record cannot be found then the 'unknownobject' status code must be reported.",
+                "parameters" : [
+                    {
+                        "name" : "sourcedId",
+                        "in" : "path",
+                        "description" : "The UUID that identifies the Competency Framework Subject that is to be read from the service provider.",
+                        "required" : true,
+                        "schema" : {
+                            "type" : "string"
+                        },
+                        "style" : "simple"
+                    }
+                ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "responses" : {
+                    "200" : {
+                        "description" : "This is the response when the request has been completed successfully. It is the CFSubject and child CFSubjects from the service provider.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/CFSubjectSetDType"
+                                }
+                            }
+                        }
+                    },
+                    "400" : {
+                        "description" : "An invalid selection field was supplied and data filtering on the selection criteria was not possible i.e. 'invalid_selection_field'. This is accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "401" : {
+                        "description" : "The request was not correctly authorised i.e. 'unauthorisedrequest'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "403" : {
+                        "description" : "This is used to indicate that the server can be reached and process the request but refuses to take any further action i.e. 'forbidden'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "404" : {
+                        "description" : "Either the supplied identifier is unknown in the Service Provider and so the object could not be changed or an invalid UUID has been supplied. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'. The statement 'Unknown Object' of 'Invalid UUID' should also be presented.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "429" : {
+                        "description" : "The server is receiving too many requests i.e. 'server_busy'. Retry at a later time. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "500" : {
+                        "description" : "This code should be used only if there is catastrophic error and there is not a more appropriate code i.e. 'internal_server_error'. This would be accompanied by the 'codeMajor/severity' values of 'failure/error'.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    },
+                    "default" : {
+                        "description" : "This is the response data payload to be supplied when the HTTP code is NOT explicitly defined. This would be accompanied by the 'codeMajor/severity' values of 'failure/error' and the appropriate 'codeMinor' value. The associated HTTP code will also be supplied.",
+                        "content" : {
+                            "application/json" : {
+                                "schema" : {
+                                    "$ref" : "#/components/schemas/imsx_StatusInfoDType"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components" : {
+        "schemas" : {
+            "CFAssociationDType" : {
+                "description" : "This is the container for the data about the relationship between two CFDocuments or between two CFItems outside of the context of a CFPackage or CFItem.",
+                "type" : "object",
+                "properties" : {
+                    "identifier" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. An unambiguous, synthetic, globally unique identifier for the CFAssociation. This is the primary way in which the exchange identification is achieved.",
+                        "type" : "string",
+                        "pattern" : "[0-9a-f]{8}-[0-9a-f]{4}-[1-5]{1}[0-9a-f]{3}-[8-9a-b]{1}[0-9a-f]{3}-[0-9a-f]{12}"
+                    },
+                    "associationType" : {
+                        "description" : "The type of association. This uses an extensible enumerated vocabulary. Changed in CASE 1.1.",
+                        "anyOf" : [
+                                {
+                                    "type" : "string",
+                                    "enum" : [ "isChildOf","isPeerOf","isPartOf","exactMatchOf","precedes","isRelatedTo","replacedBy","exemplar","hasSkillLevel","isTranslationOf" ]
+                                },
+                                {
+                                    "description" : "Model Primitive Datatype = NormalizedString.",
+                                    "type" : "string",
+                                    "pattern" : "(ext:)[a-zA-Z0-9\\.\\-_]+"
+                                }
+                        ]
+                    },
+                    "sequenceNumber" : {
+                        "description" : "Model Primitive Datatype = Integer. This is used to order associated objects. Associations can be created through mapping rather than strict hierarchy. As such the presentation of the list cannot be ordered by the objects in the list. They may be different based on the parent being viewed. Use of this property for sequencing is preferred over the use of the 'listEnumeration' property in the CFPckgItem class. ",
+                        "type" : "integer",
+                        "format" : "int32"
+                    },
+                    "uri" : {
+                        "description" : "Model Primitive Datatype = AnyURI. An unambiguous reference to the CFAssociation using a network-resolvable URI.",
+                        "type" : "string",
+                        "format" : "uri"
+                    },
+                    "originNodeURI" : {
+                        "$ref" : "#/components/schemas/LinkGenURIDType"
+                    },
+                    "destinationNodeURI" : {
+                        "$ref" : "#/components/schemas/LinkGenURIDType"
+                    },
+                    "CFAssociationGroupingURI" : {
+                        "$ref" : "#/components/schemas/LinkURIDType"
+                    },
+                    "lastChangeDateTime" : {
+                        "description" : "Model Primitive Datatype = DateTime. A system generated timestamp of the most recent change to this record. This conforms to ISO 8601 dateTime definition [ISO 8601].",
+                        "type" : "string",
+                        "format" : "date-time"
+                    },
+                    "notes" : {
+                        "description" : "Model Primitive Datatype = String. A new attribute added in Version 1.1. Information about the CFAssociation.",
+                        "type" : "string"
+                    },
+                    "extensions" : {
+                        "$ref" : "#/components/schemas/CFAssociationExtensionDType"
+                    },
+                    "CFDocumentURI" : {
+                        "$ref" : "#/components/schemas/LinkURIDType"
+                    }
+                },
+                "required" : [ "identifier","associationType","uri","originNodeURI","destinationNodeURI","lastChangeDateTime" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : false
+            },
+            "CFAssociationExtensionDType" : {
+                "description" : "The container for the proprietary extensions to the CFAssociation class.",
+                "type" : "object",
+                "properties" : {
+
+                },
+                "x-1edtech-privacy" : [ "extensions" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : true
+            },
+            "CFAssociationGroupingDType" : {
+                "description" : "This is the container for information about a set of associations that have been labelled as a group (the nature of the group being defined by this container).",
+                "type" : "object",
+                "properties" : {
+                    "identifier" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. An unambiguous, synthetic, globally unique identifier for the CFAssociationGrouping. This is the primary way in which the exchange identification is achieved.",
+                        "type" : "string",
+                        "pattern" : "[0-9a-f]{8}-[0-9a-f]{4}-[1-5]{1}[0-9a-f]{3}-[8-9a-b]{1}[0-9a-f]{3}-[0-9a-f]{12}"
+                    },
+                    "uri" : {
+                        "description" : "Model Primitive Datatype = AnyURI. An unambiguous reference to the CFAssociationGrouping using a network-resolvable URI. ",
+                        "type" : "string",
+                        "format" : "uri"
+                    },
+                    "title" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. The title of the CFAssociationGrouping.",
+                        "type" : "string"
+                    },
+                    "description" : {
+                        "description" : "Model Primitive Datatype = String. A human readable description of the CFAssociationGrouping.",
+                        "type" : "string"
+                    },
+                    "lastChangeDateTime" : {
+                        "description" : "Model Primitive Datatype = DateTime. A system generated timestamp of the most recent change to this record. This conforms to ISO 8601 dateTime definition [ISO 8601].",
+                        "type" : "string",
+                        "format" : "date-time"
+                    },
+                    "extensions" : {
+                        "$ref" : "#/components/schemas/CFAssociationGroupingExtensionDType"
+                    }
+                },
+                "required" : [ "identifier","uri","title","lastChangeDateTime" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : false
+            },
+            "CFAssociationGroupingExtensionDType" : {
+                "description" : "The container for the proprietary extensions to the CFAssociationGrouping class.",
+                "type" : "object",
+                "properties" : {
+
+                },
+                "x-1edtech-privacy" : [ "extensions" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : true
+            },
+            "CFAssociationSetDType" : {
+                "description" : "This is the container for a collection of CFAssociations. There must be at least one CFAssociation. Note that the association can be between CFDocuments or between CFItems.",
+                "type" : "object",
+                "properties" : {
+                    "CFItem" : {
+                        "$ref" : "#/components/schemas/CFItemDType"
+                    },
+                    "CFAssociations" : {
+                        "description" : "This is the data for a single CFAssociation within the CFAssociationSet container. The association can be between CFDocuments or between CFItems",
+                        "type" : "array",
+                        "minItems" : 1,
+                        "items" : {
+                            "$ref" : "#/components/schemas/CFPckgAssociationDType"
+                        }
+                    }
+                },
+                "required" : [ "CFItem","CFAssociations" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : false
+            },
+            "CFConceptDType" : {
+                "description" : "The container for the definition of a concept which is addressed by the competency framework.",
+                "type" : "object",
+                "properties" : {
+                    "identifier" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. An unambiguous, synthetic, globally unique identifier for the CFConcept. This is the primary way in which the exchange identification is achieved.",
+                        "type" : "string",
+                        "pattern" : "[0-9a-f]{8}-[0-9a-f]{4}-[1-5]{1}[0-9a-f]{3}-[8-9a-b]{1}[0-9a-f]{3}-[0-9a-f]{12}"
+                    },
+                    "uri" : {
+                        "description" : "Model Primitive Datatype = AnyURI. An unambiguous reference to the CFConcept using a network-resolvable URI. ",
+                        "type" : "string",
+                        "format" : "uri"
+                    },
+                    "title" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. The title of the CFConcept.",
+                        "type" : "string"
+                    },
+                    "keywords" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. Defined listing of keywords delimited by '|' that the concept encompasses.",
+                        "type" : "string"
+                    },
+                    "hierarchyCode" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. A human-referenceable code designated by the publisher to identify the item in the hierarchy of the Concepts.",
+                        "type" : "string"
+                    },
+                    "description" : {
+                        "description" : "Model Primitive Datatype = String. A human readable description of the CFConcept.",
+                        "type" : "string"
+                    },
+                    "lastChangeDateTime" : {
+                        "description" : "Model Primitive Datatype = DateTime. A system generated timestamp of the most recent change to this record. This conforms to ISO 8601 dateTime definition [ISO 8601].",
+                        "type" : "string",
+                        "format" : "date-time"
+                    },
+                    "extensions" : {
+                        "$ref" : "#/components/schemas/CFConceptExtensionDType"
+                    }
+                },
+                "required" : [ "identifier","uri","title","hierarchyCode","lastChangeDateTime" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : false
+            },
+            "CFConceptExtensionDType" : {
+                "description" : "The container for the proprietary extensions to the CFConcept class.",
+                "type" : "object",
+                "properties" : {
+
+                },
+                "x-1edtech-privacy" : [ "extensions" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : true
+            },
+            "CFConceptSetDType" : {
+                "description" : "The container for the set of CFConcepts supplied in the response payload. The relationship between the CFConcepts is determined by the 'hierarchyCode'. The first CFConcept is that which has been specified in the call. The other CFConcepts are the set of children as determined by their place in the 'hierarchyCode' of the CFConcept.",
+                "type" : "object",
+                "properties" : {
+                    "CFConcepts" : {
+                        "description" : "The set of CFConcepts. The relationship between the CFConcepts is determined by the 'hierarchyCode'. The first CFConcept is that which has been specified in the call. The other CFConcepts are the set of children as determined by their place in the 'hierarchyCode' of the CFConcept.",
+                        "type" : "array",
+                        "minItems" : 1,
+                        "items" : {
+                            "$ref" : "#/components/schemas/CFConceptDType"
+                        }
+                    }
+                },
+                "required" : [ "CFConcepts" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : false
+            },
+            "CFDefinitionDType" : {
+                "description" : "The container for the set of definitions used for the competency framework i.e. the set of CFSubjects, CFConcepts, CFItemTypes, CFAssociationGroupings and CFLicenses.",
+                "type" : "object",
+                "properties" : {
+                    "CFConcepts" : {
+                        "description" : "The set of concept definitions.",
+                        "type" : "array",
+                        "minItems" : 0,
+                        "items" : {
+                            "$ref" : "#/components/schemas/CFConceptDType"
+                        }
+                    },
+                    "CFSubjects" : {
+                        "description" : "The set of subject definitions.",
+                        "type" : "array",
+                        "minItems" : 0,
+                        "items" : {
+                            "$ref" : "#/components/schemas/CFSubjectDType"
+                        }
+                    },
+                    "CFLicenses" : {
+                        "description" : "The set of license definitions.",
+                        "type" : "array",
+                        "minItems" : 0,
+                        "items" : {
+                            "$ref" : "#/components/schemas/CFLicenseDType"
+                        }
+                    },
+                    "CFItemTypes" : {
+                        "description" : "The set of item type definitions.",
+                        "type" : "array",
+                        "minItems" : 0,
+                        "items" : {
+                            "$ref" : "#/components/schemas/CFItemTypeDType"
+                        }
+                    },
+                    "CFAssociationGroupings" : {
+                        "description" : "The set of association grouping definitions.",
+                        "type" : "array",
+                        "minItems" : 0,
+                        "items" : {
+                            "$ref" : "#/components/schemas/CFAssociationGroupingDType"
+                        }
+                    },
+                    "extensions" : {
+                        "$ref" : "#/components/schemas/CFDefinitionExtensionDType"
+                    }
+                },
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : false
+            },
+            "CFDefinitionExtensionDType" : {
+                "description" : "The container for the proprietary extensions to the CFDefinition class.",
+                "type" : "object",
+                "properties" : {
+
+                },
+                "x-1edtech-privacy" : [ "extensions" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : true
+            },
+            "CFDocumentDType" : {
+                "description" : "The container for the data about a competency framework document (CFDocument) when exchanged outside of the context of a CFPackage. A CFDocument is the root for the creation of a learning standard/competency.",
+                "type" : "object",
+                "properties" : {
+                    "identifier" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. An unambiguous, synthetic, globally unique identifier for the CFDocument. This is the primary way in which the exchange identification is achieved.",
+                        "type" : "string",
+                        "pattern" : "[0-9a-f]{8}-[0-9a-f]{4}-[1-5]{1}[0-9a-f]{3}-[8-9a-b]{1}[0-9a-f]{3}-[0-9a-f]{12}"
+                    },
+                    "uri" : {
+                        "description" : "Model Primitive Datatype = AnyURI. An unambiguous reference to the CFDocument using a network-resolvable URI.",
+                        "type" : "string",
+                        "format" : "uri"
+                    },
+                    "frameworkType" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. This is a new attribute added in version 1.1. This attribute allows framework creators to indicate what type of framework this is, for example course codes. In CASE 1.1. the only predefined type of framework is 'CourseCodes'. Other standardized framework types will be defined.",
+                        "type" : "string"
+                    },
+                    "caseVersion" : {
+                        "description" : "This is a new attribute added in version 1.1. Denotes the version of the CFDocument. If present it MUST have a value of '1.1'.",
+                        "type" : "string",
+                        "enum" : [ "1.1" ]
+                    },
+                    "creator" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. The entity with authority that promulgates the competency framework. This is the entity that authorized or created the competency framework. It could be an education agency, higher education institution, professional body. It is the owner of the competency framework.",
+                        "type" : "string"
+                    },
+                    "title" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. The title of the CFDocument.",
+                        "type" : "string"
+                    },
+                    "lastChangeDateTime" : {
+                        "description" : "Model Primitive Datatype = DateTime. A system generated timestamp of the most recent change to this record. This conforms to ISO 8601 dateTime definition [ISO 8601].",
+                        "type" : "string",
+                        "format" : "date-time"
+                    },
+                    "officialSourceURL" : {
+                        "description" : "Model Primitive Datatype = AnyURI. The URL link to the formal citation of the original achievement standards document created for humans.",
+                        "type" : "string",
+                        "format" : "uri"
+                    },
+                    "publisher" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. The entity responsible for making the learning standards document available.",
+                        "type" : "string"
+                    },
+                    "description" : {
+                        "description" : "Model Primitive Datatype = String. A human readable description of the CFDocument. In Version 1.1 the data-type has been changed from NormalizedString.",
+                        "type" : "string"
+                    },
+                    "subject" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. The topic or academic subject of the Document (this should use some appropriate K-12, HE, etc. based vocabulary).",
+                        "type" : "array",
+                        "minItems" : 0,
+                        "items" : {
+                            "type" : "string"
+                        }
+                    },
+                    "subjectURI" : {
+                        "description" : "A set of Link URIs denoting the set of subjects for the document as designated by the promulgating agency. ",
+                        "type" : "array",
+                        "minItems" : 0,
+                        "items" : {
+                            "$ref" : "#/components/schemas/LinkURIDType"
+                        }
+                    },
+                    "language" : {
+                        "description" : "Model Primitive Datatype = Language. The default language of the text used for the content in the learning standard document (use ISO 639-2 [ISO 639]).",
+                        "type" : "string"
+                    },
+                    "version" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. Defines the revision of the document (the nature of this versioning is an implementation issue).",
+                        "type" : "string"
+                    },
+                    "adoptionStatus" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. The publication status of the document.",
+                        "type" : "string"
+                    },
+                    "statusStartDate" : {
+                        "description" : "Model Primitive Datatype = Date. The date the CFDocument status started.",
+                        "type" : "string",
+                        "format" : "date"
+                    },
+                    "statusEndDate" : {
+                        "description" : "Model Primitive Datatype = Date. The date the CFDocument status ended or changed to another status.",
+                        "type" : "string",
+                        "format" : "date"
+                    },
+                    "licenseURI" : {
+                        "$ref" : "#/components/schemas/LinkURIDType"
+                    },
+                    "notes" : {
+                        "description" : "Model Primitive Datatype = String. Any text used to comment on the published CFDocument.",
+                        "type" : "string"
+                    },
+                    "extensions" : {
+                        "$ref" : "#/components/schemas/CFDocumentExtensionDType"
+                    },
+                    "CFPackageURI" : {
+                        "$ref" : "#/components/schemas/LinkURIDType"
+                    }
+                },
+                "required" : [ "identifier","uri","creator","title","lastChangeDateTime","CFPackageURI" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : false
+            },
+            "CFDocumentExtensionDType" : {
+                "description" : "The container for the proprietary extensions to the CFDocument class.",
+                "type" : "object",
+                "properties" : {
+
+                },
+                "x-1edtech-privacy" : [ "extensions" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : true
+            },
+            "CFDocumentSetDType" : {
+                "description" : "This is the container for a collection of CFDocuments. There must be at least one CFDocument.",
+                "type" : "object",
+                "properties" : {
+                    "CFDocuments" : {
+                        "description" : "This is the data for a single CFDocument within the CFDocumentSet container.",
+                        "type" : "array",
+                        "minItems" : 1,
+                        "items" : {
+                            "$ref" : "#/components/schemas/CFDocumentDType"
+                        }
+                    }
+                },
+                "required" : [ "CFDocuments" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : false
+            },
+            "CFItemDType" : {
+                "description" : "This is the container for the CFItem data outside of the context of a CFPackage. This is the content that either describes a specific competency (learning objective) or describes a grouping of competencies within the taxonomy of a Competency Framework Document. ",
+                "type" : "object",
+                "properties" : {
+                    "identifier" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. An unambiguous, synthetic, globally unique identifier for the CFItem. This is the primary way in which the exchange identification is achieved.",
+                        "type" : "string",
+                        "pattern" : "[0-9a-f]{8}-[0-9a-f]{4}-[1-5]{1}[0-9a-f]{3}-[8-9a-b]{1}[0-9a-f]{3}-[0-9a-f]{12}"
+                    },
+                    "fullStatement" : {
+                        "description" : "Model Primitive Datatype = String. The text of the statement. The textual content that either describes a specific competency or describes a less granular group of competencies within the taxonomy of the standards document. In Version 1.1 the data-type was changed from NormalizedString.",
+                        "type" : "string"
+                    },
+                    "alternativeLabel" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. An alternate 'term' for Competency.  Some institutions may want to render their achievements as outcomes, or objectives, etc.  Semantically they are the same as Competencies, but diversity of terms is used.  This allows for the flexibility for the institution to define their own term for 'Competency' and not being locked into it.  ",
+                        "type" : "string"
+                    },
+                    "CFItemType" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. The textual label identifying the class of the statement as designated by the promulgating body.",
+                        "type" : "string"
+                    },
+                    "uri" : {
+                        "description" : "Model Primitive Datatype = AnyURI. An unambiguous reference to the CFItem using a network-resolvable URI.",
+                        "type" : "string",
+                        "format" : "uri"
+                    },
+                    "humanCodingScheme" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. A human-referenceable code designated by the publisher to identify the item among learning standard items.",
+                        "type" : "string"
+                    },
+                    "listEnumeration" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. A set of one or more alphanumeric characters and/or symbol denoting the positioning of the statement being described in a sequential listing of statements. Use of the 'sequenceNumber' in the CFPckgAssociation class is preferred over the use of this property for sequencing.",
+                        "type" : "string"
+                    },
+                    "abbreviatedStatement" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. An abbreviated version of the Full Statement.",
+                        "type" : "string"
+                    },
+                    "conceptKeywords" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. The significant topicality of the CFItem using free-text keywords and phrases.",
+                        "type" : "array",
+                        "minItems" : 0,
+                        "items" : {
+                            "type" : "string"
+                        }
+                    },
+                    "conceptKeywordsURI" : {
+                        "$ref" : "#/components/schemas/LinkURIDType"
+                    },
+                    "notes" : {
+                        "description" : "Model Primitive Datatype = String. Information about the derivation of a CFItem statement.",
+                        "type" : "string"
+                    },
+                    "subject" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. A new attribute added in Version 1.1. The topic or academic subject of the Item (this should use some appropriate K-12, HE, etc. based vocabulary).",
+                        "type" : "array",
+                        "minItems" : 0,
+                        "items" : {
+                            "type" : "string"
+                        }
+                    },
+                    "subjectURI" : {
+                        "description" : "A new attribute added in Version 1.1.  A set of Link URIs denoting the set of subjects for the Item as designated by the promulgating agency.",
+                        "type" : "array",
+                        "minItems" : 0,
+                        "items" : {
+                            "$ref" : "#/components/schemas/LinkURIDType"
+                        }
+                    },
+                    "language" : {
+                        "description" : "Model Primitive Datatype = Language. The default language of the text used for the content in the learning standard document (use ISO 639-2 [ISO 639]).",
+                        "type" : "string"
+                    },
+                    "educationLevel" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. The education level, grade level or primary instructional level at which a CFItem is intended",
+                        "type" : "array",
+                        "minItems" : 0,
+                        "items" : {
+                            "type" : "string"
+                        }
+                    },
+                    "CFItemTypeURI" : {
+                        "$ref" : "#/components/schemas/LinkURIDType"
+                    },
+                    "licenseURI" : {
+                        "$ref" : "#/components/schemas/LinkURIDType"
+                    },
+                    "statusStartDate" : {
+                        "description" : "Model Primitive Datatype = Date. The date the CFItem status started.",
+                        "type" : "string",
+                        "format" : "date"
+                    },
+                    "statusEndDate" : {
+                        "description" : "Model Primitive Datatype = Date. The date the CFItem status ended or changed to another status.",
+                        "type" : "string",
+                        "format" : "date"
+                    },
+                    "lastChangeDateTime" : {
+                        "description" : "Model Primitive Datatype = DateTime. A system generated timestamp of the most recent change to this record. This conforms to ISO 8601 dateTime definition [ISO 8601].",
+                        "type" : "string",
+                        "format" : "date-time"
+                    },
+                    "extensions" : {
+                        "$ref" : "#/components/schemas/CFItemExtensionDType"
+                    },
+                    "CFDocumentURI" : {
+                        "$ref" : "#/components/schemas/LinkURIDType"
+                    }
+                },
+                "required" : [ "identifier","fullStatement","uri","lastChangeDateTime","CFDocumentURI" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : false
+            },
+            "CFItemExtensionDType" : {
+                "description" : "The container for the proprietary extensions to the CFItem class.",
+                "type" : "object",
+                "properties" : {
+
+                },
+                "x-1edtech-privacy" : [ "extensions" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : true
+            },
+            "CFItemTypeDType" : {
+                "description" : "The container for the ItemType information use within the competency framework.",
+                "type" : "object",
+                "properties" : {
+                    "identifier" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. An unambiguous, synthetic, globally unique identifier for the CFItemType. This is the primary way in which the exchange identification is achieved.",
+                        "type" : "string",
+                        "pattern" : "[0-9a-f]{8}-[0-9a-f]{4}-[1-5]{1}[0-9a-f]{3}-[8-9a-b]{1}[0-9a-f]{3}-[0-9a-f]{12}"
+                    },
+                    "uri" : {
+                        "description" : "Model Primitive Datatype = AnyURI. An unambiguous reference to the CFItemType using a network-resolvable URI. ",
+                        "type" : "string",
+                        "format" : "uri"
+                    },
+                    "title" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. The title of the CFItemType.",
+                        "type" : "string"
+                    },
+                    "description" : {
+                        "description" : "Model Primitive Datatype = String. A human readable description of the CFItemType.",
+                        "type" : "string"
+                    },
+                    "hierarchyCode" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. A human-referenceable code designated by the publisher to identify the item in the hierarchy of ItemTypes.",
+                        "type" : "string"
+                    },
+                    "typeCode" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. Text code used for type identification.",
+                        "type" : "string"
+                    },
+                    "lastChangeDateTime" : {
+                        "description" : "Model Primitive Datatype = DateTime. A system generated timestamp of the most recent change to this record. This conforms to ISO 8601 dateTime definition [ISO 8601].",
+                        "type" : "string",
+                        "format" : "date-time"
+                    },
+                    "extensions" : {
+                        "$ref" : "#/components/schemas/CFItemTypeExtensionDType"
+                    }
+                },
+                "required" : [ "identifier","uri","title","description","hierarchyCode","lastChangeDateTime" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : false
+            },
+            "CFItemTypeExtensionDType" : {
+                "description" : "The container for the proprietary extensions to the CFItemType class.",
+                "type" : "object",
+                "properties" : {
+
+                },
+                "x-1edtech-privacy" : [ "extensions" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : true
+            },
+            "CFItemTypeSetDType" : {
+                "description" : "The container for the set of CFItemTypes supplied in the response payload. The relationship between the CFItemTypes is determined by the 'hierarchyCode'. The first CFItemType is that which has been specified in the call. The other CFItemTypes are the set of children as determined by their place in the 'hierarchyCode' of the CFItemType.",
+                "type" : "object",
+                "properties" : {
+                    "CFItemTypes" : {
+                        "description" : "The set of CFItemTypes. The relationship between the CFItemTypes is determined by the 'hierarchyCode'. The first CFItemType is that which has been specified in the call. The other CFItemTypes are the set of children as determined by their place in the 'hierarchyCode' of the CFItemType.",
+                        "type" : "array",
+                        "minItems" : 1,
+                        "items" : {
+                            "$ref" : "#/components/schemas/CFItemTypeDType"
+                        }
+                    }
+                },
+                "required" : [ "CFItemTypes" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : false
+            },
+            "CFLicenseDType" : {
+                "description" : "The container for the information about a license used within the competency framework.",
+                "type" : "object",
+                "properties" : {
+                    "identifier" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. An unambiguous, synthetic, globally unique identifier for the CFLicense. This is the primary way in which the exchange identification is achieved.",
+                        "type" : "string",
+                        "pattern" : "[0-9a-f]{8}-[0-9a-f]{4}-[1-5]{1}[0-9a-f]{3}-[8-9a-b]{1}[0-9a-f]{3}-[0-9a-f]{12}"
+                    },
+                    "uri" : {
+                        "description" : "Model Primitive Datatype = AnyURI. An unambiguous reference to the CFLicense using a network-resolvable URI. ",
+                        "type" : "string",
+                        "format" : "uri"
+                    },
+                    "title" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. The title of the CFLicense.",
+                        "type" : "string"
+                    },
+                    "description" : {
+                        "description" : "Model Primitive Datatype = String. A human readable description of the CFLicense.",
+                        "type" : "string"
+                    },
+                    "licenseText" : {
+                        "description" : "Model Primitive Datatype = String. Legal license text used by the organization to convey license permissions. This may include the actual license text, or a link to a web location containing the license as a document or as text.",
+                        "type" : "string"
+                    },
+                    "lastChangeDateTime" : {
+                        "description" : "Model Primitive Datatype = DateTime. A system generated timestamp of the most recent change to this record. This conforms to ISO 8601 dateTime definition [ISO 8601].",
+                        "type" : "string",
+                        "format" : "date-time"
+                    },
+                    "extensions" : {
+                        "$ref" : "#/components/schemas/CFLicenseExtensionDType"
+                    }
+                },
+                "required" : [ "identifier","uri","title","licenseText","lastChangeDateTime" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : false
+            },
+            "CFLicenseExtensionDType" : {
+                "description" : "The container for the proprietary extensions to the CFLicense class.",
+                "type" : "object",
+                "properties" : {
+
+                },
+                "x-1edtech-privacy" : [ "extensions" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : true
+            },
+            "CFPackageDType" : {
+                "description" : "This is the container for all of the data for a Competency Framework Package i.e. the root CFDocument and ALL of the corresponding components i.e. the CFItems, CFAssociations and CFDefinitions.",
+                "type" : "object",
+                "properties" : {
+                    "CFDocument" : {
+                        "$ref" : "#/components/schemas/CFPckgDocumentDType"
+                    },
+                    "CFItems" : {
+                        "description" : "The set of Competency Framework Items that are a components (direct or indirect children) of the root Competency Framework Document. There must be at least one Competency Framework Item.",
+                        "type" : "array",
+                        "minItems" : 0,
+                        "items" : {
+                            "$ref" : "#/components/schemas/CFPckgItemDType"
+                        }
+                    },
+                    "CFAssociations" : {
+                        "description" : "The set of Competency Framework Associations. This includes: the set of associations between the component CFItems and other CFItems; the set of associations between the root CFDocument and other CFDocuments.",
+                        "type" : "array",
+                        "minItems" : 0,
+                        "items" : {
+                            "$ref" : "#/components/schemas/CFPckgAssociationDType"
+                        }
+                    },
+                    "CFDefinitions" : {
+                        "$ref" : "#/components/schemas/CFDefinitionDType"
+                    },
+                    "CFRubrics" : {
+                        "description" : "The set of Competency Framework CFRubrics including the associated CFRubricCriteria and CFRubrcCriterionLevels that are required to complete all of the information relevant to the parent CFRubric. ",
+                        "type" : "array",
+                        "minItems" : 0,
+                        "items" : {
+                            "$ref" : "#/components/schemas/CFRubricDType"
+                        }
+                    },
+                    "extensions" : {
+                        "$ref" : "#/components/schemas/CFPackageExtensionDType"
+                    }
+                },
+                "required" : [ "CFDocument" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : false
+            },
+            "CFPackageExtensionDType" : {
+                "description" : "The container for the proprietary extensions to the CFPackage class.",
+                "type" : "object",
+                "properties" : {
+
+                },
+                "x-1edtech-privacy" : [ "extensions" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : true
+            },
+            "CFPckgAssociationDType" : {
+                "description" : "This is the container for the data about the relationship between two CFDocuments or between two CFItems within the context of a CFPackage.",
+                "type" : "object",
+                "properties" : {
+                    "identifier" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. An unambiguous, synthetic, globally unique identifier for the CFAssociation. This is the primary way in which the exchange identification is achieved.",
+                        "type" : "string",
+                        "pattern" : "[0-9a-f]{8}-[0-9a-f]{4}-[1-5]{1}[0-9a-f]{3}-[8-9a-b]{1}[0-9a-f]{3}-[0-9a-f]{12}"
+                    },
+                    "associationType" : {
+                        "description" : "The type of association. This uses an extensible enumerated vocabulary. Changed in CASE 1.1.",
+                        "anyOf" : [
+                                {
+                                    "type" : "string",
+                                    "enum" : [ "isChildOf","isPeerOf","isPartOf","exactMatchOf","precedes","isRelatedTo","replacedBy","exemplar","hasSkillLevel","isTranslationOf" ]
+                                },
+                                {
+                                    "description" : "Model Primitive Datatype = NormalizedString.",
+                                    "type" : "string",
+                                    "pattern" : "(ext:)[a-zA-Z0-9\\.\\-_]+"
+                                }
+                        ]
+                    },
+                    "sequenceNumber" : {
+                        "description" : "Model Primitive Datatype = Integer. This is used to order associated objects. Associations can be created through mapping rather than strict hierarchy. As such the presentation of the list cannot be ordered by the objects in the list. They may be different based on the parent being viewed. Use of this property for sequencing is preferred over the use of the 'listEnumeration' property in the CFPckgItem class. ",
+                        "type" : "integer",
+                        "format" : "int32"
+                    },
+                    "uri" : {
+                        "description" : "Model Primitive Datatype = AnyURI. An unambiguous reference to the CFAssociation using a network-resolvable URI.",
+                        "type" : "string",
+                        "format" : "uri"
+                    },
+                    "originNodeURI" : {
+                        "$ref" : "#/components/schemas/LinkGenURIDType"
+                    },
+                    "destinationNodeURI" : {
+                        "$ref" : "#/components/schemas/LinkGenURIDType"
+                    },
+                    "CFAssociationGroupingURI" : {
+                        "$ref" : "#/components/schemas/LinkURIDType"
+                    },
+                    "lastChangeDateTime" : {
+                        "description" : "Model Primitive Datatype = DateTime. A system generated timestamp of the most recent change to this record. This conforms to ISO 8601 dateTime definition [ISO 8601].",
+                        "type" : "string",
+                        "format" : "date-time"
+                    },
+                    "notes" : {
+                        "description" : "Model Primitive Datatype = String. A new attribute added in Version 1.1. Information about the CFAssociation.",
+                        "type" : "string"
+                    },
+                    "extensions" : {
+                        "$ref" : "#/components/schemas/CFAssociationExtensionDType"
+                    }
+                },
+                "required" : [ "identifier","associationType","uri","originNodeURI","destinationNodeURI","lastChangeDateTime" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : false
+            },
+            "CFPckgDocumentDType" : {
+                "description" : "The container for the data about a competency framework document (CFDocument) within a CFPackage. A CFDocument is the root for the creation of a learning standard/competency.",
+                "type" : "object",
+                "properties" : {
+                    "identifier" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. An unambiguous, synthetic, globally unique identifier for the CFDocument. This is the primary way in which the exchange identification is achieved.",
+                        "type" : "string",
+                        "pattern" : "[0-9a-f]{8}-[0-9a-f]{4}-[1-5]{1}[0-9a-f]{3}-[8-9a-b]{1}[0-9a-f]{3}-[0-9a-f]{12}"
+                    },
+                    "uri" : {
+                        "description" : "Model Primitive Datatype = AnyURI. An unambiguous reference to the CFDocument using a network-resolvable URI.",
+                        "type" : "string",
+                        "format" : "uri"
+                    },
+                    "frameworkType" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. This is a new attribute added in version 1.1. This attribute allows framework creators to indicate what type of framework this is, for example course codes. In CASE 1.1. the only predefined type of framework is 'CourseCodes'. Other standardized framework types will be defined.",
+                        "type" : "string"
+                    },
+                    "caseVersion" : {
+                        "description" : "This is a new attribute added in version 1.1. Denotes the version of the CFDocument. If present it MUST have a value of '1.1'.",
+                        "type" : "string",
+                        "enum" : [ "1.1" ]
+                    },
+                    "creator" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. The entity with authority that promulgates the competency framework. This is the entity that authorized or created the competency framework. It could be an education agency, higher education institution, professional body. It is the owner of the competency framework.",
+                        "type" : "string"
+                    },
+                    "title" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. The title of the CFDocument.",
+                        "type" : "string"
+                    },
+                    "lastChangeDateTime" : {
+                        "description" : "Model Primitive Datatype = DateTime. A system generated timestamp of the most recent change to this record. This conforms to ISO 8601 dateTime definition [ISO 8601].",
+                        "type" : "string",
+                        "format" : "date-time"
+                    },
+                    "officialSourceURL" : {
+                        "description" : "Model Primitive Datatype = AnyURI. The URL link to the formal citation of the original achievement standards document created for humans.",
+                        "type" : "string",
+                        "format" : "uri"
+                    },
+                    "publisher" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. The entity responsible for making the learning standards document available.",
+                        "type" : "string"
+                    },
+                    "description" : {
+                        "description" : "Model Primitive Datatype = String. A human readable description of the CFDocument. In Version 1.1 the data-type has been changed from NormalizedString.",
+                        "type" : "string"
+                    },
+                    "subject" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. The topic or academic subject of the Document (this should use some appropriate K-12, HE, etc. based vocabulary).",
+                        "type" : "array",
+                        "minItems" : 0,
+                        "items" : {
+                            "type" : "string"
+                        }
+                    },
+                    "subjectURI" : {
+                        "description" : "A set of Link URIs denoting the set of subjects for the document as designated by the promulgating agency. ",
+                        "type" : "array",
+                        "minItems" : 0,
+                        "items" : {
+                            "$ref" : "#/components/schemas/LinkURIDType"
+                        }
+                    },
+                    "language" : {
+                        "description" : "Model Primitive Datatype = Language. The default language of the text used for the content in the learning standard document (use ISO 639-2 [ISO 639]).",
+                        "type" : "string"
+                    },
+                    "version" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. Defines the revision of the document (the nature of this versioning is an implementation issue).",
+                        "type" : "string"
+                    },
+                    "adoptionStatus" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. The publication status of the document.",
+                        "type" : "string"
+                    },
+                    "statusStartDate" : {
+                        "description" : "Model Primitive Datatype = Date. The date the CFDocument status started.",
+                        "type" : "string",
+                        "format" : "date"
+                    },
+                    "statusEndDate" : {
+                        "description" : "Model Primitive Datatype = Date. The date the CFDocument status ended or changed to another status.",
+                        "type" : "string",
+                        "format" : "date"
+                    },
+                    "licenseURI" : {
+                        "$ref" : "#/components/schemas/LinkURIDType"
+                    },
+                    "notes" : {
+                        "description" : "Model Primitive Datatype = String. Any text used to comment on the published CFDocument.",
+                        "type" : "string"
+                    },
+                    "extensions" : {
+                        "$ref" : "#/components/schemas/CFDocumentExtensionDType"
+                    }
+                },
+                "required" : [ "identifier","uri","creator","title","lastChangeDateTime" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : false
+            },
+            "CFPckgItemDType" : {
+                "description" : "This is the container for the CFItem data within the context of a CFPackage. This is the content that either describes a specific competency (learning objective) or describes a grouping of competencies within the taxonomy of a Competency Framework Document. ",
+                "type" : "object",
+                "properties" : {
+                    "identifier" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. An unambiguous, synthetic, globally unique identifier for the CFItem. This is the primary way in which the exchange identification is achieved.",
+                        "type" : "string",
+                        "pattern" : "[0-9a-f]{8}-[0-9a-f]{4}-[1-5]{1}[0-9a-f]{3}-[8-9a-b]{1}[0-9a-f]{3}-[0-9a-f]{12}"
+                    },
+                    "fullStatement" : {
+                        "description" : "Model Primitive Datatype = String. The text of the statement. The textual content that either describes a specific competency or describes a less granular group of competencies within the taxonomy of the standards document. In Version 1.1 the data-type was changed from NormalizedString.",
+                        "type" : "string"
+                    },
+                    "alternativeLabel" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. An alternate 'term' for Competency.  Some institutions may want to render their achievements as outcomes, or objectives, etc.  Semantically they are the same as Competencies, but diversity of terms is used.  This allows for the flexibility for the institution to define their own term for 'Competency' and not being locked into it.  ",
+                        "type" : "string"
+                    },
+                    "CFItemType" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. The textual label identifying the class of the statement as designated by the promulgating body.",
+                        "type" : "string"
+                    },
+                    "uri" : {
+                        "description" : "Model Primitive Datatype = AnyURI. An unambiguous reference to the CFItem using a network-resolvable URI.",
+                        "type" : "string",
+                        "format" : "uri"
+                    },
+                    "humanCodingScheme" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. A human-referenceable code designated by the publisher to identify the item among learning standard items.",
+                        "type" : "string"
+                    },
+                    "listEnumeration" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. A set of one or more alphanumeric characters and/or symbol denoting the positioning of the statement being described in a sequential listing of statements. Use of the 'sequenceNumber' in the CFPckgAssociation class is preferred over the use of this property for sequencing.",
+                        "type" : "string"
+                    },
+                    "abbreviatedStatement" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. An abbreviated version of the Full Statement.",
+                        "type" : "string"
+                    },
+                    "conceptKeywords" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. The significant topicality of the CFItem using free-text keywords and phrases.",
+                        "type" : "array",
+                        "minItems" : 0,
+                        "items" : {
+                            "type" : "string"
+                        }
+                    },
+                    "conceptKeywordsURI" : {
+                        "$ref" : "#/components/schemas/LinkURIDType"
+                    },
+                    "notes" : {
+                        "description" : "Model Primitive Datatype = String. Information about the derivation of a CFItem statement.",
+                        "type" : "string"
+                    },
+                    "subject" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. A new attribute added in Version 1.1. The topic or academic subject of the Item (this should use some appropriate K-12, HE, etc. based vocabulary).",
+                        "type" : "array",
+                        "minItems" : 0,
+                        "items" : {
+                            "type" : "string"
+                        }
+                    },
+                    "subjectURI" : {
+                        "description" : "A new attribute added in Version 1.1.  A set of Link URIs denoting the set of subjects for the Item as designated by the promulgating agency.",
+                        "type" : "array",
+                        "minItems" : 0,
+                        "items" : {
+                            "$ref" : "#/components/schemas/LinkURIDType"
+                        }
+                    },
+                    "language" : {
+                        "description" : "Model Primitive Datatype = Language. The default language of the text used for the content in the learning standard document (use ISO 639-2 [ISO 639]).",
+                        "type" : "string"
+                    },
+                    "educationLevel" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. The education level, grade level or primary instructional level at which a CFItem is intended",
+                        "type" : "array",
+                        "minItems" : 0,
+                        "items" : {
+                            "type" : "string"
+                        }
+                    },
+                    "CFItemTypeURI" : {
+                        "$ref" : "#/components/schemas/LinkURIDType"
+                    },
+                    "licenseURI" : {
+                        "$ref" : "#/components/schemas/LinkURIDType"
+                    },
+                    "statusStartDate" : {
+                        "description" : "Model Primitive Datatype = Date. The date the CFItem status started.",
+                        "type" : "string",
+                        "format" : "date"
+                    },
+                    "statusEndDate" : {
+                        "description" : "Model Primitive Datatype = Date. The date the CFItem status ended or changed to another status.",
+                        "type" : "string",
+                        "format" : "date"
+                    },
+                    "lastChangeDateTime" : {
+                        "description" : "Model Primitive Datatype = DateTime. A system generated timestamp of the most recent change to this record. This conforms to ISO 8601 dateTime definition [ISO 8601].",
+                        "type" : "string",
+                        "format" : "date-time"
+                    },
+                    "extensions" : {
+                        "$ref" : "#/components/schemas/CFItemExtensionDType"
+                    }
+                },
+                "required" : [ "identifier","fullStatement","uri","lastChangeDateTime" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : false
+            },
+            "CFRubricDType" : {
+                "description" : "The container for the definition of a rubric which is addressed by the competency framework. This includes the set of associated CFRubricCriteria and CFRubricCriterionLevels.",
+                "type" : "object",
+                "properties" : {
+                    "identifier" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. An unambiguous, synthetic, globally unique identifier for the CFRubric. This is the primary way in which the exchange identification is achieved.",
+                        "type" : "string",
+                        "pattern" : "[0-9a-f]{8}-[0-9a-f]{4}-[1-5]{1}[0-9a-f]{3}-[8-9a-b]{1}[0-9a-f]{3}-[0-9a-f]{12}"
+                    },
+                    "uri" : {
+                        "description" : "Model Primitive Datatype = AnyURI. An unambiguous reference to the CFRubric using a network-resolvable URI.",
+                        "type" : "string",
+                        "format" : "uri"
+                    },
+                    "title" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. The title of the CFRubric.",
+                        "type" : "string"
+                    },
+                    "description" : {
+                        "description" : "Model Primitive Datatype = String. A human readable description of the CFRubric. In Version 1.1 the data-type for this attribute has been changed from NormalizedString. ",
+                        "type" : "string"
+                    },
+                    "lastChangeDateTime" : {
+                        "description" : "Model Primitive Datatype = DateTime. A system generated timestamp of the most recent change to this record. This conforms to ISO 8601 dateTime definition [ISO 8601].",
+                        "type" : "string",
+                        "format" : "date-time"
+                    },
+                    "CFRubricCriteria" : {
+                        "description" : "The set of CFRubricCriterion that are required to complete the definition of the parent CFRubric.",
+                        "type" : "array",
+                        "minItems" : 0,
+                        "items" : {
+                            "$ref" : "#/components/schemas/CFRubricCriterionDType"
+                        }
+                    },
+                    "extensions" : {
+                        "$ref" : "#/components/schemas/CFRubricExtensionDType"
+                    }
+                },
+                "required" : [ "identifier","uri","lastChangeDateTime" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : false
+            },
+            "CFRubricCriterionDType" : {
+                "description" : "The container for the definition of a rubric criterion which is addressed by the competency framework.",
+                "type" : "object",
+                "properties" : {
+                    "identifier" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. An unambiguous, synthetic, globally unique identifier for the CFRubricCriterion. This is the primary way in which the exchange identification is achieved.",
+                        "type" : "string",
+                        "pattern" : "[0-9a-f]{8}-[0-9a-f]{4}-[1-5]{1}[0-9a-f]{3}-[8-9a-b]{1}[0-9a-f]{3}-[0-9a-f]{12}"
+                    },
+                    "uri" : {
+                        "description" : "Model Primitive Datatype = AnyURI. An unambiguous reference to the CFRubricCriterion using a network-resolvable URI.",
+                        "type" : "string",
+                        "format" : "uri"
+                    },
+                    "category" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. A textual label for category by which CFRubricCriterion may be grouped.",
+                        "type" : "string"
+                    },
+                    "description" : {
+                        "description" : "Model Primitive Datatype = String. A human readable description of the CFRubricCriterion.",
+                        "type" : "string"
+                    },
+                    "CFItemURI" : {
+                        "$ref" : "#/components/schemas/LinkURIDType"
+                    },
+                    "weight" : {
+                        "description" : "Model Primitive Datatype = Float. A numeric weight assigned to this CFRubricCriterion, used for scored rubrics.",
+                        "type" : "number",
+                        "format" : "float"
+                    },
+                    "position" : {
+                        "description" : "Model Primitive Datatype = Integer. A numeric value representing this criterion's position in the criteria list for this CFRubric.",
+                        "type" : "integer",
+                        "format" : "int32"
+                    },
+                    "rubricId" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. The UUID for the parent CFRubric. This is included for forwards compatibility to enable access to the CFRubricCriterion without requiring embedding within the CFRubric itself.",
+                        "type" : "string",
+                        "pattern" : "[0-9a-f]{8}-[0-9a-f]{4}-[1-5]{1}[0-9a-f]{3}-[8-9a-b]{1}[0-9a-f]{3}-[0-9a-f]{12}"
+                    },
+                    "lastChangeDateTime" : {
+                        "description" : "Model Primitive Datatype = DateTime. A system generated timestamp of the most recent change to this record. This conforms to ISO 8601 dateTime definition [ISO 8601].",
+                        "type" : "string",
+                        "format" : "date-time"
+                    },
+                    "CFRubricCriterionLevels" : {
+                        "description" : "The set of CFRubricCriterionLevels that are required to complete the definition of the parent CFRubricCriterion.",
+                        "type" : "array",
+                        "minItems" : 0,
+                        "items" : {
+                            "$ref" : "#/components/schemas/CFRubricCriterionLevelDType"
+                        }
+                    },
+                    "extensions" : {
+                        "$ref" : "#/components/schemas/CFRubricCriterionExtensionDType"
+                    }
+                },
+                "required" : [ "identifier","uri","lastChangeDateTime" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : false
+            },
+            "CFRubricCriterionExtensionDType" : {
+                "description" : "The container for the proprietary extensions to the CFRubricCriterionExtension class.",
+                "type" : "object",
+                "properties" : {
+
+                },
+                "x-1edtech-privacy" : [ "extensions" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : true
+            },
+            "CFRubricCriterionLevelDType" : {
+                "description" : "The container for the definition of a criterion level which is addressed by the competency framework.",
+                "type" : "object",
+                "properties" : {
+                    "identifier" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. An unambiguous, synthetic, globally unique identifier for the CFRubricCriterionLevel. This is the primary way in which the exchange identification is achieved.",
+                        "type" : "string",
+                        "pattern" : "[0-9a-f]{8}-[0-9a-f]{4}-[1-5]{1}[0-9a-f]{3}-[8-9a-b]{1}[0-9a-f]{3}-[0-9a-f]{12}"
+                    },
+                    "uri" : {
+                        "description" : "Model Primitive Datatype = AnyURI. An unambiguous reference to the CFRubricCriterionLevel using a network-resolvable URI.",
+                        "type" : "string",
+                        "format" : "uri"
+                    },
+                    "description" : {
+                        "description" : "Model Primitive Datatype = String. A human readable description of the CFRubricCriterionLevel.",
+                        "type" : "string"
+                    },
+                    "quality" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. A qualitative description of this degree of achievement used for column headers or row labels in tabular rubrics.",
+                        "type" : "string"
+                    },
+                    "score" : {
+                        "description" : "Model Primitive Datatype = Float. The points awarded for achieving this level.",
+                        "type" : "number",
+                        "format" : "float"
+                    },
+                    "feedback" : {
+                        "description" : "Model Primitive Datatype = String. Pre-defined feedback text to be relayed to the person or organization being evaluated. This may include guidance and suggestions for improvement or development.",
+                        "type" : "string"
+                    },
+                    "position" : {
+                        "description" : "Model Primitive Datatype = Integer. A numeric value representing the level's position in the list of levels defined for the CFRubricCriterion.",
+                        "type" : "integer",
+                        "format" : "int32"
+                    },
+                    "rubricCriterionId" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. The UUID for the parent CFRubricCriterion. This is included for forwards compatibility to enable access to the CFRubricCriterionLevel without requiring embedding within the CFRubricCriterion itself.",
+                        "type" : "string",
+                        "pattern" : "[0-9a-f]{8}-[0-9a-f]{4}-[1-5]{1}[0-9a-f]{3}-[8-9a-b]{1}[0-9a-f]{3}-[0-9a-f]{12}"
+                    },
+                    "lastChangeDateTime" : {
+                        "description" : "Model Primitive Datatype = DateTime. A system generated timestamp of the most recent change to this record. This conforms to ISO 8601 dateTime definition [ISO 8601].",
+                        "type" : "string",
+                        "format" : "date-time"
+                    },
+                    "extensions" : {
+                        "description" : "This is a new attribute added in Version 1.1. This enables extension of this class. The actual extension mechanism is dependent upon the binding technology being used.",
+                        "type" : "array",
+                        "minItems" : 0,
+                        "items" : {
+                            "$ref" : "#/components/schemas/CFRubricCriterionLevelExtensionDType"
+                        }
+                    }
+                },
+                "required" : [ "identifier","uri","lastChangeDateTime" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : false
+            },
+            "CFRubricCriterionLevelExtensionDType" : {
+                "description" : "The container for the proprietary extensions to the CFRubricCriterionLevel class.",
+                "type" : "object",
+                "properties" : {
+
+                },
+                "x-1edtech-privacy" : [ "extensions" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : true
+            },
+            "CFRubricExtensionDType" : {
+                "description" : "The container for the proprietary extensions to the CFRubric class.",
+                "type" : "object",
+                "properties" : {
+
+                },
+                "x-1edtech-privacy" : [ "extensions" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : true
+            },
+            "CFSubjectDType" : {
+                "description" : "The container for the definition of a topic or academic subject which is addressed by the competency framework.",
+                "type" : "object",
+                "properties" : {
+                    "identifier" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. An unambiguous, synthetic, globally unique identifier for the CFSubject. This is the primary way in which the exchange identification is achieved.",
+                        "type" : "string",
+                        "pattern" : "[0-9a-f]{8}-[0-9a-f]{4}-[1-5]{1}[0-9a-f]{3}-[8-9a-b]{1}[0-9a-f]{3}-[0-9a-f]{12}"
+                    },
+                    "uri" : {
+                        "description" : "Model Primitive Datatype = AnyURI. An unambiguous reference to the CFSubject using a network-resolvable URI. ",
+                        "type" : "string",
+                        "format" : "uri"
+                    },
+                    "title" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. The title of the CFSubject.",
+                        "type" : "string"
+                    },
+                    "hierarchyCode" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. A human-referenceable code designated by the publisher to identify the item in the hierarchy of the subjects.",
+                        "type" : "string"
+                    },
+                    "description" : {
+                        "description" : "Model Primitive Datatype = String. A human readable description of the CFSubject.",
+                        "type" : "string"
+                    },
+                    "lastChangeDateTime" : {
+                        "description" : "Model Primitive Datatype = DateTime. A system generated timestamp of the most recent change to this record. This conforms to ISO 8601 dateTime definition [ISO 8601].",
+                        "type" : "string",
+                        "format" : "date-time"
+                    },
+                    "extensions" : {
+                        "$ref" : "#/components/schemas/CFSubjectExtensionDType"
+                    }
+                },
+                "required" : [ "identifier","uri","title","hierarchyCode","lastChangeDateTime" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : false
+            },
+            "CFSubjectExtensionDType" : {
+                "description" : "The container for the proprietary extensions to the CFSubject class.",
+                "type" : "object",
+                "properties" : {
+
+                },
+                "x-1edtech-privacy" : [ "extensions" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : true
+            },
+            "CFSubjectSetDType" : {
+                "description" : "The container for the set of CFSubjects supplied in the response payload. The relationship between the CFSubjects is determined by the 'hierarchyCode'. The first CFSubject is that which has been specified in the call. The other CFSubjects are the set of children as determined by their place in the 'hierarchyCode' of the CFSubject.",
+                "type" : "object",
+                "properties" : {
+                    "CFSubjects" : {
+                        "description" : "The set of CFSubjects. The relationship between the CFSubjects is determined by the 'hierarchyCode'. The first CFSubject is that which has been specified in the call. The other CFSubjects are the set of children as determined by their place in the 'hierarchyCode' of the CFSubject.",
+                        "type" : "array",
+                        "minItems" : 1,
+                        "items" : {
+                            "$ref" : "#/components/schemas/CFSubjectDType"
+                        }
+                    }
+                },
+                "required" : [ "CFSubjects" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : false
+            },
+            "LinkGenURIDType" : {
+                "description" : "A container for the information that is used to achieve the link data reference.",
+                "type" : "object",
+                "properties" : {
+                    "title" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. A human readable title for the associated object.",
+                        "type" : "string"
+                    },
+                    "identifier" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. An unambiguous, synthetic, globally unique identifier (this may or may not be a UUID) for the associated object.",
+                        "type" : "string"
+                    },
+                    "uri" : {
+                        "description" : "Model Primitive Datatype = AnyURI. A network-resolvable URI pointing to the authoritative reference for the associated object.",
+                        "type" : "string",
+                        "format" : "uri"
+                    },
+                    "targetType" : {
+                        "description" : "This is a new attribute added in Version 1.1. It is used to identify the type of the referenced association i.e. this MAY NOT be a CASE Framework.",
+                        "anyOf" : [
+                                {
+                                    "type" : "string",
+                                    "enum" : [ "CASE" ]
+                                },
+                                {
+                                    "description" : "Model Primitive Datatype = NormalizedString.",
+                                    "type" : "string",
+                                    "pattern" : "(ext:)[a-zA-Z0-9\\.\\-_]+"
+                                }
+                        ]
+                    }
+                },
+                "required" : [ "title","identifier","uri" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : false
+            },
+            "LinkURIDType" : {
+                "description" : "A container for the information that is used to achieve the link data reference.",
+                "type" : "object",
+                "properties" : {
+                    "title" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. A human readable title for the associated object.",
+                        "type" : "string"
+                    },
+                    "identifier" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. An unambiguous, synthetic, globally unique identifier (UUID) for the associated object.",
+                        "type" : "string",
+                        "pattern" : "[0-9a-f]{8}-[0-9a-f]{4}-[1-5]{1}[0-9a-f]{3}-[8-9a-b]{1}[0-9a-f]{3}-[0-9a-f]{12}"
+                    },
+                    "uri" : {
+                        "description" : "Model Primitive Datatype = AnyURI. A network-resolvable URI pointing to the authoritative reference for the associated object.",
+                        "type" : "string",
+                        "format" : "uri"
+                    }
+                },
+                "required" : [ "title","identifier","uri" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : false
+            },
+            "imsx_CodeMinorDType" : {
+                "description" : "This is the container for the set of code minor status codes reported in the responses from the Service Provider.",
+                "type" : "object",
+                "properties" : {
+                    "imsx_codeMinorField" : {
+                        "description" : "Each reported code minor status code.",
+                        "type" : "array",
+                        "minItems" : 1,
+                        "items" : {
+                            "$ref" : "#/components/schemas/imsx_CodeMinorFieldDType"
+                        }
+                    }
+                },
+                "required" : [ "imsx_codeMinorField" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : false
+            },
+            "imsx_CodeMinorFieldDType" : {
+                "description" : "This is the container for a single code minor status code.",
+                "type" : "object",
+                "properties" : {
+                    "imsx_codeMinorFieldName" : {
+                        "description" : "Model Primitive Datatype = NormalizedString. This should contain the identity of the system that has produced the code minor status code report.",
+                        "type" : "string"
+                    },
+                    "imsx_codeMinorFieldValue" : {
+                        "description" : "The code minor status code (this is a value from the corresponding enumerated vocabulary).",
+                        "type" : "string",
+                        "enum" : [ "forbidden","fullsuccess","internal_server_error","invalid_selection_field","invalid_sort_field","invalid_uuid","server_busy","unauthorised_request","unknownobject" ]
+                    }
+                },
+                "required" : [ "imsx_codeMinorFieldName","imsx_codeMinorFieldValue" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : false
+            },
+            "imsx_StatusInfoDType" : {
+                "description" : "This is the container for the status code and associated information returned within the HTTP messages received from the Service Provider. For the CASE service this object will only be returned to provide information about a failed request i.e. it will NOT be in the payload for a successful request. See Appendix B for further information on the interpretation of the information contained within this class",
+                "type" : "object",
+                "properties" : {
+                    "imsx_codeMajor" : {
+                        "description" : "The code major value (from the corresponding enumerated vocabulary). See Appendix B for further information on the interpretation of this set of codes.",
+                        "type" : "string",
+                        "enum" : [ "failure","processing","success","unsupported" ]
+                    },
+                    "imsx_severity" : {
+                        "description" : "The severity value (from the corresponding enumerated vocabulary). See Appendix B for further information on the interpretation of this set of codes.",
+                        "type" : "string",
+                        "enum" : [ "error","status","warning" ]
+                    },
+                    "imsx_description" : {
+                        "description" : "Model Primitive Datatype = String. A human readable description supplied by the entity creating the status code information.",
+                        "type" : "string"
+                    },
+                    "imsx_codeMinor" : {
+                        "$ref" : "#/components/schemas/imsx_CodeMinorDType"
+                    }
+                },
+                "required" : [ "imsx_codeMajor","imsx_severity" ],
+                "x-1edtech-confidentiality" : "unrestricted",
+                "additionalProperties" : false
+            }
+        }
+    }
+}
