@@ -34,6 +34,11 @@ services:
       - ./core:/srv/core:rw
       - ./core/docker/php/conf.d/opcache.ini.dev:/usr/local/etc/php/conf.d/opcache.ini
       - ./core/var:/srv/core/var:rw
+    healthcheck:
+      start_period: 10m # For data migration
+      interval: 30s
+      timeout: 3s
+      retries: 5
 
   db:
     volumes:

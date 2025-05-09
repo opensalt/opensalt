@@ -133,7 +133,8 @@
         "twig/markdown-extra": "^3.8",
         "twig/string-extra": "^3.1",
         "twig/twig": "^3.1",
-        "web-token/jwt-framework": "^4.0"
+        "web-token/jwt-framework": "^4.0",
+        "yocto/yoclib-multibase": "^1.2"
     },
     "require-dev": {
         "codeception/codeception": "^5.0",

@@ -1,6 +1,20 @@
 Release Notes
 =============
 
+3.3
+---
+### New
+* Support for Open Badge v3 definitions
+* Initial support for CASE 1.1
+* Now using [FrankenPHP](https://frankenphp.dev/) as the web server (based on Caddy)
+  * This replaces the second phpfpm container
+
+### Improvements
+* Upgraded to Symfony 7, PHP 8.4, MySQL 8.4
+
+### Fixes
+
+
 3.2
 ---
 ### New

@@ -14,6 +14,12 @@ ALTER USER 'user'@'host' IDENTIFIED BY 'password';
 
 ## Database schema updates
 
+The table holding the database metadata has changed.  To fix run:
+
+```bash
+docker compose run --rm web bin/console doctrine:migrations:sync-metadata-storage --no-interaction
+```
+
 Each release may have updates to the database schema.  To apply database migrations run:
 
 ```bash

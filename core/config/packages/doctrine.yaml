@@ -20,7 +20,7 @@ doctrine:
                 options:  '%pdo_options%'
                 charset:  utf8mb4
                 schema_filter: ~^(?!(cache_items|LearningStandards|std_|map_|grade_level))~
-                server_version: 8.0.29
+                server_version: 8.4.4
                 use_savepoints: true
                 profiling_collect_backtrace: '%kernel.debug%'
                 mapping_types:
