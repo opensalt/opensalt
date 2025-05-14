@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a70d2df07441b8e1f8bf692198eecee6",
+    "content-hash": "e923d97bdb6d7ec59dba966a117931b7",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -62,16 +62,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.343.9",
+            "version": "3.343.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "6ca5eb1c60b879cf516e5fadefec87afc6219e74"
+                "reference": "473d632d03a78b19f9f75a2126c5ba8c21f09346"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/6ca5eb1c60b879cf516e5fadefec87afc6219e74",
-                "reference": "6ca5eb1c60b879cf516e5fadefec87afc6219e74",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/473d632d03a78b19f9f75a2126c5ba8c21f09346",
+                "reference": "473d632d03a78b19f9f75a2126c5ba8c21f09346",
                 "shasum": ""
             },
             "require": {
@@ -153,9 +153,9 @@
             "support": {
                 "forum": "https://github.com/aws/aws-sdk-php/discussions",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.343.9"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.343.10"
             },
-            "time": "2025-05-12T18:11:31+00:00"
+            "time": "2025-05-13T18:09:50+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -3899,16 +3899,16 @@
         },
         {
             "name": "kamermans/guzzle-oauth2-subscriber",
-            "version": "v1.1.0",
+            "version": "v1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kamermans/guzzle-oauth2-subscriber.git",
-                "reference": "16f2fb28fa6803c519c6339ff6270cdd7a365abf"
+                "reference": "7c311987ce7dcb6bfcd8320cc64588ad8fca075a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kamermans/guzzle-oauth2-subscriber/zipball/16f2fb28fa6803c519c6339ff6270cdd7a365abf",
-                "reference": "16f2fb28fa6803c519c6339ff6270cdd7a365abf",
+                "url": "https://api.github.com/repos/kamermans/guzzle-oauth2-subscriber/zipball/7c311987ce7dcb6bfcd8320cc64588ad8fca075a",
+                "reference": "7c311987ce7dcb6bfcd8320cc64588ad8fca075a",
                 "shasum": ""
             },
             "require": {
@@ -3940,9 +3940,9 @@
             ],
             "support": {
                 "issues": "https://github.com/kamermans/guzzle-oauth2-subscriber/issues",
-                "source": "https://github.com/kamermans/guzzle-oauth2-subscriber/tree/v1.1.0"
+                "source": "https://github.com/kamermans/guzzle-oauth2-subscriber/tree/v1.1.1"
             },
-            "time": "2024-05-02T18:45:14+00:00"
+            "time": "2025-05-13T19:40:57+00:00"
         },
         {
             "name": "laminas/laminas-code",
@@ -14483,6 +14483,84 @@
             "time": "2022-06-03T18:03:27+00:00"
         },
         {
+            "name": "wgg/flysystem-doctrine",
+            "version": "dev-dbal-4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/opensalt/flysystem-doctrine.git",
+                "reference": "1fdcabb638fddb768239eb70bf25f987fd220af9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/opensalt/flysystem-doctrine/zipball/1fdcabb638fddb768239eb70bf25f987fd220af9",
+                "reference": "1fdcabb638fddb768239eb70bf25f987fd220af9",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/dbal": "^4.0",
+                "league/flysystem": "^3.0",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.6",
+                "league/flysystem-adapter-test-utilities": "^3.0",
+                "phpstan/phpstan": "^2.1",
+                "phpstan/phpstan-phpunit": "^2.0",
+                "phpunit/phpunit": "^10.0",
+                "symfony/var-dumper": "^5.4|^6.1|^7.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "WGG\\Flysystem\\Doctrine\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "WGG\\Flysystem\\Doctrine\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "cs-fix": [
+                    "php-cs-fixer fix"
+                ],
+                "phpstan": [
+                    "@phpstan:src",
+                    "@phpstan:test"
+                ],
+                "phpstan:src": [
+                    "phpstan analyse -c phpstan.neon"
+                ],
+                "phpstan:test": [
+                    "phpstan analyse -c phpstan.tests.neon"
+                ],
+                "test": [
+                    "phpunit"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Webgarden Developer",
+                    "email": "developer+github@webgarden.eu",
+                    "homepage": "https://webgarden.eu/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Flysystem adapter for Doctrine DBAL",
+            "support": {
+                "source": "https://github.com/opensalt/flysystem-doctrine/tree/dbal-4"
+            },
+            "time": "2025-05-14T13:49:32+00:00"
+        },
+        {
             "name": "yocto/yoclib-multibase",
             "version": "v1.2.0",
             "source": {
@@ -14600,16 +14678,16 @@
         },
         {
             "name": "codeception/codeception",
-            "version": "5.3.0",
+            "version": "5.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/Codeception.git",
-                "reference": "5894c6f9f2f4bdcbd2a1d73ed6dc91976ce8a012"
+                "reference": "4ac6b4fb10db02c5a43b4afbeb665a0e33fbcfde"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/5894c6f9f2f4bdcbd2a1d73ed6dc91976ce8a012",
-                "reference": "5894c6f9f2f4bdcbd2a1d73ed6dc91976ce8a012",
+                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/4ac6b4fb10db02c5a43b4afbeb665a0e33fbcfde",
+                "reference": "4ac6b4fb10db02c5a43b4afbeb665a0e33fbcfde",
                 "shasum": ""
             },
             "require": {
@@ -14715,7 +14793,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/Codeception/issues",
-                "source": "https://github.com/Codeception/Codeception/tree/5.3.0"
+                "source": "https://github.com/Codeception/Codeception/tree/5.3.1"
             },
             "funding": [
                 {
@@ -14723,7 +14801,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2025-05-06T19:00:07+00:00"
+            "time": "2025-05-13T23:20:11+00:00"
         },
         {
             "name": "codeception/lib-asserts",
@@ -16824,12 +16902,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "1027d9bda31e8db3234e2cb9ca75e97b63b74bf0"
+                "reference": "5326c903c04c522c27d45dacfb6a521a448a399a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/1027d9bda31e8db3234e2cb9ca75e97b63b74bf0",
-                "reference": "1027d9bda31e8db3234e2cb9ca75e97b63b74bf0",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/5326c903c04c522c27d45dacfb6a521a448a399a",
+                "reference": "5326c903c04c522c27d45dacfb6a521a448a399a",
                 "shasum": ""
             },
             "conflict": {
@@ -17092,8 +17170,8 @@
                 "geshi/geshi": "<1.0.8.11-dev",
                 "getformwork/formwork": "<1.13.1|>=2.0.0.0-beta1,<2.0.0.0-beta4",
                 "getgrav/grav": "<1.7.46",
-                "getkirby/cms": "<=3.6.6.5|>=3.7,<=3.7.5.4|>=3.8,<=3.8.4.3|>=3.9,<=3.9.8.1|>=3.10,<=3.10.1|>=4,<=4.3",
-                "getkirby/kirby": "<=2.5.12",
+                "getkirby/cms": "<3.9.8.3-dev|>=3.10,<3.10.1.2-dev|>=4,<4.7.1",
+                "getkirby/kirby": "<3.9.8.3-dev|>=3.10,<3.10.1.2-dev|>=4,<4.7.1",
                 "getkirby/panel": "<2.5.14",
                 "getkirby/starterkit": "<=3.7.0.2",
                 "gilacms/gila": "<=1.15.4",
@@ -17746,7 +17824,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-05-12T23:05:17+00:00"
+            "time": "2025-05-13T20:06:05+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -19472,6 +19550,12 @@
             "version": "dev-symfony-7",
             "alias": "3.0.0.1",
             "alias_normalized": "3.0.0.1"
+        },
+        {
+            "package": "wgg/flysystem-doctrine",
+            "version": "dev-dbal-4",
+            "alias": "1.0.1.1",
+            "alias_normalized": "1.0.1.1"
         }
     ],
     "minimum-stability": "dev",
@@ -19479,7 +19563,8 @@
         "codeception/module-sequence": 20,
         "ericmartel/codeception-email-mailtrap": 20,
         "roave/security-advisories": 20,
-        "tetranz/select2entity-bundle": 20
+        "tetranz/select2entity-bundle": 20,
+        "wgg/flysystem-doctrine": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

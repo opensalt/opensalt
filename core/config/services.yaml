@@ -8,6 +8,8 @@ imports:
     - { resource: '../local-src/local.yaml', ignore_errors: 'not_found' }
 
 parameters:
+    .container.dumper.inline_factories: true
+
     # Defaults for environment variables
     env(DB_TYPE): 'mysql'
     env(MYSQL_HOST): 'db'
