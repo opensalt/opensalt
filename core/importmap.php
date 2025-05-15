@@ -12,41 +12,35 @@
  * The "importmap:require" command can be used to add new entries to this file.
  */
 return [
-    /*
-    'app' => [
-        'path' => './assets/app.js',
-        'entrypoint' => true,
-    ],
-     */
-    '@hotwired/stimulus' => [
-        'version' => '3.2.2',
-    ],
     '@symfony/stimulus-bundle' => [
         'path' => './vendor/symfony/stimulus-bundle/assets/dist/loader.js',
     ],
+    '@symfony/ux-vue' => [
+        'path' => './vendor/symfony/ux-vue/assets/dist/loader.js',
+    ],
+    '@hotwired/stimulus' => [
+        'version' => '3.2.2',
+    ],
     'vue' => [
-        'version' => '3.5.13',
+        'version' => '3.5.15',
         'package_specifier' => 'vue/dist/vue.esm-bundler.js',
     ],
     '@vue/runtime-dom' => [
-        'version' => '3.5.13',
+        'version' => '3.5.15',
     ],
     '@vue/compiler-dom' => [
-        'version' => '3.5.13',
+        'version' => '3.5.15',
     ],
     '@vue/shared' => [
-        'version' => '3.5.13',
+        'version' => '3.5.15',
     ],
     '@vue/runtime-core' => [
-        'version' => '3.5.13',
+        'version' => '3.5.15',
     ],
     '@vue/compiler-core' => [
-        'version' => '3.5.13',
+        'version' => '3.5.15',
     ],
     '@vue/reactivity' => [
-        'version' => '3.5.13',
-    ],
-    '@symfony/ux-vue' => [
-        'path' => './vendor/symfony/ux-vue/assets/dist/loader.js',
+        'version' => '3.5.15',
     ],
 ];

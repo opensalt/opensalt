@@ -182,6 +182,8 @@ services:
             $attachmentUrlPrefix: '%attachment_url_prefix%'
             $bucketPrefix: '%aws_prefix%'
 
+    WGG\Flysystem\Doctrine\DoctrineDBALAdapter: ~
+
     # Workarounds for 3.4 deprecations
     League\Flysystem\Filesystem:
         class: 'League\Flysystem\Filesystem'

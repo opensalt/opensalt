@@ -1,0 +1,19 @@
+vich_uploader:
+    db_driver: orm
+    storage: flysystem
+
+    mappings:
+        files:
+            uri_prefix: /files
+            upload_destination: files.storage
+            delete_on_remove: false
+            delete_on_update: false
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+            # Disabled as files got saved in a different directory than was eventually added to the entity
+            #directory_namer: app.namer.award_directory_namer
+
+    #mappings:
+    #    products:
+    #        uri_prefix: /images/products
+    #        upload_destination: '%kernel.project_dir%/public/images/products'
+    #        namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
