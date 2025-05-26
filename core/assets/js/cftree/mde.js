@@ -166,7 +166,7 @@ const mde = (function() {
                     name: "image",
                     action: SimpleMDE.drawImage,
                     className: "fa fa-picture-o",
-                    title: "Insert image via URL or drag and drop an image into the field below",
+                    title: "Insert image via URL",
                 },
                 "table", "horizontal-rule", "|", "preview",
                 "side-by-side", "fullscreen"
