@@ -33,6 +33,7 @@ services:
       CASE_NETWORK_CLIENT_SECRET:
       CASE_NETWORK_TOKEN_ENDPOINT:
       CASE_NETWORK_SCOPE:
+      ISSUER_SIGNING_KEY:
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "pgrep",  "-af",  "^php.*bin/console.*messenger:consume"]
@@ -97,6 +98,7 @@ services:
       CASE_NETWORK_CLIENT_SECRET:
       CASE_NETWORK_TOKEN_ENDPOINT:
       CASE_NETWORK_SCOPE:
+      ISSUER_SIGNING_KEY:
     restart: unless-stopped
     sysctls:
       - net.ipv4.ip_unprivileged_port_start=0

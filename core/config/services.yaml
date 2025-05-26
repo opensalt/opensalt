@@ -57,6 +57,7 @@ parameters:
     env(MERCURE_JWT_SECRET): '!ChangeThisMercureHubJWTSecretKey!'
     env(MERCURE_URL): 'http://web/.well-known/mercure'
     env(MERCURE_PUBLIC_URL): null
+    env(ISSUER_SIGNING_KEY): null
 
     locale: en
     database_type: '%env(DB_TYPE)%'
@@ -104,6 +105,7 @@ parameters:
     case_network_scope: '%env(CASE_NETWORK_SCOPE)%'
     mfa_issuer: '%env(MFA_ISSUER)%'
     use_mfa: '%env(feature_flag:USE_MFA)%'
+    issuer_signing_key: '%env(ISSUER_SIGNING_KEY)%'
 
 services:
     # default configuration for services in *this* file
