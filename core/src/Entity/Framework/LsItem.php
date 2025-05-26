@@ -50,6 +50,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         7 => PublicKeyDto::class,
     ];
 
+    public const int ITEM_TYPE_IDENTIFIER = 0;
     public const string ITEM_TYPE_FORM = LsItemType::class;
 
     public const string TYPE_KEY = 'salt:type';
