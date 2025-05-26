@@ -24,6 +24,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Uid\Uuid;
 
 #[AsController]
+#[Route('/registry/issuer')]
 class IssuerController extends AbstractController
 {
     public function __construct(
@@ -33,7 +34,7 @@ class IssuerController extends AbstractController
     ) {
     }
 
-    #[Route('/registry/issuer', name: 'issuer_registry_index', methods: ['GET'])]
+    #[Route('/', name: 'issuer_registry_index', methods: ['GET'])]
     #[IsGranted(Permission::ISSUER_REGISTRY_LIST)]
     public function list(): Response
     {
@@ -47,7 +48,7 @@ class IssuerController extends AbstractController
         ]);
     }
 
-    #[Route('/registry/issuer/did/{id}', name: 'issuer_registry_by_did', methods: ['GET'])]
+    #[Route('/did/{id}', name: 'issuer_registry_by_did', methods: ['GET'])]
     public function getIssuerByDid(string $did): Response
     {
         try {
@@ -59,7 +60,7 @@ class IssuerController extends AbstractController
         return new JsonResponse($issuer);
     }
 
-    #[Route('/registry/issuer/new', name: 'issuer_registry_new', methods: ['GET', 'POST'])]
+    #[Route('/new', name: 'issuer_registry_new', methods: ['GET', 'POST'])]
     #[IsGranted(Permission::ISSUER_REGISTRY_ADD)]
     public function new(Request $request): Response
     {
@@ -89,7 +90,7 @@ class IssuerController extends AbstractController
         ]);
     }
 
-    #[Route('/registry/issuer/{id}/edit', name: 'issuer_registry_edit', methods: ['GET', 'POST'])]
+    #[Route('/{id}/edit', name: 'issuer_registry_edit', methods: ['GET', 'POST'])]
     #[IsGranted(Permission::ISSUER_REGISTRY_ADD)]
     public function edit(Request $request, string $id): Response
     {
@@ -133,7 +134,7 @@ class IssuerController extends AbstractController
         ]);
     }
 
-    #[Route('/registry/issuer/{id}', name: 'issuer_registry_show', methods: ['GET'])]
+    #[Route('/{id}', name: 'issuer_registry_show', methods: ['GET'])]
     public function show(string $id): Response
     {
         $uuid = Uuid::fromString($id);
