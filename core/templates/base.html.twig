@@ -64,9 +64,11 @@
                                                 <li role="separator" class="dropdown-divider"></li>
 
                                                 <li><a href="{{ url("issuer_registry_index") }}" class="dropdown-item">List issuers</a></li>
+                                                {#
                                                 {% if is_granted(constant('App\\Security\\Permission::ISSUER_REGISTRY_ADD')) %}
-                                                    <li><a href="{{ url("issuer_registry_new") }}" class="dropdown-item">Add issuer</a></li>
+                                                    <li><a href="{{ url("alt_issuer_registry_new") }}" class="dropdown-item">Add issuer</a></li>
                                                 {% endif %}
+                                                #}
                                                 <li role="separator" class="dropdown-divider"></li>
 
                                                 {%- set seperator_1 = false -%}
