@@ -40,6 +40,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/opensalt/flysystem-doctrine.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/opensalt/NovawayFeatureFlagBundle.git"
         }
     ],
     "minimum-stability": "dev",
@@ -85,7 +89,7 @@
         "milo/github-api": "^2.0",
         "nelmio/cors-bundle": "^2.0",
         "nelmio/security-bundle": "^3.0",
-        "novaway/feature-flag-bundle": "^3.0",
+        "novaway/feature-flag-bundle": "dev-symfony-7.2",
         "pentatrion/vite-bundle": "^8.0",
         "phpdocumentor/reflection-docblock": "^5.2",
         "phpoffice/phpspreadsheet": "~3.9.0",

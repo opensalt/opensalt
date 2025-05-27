@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2b9d70155d44f7d229b3a9c1e6104d37",
+    "content-hash": "cbe5c10500602d64a1a134f0f10d07bc",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -5930,34 +5930,34 @@
         },
         {
             "name": "novaway/feature-flag-bundle",
-            "version": "3.0.0-beta2",
+            "version": "dev-symfony-7.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/novaway/NovawayFeatureFlagBundle.git",
-                "reference": "24852e2f54ca4d034ed25610fd4ea6d8600f625f"
+                "url": "https://github.com/opensalt/NovawayFeatureFlagBundle.git",
+                "reference": "e8bdae9a179c0f74bfe5a3888943ebcdb901f7a9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/novaway/NovawayFeatureFlagBundle/zipball/24852e2f54ca4d034ed25610fd4ea6d8600f625f",
-                "reference": "24852e2f54ca4d034ed25610fd4ea6d8600f625f",
+                "url": "https://api.github.com/repos/opensalt/NovawayFeatureFlagBundle/zipball/e8bdae9a179c0f74bfe5a3888943ebcdb901f7a9",
+                "reference": "e8bdae9a179c0f74bfe5a3888943ebcdb901f7a9",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "php": ">= 8.1",
-                "symfony/console": "^5.4|^6.0|^7.0",
-                "symfony/framework-bundle": "^5.4|^6.0|^7.0",
-                "symfony/options-resolver": "^5.4|^6.0|^7.0"
+                "php": ">= 8.4",
+                "symfony/console": "^7.2",
+                "symfony/framework-bundle": "^7.2",
+                "symfony/options-resolver": "^7.2"
             },
             "require-dev": {
                 "phpunit/phpunit": "^10.1",
-                "symfony/asset": "^5.4|^6.0|^7.0",
-                "symfony/browser-kit": "^5.4|^6.0|^7.0",
-                "symfony/css-selector": "^5.4|^6.0|^7.0",
-                "symfony/expression-language": "^5.4|^6.0|^7.0",
-                "symfony/templating": "^5.4|^6.0|^7.0",
-                "symfony/twig-bundle": "^5.4|^6.0|^7.0",
-                "symfony/yaml": "^5.4|^6.0|^7.0",
+                "symfony/asset": "^7.2",
+                "symfony/browser-kit": "^7.2",
+                "symfony/css-selector": "^7.2",
+                "symfony/expression-language": "^7.2",
+                "symfony/templating": "^7.2",
+                "symfony/twig-bundle": "^7.2",
+                "symfony/yaml": "^7.2",
                 "twig/twig": "^3.0"
             },
             "suggest": {
@@ -5969,7 +5969,11 @@
                     "Novaway\\Bundle\\FeatureFlagBundle\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "Novaway\\Bundle\\FeatureFlagBundle\\Tests\\": "tests/"
+                }
+            },
             "license": [
                 "MIT"
             ],
@@ -5990,10 +5994,9 @@
                 "symfony"
             ],
             "support": {
-                "issues": "https://github.com/novaway/NovawayFeatureFlagBundle/issues",
-                "source": "https://github.com/novaway/NovawayFeatureFlagBundle/tree/3.0.0-beta2"
+                "source": "https://github.com/opensalt/NovawayFeatureFlagBundle/tree/symfony-7.2"
             },
-            "time": "2025-02-21T18:35:01+00:00"
+            "time": "2025-05-27T15:26:39+00:00"
         },
         {
             "name": "paragonie/constant_time_encoding",
@@ -19763,6 +19766,7 @@
     "stability-flags": {
         "codeception/module-sequence": 20,
         "ericmartel/codeception-email-mailtrap": 20,
+        "novaway/feature-flag-bundle": 20,
         "roave/security-advisories": 20,
         "tetranz/select2entity-bundle": 20,
         "wgg/flysystem-doctrine": 20
