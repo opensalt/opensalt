@@ -22,4 +22,8 @@ twig:
       footer_left_text: "%footer_left_text%"
       base_template: '%base_template%'
 
+    file_name_pattern: '*.twig'
 
+when@test:
+    twig:
+        strict_variables: true
