@@ -52,7 +52,7 @@ class IssuerRegistryController extends AbstractController
                 'federation_entity' => [
                     'organization_name' => 'OpenSALT',
                     'homepage_uri' => $this->generateUrl('salt_index', [], UrlGeneratorInterface::ABSOLUTE_URL),
-                    // 'logo_uri' => 'data:image/svg;base64,'.base64_encode(file_get_contents(__DIR__.'/../../../public/static/img/opensalt.svg')),
+                    'logo_uri' => 'data:image/svg;base64,'.base64_encode(file_get_contents(__DIR__.'/../../../public/static/img/opensalt.svg')),
                     'policy_uri' => $this->generateUrl('salt_index', [], UrlGeneratorInterface::ABSOLUTE_URL), // @TODO add policy URL
                     'federation_fetch_endpoint' => $this->generateUrl('issuer_registry_fetch', [], UrlGeneratorInterface::ABSOLUTE_URL),
                     'federation_list_endpoint' => $this->generateUrl('issuer_registry_list', [], UrlGeneratorInterface::ABSOLUTE_URL),
@@ -90,7 +90,7 @@ class IssuerRegistryController extends AbstractController
                 'federation_entity' => [
                     'organization_name' => $issuerInfo['org']->name,
                     'homepage_uri' => $issuerInfo['org']->webpage,
-                    // 'logo_uri' => 'data:image/svg;base64,'.base64_encode(file_get_contents(__DIR__.'/../../../public/static/img/opensalt.svg')),
+                    'logo_uri' => $issuerInfo['org']->logo,
                 ],
             ],
             // 'jwks' => $keySet, // Removed from upstream work, assuming the keys can be found from the DID by retrieving the DID doc
