@@ -93,12 +93,26 @@ class IssuerRegistryController extends AbstractController
                     // 'logo_uri' => 'data:image/svg;base64,'.base64_encode(file_get_contents(__DIR__.'/../../../public/static/img/opensalt.svg')),
                 ],
             ],
-            'jwks' => $keySet,
+            // 'jwks' => $keySet, // Removed from upstream work, assuming the keys can be found from the DID by retrieving the DID doc
             'iss' => $this->generateUrl('issuer_registry_prefix', [], UrlGeneratorInterface::ABSOLUTE_URL),
             'exp' => new \DateTimeImmutable('now + 1 day')->format('U'),
             'iat' => new \DateTimeImmutable('now')->format('U'),
             'jti' => Uuid::v4()->toBase58(),
         ];
+
+        if (null !== $issuerInfo['org']->legalName) {
+            $ret['metadata']['institutional_additonal_information']['legal_name'] = $issuerInfo['org']->legalName;
+        }
+
+        if (null !== $issuerInfo['org']->ctid) {
+            $ret['metadata']['credential_registry_entity']['ctid'] = $issuerInfo['org']->ctid;
+            $ret['metadata']['credential_registry_entity']['url'] = 'https://credentialengineregistry.org/resources/'.$issuerInfo['org']->ctid;
+        }
+
+        if (null !== $issuerInfo['org']->rorId) {
+            $ret['metadata']['ror_entity']['rorid'] = $issuerInfo['org']->rorId;
+            $ret['metadata']['ror_entity']['url'] = 'https://ror.org/'.$issuerInfo['org']->rorId;
+        }
 
         $key = $this->getSigningKey();
 

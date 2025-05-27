@@ -16,6 +16,18 @@
             <td>Description</td>
             <td>{{ issuer.description|default('None') }}</td>
         </tr>
+        {% if issuer.logo is not null %}
+            <tr>
+                <td>Logo URI</td>
+                <td>{{ issuer.logo |default('None') }}</td>
+            </tr>
+        {% endif %}
+        {% if issuer.ctid is not null %}
+            <tr>
+                <td>CTID</td>
+                <td>{{ issuer.ctid |default('None') }}</td>
+            </tr>
+        {% endif %}
         <tr>
             <td>Identifiers</td>
             <td>

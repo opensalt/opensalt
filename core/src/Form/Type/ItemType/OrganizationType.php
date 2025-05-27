@@ -62,10 +62,32 @@ class OrganizationType extends AbstractType
                 ],
                 'help' => 'The type of organization.',
             ])
+            ->add('logo', TextType::class, [
+                'label' => 'Logo URI',
+                'required' => false,
+                'help' => 'The organization\'s logo.',
+            ])
+            ->add('legalName', TextType::class, [
+                'label' => 'Legal Name',
+                'required' => false,
+                'help' => 'The organization\'s legal name.',
+            ])
+            ->add('ctid', TextType::class, [
+                'label' => 'CTID',
+                'required' => false,
+                'help' => 'The organization\'s CTID.',
+            ])
+            /*
+            ->add('rorId', TextType::class, [
+                'label' => 'ROR ID',
+                'required' => false,
+                'help' => 'The organization\'s ROR ID (https://ror.org).',
+            ])
+            */
             ->add('webpage', UrlType::class, [
                 'label' => 'Webpage',
                 'required' => false,
-                'help' => 'Webpage that describes this course.',
+                'help' => 'Webpage that describes this organization.',
             ])
             ->add('jurisdiction', TextType::class, [
                 'label' => 'Jurisdiction',
