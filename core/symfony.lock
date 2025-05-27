@@ -906,15 +906,14 @@
         ]
     },
     "symfony/validator": {
-        "version": "4.3",
+        "version": "7.2",
         "recipe": {
             "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "4.3",
-            "ref": "d902da3e4952f18d3bf05aab29512eb61cabd869"
+            "branch": "main",
+            "version": "7.0",
+            "ref": "8c1c4e28d26a124b0bb273f537ca8ce443472bfd"
         },
         "files": [
-            "config/packages/test/validator.yaml",
             "config/packages/validator.yaml"
         ]
     },
