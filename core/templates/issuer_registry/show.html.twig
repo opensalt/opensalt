@@ -1,0 +1,43 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}
+    Issuer {{ issuer.name }}
+{% endblock %}
+
+{% block body %}
+    <h1>Issuer: {{ issuer.name }}</h1>
+
+    <table class="table table-">
+        <tr>
+            <td>Name</td>
+            <td>{{ issuer.name }}</td>
+        </tr>
+        <tr>
+            <td>Description</td>
+            <td>{{ issuer.description|default('None') }}</td>
+        </tr>
+        <tr>
+            <td>Identifiers</td>
+            <td>
+                {% for identifier in identifiers %}
+                    {{ identifier.identifier }}<br />
+                {% endfor %}
+            </td>
+        </tr>
+        {#
+        <tr>
+            <td>Contact</td>
+            <td>{{ issuer.contact|default('Unknown') }}</td>
+        </tr>
+        <tr>
+            <td>Trusted</td>
+            <td>{{ issuer.trusted ? 'Yes' : ((issuer.trusted is null) ? 'Unknown' : 'No') }}</td>
+        </tr>
+        #}
+        <tr>
+            <td>Organization Type</td>
+            <td>{{ issuer.type |default('Unknown') |replace({'orgType:': ''}) }}</td>
+        </tr>
+    </table>
+{% endblock %}
+
