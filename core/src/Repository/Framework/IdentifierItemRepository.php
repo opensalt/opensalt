@@ -121,16 +121,16 @@ class IdentifierItemRepository extends ServiceEntityRepository
         $keys = [];
 
         foreach ($assocs as $assoc) {
-            if (5 === $assoc->getOriginLsItem()?->getDiscriminator()) {
+            if (LsItem::TYPES['organization'] === $assoc->getOriginLsItem()?->getDiscriminator()) {
                 $parent = OrganizationDto::fromItem($assoc->getOriginLsItem());
             }
-            if (5 === $assoc->getDestinationLsItem()?->getDiscriminator()) {
+            if (LsItem::TYPES['organization'] === $assoc->getDestinationLsItem()?->getDiscriminator()) {
                 $parent = OrganizationDto::fromItem($assoc->getDestinationLsItem());
             }
-            if (7 === $assoc->getOriginLsItem()?->getDiscriminator()) {
+            if (LsItem::TYPES['public_key'] === $assoc->getOriginLsItem()?->getDiscriminator()) {
                 $keys[] = PublicKeyDto::fromItem($assoc->getOriginLsItem());
             }
-            if (7 === $assoc->getDestinationLsItem()?->getDiscriminator()) {
+            if (LsItem::TYPES['public_key'] === $assoc->getDestinationLsItem()?->getDiscriminator()) {
                 $keys[] = PublicKeyDto::fromItem($assoc->getDestinationLsItem());
             }
         }
