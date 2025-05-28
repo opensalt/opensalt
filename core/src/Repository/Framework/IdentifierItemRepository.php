@@ -59,6 +59,9 @@ class IdentifierItemRepository extends ServiceEntityRepository
         return $issuerIdentifiers;
     }
 
+    /**
+     * @return array<LsItem>
+     */
     public function findIssuerItems(): array
     {
         $issuerFrameworks = $this->findIssuerFrameworks();

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Domain\Issuer;
 
 use App\Repository\Framework\IdentifierItemRepository;
+use App\Repository\Framework\LsDefItemTypeRepository;
+use App\Repository\Framework\LsItemRepository;
 use Jose\Component\Core\AlgorithmManager;
 use Jose\Component\Core\JWK;
 use Jose\Component\Core\JWKSet;
@@ -15,7 +17,6 @@ use Jose\Component\Signature\Serializer\JWSSerializerManagerFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
@@ -40,7 +41,7 @@ class IssuerRegistryController extends AbstractController
     }
 
     #[Route('/.well-known/openid-federation', 'issuer_registry_root')]
-    public function index(Request $request): Response
+    public function index(): Response
     {
         $key = $this->getSigningKey();
 
@@ -53,7 +54,7 @@ class IssuerRegistryController extends AbstractController
                     'organization_name' => 'OpenSALT',
                     'homepage_uri' => $this->generateUrl('salt_index', [], UrlGeneratorInterface::ABSOLUTE_URL),
                     'logo_uri' => 'data:image/svg;base64,'.base64_encode(file_get_contents(__DIR__.'/../../../public/static/img/opensalt.svg')),
-                    'policy_uri' => $this->generateUrl('salt_index', [], UrlGeneratorInterface::ABSOLUTE_URL), // @TODO add policy URL
+                    'policy_uri' => $this->generateUrl('issuer_registry_governance', [], UrlGeneratorInterface::ABSOLUTE_URL),
                     'federation_fetch_endpoint' => $this->generateUrl('issuer_registry_fetch', [], UrlGeneratorInterface::ABSOLUTE_URL),
                     'federation_list_endpoint' => $this->generateUrl('issuer_registry_list', [], UrlGeneratorInterface::ABSOLUTE_URL),
                 ],
@@ -136,6 +137,27 @@ class IssuerRegistryController extends AbstractController
         }
 
         return new JsonResponse($list);
+    }
+
+    #[Route('/governance', 'issuer_registry_governance')]
+    public function governance(
+        IdentifierItemRepository $identifierItemRepository,
+        LsItemRepository $lsItemRepository,
+        LsDefItemTypeRepository $itemTypeRepository,
+    ): Response {
+        $issuerFrameworks = $identifierItemRepository->findIssuerFrameworks();
+        $frameworkIds = array_map(fn ($lsDoc) => $lsDoc->getId(), $issuerFrameworks);
+
+        $governanceDocType = $itemTypeRepository->findBy(['title' => 'Governance Document']);
+
+        $governanceDoc = $lsItemRepository->findBy(['lsDoc' => $frameworkIds, 'itemType' => $governanceDocType], null, 1);
+        if (count($governanceDoc) < 1) {
+            throw $this->createNotFoundException('Governance document not found');
+        }
+
+        return $this->render('issuer_registry/governance.html.twig', [
+            'governanceDoc' => $governanceDoc[0],
+        ]);
     }
 
     protected function getSigningKey(): JWK

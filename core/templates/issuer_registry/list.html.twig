@@ -8,13 +8,22 @@
     <h1>Issuer Registry List</h1>
 
     {% if issuers is not empty %}
-        <div class="row row-cols-3 g-4">
+        <div class="row row-cols-lg-3 row-cols-sm-2 row-cols-1 g-3">
             {% for issuer in issuers %}
                 <div class="col card-group">
                     <div class="card hover:secondary">
-                        <div class="card-body link-opacity-25-hover">
-                            <a class="stretched-link h3 card-title link-underline link-underline-opacity-0" href="{{ path('issuer_registry_show', {'id': issuer.id}) }}">{{ issuer.abbreviatedStatement }}</a>
-                            <p class="card-text">{{ issuer.fullStatement }}</p>
+                        <div class="row g-0">
+                            {% if issuer.logo is not empty %}
+                                <div class="col-3 text-center align-content-center">
+                                    <img src="{{ issuer.logo }}" class="img-fluid m-2" alt="Issuer logo">
+                                </div>
+                            {% endif %}
+                            <div class="{% if issuer.logo is not empty %}col-auto{% endif %}">
+                                <div class="card-body link-opacity-25-hover">
+                                    <a class="stretched-link h3 card-title link-underline link-underline-opacity-0" href="{{ path('issuer_registry_show', {'id': issuer.id}) }}">{{ issuer.name }}</a>
+                                    <p class="card-text">{{ issuer.description }}</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

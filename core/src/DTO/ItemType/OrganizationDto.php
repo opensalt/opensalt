@@ -19,6 +19,8 @@ class OrganizationDto implements ItemTypeInterface
     public const string CTID_KEY = 'ceterms:ctid';
     public const string RORID_KEY = 'salt:rorId';
 
+    public ?int $id;
+
     public function __construct(
         #[Assert\NotBlank()]
         #[Assert\Length(max: 255)]
@@ -39,7 +41,7 @@ class OrganizationDto implements ItemTypeInterface
     #[\Override]
     public static function fromItem(LsItem $item): self
     {
-        return new self(
+        $org = new self(
             $item->getAbbreviatedStatement(),
             $item->getFullStatement(),
             $item->getExtensionProperty(self::TYPE_KEY),
@@ -50,6 +52,10 @@ class OrganizationDto implements ItemTypeInterface
             $item->getExtensionProperty(self::CTID_KEY),
             $item->getExtensionProperty(self::RORID_KEY)
         );
+
+        $org->id = $item->getId();
+
+        return $org;
     }
 
     #[\Override]

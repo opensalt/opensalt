@@ -1,0 +1,12 @@
+{% extends 'layout.html.twig' %}
+
+{% block body %}
+    {% apply markdown_to_html %}
+        {{ governanceDoc.fullStatement }}
+    {% endapply %}
+{% endblock %}
+
+{% block title %}
+    Issuer Registry Governance Document
+{% endblock %}
+

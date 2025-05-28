@@ -27,8 +27,18 @@ class RegistryController extends AbstractController
         // Get list of organisations with identifiers
         $issuers = $this->identifierItemRepository->findIssuerItems();
 
+        if (!$issuers) {
+            throw $this->createNotFoundException('No issuers found');
+        }
+
+        /** @var array<OrganizationDto> $issuerDtos */
+        $issuerDtos = [];
+        foreach ($issuers as $issuer) {
+            $issuerDtos[] = OrganizationDto::fromItem($issuer);
+        }
+
         return $this->render('issuer_registry/list.html.twig', [
-            'issuers' => $issuers,
+            'issuers' => $issuerDtos,
         ]);
     }
 

@@ -11,6 +11,7 @@ return $config ->setRules([
         'phpdoc_align' => false,
         'phpdoc_to_comment' => false,
         'binary_operator_spaces' => false,
+        'statement_indentation' => false,
     ])
     ->setFinder($finder)
 ;
