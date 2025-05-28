@@ -18,7 +18,7 @@
                                     <img src="{{ issuer.logo }}" class="img-fluid m-2" alt="Issuer logo">
                                 </div>
                             {% endif %}
-                            <div class="{% if issuer.logo is not empty %}col-auto{% endif %}">
+                            <div class="{% if issuer.logo is not empty %}col-9{% endif %}">
                                 <div class="card-body link-opacity-25-hover">
                                     <a class="stretched-link h3 card-title link-underline link-underline-opacity-0" href="{{ path('issuer_registry_show', {'id': issuer.id}) }}">{{ issuer.name }}</a>
                                     <p class="card-text">{{ issuer.description }}</p>
