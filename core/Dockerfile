@@ -10,7 +10,7 @@ ARG COMMIT=unknown
 
 ARG PHP_VERSION=8.4
 ARG FRANKENPHP_VERSION=1
-ARG NODE_VERSION=20
+ARG NODE_VERSION=22
 
 # https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
 #========================================================================
