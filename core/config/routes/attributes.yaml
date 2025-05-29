@@ -1,9 +1,3 @@
-controllers:
-    resource:
-        path: ../../src/Controller/
-        namespace: App\Controller
-    type: attribute
-
 domain_controllers:
     resource:
         path: ../../src/Domain/
