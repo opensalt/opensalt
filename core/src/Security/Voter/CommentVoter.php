@@ -7,6 +7,7 @@ use App\Entity\User\User;
 use App\Security\Feature;
 use App\Security\Permission;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
@@ -59,7 +60,7 @@ class CommentVoter extends Voter
     }
 
     #[\Override]
-    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         // All users (including anonymous) can view comments
         if (self::VIEW === $attribute) {
@@ -69,6 +70,8 @@ class CommentVoter extends Voter
         $user = $token->getUser();
         if (!$user instanceof User) {
             // If the user is not logged in then deny access
+            $vote?->addReason('The user is not logged in.');
+
             return false;
         }
 

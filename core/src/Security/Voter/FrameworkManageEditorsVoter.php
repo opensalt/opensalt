@@ -6,6 +6,7 @@ use App\Entity\Framework\LsDoc;
 use App\Entity\User\User;
 use App\Security\Permission;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
@@ -44,10 +45,12 @@ class FrameworkManageEditorsVoter extends Voter
     }
 
     #[\Override]
-    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         // Do not allow editing of mirrored frameworks
         if (null !== $subject->getMirroredFramework()) {
+            $vote?->addReason('Cannot edit mirrored frameworks.');
+
             return false;
         }
 
@@ -55,6 +58,8 @@ class FrameworkManageEditorsVoter extends Voter
 
         if (!$user instanceof User) {
             // If the user is not logged in then deny access
+            $vote?->addReason('The user is not logged in.');
+
             return false;
         }
 
