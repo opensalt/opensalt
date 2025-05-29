@@ -59,10 +59,10 @@ class ImportGenericCsvHandler extends BaseDoctrineHandler
         $items = [];
 
         // Ignore first row (assuming it is a header)
-        fgetcsv($fd, 0, ',');
+        fgetcsv($fd, 0, ',', '"', '\\');
 
         $i = 1;
-        while (false !== ($rec = fgetcsv($fd, 0, ','))) {
+        while (false !== ($rec = fgetcsv($fd, 0, ',', '"', '\\'))) {
             if (count($rec) < 4) {
                 continue;
             }

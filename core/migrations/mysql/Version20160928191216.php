@@ -40,8 +40,6 @@ SELECT s.id, s.title
 xENDx;
         $fetchStmt = $this->connection->prepare($sql);
 
-        $this->connection->beginTransaction();
-
         $docs = $docsStmt->executeQuery()->fetchAllAssociative();
         $subjects = [];
         foreach ($docs as $doc) {
@@ -71,10 +69,7 @@ xENDx;
             $insertDocSubjectStmt->bindValue('subj_id', $s['id'], ParameterType::INTEGER);
             $insertDocSubjectStmt->executeStatement();
         }
-
-        $this->connection->commit();
     }
-
 
     public function down(Schema $schema): void
     {

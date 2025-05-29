@@ -15,9 +15,9 @@ class Version20160921225507 extends AbstractMigration
             return;
         }
 
-        $keys = fgetcsv($fd, 0, ',');
+        $keys = fgetcsv($fd, 0, ',', '"', '\\');
 
-        while (false !== ($rec = fgetcsv($fd, 0, ','))) {
+        while (false !== ($rec = fgetcsv($fd, 0, ',', '"', '\\'))) {
             // @phpstan-ignore argument.type
             $level = array_combine($keys, $rec);
 
