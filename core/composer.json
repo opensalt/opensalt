@@ -110,7 +110,7 @@
         "symfony/flex": "^2.0",
         "symfony/form": "*",
         "symfony/framework-bundle": "*",
-        "symfony/html-sanitizer": "7.2.*",
+        "symfony/html-sanitizer": "*",
         "symfony/intl": "*",
         "symfony/lock": "*",
         "symfony/mailer": "*",
@@ -225,7 +225,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": true,
-            "require": "7.2.*"
+            "require": "7.3.*"
         }
     }
 }
