@@ -1,3 +1,5 @@
+//import { startStimulusApp } from '@symfony/stimulus-bundle';
+
 import { startStimulusApp, registerControllers } from "vite-plugin-symfony/stimulus/helpers"
 import { registerVueControllerComponents } from "vite-plugin-symfony/stimulus/helpers/vue"
 
