@@ -9,3 +9,9 @@ framework:
             - '*/assets/styles/**/_*.scss'
             - '*/assets/sass/**'
             - '*/assets/js/**'
+        missing_import_mode: strict
+
+when@prod:
+    framework:
+        asset_mapper:
+            missing_import_mode: warn
