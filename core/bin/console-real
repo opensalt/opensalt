@@ -7,10 +7,6 @@ use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\ErrorHandler\Debug;
 
-if (!in_array(PHP_SAPI, ['cli', 'phpdbg', 'embed'], true)) {
-    echo 'Warning: The console should be invoked via the CLI version of PHP, not the '.PHP_SAPI.' SAPI'.PHP_EOL;
-}
-
 // if you don't want to setup permissions the proper way, just uncomment the following PHP line
 // read http://symfony.com/doc/current/book/installation.html#configuration-and-setup for more information
 // OpenSALT: leave in for now
@@ -20,11 +16,17 @@ ini_set('memory_limit', '512M'); // OpenSALT: Increase memory limit for console 
 
 set_time_limit(0);
 
-require dirname(__DIR__).'/vendor/autoload.php';
+unset($_SERVER['APP_RUNTIME']);
 
-if (!class_exists(Application::class) || !class_exists(Dotenv::class)) {
-    throw new LogicException('You need to add "symfony/framework-bundle" and "symfony/dotenv" as Composer dependencies.');
+if (!is_dir(dirname(__DIR__).'/vendor')) {
+    throw new LogicException('Dependencies are missing. Try running "composer install".');
 }
+
+if (!is_file(dirname(__DIR__).'/vendor/autoload_runtime.php')) {
+    throw new LogicException('Symfony Runtime is missing. Try running "composer require symfony/runtime".');
+}
+
+require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
 
 $input = new ArgvInput();
 $env = $input->getParameterOption(['--env', '-e'], $_SERVER['APP_ENV'] ?? 'dev', true);
@@ -33,7 +35,7 @@ $debug = ((bool) ($_SERVER['APP_DEBUG'] ?? ('prod' !== $env))) && !$input->hasPa
 putenv('APP_ENV='.$_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = $env);
 putenv('APP_DEBUG='.$_SERVER['APP_DEBUG'] = $_ENV['APP_DEBUG'] = ($debug ? '1' : '0'));
 
-(new Dotenv())->bootEnv(dirname(__DIR__).'/.env');
+// Removed from upstream version (new Dotenv())->bootEnv(dirname(__DIR__).'/.env');
 
 if ($debug) {
     umask(0000);
@@ -43,6 +45,8 @@ if ($debug) {
     }
 }
 
-$kernel = new Kernel($env, $debug);
-$application = new Application($kernel);
-$application->run($input);
+return function (array $context) use ($env, $debug) {
+    $kernel = new Kernel($env, $debug);
+
+    return new Application($kernel);
+};

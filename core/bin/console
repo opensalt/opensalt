@@ -9,4 +9,4 @@ exec php $(dirname $0)/console-real "$@"
 
 */
 
-require __DIR__.'/console-real';
+return require __DIR__.'/console-real';
