@@ -13,7 +13,7 @@
         <server name="SHELL_VERBOSITY" value="-1" />
 
         <!-- ###+ symfony/mailer ### -->
-        <!-- MAILER_DSN=null://null -->
+        <env name="MAILER_DSN" value="null://null"/>
         <!-- ###- symfony/mailer ### -->
 
         <!-- ###+ symfony/lock ### -->
