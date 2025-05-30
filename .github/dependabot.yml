@@ -10,8 +10,6 @@ updates:
       # Check for updates at noon UTC (5am PDT/4am PST)
       time: "12:00"
     open-pull-requests-limit: 5
-    reviewers:
-      - roverwolf
     # Ignore dev dependencies that match what composer would update
     # as we care more about non-dev dependencies,
     # but notification of major upgrades to dev dependencies is good
