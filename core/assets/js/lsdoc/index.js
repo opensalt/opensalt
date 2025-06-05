@@ -147,7 +147,7 @@ const UpdateFramework = (function () {
     }
 
     function getRequestParams(fileContent) {
-        fileData = Import.csv(fileContent, true);
+        const fileData = Import.csv(fileContent, true);
         return {
             content: window.btoa(encodeURIComponent(fileContent).replace(/%([0-9A-F]{2})/g,
                     function toSolidBytes(match, p1) {
