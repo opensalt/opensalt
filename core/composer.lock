@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "277956528553f25f6a66ad1e654c0443",
+    "content-hash": "48b020b82c9b5c3c3b410db4ab80f7fa",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -62,16 +62,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.344.1",
+            "version": "3.344.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "7ff4b73f2d6550949be14b8822e100963e068705"
+                "reference": "3a6aaaea75f4605f89aa57ad63b9a077bf01e1e5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/7ff4b73f2d6550949be14b8822e100963e068705",
-                "reference": "7ff4b73f2d6550949be14b8822e100963e068705",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/3a6aaaea75f4605f89aa57ad63b9a077bf01e1e5",
+                "reference": "3a6aaaea75f4605f89aa57ad63b9a077bf01e1e5",
                 "shasum": ""
             },
             "require": {
@@ -153,9 +153,9 @@
             "support": {
                 "forum": "https://github.com/aws/aws-sdk-php/discussions",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.344.1"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.344.2"
             },
-            "time": "2025-06-05T18:09:40+00:00"
+            "time": "2025-06-06T18:14:42+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -7728,6 +7728,42 @@
             "time": "2024-05-27T00:00:21+00:00"
         },
         {
+            "name": "root23/php-json-canonicalization",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/root23/php-json-canonicalization.git",
+                "reference": "be888e03a171c2b9667265d03924bd6bfc3fe85a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/root23/php-json-canonicalization/zipball/be888e03a171c2b9667265d03924bd6bfc3fe85a",
+                "reference": "be888e03a171c2b9667265d03924bd6bfc3fe85a",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^v3.27.0",
+                "phpstan/phpstan": "^1.10",
+                "phpunit/phpunit": "^9"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Root23\\JsonCanonicalizer\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "description": "Serialize data into canonical way, based on RFC-8785.",
+            "support": {
+                "issues": "https://github.com/root23/php-json-canonicalization/issues",
+                "source": "https://github.com/root23/php-json-canonicalization/tree/1.0.1"
+            },
+            "time": "2023-09-27T08:27:25+00:00"
+        },
+        {
             "name": "runtime/frankenphp-symfony",
             "version": "0.2.0",
             "source": {
@@ -12482,16 +12518,16 @@
         },
         {
             "name": "symfony/stimulus-bundle",
-            "version": "v2.26.0",
+            "version": "v2.26.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/stimulus-bundle.git",
-                "reference": "750c770f66b45b40135eb32d753dbd7d84182c92"
+                "reference": "82c174ebe564e6ecc1412974b6380b86d450675f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/stimulus-bundle/zipball/750c770f66b45b40135eb32d753dbd7d84182c92",
-                "reference": "750c770f66b45b40135eb32d753dbd7d84182c92",
+                "url": "https://api.github.com/repos/symfony/stimulus-bundle/zipball/82c174ebe564e6ecc1412974b6380b86d450675f",
+                "reference": "82c174ebe564e6ecc1412974b6380b86d450675f",
                 "shasum": ""
             },
             "require": {
@@ -12531,7 +12567,7 @@
                 "symfony-ux"
             ],
             "support": {
-                "source": "https://github.com/symfony/stimulus-bundle/tree/v2.26.0"
+                "source": "https://github.com/symfony/stimulus-bundle/tree/v2.26.1"
             },
             "funding": [
                 {
@@ -12547,7 +12583,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-05-23T09:27:30+00:00"
+            "time": "2025-06-05T17:25:17+00:00"
         },
         {
             "name": "symfony/stopwatch",
@@ -13394,16 +13430,16 @@
         },
         {
             "name": "symfony/ux-vue",
-            "version": "v2.26.0",
+            "version": "v2.26.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/ux-vue.git",
-                "reference": "46f2dd20bdbe45191aac013b38dda20df98f39fa"
+                "reference": "e695990c2629dd2b590081d7ec4f341321051068"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/ux-vue/zipball/46f2dd20bdbe45191aac013b38dda20df98f39fa",
-                "reference": "46f2dd20bdbe45191aac013b38dda20df98f39fa",
+                "url": "https://api.github.com/repos/symfony/ux-vue/zipball/e695990c2629dd2b590081d7ec4f341321051068",
+                "reference": "e695990c2629dd2b590081d7ec4f341321051068",
                 "shasum": ""
             },
             "require": {
@@ -13454,7 +13490,7 @@
                 "symfony-ux"
             ],
             "support": {
-                "source": "https://github.com/symfony/ux-vue/tree/v2.26.0"
+                "source": "https://github.com/symfony/ux-vue/tree/v2.26.1"
             },
             "funding": [
                 {
@@ -13470,7 +13506,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-05-20T14:09:00+00:00"
+            "time": "2025-06-05T17:25:17+00:00"
         },
         {
             "name": "symfony/validator",
@@ -16913,16 +16949,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "12.2.0",
+            "version": "12.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "f3f6587947f9f53f009af8d18026776375d59145"
+                "reference": "5f09fda04e7caea93cff50b4e90319184f3e6ee3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/f3f6587947f9f53f009af8d18026776375d59145",
-                "reference": "f3f6587947f9f53f009af8d18026776375d59145",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/5f09fda04e7caea93cff50b4e90319184f3e6ee3",
+                "reference": "5f09fda04e7caea93cff50b4e90319184f3e6ee3",
                 "shasum": ""
             },
             "require": {
@@ -16990,7 +17026,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.2.0"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.2.1"
             },
             "funding": [
                 {
@@ -17014,7 +17050,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-06-06T02:58:21+00:00"
+            "time": "2025-06-07T05:17:47+00:00"
         },
         {
             "name": "psy/psysh",
@@ -17101,12 +17137,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "6ca443cead7d0cd731610a12fd47028c7e28edb3"
+                "reference": "1f25500e8bf958acb60f7cbaf30e6ceb9658ee21"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/6ca443cead7d0cd731610a12fd47028c7e28edb3",
-                "reference": "6ca443cead7d0cd731610a12fd47028c7e28edb3",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/1f25500e8bf958acb60f7cbaf30e6ceb9658ee21",
+                "reference": "1f25500e8bf958acb60f7cbaf30e6ceb9658ee21",
                 "shasum": ""
             },
             "conflict": {
@@ -17166,7 +17202,7 @@
                 "bagisto/bagisto": "<2.1",
                 "barrelstrength/sprout-base-email": "<1.2.7",
                 "barrelstrength/sprout-forms": "<3.9",
-                "barryvdh/laravel-translation-manager": "<0.6.2",
+                "barryvdh/laravel-translation-manager": "<0.6.8",
                 "barzahlen/barzahlen-php": "<2.0.1",
                 "baserproject/basercms": "<=5.1.1",
                 "bassjobsen/bootstrap-3-typeahead": ">4.0.2",
@@ -17708,6 +17744,7 @@
                 "rmccue/requests": ">=1.6,<1.8",
                 "robrichards/xmlseclibs": ">=1,<3.0.4",
                 "roots/soil": "<4.1",
+                "roundcube/roundcubemail": "<1.5.10|>=1.6,<1.6.11",
                 "rudloff/alltube": "<3.0.3",
                 "rudloff/rtmpdump-bin": "<=2.3.1",
                 "s-cart/core": "<6.9",
@@ -18037,7 +18074,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-06-05T17:04:40+00:00"
+            "time": "2025-06-09T14:06:10+00:00"
         },
         {
             "name": "sebastian/cli-parser",

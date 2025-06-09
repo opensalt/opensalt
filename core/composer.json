@@ -96,6 +96,7 @@
         "phpoffice/phpword": "^1.0",
         "ramsey/uuid": "^4.0",
         "ramsey/uuid-doctrine": "^2.0",
+        "root23/php-json-canonicalization": "^1.0",
         "runtime/frankenphp-symfony": "^0.2.0",
         "scheb/2fa": "^7.0",
         "stof/doctrine-extensions-bundle": "^1.7",
