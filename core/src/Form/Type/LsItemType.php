@@ -6,6 +6,7 @@ use App\Entity\Framework\AdditionalField;
 use App\Entity\Framework\LsDefGrade;
 use App\Entity\Framework\LsDefItemType;
 use App\Entity\Framework\LsDefLicence;
+use App\Entity\Framework\LsDefSubject;
 use App\Entity\Framework\LsItem;
 use App\Form\DataTransformer\EducationAlignmentTransformer;
 use App\Form\DataTransformer\ItemTypeTransformer;
