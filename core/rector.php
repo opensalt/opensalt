@@ -15,11 +15,12 @@ return RectorConfig::configure()
         __DIR__ . '/templates',
         __DIR__ . '/config',
     ])
-    ->withPhpVersion(\Rector\ValueObject\PhpVersion::PHP_83)
-    ->withPhpSets(php83: true)
+    ->withPhpVersion(\Rector\ValueObject\PhpVersion::PHP_84)
+    ->withPhpSets(php84: true)
     ->withComposerBased(
         symfony: true,
         twig: true,
+        doctrine: true,
     )
     ->withSkip([
         __DIR__ . '/config/bundles.php',
@@ -40,7 +41,8 @@ return RectorConfig::configure()
         //naming: true,
         instanceOf: true,
         earlyReturn: true,
-        strictBooleans: true
+        strictBooleans: true,
+        rectorPreset: true,
     )
     ->withAttributesSets(
         /*
@@ -49,10 +51,10 @@ return RectorConfig::configure()
          */
     )
     ->withSets([
-        \Rector\Set\ValueObject\LevelSetList::UP_TO_PHP_83,
-        //\Rector\Symfony\Set\SymfonySetList::SYMFONY_72,
+        \Rector\Set\ValueObject\LevelSetList::UP_TO_PHP_84,
+        \Rector\Symfony\Set\SymfonySetList::SYMFONY_73,
         \Rector\Symfony\Set\SymfonySetList::SYMFONY_CODE_QUALITY,
-        //SymfonySetList::SYMFONY_CONSTRUCTOR_INJECTION,
+        \Rector\Symfony\Set\SymfonySetList::SYMFONY_CONSTRUCTOR_INJECTION,
     ])
     ->withRules([
         // \Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector::class,
