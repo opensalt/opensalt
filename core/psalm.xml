@@ -14,10 +14,6 @@
     findUnusedCode="false"
 >
     <plugins>
-        <pluginClass class="Weirdan\DoctrinePsalmPlugin\Plugin"/>
-        <pluginClass class="Psalm\SymfonyPsalmPlugin\Plugin">
-            <containerXml>var/cache/dev/App_KernelDevDebugContainer.xml</containerXml>
-        </pluginClass>
     </plugins>
     <stubs>
         <file name="tools/psalm/stubs.php" />
@@ -35,33 +31,33 @@
 
     <fileExtensions>
         <extension name=".php" />
-        <extension name=".twig" checker="tools/psalm/vendor/psalm/plugin-symfony/src/Twig/TemplateFileAnalyzer.php"/>
     </fileExtensions>
 
     <issueHandlers>
-        <LessSpecificReturnType errorLevel="info"/>
-        <LessSpecificImplementedReturnType errorLevel="info"/>
-        <UndefinedInterfaceMethod errorLevel="info"/>
-        <MoreSpecificImplementedParamType errorLevel="info"/>
+        <TooManyTemplateParams errorLevel="info"/>
+        <LessSpecificReturnType errorLevel="error"/>
+        <LessSpecificImplementedReturnType errorLevel="error"/>
+        <UndefinedInterfaceMethod errorLevel="error"/>
+        <MoreSpecificImplementedParamType errorLevel="error"/>
 
         <!-- level 3 issues - slightly lazy code writing, but provably low false-negatives -->
 
         <DeprecatedMethod errorLevel="info"/>
-        <DeprecatedProperty errorLevel="info"/>
+        <DeprecatedProperty errorLevel="error"/>
         <DeprecatedClass errorLevel="info"/>
-        <DeprecatedConstant errorLevel="info"/>
-        <DeprecatedFunction errorLevel="info"/>
-        <DeprecatedInterface errorLevel="info"/>
-        <DeprecatedTrait errorLevel="info"/>
+        <DeprecatedConstant errorLevel="error"/>
+        <DeprecatedFunction errorLevel="error"/>
+        <DeprecatedInterface errorLevel="error"/>
+        <DeprecatedTrait errorLevel="error"/>
 
-        <InternalMethod errorLevel="info"/>
-        <InternalProperty errorLevel="info"/>
-        <InternalClass errorLevel="info"/>
+        <InternalMethod errorLevel="error"/>
+        <InternalProperty errorLevel="error"/>
+        <InternalClass errorLevel="error"/>
 
         <MissingClosureReturnType errorLevel="info"/>
         <MissingReturnType errorLevel="info"/>
         <MissingPropertyType errorLevel="info"/>
-        <InvalidDocblock errorLevel="info"/>
+        <InvalidDocblock errorLevel="error"/>
 
         <PropertyNotSetInConstructor errorLevel="info"/>
         <MissingConstructor errorLevel="info"/>
@@ -73,11 +69,11 @@
         <DocblockTypeContradiction errorLevel="info"/>
         <RedundantConditionGivenDocblockType errorLevel="info"/>
 
-        <UnresolvableInclude errorLevel="info"/>
+        <UnresolvableInclude errorLevel="error"/>
 
-        <RawObjectIteration errorLevel="info"/>
+        <RawObjectIteration errorLevel="error"/>
 
-        <InvalidStringClass errorLevel="info"/>
+        <InvalidStringClass errorLevel="error"/>
 
         <MissingOverrideAttribute errorLevel="info"/>
     </issueHandlers>

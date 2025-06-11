@@ -33,6 +33,7 @@ readonly class EducationAlignmentTransformer implements DataTransformerInterface
     }
 
     /**
+     * @psalm-suppress MoreSpecificImplementedParamType
      * @param array<array-key, LsDefGrade>|null $value
      */
     #[\Override]

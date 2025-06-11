@@ -16,6 +16,11 @@ use App\Entity\Framework\ObjectLock;
 use App\Entity\LockableInterface;
 use App\Entity\User\User;
 use App\Exception\AlreadyLockedException;
+use App\Repository\Framework\LsAssociationRepository;
+use App\Repository\Framework\LsDefAssociationGroupingRepository;
+use App\Repository\Framework\LsDocRepository;
+use App\Repository\Framework\LsItemRepository;
+use App\Repository\Framework\ObjectLockRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
 use Ramsey\Uuid\Uuid;
@@ -27,6 +32,11 @@ class FrameworkService
 
     public function __construct(
         ManagerRegistry $registry,
+        private readonly LsDocRepository $docRepository,
+        private readonly LsItemRepository $itemRepository,
+        private readonly LsDefAssociationGroupingRepository $associationGroupingRepository,
+        private readonly ObjectLockRepository $objectLockRepository,
+        private readonly LsAssociationRepository $associationRepository,
         private TokenStorageInterface $tokenStorage,
     ) {
         $this->em = $registry->getManager();
@@ -70,9 +80,7 @@ class FrameworkService
 
     public function deleteFramework(LsDoc $doc, ?\Closure $callback = null): void
     {
-        $this->em
-            ->getRepository(LsDoc::class)
-            ->deleteDocument($doc, $callback);
+        $this->docRepository->deleteDocument($doc, $callback);
     }
 
     public function persistItem(LsItem $item): void
@@ -82,12 +90,12 @@ class FrameworkService
 
     public function deleteItem(LsItem $item): void
     {
-        $this->em->getRepository(LsItem::class)->removeItem($item);
+        $this->itemRepository->removeItem($item);
     }
 
     public function deleteItemWithChildren(LsItem $item): void
     {
-        $this->em->getRepository(LsItem::class)->removeItemAndChildren($item);
+        $this->itemRepository->removeItemAndChildren($item);
     }
 
     public function persistAssociation(LsAssociation $association): void
@@ -124,7 +132,7 @@ class FrameworkService
 
         // deal with origin and dest items, which can be specified by id or by identifier
         // if externalDoc is specified for either one, mark this document as "autoLoad": "true" in the doc's externalDocuments
-        $itemRepo = $this->em->getRepository(LsItem::class);
+        $itemRepo = $this->itemRepository;
 
         if (!empty($origin['id'])) {
             $originItem = $itemRepo->findOneBy(['id' => $origin['id']]);
@@ -158,9 +166,8 @@ class FrameworkService
 
         // set assocGroup if provided
         if (null !== $assocGroup) {
-            $assocGroupRepo = $this->em->getRepository(LsDefAssociationGrouping::class);
             /** @var ?LsDefAssociationGrouping $assocGroupObj */
-            $assocGroupObj = $assocGroupRepo->findOneBy(['id' => $assocGroup]);
+            $assocGroupObj = $this->associationGroupingRepository->findOneBy(['id' => $assocGroup]);
             $association->setGroup($assocGroupObj);
         }
 
@@ -188,13 +195,12 @@ class FrameworkService
     public function updateTreeItem(LsDoc $doc, string $itemId, array $updates, array &$rv): void
     {
         // Note that $lsItemId may be of the form "copy-<uuid>" when copying from another framework
-        $assocGroupRepo = $this->em->getRepository(LsDefAssociationGrouping::class);
 
         // set assocGroup if supplied; pass this in when necessary below
         $assocGroup = null;
         if (array_key_exists('assocGroup', $updates)) {
             /** @var ?LsDefAssociationGrouping $assocGroup */
-            $assocGroup = $assocGroupRepo->find($updates['assocGroup']);
+            $assocGroup = $this->associationGroupingRepository->find($updates['assocGroup']);
         }
 
         $lsItem = $this->getTreeItemForUpdate($doc, $updates, $itemId, $assocGroup);
@@ -290,16 +296,12 @@ class FrameworkService
      */
     public function lockObject(LockableInterface $doc, User $user): ObjectLock
     {
-        $lockRepo = $this->em->getRepository(ObjectLock::class);
-
-        return $lockRepo->acquireLock($doc, $user);
+        return $this->objectLockRepository->acquireLock($doc, $user);
     }
 
     public function unlockObject(LockableInterface $doc, ?User $user = null): void
     {
-        $lockRepo = $this->em->getRepository(ObjectLock::class);
-
-        $lockRepo->releaseLock($doc, $user);
+        $this->objectLockRepository->releaseLock($doc, $user);
     }
 
     public function getNextChildSequenceNumber(IdentifiableInterface $parent): int
@@ -312,10 +314,8 @@ class FrameworkService
             return ++$lastSeqNums[$identifier];
         }
 
-        $assocRepo = $this->em->getRepository(LsAssociation::class);
-
         /** @var LsAssociation[] $assocs */
-        $assocs = $assocRepo->findAllChildAssociationsFor($identifier);
+        $assocs = $this->associationRepository->findAllChildAssociationsFor($identifier);
 
         $lastSeqNum = 0;
         foreach ($assocs as $assoc) {
@@ -334,14 +334,12 @@ class FrameworkService
      */
     protected function getTreeItemForUpdate(LsDoc $lsDoc, array $updates, string $lsItemId, ?LsDefAssociationGrouping $assocGroup = null): ?LsItem
     {
-        $lsItemRepo = $this->em->getRepository(LsItem::class);
-
         if (!array_key_exists('copyFromId', $updates)) {
-            return $lsItemRepo->find($lsItemId);
+            return $this->itemRepository->find($lsItemId);
         }
 
         // copy item if copyFromId is specified
-        $originalItem = $lsItemRepo->find($updates['copyFromId']);
+        $originalItem = $this->itemRepository->find($updates['copyFromId']);
 
         if (null === $originalItem) {
             return null;
@@ -371,17 +369,15 @@ class FrameworkService
      */
     protected function deleteTreeChildAssociations(LsItem $lsItem, array $updates, string $lsItemId, array &$rv): void
     {
-        $assocRepo = $this->em->getRepository(LsAssociation::class);
-
         // delete childOf association if specified
         if ('all' !== $updates['deleteChildOf']['assocId']) {
             /** @var ?LsAssociation $assoc */
-            $assoc = $assocRepo->find($updates['deleteChildOf']['assocId']);
+            $assoc = $this->associationRepository->find($updates['deleteChildOf']['assocId']);
             if (null === $assoc) {
                 return;
             }
 
-            $assocRepo->removeAssociation($assoc);
+            $this->associationRepository->removeAssociation($assoc);
             $rv['return'][$lsItemId]['deleteChildOf'] = $updates['deleteChildOf']['assocId'];
 
             if (!array_key_exists('assoc-d', $rv['changes'])) {
@@ -391,7 +387,7 @@ class FrameworkService
         } else {
             // if we got "all" for the assocId, it means that we're updating a new item for which the client didn't know an assocId.
             // so in this case, it's OK to just delete any existing childof association and create a new one below
-            $deleted = $assocRepo->removeAllAssociationsOfType($lsItem, LsAssociation::CHILD_OF);
+            $deleted = $this->associationRepository->removeAllAssociationsOfType($lsItem, LsAssociation::CHILD_OF);
 
             if (0 < \count($deleted) && !array_key_exists('assoc-d', $rv['changes'])) {
                 $rv['changes']['assoc-d'] = [];
@@ -407,11 +403,9 @@ class FrameworkService
      */
     protected function updateTreeChildOfAssociations(LsItem $lsItem, array $updates, string $lsItemId, array &$rv): void
     {
-        $assocRepo = $this->em->getRepository(LsAssociation::class);
-
         // update childOf association if specified
         /** @var ?LsAssociation $assoc */
-        $assoc = $assocRepo->find($updates['updateChildOf']['assocId']);
+        $assoc = $this->associationRepository->find($updates['updateChildOf']['assocId']);
         if (null === $assoc) {
             return;
         }
@@ -441,13 +435,11 @@ class FrameworkService
     {
         // parent could be a doc or item
         if ('item' === $updates['newChildOf']['parentType']) {
-            $lsItemRepo = $this->em->getRepository(LsItem::class);
             /** @var LsItem $parentItem */
-            $parentItem = $lsItemRepo->find($updates['newChildOf']['parentId']);
+            $parentItem = $this->itemRepository->find($updates['newChildOf']['parentId']);
         } else {
-            $docRepo = $this->em->getRepository(LsDoc::class);
             /** @var LsDoc $parentItem */
-            $parentItem = $docRepo->find($updates['newChildOf']['parentId']);
+            $parentItem = $this->docRepository->find($updates['newChildOf']['parentId']);
         }
 
         $rv['return'][$lsItemId]['association'] = $lsItem->addParent($parentItem, $updates['newChildOf']['sequenceNumber'], $assocGroup);

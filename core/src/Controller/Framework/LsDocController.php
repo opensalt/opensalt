@@ -15,8 +15,8 @@ use App\Exception\AlreadyLockedException;
 use App\Form\Type\LsDocCreateType;
 use App\Form\Type\LsDocType;
 use App\Form\Type\RemoteCaseServerType;
+use App\Repository\Framework\LsDocRepository;
 use App\Security\Permission;
-use Doctrine\Persistence\ManagerRegistry;
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -35,7 +35,7 @@ class LsDocController extends AbstractController
     use CommandDispatcherTrait;
 
     public function __construct(
-        private readonly ManagerRegistry $managerRegistry,
+        private readonly LsDocRepository $docRepository,
     ) {
     }
 
@@ -296,9 +296,7 @@ class LsDocController extends AbstractController
             $_format = 'html';
         }
 
-        $items = $this->managerRegistry
-            ->getRepository(LsDoc::class)
-            ->findAllChildrenArray($lsDoc);
+        $items = $this->docRepository->findAllChildrenArray($lsDoc);
 
         return $this->render('framework/ls_doc/export.'.$_format.'.twig', [
             'lsDoc' => $lsDoc,

@@ -4,8 +4,8 @@ namespace App\Controller\Framework;
 
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use App\Repository\Framework\LsDocRepository;
 use App\Util\Compare;
-use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class EditorController extends AbstractController
 {
     public function __construct(
-        private readonly ManagerRegistry $managerRegistry,
+        private readonly LsDocRepository $docRepository,
     ) {
     }
 
@@ -42,11 +42,11 @@ class EditorController extends AbstractController
     #[Route(path: '/render/{id}/{highlight}.{_format}', name: 'editor_render', defaults: ['highlight' => null, '_format' => 'html'], methods: ['GET'])]
     public function renderDocument(LsDoc $lsDoc, ?int $highlight = null, string $_format = 'html'): Response
     {
-        $repo = $this->managerRegistry->getRepository(LsDoc::class);
+        $docRepository = $this->docRepository;
 
-        $items = $repo->findAllChildrenArray($lsDoc);
-        $haveParents = $repo->findAllItemsWithParentsArray($lsDoc);
-        $topChildren = $repo->findTopChildrenIds($lsDoc);
+        $items = $docRepository->findAllChildrenArray($lsDoc);
+        $haveParents = $docRepository->findAllItemsWithParentsArray($lsDoc);
+        $topChildren = $docRepository->findTopChildrenIds($lsDoc);
 
         $orphaned = $items;
         foreach ($haveParents as $child) {

@@ -8,8 +8,8 @@ use App\Command\Framework\DeleteLicenceCommand;
 use App\Command\Framework\UpdateLicenceCommand;
 use App\Entity\Framework\LsDefLicence;
 use App\Form\Type\LsDefLicenceType;
+use App\Repository\Framework\LsDefLicenceRepository;
 use App\Security\Permission;
-use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -25,7 +25,7 @@ class LsDefLicenceController extends AbstractController
     use CommandDispatcherTrait;
 
     public function __construct(
-        private readonly ManagerRegistry $managerRegistry,
+        private readonly LsDefLicenceRepository $licenceRepository,
     ) {
     }
 
@@ -35,9 +35,7 @@ class LsDefLicenceController extends AbstractController
     #[Route(path: '/', name: 'lsdef_licence_index', methods: ['GET'])]
     public function index(): Response
     {
-        $em = $this->managerRegistry->getManager();
-
-        $lsDefLicences = $em->getRepository(LsDefLicence::class)->findBy([], null, 100);
+        $lsDefLicences = $this->licenceRepository->findBy([], null, 100);
 
         return $this->render('framework/ls_def_licence/index.html.twig', [
             'lsDefLicences' => $lsDefLicences,
@@ -50,9 +48,7 @@ class LsDefLicenceController extends AbstractController
     #[Route(path: '/list.{_format}', name: 'lsdef_licence_index_json', defaults: ['_format' => 'json'], methods: ['GET'])]
     public function jsonList(): Response
     {
-        $em = $this->managerRegistry->getManager();
-
-        $objects = $em->getRepository(LsDefLicence::class)->getList();
+        $objects = $this->licenceRepository->getList();
 
         return $this->render('framework/ls_def_licence/json_list.json.twig', [
             'objects' => $objects,

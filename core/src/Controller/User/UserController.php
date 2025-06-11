@@ -12,8 +12,8 @@ use App\Command\User\SuspendUserCommand;
 use App\Command\User\UpdateUserCommand;
 use App\Entity\User\User;
 use App\Form\Type\UserType;
+use App\Repository\User\UserRepository;
 use App\Security\Permission;
-use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -35,7 +35,7 @@ class UserController extends AbstractController
     public function __construct(
         private readonly AuthorizationCheckerInterface $authChecker,
         private readonly UserPasswordHasherInterface $passwordEncoder,
-        private readonly ManagerRegistry $managerRegistry,
+        private readonly UserRepository $userRepository,
         private readonly FormFactoryInterface $formBuilder,
     ) {
     }
@@ -46,18 +46,15 @@ class UserController extends AbstractController
     #[Route(path: '/', name: 'admin_user_index', methods: ['GET'])]
     public function index(): Response
     {
-        $em = $this->managerRegistry->getManager();
-
         if ($this->authChecker->isGranted(Permission::MANAGE_ALL_USERS)) {
-            $users = $em->getRepository(User::class)->findAll();
+            $users = $this->userRepository->findAll();
         } else {
             $user = $this->getUser();
             if (!$user instanceof User) {
                 throw new \UnexpectedValueException('Invalid user.');
             }
 
-            $users = $em->getRepository(User::class)
-                ->findByOrg($user->getOrg());
+            $users = $this->userRepository->findByOrg($user->getOrg());
         }
 
         $suspendForm = [];

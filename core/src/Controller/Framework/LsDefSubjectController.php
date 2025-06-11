@@ -8,8 +8,8 @@ use App\Command\Framework\DeleteSubjectCommand;
 use App\Command\Framework\UpdateSubjectCommand;
 use App\Entity\Framework\LsDefSubject;
 use App\Form\Type\LsDefSubjectType;
+use App\Repository\Framework\LsDefSubjectRepository;
 use App\Security\Permission;
-use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -25,7 +25,7 @@ class LsDefSubjectController extends AbstractController
     use CommandDispatcherTrait;
 
     public function __construct(
-        private readonly ManagerRegistry $managerRegistry,
+        private readonly LsDefSubjectRepository $subjectRepository,
     ) {
     }
 
@@ -35,9 +35,7 @@ class LsDefSubjectController extends AbstractController
     #[Route(path: '/', name: 'lsdef_subject_index', methods: ['GET'])]
     public function index(): Response
     {
-        $em = $this->managerRegistry->getManager();
-
-        $lsDefSubjects = $em->getRepository(LsDefSubject::class)->findBy([], null, 100);
+        $lsDefSubjects = $this->subjectRepository->findBy([], null, 100);
 
         return $this->render('framework/ls_def_subject/index.html.twig', [
             'lsDefSubjects' => $lsDefSubjects,
@@ -51,10 +49,9 @@ class LsDefSubjectController extends AbstractController
     public function jsonList(Request $request, string $_format = 'json'): Response
     {
         // ?page_limit=N&q=SEARCHTEXT
-        $em = $this->managerRegistry->getManager();
 
         $search = $request->query->get('q');
-        $objects = $em->getRepository(LsDefSubject::class)->getList($search);
+        $objects = $this->subjectRepository->getList($search);
 
         return $this->render('framework/ls_def_subject/json_list.'.$_format.'.twig', [
             'objects' => $objects,

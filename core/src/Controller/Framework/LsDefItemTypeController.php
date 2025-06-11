@@ -8,8 +8,8 @@ use App\Command\Framework\DeleteItemTypeCommand;
 use App\Command\Framework\UpdateItemTypeCommand;
 use App\Entity\Framework\LsDefItemType;
 use App\Form\Type\LsDefItemTypeType;
+use App\Repository\Framework\LsDefItemTypeRepository;
 use App\Security\Permission;
-use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -25,7 +25,7 @@ class LsDefItemTypeController extends AbstractController
     use CommandDispatcherTrait;
 
     public function __construct(
-        private readonly ManagerRegistry $managerRegistry,
+        private readonly LsDefItemTypeRepository $itemTypeRepository,
     ) {
     }
 
@@ -35,9 +35,7 @@ class LsDefItemTypeController extends AbstractController
     #[Route(path: '/', name: 'lsdef_item_type_index', methods: ['GET'])]
     public function index(): Response
     {
-        $em = $this->managerRegistry->getManager();
-
-        $lsDefItemTypes = $em->getRepository(LsDefItemType::class)->findBy([], null, 100);
+        $lsDefItemTypes = $this->itemTypeRepository->findBy([], null, 100);
 
         return $this->render('framework/ls_def_item_type/index.html.twig', [
             'lsDefItemTypes' => $lsDefItemTypes,
@@ -51,15 +49,13 @@ class LsDefItemTypeController extends AbstractController
     public function jsonList(Request $request, string $_format = 'json'): Response
     {
         // ?page_limit=N&q=SEARCHTEXT
-        $em = $this->managerRegistry->getManager();
 
         /** @var string|null $search */
         $search = $request->query->get('q', null);
         $page = $request->query->get('page', '1');
         $page_limit = $request->query->get('page_limit', '50');
 
-        $results = $em->getRepository(LsDefItemType::class)
-            ->getSelect2List($search, (int) $page_limit, (int) $page);
+        $results = $this->itemTypeRepository->getSelect2List($search, (int) $page_limit, (int) $page);
 
         if (!empty($search) && empty($results['results'][$search])) {
             array_unshift(

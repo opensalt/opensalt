@@ -3,7 +3,7 @@
 namespace App\Controller\Cms;
 
 use App\Entity\Framework\LsDoc;
-use Doctrine\Persistence\ManagerRegistry;
+use App\Repository\Framework\LsDocRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class ExportController extends AbstractController
 {
     public function __construct(
-        private readonly ManagerRegistry $managerRegistry,
+        private readonly LsDocRepository $lsDocRepository,
     ) {
     }
 
@@ -22,7 +22,7 @@ class ExportController extends AbstractController
     #[Route(path: '/cfdoc/{id}.{_format}', name: 'lsdoc_api_view', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function export(LsDoc $lsDoc, string $_format = 'json'): Response
     {
-        $items = $this->managerRegistry->getRepository(LsDoc::class)->findAllChildrenArray($lsDoc);
+        $items = $this->lsDocRepository->findAllChildrenArray($lsDoc);
 
         $params = [
             'lsDoc' => $lsDoc,

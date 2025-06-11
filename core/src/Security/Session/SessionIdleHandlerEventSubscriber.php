@@ -68,7 +68,7 @@ class SessionIdleHandlerEventSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<string, string>
      */
     #[\Override]
     public static function getSubscribedEvents(): array

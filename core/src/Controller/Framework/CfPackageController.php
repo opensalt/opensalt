@@ -2,9 +2,9 @@
 
 namespace App\Controller\Framework;
 
-use App\Entity\ChangeEntry;
 use App\Entity\Framework\LsDoc;
-use Doctrine\Persistence\ManagerRegistry;
+use App\Repository\ChangeEntryRepository;
+use App\Repository\Framework\LsDocRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,7 +16,8 @@ class CfPackageController extends AbstractController
 {
     public function __construct(
         private readonly SerializerInterface $symfonySerializer,
-        private readonly ManagerRegistry $managerRegistry,
+        private readonly ChangeEntryRepository $changeEntryRepository,
+        private readonly LsDocRepository $lsDocRepository,
     ) {
     }
 
@@ -62,8 +63,7 @@ class CfPackageController extends AbstractController
     {
         $response = new Response();
 
-        $changeRepo = $this->managerRegistry->getRepository(ChangeEntry::class);
-        $lastChange = $changeRepo->getLastChangeTimeForDoc($lsDoc);
+        $lastChange = $this->changeEntryRepository->getLastChangeTimeForDoc($lsDoc);
 
         $lastModified = $lsDoc->getUpdatedAt();
         if (null !== ($lastChange['changed_at'] ?? null)) {
@@ -87,10 +87,8 @@ class CfPackageController extends AbstractController
      */
     protected function generateSimplePackageArray(LsDoc $doc): array
     {
-        $repo = $this->managerRegistry->getRepository(LsDoc::class);
-
-        $items = $repo->findAllItems($doc);
-        $associations = $repo->findAllAssociations($doc);
+        $items = $this->lsDocRepository->findAllItems($doc);
+        $associations = $this->lsDocRepository->findAllAssociations($doc);
         // PW: this used to use findAllAssociationsForCapturedNodes, but that wouldn't export crosswalk associations
 
         $itemTypes = [];

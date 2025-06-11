@@ -8,18 +8,20 @@ use App\Command\Framework\DeleteAssociationGroupCommand;
 use App\Command\Framework\DeleteItemCommand;
 use App\Command\Framework\DeleteItemWithChildrenCommand;
 use App\Command\Framework\UpdateTreeItemsCommand;
-use App\Entity\ChangeEntry;
 use App\Entity\Framework\AssociationSubtype;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
-use App\Entity\Framework\ObjectLock;
 use App\Entity\User\User;
 use App\Form\Type\LsDocListType;
+use App\Repository\ChangeEntryRepository;
+use App\Repository\Framework\AssociationSubtypeRepository;
+use App\Repository\Framework\LsDefAssociationGroupingRepository;
+use App\Repository\Framework\LsDocRepository;
+use App\Repository\Framework\ObjectLockRepository;
 use App\Security\Permission;
 use App\Util\Compare;
-use Doctrine\Persistence\ManagerRegistry;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
@@ -40,11 +42,15 @@ class DocTreeController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    private const ETAG_SEED = '2';
+    private const string ETAG_SEED = '2';
 
     public function __construct(
         private readonly DoctrineDbalAdapter $externalDocCache,
-        private readonly ManagerRegistry $managerRegistry,
+        private readonly LsDocRepository $docRepository,
+        private readonly LsDefAssociationGroupingRepository $associationGroupingRepository,
+        private readonly AssociationSubtypeRepository $associationSubtypeRepository,
+        private readonly ChangeEntryRepository $changeEntryRepository,
+        private readonly ObjectLockRepository $objectLockRepository,
         private readonly ?string $caseNetworkClientId,
         private readonly ?string $caseNetworkClientSecret,
         private readonly ?string $caseNetworkScope,
@@ -58,13 +64,11 @@ class DocTreeController extends AbstractController
     #[Route(path: '/doc/{slug}/{assocGroup}', name: 'doc_tree_view_ag', requirements: ['slug' => '[a-zA-Z0-9.-]+'], defaults: ['lsItemId' => null], methods: ['GET'])]
     public function view(#[MapEntity(expr: 'repository.findOneBySlug(slug)')] LsDoc $lsDoc, AuthorizationCheckerInterface $authChecker, #[CurrentUser] ?User $user, ?string $lsItemId = null, ?string $assocGroup = null): Response
     {
-        $em = $this->managerRegistry->getManager();
-
         // Get all association groups (for all documents);
         // we need groups for other documents if/when we show a document on the right side
-        $lsDefAssociationGroupings = $em->getRepository(LsDefAssociationGrouping::class)->findAll();
+        $lsDefAssociationGroupings = $this->associationGroupingRepository->findAll();
 
-        $assocSubTypes = $em->getRepository(AssociationSubtype::class)->findAll();
+        $assocSubTypes = $this->associationSubtypeRepository->findAll();
         $assocFilterTypes = [];
         $assocTypes = [];
         $inverseAssocTypes = [];
@@ -124,7 +128,7 @@ class DocTreeController extends AbstractController
     #[Route(path: '/remote', name: 'doc_tree_remote_view', methods: ['GET'])]
     public function viewRemote(): Response
     {
-        $assocSubTypes = $this->managerRegistry->getRepository(AssociationSubtype::class)->findAll();
+        $assocSubTypes = $this->associationSubtypeRepository->findAll();
         $assocFilterTypes = [];
         $assocTypes = [];
         $inverseAssocTypes = [];
@@ -175,8 +179,7 @@ class DocTreeController extends AbstractController
     {
         $response = new JsonResponse();
 
-        $changeRepo = $this->managerRegistry->getRepository(ChangeEntry::class);
-        $lastChange = $changeRepo->getLastChangeTimeForDoc($lsDoc);
+        $lastChange = $this->changeEntryRepository->getLastChangeTimeForDoc($lsDoc);
 
         $lastModified = $lsDoc->getUpdatedAt();
         if (null !== ($lastChange['changed_at'] ?? null)) {
@@ -194,18 +197,18 @@ class DocTreeController extends AbstractController
             return $response;
         }
 
-        $items = $this->managerRegistry->getRepository(LsDoc::class)->findItemsForExportDoc($lsDoc);
-        $associations = $this->managerRegistry->getRepository(LsDoc::class)->findAssociationsForExportDoc($lsDoc);
+        $items = $this->docRepository->findItemsForExportDoc($lsDoc);
+        $associations = $this->docRepository->findAssociationsForExportDoc($lsDoc);
         $groupIds = [];
         foreach ($associations as $association) {
             if (($association['group']['identifier'] ?? null) !== null) {
                 $groupIds[$association['group']['identifier']] = 1;
             }
         }
-        $assocGroups = $this->managerRegistry->getRepository(LsDefAssociationGrouping::class)->findByIdentifiers(array_keys($groupIds));
+        $assocGroups = $this->associationGroupingRepository->findByIdentifiers(array_keys($groupIds));
         $associatedDocs = array_merge(
             $lsDoc->getExternalDocs(),
-            $this->managerRegistry->getRepository(LsDoc::class)->findAssociatedDocs($lsDoc)
+            $this->docRepository->findAssociatedDocs($lsDoc)
         );
 
         $docAttributes = [
@@ -384,11 +387,11 @@ class DocTreeController extends AbstractController
     #[Route(path: '/render/{id}.{_format}', name: 'doctree_render_document', defaults: ['_format' => 'json'], methods: ['GET'])]
     public function renderDocument(LsDoc $lsDoc, string $_format = 'json'): Response
     {
-        $repo = $this->managerRegistry->getRepository(LsDoc::class);
+        $docRepository = $this->docRepository;
 
-        $items = $repo->findAllChildrenArray($lsDoc);
-        $haveParents = $repo->findAllItemsWithParentsArray($lsDoc);
-        $topChildren = $repo->findTopChildrenIds($lsDoc);
+        $items = $docRepository->findAllChildrenArray($lsDoc);
+        $haveParents = $docRepository->findAllItemsWithParentsArray($lsDoc);
+        $topChildren = $docRepository->findTopChildrenIds($lsDoc);
         $parentsElsewhere = [];
 
         $orphaned = $items;
@@ -512,7 +515,7 @@ class DocTreeController extends AbstractController
     protected function respondWithDocumentById(Request $request, int $id): Response
     {
         // in this case it has to be a document on this OpenSALT instantiation
-        $newDoc = $this->managerRegistry->getRepository(LsDoc::class)->find($id);
+        $newDoc = $this->docRepository->find($id);
         if (empty($newDoc)) {
             // if document not found, error
             return new Response('Document not found.', Response::HTTP_NOT_FOUND);
@@ -526,7 +529,7 @@ class DocTreeController extends AbstractController
      */
     protected function respondWithDocumentByIdentifier(Request $request, string $identifier, LsDoc $lsDoc): Response
     {
-        $newDoc = $this->managerRegistry->getRepository(LsDoc::class)->findOneBy(['identifier' => $identifier]);
+        $newDoc = $this->docRepository->findOneBy(['identifier' => $identifier]);
         if (null !== $newDoc) {
             return $this->export($request, $newDoc);
         }
@@ -632,7 +635,7 @@ class DocTreeController extends AbstractController
     {
         $lsDocs = [];
 
-        $docs = $this->managerRegistry->getRepository(LsDoc::class)->findBy([], ['creator' => 'ASC', 'title' => 'ASC', 'adoptionStatus' => 'ASC']);
+        $docs = $this->docRepository->findBy([], ['creator' => 'ASC', 'title' => 'ASC', 'adoptionStatus' => 'ASC']);
         /** @var LsDoc $doc */
         foreach ($docs as $doc) {
             // Optimization: All but "Private Draft" are viewable to everyone, only auth check "Private Draft"
@@ -651,7 +654,7 @@ class DocTreeController extends AbstractController
     {
         $docLocks = ['docs' => ['_' => ''], 'items' => ['_' => '']];
         if ($user instanceof User) {
-            $locks = $this->managerRegistry->getRepository(ObjectLock::class)->findDocLocks($lsDoc);
+            $locks = $this->objectLockRepository->findDocLocks($lsDoc);
             foreach ($locks as $lock) {
                 $expiry = false;
                 if ($lock->getUser() !== $user) {

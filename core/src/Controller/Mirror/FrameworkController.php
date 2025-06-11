@@ -2,11 +2,11 @@
 
 namespace App\Controller\Mirror;
 
-use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\Mirror\Framework;
 use App\Entity\Framework\Mirror\Log;
 use App\Form\DTO\MirroredFrameworkDTO;
 use App\Form\Type\MirroredFrameworkDTOType;
+use App\Repository\Framework\LsDocRepository;
 use App\Security\Permission;
 use App\Service\MirrorServer;
 use Doctrine\Persistence\ManagerRegistry;
@@ -23,6 +23,7 @@ class FrameworkController extends AbstractController
 {
     public function __construct(
         private readonly ManagerRegistry $managerRegistry,
+        private readonly LsDocRepository $docRepository,
     ) {
     }
 
@@ -55,7 +56,7 @@ class FrameworkController extends AbstractController
     {
         $em = $this->managerRegistry->getManager();
 
-        $doc = $em->getRepository(LsDoc::class)->findOneByIdentifier($framework->getIdentifier());
+        $doc = $this->docRepository->findOneByIdentifier($framework->getIdentifier());
         if (null === $doc) {
             $this->addFlash('error', 'There is no conflict.');
 

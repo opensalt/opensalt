@@ -4,7 +4,7 @@ namespace App\Entity\Asn;
 
 final class AsnValue
 {
-    public null|string|int|\DateTime $value = null;
+    public string|int|\DateTime|null $value = null;
     public ?string $type = null;
     public ?string $datatype = null;
     public ?string $lang = null;

@@ -102,10 +102,11 @@ class IssuerController extends AbstractController
 
         $issuerDto = new IssuerDto();
         $issuerDto->name = $issuer->getName();
-        $issuerDto->id = $id;
+        $issuerDto->id = $issuer->getId()->toString();
         $issuerDto->contact = $issuer->getContact();
         $issuerDto->notes = $issuer->getNotes();
         $issuerDto->did = $issuer->getDid();
+        $issuerDto->orgType = $issuer->getOrgType();
         $issuerDto->trusted = $issuer->getTrusted();
 
         $form = $this->createForm(IssuerEditType::class, $issuerDto);

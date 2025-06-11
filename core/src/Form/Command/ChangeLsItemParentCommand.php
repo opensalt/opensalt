@@ -5,7 +5,7 @@ namespace App\Form\Command;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsItem;
 use App\Form\DTO\ChangeLsItemParentDTO;
-use Doctrine\Persistence\ObjectManager;
+use App\Repository\Framework\LsAssociationRepository;
 
 class ChangeLsItemParentCommand
 {
@@ -21,9 +21,9 @@ class ChangeLsItemParentCommand
     /**
      * @deprecated
      */
-    public function perform(ChangeLsItemParentDTO $dto, ObjectManager $manager): LsItem
+    public function perform(ChangeLsItemParentDTO $dto, LsAssociationRepository $associationRepository): LsItem
     {
-        $manager->getRepository(LsAssociation::class)->removeAllAssociationsOfType($dto->lsItem, LsAssociation::CHILD_OF);
+        $associationRepository->removeAllAssociationsOfType($dto->lsItem, LsAssociation::CHILD_OF);
         $dto->lsItem->addParent($dto->parentItem);
 
         return $dto->lsItem;
