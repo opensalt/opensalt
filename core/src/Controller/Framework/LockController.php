@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Framework;
 
 use App\Command\CommandDispatcherTrait;
@@ -29,8 +31,8 @@ class LockController extends AbstractController
         try {
             $command = new UnlockDocumentCommand($lsDoc, $user);
             $this->sendCommand($command);
-        } catch (\Exception $e) {
-            return new JsonResponse($e->getMessage());
+        } catch (\Exception $exception) {
+            return new JsonResponse($exception->getMessage());
         }
 
         return new JsonResponse('OK');
@@ -43,8 +45,8 @@ class LockController extends AbstractController
         try {
             $command = new LockDocumentCommand($lsDoc, $user);
             $this->sendCommand($command);
-        } catch (\Exception $e) {
-            return new JsonResponse($e->getMessage(), Response::HTTP_UNPROCESSABLE_ENTITY);
+        } catch (\Exception $exception) {
+            return new JsonResponse($exception->getMessage(), Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         return new JsonResponse('OK');
@@ -57,8 +59,8 @@ class LockController extends AbstractController
         try {
             $command = new UnlockItemCommand($item, $user);
             $this->sendCommand($command);
-        } catch (\Exception $e) {
-            return new JsonResponse($e->getMessage());
+        } catch (\Exception $exception) {
+            return new JsonResponse($exception->getMessage());
         }
 
         return new JsonResponse('OK');
@@ -71,8 +73,8 @@ class LockController extends AbstractController
         try {
             $command = new LockItemCommand($item, $user);
             $this->sendCommand($command);
-        } catch (\Exception $e) {
-            return new JsonResponse($e->getMessage(), Response::HTTP_UNPROCESSABLE_ENTITY);
+        } catch (\Exception $exception) {
+            return new JsonResponse($exception->getMessage(), Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         return new JsonResponse('OK');

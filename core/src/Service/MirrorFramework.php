@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\Command\CommandDispatcherTrait;
@@ -39,8 +41,8 @@ class MirrorFramework
             $schema = Schema::import(json5_decode(file_get_contents(__DIR__.'/../../config/schema/case-v1p0-cfpackage-schema.json')));
             $schema->in(json5_decode($json));
             $schema = null;
-        } catch (\Exception $e) {
-            throw new \RuntimeException('CFPackage not valid', 0, $e);
+        } catch (\Exception $exception) {
+            throw new \RuntimeException('CFPackage not valid', 0, $exception);
         }
     }
 
@@ -89,7 +91,7 @@ class MirrorFramework
             $next = $this->em->getRepository(Framework::class)->find($next->getId());
 
             if (null === $next) {
-                throw new \RuntimeException('Error mirroring framework: Mirrored framework went missing.');
+                throw new \RuntimeException('Error mirroring framework: Mirrored framework went missing.', $e->getCode(), $e);
             }
 
             $msg = $e->getMessage();
@@ -115,7 +117,7 @@ class MirrorFramework
                 'error' => $msg,
             ]);
 
-            throw new \RuntimeException('Error mirroring framework: '.$msg);
+            throw new \RuntimeException('Error mirroring framework: '.$msg, $e->getCode(), $e);
         }
 
         return $next;

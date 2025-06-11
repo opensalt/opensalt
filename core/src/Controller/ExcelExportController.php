@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Command\CommandDispatcherTrait;
@@ -40,7 +42,7 @@ class ExcelExportController extends AbstractController
         $phpExcelObject = $this->excelExport->exportExcelFile($lsDoc);
 
         return new StreamedResponse(
-            function () use ($phpExcelObject) {
+            function () use ($phpExcelObject): void {
                 IOFactory::createWriter($phpExcelObject, 'Xlsx')
                     ->save('php://output');
             },

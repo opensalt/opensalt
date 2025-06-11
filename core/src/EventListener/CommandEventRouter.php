@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\EventListener;
 
 use App\Command\CommandInterface;
@@ -18,14 +20,8 @@ class CommandEventRouter implements EventSubscriberInterface
 {
     use LoggerTrait;
 
-    private EntityManagerInterface $em;
-
-    private TokenStorageInterface $tokenStorage;
-
-    public function __construct(EntityManagerInterface $entityManager, TokenStorageInterface $tokenStorage)
+    public function __construct(private EntityManagerInterface $em, private TokenStorageInterface $tokenStorage)
     {
-        $this->em = $entityManager;
-        $this->tokenStorage = $tokenStorage;
     }
 
     #[\Override]
@@ -53,10 +49,10 @@ class CommandEventRouter implements EventSubscriberInterface
             $this->updateChangeEntry($command, $changeEntry, $notification);
 
             $this->em->getConnection()->commit();
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             $this->em->getConnection()->rollBack();
 
-            throw $e;
+            throw $exception;
         }
 
         $this->sendNotification($dispatcher, $notification);
@@ -74,7 +70,7 @@ class CommandEventRouter implements EventSubscriberInterface
         try {
             $dispatcher->dispatch($event, $command::class);
 
-            if ($validationErrors = $command->getValidationErrors()) {
+            if (($validationErrors = $command->getValidationErrors()) !== null) {
                 $errors = [];
                 foreach ($validationErrors as $error) {
                     $errors[] = $error->getMessage();
@@ -82,10 +78,10 @@ class CommandEventRouter implements EventSubscriberInterface
                 $errorString = implode(' ', $errors);
                 $this->info('Error in command', ['command' => $command::class, 'errors' => $errorString]);
             }
-        } catch (\Exception $e) {
-            $this->info('Exception in command', ['command' => $command::class, 'exception' => $e]);
+        } catch (\Exception $exception) {
+            $this->info('Exception in command', ['command' => $command::class, 'exception' => $exception]);
 
-            throw $e;
+            throw $exception;
         }
     }
 
@@ -135,7 +131,7 @@ class CommandEventRouter implements EventSubscriberInterface
         $user = null;
 
         $token = $this->tokenStorage->getToken();
-        if ($token) {
+        if (null !== $token) {
             $user = $token->getUser();
             if (!$user instanceof User) {
                 $user = null;

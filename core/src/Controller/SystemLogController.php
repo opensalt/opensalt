@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Repository\ChangeEntryRepository;
@@ -31,7 +33,7 @@ class SystemLogController extends AbstractController
         $response = new StreamedResponse();
         $response->headers->set('Content-type', 'application/json');
 
-        $response->setCallback(function () use ($limit, $offset) {
+        $response->setCallback(function () use ($limit, $offset): void {
             $fd = fopen('php://output', 'wb+');
             if (false === $fd) {
                 throw new \RuntimeException('Unable to open output stream');
@@ -73,13 +75,13 @@ class SystemLogController extends AbstractController
         $response->headers->set('Content-type', 'text/csv; charset=utf-8');
         $response->headers->set('Content-Disposition', 'attachment; filename="system_log.csv"');
 
-        $response->setCallback(function () {
+        $response->setCallback(function (): void {
             $fd = fopen('php://output', 'wb+');
             if (false === $fd) {
                 throw new \RuntimeException('Unable to open output stream');
             }
 
-            fputcsv($fd, ['Date/Time (UTC timezone)', 'Description', 'Username']);
+            fputcsv($fd, ['Date/Time (UTC timezone)', 'Description', 'Username'], escape: '\\');
 
             $history = $this->entryRepository->getChangeEntriesForSystem(0, 0);
             foreach ($history as $line) {
@@ -87,7 +89,8 @@ class SystemLogController extends AbstractController
                     preg_replace('/\..*$/', '', $line['changed_at']),
                     $line['description'],
                     $line['username'],
-                ]);
+                ],
+                escape: '\\');
             }
 
             fclose($fd);

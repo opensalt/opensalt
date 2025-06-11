@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Copyright (c) 2017 Public Consulting Group.
  *
@@ -19,7 +21,7 @@ class Compare
      */
     public static function sortArrayByFields(array &$itemArray, array $fields): void
     {
-        uasort($itemArray, static function ($a, $b) use ($fields) {
+        uasort($itemArray, static function ($a, $b) use ($fields): int {
             foreach ($fields as $field) {
                 if (0 !== ($ret = Compare::arrayCompare($a, $b, $field))) {
                     return $ret;

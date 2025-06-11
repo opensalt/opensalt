@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\EventListener;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -11,13 +13,8 @@ use Symfony\Contracts\Cache\ItemInterface;
 
 class SiteVersionListener implements EventSubscriberInterface
 {
-    public string $projectDir;
-    private CacheInterface $cache;
-
-    public function __construct(string $projectDir, CacheInterface $cache)
+    public function __construct(public string $projectDir, private readonly CacheInterface $cache)
     {
-        $this->projectDir = $projectDir;
-        $this->cache = $cache;
     }
 
     #[\Override]
@@ -40,7 +37,7 @@ class SiteVersionListener implements EventSubscriberInterface
 
     private function getFullVersion(): string
     {
-        return $this->cache->get('version', function (ItemInterface $item) {
+        return $this->cache->get('version', function (ItemInterface $item): string {
             $item->expiresAfter(3600);
 
             return $this->getUncachedVersion();

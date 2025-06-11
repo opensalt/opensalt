@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\DataTransformer\CaseJson\PackageTransformer;
@@ -23,7 +25,7 @@ class CaseImport
 
         try {
             $this->validate($content);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             // Try to fix things based on common issues seen
             try {
                 $newContent = $this->fixupContent($content);
@@ -31,7 +33,7 @@ class CaseImport
                 $content = $newContent;
             } catch (\Throwable) {
                 // Ignore error and throw original
-                throw $e;
+                throw $throwable;
             }
         }
 

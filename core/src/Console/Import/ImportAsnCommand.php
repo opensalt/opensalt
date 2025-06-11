@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Import;
 
 use App\Command\Import\ImportAsnFromUrlCommand;
@@ -30,20 +32,20 @@ class ImportAsnCommand extends BaseDispatchingCommand
         $asnId = $input->getArgument('asnId');
         $creator = $input->getOption('creator');
 
-        $output->writeln("<info>Starting import of {$asnId}</info>");
+        $output->writeln(sprintf('<info>Starting import of %s</info>', $asnId));
 
         try {
             $command = new ImportAsnFromUrlCommand($asnId, $creator);
             $this->dispatcher->dispatch(new CommandEvent($command), CommandEvent::class);
 
             $output->writeln('<info>Done.</info>');
-        } catch (\Exception $e) {
-            $output->write($e->getMessage());
+        } catch (\Exception $exception) {
+            $output->write($exception->getMessage());
             $output->writeln('<error>Error importing document from ASN.</error>');
 
-            return (int) Command::FAILURE; // Fail out of command
+            return Command::FAILURE; // Fail out of command
         }
 
-        return (int) Command::SUCCESS;
+        return Command::SUCCESS;
     }
 }

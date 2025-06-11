@@ -13,14 +13,14 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class SubtypeUpdater
 {
-    private const MAP_TO_ASSOC_TYPES = [
+    private const array MAP_TO_ASSOC_TYPES = [
         'exactMatchOf' => LsAssociation::EXACT_MATCH_OF,
         'isRelatedTo' => LsAssociation::RELATED_TO,
         'isPartOf->' => LsAssociation::PART_OF,
         '<-isPartOf' => LsAssociation::PART_OF,
     ];
 
-    private const MAP_TYPES = [
+    private const array MAP_TYPES = [
         'exactMatchOf' => [
             'Identical',
             'Equivalent',
@@ -59,7 +59,7 @@ class SubtypeUpdater
         ],
     ];
 
-    private const MAP_SUBTYPES = [
+    private const array MAP_SUBTYPES = [
         'Identical' => 'exactMatchOf',
         'Equivalent' => 'exactMatchOf',
         'Examples Differ' => 'exactMatchOf',
@@ -88,7 +88,7 @@ class SubtypeUpdater
 //        'Continuation' => '',
     ];
 
-    public function __construct(private ManagerRegistry $registry)
+    public function __construct(private readonly ManagerRegistry $registry)
     {
     }
 
@@ -180,7 +180,7 @@ class SubtypeUpdater
     {
         $ret = '';
 
-        if (empty($origin) || empty($destination)) {
+        if (null === $origin || '' === $origin || (null === $destination || '' === $destination)) {
             // Skip row if both identifiers are not there
 //            $this->io->comment('Missing identifiers');
             return "Missing identifiers\n";
@@ -219,7 +219,7 @@ class SubtypeUpdater
 
         $newType = self::MAP_SUBTYPES[$subtype];
 
-        if (empty($newType)) {
+        if ('' === $newType) {
 //            $this->io->comment('Missing new type');
             foreach ($assocs as $assoc) {
 //                dump(['found one maybe removable?' => [$origin, $destination, $assoc->getType(), $newType, $subtype]]);
@@ -327,7 +327,7 @@ class SubtypeUpdater
             $changed[] = 'Annotation set';
         }
 
-        if (0 === count($changed)) {
+        if ([] === $changed) {
             return "Association{Unchanged}\n";
         }
 

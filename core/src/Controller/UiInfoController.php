@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Entity\Framework\LsAssociation;
@@ -184,11 +186,7 @@ class UiInfoController extends AbstractController
             $originDoc = $association->getLsDocIdentifier();
         } else {
             $originIdentifier = $origin->getIdentifier();
-            if ($origin instanceof LsDoc) {
-                $originDoc = $origin->getIdentifier();
-            } else {
-                $originDoc = $origin->getLsDocIdentifier();
-            }
+            $originDoc = $origin instanceof LsDoc ? $origin->getIdentifier() : $origin->getLsDocIdentifier();
         }
         $dest = $association->getDestination();
         if (\is_string($dest)) {
@@ -196,11 +194,7 @@ class UiInfoController extends AbstractController
             $destDoc = $association->getLsDocIdentifier();
         } else {
             $destIdentifier = $dest->getIdentifier();
-            if ($dest instanceof LsDoc) {
-                $destDoc = $dest->getIdentifier();
-            } else {
-                $destDoc = $dest->getLsDocIdentifier();
-            }
+            $destDoc = $dest instanceof LsDoc ? $dest->getIdentifier() : $dest->getLsDocIdentifier();
         }
 
         return [

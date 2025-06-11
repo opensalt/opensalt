@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Import;
 
 use App\Command\Import\ImportGenericCsvCommand;
@@ -35,6 +37,6 @@ class ImportGeneric1Command extends BaseDispatchingCommand
 
         $output->writeln('Done.');
 
-        return (int) Command::SUCCESS;
+        return Command::SUCCESS;
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\EventListener;
 
 use ReCaptcha\ReCaptcha;
@@ -10,11 +12,8 @@ use Symfony\Component\Security\Http\SecurityEvents;
 
 class LoginCaptchaListener implements EventSubscriberInterface
 {
-    private ?string $captchaSecret;
-
-    public function __construct(?string $captchaSecret = null)
+    public function __construct(private readonly ?string $captchaSecret = null)
     {
-        $this->captchaSecret = $captchaSecret;
     }
 
     #[\Override]
@@ -25,7 +24,7 @@ class LoginCaptchaListener implements EventSubscriberInterface
 
     public function onSecurityInteractiveLogin(InteractiveLoginEvent $event): void
     {
-        if (empty($this->captchaSecret)) {
+        if (null === $this->captchaSecret || '' === $this->captchaSecret) {
             return;
         }
 

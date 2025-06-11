@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\DTO\ItemType;
 
 use App\Entity\Framework\LsItem;
@@ -19,7 +21,7 @@ class OrganizationDto implements ItemTypeInterface
     public const string CTID_KEY = 'ceterms:ctid';
     public const string RORID_KEY = 'salt:rorId';
 
-    public ?int $id;
+    public ?int $id = null;
 
     public function __construct(
         #[Assert\NotBlank()]

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\Entity\Framework\AdditionalField;
@@ -21,18 +23,14 @@ final class ExcelImport
 {
     private static ?array $itemCustomFields = null;
 
-    public function __construct(private EntityManagerInterface $entityManager)
+    public function __construct(private readonly EntityManagerInterface $entityManager)
     {
         if (null === self::$itemCustomFields) {
-            $customFieldsArray = $this->getEntityManager()->getRepository(AdditionalField::class)
+            $customFieldsArray = $this->entityManager
+                ->getRepository(AdditionalField::class)
                 ->findBy(['appliesTo' => LsItem::class]);
-            self::$itemCustomFields = array_map(static fn (AdditionalField $cf) => $cf->getName(), $customFieldsArray);
+            self::$itemCustomFields = array_map(static fn (AdditionalField $cf): ?string => $cf->getName(), $customFieldsArray);
         }
-    }
-
-    public function getEntityManager(): EntityManagerInterface
-    {
-        return $this->entityManager;
     }
 
     public function importExcel(string $excelFilePath): LsDoc
@@ -72,7 +70,7 @@ final class ExcelImport
             $items[$item->getIdentifier()] = $item;
 
             $smartLevel = (string) $this->getCellValueOrNull($sheet, 4, $i);
-            if (!empty($smartLevel)) {
+            if ('' !== $smartLevel && '0' !== $smartLevel) {
                 $smartLevels[$smartLevel] = $item;
                 $itemSmartLevels[$item->getIdentifier()] = $smartLevel;
             }
@@ -85,17 +83,13 @@ final class ExcelImport
             $seq = array_pop($levels);
             $parentLevel = implode('.', $levels);
 
-            if (!is_numeric($seq)) {
-                $seq = null;
-            } else {
-                $seq = (int) $seq;
-            }
+            $seq = is_numeric($seq) ? (int) $seq : null;
 
             $children[$item->getIdentifier()] = $doc->getIdentifier();
 
             if (in_array($parentLevel, $itemSmartLevels, true)) {
                 /** @var ?LsAssociation $assoc */
-                $assoc = $this->getEntityManager()->getRepository(LsAssociation::class)->findOneBy([
+                $assoc = $this->entityManager->getRepository(LsAssociation::class)->findOneBy([
                     'originNodeIdentifier' => $item->getIdentifier(),
                     'type' => LsAssociation::CHILD_OF,
                     'destinationNodeIdentifier' => $smartLevels[$parentLevel]->getIdentifier(),
@@ -108,7 +102,7 @@ final class ExcelImport
                 }
             } else {
                 /** @var ?LsAssociation $assoc */
-                $assoc = $this->getEntityManager()->getRepository(LsAssociation::class)->findOneBy([
+                $assoc = $this->entityManager->getRepository(LsAssociation::class)->findOneBy([
                     'originNodeIdentifier' => $item->getIdentifier(),
                     'type' => LsAssociation::CHILD_OF,
                     'destinationNodeIdentifier' => $item->getLsDoc()->getIdentifier(),
@@ -147,7 +141,7 @@ final class ExcelImport
 
     private function saveDoc(Worksheet $sheet): LsDoc
     {
-        $docRepo = $this->getEntityManager()->getRepository(LsDoc::class);
+        $docRepo = $this->entityManager->getRepository(LsDoc::class);
         $doc = $docRepo->findOneByIdentifier($this->getCellValueOrNull($sheet, 1, 2));
 
         if (null === $doc) {
@@ -161,6 +155,7 @@ final class ExcelImport
         $doc->setOfficialUri($this->getCellValueOrNull($sheet, 5, 2));
         $doc->setPublisher($this->getCellValueOrNull($sheet, 6, 2));
         $doc->setDescription($this->getCellValueOrNull($sheet, 7, 2));
+
         $subject = $this->getCellValueOrNull($sheet, 8, 2);
         if (!empty($subject)) {
             $doc->setSubject(explode('|', $subject));
@@ -206,7 +201,7 @@ final class ExcelImport
 
         $doc->setNote($this->getCellValueOrNull($sheet, 16, 2));
 
-        $this->getEntityManager()->persist($doc);
+        $this->entityManager->persist($doc);
 
         return $doc;
     }
@@ -222,7 +217,7 @@ final class ExcelImport
         $licence->setTitle($title);
         $licence->setLicenceText($licenceText);
 
-        $this->getEntityManager()->persist($licence);
+        $this->entityManager->persist($licence);
 
         return $licence;
     }
@@ -236,7 +231,7 @@ final class ExcelImport
             $identifier = null;
         } elseif (Uuid::isValid($identifier)) {
             /** @var ?LsItem $item */
-            $item = $this->getEntityManager()->getRepository(LsItem::class)
+            $item = $this->entityManager->getRepository(LsItem::class)
                 ->findOneBy(['identifier' => $identifier, 'lsDocIdentifier' => $doc->getIdentifier()]);
         }
 
@@ -267,7 +262,7 @@ final class ExcelImport
         // col 13+ - additional fields
         $this->addAdditionalFields($row, $item, $sheet);
 
-        $this->getEntityManager()->persist($item);
+        $this->entityManager->persist($item);
 
         return $item;
     }
@@ -287,7 +282,7 @@ final class ExcelImport
             10 => 'associationGroupName',
         ];
 
-        $itemRepo = $this->getEntityManager()->getRepository(LsItem::class);
+        $itemRepo = $this->entityManager->getRepository(LsItem::class);
         $association = null;
         $fields = [];
 
@@ -307,13 +302,13 @@ final class ExcelImport
             $fields['identifier'] = null;
         } elseif (Uuid::isValid($fields['identifier'])) {
             /** @var ?LsAssociation $association */
-            $association = $this->getEntityManager()->getRepository(LsAssociation::class)
+            $association = $this->entityManager->getRepository(LsAssociation::class)
                 ->findOneBy(['identifier' => $fields['identifier'], 'lsDocIdentifier' => $doc->getIdentifier()]);
         }
 
         if (null === $association) {
             /** @var ?LsAssociation $association */
-            $association = $this->getEntityManager()->getRepository(LsAssociation::class)->findOneBy([
+            $association = $this->entityManager->getRepository(LsAssociation::class)->findOneBy([
                 'originNodeIdentifier' => $fields['originNodeIdentifier'],
                 'type' => $fields['associationType'],
                 'destinationNodeIdentifier' => $fields['destinationNodeIdentifier'],
@@ -354,22 +349,22 @@ final class ExcelImport
             $log = new ImportLog();
             $log->setLsDoc($doc);
             $log->setMessageType('error');
-            $log->setMessage("Invalid Association Type ({$fields['associationType']} on row {$row}.");
+            $log->setMessage(sprintf('Invalid Association Type (%s on row %d.', $fields['associationType'], $row));
 
-            $this->getEntityManager()->persist($log);
+            $this->entityManager->persist($log);
 
             return null;
         }
 
-        if (!empty($fields['associationGroupIdentifier'])) {
+        if (isset($fields['associationGroupIdentifier']) && ('' !== $fields['associationGroupIdentifier'])) {
             $associationGrouping = new LsDefAssociationGrouping();
             $associationGrouping->setLsDoc($doc);
             $associationGrouping->setTitle($fields['associationGroupName']);
             $association->setGroup($associationGrouping);
-            $this->getEntityManager()->persist($associationGrouping);
+            $this->entityManager->persist($associationGrouping);
         }
 
-        $this->getEntityManager()->persist($association);
+        $this->entityManager->persist($association);
 
         return $association;
     }
@@ -385,12 +380,12 @@ final class ExcelImport
 
     private function checkRemovedItems(LsDoc $doc, array $array): void
     {
-        $docRepo = $this->getEntityManager()->getRepository(LsDoc::class);
-        $repo = $this->getEntityManager()->getRepository(LsItem::class);
+        $docRepo = $this->entityManager->getRepository(LsDoc::class);
+        $repo = $this->entityManager->getRepository(LsItem::class);
 
         $existingItems = $docRepo->findAllItems($doc);
 
-        $existingItems = array_filter($existingItems, static fn ($item) => !array_key_exists($item['identifier'], $array));
+        $existingItems = array_filter($existingItems, static fn ($item): bool => !array_key_exists($item['identifier'], $array));
 
         foreach ($existingItems as $existingItem) {
             $element = $repo->findOneByIdentifier($existingItem['identifier']);
@@ -403,12 +398,12 @@ final class ExcelImport
 
     private function checkRemovedAssociations(LsDoc $doc, array $array): void
     {
-        $docRepo = $this->getEntityManager()->getRepository(LsDoc::class);
-        $repo = $this->getEntityManager()->getRepository(LsAssociation::class);
+        $docRepo = $this->entityManager->getRepository(LsDoc::class);
+        $repo = $this->entityManager->getRepository(LsAssociation::class);
 
         $existingAssociations = $docRepo->findAllAssociations($doc);
 
-        $existingAssociations = array_filter($existingAssociations, static fn ($association) => !array_key_exists($association['identifier'], $array));
+        $existingAssociations = array_filter($existingAssociations, static fn ($association): bool => !array_key_exists($association['identifier'], $array));
 
         foreach ($existingAssociations as $existingAssociation) {
             $element = $repo->findOneByIdentifier($existingAssociation['identifier']);
@@ -436,7 +431,7 @@ final class ExcelImport
             return $itemTypes[$itemTypeTitle];
         }
 
-        $itemType = $this->getEntityManager()->getRepository(LsDefItemType::class)
+        $itemType = $this->entityManager->getRepository(LsDefItemType::class)
             ->findOneByTitle($itemTypeTitle);
 
         if (null === $itemType) {
@@ -444,7 +439,7 @@ final class ExcelImport
             $itemType->setTitle($itemTypeTitle);
             $itemType->setCode($itemTypeTitle);
             $itemType->setHierarchyCode($itemTypeTitle);
-            $this->getEntityManager()->persist($itemType);
+            $this->entityManager->persist($itemType);
         }
 
         $itemTypes[$itemTypeTitle] = $itemType;

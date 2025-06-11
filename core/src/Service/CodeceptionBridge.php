@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\Service\User\UserManager;
@@ -9,35 +11,26 @@ use Symfony\Contracts\Service\Attribute\Required;
 
 class CodeceptionBridge
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    /**
-     * @var FeatureManager
-     */
-    private $featureManager;
+    private FeatureManager $featureManager;
 
-    /**
-     * @var UserManager
-     */
-    private $userManager;
+    private UserManager $userManager;
 
     #[Required]
-    public function setEntityManager(EntityManagerInterface $entityManager)
+    public function setEntityManager(EntityManagerInterface $entityManager): void
     {
         $this->entityManager = $entityManager;
     }
 
     #[Required]
-    public function setToggles(FeatureManager $featureManager)
+    public function setToggles(FeatureManager $featureManager): void
     {
         $this->featureManager = $featureManager;
     }
 
     #[Required]
-    public function setUserManager(UserManager $userManager)
+    public function setUserManager(UserManager $userManager): void
     {
         $this->userManager = $userManager;
     }

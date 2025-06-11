@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\User;
 
 use App\Command\CommandDispatcherTrait;
@@ -145,7 +147,7 @@ class UserController extends AbstractController
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
             $plainPassword = $targetUser->getPlainPassword();
-            if (!empty($plainPassword)) {
+            if (null !== $plainPassword && '' !== $plainPassword) {
                 $password = $this->passwordEncoder
                     ->hashPassword($targetUser, $targetUser->getPlainPassword());
                 $targetUser->setPassword($password);

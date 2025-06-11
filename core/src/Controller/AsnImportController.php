@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Command\CommandDispatcherTrait;
@@ -27,9 +29,9 @@ class AsnImportController extends AbstractController
 
         try {
             $this->sendCommand($command);
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
             return new JsonResponse([
-                'message' => $e->getMessage(),
+                'message' => $exception->getMessage(),
             ], Response::HTTP_BAD_REQUEST);
         }
 

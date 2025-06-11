@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Mirror;
 
 use App\Service\MirrorServer;
@@ -29,11 +31,11 @@ class UpdateListCommand extends Command
         if (null === $server) {
             $io->comment('Nothing to do');
 
-            return (int) Command::SUCCESS;
+            return Command::SUCCESS;
         }
 
         $io->success(sprintf('Updated %s', $server->getUrl()));
 
-        return (int) Command::SUCCESS;
+        return Command::SUCCESS;
     }
 }

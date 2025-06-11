@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Framework;
 
 use App\Command\CommandDispatcherTrait;
@@ -66,7 +68,7 @@ class LsAssociationController extends AbstractController
         $ajax = $request->isXmlHttpRequest();
 
         $lsAssociation = new LsAssociation();
-        if ($sourceLsItem) {
+        if (null !== $sourceLsItem) {
             $lsAssociation->setOriginLsItem($sourceLsItem);
 
             // Default to adding to source item's LsDoc
@@ -120,7 +122,7 @@ class LsAssociationController extends AbstractController
         // type, origin['externalDoc', 'id', 'identifier'], dest['externalDoc', 'id', 'identifier'], assocGroup
         foreach (['type', 'origin', 'dest'] as $value) {
             if (!$request->request->has($value)) {
-                return new JsonResponse(['error' => ['message' => "Missing value: {$value}"]], Response::HTTP_BAD_REQUEST);
+                return new JsonResponse(['error' => ['message' => 'Missing value: ' . $value]], Response::HTTP_BAD_REQUEST);
             }
         }
 
@@ -146,8 +148,8 @@ class LsAssociationController extends AbstractController
             $response->headers->set('Cache-Control', 'no-cache');
 
             return $response;
-        } catch (\Exception $e) {
-            return new JsonResponse(['error' => ['message' => $e->getMessage()]], Response::HTTP_BAD_REQUEST);
+        } catch (\Exception $exception) {
+            return new JsonResponse(['error' => ['message' => $exception->getMessage()]], Response::HTTP_BAD_REQUEST);
         }
     }
 
@@ -182,8 +184,8 @@ class LsAssociationController extends AbstractController
             $response->headers->set('Cache-Control', 'no-cache');
 
             return $response;
-        } catch (\Exception $e) {
-            return new JsonResponse(['error' => ['message' => $e->getMessage()]], Response::HTTP_BAD_REQUEST);
+        } catch (\Exception $exception) {
+            return new JsonResponse(['error' => ['message' => $exception->getMessage()]], Response::HTTP_BAD_REQUEST);
         }
     }
 

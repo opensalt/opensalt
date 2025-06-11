@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\Entity\Framework\IdentifiableInterface;
@@ -62,7 +64,7 @@ readonly class Api1Uris
     {
         if (Api1RouteMap::getForClass(Package::class) === $route) {
             // Since we don't store the CF Package URI patch it
-            $uri = str_replace('CFDocuments', 'CFPackages', $uri);
+            return str_replace('CFDocuments', 'CFPackages', $uri);
         }
 
         return $uri;
@@ -115,7 +117,7 @@ readonly class Api1Uris
         }
 
         return [
-            'title' => !empty($title) ? $title : 'Linked Reference',
+            'title' => empty($title) ? 'Linked Reference' : $title,
             'identifier' => $obj->getIdentifier(),
             'uri' => $this->getUri($obj, $route),
         ];

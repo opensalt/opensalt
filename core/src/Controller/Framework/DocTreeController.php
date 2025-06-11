@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Framework;
 
 use App\Command\CommandDispatcherTrait;
@@ -325,7 +327,7 @@ class DocTreeController extends AbstractController
     protected function isCaseNetworkUrl(string $url): bool
     {
         preg_match('|casenetwork\.imsglobal\.org|', $url, $matches);
-        if (!empty($matches)) {
+        if ([] !== $matches) {
             return true;
         }
 
@@ -355,7 +357,7 @@ class DocTreeController extends AbstractController
                 ]
             );
 
-            return json_decode($response->getBody(), false, 512, JSON_THROW_ON_ERROR)->access_token;
+            return json_decode($response->getBody()->getContents(), false, 512, JSON_THROW_ON_ERROR)->access_token;
         } catch (RequestException $e) {
             $message = $e->getHandlerContext();
 
@@ -378,7 +380,7 @@ class DocTreeController extends AbstractController
     #[Route(path: '/item/{id}/{assocGroup}.{_format}', name: 'doc_tree_item_view_ag', defaults: ['_format' => 'html'], methods: ['GET'])]
     public function viewItem(LsItem $lsItem, ?string $assocGroup = null, string $_format = 'html'): Response
     {
-        return $this->forward('App\Controller\Framework\DocTreeController::view', ['slug' => $lsItem->getLsDoc()->getId(), '_format' => 'html', 'lsItemId' => $lsItem->getId(), 'assocGroup' => $assocGroup]);
+        return $this->forward(DocTreeController::class . '::view', ['slug' => $lsItem->getLsDoc()->getId(), '_format' => 'html', 'lsItemId' => $lsItem->getId(), 'assocGroup' => $assocGroup]);
     }
 
     /**
@@ -471,7 +473,7 @@ class DocTreeController extends AbstractController
         $rv = $command->getReturnValues();
 
         // get ids for new associations and items
-        foreach ($rv as $lsItemId => $val) {
+        foreach (array_keys($rv) as $lsItemId) {
             if (!empty($rv[$lsItemId]['association'])) {
                 $rv[$lsItemId]['assocId'] = $rv[$lsItemId]['association']->getId();
                 unset($rv[$lsItemId]['association']);
@@ -498,8 +500,8 @@ class DocTreeController extends AbstractController
 
         try {
             $this->sendCommand($command);
-        } catch (\Exception $e) {
-            if (str_contains($e->getMessage(), 'FOREIGN KEY')) {
+        } catch (\Exception $exception) {
+            if (str_contains($exception->getMessage(), 'FOREIGN KEY')) {
                 return new JsonResponse(['error' => ['message' => 'An association group may only be deleted if there are no associations in it.']], Response::HTTP_BAD_REQUEST);
             }
 
@@ -620,7 +622,7 @@ class DocTreeController extends AbstractController
     {
         // Check for CASE Network urls
         if ($this->isCaseNetworkUrl($url)) {
-            $headers = array_merge([
+            return array_merge([
                 'Authorization' => 'Bearer '.$this->retrieveCaseNetworkBearerToken(),
             ], $headers);
         }

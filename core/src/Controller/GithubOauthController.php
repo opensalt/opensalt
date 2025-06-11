@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Entity\User\User;
@@ -30,7 +32,7 @@ class GithubOauthController extends AbstractController
             ]);
         }
 
-        if (!empty($currentUser->getGithubToken())) {
+        if (!in_array($currentUser->getGithubToken(), [null, ''], true)) {
             $page = $request->query->get('page');
             $perPage = $request->query->get('perPage');
 
@@ -75,11 +77,7 @@ class GithubOauthController extends AbstractController
         $sha = $request->query->get('sha');
         $path = $request->query->get('path');
 
-        if (empty($sha)) {
-            $url = '/repos/:owner/:repo/contents/:path';
-        } else {
-            $url = '/repos/:owner/:repo/git/blobs/:sha';
-        }
+        $url = empty($sha) ? '/repos/:owner/:repo/contents/:path' : '/repos/:owner/:repo/git/blobs/:sha';
 
         $blob = $api->get($url, [
             'owner' => $owner,
@@ -95,10 +93,10 @@ class GithubOauthController extends AbstractController
 
     private function parseLink(string $link, string $rel): ?string
     {
-        if (!preg_match('/<([^>]+)>;\s*rel="'.preg_quote($rel, '/').'"/', $link, $match)) {
+        if (in_array(preg_match('/<([^>]+)>;\s*rel="'.preg_quote($rel, '/').'"/', $link, $match), [0, false], true)) {
             return null;
         }
-        if (!preg_match('/[^\d]*(\d+)/', $match[1], $totalPages)) {
+        if (in_array(preg_match('/[^\d]*(\d+)/', $match[1], $totalPages), [0, false], true)) {
             return null;
         }
 

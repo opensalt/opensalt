@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Security\Permission;
@@ -47,9 +49,9 @@ class SubtypeUpdateController extends AbstractController
             $saveFilename = uniqid('SubtypeUpdate-', true).'.'.$file->guessExtension();
             $path = $file->move('/tmp/', $saveFilename);
             try {
-                $output = $this->updater->loadSpreadsheet($path);
+                $output = $this->updater->loadSpreadsheet($path->getRealPath());
             } catch (\Exception) {
-                unlink($path);
+                unlink($path->getRealPath());
 
                 throw new BadRequestException('An error occurred while loading the spreadsheet.');
             }

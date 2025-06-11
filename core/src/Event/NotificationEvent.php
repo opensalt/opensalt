@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Event;
 
 use App\Entity\Framework\IdentifiableInterface;
@@ -9,44 +11,34 @@ use Symfony\Contracts\EventDispatcher\Event;
 class NotificationEvent extends Event
 {
     /**
-     * @var string Message to display/store about the change
-     */
-    protected string $message;
-
-    protected ?LsDoc $doc;
-
-    /**
-     * @var array<string, array<mixed>> What changed
-     *
-     * Structure is:
-     * [
-     *   '{doc,item,assoc}-{a,u,d,l,ul}' => [
-     *     <id> => <identifier>,
-     *     <object> (which is resolved to <id> => <identifier>)
-     *   ]
-     * ]
-     */
-    protected array $changed;
-
-    /**
      * @var ?string The username of the user that made the change
      */
     protected ?string $username = null;
 
-    protected string $msgId;
-
-    /**
-     * @var bool Should the notification be displayed to the end user
-     */
-    protected bool $display;
-
-    public function __construct(string $messageId, string $message, ?LsDoc $doc, array $changed = [], bool $display = true)
-    {
-        $this->msgId = $messageId;
-        $this->message = $message;
-        $this->doc = $doc;
-        $this->changed = $changed;
-        $this->display = $display;
+    public function __construct(
+        protected string $msgId,
+        /**
+         * @var string Message to display/store about the change
+         */
+        protected string $message,
+        protected ?LsDoc $doc,
+        /**
+         * @var array<string, array<mixed>> What changed
+         *
+         * Structure is:
+         * [
+         *   '{doc,item,assoc}-{a,u,d,l,ul}' => [
+         *     <id> => <identifier>,
+         *     <object> (which is resolved to <id> => <identifier>)
+         *   ]
+         * ]
+         */
+        protected array $changed = [],
+        /**
+         * @var bool Should the notification be displayed to the end user
+         */
+        protected bool $display = true,
+    ) {
     }
 
     public function getMessageId(): string

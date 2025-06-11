@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Framework;
 
 use App\Entity\Framework\LsDoc;
@@ -98,7 +100,7 @@ class CfPackageController extends AbstractController
             }
         }
 
-        $arr = [
+        return [
             'lsDoc' => $doc,
             'items' => $items,
             'associations' => $associations,
@@ -108,7 +110,5 @@ class CfPackageController extends AbstractController
             'licences' => [],
             'associationGroupings' => [],
         ];
-
-        return $arr;
     }
 }

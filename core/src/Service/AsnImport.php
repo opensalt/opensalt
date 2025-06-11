@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\Entity\Asn\AsnDocument;
@@ -18,7 +20,7 @@ use Ramsey\Uuid\Uuid;
 
 class AsnImport
 {
-    public function __construct(private EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
     }
 
@@ -75,7 +77,7 @@ class AsnImport
             }
         }
 
-        if (!$lsDoc->getCreator()) {
+        if (null === $lsDoc->getCreator()) {
             $lsDoc->setCreator($creator ?: 'Imported from ASN');
         } elseif (null !== $creator) {
             $lsDoc->setCreator($creator.' - '.$lsDoc->getCreator());
@@ -146,7 +148,7 @@ class AsnImport
         if ($asnStandard->educationLevel) {
             $levels = $this->getLevels($asnStandard->educationLevel);
 
-            if (0 < count($levels)) {
+            if ([] !== $levels) {
                 $levels = array_unique($levels);
                 $lsItem->setEducationalAlignment(implode(',', $levels));
             }
@@ -194,7 +196,7 @@ class AsnImport
             $asnHost = $matches[1];
         }
 
-        if (!empty($asnHost)) {
+        if ('' !== $asnHost) {
             $urlPrefixes = [$asnHost];
         } else {
             $urlPrefixes = [
@@ -204,6 +206,8 @@ class AsnImport
         }
 
         foreach ($urlPrefixes as $urlPrefix) {
+            $asnDoc = '';
+
             try {
                 $asnDoc = $this->requestAsnDocument($urlPrefix.$asnId.'_full.json');
                 break;
@@ -212,7 +216,7 @@ class AsnImport
             }
         }
 
-        if (empty($asnDoc)) {
+        if ('' === $asnDoc) {
             throw new \Exception('Error getting document from ASN.');
         }
 
@@ -265,11 +269,7 @@ class AsnImport
 
                 default:
                     if (is_numeric($lvl)) {
-                        if ($lvl < 10) {
-                            $levels[] = '0'.((int) $lvl);
-                        } else {
-                            $levels[] = $lvl;
-                        }
+                        $levels[] = $lvl < 10 ? '0'.((int) $lvl) : $lvl;
                     } else {
                         $levels[] = 'OT';
                     }
@@ -285,6 +285,7 @@ class AsnImport
         $itemType->setTitle($label);
         $itemType->setCode($label);
         $itemType->setHierarchyCode('1');
+
         $this->em->persist($itemType);
 
         return $itemType;
@@ -328,7 +329,7 @@ class AsnImport
             $identifier = Uuid::uuid5($nsId, $value)->toString();
         }
         $assoc->setDestination(
-            "data:text/x-ref;src=ASN{$uriType},".rawurlencode($value),
+            sprintf('data:text/x-ref;src=ASN%s,', $uriType).rawurlencode($value),
             $identifier
         );
 

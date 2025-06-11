@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Framework;
 
 use App\Command\CommandDispatcherTrait;
@@ -137,7 +139,7 @@ class LsItemController extends AbstractController
         try {
             $command = new LockItemCommand($lsItem, $user);
             $this->sendCommand($command);
-        } catch (AlreadyLockedException $e) {
+        } catch (AlreadyLockedException) {
             return $this->render(
                 'framework/ls_item/locked.html.twig',
                 []
@@ -307,7 +309,7 @@ class LsItemController extends AbstractController
     #[IsGranted(Permission::ITEM_ADD_TO, 'doc')]
     public function uploadAttachment(Request $request, LsDoc $doc, BucketService $bucket): Response
     {
-        if (!empty($this->bucketProvider)) {
+        if (null !== $this->bucketProvider && '' !== $this->bucketProvider) {
             $file = $request->files->get('file');
 
             if (null !== $file && $file->isValid()) {
@@ -352,10 +354,10 @@ class LsItemController extends AbstractController
                     // 'groupId' => $assoc->getGroup()?->getId(),
                     'dest' => ['doc' => $assoc->getLsDocIdentifier(), 'item' => $destItem, 'uri' => $destItem],
                 ];
-                if ($assoc->getGroup()) {
+                if (null !== $assoc->getGroup()) {
                     $ret['assocData']['groupId'] = $assoc->getGroup()->getId();
                 }
-                if ($assoc->getSequenceNumber()) {
+                if (!in_array($assoc->getSequenceNumber(), [null, 0], true)) {
                     $ret['assocData']['seq'] = $assoc->getSequenceNumber();
                 }
             }

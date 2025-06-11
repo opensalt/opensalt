@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\User;
 
 use App\Command\User\SetUserPasswordCommand;
@@ -66,12 +68,13 @@ class UserSetPasswordCommand extends BaseDispatchingCommand
         $this->dispatcher->dispatch(new CommandEvent($command), CommandEvent::class);
         $newPassword = $command->getPlainPassword();
 
-        if (empty($password)) {
+        if (null === $password || '' === $password) {
+            // A password was generated
             $output->writeln(sprintf('The password for "%s" has been set to "%s".', $input->getArgument('username'), $newPassword));
         } else {
             $output->writeln(sprintf('The password for "%s" has been set.', $input->getArgument('username')));
         }
 
-        return (int) Command::SUCCESS;
+        return Command::SUCCESS;
     }
 }

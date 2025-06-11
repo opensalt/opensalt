@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service\User;
 
 use App\Entity\User\Organization;
@@ -10,8 +12,8 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 class UserManager
 {
     public function __construct(
-        private EntityManagerInterface $em,
-        private UserPasswordHasherInterface $encoder,
+        private readonly EntityManagerInterface $em,
+        private readonly UserPasswordHasherInterface $encoder,
     ) {
     }
 
@@ -37,11 +39,12 @@ class UserManager
         }
 
         if (!in_array($role, array_merge(User::USER_ROLES, ['ROLE_USER']), true)) {
-            throw new \InvalidArgumentException("Role {$role} is not a valid role.");
+            throw new \InvalidArgumentException(sprintf('Role %s is not a valid role.', $role));
         }
 
         $user = new User($username);
         $user->setOrg($org);
+
         $password = $this->encoder->hashPassword($user, $plainPassword);
         $user->setPassword($password);
         $user->addRole($role);

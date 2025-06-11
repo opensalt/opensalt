@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\DTO\ItemType;
 
 use App\Entity\Framework\LsItem;
@@ -41,7 +43,7 @@ class PublicKeyDto implements ItemTypeInterface
     {
         try {
             $key = JWKFactory::createFromJsonObject($this->publicKey);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             $key = JWKFactory::createFromKey($this->publicKey);
         }
 

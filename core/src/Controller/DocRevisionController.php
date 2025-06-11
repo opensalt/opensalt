@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Entity\Framework\LsDoc;
@@ -24,7 +26,7 @@ class DocRevisionController extends AbstractController
         $response = new StreamedResponse();
         $response->headers->set('Content-type', 'application/json');
 
-        $response->setCallback(function () use ($doc, $limit, $offset) {
+        $response->setCallback(function () use ($doc, $limit, $offset): void {
             $fd = fopen('php://output', 'wb+');
             if (false === $fd) {
                 throw new \Exception('Could not open output stream');
@@ -59,13 +61,13 @@ class DocRevisionController extends AbstractController
         $response->headers->set('Content-type', 'text/csv; charset=utf-8');
         $response->headers->set('Content-Disposition', 'attachment; filename="framework_log.csv"');
 
-        $response->setCallback(function () use ($doc) {
+        $response->setCallback(function () use ($doc): void {
             $fd = fopen('php://output', 'wb+');
             if (false === $fd) {
                 throw new \Exception('Could not open output stream');
             }
 
-            fputcsv($fd, ['Date/Time (UTC timezone)', 'Description', 'Username']);
+            fputcsv($fd, ['Date/Time (UTC timezone)', 'Description', 'Username'], escape: '\\');
 
             $history = $this->entryRepository->getChangeEntriesForDoc($doc, 0, 0);
             foreach ($history as $line) {
@@ -73,7 +75,8 @@ class DocRevisionController extends AbstractController
                     preg_replace('/\..*$/', '', $line['changed_at']),
                     $line['description'],
                     $line['username'],
-                ]);
+                ],
+                escape: '\\');
             }
 
             fclose($fd);

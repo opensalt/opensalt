@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Mirror;
 
 use App\Service\MirrorFramework;
@@ -29,11 +31,11 @@ class MirrorJobCommand extends Command
         if (null === $framework) {
             $io->comment('Nothing to do');
 
-            return (int) Command::SUCCESS;
+            return Command::SUCCESS;
         }
 
         $io->success(sprintf('Updated %s', $framework->getIdentifier()));
 
-        return (int) Command::SUCCESS;
+        return Command::SUCCESS;
     }
 }

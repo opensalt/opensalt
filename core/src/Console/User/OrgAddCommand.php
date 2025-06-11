@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\User;
 
 use App\Command\User\AddOrganizationByNameCommand;
@@ -65,7 +67,7 @@ class OrgAddCommand extends BaseDoctrineCommand
         if (null !== $orgObj) {
             $output->writeln(sprintf('<error>Organization "%s" already exists.</error>', $org));
 
-            return (int) Command::FAILURE;
+            return Command::FAILURE;
         }
 
         $command = new AddOrganizationByNameCommand($org);
@@ -73,6 +75,6 @@ class OrgAddCommand extends BaseDoctrineCommand
 
         $output->writeln(sprintf('The organization "%s" has been added.', $org));
 
-        return (int) Command::SUCCESS;
+        return Command::SUCCESS;
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\User;
 
 use App\Command\User\AddUserRoleCommand;
@@ -40,8 +42,8 @@ abstract class UserRoleCommand extends BaseDispatchingCommand
     {
         try {
             $role = $this->getValidRole($input->getArgument('role'));
-        } catch (\Exception $e) {
-            $output->writeln('<error>'.$e->getMessage().'</error>');
+        } catch (\Exception $exception) {
+            $output->writeln('<error>'.$exception->getMessage().'</error>');
 
             return 1;
         }

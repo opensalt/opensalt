@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\User;
 
 use App\Command\User\AddUserRoleCommand;
@@ -42,11 +44,11 @@ class UserAddRoleCommand extends UserRoleCommand
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if (0 !== $this->doChange($input, $output, AddUserRoleCommand::class)) {
-            return (int) Command::FAILURE;
+            return Command::FAILURE;
         }
 
         $output->writeln(sprintf('The role "%s" has been added.', $input->getArgument('role')));
 
-        return (int) Command::SUCCESS;
+        return Command::SUCCESS;
     }
 }

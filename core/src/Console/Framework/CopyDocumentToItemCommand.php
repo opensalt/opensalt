@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Framework;
 
 use App\Command\Framework\CopyDocumentToItemCommand as CopyDocumentToItemEventCommand;
@@ -36,22 +38,22 @@ class CopyDocumentToItemCommand extends BaseDoctrineCommand
         $lsDocRepo = $this->em->getRepository(LsDoc::class);
 
         $oldDoc = $lsDocRepo->find((int) $oldDocId);
-        if (!$oldDoc) {
-            $output->writeln("<error>Doc with id '{$oldDocId}' not found.</error>");
+        if (null === $oldDoc) {
+            $output->writeln(sprintf("<error>Doc with id '%s' not found.</error>", $oldDocId));
 
-            return (int) Command::FAILURE;
+            return Command::FAILURE;
         }
 
         $newDoc = $lsDocRepo->find((int) $newDocId);
-        if (!$newDoc) {
-            $output->writeln("<error>Doc with id '{$newDocId}' not found.</error>");
+        if (null === $newDoc) {
+            $output->writeln(sprintf("<error>Doc with id '%s' not found.</error>", $newDocId));
 
-            return (int) Command::INVALID;
+            return Command::INVALID;
         }
 
         /** @var QuestionHelper $helper */
         $helper = $this->getHelper('question');
-        $question = new ConfirmationQuestion("<question>Do you really want to duplicate '{$oldDoc->getTitle()}'? (y/n)</question> ", false);
+        $question = new ConfirmationQuestion(sprintf("<question>Do you really want to duplicate '%s'? (y/n)</question> ", $oldDoc->getTitle()), false);
         if (!$helper->ask($input, $output, $question)) {
             $output->writeln('<info>Not duplicating document.</info>');
 
@@ -71,6 +73,6 @@ class CopyDocumentToItemCommand extends BaseDoctrineCommand
 
         $output->writeln('<info>Duplicated.</info>');
 
-        return (int) Command::SUCCESS;
+        return Command::SUCCESS;
     }
 }

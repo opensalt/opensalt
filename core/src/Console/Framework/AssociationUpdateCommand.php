@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Framework;
 
 use App\Service\SubtypeUpdater;
@@ -48,6 +50,6 @@ class AssociationUpdateCommand extends Command
 
         $io->success('Spreadsheets loaded.');
 
-        return (int) Command::SUCCESS;
+        return Command::SUCCESS;
     }
 }

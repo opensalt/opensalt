@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Framework;
 
 use App\Command\Framework\DeleteDocumentCommand;
@@ -36,20 +38,20 @@ class CfpackageDeleteCommand extends BaseDoctrineCommand
         $lsDocRepo = $this->em->getRepository(LsDoc::class);
 
         $lsDoc = $lsDocRepo->find((int) $lsDocId);
-        if (!$lsDoc) {
-            $output->writeln("<error>LSDoc with id '{$lsDocId}' not found.</error>");
+        if (null === $lsDoc) {
+            $output->writeln(sprintf("<error>LSDoc with id '%s' not found.</error>", $lsDocId));
 
-            return (int) Command::FAILURE;
+            return Command::FAILURE;
         }
 
         if (!$input->getOption('yes')) {
             /** @var QuestionHelper $helper */
             $helper = $this->getHelper('question');
-            $question = new ConfirmationQuestion("<question>Do you really want to delete '{$lsDoc->getTitle()}'? (y/n)</question> ", false);
+            $question = new ConfirmationQuestion(sprintf("<question>Do you really want to delete '%s'? (y/n)</question> ", $lsDoc->getTitle()), false);
             if (!$helper->ask($input, $output, $question)) {
                 $output->writeln('<info>Not deleting LSDoc.</info>');
 
-                return (int) Command::INVALID;
+                return Command::INVALID;
             }
         }
 
@@ -66,6 +68,6 @@ class CfpackageDeleteCommand extends BaseDoctrineCommand
 
         $output->writeln('<info>Deleted.</info>');
 
-        return (int) Command::SUCCESS;
+        return Command::SUCCESS;
     }
 }

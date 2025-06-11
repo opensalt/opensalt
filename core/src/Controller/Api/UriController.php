@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Api;
 
 use App\Entity\Framework\LsAssociation;
@@ -100,7 +102,7 @@ class UriController extends AbstractController
 
         // Send multiple choice (300) response if no Accept header
         $accept = $request->headers->get('Accept');
-        if (empty($accept)) {
+        if (null === $accept) {
             return $this->generateMultipleChoiceResponse($originalUri, $headers);
         }
 
@@ -209,10 +211,10 @@ class UriController extends AbstractController
         $accept = AcceptHeader::fromString($request->headers->get('Accept'));
         $contentTypes = $accept->all();
         foreach ($contentTypes as $contentType) {
-            $tryFormat = $request->getFormat($contentType);
+            $tryFormat = $request->getFormat($contentType->getValue());
             if (in_array($tryFormat, $allowedFormats, true)) {
                 $useFormat = $tryFormat;
-                $quality = $accept->get($contentType)?->getQuality() ?? 0.0;
+                $quality = $accept->get($contentType->getValue())?->getQuality() ?? 0.0;
 
                 break;
             }
@@ -238,19 +240,19 @@ class UriController extends AbstractController
     {
         $this->addLink(
             $request,
-            new Link('canonical', "/uri/{$originalUri}")
+            new Link('canonical', '/uri/' . $originalUri)
         );
         $this->addLink(
             $request,
-            (new Link('alternate', "/uri/{$originalUri}.json"))->withAttribute('type', 'application/json')
+            new Link('alternate', sprintf('/uri/%s.json', $originalUri))->withAttribute('type', 'application/json')
         );
         $this->addLink(
             $request,
-            (new Link('alternate', "/uri/{$originalUri}.jsonld"))->withAttribute('type', 'application/ld+json')
+            new Link('alternate', sprintf('/uri/%s.jsonld', $originalUri))->withAttribute('type', 'application/ld+json')
         );
         $this->addLink(
             $request,
-            (new Link('alternate', "/uri/{$originalUri}.html"))->withAttribute('type', 'text/html')
+            new Link('alternate', sprintf('/uri/%s.html', $originalUri))->withAttribute('type', 'text/html')
         );
     }
 
@@ -263,9 +265,9 @@ class UriController extends AbstractController
             'Alternates' => implode(
                 ', ',
                 [
-                    "{\"/uri/{$originalUri}.html\" 0.9 {type text/html}}",
-                    "{\"/uri/{$originalUri}.json\" 1.0 {type application/json}}",
-                    "{\"/uri/{$originalUri}.jsonld\" 1.0 {type application/ld+json}}",
+                    sprintf('{"/uri/%s.html" 0.9 {type text/html}}', $originalUri),
+                    sprintf('{"/uri/%s.json" 1.0 {type application/json}}', $originalUri),
+                    sprintf('{"/uri/%s.jsonld" 1.0 {type application/ld+json}}', $originalUri),
                 ]
             ),
         ];
@@ -449,7 +451,7 @@ xENDx;
                     'targetUrl' => $this->uriGenerator->getUri($alignment),
                 ];
             }
-            if (0 === count($credential['alignment'])) {
+            if ([] === $credential['alignment']) {
                 unset($credential['alignment']);
             }
 
@@ -536,12 +538,16 @@ xENDx;
                 $last = 0;
                 /** @var iterable<LsAssociation> $items */
                 $items = $this->docRepository->findAllAssociationsIterator($obj, Query::HYDRATE_OBJECT, $start, $limit);
-                foreach ($items as $key => $item) {
+                foreach ($items as $item) {
                     $this->entityManager->detach($item);
                     ++$cnt;
                     $last = $item->getId();
-                    if (!$this->canListDocument($item, 'origin') ||
-                        !$this->canListDocument($item, 'destination')) {
+                    if (!$this->canListDocument($item, 'origin')) {
+                        // Remove associations to frameworks one can't normally see
+                        // unset($items[$key]);
+                        continue;
+                    }
+                    if (!$this->canListDocument($item, 'destination')) {
                         // Remove associations to frameworks one can't normally see
                         // unset($items[$key]);
                         continue;
@@ -603,44 +609,44 @@ xENDx;
         };
 
         if (in_array($_format, ['ndjson', 'csv'])) {
-            return new StreamedResponse(function () use ($obj, $itemCallback, $associationCallback, $conceptCallback, $subjectCallback, $licenseCallback, $itemTypeCallback, $groupCallback, $context) {
+            return new StreamedResponse(function () use ($obj, $itemCallback, $associationCallback, $conceptCallback, $subjectCallback, $licenseCallback, $itemTypeCallback, $groupCallback, $context): void {
                 $context += [
                    'json_encode_options' => JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES,
                    'no_headers' => true,
                    'csv_end_of_line' => '',
                 ];
                 $eol = ('csv' === $context['useFormat']) ? '' : "\n";
-                echo $this->serializer->serialize($obj, $context['useFormat'], $context)."$eol";
+                echo $this->serializer->serialize($obj, $context['useFormat'], $context).$eol;
                 foreach ($itemCallback() as $item) {
-                    echo $this->serializer->serialize($item, $context['useFormat'], $context)."$eol";
+                    echo $this->serializer->serialize($item, $context['useFormat'], $context).$eol;
                 }
                 foreach ($associationCallback() as $item) {
-                    echo $this->serializer->serialize($item, $context['useFormat'], $context)."$eol";
+                    echo $this->serializer->serialize($item, $context['useFormat'], $context).$eol;
                 }
                 foreach ($conceptCallback() as $item) {
-                    echo $this->serializer->serialize($item, $context['useFormat'], $context)."$eol";
+                    echo $this->serializer->serialize($item, $context['useFormat'], $context).$eol;
                 }
                 foreach ($subjectCallback() as $item) {
-                    echo $this->serializer->serialize($item, $context['useFormat'], $context)."$eol";
+                    echo $this->serializer->serialize($item, $context['useFormat'], $context).$eol;
                 }
                 foreach ($licenseCallback() as $item) {
-                    echo $this->serializer->serialize($item, $context['useFormat'], $context)."$eol";
+                    echo $this->serializer->serialize($item, $context['useFormat'], $context).$eol;
                 }
                 foreach ($itemTypeCallback() as $item) {
-                    echo $this->serializer->serialize($item, $context['useFormat'], $context)."$eol";
+                    echo $this->serializer->serialize($item, $context['useFormat'], $context).$eol;
                 }
                 foreach ($groupCallback() as $item) {
-                    echo $this->serializer->serialize($item, $context['useFormat'], $context)."$eol";
+                    echo $this->serializer->serialize($item, $context['useFormat'], $context).$eol;
                 }
 
                 // Put criteria and levels on their own lines
                 $items = $this->docRepository->findAllUsedRubrics($obj, Query::HYDRATE_OBJECT);
-                foreach ($items as $key => $item) {
-                    echo $this->serializer->serialize($item, $context['useFormat'], $context)."$eol";
+                foreach ($items as $item) {
+                    echo $this->serializer->serialize($item, $context['useFormat'], $context).$eol;
                     foreach ($item->getCriteria() as $criteria) {
-                        echo $this->serializer->serialize($criteria, $context['useFormat'], $context)."$eol";
+                        echo $this->serializer->serialize($criteria, $context['useFormat'], $context).$eol;
                         foreach ($criteria->getLevels() as $level) {
-                            echo $this->serializer->serialize($level, $context['useFormat'], $context)."$eol";
+                            echo $this->serializer->serialize($level, $context['useFormat'], $context).$eol;
                         }
                     }
                 }
@@ -657,7 +663,7 @@ xENDx;
                 ? 'CFPackage'
                 : null;
         }
-        $json = array_filter($json, static function ($field) { return null !== $field; });
+        $json = array_filter($json, static fn ($field): bool => null !== $field);
 
         $json += [
             'CFDocument' => $this->normalizer->normalize($obj, 'json', $context),

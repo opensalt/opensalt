@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\User;
 
 use App\Command\CommandDispatcherTrait;
@@ -41,11 +43,9 @@ class SignupController extends AbstractController
         $form = $this->createForm(SignupType::class, $targetUser, ['validation_groups' => ['registration']]);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted()) {
-            if (null === $form['org']->getData() && null === $form['newOrg']->getData()) {
-                $form->addError(new FormError("New Organization field can't be blank"));
-                $form->get('newOrg')->addError(new FormError("Can't be blank"));
-            }
+        if ($form->isSubmitted() && (null === $form['org']->getData() && null === $form['newOrg']->getData())) {
+            $form->addError(new FormError("New Organization field can't be blank"));
+            $form->get('newOrg')->addError(new FormError("Can't be blank"));
         }
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -62,7 +62,7 @@ class SignupController extends AbstractController
                     $this->sendCommand($commandOrg);
 
                     $targetUser->setOrg($org);
-                } catch (\Exception $e) {
+                } catch (\Exception) {
                     if ($commandOrg->hasValidationErrors()) {
                         $errors = $commandOrg->getValidationErrors();
                         $form->addError(new FormError($errors[0]->getMessage()));

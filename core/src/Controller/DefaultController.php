@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Domain\FrontMatter\Entity\FrontMatterRepository;
@@ -17,7 +19,7 @@ class DefaultController extends AbstractController
     #[Route(path: '/', name: 'salt_index')]
     public function index(): RedirectResponse
     {
-        if ($this->repository->count(['filename' => 'front:index.html.twig'])) {
+        if (0 !== $this->repository->count(['filename' => 'front:index.html.twig'])) {
             return $this->redirectToRoute('front_matter', ['path' => 'index']);
         }
 

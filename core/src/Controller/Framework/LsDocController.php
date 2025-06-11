@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Framework;
 
 use App\Command\CommandDispatcherTrait;
@@ -81,7 +83,8 @@ class LsDocController extends AbstractController
     protected function loadDocumentsFromServer(string $urlPrefix): ResponseInterface
     {
         $jsonClient = new Client();
-        $list = $jsonClient->request(
+
+        return $jsonClient->request(
             'GET',
             $urlPrefix.'/ims/case/v1p0/CFDocuments',
             [
@@ -91,8 +94,6 @@ class LsDocController extends AbstractController
                 ],
             ]
         );
-
-        return $list;
     }
 
     /**
@@ -150,11 +151,10 @@ class LsDocController extends AbstractController
 
     /**
      * Update a framework given a CSV or external File.
-     *
-     * @deprecated It appears this is unused now
      */
     #[Route(path: '/doc/{id}/update', name: 'lsdoc_update', methods: ['POST'])]
     #[IsGranted(Permission::FRAMEWORK_EDIT, 'lsDoc')]
+    #[\Deprecated(message: 'It appears this is unused now')]
     public function update(Request $request, LsDoc $lsDoc): Response
     {
         $response = new JsonResponse();
@@ -203,7 +203,7 @@ class LsDocController extends AbstractController
         try {
             $command = new LockDocumentCommand($lsDoc, $user);
             $this->sendCommand($command);
-        } catch (AlreadyLockedException $e) {
+        } catch (AlreadyLockedException) {
             return $this->render(
                 'framework/ls_doc/locked.html.twig',
                 []
@@ -324,7 +324,7 @@ class LsDocController extends AbstractController
                     'http://'.$hostname
                 );
             } catch (\Exception) {
-                throw new \Exception("Could not access CASE API on {$hostname}.");
+                throw new \Exception(sprintf('Could not access CASE API on %s.', $hostname));
             }
         }
 
@@ -342,7 +342,7 @@ class LsDocController extends AbstractController
             }
             usort(
                 $docs,
-                function ($a, $b) {
+                function (array $a, array $b): int {
                     if ($a['creator'] !== $b['creator']) {
                         return $a['creator'] <=> $b['creator'];
                     }

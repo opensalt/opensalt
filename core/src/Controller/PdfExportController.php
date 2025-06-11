@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Command\CommandDispatcherTrait;
@@ -42,7 +44,7 @@ class PdfExportController extends AbstractController
         $file = 'Framework.pdf';
 
         return new StreamedResponse(
-            function () use ($phpWordObject) {
+            function () use ($phpWordObject): void {
                 IOFactory::createWriter($phpWordObject, 'PDF')
                     ->save('php://output');
             },

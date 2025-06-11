@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Twig\Components;
 
 use App\Entity\Framework\LsDoc;
@@ -42,10 +44,8 @@ class FrameworkList
         }
 
         ksort($lsDocs);
-        foreach ($lsDocs as $creator => $list) {
-            uasort($lsDocs[$creator], function ($a, $b) {
-                return $a->getTitle() <=> $b->getTitle();
-            });
+        foreach (array_keys($lsDocs) as $creator) {
+            uasort($lsDocs[$creator], fn ($a, $b): int => $a->getTitle() <=> $b->getTitle());
         }
 
         return $lsDocs;

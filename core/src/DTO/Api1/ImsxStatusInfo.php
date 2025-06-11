@@ -1,17 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\DTO\Api1;
 
 class ImsxStatusInfo
 {
-    final public const CODE_MAJOR_SUCCESS = 'success';
-    final public const CODE_MAJOR_PROCESSING = 'processing';
-    final public const CODE_MAJOR_FAILURE = 'failure';
-    final public const CODE_MAJOR_UNSUPPORTED = 'unsupported';
+    final public const string CODE_MAJOR_SUCCESS = 'success';
+    final public const string CODE_MAJOR_PROCESSING = 'processing';
+    final public const string CODE_MAJOR_FAILURE = 'failure';
+    final public const string CODE_MAJOR_UNSUPPORTED = 'unsupported';
 
-    final public const SEVERITY_STATUS = 'status';
-    final public const SEVERITY_WARNING = 'warning';
-    final public const SEVERITY_ERROR = 'error';
+    final public const string SEVERITY_STATUS = 'status';
+    final public const string SEVERITY_WARNING = 'warning';
+    final public const string SEVERITY_ERROR = 'error';
 
     public static array $codeMajorValues = [
         self::CODE_MAJOR_SUCCESS,
@@ -26,16 +28,7 @@ class ImsxStatusInfo
         self::SEVERITY_ERROR,
     ];
 
-    public string $codeMajor;
-    public string $severity;
-    public ?string $description = null;
-    public ?ImsxCodeMinor $codeMinor = null;
-
-    public function __construct(string $major, string $severity, ?ImsxCodeMinor $minor = null, ?string $desc = null)
+    public function __construct(public string $codeMajor, public string $severity, public ?ImsxCodeMinor $codeMinor = null, public ?string $description = null)
     {
-        $this->codeMajor = $major;
-        $this->severity = $severity;
-        $this->codeMinor = $minor;
-        $this->description = $desc;
     }
 }

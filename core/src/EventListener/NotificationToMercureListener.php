@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\EventListener;
 
 use App\Event\NotificationEvent;
@@ -61,7 +63,7 @@ class NotificationToMercureListener implements EventSubscriberInterface
             'msg' => $event->getMessage(),
             'by' => $event->getUsername(),
             'changes' => $event->getChanged(),
-            'at' => (int) (new \DateTime())->format('Uv'),
+            'at' => (int) new \DateTime()->format('Uv'),
         ];
 
         $this->addDocChangeToMercure($notification, $docId);
@@ -76,7 +78,7 @@ class NotificationToMercureListener implements EventSubscriberInterface
         ]);
 
         $update = new Update(
-            "doc-updates/{$docId}",
+            'doc-updates/' . $docId,
             json_encode($notification, JSON_THROW_ON_ERROR),
             false
         );

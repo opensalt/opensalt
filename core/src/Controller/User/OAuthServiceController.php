@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\User;
 
 use App\Command\CommandDispatcherTrait;
@@ -37,10 +39,11 @@ class OAuthServiceController extends AbstractController
     #[Route(path: '/check-github', name: 'github_login', methods: ['GET'])]
     public function github(Request $request, SessionInterface $session, ManagerRegistry $managerRegistry): Response
     {
-        if (!empty($this->githubRedirectUri)) {
+        $redirectUri = null;
+        if (null !== $this->githubRedirectUri && '' !== $this->githubRedirectUri) {
             $redirectUri = $this->githubRedirectUri;
         }
-        if (empty($redirectUri)) {
+        if (null === $redirectUri) {
             $redirectUri = $this->generateUrl(
                 'github_login',
                 [],

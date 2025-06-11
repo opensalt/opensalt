@@ -31,7 +31,7 @@ class SetUserPasswordHandler extends BaseDoctrineHandler
         $command = $event->getCommand();
         $this->validate($command, $command);
 
-        $username = $command->getUserName();
+        $username = $command->getUsername();
         $plainPassword = $command->getPlainPassword();
 
         $newPassword = $this->userManager->setUserPassword($username, $plainPassword);

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\Entity\Framework\AdditionalField;
@@ -17,23 +19,19 @@ final class ExcelExport
 {
     private static ?array $customItemFields = null;
 
-    public function __construct(private EntityManagerInterface $entityManager)
+    public function __construct(private readonly EntityManagerInterface $entityManager)
     {
         if (null === self::$customItemFields) {
-            $customFieldsArray = $this->getEntityManager()->getRepository(AdditionalField::class)
+            $customFieldsArray = $this->entityManager
+                ->getRepository(AdditionalField::class)
                 ->findBy(['appliesTo' => LsItem::class]);
-            self::$customItemFields = array_map(fn (AdditionalField $cf) => $cf->getName(), $customFieldsArray);
+            self::$customItemFields = array_map(fn (AdditionalField $cf): ?string => $cf->getName(), $customFieldsArray);
         }
-    }
-
-    public function getEntityManager(): EntityManagerInterface
-    {
-        return $this->entityManager;
     }
 
     public function exportExcelFile(LsDoc $doc): Spreadsheet
     {
-        $repo = $this->getEntityManager()->getRepository(LsDoc::class);
+        $repo = $this->entityManager->getRepository(LsDoc::class);
 
         $items = $repo->findAllChildrenArray($doc);
         $topChildren = $repo->findTopChildrenIds($doc);
@@ -48,7 +46,7 @@ final class ExcelExport
             $smartLevel[$id] = ++$i;
             $item = $items[$id];
 
-            if (count($item['children']) > 0) {
+            if ([] !== $item['children']) {
                 $this->getSmartLevel($item['children'], $id, $items, $smartLevel);
             }
 
@@ -101,7 +99,7 @@ final class ExcelExport
         ;
 
         $license = $cfDoc->getLicence();
-        if ($license) {
+        if (null !== $license) {
             $licenseTitle = $license->getTitle();
             $licenseText = $license->getLicenceText();
         }
@@ -280,7 +278,7 @@ final class ExcelExport
     {
         $column = 13;
 
-        if (count((array) self::$customItemFields) > 0) {
+        if ([] !== (array) self::$customItemFields) {
             foreach (self::$customItemFields as $cf) {
                 $sheet->setCellValue([$column, 1], $cf);
                 ++$column;

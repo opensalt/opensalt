@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\Entity\Framework\ImportLog;
@@ -11,7 +13,7 @@ use Ramsey\Uuid\Uuid;
 
 class GithubImport
 {
-    public function __construct(private EntityManagerInterface $entityManager)
+    public function __construct(private readonly EntityManagerInterface $entityManager)
     {
     }
 
@@ -27,13 +29,13 @@ class GithubImport
      */
     public function parseCSVGithubDocument(array $lsItemKeys, string $fileContent, string $lsDocId, string $frameworkToAssociate, $missingFieldsLog): void
     {
-        $csvContent = str_getcsv($fileContent, "\n");
+        $csvContent = str_getcsv($fileContent, "\n", escape: '\\');
         $headers = [];
         $content = [];
 
         foreach ($csvContent as $i => $row) {
             $tempContent = [];
-            $row = str_getcsv($row, ',');
+            $row = str_getcsv($row, ',', escape: '\\');
 
             if (0 === $i) {
                 $headers = $row;
@@ -56,10 +58,9 @@ class GithubImport
      * Save an Github document into a LsDoc/LsItem hierarchy.
      *
      * @param array $lsItemKeys
-     * @param array $content
      * @param array $missingFieldsLog
      */
-    public function saveCSVGithubDocument($lsItemKeys, $content, $lsDocId, $frameworkToAssociate, $missingFieldsLog): void
+    public function saveCSVGithubDocument($lsItemKeys, array $content, $lsDocId, $frameworkToAssociate, $missingFieldsLog): void
     {
         $em = $this->getEntityManager();
         $lsDoc = $em->getRepository(LsDoc::class)->find($lsDocId);
@@ -95,7 +96,7 @@ class GithubImport
 
             $lsItem = $this->parseCSVGithubStandard($lsDoc, $lsItemKeys, $lineContent);
 
-            if (!empty($lsItem->getHumanCodingScheme())) {
+            if (!in_array($lsItem->getHumanCodingScheme(), [null, ''], true)) {
                 $humanCodingValues[$lsItem->getHumanCodingScheme()] = $i;
             }
 
@@ -103,7 +104,7 @@ class GithubImport
             if (!is_numeric($seq)) {
                 $seq = null;
             }
-            $sequenceNumbers[$i] = $seq;
+            $sequenceNumbers[$i] = (int) $seq;
 
             $lsItems[$i] = $lsItem;
         }
@@ -121,9 +122,9 @@ class GithubImport
             // updates but doesn't double up the associations.
             $thisItemsUUID = $lsItem->getIdentifier();
             $associationExists = $em->getRepository(LsAssociation::class)->findOneBy(['originNodeIdentifier' => $thisItemsUUID]);
-            $logDetails = date('Y/m/d h:i:s A ')."The lsItem with the Human coding scheme of {$content[$i]['Human Coding Scheme']} and UUID of {$thisItemsUUID} has been added.";
+            $logDetails = date('Y/m/d h:i:s A ').sprintf('The lsItem with the Human coding scheme of %s and UUID of %s has been added.', $content[$i]['Human Coding Scheme'], $thisItemsUUID);
 
-            if (!$associationExists) {
+            if (null === $associationExists) {
                 // Log new items added.
                 $errorLog = new ImportLog();
                 $errorLog->setLsDoc($lsDoc);
@@ -151,11 +152,9 @@ class GithubImport
 
     /**
      * @param int       $position
-     * @param array     $content
-     * @param array     $lsItemKeys
      * @param string    $frameworkToAssociate
      */
-    public function saveAssociations($position, $content, $lsItemKeys, LsItem $lsItem, LsDoc $lsDoc, $frameworkToAssociate): void
+    public function saveAssociations($position, array $content, array $lsItemKeys, LsItem $lsItem, LsDoc $lsDoc, $frameworkToAssociate): void
     {
         $fieldsAndTypes = LsAssociation::allTypesForImportFromCSV();
         // We don't use is_child_of because that it already used to create parents relations before. :)
@@ -199,9 +198,8 @@ class GithubImport
 
     /**
      * @param string|LsItem $elementAssociated
-     * @param string $assocType
      */
-    public function saveAssociation(LsDoc $lsDoc, LsItem $lsItem, $elementAssociated, $assocType): void
+    public function saveAssociation(LsDoc $lsDoc, LsItem $lsItem, $elementAssociated, string $assocType): void
     {
         $association = new LsAssociation();
         $association->setType($assocType);
@@ -211,13 +209,13 @@ class GithubImport
         if (is_string($elementAssociated)) {
             if (Uuid::isValid($elementAssociated)) {
                 $association->setDestinationNodeIdentifier($elementAssociated);
-            } elseif (false === !filter_var($elementAssociated, FILTER_VALIDATE_URL)) {
+            } elseif (filter_var($elementAssociated, FILTER_VALIDATE_URL)) {
                 $association->setDestinationNodeUri($elementAssociated);
-                $association->setDestinationNodeIdentifier(Uuid::uuid5(Uuid::NAMESPACE_URL, $elementAssociated));
+                $association->setDestinationNodeIdentifier(Uuid::uuid5(Uuid::NAMESPACE_URL, $elementAssociated)->toString());
             } else {
                 $encodedHumanCodingScheme = $this->encodeHumanCodingScheme($elementAssociated);
                 $association->setDestinationNodeUri($encodedHumanCodingScheme);
-                $association->setDestinationNodeIdentifier(Uuid::uuid5(Uuid::NAMESPACE_URL, $encodedHumanCodingScheme));
+                $association->setDestinationNodeIdentifier(Uuid::uuid5(Uuid::NAMESPACE_URL, $encodedHumanCodingScheme)->toString());
             }
         } else {
             $association->setDestination($elementAssociated);
@@ -236,11 +234,7 @@ class GithubImport
         return $prefix.base64_encode($humanCodingScheme);
     }
 
-    /**
-     * @param array $lsItemKeys
-     * @param array $data
-     */
-    public function parseCSVGithubStandard(LsDoc $lsDoc, $lsItemKeys, $data): LsItem
+    public function parseCSVGithubStandard(LsDoc $lsDoc, array $lsItemKeys, array $data): LsItem
     {
         $em = $this->getEntityManager();
 
@@ -264,7 +258,7 @@ class GithubImport
             $em->persist($lsItem);
 
             // Log if we make an update.
-            $logDetails = date('Y/m/d h:i:s A ')."The lsItem with the Human coding scheme of {$data[$lsItemKeys['humanCodingScheme']]} has been updated.";
+            $logDetails = date('Y/m/d h:i:s A ').sprintf('The lsItem with the Human coding scheme of %s has been updated.', $data[$lsItemKeys['humanCodingScheme']]);
             $errorLog = new ImportLog();
             $errorLog->setLsDoc($lsDoc);
             $errorLog->setMessage($logDetails);

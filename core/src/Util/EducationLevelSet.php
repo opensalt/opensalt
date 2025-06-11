@@ -1,19 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Util;
 
 class EducationLevelSet
 {
-    private array $grades;
+    private readonly array $grades;
 
     public function __construct(array $passedGrades)
     {
         $gradeSets = [[]]; // initialize the array with an empty array inside it
         foreach ($passedGrades as $grade) {
-            if (empty($grade) || !is_string($grade)) {
+            if (empty($grade)) {
                 continue;
             }
-            $gradeSets[] = self::convertGradeString($grade);
+            if (!is_string($grade)) {
+                continue;
+            }
+            $gradeSets[] = $this->convertGradeString($grade);
         }
 
         $this->grades = array_unique(array_merge(...$gradeSets));
@@ -50,7 +55,7 @@ class EducationLevelSet
 
     public function toString(): ?string
     {
-        if (0 === count($this->grades)) {
+        if ([] === $this->grades) {
             return null;
         }
 
@@ -71,7 +76,7 @@ class EducationLevelSet
         return self::normalizeStringGrade($grade);
     }
 
-    private static function convertGradeString(string $gradeString): array
+    private function convertGradeString(string $gradeString): array
     {
         if ('OT' === $gradeString) {
             return [$gradeString];
@@ -82,8 +87,8 @@ class EducationLevelSet
             return [$grade];
         }
 
-        $grades = self::translateGradeString($gradeString);
-        if (0 < count($grades)) {
+        $grades = $this->translateGradeString($gradeString);
+        if ([] !== $grades) {
             return $grades;
         }
 
@@ -114,7 +119,7 @@ class EducationLevelSet
         return ['OT'];
     }
 
-    private static function translateGradeString(string $gradeString): array
+    private function translateGradeString(string $gradeString): array
     {
         if ('HS' === $gradeString) {
             return [

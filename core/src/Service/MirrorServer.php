@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\DTO\CaseJson\CFDocument;
@@ -39,10 +41,10 @@ class MirrorServer
 
         try {
             $docList = json5_decode($body, true);
-        } catch (\Exception $e) {
-            $this->warning('Error: CFDocuments list is not valid JSON', ['exception' => $e->getMessage()]);
+        } catch (\Exception $exception) {
+            $this->warning('Error: CFDocuments list is not valid JSON', ['exception' => $exception->getMessage()]);
 
-            throw new \RuntimeException(sprintf('Error getting CFDocuments list: Response was not valid JSON.'));
+            throw new \RuntimeException('Error getting CFDocuments list: Response was not valid JSON.', $exception->getCode(), $exception);
         }
 
         if (!array_key_exists('CFDocuments', $docList)) {
@@ -60,7 +62,7 @@ class MirrorServer
 
             $this->warning('Error: CFDocuments list did not contain a CFDocuments JSON key', ['response' => $docList]);
 
-            throw new \RuntimeException(sprintf('Error getting CFDocuments list: Response JSON did not contain a CFDocuments key.'));
+            throw new \RuntimeException('Error getting CFDocuments list: Response JSON did not contain a CFDocuments key.');
         }
 
         return $docList['CFDocuments'];
@@ -76,9 +78,7 @@ class MirrorServer
             throw new \RuntimeException(sprintf('The server %s is already known.', $dto->url));
         }
 
-        $server = $this->addNewServerWithDocuments($dto);
-
-        return $server;
+        return $this->addNewServerWithDocuments($dto);
     }
 
     public function addFramework(array $doc, Server $server, ?bool $include = null, ?string $url = null): Framework
@@ -296,8 +296,8 @@ class MirrorServer
     {
         try {
             $docList = $this->fetchDocumentList($server);
-        } catch (\Throwable $e) {
-            $this->warning('Error: Could not update framework list', ['exception' => $e->getMessage(), 'previousException' => $e->getPrevious()?->getMessage() ?? '']);
+        } catch (\Throwable $throwable) {
+            $this->warning('Error: Could not update framework list', ['exception' => $throwable->getMessage(), 'previousException' => $throwable->getPrevious()?->getMessage() ?? '']);
             if (Server::STATUS_SUSPENDED !== $server->getStatus()) {
                 $server->scheduleNextCheck();
             }

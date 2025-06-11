@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Copyright (c) 2017 Public Consulting Group
  *
@@ -28,7 +30,7 @@ class CsvUtil
             }
 
             // Enclose fields containing $delimiter, $enclosure or whitespace
-            if ($encloseAll || preg_match("/(?:{$delimiterEsc}|{$enclosureEsc}|\s)/", $field)) {
+            if ($encloseAll || preg_match(sprintf('/(?:%s|%s|\s)/', $delimiterEsc, $enclosureEsc), $field)) {
                 $output[] = $enclosure.str_replace($enclosure, $enclosure.$enclosure, $field).$enclosure;
             } else {
                 $output[] = $field;

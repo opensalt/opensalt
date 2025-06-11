@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Api;
 
 use App\Entity\Framework\LsDoc;
@@ -80,7 +82,7 @@ class LorSupportController extends AbstractController
             return $response;
         }
 
-        usort($docs, fn ($a, $b) => strcmp($a['title'], $b['title']));
+        usort($docs, fn ($a, $b): int => strcmp($a['title'], $b['title']));
 
         $response->setData($docs);
 

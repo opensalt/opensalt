@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Mirror;
 
 use App\DTO\Mirror\ServerListItem;
@@ -100,6 +102,7 @@ class ServerController extends AbstractController
         $serverDto->autoAddFoundFrameworks = $server->isAddFoundFrameworks();
         $serverDto->credentials = $server->getCredentials();
         $serverDto->status = $server->getStatus();
+
         $form = $this->createForm(MirroredServerDTOType::class, $serverDto);
         $form->handleRequest($request);
 
@@ -108,7 +111,7 @@ class ServerController extends AbstractController
             $server->setCredentials($serverDto->credentials);
             $server->setAddFoundFrameworks($serverDto->autoAddFoundFrameworks);
             $server->setStatus($serverDto->status);
-            if (Server::STATUS_SUSPENDED == $serverDto->status) {
+            if (Server::STATUS_SUSPENDED === $serverDto->status) {
                 $server->setNextCheck(null);
             } else {
                 $server->scheduleNextCheck();

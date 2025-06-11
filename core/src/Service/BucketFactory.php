@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
 use Aws\S3\S3Client;
@@ -10,7 +12,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class BucketFactory
 {
-    public function __construct(private ParameterBagInterface $params)
+    public function __construct(private readonly ParameterBagInterface $params)
     {
     }
 

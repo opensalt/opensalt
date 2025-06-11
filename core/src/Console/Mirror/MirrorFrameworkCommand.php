@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Mirror;
 
 use App\Command\CommandDispatcherTrait;
@@ -52,6 +54,6 @@ class MirrorFrameworkCommand extends Command
 
         $io->success('Complete');
 
-        return (int) Command::SUCCESS;
+        return Command::SUCCESS;
     }
 }

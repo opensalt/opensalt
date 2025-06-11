@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\Entity\Framework\LsAssociation;
@@ -13,7 +15,7 @@ use Ramsey\Uuid\Uuid;
  */
 class FrameworkUpdater
 {
-    public function __construct(private EntityManagerInterface $entityManager)
+    public function __construct(private readonly EntityManagerInterface $entityManager)
     {
     }
 
@@ -94,11 +96,9 @@ class FrameworkUpdater
             }
         }
 
-        if (count($assocNotMatched) > 0) {
-            foreach ($assocNotMatched as $assocForMatch => $assocForMatchValues) {
-                if (false === !$assocForMatchValues['matched']) {
-                    $this->addItemRelated($lsItem->getLsDoc(), $lsItem, $assocForMatch, 'all', $assocForMatchValues['type']);
-                }
+        foreach ($assocNotMatched as $assocForMatch => $assocForMatchValues) {
+            if ($assocForMatchValues['matched']) {
+                $this->addItemRelated($lsItem->getLsDoc(), $lsItem, $assocForMatch, 'all', $assocForMatchValues['type']);
             }
         }
     }
@@ -120,13 +120,13 @@ class FrameworkUpdater
      */
     protected function transformContent($fileContent): array
     {
-        $csvContent = str_getcsv($fileContent, "\n");
+        $csvContent = str_getcsv($fileContent, "\n", escape: '\\');
         $headers = [];
         $content = [];
 
         foreach ($csvContent as $i => $row) {
             $tempContent = [];
-            $row = str_getcsv($row, ',');
+            $row = str_getcsv($row, ',', escape: '\\');
 
             if (0 === $i) {
                 $headers = $row;
@@ -180,11 +180,11 @@ class FrameworkUpdater
                 $association->setDestinationNodeIdentifier($elementAssociated);
             } elseif (false === !filter_var($elementAssociated, FILTER_VALIDATE_URL)) {
                 $association->setDestinationNodeUri($elementAssociated);
-                $association->setDestinationNodeIdentifier(Uuid::uuid5(Uuid::NAMESPACE_URL, $elementAssociated));
+                $association->setDestinationNodeIdentifier(Uuid::uuid5(Uuid::NAMESPACE_URL, $elementAssociated)->toString());
             } else {
                 $encodedHumanCodingScheme = $this->encodeHumanCodingScheme($elementAssociated);
                 $association->setDestinationNodeUri($encodedHumanCodingScheme);
-                $association->setDestinationNodeIdentifier(Uuid::uuid5(Uuid::NAMESPACE_URL, $encodedHumanCodingScheme));
+                $association->setDestinationNodeIdentifier(Uuid::uuid5(Uuid::NAMESPACE_URL, $encodedHumanCodingScheme)->toString());
             }
         } else {
             $association->setDestination($elementAssociated);

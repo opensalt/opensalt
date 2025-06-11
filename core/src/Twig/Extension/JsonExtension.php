@@ -4,28 +4,13 @@ declare(strict_types=1);
 
 namespace App\Twig\Extension;
 
-use Twig\Extension\AbstractExtension;
-use Twig\TwigFilter;
-use Twig\TwigFunction;
+use Twig\Attribute\AsTwigFilter;
+use Twig\Attribute\AsTwigFunction;
 
-class JsonExtension extends AbstractExtension
+class JsonExtension
 {
-    #[\Override]
-    public function getFunctions(): array
-    {
-        return [
-            new TwigFunction('json_decode', [$this, 'jsonDecode']),
-        ];
-    }
-
-    #[\Override]
-    public function getFilters(): array
-    {
-        return [
-            new TwigFilter('json_decode', [$this, 'jsonDecode']),
-        ];
-    }
-
+    #[AsTwigFilter('json_decode')]
+    #[AsTwigFunction('json_decode')]
     public function jsonDecode(string $string): string|array|null
     {
         return json_decode($string, true);

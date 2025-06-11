@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\User;
 
 use App\Command\CommandDispatcherTrait;
@@ -45,19 +47,19 @@ class FrameworkAclController extends AbstractController
         $addUsernameForm = $this->createForm(AddAclUsernameType::class, $addAclUsernameDto);
 
         $addOrgUserForm->handleRequest($request);
-        if ($ret = $this->handleOrgUserAdd($lsDoc, $addOrgUserForm)) {
+        if (($ret = $this->handleOrgUserAdd($lsDoc, $addOrgUserForm)) !== null) {
             return $ret;
         }
 
         $addUsernameForm->handleRequest($request);
-        if ($ret = $this->handleUsernameAdd($lsDoc, $addUsernameForm)) {
+        if (($ret = $this->handleUsernameAdd($lsDoc, $addUsernameForm)) !== null) {
             return $ret;
         }
 
         $acls = $lsDoc->getDocAcls();
         /** @var \ArrayIterator $iterator */
         $iterator = $acls->getIterator();
-        $iterator->uasort(fn (UserDocAcl $a, UserDocAcl $b) => strcasecmp($a->getUser()->getUserIdentifier(), $b->getUser()->getUserIdentifier()));
+        $iterator->uasort(fn (UserDocAcl $a, UserDocAcl $b): int => strcasecmp($a->getUser()->getUserIdentifier(), $b->getUser()->getUserIdentifier()));
         /** @var array<array-key, UserDocAcl> $userArray */
         $userArray = iterator_to_array($iterator);
         $acls = match ($userArray) {
@@ -98,7 +100,7 @@ class FrameworkAclController extends AbstractController
                 $this->sendCommand($command);
 
                 return $this->redirectToRoute('framework_acl_edit', ['id' => $lsDoc->getId()]);
-            } catch (UniqueConstraintViolationException $e) {
+            } catch (UniqueConstraintViolationException) {
                 $error = new FormError('The username is already in your exception list.');
                 $error->setOrigin($addOrgUserForm);
                 $addOrgUserForm->addError($error);
@@ -126,7 +128,7 @@ class FrameworkAclController extends AbstractController
                 $this->sendCommand($command);
 
                 return $this->redirectToRoute('framework_acl_edit', ['id' => $lsDoc->getId()]);
-            } catch (UniqueConstraintViolationException $e) {
+            } catch (UniqueConstraintViolationException) {
                 $error = new FormError('The username is already in your exception list.');
                 $error->setOrigin($addUsernameForm);
                 $addUsernameForm->addError($error);

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\User;
 
 use App\Command\User\AddUserByNameCommand;
@@ -119,7 +121,7 @@ class UserAddCommand extends BaseDoctrineCommand
         $org = trim($input->getArgument('org'));
         $password = trim($input->getOption('password'));
         $role = trim($input->getOption('role'));
-        if (empty($role)) {
+        if ('' === $role) {
             $role = 'user';
         }
         $role = 'ROLE_'.preg_replace('/[^A-Z]/', '_', strtoupper($role));
@@ -127,7 +129,7 @@ class UserAddCommand extends BaseDoctrineCommand
         if (!in_array($role, User::USER_ROLES)) {
             $output->writeln(sprintf('<error>Role "%s" is not valid.</error>', $input->getOption('role')));
 
-            return (int) Command::FAILURE;
+            return Command::FAILURE;
         }
 
         $em = $this->em;
@@ -135,19 +137,19 @@ class UserAddCommand extends BaseDoctrineCommand
         if (empty($orgObj)) {
             $output->writeln(sprintf('<error>Organization "%s" is not valid.</error>', $org));
 
-            return (int) Command::FAILURE;
+            return Command::FAILURE;
         }
 
         $command = new AddUserByNameCommand($username, $orgObj, $password, $role);
         $this->dispatcher->dispatch(new CommandEvent($command), CommandEvent::class);
         $newPassword = $command->getNewPassword();
 
-        if (empty($password)) {
+        if ('' === $password) {
             $output->writeln(sprintf('The user "%s" has been added with password "%s".', $username, $newPassword));
         } else {
             $output->writeln(sprintf('The user "%s" has been added.', $username));
         }
 
-        return (int) Command::SUCCESS;
+        return Command::SUCCESS;
     }
 }

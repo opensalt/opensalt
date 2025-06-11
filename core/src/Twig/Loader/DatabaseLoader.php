@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Twig\Loader;
 
 use App\Domain\FrontMatter\Entity\FrontMatter;

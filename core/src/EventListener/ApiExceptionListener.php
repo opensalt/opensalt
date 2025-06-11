@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\EventListener;
 
 use App\DTO\Api1\ImsxCodeMinor;
@@ -82,15 +84,6 @@ class ApiExceptionListener implements EventSubscriberInterface
 
     protected function isUuidValid(string $uuid): bool
     {
-        if (!Uuid::isValid($uuid)) {
-            return false;
-        }
-
-        if (!preg_match('/[a-f0-9]{8}-[a-f0-9]{4}-[12345][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}/', $uuid)) {
-            // Only allow Variant 1 UUIDs for CASE Compliance test
-            return false;
-        }
-
-        return true;
+        return Uuid::isValid($uuid);
     }
 }

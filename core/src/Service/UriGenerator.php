@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\Entity\Framework\IdentifiableInterface;
@@ -10,9 +12,9 @@ use Symfony\Component\Routing\RouterInterface;
 
 class UriGenerator
 {
-    final public const PACKAGE_PREFIX = 'p';
+    final public const string PACKAGE_PREFIX = 'p';
 
-    public function __construct(private RouterInterface $router)
+    public function __construct(private readonly RouterInterface $router)
     {
     }
 

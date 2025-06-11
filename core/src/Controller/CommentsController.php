@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Command\CommandDispatcherTrait;
@@ -121,7 +123,7 @@ class CommentsController extends AbstractController
     public function exportComment(string $itemType, int $itemId): Response
     {
         $response = new StreamedResponse();
-        $response->setCallback(function () use ($itemType, $itemId) {
+        $response->setCallback(function () use ($itemType, $itemId): void {
             $childIds = [];
             $handle = fopen('php://output', 'wb+');
             if (false === $handle) {
@@ -130,14 +132,14 @@ class CommentsController extends AbstractController
             $repo = $this->managerRegistry->getManager()->getRepository(Comment::class);
             $lsItemRepo = $this->managerRegistry->getManager()->getRepository(LsItem::class);
             $headers = ['Framework Name', 'Node Address', 'HumanCodingScheme', 'User', 'Organization', 'Comment', 'Attachment Url', 'Created Date', 'Updated Date'];
-            fputcsv($handle, $headers);
+            fputcsv($handle, $headers, escape: '\\');
 
             switch ($itemType) {
                 case 'document':
                     $commentData = $repo->findBy([$itemType => $itemId]);
                     $commentRows = $this->csvArray($commentData, $itemType);
                     foreach ($commentRows as $row) {
-                        fputcsv($handle, $row);
+                        fputcsv($handle, $row, escape: '\\');
                     }
                     $lsDoc = $this->managerRegistry->getManager()->getRepository(LsDoc::class)->find($itemId);
                     $lsDocChilds = $lsDoc->getLsItems();
@@ -160,7 +162,7 @@ class CommentsController extends AbstractController
             $commentData = $repo->findBy(['item' => $childIds]);
             $commentRows = $this->csvArray($commentData, 'item');
             foreach ($commentRows as $child_row) {
-                fputcsv($handle, $child_row);
+                fputcsv($handle, $child_row, escape: '\\');
             }
 
             fclose($handle);

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\Entity\Framework\IdentifiableInterface;
@@ -28,7 +30,7 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 
 class FrameworkService
 {
-    private ObjectManager $em;
+    private readonly ObjectManager $em;
 
     public function __construct(
         ManagerRegistry $registry,
@@ -37,7 +39,7 @@ class FrameworkService
         private readonly LsDefAssociationGroupingRepository $associationGroupingRepository,
         private readonly ObjectLockRepository $objectLockRepository,
         private readonly LsAssociationRepository $associationRepository,
-        private TokenStorageInterface $tokenStorage,
+        private readonly TokenStorageInterface $tokenStorage,
     ) {
         $this->em = $registry->getManager();
     }
@@ -111,7 +113,7 @@ class FrameworkService
         $lsAssociation->setType(LsAssociation::EXEMPLAR);
         $lsAssociation->setNotes($annotation);
         $lsAssociation->setDestinationNodeUri($url);
-        $lsAssociation->setDestinationNodeIdentifier(Uuid::uuid5(Uuid::NAMESPACE_URL, $url));
+        $lsAssociation->setDestinationNodeIdentifier(Uuid::uuid5(Uuid::NAMESPACE_URL, $url)->toString());
 
         // TODO: setDestinationTitle is not currently a table field.
         //$lsAssociation->setDestinationTitle($request->request->get("exemplarDescription"));
@@ -125,6 +127,7 @@ class FrameworkService
     {
         $association = new LsAssociation();
         $association->setLsDoc($doc);
+
         $types = explode('|', $type, 2);
         $association->setType($types[0]);
         $association->setSubtype($types[1] ?? null);
@@ -389,7 +392,7 @@ class FrameworkService
             // so in this case, it's OK to just delete any existing childof association and create a new one below
             $deleted = $this->associationRepository->removeAllAssociationsOfType($lsItem, LsAssociation::CHILD_OF);
 
-            if (0 < \count($deleted) && !array_key_exists('assoc-d', $rv['changes'])) {
+            if ([] !== $deleted && !array_key_exists('assoc-d', $rv['changes'])) {
                 $rv['changes']['assoc-d'] = [];
             }
             foreach ($deleted as $assoc) {
@@ -411,18 +414,14 @@ class FrameworkService
         }
 
         // as of now the only thing we update is sequenceNumber
-        if (array_key_exists('sequenceNumber', $updates['updateChildOf'])) {
-            if ($assoc->getSequenceNumber() !== (int) $updates['updateChildOf']['sequenceNumber']) {
-                $assoc->setSequenceNumber((int) $updates['updateChildOf']['sequenceNumber']);
-
-                $rv['return'][$lsItemId]['association'] = $assoc;
-                $rv['return'][$lsItemId]['sequenceNumber'] = $updates['updateChildOf']['sequenceNumber'];
-
-                if (!array_key_exists('assoc-u', $rv['changes'])) {
-                    $rv['changes']['assoc-u'] = [];
-                }
-                $rv['changes']['assoc-u'][$assoc->getId()] = $assoc->getIdentifier();
+        if (array_key_exists('sequenceNumber', $updates['updateChildOf']) && $assoc->getSequenceNumber() !== (int) $updates['updateChildOf']['sequenceNumber']) {
+            $assoc->setSequenceNumber((int) $updates['updateChildOf']['sequenceNumber']);
+            $rv['return'][$lsItemId]['association'] = $assoc;
+            $rv['return'][$lsItemId]['sequenceNumber'] = $updates['updateChildOf']['sequenceNumber'];
+            if (!array_key_exists('assoc-u', $rv['changes'])) {
+                $rv['changes']['assoc-u'] = [];
             }
+            $rv['changes']['assoc-u'][$assoc->getId()] = $assoc->getIdentifier();
         }
     }
 
