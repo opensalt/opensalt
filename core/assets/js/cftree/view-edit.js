@@ -192,6 +192,13 @@ export default function (apx) {
                         });
                     }
 
+                    const itemSubjectsElement = $('#ls_item_subjects');
+                    if (itemSubjectsElement.length) {
+                        itemSubjectsElement.select2entity({
+                            dropdownParent: itemSubjectsElement.closest('div')
+                        });
+                    }
+
                     const path = '/cfitem/' + apx.mainDoc.doc.id + '/upload_attachment';
                     const fullStatementElement = $('#ls_item_fullStatement');
                     if (fullStatementElement.length) {
@@ -217,6 +224,7 @@ export default function (apx) {
             );
         }).on('hide.bs.modal', function (e) {
             $('#ls_item_itemType').select2('destroy');
+            $('#ls_item_subjects').select2('destroy');
 
             if ('open' === $modal.data('mode')) {
                 $.ajax({
@@ -304,6 +312,7 @@ export default function (apx) {
             }).fail(function (jqXHR, textStatus, errorThrown) {
                 apx.spinner.hideModal();
                 $('#ls_item_itemType').select2('destroy');
+                $('#ls_item_subjects').select2('destroy');
                 $modal.find('.modal-body').html(jqXHR.responseText);
 
                 setupOb3Definer('edit');
@@ -322,6 +331,14 @@ export default function (apx) {
                     });
                 } else {
                     itemType = 'other';
+                }
+
+                const itemSubjectsElement = $('#ls_item_subjects');
+                if (itemSubjectsElement.length) {
+                    itemSubjectsElement.select2entity({
+                        dropdownParent: itemSubjectsElement.closest('div')
+                    });
+                } else {
                 }
 
                 const path = '/cfitem/' + apx.mainDoc.doc.id + '/upload_attachment';
@@ -400,6 +417,13 @@ export default function (apx) {
                         });
                     }
 
+                    const itemSubjectsElement = $('#ls_item_subjects');
+                    if (itemSubjectsElement.length) {
+                        itemSubjectsElement.select2entity({
+                            dropdownParent: itemSubjectsElement.closest('div')
+                        });
+                    }
+
                     const path = '/cfitem/' + apx.mainDoc.doc.id + '/upload_attachment';
                     const fullStatementElement = $('#ls_item_fullStatement');
                     if (fullStatementElement.length) {
@@ -425,6 +449,7 @@ export default function (apx) {
             );
         }).on('hide.bs.modal', function (e) {
             $('#ls_item_itemType').select2('destroy');
+            $('#ls_item_subjects').select2('destroy');
             teardownOb3Definer();
         }).on('hidden.bs.modal', function (e) {
             $modal.find('.modal-body').html(apx.spinner.html("Loading Form"));
