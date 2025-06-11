@@ -76,6 +76,24 @@ class LsItemType extends AbstractType
                 'delay' => 250,
                 'placeholder' => 'Select Item Type',
             ])
+            ->add('subjects', Select2EntityType::class, [
+                'multiple' => true,
+                'remote_route' => 'lsdef_subject_index_json',
+                'class' => LsDefSubject::class,
+                'primary_key' => 'id',
+                'text_property' => 'title',
+                'minimum_input_length' => 0,
+                'page_limit' => 50,
+                'allow_clear' => true,
+                'delay' => 250,
+                'placeholder' => 'Select Subjects',
+                'allow_add' => [
+                    'enable' => false,
+                    'new_tag_text' => '(NEW) ',
+                    'new_tag_prefix' => '___',
+                    'tag_separators' => ',',
+                ],
+            ])
             ->add('licence', EntityType::class, [
                 'class' => LsDefLicence::class,
                 'label' => 'License',
