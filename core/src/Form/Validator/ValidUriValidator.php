@@ -11,9 +11,7 @@ use Symfony\Component\Validator\Exception\UnexpectedValueException;
 
 class ValidUriValidator extends ConstraintValidator
 {
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof ValidUri) {

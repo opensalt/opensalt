@@ -59,7 +59,7 @@ class UserAddCommand extends BaseDoctrineCommand
 
             $question = new Question('Organization name for the new user: ');
             $question->setAutocompleterValues($orgs);
-            $question->setValidator(function ($value) use ($em) {
+            $question->setValidator(function (string $value) use ($em): string {
                 if ('' === trim($value)) {
                     throw new \Exception('The organization name must exist');
                 }
@@ -77,7 +77,7 @@ class UserAddCommand extends BaseDoctrineCommand
 
         if (empty($input->getArgument('username'))) {
             $question = new Question('Email address or username of new user: ');
-            $question->setValidator(function ($value) {
+            $question->setValidator(function (string $value): string {
                 if ('' === trim($value)) {
                     throw new \Exception('The username can not be empty');
                 }
@@ -90,7 +90,7 @@ class UserAddCommand extends BaseDoctrineCommand
 
         if (empty($input->getOption('password'))) {
             $question = new Question('Initial password for new user: ');
-            $question->setValidator(function ($value) {
+            $question->setValidator(function (string $value): string {
                 if ('' === trim($value)) {
                     throw new \Exception('The password can not be empty');
                 }

@@ -8,20 +8,14 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 final class AsnDocument
 {
-    /**
-     * @var AsnDocumentMetadata
-     */
-    public $metadata;
+    public ?AsnDocumentMetadata $metadata = null;
 
-    /**
-     * @var AsnStandardDocument
-     */
-    public $standardDocument;
+    public ?AsnStandardDocument $standardDocument = null;
 
     /**
      * @var AsnStandard[]|ArrayCollection
      */
-    public $standards;
+    public ArrayCollection $standards;
 
     public function __construct()
     {
@@ -118,14 +112,14 @@ final class AsnDocument
     /**
      * @param AsnStandard[]|ArrayCollection $standards
      */
-    public function setStandards($standards): self
+    public function setStandards(ArrayCollection $standards): self
     {
         $this->standards = $standards;
 
         return $this;
     }
 
-    public function addStandard($standard): void
+    public function addStandard(AsnStandard $standard): void
     {
         $this->standards->add($standard);
     }

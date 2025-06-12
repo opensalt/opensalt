@@ -569,7 +569,7 @@ class DocTreeController extends AbstractController
         return new Response('Document not found.', Response::HTTP_NOT_FOUND);
     }
 
-    protected function addExternalDocumentToDoc(string $url, LsDoc $lsDoc, $document): void
+    protected function addExternalDocumentToDoc(string $url, LsDoc $lsDoc, string $document): void
     {
         $doc = json_decode($document, false, 512, JSON_THROW_ON_ERROR);
         $title = $doc->CFDocument->title;

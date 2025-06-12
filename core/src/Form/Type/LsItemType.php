@@ -61,7 +61,7 @@ class LsItemType extends AbstractType
                 'class' => LsDefGrade::class,
                 'label' => 'Education Level',
                 'choice_label' => 'code',
-                'choice_attr' => static fn (LsDefGrade $val, $key, $index): array => ['data-title' => $val->getTitle()],
+                'choice_attr' => static fn (LsDefGrade $val, string $key, mixed $index): array => ['data-title' => $val->getTitle()],
                 'required' => false,
                 'multiple' => true,
                 'query_builder' => static fn (EntityRepository $er): QueryBuilder => $er->createQueryBuilder('g')->addOrderBy('g.rank'),

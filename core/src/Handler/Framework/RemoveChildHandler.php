@@ -50,7 +50,7 @@ class RemoveChildHandler extends BaseDoctrineHandler
         $lsItemRepo->removeChild($parent, $child);
     }
 
-    protected function getTitle($obj): string
+    protected function getTitle(mixed $obj): string
     {
         if (null === $obj) {
             return 'NONE';

@@ -673,7 +673,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         return true;
     }
 
-    public function setExternalDocAutoLoad($identifier, $autoLoad): void
+    public function setExternalDocAutoLoad(int|string $identifier, string $autoLoad): void
     {
         $externalDocs = $this->getExternalDocs();
         if (empty($externalDocs[$identifier])) {
@@ -686,7 +686,7 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
     /**
      * Remove an associated doc.
      */
-    public function removeExternalDoc($identifier): void
+    public function removeExternalDoc(int|string $identifier): void
     {
         $externalDocs = $this->getExternalDocs();
         if (empty($externalDocs[$identifier])) {

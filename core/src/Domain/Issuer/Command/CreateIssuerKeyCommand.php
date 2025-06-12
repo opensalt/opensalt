@@ -18,6 +18,7 @@ class CreateIssuerKeyCommand extends Command
         parent::__construct();
     }
 
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $key = JWKFactory::createECKey('P-256', ['kid' => 'placeholder', 'alg' => 'ES256']);

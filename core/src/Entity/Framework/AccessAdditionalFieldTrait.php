@@ -32,7 +32,7 @@ trait AccessAdditionalFieldTrait
         $this->setExtraProperty('customFields', $values);
     }
 
-    public function getAdditionalField(string $name)
+    public function getAdditionalField(string $name): mixed
     {
         $customFields = $this->getExtraProperty('customFields') ?? [];
 

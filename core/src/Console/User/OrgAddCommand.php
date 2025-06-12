@@ -38,7 +38,7 @@ class OrgAddCommand extends BaseDoctrineCommand
         if (empty($input->getArgument('org'))) {
             $em = $this->em;
             $question = new Question('New organization name: ');
-            $question->setValidator(function ($value) use ($em) {
+            $question->setValidator(function (string $value) use ($em): string {
                 if ('' === trim($value)) {
                     throw new \Exception('The organization name must note be empty');
                 }

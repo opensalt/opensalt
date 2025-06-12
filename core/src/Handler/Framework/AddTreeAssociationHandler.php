@@ -58,7 +58,7 @@ class AddTreeAssociationHandler extends BaseFrameworkHandler
         $command->setNotificationEvent($notification);
     }
 
-    protected function getTitle($obj): string
+    protected function getTitle(mixed $obj): string
     {
         if (null === $obj) {
             return 'NONE';

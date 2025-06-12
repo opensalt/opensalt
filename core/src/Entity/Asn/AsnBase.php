@@ -72,12 +72,12 @@ abstract class AsnBase
         return isset($this->property[$key]);
     }
 
-    public static function fromArray(array $arr): static
+    public static function fromArray(array $values): static
     {
         $md = new static();
 
         foreach (static::$properties as $prop=>$key) {
-            $md->property[$prop] = $md->arrayValuesToValueCollection($key, $arr);
+            $md->property[$prop] = $md->arrayValuesToValueCollection($key, $values);
         }
 
         return $md;

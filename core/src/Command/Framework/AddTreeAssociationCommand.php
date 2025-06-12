@@ -108,7 +108,7 @@ class AddTreeAssociationCommand extends BaseCommand
     }
 
     #[Assert\Callback]
-    public function validate(ExecutionContextInterface $context, $payload): void
+    public function validate(ExecutionContextInterface $context, mixed $payload): void
     {
         if (empty($this->origin['id']) && empty($this->origin['identifier'])) {
             $context->buildViolation('One of id or identifier must be supplied for the origin.')

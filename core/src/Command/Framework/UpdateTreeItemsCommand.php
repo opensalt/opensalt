@@ -47,7 +47,7 @@ class UpdateTreeItemsCommand extends BaseCommand
     }
 
     #[Assert\Callback]
-    public function validate(ExecutionContextInterface $context, $payload): void
+    public function validate(ExecutionContextInterface $context, mixed $payload): void
     {
         foreach ($this->items as $itemId => $updates) {
             if (empty($updates['originalKey'])) {

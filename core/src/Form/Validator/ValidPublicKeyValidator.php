@@ -12,9 +12,7 @@ use Symfony\Component\Validator\Exception\UnexpectedValueException;
 
 class ValidPublicKeyValidator extends ConstraintValidator
 {
-    /**
-     * {@inheritDoc}
-     */
+    #[\Override]
     public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof ValidPublicKey) {
