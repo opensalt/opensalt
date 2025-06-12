@@ -69,7 +69,7 @@ readonly class CaseUriExtension
         return $this->router->generate('uri_lookup', ['uri' => $obj->getIdentifier()], RouterInterface::ABSOLUTE_URL);
     }
 
-    #[AsTwigFilter('local_or_remote_uri')]
+    #[AsTwigFilter('local_remote_uri')]
     public function getLocalOrRemoteUri(?string $uri): ?string
     {
         if (null === $uri) {
