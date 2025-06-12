@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
@@ -8,33 +10,15 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class DeriveDocumentCommand extends BaseCommand
 {
-    /**
-     * @var LsDoc
-     */
-    #[Assert\Type(LsDoc::class)]
-    #[Assert\NotNull]
-    private $doc;
+    private LsDoc $derivedDoc;
 
-    /**
-     * @var string
-     */
-    private $fileContent;
-
-    /**
-     * @var string
-     */
-    private $frameworkToAssociate;
-
-    /**
-     * @var LsDoc
-     */
-    private $derivedDoc;
-
-    public function __construct(LsDoc $doc, string $fileContent, string $frameworkToAssociate)
-    {
-        $this->doc = $doc;
-        $this->fileContent = $fileContent;
-        $this->frameworkToAssociate = $frameworkToAssociate;
+    public function __construct(
+        #[Assert\Type(LsDoc::class)]
+        #[Assert\NotNull]
+        private readonly LsDoc $doc,
+        private readonly string $fileContent,
+        private readonly string $frameworkToAssociate,
+    ) {
     }
 
     public function getDoc(): LsDoc

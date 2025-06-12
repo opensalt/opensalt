@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
@@ -9,18 +11,16 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class CopyItemToDocCommand extends BaseCommand
 {
-    #[Assert\Type(CopyToLsDocDTO::class)]
-    #[Assert\NotNull]
-    private CopyToLsDocDTO $dto;
-
     private LsItem $newItem;
 
     /**
      * Constructor.
      */
-    public function __construct(CopyToLsDocDTO $dto)
-    {
-        $this->dto = $dto;
+    public function __construct(
+        #[Assert\Type(CopyToLsDocDTO::class)]
+        #[Assert\NotNull]
+        private readonly CopyToLsDocDTO $dto,
+    ) {
     }
 
     public function getDto(): CopyToLsDocDTO

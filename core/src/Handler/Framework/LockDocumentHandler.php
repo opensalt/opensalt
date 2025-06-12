@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Handler\Framework;
 
 use App\Command\Framework\LockDocumentCommand;
@@ -54,6 +56,7 @@ class LockDocumentHandler extends BaseFrameworkHandler
             ]
         );
         $notification->setUsername($user->getUserIdentifier());
+
         $command->setNotificationEvent($notification);
 
         $command->setChangeEntry(new NotificationOnlyChangeEntry($doc, $user, 'Dont Log - Document locked'));

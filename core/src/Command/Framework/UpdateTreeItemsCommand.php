@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
@@ -9,33 +11,19 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class UpdateTreeItemsCommand extends BaseCommand
 {
-    /**
-     * @var LsDoc
-     */
-    #[Assert\Type(LsDoc::class)]
-    #[Assert\NotNull]
-    private $doc;
-
-    /**
-     * @var array
-     */
-    #[Assert\Type('array')]
-    #[Assert\NotNull]
-    private $items;
-
-    /**
-     * @var array
-     */
-    private $rv;
+    private array $rv = [];
 
     /**
      * Constructor.
      */
-    public function __construct(LsDoc $doc, array $items)
-    {
-        $this->doc = $doc;
-        $this->items = $items;
-        $this->rv = [];
+    public function __construct(
+        #[Assert\Type(LsDoc::class)]
+        #[Assert\NotNull]
+        private readonly LsDoc $doc,
+        #[Assert\Type('array')]
+        #[Assert\NotNull]
+        private readonly array $items,
+    ) {
     }
 
     public function getDoc(): LsDoc
@@ -63,7 +51,7 @@ class UpdateTreeItemsCommand extends BaseCommand
     {
         foreach ($this->items as $itemId => $updates) {
             if (empty($updates['originalKey'])) {
-                $context->buildViolation("originalKey must be supplied for update item {$itemId}.")
+                $context->buildViolation(sprintf('originalKey must be supplied for update item %s.', $itemId))
                     ->atPath('items')
                     ->addViolation();
             }

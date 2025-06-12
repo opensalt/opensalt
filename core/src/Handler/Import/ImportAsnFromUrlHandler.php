@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Handler\Import;
 
 use App\Command\Import\ImportAsnFromUrlCommand;
@@ -13,15 +15,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ImportAsnFromUrlHandler extends AbstractDoctrineHandler
 {
-    /**
-     * @var AsnImport
-     */
-    protected $importService;
-
-    public function __construct(ValidatorInterface $validator, EntityManagerInterface $entityManager, AsnImport $asnImportService)
+    public function __construct(ValidatorInterface $validator, EntityManagerInterface $entityManager, protected AsnImport $importService)
     {
         parent::__construct($validator, $entityManager);
-        $this->importService = $asnImportService;
     }
 
     #[\Override]

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command\Comment;
 
 use App\Command\BaseCommand;
@@ -9,24 +11,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class DownvoteCommentCommand extends BaseCommand
 {
-    /**
-     * @var Comment
-     */
-    #[Assert\Type(Comment::class)]
-    #[Assert\NotNull]
-    private $comment;
-
-    /**
-     * @var User
-     */
-    #[Assert\Type(User::class)]
-    #[Assert\NotNull]
-    private $user;
-
-    public function __construct(Comment $comment, User $user)
-    {
-        $this->comment = $comment;
-        $this->user = $user;
+    public function __construct(
+        #[Assert\Type(Comment::class)]
+        #[Assert\NotNull]
+        private readonly Comment $comment,
+        #[Assert\Type(User::class)]
+        #[Assert\NotNull]
+        private readonly User $user,
+    ) {
     }
 
     public function getComment(): Comment

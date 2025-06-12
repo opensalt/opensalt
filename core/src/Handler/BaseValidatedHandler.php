@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Handler;
 
 use App\Command\CommandInterface;
@@ -19,7 +21,7 @@ abstract class BaseValidatedHandler implements EventSubscriberInterface
     public function validate(CommandInterface $command, object $toValidate): void
     {
         $errors = $this->validator->validate($toValidate);
-        if (\count($errors)) {
+        if (\count($errors) > 0) {
             $command->setValidationErrors($errors);
 
             $showErrors = [];

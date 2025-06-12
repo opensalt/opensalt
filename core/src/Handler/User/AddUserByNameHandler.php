@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Handler\User;
 
 use App\Command\User\AddUserByNameCommand;
@@ -14,15 +16,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class AddUserByNameHandler extends BaseDoctrineHandler
 {
-    /**
-     * @var UserManager
-     */
-    private $userManager;
-
-    public function __construct(ValidatorInterface $validator, EntityManagerInterface $entityManager, UserManager $userManager)
+    public function __construct(ValidatorInterface $validator, EntityManagerInterface $entityManager, private readonly UserManager $userManager)
     {
         parent::__construct($validator, $entityManager);
-        $this->userManager = $userManager;
     }
 
     #[\Override]

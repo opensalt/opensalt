@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command\Import;
 
 use App\Command\BaseCommand;
@@ -7,14 +9,8 @@ use App\Entity\Framework\LsDoc;
 
 class MarkImportLogsAsReadCommand extends BaseCommand
 {
-    /**
-     * @var LsDoc
-     */
-    private $doc;
-
-    public function __construct(LsDoc $doc)
+    public function __construct(private readonly LsDoc $doc)
     {
-        $this->doc = $doc;
     }
 
     public function getDoc(): LsDoc

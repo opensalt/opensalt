@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Handler\Email;
 
 use App\Command\Email\AbstractSendEmailCommand;
@@ -46,7 +48,7 @@ abstract class AbstractEmailHandler extends BaseValidatedHandler
         }
 
         // Do not send an email if there is no from address
-        if (empty($this->mailFromEmail)) {
+        if (null === $this->mailFromEmail || '' === $this->mailFromEmail) {
             $this->setEmailNotSentNotification($command, 'no from address');
 
             return;
@@ -58,17 +60,17 @@ abstract class AbstractEmailHandler extends BaseValidatedHandler
             return;
         }
 
-        $email = (new Email())
+        $email = new Email()
             ->from($this->mailFromEmail)
             ->to($command->getRecipient());
         $this->configureMessage($email, $command);
 
         try {
             $this->mailer->send($email);
-        } catch (\Exception $e) {
-            $this->setEmailNotSentNotification($command, 'Error: '.$e::class.': '.$e->getMessage());
+        } catch (\Exception $exception) {
+            $this->setEmailNotSentNotification($command, 'Error: '.$exception::class.': '.$exception->getMessage());
 
-            throw $e;
+            throw $exception;
         }
 
         $this->setEmailSentNotification($command);
@@ -99,12 +101,12 @@ abstract class AbstractEmailHandler extends BaseValidatedHandler
 
     protected function getNotSentNotificationEvent(string $reason): NotificationEvent
     {
-        return new NotificationEvent('M00', "Email not sent: {$reason}", null);
+        return new NotificationEvent('M00', 'Email not sent: ' . $reason, null);
     }
 
     protected function getNotSentChangeEntry(string $reason): ChangeEntry
     {
-        return new NotificationOnlyChangeEntry(null, null, "Email not sent: {$reason}");
+        return new NotificationOnlyChangeEntry(null, null, 'Email not sent: ' . $reason);
     }
 
     protected function getSentNotificationEvent(): NotificationEvent

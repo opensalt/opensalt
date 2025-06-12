@@ -1,43 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command\Import;
 
 use App\Command\BaseCommand;
 
 class ParseCsvGithubDocumentCommand extends BaseCommand
 {
-    /**
-     * @var array
-     */
-    private $itemKeys;
-
-    /**
-     * @var string
-     */
-    private $fileContent;
-
-    /**
-     * @var string
-     */
-    private $docId;
-
-    /**
-     * @var string
-     */
-    private $frameworkToAssociate;
-
-    /**
-     * @var array
-     */
-    private $missingFieldsLog;
-
-    public function __construct(array $lsItemKeys, string $fileContent, string $lsDocId, string $frameworkToAssociate, array $missingFieldsLog)
-    {
-        $this->itemKeys = $lsItemKeys;
-        $this->fileContent = $fileContent;
-        $this->docId = $lsDocId;
-        $this->frameworkToAssociate = $frameworkToAssociate;
-        $this->missingFieldsLog = $missingFieldsLog;
+    public function __construct(
+        private readonly array $itemKeys,
+        private readonly string $fileContent,
+        private readonly string $docId,
+        private readonly string $frameworkToAssociate,
+        private readonly array $missingFieldsLog,
+    ) {
     }
 
     public function getItemKeys(): array

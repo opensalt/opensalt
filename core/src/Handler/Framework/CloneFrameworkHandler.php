@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Handler\Framework;
 
 use App\Command\Framework\CloneFrameworkCommand;
@@ -14,11 +16,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class CloneFrameworkHandler extends BaseDoctrineHandler
 {
-    private $repository;
-
-    public function __construct(ValidatorInterface $validator, EntityManagerInterface $entityManager, LsDocRepository $repository)
+    public function __construct(ValidatorInterface $validator, EntityManagerInterface $entityManager, private readonly LsDocRepository $repository)
     {
-        $this->repository = $repository;
         parent::__construct($validator, $entityManager);
     }
 
@@ -39,6 +38,7 @@ class CloneFrameworkHandler extends BaseDoctrineHandler
         $this->repository->copyDocumentContentToDoc($doc, $newDoc, false);
         $this->em->persist($newDoc);
         $this->em->flush();
+
         $notification = new NotificationEvent(
             'D16',
             sprintf('Clone of framework "%s" added', $newDoc->getTitle()),

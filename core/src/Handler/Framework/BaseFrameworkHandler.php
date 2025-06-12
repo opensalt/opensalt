@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Handler\Framework;
 
 use App\Handler\BaseValidatedHandler;
@@ -8,14 +10,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 abstract class BaseFrameworkHandler extends BaseValidatedHandler
 {
-    /**
-     * @var FrameworkService
-     */
-    protected $framework;
-
-    public function __construct(ValidatorInterface $validator, FrameworkService $framework)
+    public function __construct(ValidatorInterface $validator, protected FrameworkService $framework)
     {
         parent::__construct($validator);
-        $this->framework = $framework;
     }
 }

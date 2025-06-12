@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command\User;
 
 use App\Command\BaseCommand;
@@ -8,40 +10,17 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class AddUserByNameCommand extends BaseCommand
 {
-    /**
-     * @var string
-     */
-    #[Assert\NotNull]
-    #[Assert\NotBlank]
-    private $userName;
+    private string $newPassword;
 
-    /**
-     * @var Organization
-     */
-    #[Assert\NotNull]
-    private $organization;
-
-    /**
-     * @var string|null
-     */
-    private $plainPassword;
-
-    /**
-     * @var string|null
-     */
-    private $role;
-
-    /**
-     * @var string
-     */
-    private $newPassword;
-
-    public function __construct(string $userName, Organization $organization, ?string $plainPassword = null, ?string $role = null)
-    {
-        $this->userName = $userName;
-        $this->organization = $organization;
-        $this->plainPassword = $plainPassword;
-        $this->role = $role;
+    public function __construct(
+        #[Assert\NotNull]
+        #[Assert\NotBlank]
+        private readonly string $userName,
+        #[Assert\NotNull]
+        private readonly Organization $organization,
+        private readonly ?string $plainPassword = null,
+        private readonly ?string $role = null,
+    ) {
     }
 
     public function getUserName(): string

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
@@ -7,14 +9,8 @@ use App\Entity\Framework\LsDefConcept;
 
 class UpdateConceptCommand extends BaseCommand
 {
-    /**
-     * @var LsDefConcept
-     */
-    private $concept;
-
-    public function __construct(LsDefConcept $concept)
+    public function __construct(private readonly LsDefConcept $concept)
     {
-        $this->concept = $concept;
     }
 
     public function getConcept(): LsDefConcept

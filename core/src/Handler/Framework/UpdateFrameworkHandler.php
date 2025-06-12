@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Handler\Framework;
 
 use App\Command\Framework\UpdateFrameworkCommand;
@@ -16,15 +18,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class UpdateFrameworkHandler extends AbstractDoctrineHandler
 {
-    /**
-     * @var FrameworkUpdater
-     */
-    private $frameworkUpdater;
-
-    public function __construct(ValidatorInterface $validator, EntityManagerInterface $entityManager, FrameworkUpdater $frameworkUpdater)
+    public function __construct(ValidatorInterface $validator, EntityManagerInterface $entityManager, private readonly FrameworkUpdater $frameworkUpdater)
     {
         parent::__construct($validator, $entityManager);
-        $this->frameworkUpdater = $frameworkUpdater;
     }
 
     #[\Override]

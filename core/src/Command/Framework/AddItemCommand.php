@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
@@ -9,32 +11,8 @@ use App\Entity\Framework\LsItem;
 
 class AddItemCommand extends BaseCommand
 {
-    /**
-     * @var LsItem
-     */
-    private $item;
-
-    /**
-     * @var LsDoc
-     */
-    private $doc;
-
-    /**
-     * @var LsItem
-     */
-    private $parent;
-
-    /**
-     * @var LsDefAssociationGrouping
-     */
-    private $assocGroup;
-
-    public function __construct(LsItem $item, LsDoc $doc, ?LsItem $parent = null, ?LsDefAssociationGrouping $assocGroup = null)
+    public function __construct(private readonly LsItem $item, private readonly LsDoc $doc, private readonly ?LsItem $parent = null, private readonly ?LsDefAssociationGrouping $assocGroup = null)
     {
-        $this->item = $item;
-        $this->doc = $doc;
-        $this->parent = $parent;
-        $this->assocGroup = $assocGroup;
     }
 
     public function getItem(): LsItem

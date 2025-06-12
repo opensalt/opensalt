@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Handler\Import;
 
 use App\Command\Import\ParseCsvGithubDocumentCommand;
@@ -17,7 +19,7 @@ class ParseCsvGithubDocumentHandler extends AbstractDoctrineHandler
     public function __construct(
         ValidatorInterface $validator,
         EntityManagerInterface $entityManager,
-        private GithubImport $importService,
+        private readonly GithubImport $importService,
     ) {
         parent::__construct($validator, $entityManager);
     }

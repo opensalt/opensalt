@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command\User;
 
 use App\Command\BaseCommand;
@@ -8,16 +10,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class AddFrameworkUserAclCommand extends BaseCommand
 {
-    /**
-     * @var AddAclUserDTO
-     */
-    #[Assert\Type(AddAclUserDTO::class)]
-    #[Assert\NotNull]
-    private $dto;
-
-    public function __construct(AddAclUserDTO $dto)
-    {
-        $this->dto = $dto;
+    public function __construct(
+        #[Assert\Type(AddAclUserDTO::class)]
+        #[Assert\NotNull]
+        private readonly AddAclUserDTO $dto,
+    ) {
     }
 
     public function getDto(): AddAclUserDTO

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Handler\Framework;
 
 use App\Command\Framework\AddTreeAssociationCommand;
@@ -15,14 +17,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class AddTreeAssociationHandler extends BaseFrameworkHandler
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
-
-    public function __construct(ValidatorInterface $validator, FrameworkService $framework, EntityManagerInterface $em)
+    public function __construct(ValidatorInterface $validator, FrameworkService $framework, private readonly EntityManagerInterface $em)
     {
-        $this->em = $em;
         parent::__construct($validator, $framework);
     }
 

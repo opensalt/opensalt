@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
@@ -7,14 +9,8 @@ use App\Entity\Framework\LsDefItemType;
 
 class UpdateItemTypeCommand extends BaseCommand
 {
-    /**
-     * @var LsDefItemType
-     */
-    private $itemType;
-
-    public function __construct(LsDefItemType $itemType)
+    public function __construct(private readonly LsDefItemType $itemType)
     {
-        $this->itemType = $itemType;
     }
 
     public function getItemType(): LsDefItemType

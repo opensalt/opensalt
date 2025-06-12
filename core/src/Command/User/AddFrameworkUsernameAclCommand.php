@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command\User;
 
 use App\Command\BaseCommand;
@@ -7,14 +9,8 @@ use App\Form\DTO\AddAclUsernameDTO;
 
 class AddFrameworkUsernameAclCommand extends BaseCommand
 {
-    /**
-     * @var AddAclUsernameDTO
-     */
-    private $dto;
-
-    public function __construct(AddAclUsernameDTO $dto)
+    public function __construct(private readonly AddAclUsernameDTO $dto)
     {
-        $this->dto = $dto;
     }
 
     public function getDto(): AddAclUsernameDTO

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command\Import;
 
 use App\Command\BaseCommand;
@@ -8,28 +10,13 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class ImportExcelFileCommand extends BaseCommand
 {
-    /**
-     * @var string
-     */
-    #[Assert\NotNull]
-    #[Assert\NotBlank]
-    private $excelFilePath;
-
-    /**
-     * @var Organization
-     */
-    private $organization;
-
-    /**
-     * @var string
-     */
-    private $creator;
-
-    public function __construct(string $excelFilePath, ?string $creator = null, ?Organization $organization = null)
-    {
-        $this->excelFilePath = $excelFilePath;
-        $this->organization = $organization;
-        $this->creator = $creator;
+    public function __construct(
+        #[Assert\NotNull]
+        #[Assert\NotBlank]
+        private readonly string $excelFilePath,
+        private readonly ?string $creator = null,
+        private readonly ?Organization $organization = null,
+    ) {
     }
 
     public function getExcelFilePath(): string

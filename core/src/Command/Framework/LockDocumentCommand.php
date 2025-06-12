@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
@@ -9,22 +11,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class LockDocumentCommand extends BaseCommand
 {
-    /**
-     * @var LsDoc
-     */
-    #[Assert\Type(LsDoc::class)]
-    #[Assert\NotNull]
-    private $doc;
-
-    /**
-     * @var User
-     */
-    private $user;
-
-    public function __construct(LsDoc $doc, User $user)
-    {
-        $this->doc = $doc;
-        $this->user = $user;
+    public function __construct(
+        #[Assert\Type(LsDoc::class)]
+        #[Assert\NotNull]
+        private readonly LsDoc $doc,
+        private readonly User $user,
+    ) {
     }
 
     public function getDoc(): LsDoc

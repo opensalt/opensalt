@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
@@ -7,14 +9,8 @@ use App\Entity\Framework\LsDefGrade;
 
 class UpdateGradeCommand extends BaseCommand
 {
-    /**
-     * @var LsDefGrade
-     */
-    private $grade;
-
-    public function __construct(LsDefGrade $grade)
+    public function __construct(private readonly LsDefGrade $grade)
     {
-        $this->grade = $grade;
     }
 
     public function getGrade(): LsDefGrade

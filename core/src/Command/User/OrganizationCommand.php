@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command\User;
 
 use App\Command\BaseCommand;
@@ -8,16 +10,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 abstract class OrganizationCommand extends BaseCommand
 {
-    /**
-     * @var Organization
-     */
-    #[Assert\Type(Organization::class)]
-    #[Assert\NotNull]
-    private $organization;
-
-    public function __construct(Organization $organization)
-    {
-        $this->organization = $organization;
+    public function __construct(
+        #[Assert\Type(Organization::class)]
+        #[Assert\NotNull]
+        private readonly Organization $organization,
+    ) {
     }
 
     public function getOrg(): Organization

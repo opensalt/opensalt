@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
@@ -8,16 +10,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class AddLicenceCommand extends BaseCommand
 {
-    /**
-     * @var LsDefLicence
-     */
-    #[Assert\Type(LsDefLicence::class)]
-    #[Assert\NotNull]
-    private $licence;
-
-    public function __construct(LsDefLicence $licence)
-    {
-        $this->licence = $licence;
+    public function __construct(
+        #[Assert\Type(LsDefLicence::class)]
+        #[Assert\NotNull]
+        private readonly LsDefLicence $licence,
+    ) {
     }
 
     public function getLicence(): LsDefLicence

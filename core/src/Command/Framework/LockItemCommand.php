@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
@@ -9,22 +11,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class LockItemCommand extends BaseCommand
 {
-    /**
-     * @var LsItem
-     */
-    #[Assert\Type(LsItem::class)]
-    #[Assert\NotNull]
-    private $item;
-
-    /**
-     * @var User
-     */
-    private $user;
-
-    public function __construct(LsItem $item, User $user)
-    {
-        $this->item = $item;
-        $this->user = $user;
+    public function __construct(
+        #[Assert\Type(LsItem::class)]
+        #[Assert\NotNull]
+        private readonly LsItem $item,
+        private readonly User $user,
+    ) {
     }
 
     public function getItem(): LsItem

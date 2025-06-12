@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command\Import;
 
 use App\Command\BaseCommand;
@@ -8,34 +10,14 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class ImportGenericCsvCommand extends BaseCommand
 {
-    /**
-     * @var string
-     */
-    #[Assert\NotNull]
-    #[Assert\NotBlank]
-    private $filePath;
-
-    /**
-     * @var Organization
-     */
-    private $organization;
-
-    /**
-     * @var string
-     */
-    private $creator;
-
-    /**
-     * @var string|null
-     */
-    private $title;
-
-    public function __construct(string $filePath, ?string $creator = null, ?string $title = null, ?Organization $organization = null)
-    {
-        $this->filePath = $filePath;
-        $this->creator = $creator;
-        $this->title = $title;
-        $this->organization = $organization;
+    public function __construct(
+        #[Assert\NotNull]
+        #[Assert\NotBlank]
+        private readonly string $filePath,
+        private readonly ?string $creator = null,
+        private readonly ?string $title = null,
+        private readonly ?Organization $organization = null,
+    ) {
     }
 
     public function getFilePath(): string

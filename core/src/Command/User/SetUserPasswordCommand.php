@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command\User;
 
 use App\Command\BaseCommand;
@@ -7,16 +9,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class SetUserPasswordCommand extends BaseCommand
 {
-    #[Assert\NotNull]
-    #[Assert\NotBlank]
-    private string $username;
-
-    private ?string $plainPassword;
-
-    public function __construct(string $username, ?string $plainPassword = null)
-    {
-        $this->username = $username;
-        $this->plainPassword = $plainPassword;
+    public function __construct(
+        #[Assert\NotNull]
+        #[Assert\NotBlank]
+        private readonly string $username,
+        private ?string $plainPassword = null,
+    ) {
     }
 
     public function getUsername(): string

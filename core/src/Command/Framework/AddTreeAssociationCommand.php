@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
@@ -11,68 +13,53 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class AddTreeAssociationCommand extends BaseCommand
 {
-    #[Assert\Type(LsDoc::class)]
-    #[Assert\NotNull]
-    private LsDoc $doc;
-
-    #[Assert\Type('string')]
-    #[Assert\NotNull]
-    private string $type;
-
-    #[Assert\Type('array')]
-    #[Assert\NotNull]
-    #[Assert\Collection(
-        fields: [
-            'id' => new Assert\Type('string'),
-            'identifier' => new Assert\Type('string'),
-            'uri' => new Assert\Type('string'),
-            'externalDoc' => new Assert\Type('string'),
-        ],
-        allowMissingFields: true,
-    )]
-    private array $origin;
-
-    #[Assert\Type('array')]
-    #[Assert\NotNull]
-    #[Assert\Collection(
-        fields: [
-            'id' => new Assert\Type('string'),
-            'identifier' => new Assert\Type('string'),
-            'uri' => new Assert\Type('string'),
-            'externalDoc' => new Assert\Type('string'),
-        ],
-        allowMissingFields: true,
-    )]
-    private array $dest;
-
-    #[Assert\Type('string')]
-    private ?string $assocGroup;
-
-    #[Assert\Type('string')]
-    private ?string $annotation;
-
-    /**
-     * @var LsAssociation|null
-     */
     #[Assert\Type(LsAssociation::class)]
-    private $association;
+    private ?LsAssociation $association = null;
 
     /**
      * @var array<AssociationSubtype>
      */
-    private $allowedSubtypes = [];
+    private array $allowedSubtypes = [];
 
     /**
      * Constructor.
      */
-    public function __construct(LsDoc $doc, array $origin, string $type, array $dest, ?string $assocGroup = null, ?string $annotation = null)
-    {
-        $this->doc = $doc;
-        $this->type = $type;
-        $this->origin = $origin;
-        $this->dest = $dest;
-        $this->assocGroup = $assocGroup;
-        $this->annotation = $annotation;
+    public function __construct(
+        #[Assert\Type(LsDoc::class)]
+        #[Assert\NotNull]
+        private readonly LsDoc $doc,
+        #[Assert\Type('array')]
+        #[Assert\NotNull]
+        #[Assert\Collection(
+            fields: [
+                'id' => new Assert\Type('string'),
+                'identifier' => new Assert\Type('string'),
+                'uri' => new Assert\Type('string'),
+                'externalDoc' => new Assert\Type('string'),
+            ],
+            allowMissingFields: true,
+        )]
+        private array $origin,
+        #[Assert\Type('string')]
+        #[Assert\NotNull]
+        private readonly string $type,
+        #[Assert\Type('array')]
+        #[Assert\NotNull]
+        #[Assert\Collection(
+            fields: [
+                'id' => new Assert\Type('string'),
+                'identifier' => new Assert\Type('string'),
+                'uri' => new Assert\Type('string'),
+                'externalDoc' => new Assert\Type('string'),
+            ],
+            allowMissingFields: true,
+        )]
+        private array $dest,
+        #[Assert\Type('string')]
+        private readonly ?string $assocGroup = null,
+        #[Assert\Type('string')]
+        private readonly ?string $annotation = null,
+    ) {
     }
 
     public function getDoc(): LsDoc

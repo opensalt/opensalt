@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Handler\Import;
 
 use App\Command\Import\ImportExcelFileCommand;
@@ -13,15 +15,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ImportExcelFileHandler extends AbstractDoctrineHandler
 {
-    /**
-     * @var ExcelImport
-     */
-    protected $importService;
-
-    public function __construct(ValidatorInterface $validator, EntityManagerInterface $entityManager, ExcelImport $excelImportService)
+    public function __construct(ValidatorInterface $validator, EntityManagerInterface $entityManager, protected ExcelImport $importService)
     {
         parent::__construct($validator, $entityManager);
-        $this->importService = $excelImportService;
     }
 
     #[\Override]

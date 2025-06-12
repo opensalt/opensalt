@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Handler\Import;
 
 use App\Command\Import\ImportGenericCsvCommand;
@@ -84,7 +86,7 @@ class ImportGenericCsvHandler extends BaseDoctrineHandler
             $item->setHumanCodingScheme($rec[2]);
             $item->setListEnumInSource((string) $i);
 
-            if (!empty($rec[3]) && !empty($items[$rec[3]])) {
+            if (isset($rec[3]) && ('' !== $rec[3]) && !empty($items[$rec[3]])) {
                 $item->addParent($items[$rec[3]], $i++);
             } else {
                 $item->addParent($doc, $i++);
@@ -105,7 +107,7 @@ class ImportGenericCsvHandler extends BaseDoctrineHandler
     protected function normalizeGrades(string $gradeString): ?string
     {
         $gradeString = trim($gradeString);
-        if (empty($gradeString)) {
+        if ('' === $gradeString) {
             return null;
         }
 
@@ -114,7 +116,7 @@ class ImportGenericCsvHandler extends BaseDoctrineHandler
             $grades = $this->parseGrade($grade, $grades);
         }
 
-        if (0 < count($grades)) {
+        if ([] !== $grades) {
             return implode(',', $grades);
         }
 
@@ -123,7 +125,7 @@ class ImportGenericCsvHandler extends BaseDoctrineHandler
 
     protected function parseGrade(string $grade, array $grades): array
     {
-        if (empty($grade)) {
+        if ('' === $grade) {
             return $grades;
         }
 
@@ -166,7 +168,7 @@ class ImportGenericCsvHandler extends BaseDoctrineHandler
 
             if (14 > $grade) {
                 $grade = (int) $grade;
-                $grades["{$grade}"] = $grade;
+                $grades[$grade] = $grade;
 
                 return $grades;
             }

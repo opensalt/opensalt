@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
@@ -8,22 +10,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class DeleteItemCommand extends BaseCommand
 {
-    /**
-     * @var LsItem
-     */
-    #[Assert\Type(LsItem::class)]
-    #[Assert\NotNull]
-    private $item;
-
-    /**
-     * @var \Closure|null
-     */
-    private $callback;
-
-    public function __construct(LsItem $item, ?\Closure $progressCallback = null)
-    {
-        $this->item = $item;
-        $this->callback = $progressCallback;
+    public function __construct(
+        #[Assert\Type(LsItem::class)]
+        #[Assert\NotNull]
+        private readonly LsItem $item,
+        private readonly ?\Closure $callback = null,
+    ) {
     }
 
     public function getItem(): LsItem

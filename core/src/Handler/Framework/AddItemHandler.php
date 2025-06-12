@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Handler\Framework;
 
 use App\Command\Framework\AddItemCommand;
@@ -30,11 +32,7 @@ class AddItemHandler extends BaseFrameworkHandler
         $this->framework->persistItem($item);
 
         $parent = $item->getParentItem();
-        if (null === $parent) {
-            $parentTitle = $item->getLsDoc()->getTitle();
-        } else {
-            $parentTitle = mb_substr($parent->getShortStatement(), 0, 60);
-        }
+        $parentTitle = null === $parent ? $item->getLsDoc()->getTitle() : mb_substr($parent->getShortStatement(), 0, 60);
         $changes = [
             'item-a' => [
                 $item,

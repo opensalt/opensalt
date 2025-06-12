@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
@@ -8,28 +10,13 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class CopyFrameworkCommand extends BaseCommand
 {
-    /**
-     * @var LsDoc
-     */
-    #[Assert\Type(LsDoc::class)]
-    #[Assert\NotNull]
-    private $fromDoc;
-
-    /**
-     * @var LsDoc
-     */
-    private $toDoc;
-
-    /**
-     * @var string
-     */
-    private $copyType;
-
-    public function __construct(LsDoc $fromDoc, LsDoc $toDoc, string $copyType = 'copy')
-    {
-        $this->fromDoc = $fromDoc;
-        $this->toDoc = $toDoc;
-        $this->copyType = $copyType;
+    public function __construct(
+        #[Assert\Type(LsDoc::class)]
+        #[Assert\NotNull]
+        private readonly LsDoc $fromDoc,
+        private readonly LsDoc $toDoc,
+        private readonly string $copyType = 'copy',
+    ) {
     }
 
     public function getFromDoc(): LsDoc

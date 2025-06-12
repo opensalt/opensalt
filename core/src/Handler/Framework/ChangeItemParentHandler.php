@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Handler\Framework;
 
 use App\Command\Framework\ChangeItemParentCommand;
@@ -25,7 +27,7 @@ class ChangeItemParentHandler extends BaseDoctrineHandler
 
         $parent = $dto->lsItem->getParentItem();
         if (null === $parent) {
-            $parentTitle = mb_substr($dto->lsItem->getLsDoc(), 0, 60);
+            $parentTitle = mb_substr($dto->lsItem->getLsDoc()->getTitle(), 0, 60);
         } else {
             $parentTitle = $parent->getShortStatement();
             $changedItems[$parent->getId()] = $parent->getIdentifier();

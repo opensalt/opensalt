@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
@@ -8,30 +10,15 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class RemoveChildCommand extends BaseCommand
 {
-    /**
-     * @var LsItem
-     */
-    #[Assert\Type(LsItem::class)]
-    #[Assert\NotNull]
-    private $parent;
-
-    /**
-     * @var LsItem
-     */
-    #[Assert\Type(LsItem::class)]
-    #[Assert\NotNull]
-    private $child;
-
-    /**
-     * @var \Closure|null
-     */
-    private $callback;
-
-    public function __construct(LsItem $parent, LsItem $child, ?\Closure $progressCallback = null)
-    {
-        $this->parent = $parent;
-        $this->callback = $progressCallback;
-        $this->child = $child;
+    public function __construct(
+        #[Assert\Type(LsItem::class)]
+        #[Assert\NotNull]
+        private readonly LsItem $parent,
+        #[Assert\Type(LsItem::class)]
+        #[Assert\NotNull]
+        private readonly LsItem $child,
+        private readonly ?\Closure $callback = null,
+    ) {
     }
 
     public function getParent(): LsItem

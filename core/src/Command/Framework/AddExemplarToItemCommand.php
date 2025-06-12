@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
@@ -10,41 +12,21 @@ use Symfony\Component\Validator\Constraints as Assert;
 class AddExemplarToItemCommand extends BaseCommand
 {
     /**
-     * @var LsItem
-     */
-    #[Assert\Type(LsItem::class)]
-    #[Assert\NotNull]
-    private $item;
-
-    /**
-     * @var string
-     */
-    #[Assert\Type('string')]
-    #[Assert\NotNull]
-    #[Assert\Length(max: 300)]
-    private $url;
-
-    /**
-     * @var string|null
-     */
-    #[Assert\Type('string')]
-    private $annotation;
-
-    /**
-     * @var LsAssociation|null
-     */
-    #[Assert\Type(LsAssociation::class)]
-    private $association;
-
-    /**
      * Constructor.
      */
-    public function __construct(LsItem $item, string $url, ?string $annotation = null, ?LsAssociation $association = null)
-    {
-        $this->item = $item;
-        $this->url = $url;
-        $this->annotation = $annotation;
-        $this->association = $association;
+    public function __construct(
+        #[Assert\Type(LsItem::class)]
+        #[Assert\NotNull]
+        private readonly LsItem $item,
+        #[Assert\Type('string')]
+        #[Assert\NotNull]
+        #[Assert\Length(max: 300)]
+        private readonly string $url,
+        #[Assert\Type('string')]
+        private readonly ?string $annotation = null,
+        #[Assert\Type(LsAssociation::class)]
+        private ?LsAssociation $association = null,
+    ) {
     }
 
     public function getItem(): LsItem

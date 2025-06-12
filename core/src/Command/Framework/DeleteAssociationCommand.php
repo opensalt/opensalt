@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
@@ -8,16 +10,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class DeleteAssociationCommand extends BaseCommand
 {
-    /**
-     * @var LsAssociation
-     */
-    #[Assert\Type(LsAssociation::class)]
-    #[Assert\NotNull]
-    private $association;
-
-    public function __construct(LsAssociation $association)
-    {
-        $this->association = $association;
+    public function __construct(
+        #[Assert\Type(LsAssociation::class)]
+        #[Assert\NotNull]
+        private readonly LsAssociation $association,
+    ) {
     }
 
     public function getAssociation(): LsAssociation

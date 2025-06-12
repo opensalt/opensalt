@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command\Framework;
 
 use App\Command\BaseCommand;
@@ -8,16 +10,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class CloneFrameworkCommand extends BaseCommand
 {
-    /**
-     * @var LsDoc
-     */
-    #[Assert\Type(LsDoc::class)]
-    #[Assert\NotNull]
-    private $doc;
-
-    public function __construct(LsDoc $doc)
-    {
-        $this->doc = $doc;
+    public function __construct(
+        #[Assert\Type(LsDoc::class)]
+        #[Assert\NotNull]
+        private readonly LsDoc $doc,
+    ) {
     }
 
     public function getDoc(): LsDoc
