@@ -100,7 +100,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     private ?string $type = null;
 
     #[ORM\Column(name: 'seq', type: 'bigint', nullable: true)]
-    private string|int|null $sequenceNumber = null;
+    private string|int|null $sequenceNumber = null; // The ORM returns a string if the number is very large
 
     #[ORM\Column(name: 'subtype', type: 'string', nullable: true)]
     private ?string $subtype = null;
@@ -568,13 +568,17 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
 
     public function setSequenceNumber(string|int|null $sequenceNumber): static
     {
-        if (null === $sequenceNumber) {
+        if (null === $sequenceNumber || '' === $sequenceNumber) {
             $this->sequenceNumber = null;
 
             return $this;
         }
 
-        $this->sequenceNumber = (string) $sequenceNumber;
+        if (is_string($sequenceNumber) && (1 !== preg_match('/^[0-9]+$/', $sequenceNumber))) {
+            throw new \InvalidArgumentException('Sequence number must be an integer');
+        }
+
+        $this->sequenceNumber = (int) $sequenceNumber;
 
         return $this;
     }

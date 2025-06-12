@@ -598,7 +598,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
      *
      * @throws \UnexpectedValueException
      */
-    public function addChild(LsItem $child, ?LsDefAssociationGrouping $assocGroup = null, ?int $sequenceNumber = null): static
+    public function addChild(LsItem $child, ?LsDefAssociationGrouping $assocGroup = null, int|string|null $sequenceNumber = null): static
     {
         $association = new LsAssociation();
         $association->setLsDoc($child->getLsDoc());
@@ -789,7 +789,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     /**
      * @throws \UnexpectedValueException
      */
-    public function addParent(LsItem|LsDoc $parent, ?int $sequenceNumber = null, ?LsDefAssociationGrouping $assocGroup = null): LsAssociation
+    public function addParent(LsItem|LsDoc $parent, int|string|null $sequenceNumber = null, ?LsDefAssociationGrouping $assocGroup = null): LsAssociation
     {
         $association = new LsAssociation();
         $association->setLsDoc($this->getLsDoc());
