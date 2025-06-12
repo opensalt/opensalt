@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity\Comment;
 
 use App\Entity\User\User;
@@ -18,14 +20,6 @@ class CommentUpvote
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Comment::class, inversedBy: 'upvotes')]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    private Comment $comment;
-
-    #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(nullable: false)]
-    private User $user;
-
     #[ORM\Column(type: 'datetime', precision: 6)]
     #[Gedmo\Timestampable(on: 'create')]
     private \DateTimeInterface $createdAt;
@@ -34,10 +28,14 @@ class CommentUpvote
     #[Gedmo\Timestampable(on: 'update')]
     private \DateTimeInterface $updatedAt;
 
-    public function __construct(User $user, Comment $comment)
-    {
-        $this->user = $user;
-        $this->comment = $comment;
+    public function __construct(
+        #[ORM\ManyToOne(targetEntity: User::class)]
+        #[ORM\JoinColumn(nullable: false)]
+        private User $user,
+        #[ORM\ManyToOne(targetEntity: Comment::class, inversedBy: 'upvotes')]
+        #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+        private Comment $comment,
+    ) {
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
     }

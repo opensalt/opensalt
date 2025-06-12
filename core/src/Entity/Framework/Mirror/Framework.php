@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity\Framework\Mirror;
 
 use App\Entity\Framework\LsDoc;
@@ -29,15 +31,8 @@ class Framework
     #[ORM\GeneratedValue(strategy: 'AUTO')]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Server::class, inversedBy: 'frameworks')]
-    #[ORM\JoinColumn(nullable: false)]
-    private Server $server;
-
     #[ORM\Column(name: 'url', type: 'string', nullable: false)]
     private string $url = '';
-
-    #[ORM\Column(name: 'identifier', type: 'string', nullable: false)]
-    private string $identifier;
 
     #[ORM\Column(name: 'creator', type: 'string', nullable: true)]
     private ?string $creator = null;
@@ -103,10 +98,13 @@ class Framework
     #[ORM\OneToMany(mappedBy: 'mirror', targetEntity: Log::class, cascade: ['persist'], orphanRemoval: true)]
     private Collection $logs;
 
-    public function __construct(Server $server, string $identifier)
-    {
-        $this->server = $server;
-        $this->identifier = $identifier;
+    public function __construct(
+        #[ORM\ManyToOne(targetEntity: Server::class, inversedBy: 'frameworks')]
+        #[ORM\JoinColumn(nullable: false)]
+        private Server $server,
+        #[ORM\Column(name: 'identifier', type: 'string', nullable: false)]
+        private string $identifier,
+    ) {
         $this->logs = new ArrayCollection();
     }
 

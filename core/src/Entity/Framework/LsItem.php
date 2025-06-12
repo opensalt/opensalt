@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity\Framework;
 
 use App\DTO\ItemType\AssessmentDto;
@@ -213,10 +215,13 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         // Clear out values so the clone will work without an out of memory error
         $associations = $this->associations;
         $this->associations = new ArrayCollection();
+
         $inverseAssociations = $this->inverseAssociations;
         $this->inverseAssociations = new ArrayCollection();
+
         $concepts = $this->concepts;
         $this->concepts = new ArrayCollection();
+
         $criteria = $this->criteria;
         $this->criteria = new ArrayCollection();
 
@@ -273,10 +278,13 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         // Clear out values so the clone will work without an out of memory error
         $associations = $this->associations;
         $this->associations = new ArrayCollection();
+
         $inverseAssociations = $this->inverseAssociations;
         $this->inverseAssociations = new ArrayCollection();
+
         $concepts = $this->concepts;
         $this->concepts = new ArrayCollection();
+
         $criteria = $this->criteria;
         $this->criteria = new ArrayCollection();
 
@@ -385,15 +393,14 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
             return $this->abbreviatedStatement;
         }
 
-        if ($this->fullStatement) {
+        if ('' !== $this->fullStatement) {
             return $this->fullStatement;
         }
 
         $uri = $this->getUri();
         $uri = preg_replace('#^.*/#', '', $uri);
-        $uri = preg_replace('#^local:#', '', $uri);
 
-        return $uri;
+        return preg_replace('#^local:#', '', $uri);
     }
 
     public function getDiscriminator(): int
@@ -495,17 +502,13 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         return $this->conceptKeywords ?? [];
     }
 
-    /**
-     * @deprecated Migrate to using setConceptKeywordsArray()
-     */
+    #[\Deprecated(message: 'Migrate to using setConceptKeywordsArray()')]
     public function setConceptKeywords(?string $conceptKeywords): static
     {
         return $this->setConceptKeywordsString($conceptKeywords);
     }
 
-    /**
-     * @deprecated Migrate to using getConceptKeywordsArray()
-     */
+    #[\Deprecated(message: 'Migrate to using getConceptKeywordsArray()')]
     public function getConceptKeywords(): ?string
     {
         return $this->getConceptKeywordsString();
@@ -529,9 +532,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
         return implode(',', $this->getConceptKeywordsArray());
     }
 
-    /**
-     * @deprecated Should use getConcepts() and use the set returned instead, this only gives the first
-     */
+    #[\Deprecated(message: 'Should use getConcepts() and use the set returned instead, this only gives the first')]
     public function getConceptKeywordsUri(): ?string
     {
         $concepts = $this->getConcepts();
@@ -841,7 +842,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
             $code .= ' - ';
         }
 
-        return "{$pfx}{$code}{$statement}";
+        return $pfx . $code . $statement;
     }
 
     /**
@@ -879,7 +880,7 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     /**
      * @return Collection<array-key, LsDefConcept>
      */
-    public function getConcepts()
+    public function getConcepts(): Collection
     {
         return $this->concepts;
     }

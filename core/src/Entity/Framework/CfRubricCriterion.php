@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity\Framework;
 
 use App\Repository\Framework\CfRubricCriterionRepository;
@@ -28,20 +30,19 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
     #[ORM\Column(name: 'position', type: 'integer', nullable: true)]
     private ?int $position = null;
 
-    #[ORM\ManyToOne(targetEntity: CfRubric::class, inversedBy: 'criteria')]
-    #[ORM\JoinColumn(name: 'rubric_id', referencedColumnName: 'id', nullable: false)]
-    private CfRubric $rubric;
-
     /**
      * @var Collection<array-key, CfRubricCriterionLevel>
      */
     #[ORM\OneToMany(mappedBy: 'criterion', targetEntity: CfRubricCriterionLevel::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $levels;
 
-    public function __construct(CfRubric $rubric, ?string $identifier = null)
-    {
+    public function __construct(
+        #[ORM\ManyToOne(targetEntity: CfRubric::class, inversedBy: 'criteria')]
+        #[ORM\JoinColumn(name: 'rubric_id', referencedColumnName: 'id', nullable: false)]
+        private CfRubric $rubric,
+        ?string $identifier = null,
+    ) {
         parent::__construct($identifier);
-        $this->rubric = $rubric;
         $this->levels = new ArrayCollection();
     }
 

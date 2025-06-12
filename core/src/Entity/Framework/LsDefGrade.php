@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity\Framework;
 
 use App\Repository\Framework\LsDefGradeRepository;
@@ -67,6 +69,6 @@ class LsDefGrade extends AbstractLsBase
 
     public function getLabel(): string
     {
-        return "{$this->getCode()} - {$this->getTitle()}";
+        return sprintf('%s - %s', $this->getCode(), $this->getTitle());
     }
 }

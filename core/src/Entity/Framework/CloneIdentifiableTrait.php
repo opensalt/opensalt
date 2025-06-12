@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity\Framework;
 
 use Ramsey\Uuid\Uuid;
@@ -14,6 +16,7 @@ trait CloneIdentifiableTrait
         // Generate a new identifier
         $identifier = Uuid::uuid1()->toString();
         $this->identifier = $identifier;
+
         $this->uri = 'local:'.$this->identifier;
 
         // Set last change/update to now

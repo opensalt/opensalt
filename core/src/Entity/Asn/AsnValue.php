@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity\Asn;
 
 final class AsnValue
@@ -8,10 +10,6 @@ final class AsnValue
     public ?string $type = null;
     public ?string $datatype = null;
     public ?string $lang = null;
-
-    public function __construct()
-    {
-    }
 
     public function getValue(): \DateTime|int|string|null
     {
@@ -35,7 +33,7 @@ final class AsnValue
 
     public static function fromArray(array $arr): static
     {
-        $value = new static();
+        $value = new self();
 
         if (array_key_exists('datatype', $arr)) {
             $value->datatype = $arr['datatype'];
@@ -61,6 +59,6 @@ final class AsnValue
     {
         $arr = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
 
-        return static::fromArray($arr);
+        return self::fromArray($arr);
     }
 }

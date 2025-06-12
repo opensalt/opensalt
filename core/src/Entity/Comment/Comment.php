@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity\Comment;
 
 use App\Entity\Framework\LsDoc;
@@ -23,13 +25,6 @@ class Comment
     #[ORM\ManyToOne(targetEntity: Comment::class)]
     #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
     private ?Comment $parent = null;
-
-    #[ORM\Column(type: 'text')]
-    private string $content;
-
-    #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(nullable: false)]
-    private User $user;
 
     #[ORM\ManyToOne(targetEntity: LsDoc::class)]
     #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
@@ -63,10 +58,13 @@ class Comment
 
     private bool $userHasUpvoted = false;
 
-    public function __construct(User $user, string $content)
-    {
-        $this->content = $content;
-        $this->user = $user;
+    public function __construct(
+        #[ORM\ManyToOne(targetEntity: User::class)]
+        #[ORM\JoinColumn(nullable: false)]
+        private User $user,
+        #[ORM\Column(type: 'text')]
+        private string $content,
+    ) {
         $this->upvotes = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = $this->createdAt;

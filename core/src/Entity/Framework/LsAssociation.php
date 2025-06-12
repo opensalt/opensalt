@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity\Framework;
 
 use App\Repository\Framework\LsAssociationRepository;
@@ -173,7 +175,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
     public static function inverseName(string $name): ?string
     {
         static $inverses = [];
-        if (!count($inverses)) {
+        if (0 === count($inverses)) {
             $inverses = [
                 static::CHILD_OF => static::INVERSE_CHILD_OF,
                 static::EXACT_MATCH_OF => static::INVERSE_EXACT_MATCH_OF,
@@ -238,15 +240,15 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
      */
     public function getOrigin(): string|LsItem|LsDoc|null
     {
-        if ($this->getOriginLsDoc()) {
+        if (null !== $this->getOriginLsDoc()) {
             return $this->getOriginLsDoc();
         }
 
-        if ($this->getOriginLsItem()) {
+        if (null !== $this->getOriginLsItem()) {
             return $this->getOriginLsItem();
         }
 
-        if ($this->getOriginNodeUri()) {
+        if (!in_array($this->getOriginNodeUri(), [null, ''], true)) {
             return $this->getOriginNodeUri();
         }
 
@@ -297,15 +299,15 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
      */
     public function getDestination(): string|LsItem|LsDoc|null
     {
-        if ($this->getDestinationLsDoc()) {
+        if (null !== $this->getDestinationLsDoc()) {
             return $this->getDestinationLsDoc();
         }
 
-        if ($this->getDestinationLsItem()) {
+        if (null !== $this->getDestinationLsItem()) {
             return $this->getDestinationLsItem();
         }
 
-        if ($this->getDestinationNodeUri()) {
+        if (!in_array($this->getDestinationNodeUri(), [null, ''], true)) {
             return $this->getDestinationNodeUri();
         }
 
@@ -355,11 +357,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
             }
         }
 
-        if ($metadata['base64'] ?? false) {
-            $metadata['value'] = base64_decode($encodedValue);
-        } else {
-            $metadata['value'] = rawurldecode($encodedValue);
-        }
+        $metadata['value'] = $metadata['base64'] ?? false ? base64_decode($encodedValue) : rawurldecode($encodedValue);
 
         return $metadata;
     }
@@ -560,7 +558,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
      */
     public function canEdit(): bool
     {
-        return !(LsDoc::ADOPTION_STATUS_DEPRECATED === $this->lsDoc->getAdoptionStatus());
+        return LsDoc::ADOPTION_STATUS_DEPRECATED !== $this->lsDoc->getAdoptionStatus();
     }
 
     public function getSequenceNumber(): ?int

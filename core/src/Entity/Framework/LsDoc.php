@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity\Framework;
 
 use App\Entity\Framework\Mirror\Framework;
@@ -464,25 +466,25 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         $associations = $this->getInverseAssociations();
         foreach ($associations as $association) {
             /** @var LsAssociation $association */
-            if (null === $association->getLsDoc() || null === $association->getOriginLsItem()) {
+            if (null === $association->getLsDoc()) {
                 continue;
             }
-
-            if ($association->getLsDoc()->getId() === $this->getId()) {
-                if (LsAssociation::CHILD_OF === $association->getType()) {
-                    $topAssociations[] = [
-                        'sequenceNumber' => $association->getSequenceNumber(),
-                        'enum' => $association->getOriginLsItem()->getListEnumInSource(),
-                        'hcs' => $association->getOriginLsItem()->getHumanCodingScheme(),
-                        'item' => $association->getOriginLsItem(),
-                    ];
-                }
+            if (null === $association->getOriginLsItem()) {
+                continue;
+            }
+            if ($association->getLsDoc()->getId() === $this->getId() && LsAssociation::CHILD_OF === $association->getType()) {
+                $topAssociations[] = [
+                    'sequenceNumber' => $association->getSequenceNumber(),
+                    'enum' => $association->getOriginLsItem()->getListEnumInSource(),
+                    'hcs' => $association->getOriginLsItem()->getHumanCodingScheme(),
+                    'item' => $association->getOriginLsItem(),
+                ];
             }
         }
 
         Compare::sortArrayByFields($topAssociations, ['sequenceNumber', 'enum', 'hcs']);
 
-        $orderedList = array_map(static fn ($rec): LsItem => $rec['item'], $topAssociations);
+        $orderedList = array_map(static fn (array $rec): LsItem => $rec['item'], $topAssociations);
 
         return new ArrayCollection($orderedList);
     }
@@ -629,15 +631,15 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
         // save all ed's passed in
         $i = 0;
         foreach ($externalDocs as $identifier => $ad) {
-            $this->setAttribute("externalDoc$i", $identifier.'|'.$ad['autoLoad'].'|'.$ad['url'].'|'.$ad['title']);
+            $this->setAttribute('externalDoc' . $i, $identifier.'|'.$ad['autoLoad'].'|'.$ad['url'].'|'.$ad['title']);
             // title may get cut off if it's very long, but that's OK.
             ++$i;
         }
 
         // remove any remaining, now-extraneous ed's
         do {
-            if ($this->attributes->containsKey("externalDoc$i")) {
-                $this->removeAttribute("externalDoc$i");
+            if ($this->attributes->containsKey('externalDoc' . $i)) {
+                $this->removeAttribute('externalDoc' . $i);
             }
             ++$i;
         } while ($i < 1000);    // we should always break, but include this as a safety valve
@@ -836,15 +838,15 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
      */
     public function getOwnedBy(): ?string
     {
-        if (!empty($this->ownedBy)) {
+        if (null !== $this->ownedBy) {
             return $this->ownedBy;
         }
 
-        if ($this->getOrg()) {
+        if (null !== $this->getOrg()) {
             return 'organization';
         }
 
-        if ($this->getUser()) {
+        if (null !== $this->getUser()) {
             return 'user';
         }
 

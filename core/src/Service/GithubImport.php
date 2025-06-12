@@ -172,9 +172,8 @@ class GithubImport
     /**
      * @param string  $cfAssociation
      * @param string  $frameworkToAssociate
-     * @param string  $assocType
      */
-    public function addItemRelated(LsDoc $lsDoc, LsItem $lsItem, $cfAssociation, $frameworkToAssociate, $assocType): void
+    public function addItemRelated(LsDoc $lsDoc, LsItem $lsItem, $cfAssociation, $frameworkToAssociate, string $assocType): void
     {
         $em = $this->getEntityManager();
 

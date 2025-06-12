@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity\Framework;
 
 use App\Repository\Framework\CfRubricCriterionLevelRepository;
@@ -25,14 +27,13 @@ class CfRubricCriterionLevel extends AbstractLsBase implements CaseApiInterface
     #[ORM\Column(name: 'position', type: 'integer', nullable: true)]
     private ?int $position = null;
 
-    #[ORM\ManyToOne(targetEntity: CfRubricCriterion::class, inversedBy: 'levels')]
-    #[ORM\JoinColumn(name: 'criterion_id', referencedColumnName: 'id', nullable: false)]
-    private CfRubricCriterion $criterion;
-
-    public function __construct(CfRubricCriterion $criterion, ?string $identifier = null)
-    {
+    public function __construct(
+        #[ORM\ManyToOne(targetEntity: CfRubricCriterion::class, inversedBy: 'levels')]
+        #[ORM\JoinColumn(name: 'criterion_id', referencedColumnName: 'id', nullable: false)]
+        private CfRubricCriterion $criterion,
+        ?string $identifier = null,
+    ) {
         parent::__construct($identifier);
-        $this->criterion = $criterion;
     }
 
     public function getDescription(): ?string

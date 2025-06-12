@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity\Framework;
 
 use App\Repository\Framework\AssociationSubtypeRepository;
@@ -10,9 +12,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: AssociationSubtypeRepository::class)]
 class AssociationSubtype
 {
-    final public const DIR_BOTH = 0;
-    final public const DIR_FORWARD = 1;
-    final public const DIR_INVERSE = -1;
+    final public const int DIR_BOTH = 0;
+    final public const int DIR_FORWARD = 1;
+    final public const int DIR_INVERSE = -1;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity\Asn;
 
 use Doctrine\Common\Collections\ArrayCollection;
@@ -25,24 +27,24 @@ abstract class AsnBase
                 return $this->property[$prop];
             }
 
-            throw new \BadMethodCallException("{$name} does not exist");
+            throw new \BadMethodCallException($name . ' does not exist');
         }
 
         if (str_starts_with($name, 'set')) {
             $prop = lcfirst(preg_replace('/^set/', '', $name));
             if (array_key_exists($prop, static::$properties)) {
                 if (1 !== (is_countable($args) ? count($args) : 0)) {
-                    throw new \BadMethodCallException("{$name} requires an argument");
+                    throw new \BadMethodCallException($name . ' requires an argument');
                 }
                 $this->property[$prop] = $args[0];
 
                 return $this;
             }
 
-            throw new \BadMethodCallException("{$name} does not exist");
+            throw new \BadMethodCallException($name . ' does not exist');
         }
 
-        throw new \BadMethodCallException("{$name} does not exist");
+        throw new \BadMethodCallException($name . ' does not exist');
     }
 
     public function __get(string $key): mixed

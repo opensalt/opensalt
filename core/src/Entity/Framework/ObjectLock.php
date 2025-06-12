@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity\Framework;
 
 use App\Entity\LockableInterface;
@@ -18,10 +20,6 @@ class ObjectLock
     #[ORM\GeneratedValue(strategy: 'AUTO')]
     protected ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class)]
-    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false)]
-    protected User $user;
-
     #[ORM\Column(name: 'expiry', type: 'datetime', precision: 6, nullable: false)]
     protected \DateTime $timeout;
 
@@ -34,14 +32,17 @@ class ObjectLock
     #[ORM\ManyToOne(targetEntity: LsDoc::class)]
     protected ?LsDoc $doc = null;
 
-    public function __construct(LockableInterface $obj, User $user, int $minutes = 5)
-    {
+    public function __construct(
+        LockableInterface $obj,
+        #[ORM\ManyToOne(targetEntity: User::class)]
+        #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false)]
+        protected User $user,
+        int $minutes = 5,
+    ) {
         if (null === $obj->getId()) {
             throw new \RuntimeException('Attempt to lock non-persisted object.');
         }
-
-        $this->user = $user;
-        $this->timeout = new \DateTime("now + {$minutes} minutes");
+        $this->timeout = new \DateTime(sprintf('now + %d minutes', $minutes));
         $this->objectType = $obj::class;
         $this->objectId = (string) $obj->getId();
         if ($obj instanceof LsDoc) {
@@ -73,7 +74,7 @@ class ObjectLock
 
     public function addTime(int $minutes): void
     {
-        $this->timeout = new \DateTime("now + {$minutes} minutes");
+        $this->timeout = new \DateTime(sprintf('now + %d minutes', $minutes));
     }
 
     public function getObjectType(): string

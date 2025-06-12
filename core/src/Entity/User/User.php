@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity\User;
 
 use App\Entity\Framework\LsDoc;
@@ -22,16 +24,16 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[UniqueEntity('username', message: 'That email address is already being used', groups: ['registration'])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface, EquatableInterface, TwoFactorInterface
 {
-    final public const USER_ROLES = [
+    final public const array USER_ROLES = [
         'ROLE_EDITOR',
         'ROLE_ADMIN',
         'ROLE_SUPER_EDITOR',
         'ROLE_SUPER_USER',
     ];
 
-    final public const ACTIVE = 0;
-    final public const SUSPENDED = 1;
-    final public const PENDING = 2;
+    final public const int ACTIVE = 0;
+    final public const int SUSPENDED = 1;
+    final public const int PENDING = 2;
 
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'AUTO')]
@@ -88,7 +90,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
 
     public function __construct(?string $username = null)
     {
-        if (!empty($username)) {
+        if (null !== $username && '' !== $username) {
             $this->username = $username;
         }
 
@@ -110,9 +112,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
 
     /**
      * Returns the username used to authenticate the user.
-     *
-     * @deprecated As of Symfony 5.3 getUserIdentifier() should be used instead
      */
+    #[\Deprecated(message: 'As of Symfony 5.3 getUserIdentifier() should be used instead')]
     public function getUsername(): string
     {
         return $this->username;
@@ -166,7 +167,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     {
         $roles = $this->roles;
 
-        if (empty($roles)) {
+        if (null === $roles || [] === $roles) {
             $roles[] = 'ROLE_USER';
         }
 
@@ -198,9 +199,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
      * Returns the salt that was originally used to encode the password.
      *
      * This can return null if the password was not encoded using a salt.
-     *
-     * @deprecated This function has been deprecated and can be removed with Symfony 6.0
      */
+    #[\Deprecated(message: 'This function has been deprecated and can be removed with Symfony 6.0')]
     public function getSalt(): ?string
     {
         return null;
@@ -342,7 +342,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
      */
     public function isAccountNonLocked(): bool
     {
-        return !($this->isSuspended() || $this->isPending());
+        return !$this->isSuspended() && !$this->isPending();
     }
 
     /**

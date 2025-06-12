@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity\Framework\Mirror;
 
 use App\Repository\Framework\Mirror\OAuthCredentialRepository;

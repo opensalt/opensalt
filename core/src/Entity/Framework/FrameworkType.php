@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity\Framework;
 
 use App\Repository\Framework\FrameworkTypeRepository;
@@ -14,12 +16,10 @@ class FrameworkType
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'string', length: 255)]
-    private string $frameworkType;
-
-    public function __construct(string $frameworkType)
-    {
-        $this->frameworkType = $frameworkType;
+    public function __construct(
+        #[ORM\Column(type: 'string', length: 255)]
+        private string $frameworkType,
+    ) {
     }
 
     public function getId(): ?int

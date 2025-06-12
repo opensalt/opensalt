@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity\Framework\Mirror;
 
 use App\Repository\Framework\Mirror\LogRepository;
@@ -9,32 +11,26 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: LogRepository::class)]
 class Log
 {
-    final public const STATUS_SUCCESS = 'success';
-    final public const STATUS_FAILURE = 'failure';
+    final public const string STATUS_SUCCESS = 'success';
+    final public const string STATUS_FAILURE = 'failure';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Framework::class, inversedBy: 'logs')]
-    #[ORM\JoinColumn(nullable: false)]
-    private Framework $mirror;
-
-    #[ORM\Column(name: 'status', type: 'string')]
-    private string $status;
-
-    #[ORM\Column(type: 'text')]
-    private string $message;
-
     #[ORM\Column(type: 'datetime', precision: 6)]
     private \DateTimeInterface $occurredAt;
 
-    public function __construct(Framework $mirror, string $status, string $message)
-    {
-        $this->mirror = $mirror;
-        $this->status = $status;
-        $this->message = $message;
+    public function __construct(
+        #[ORM\ManyToOne(targetEntity: Framework::class, inversedBy: 'logs')]
+        #[ORM\JoinColumn(nullable: false)]
+        private Framework $mirror,
+        #[ORM\Column(name: 'status', type: 'string')]
+        private string $status,
+        #[ORM\Column(type: 'text')]
+        private string $message,
+    ) {
         $this->occurredAt = new \DateTimeImmutable();
     }
 

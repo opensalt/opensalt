@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity\Framework;
 
 use App\Repository\Framework\ImportLogRepository;
@@ -27,15 +29,10 @@ class ImportLog
     protected ?string $message = null;
 
     #[ORM\Column(name: 'message_type', type: 'string', length: 30, nullable: false)]
-    protected string $messageType;
+    protected string $messageType = 'warning';
 
     #[ORM\Column(name: 'is_read', type: 'boolean', nullable: false, options: ['default' => 0])]
     protected bool $read = false;
-
-    public function __construct()
-    {
-        $this->messageType = 'warning';
-    }
 
     public function setLsDoc(LsDoc $lsDoc): void
     {

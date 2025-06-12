@@ -178,7 +178,7 @@ class FrameworkUpdater
         if (is_string($elementAssociated)) {
             if (Uuid::isValid($elementAssociated)) {
                 $association->setDestinationNodeIdentifier($elementAssociated);
-            } elseif (false === !filter_var($elementAssociated, FILTER_VALIDATE_URL)) {
+            } elseif (filter_var($elementAssociated, FILTER_VALIDATE_URL)) {
                 $association->setDestinationNodeUri($elementAssociated);
                 $association->setDestinationNodeIdentifier(Uuid::uuid5(Uuid::NAMESPACE_URL, $elementAssociated)->toString());
             } else {

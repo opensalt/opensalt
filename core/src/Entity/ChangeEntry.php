@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity;
 
 use App\Entity\Framework\LsDoc;
@@ -32,19 +34,17 @@ class ChangeEntry
     #[Gedmo\Timestampable(on: 'update')]
     protected \DateTimeInterface $changedAt;
 
-    #[ORM\Column(name: 'description', type: 'string', length: 2048)]
-    protected string $description;
-
-    #[ORM\Column(name: 'changed', type: 'json', nullable: true)]
-    protected array $changed = [];
-
-    public function __construct(?LsDoc $doc, ?User $user, string $description, array $changed = [])
-    {
+    public function __construct(
+        ?LsDoc $doc,
+        ?User $user,
+        #[ORM\Column(name: 'description', type: 'string', length: 2048)]
+        protected string $description,
+        #[ORM\Column(name: 'changed', type: 'json', nullable: true)]
+        protected array $changed = [],
+    ) {
         $this->doc = (null !== $doc) ? $doc->getId() : null;
         $this->user = (null !== $user) ? $user->getId() : null;
         $this->username = (null !== $user) ? $user->getUserIdentifier() : null;
-        $this->description = $description;
-        $this->changed = $changed;
         $this->changedAt = new \DateTimeImmutable();
     }
 

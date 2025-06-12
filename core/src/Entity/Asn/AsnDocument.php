@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity\Asn;
 
 use Doctrine\Common\Collections\ArrayCollection;
@@ -29,7 +31,7 @@ final class AsnDocument
     public static function fromArray(array $arr): static
     {
         /** @var AsnDocument $doc */
-        $doc = new static();
+        $doc = new self();
 
         foreach ($arr as $key => $val) {
             $rec = $doc->recordFromArray($key, $val);

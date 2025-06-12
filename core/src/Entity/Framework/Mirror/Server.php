@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity\Framework\Mirror;
 
 use App\Repository\Framework\Mirror\ServerRepository;
@@ -26,20 +28,11 @@ class Server
     #[ORM\GeneratedValue(strategy: 'AUTO')]
     private ?int $id = null;
 
-    #[ORM\Column(name: 'url', type: 'string', nullable: false)]
-    private string $url;
-
     #[ORM\Column(name: 'api_type', type: 'string', nullable: false)]
     private string $serverType = self::TYPE_CASE_1_0;
 
     #[ORM\Column(name: 'check_server', type: 'boolean', nullable: false)]
     private bool $checkServer = true;
-
-    #[ORM\Column(name: 'add_found', type: 'boolean', nullable: false)]
-    private bool $addFoundFrameworks;
-
-    #[ORM\ManyToOne(targetEntity: OAuthCredential::class)]
-    private ?OAuthCredential $credentials;
 
     #[ORM\Column(name: 'priority', type: 'integer', options: ['default' => 0])]
     private int $priority = 0;
@@ -63,11 +56,14 @@ class Server
     #[ORM\Column(length: 255)]
     private string $status = self::STATUS_ACTIVE;
 
-    public function __construct(string $hostname, bool $addFoundFrameworks, ?OAuthCredential $credentials = null)
-    {
-        $this->url = $hostname;
-        $this->addFoundFrameworks = $addFoundFrameworks;
-        $this->credentials = $credentials;
+    public function __construct(
+        #[ORM\Column(name: 'url', type: 'string', nullable: false)]
+        private string $url,
+        #[ORM\Column(name: 'add_found', type: 'boolean', nullable: false)]
+        private bool $addFoundFrameworks,
+        #[ORM\ManyToOne(targetEntity: OAuthCredential::class)]
+        private ?OAuthCredential $credentials = null,
+    ) {
         $this->frameworks = new ArrayCollection();
     }
 

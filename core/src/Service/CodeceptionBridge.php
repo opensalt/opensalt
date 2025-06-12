@@ -40,7 +40,7 @@ class CodeceptionBridge
         return $this->entityManager;
     }
 
-    public function grabService(string $service)
+    public function grabService(string $service): FeatureManager|UserManager|null
     {
         return match ($service) {
             FeatureManager::class => $this->featureManager,

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity\Framework;
 
 use App\Repository\Framework\AdditionalFieldRepository;
@@ -54,7 +56,7 @@ class AdditionalField
         ];
     }
 
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }

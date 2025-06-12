@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Entity\User;
 
 use App\Entity\Framework\LsDoc;
@@ -11,38 +13,32 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\UniqueConstraint(name: 'uniq_acl_id', columns: ['doc_id', 'user_id'])]
 class UserDocAcl
 {
-    final public const DENY = 0;
-    final public const ALLOW = 1;
+    final public const int DENY = 0;
+    final public const int ALLOW = 1;
 
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'AUTO')]
     #[ORM\Column(name: 'id', type: 'integer')]
     protected ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class, fetch: 'EAGER', inversedBy: 'docAcls')]
-    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false)]
-    protected User $user;
-
-    #[ORM\ManyToOne(targetEntity: LsDoc::class, fetch: 'EAGER', inversedBy: 'docAcls')]
-    #[ORM\JoinColumn(name: 'doc_id', referencedColumnName: 'id', nullable: false)]
-    protected LsDoc $lsDoc;
-
-    #[ORM\Column(name: 'access', type: 'smallint', nullable: false)]
-    protected int $access;
-
     /**
      * UserDocAcl constructor.
      *
      * @throws \InvalidArgumentException
      */
-    public function __construct(User $user, LsDoc $lsDoc, int $access)
-    {
+    public function __construct(
+        #[ORM\ManyToOne(targetEntity: User::class, fetch: 'EAGER', inversedBy: 'docAcls')]
+        #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false)]
+        protected User $user,
+        #[ORM\ManyToOne(targetEntity: LsDoc::class, fetch: 'EAGER', inversedBy: 'docAcls')]
+        #[ORM\JoinColumn(name: 'doc_id', referencedColumnName: 'id', nullable: false)]
+        protected LsDoc $lsDoc,
+        #[ORM\Column(name: 'access', type: 'smallint', nullable: false)]
+        protected int $access,
+    ) {
         if (!in_array($access, [self::DENY, self::ALLOW], true)) {
             throw new \InvalidArgumentException('Invalid value for "access".  Access can only be 0 or 1');
         }
-        $this->user = $user;
-        $this->lsDoc = $lsDoc;
-        $this->access = $access;
     }
 
     public function getId(): int
