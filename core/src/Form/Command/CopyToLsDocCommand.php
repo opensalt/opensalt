@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Form\Command;
 
 use App\Entity\Framework\LsItem;
@@ -8,10 +10,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class CopyToLsDocCommand
 {
-    /**
-     * @return CopyToLsDocDTO
-     */
-    public function convertToDTO(LsItem $lsItem)
+    public function convertToDTO(LsItem $lsItem): CopyToLsDocDTO
     {
         $dto = new CopyToLsDocDTO();
         $dto->lsItem = $lsItem;
@@ -20,10 +19,9 @@ class CopyToLsDocCommand
     }
 
     /**
-     * @deprecated
-     *
      * @return LsItem
      */
+    #[\Deprecated]
     public function perform(CopyToLsDocDTO $dto, ObjectManager $manager)
     {
         $newItem = $dto->lsItem->copyToLsDoc($dto->lsDoc);

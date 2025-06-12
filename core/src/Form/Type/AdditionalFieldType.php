@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Form\Type;
 
 use App\Entity\Framework\AdditionalField;
@@ -49,7 +51,7 @@ class AdditionalFieldType extends AbstractType
 
         $builder->get('typeInfo')
             ->addModelTransformer(new CallbackTransformer(
-                function (?array $infoAsArray) {
+                function (?array $infoAsArray): ?string {
                     if (null === $infoAsArray) {
                         return null;
                     }

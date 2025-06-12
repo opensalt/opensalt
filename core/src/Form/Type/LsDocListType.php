@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Form\Type;
 
 use App\Entity\Framework\LsDoc;
@@ -18,8 +20,8 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 class LsDocListType extends AbstractType
 {
     public function __construct(
-        private EntityManagerInterface $em,
-        private AuthorizationCheckerInterface $authChecker,
+        private readonly EntityManagerInterface $em,
+        private readonly AuthorizationCheckerInterface $authChecker,
     ) {
     }
 
@@ -45,7 +47,7 @@ class LsDocListType extends AbstractType
         $builder
             ->add('lsDoc', EntityType::class, [
                 'label' => 'Document:',
-                'choice_label' => function (LsDoc $val) {
+                'choice_label' => function (LsDoc $val): ?string {
                     $title = $val->getTitle();
                     if (strlen($title) > 60) {
                         return mb_substr($val->getTitle(), 0, 59)."\u{2026}";
@@ -53,7 +55,7 @@ class LsDocListType extends AbstractType
 
                     return $title;
                 },
-                'group_by' => function (LsDoc $val) {
+                'group_by' => function (LsDoc $val): ?string {
                     $creator = $val->getCreator();
                     if (strlen($creator) > 60) {
                         return mb_substr($val->getCreator(), 0, 59)."\u{2026}";

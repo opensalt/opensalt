@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Form\Type;
 
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Form\DTO\ChangeLsItemParentDTO;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -22,11 +25,7 @@ class LsItemParentType extends AbstractType
         /** @var LsDoc $lsDoc */
         $lsDoc = $options['lsDoc'];
 
-        if ($options['data']) {
-            $id = $options['data']->lsItem->getId();
-        } else {
-            $id = -1;
-        }
+        $id = $options['data'] ? $options['data']->lsItem->getId() : -1;
 
         $builder
             ->add('parentItem', EntityType::class, [
@@ -36,7 +35,7 @@ class LsItemParentType extends AbstractType
                 'required' => false,
                 'multiple' => false,
                 'class' => LsItem::class,
-                'query_builder' => fn (EntityRepository $er) => $er->createQueryBuilder('i')
+                'query_builder' => fn (EntityRepository $er): QueryBuilder => $er->createQueryBuilder('i')
                     ->where('i.lsDoc = :docId')
                     ->andWhere('i.id != :id')
                     ->orderBy('i.fullStatement', 'ASC')

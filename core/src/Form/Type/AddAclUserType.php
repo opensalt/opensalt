@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Form\Type;
 
 use App\Entity\Framework\LsDoc;
@@ -7,6 +9,7 @@ use App\Entity\User\User;
 use App\Form\DTO\AddAclUserDTO;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query\Expr\Join;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -29,13 +32,9 @@ class AddAclUserType extends AbstractType
                 'label' => 'Username',
                 'placeholder' => '- Choose an editor to exclude -',
                 'choice_label' => 'username',
-                'query_builder' => function (EntityRepository $er) use ($lsDoc) {
+                'query_builder' => function (EntityRepository $er) use ($lsDoc): QueryBuilder {
                     $org = $lsDoc->getOrg();
-                    if ($org) {
-                        $orgId = $org->getId();
-                    } else {
-                        $orgId = null;
-                    }
+                    $orgId = $org ? $org->getId() : null;
 
                     return $er->createQueryBuilder('u')
                         ->leftJoin('u.docAcls', 'acl', Join::WITH, 'acl.lsDoc = :docId')

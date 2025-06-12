@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Form\Type;
 
 use App\Entity\Framework\AdditionalField;
@@ -12,6 +14,7 @@ use App\Form\DataTransformer\EducationAlignmentTransformer;
 use App\Form\DataTransformer\ItemTypeTransformer;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\LanguageType;
@@ -26,7 +29,7 @@ use Tetranz\Select2EntityBundle\Form\Type\Select2EntityType;
  */
 class LsItemType extends AbstractType
 {
-    public function __construct(private EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
     }
 
@@ -58,10 +61,10 @@ class LsItemType extends AbstractType
                 'class' => LsDefGrade::class,
                 'label' => 'Education Level',
                 'choice_label' => 'code',
-                'choice_attr' => static fn (LsDefGrade $val, $key, $index) => ['data-title' => $val->getTitle()],
+                'choice_attr' => static fn (LsDefGrade $val, $key, $index): array => ['data-title' => $val->getTitle()],
                 'required' => false,
                 'multiple' => true,
-                'query_builder' => static fn (EntityRepository $er) => $er->createQueryBuilder('g')->addOrderBy('g.rank'),
+                'query_builder' => static fn (EntityRepository $er): QueryBuilder => $er->createQueryBuilder('g')->addOrderBy('g.rank'),
             ])
             ->add('itemType', Select2EntityType::class, [
                 'multiple' => false,
@@ -105,7 +108,7 @@ class LsItemType extends AbstractType
         ;
 
         $fields = $this->em->getRepository(AdditionalField::class)->findBy(['appliesTo' => LsItem::class]);
-        if (count($fields)) {
+        if ([] !== $fields) {
             $builder->add('additional_fields', CustomFieldsType::class, [
                 'applies_to' => LsItem::class,
                 'label' => 'Additional fields',

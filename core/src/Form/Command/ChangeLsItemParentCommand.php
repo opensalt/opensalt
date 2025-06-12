@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Form\Command;
 
 use App\Entity\Framework\LsAssociation;
@@ -18,9 +20,7 @@ class ChangeLsItemParentCommand
         return $dto;
     }
 
-    /**
-     * @deprecated
-     */
+    #[\Deprecated]
     public function perform(ChangeLsItemParentDTO $dto, LsAssociationRepository $associationRepository): LsItem
     {
         $associationRepository->removeAllAssociationsOfType($dto->lsItem, LsAssociation::CHILD_OF);

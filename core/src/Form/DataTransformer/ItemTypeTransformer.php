@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Form\DataTransformer;
 
 use App\Entity\Framework\LsDefItemType;
@@ -16,7 +18,7 @@ use Symfony\Component\PropertyAccess\PropertyAccessor;
  */
 class ItemTypeTransformer implements DataTransformerInterface
 {
-    private PropertyAccessor $accessor;
+    private readonly PropertyAccessor $accessor;
 
     public function __construct(
         private readonly EntityManagerInterface $em,
@@ -27,7 +29,7 @@ class ItemTypeTransformer implements DataTransformerInterface
         $this->accessor = PropertyAccess::createPropertyAccessor();
 
         if (LsDefItemType::class !== $this->className) {
-            throw new \InvalidArgumentException("Class {$className} not supported in ItemTypeTransformer");
+            throw new \InvalidArgumentException(sprintf('Class %s not supported in ItemTypeTransformer', $className));
         }
     }
 

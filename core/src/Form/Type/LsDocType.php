@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Form\Type;
 
 use App\Entity\User\Organization;
@@ -11,12 +13,9 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class LsDocType extends AbstractLsDocCreateType
 {
-    private AuthorizationCheckerInterface $authorizationChecker;
-
-    public function __construct(EntityManagerInterface $em, AuthorizationCheckerInterface $authorizationChecker)
+    public function __construct(EntityManagerInterface $em, private readonly AuthorizationCheckerInterface $authorizationChecker)
     {
         parent::__construct($em);
-        $this->authorizationChecker = $authorizationChecker;
     }
 
     #[\Override]

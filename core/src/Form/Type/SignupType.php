@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Copyright (c) 2017 Public Consulting Group.
  *
@@ -79,7 +81,7 @@ class SignupType extends AbstractType
                 'required' => false,
                 'attr' => ['class' => 'new-org-field'],
             ])
-            ->addEventListener(FormEvents::PRE_SUBMIT, static function (FormEvent $event) {
+            ->addEventListener(FormEvents::PRE_SUBMIT, static function (FormEvent $event): void {
                 $data = $event->getData();
 
                 if ('other' === $data['org'] || '' === $data['org']) {

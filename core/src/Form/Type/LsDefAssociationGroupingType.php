@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Form\Type;
 
 use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Entity\Framework\LsDoc;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -27,7 +30,7 @@ class LsDefAssociationGroupingType extends AbstractType
                     'group_by' => 'creator',
                     'required' => true,
                     'multiple' => false,
-                    'query_builder' => fn (EntityRepository $er) => $er->createQueryBuilder('i')
+                    'query_builder' => fn (EntityRepository $er): QueryBuilder => $er->createQueryBuilder('i')
                         ->orderBy('i.title', 'ASC'),
                 ])
         ;

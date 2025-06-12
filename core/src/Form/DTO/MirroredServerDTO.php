@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Form\DTO;
 
 use App\Entity\Framework\Mirror\OAuthCredential;

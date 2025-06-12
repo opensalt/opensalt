@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Form\Type;
 
 use App\Entity\Framework\AdditionalField;
@@ -8,6 +10,7 @@ use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -23,7 +26,7 @@ use Symfony\Component\Validator\Constraints\Valid;
  */
 class LsAssociationType extends AbstractType
 {
-    public function __construct(private EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
     }
 
@@ -54,13 +57,13 @@ class LsAssociationType extends AbstractType
                 'required' => false,
                 'multiple' => false,
                 'class' => LsDoc::class,
-                'query_builder' => static fn (EntityRepository $er) => $er->createQueryBuilder('d')
+                'query_builder' => static fn (EntityRepository $er): QueryBuilder => $er->createQueryBuilder('d')
                     ->orderBy('d.title', 'ASC'),
             ])
         ;
 
-        $formModifier = static function (FormInterface $form, ?LsDoc $lsDoc = null) {
-            if ($lsDoc) {
+        $formModifier = static function (FormInterface $form, ?LsDoc $lsDoc = null): void {
+            if (null !== $lsDoc) {
                 $form->add('destinationLsItem', EntityType::class, [
                     'placeholder' => '- Select Statement From Document Below -',
                     'label' => 'Choose Statement',
@@ -68,7 +71,7 @@ class LsAssociationType extends AbstractType
                     'required' => true,
                     'multiple' => false,
                     'class' => LsItem::class,
-                    'query_builder' => static fn (EntityRepository $er) => $er->createQueryBuilder('d')
+                    'query_builder' => static fn (EntityRepository $er): QueryBuilder => $er->createQueryBuilder('d')
                         ->where('d.lsDoc = '.$lsDoc->getId())
                         ->orderBy('d.fullStatement', 'ASC'),
                 ]);
@@ -92,7 +95,7 @@ class LsAssociationType extends AbstractType
 
         $fields = $this->em->getRepository(AdditionalField::class)
             ->findBy(['appliesTo' => LsAssociation::class]);
-        if (count($fields)) {
+        if ([] !== $fields) {
             $builder->add('additional_fields', CustomFieldsType::class, [
                 'applies_to' => LsItem::class,
                 'label' => 'Additional fields',
@@ -102,7 +105,7 @@ class LsAssociationType extends AbstractType
 
         $builder->addEventListener(
             FormEvents::PRE_SET_DATA,
-            static function (FormEvent $event) use ($formModifier) {
+            static function (FormEvent $event) use ($formModifier): void {
                 $data = $event->getData();
 
                 $formModifier($event->getForm(), $data->getLsDoc());
@@ -111,7 +114,7 @@ class LsAssociationType extends AbstractType
 
         $builder->get('lsDoc')->addEventListener(
             FormEvents::POST_SUBMIT,
-            static function (FormEvent $event) use ($formModifier) {
+            static function (FormEvent $event) use ($formModifier): void {
                 $lsDoc = $event->getForm()->getData();
                 $formModifier($event->getForm()->getParent(), $lsDoc);
             }

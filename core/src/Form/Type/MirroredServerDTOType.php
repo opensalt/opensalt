@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Form\Type;
 
 use App\Entity\Framework\Mirror\OAuthCredential;
 use App\Entity\Framework\Mirror\Server;
 use App\Form\DTO\MirroredServerDTO;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use League\Uri\UriString;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -46,10 +49,10 @@ class MirroredServerDTOType extends AbstractType
                 'help' => 'Select the credentials to use when authenticating with the server if they are needed.',
                 'help_html' => true,
                 'class' => OAuthCredential::class,
-                'choice_label' => static fn (OAuthCredential $credential) => $credential->getKey().' @ '.$credential->getAuthenticationEndpoint(),
+                'choice_label' => static fn (OAuthCredential $credential): string => $credential->getKey().' @ '.$credential->getAuthenticationEndpoint(),
                 'required' => false,
                 'multiple' => false,
-                'query_builder' => static fn (EntityRepository $repo) => $repo->createQueryBuilder('c')
+                'query_builder' => static fn (EntityRepository $repo): QueryBuilder => $repo->createQueryBuilder('c')
                     ->orderBy('c.key', 'ASC')
                     ->addOrderBy('c.authenticationEndpoint', 'ASC'),
             ])

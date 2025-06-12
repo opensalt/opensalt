@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Form\Validator;
 
 use Jose\Component\KeyManagement\JWKFactory;
@@ -31,13 +33,13 @@ class ValidPublicKeyValidator extends ConstraintValidator
         try {
             try {
                 JWKFactory::createFromJsonObject($value);
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 JWKFactory::createFromKey($value);
             }
 
             return;
-        } catch (\Exception $e) {
-            $this->context->buildViolation($e->getMessage())
+        } catch (\Exception $exception) {
+            $this->context->buildViolation($exception->getMessage())
                 ->addViolation();
         }
 

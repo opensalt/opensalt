@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Form\Type;
 
 use App\Entity\Framework\Mirror\OAuthCredential;
 use App\Form\DTO\MirroredFrameworkDTO;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -38,10 +41,10 @@ class MirroredFrameworkDTOType extends AbstractType
                 'help' => 'Select the credentials to use when authenticating with the server if they are needed.',
                 'help_html' => true,
                 'class' => OAuthCredential::class,
-                'choice_label' => static fn (OAuthCredential $credential) => $credential->getKey().' @ '.$credential->getAuthenticationEndpoint(),
+                'choice_label' => static fn (OAuthCredential $credential): string => $credential->getKey().' @ '.$credential->getAuthenticationEndpoint(),
                 'required' => false,
                 'multiple' => false,
-                'query_builder' => static fn (EntityRepository $repo) => $repo->createQueryBuilder('c')
+                'query_builder' => static fn (EntityRepository $repo): QueryBuilder => $repo->createQueryBuilder('c')
                     ->orderBy('c.key', 'ASC')
                     ->addOrderBy('c.authenticationEndpoint', 'ASC'),
             ])

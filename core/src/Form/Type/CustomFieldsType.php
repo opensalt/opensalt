@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Form\Type;
 
 use App\Entity\Framework\AdditionalField;
@@ -18,7 +20,7 @@ use Symfony\Component\Validator\Constraints\NotNull;
  */
 class CustomFieldsType extends AbstractType
 {
-    public function __construct(private EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
     }
 
@@ -27,7 +29,7 @@ class CustomFieldsType extends AbstractType
     {
         $appliesTo = $options['applies_to'];
 
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($appliesTo) {
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($appliesTo): void {
             // Check if any records exist on additional_field table where appliesTo = lsitem
             // If any exist add those fields to the form.
             $form = $event->getForm();
@@ -38,20 +40,17 @@ class CustomFieldsType extends AbstractType
             foreach ($fields as $field) {
                 $typeInfo = $field->getTypeInfo();
 
-                switch ($field->getType()) {
-                    case 'string':
-                        $constraints = [];
-                        if (!empty($typeInfo['required'])) {
-                            $constraints[] = new NotNull();
-                            $constraints[] = new NotBlank();
-                        }
-
-                        $form->add($field->getName(), TextType::class, [
-                            'label' => $field->getDisplayName(),
-                            'required' => !empty($typeInfo['required']),
-                            'constraints' => $constraints,
-                        ]);
-                        break;
+                if ('string' === $field->getType()) {
+                    $constraints = [];
+                    if (!empty($typeInfo['required'])) {
+                        $constraints[] = new NotNull();
+                        $constraints[] = new NotBlank();
+                    }
+                    $form->add($field->getName(), TextType::class, [
+                        'label' => $field->getDisplayName(),
+                        'required' => !empty($typeInfo['required']),
+                        'constraints' => $constraints,
+                    ]);
                 }
             }
         });

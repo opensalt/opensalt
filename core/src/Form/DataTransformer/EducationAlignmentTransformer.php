@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Form\DataTransformer;
 
 use App\Entity\Framework\LsDefGrade;
@@ -39,11 +41,11 @@ readonly class EducationAlignmentTransformer implements DataTransformerInterface
     #[\Override]
     public function reverseTransform(mixed $value): ?string
     {
-        if (!is_array($value) || 0 === count($value)) {
+        if (!is_array($value) || [] === $value) {
             return null;
         }
 
-        $grades = array_map(static fn (LsDefGrade $alignment) => $alignment->getCode(), $value);
+        $grades = array_map(static fn (LsDefGrade $alignment): string => $alignment->getCode(), $value);
 
         return implode(',', $grades);
     }

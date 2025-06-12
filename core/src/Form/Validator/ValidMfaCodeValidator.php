@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Form\Validator;
 
 use Scheb\TwoFactorBundle\Model\Totp\TwoFactorInterface;

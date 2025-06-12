@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Form\Type\ItemType;
 
 use App\DTO\ItemType\OrganizationDto;
@@ -65,17 +67,17 @@ class OrganizationType extends AbstractType
             ->add('logo', TextType::class, [
                 'label' => 'Logo URI',
                 'required' => false,
-                'help' => 'The organization\'s logo.',
+                'help' => "The organization's logo.",
             ])
             ->add('legalName', TextType::class, [
                 'label' => 'Legal Name',
                 'required' => false,
-                'help' => 'The organization\'s legal name.',
+                'help' => "The organization's legal name.",
             ])
             ->add('ctid', TextType::class, [
                 'label' => 'CTID',
                 'required' => false,
-                'help' => 'The organization\'s CTID.',
+                'help' => "The organization's CTID.",
             ])
             /*
             ->add('rorId', TextType::class, [
