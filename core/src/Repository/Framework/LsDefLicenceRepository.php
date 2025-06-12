@@ -1,9 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\LsDefLicence;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -17,9 +18,9 @@ class LsDefLicenceRepository extends AbstractLsDefinitionRepository
     }
 
     /**
-     * @return array|LsDefLicence[]|ArrayCollection
+     * @return LsDefLicence[]
      */
-    public function getList()
+    public function getList(): array
     {
         $qBuilder = $this->createQueryBuilder('s', 's.title')
             ->orderBy('s.title');
@@ -34,7 +35,7 @@ class LsDefLicenceRepository extends AbstractLsDefinitionRepository
      */
     public function findByIdentifiers(array $identifiers): array
     {
-        if (0 === count($identifiers)) {
+        if ([] === $identifiers) {
             return [];
         }
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\LsDefGrade;

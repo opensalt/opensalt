@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\AssociationSubtype;
@@ -11,6 +13,8 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method AssociationSubtype|null findOneBy(array $criteria, array $orderBy = null)
  * @method AssociationSubtype[]    findAll()
  * @method AssociationSubtype[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ *
+ * @extends ServiceEntityRepository<AssociationSubtype>
  */
 class AssociationSubtypeRepository extends ServiceEntityRepository
 {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\FrameworkType;
@@ -11,6 +13,8 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method FrameworkType|null findOneBy(array $criteria, array $orderBy = null)
  * @method FrameworkType[]    findAll()
  * @method FrameworkType[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ *
+ * @extends ServiceEntityRepository<FrameworkType>
  */
 class FrameworkTypeRepository extends ServiceEntityRepository
 {
@@ -24,8 +28,8 @@ class FrameworkTypeRepository extends ServiceEntityRepository
      */
     public function getList(): array
     {
-        $qBuilder = $this->createQueryBuilder('f', 'f.value')
-            ->orderBy('f.value');
+        $qBuilder = $this->createQueryBuilder('f', 'f.frameworkType')
+            ->orderBy('f.frameworkType');
 
         return $qBuilder->getQuery()->getResult();
     }

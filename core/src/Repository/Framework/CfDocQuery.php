@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository\Framework;
 
 class CfDocQuery
@@ -23,7 +25,7 @@ class CfDocQuery
     {
         $offset = $this->offset;
 
-        return ($offset > 0) ? $offset : 0;
+        return max($offset, 0);
     }
 
     public function getSort(): ?string

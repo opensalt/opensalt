@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\LsDoc;
@@ -15,6 +17,8 @@ use Doctrine\Persistence\ManagerRegistry;
  * Class ObjectLockRepository.
  *
  * @method ObjectLock|null findOneBy(array $criteria, array $orderBy = null)
+ *
+ * @extends ServiceEntityRepository<ObjectLock>
  */
 class ObjectLockRepository extends ServiceEntityRepository
 {
@@ -25,9 +29,7 @@ class ObjectLockRepository extends ServiceEntityRepository
 
     public function findLockFor(LockableInterface $obj): ?ObjectLock
     {
-        $lock = $this->findOneBy(['objectType' => $obj::class, 'objectId' => $obj->getId()]);
-
-        return $lock;
+        return $this->findOneBy(['objectType' => $obj::class, 'objectId' => $obj->getId()]);
     }
 
     /**

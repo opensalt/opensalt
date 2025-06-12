@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\LsDefConcept;
@@ -22,7 +24,7 @@ class LsDefConceptRepository extends AbstractLsDefinitionRepository
      */
     public function findByIdentifiers(array $identifiers): array
     {
-        if (0 === count($identifiers)) {
+        if ([] === $identifiers) {
             return [];
         }
 

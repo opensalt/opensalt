@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\AdditionalField;
@@ -11,6 +13,8 @@ use Doctrine\Persistence\ManagerRegistry;
  * @method AdditionalField|null findOneBy(array $criteria, array $orderBy = null)
  * @method AdditionalField[]    findAll()
  * @method AdditionalField[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ *
+ * @extends ServiceEntityRepository<AdditionalField>
  */
 class AdditionalFieldRepository extends ServiceEntityRepository
 {

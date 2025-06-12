@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository\Framework\Mirror;
 
 use App\DTO\Mirror\ServerListFrameworkItem;
@@ -12,6 +14,8 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @method Server[]    findAll()
  * @method Server|null findOneByUrl(string $url)
+ *
+ * @extends ServiceEntityRepository<Server>
  */
 class ServerRepository extends ServiceEntityRepository
 {
@@ -33,7 +37,7 @@ class ServerRepository extends ServiceEntityRepository
     public function findAllForList(): array
     {
         $servers = array_map(
-            fn ($rec) => $rec[0],
+            fn (array $rec) => $rec[0],
             $this->createQueryBuilder('server')
                 ->select(sprintf(
                     'server.id, NEW %s(server.id, server.url)',

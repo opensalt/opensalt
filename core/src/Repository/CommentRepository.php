@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository;
 
 use App\Entity\Comment\Comment;
@@ -15,6 +17,8 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @method Comment[] findByItem(string $itemRef)
  * @method Comment[] findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ *
+ * @extends ServiceEntityRepository<Comment>
  */
 class CommentRepository extends ServiceEntityRepository
 {
@@ -61,7 +65,7 @@ class CommentRepository extends ServiceEntityRepository
         $commentUpvote = $em->getRepository(CommentUpvote::class)
             ->findOneBy(['user' => $user, 'comment' => $comment]);
 
-        if ($commentUpvote) {
+        if (null !== $commentUpvote) {
             $em->remove($commentUpvote);
 
             return true;

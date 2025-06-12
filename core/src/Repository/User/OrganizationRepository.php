@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository\User;
 
 use App\Entity\User\Organization;
@@ -9,6 +11,8 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @method Organization|null findOneByName(string $orgName)
  * @method Organization[] findAll()
+ *
+ * @extends ServiceEntityRepository<Organization>
  */
 class OrganizationRepository extends ServiceEntityRepository
 {

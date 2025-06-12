@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository;
 
 use App\Entity\Session;
@@ -8,6 +10,8 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method Session|null findOneBy(array $criteria, array $orderBy = null)
+ *
+ * @extends ServiceEntityRepository<Session>
  */
 class SessionRepository extends ServiceEntityRepository
 {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository\User;
 
 use App\Entity\User\Organization;
@@ -12,6 +14,8 @@ use Symfony\Bridge\Doctrine\Security\User\UserLoaderInterface;
  * UserRepository.
  *
  * @method array findByOrg(Organization $org)
+ *
+ * @extends ServiceEntityRepository<User>
  */
 class UserRepository extends ServiceEntityRepository implements UserLoaderInterface
 {

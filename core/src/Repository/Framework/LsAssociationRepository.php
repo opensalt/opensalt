@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\LsAssociation;
@@ -11,6 +13,8 @@ use Ramsey\Uuid\Uuid;
 
 /**
  * @method LsAssociation|null findOneByIdentifier(string $identifier)
+ *
+ * @extends ServiceEntityRepository<LsAssociation>
  */
 class LsAssociationRepository extends ServiceEntityRepository
 {
@@ -138,7 +142,7 @@ class LsAssociationRepository extends ServiceEntityRepository
      */
     public function findByIdentifiers(array $identifiers): array
     {
-        if (0 === count($identifiers)) {
+        if ([] === $identifiers) {
             return [];
         }
 

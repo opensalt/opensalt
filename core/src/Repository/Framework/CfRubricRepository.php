@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\CfRubric;
@@ -19,7 +21,7 @@ class CfRubricRepository extends AbstractLsBaseRepository
      */
     public function findByIdentifier(array $identifiers): array
     {
-        if (0 === count($identifiers)) {
+        if ([] === $identifiers) {
             return [];
         }
 

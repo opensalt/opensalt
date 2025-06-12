@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\LsDefItemType;
@@ -35,7 +37,7 @@ class LsDefItemTypeRepository extends AbstractLsDefinitionRepository
      */
     public function findByIdentifiers(array $identifiers): array
     {
-        if (0 === count($identifiers)) {
+        if ([] === $identifiers) {
             return [];
         }
 
@@ -58,7 +60,7 @@ class LsDefItemTypeRepository extends AbstractLsDefinitionRepository
             ->setFirstResult(($page - 1) * $limit)
         ;
 
-        if (!empty($search)) {
+        if (null !== $search && '' !== $search) {
             $qb->andWhere('t.title LIKE :search')
                 ->setParameter('search', '%'.$search.'%')
             ;

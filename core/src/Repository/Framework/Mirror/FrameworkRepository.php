@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository\Framework\Mirror;
 
 use App\Entity\Framework\Mirror\Framework;
@@ -7,6 +9,9 @@ use App\Entity\Framework\Mirror\Server;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<Framework>
+ */
 class FrameworkRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

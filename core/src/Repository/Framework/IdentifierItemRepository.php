@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository\Framework;
 
 use App\DTO\ItemType\IdentifierDto;
@@ -26,10 +28,8 @@ class IdentifierItemRepository extends ServiceEntityRepository
 
     public function findIssuerFrameworkType(): ?FrameworkType
     {
-        $issuerFrameworkType = $this->getEntityManager()->getRepository(FrameworkType::class)
+        return $this->getEntityManager()->getRepository(FrameworkType::class)
             ->findOneBy(['frameworkType' => 'Issuer Registry']);
-
-        return $issuerFrameworkType;
     }
 
     /**
@@ -51,12 +51,10 @@ class IdentifierItemRepository extends ServiceEntityRepository
     {
         $issuerFrameworks = $this->findIssuerFrameworks();
 
-        $issuerIdentifiers = $this->findBy([
+        return $this->findBy([
             'discriminator' => array_search(IdentifierDto::class, LsItem::DTO, true),
             'lsDoc' => $issuerFrameworks,
         ]);
-
-        return $issuerIdentifiers;
     }
 
     /**
@@ -65,7 +63,7 @@ class IdentifierItemRepository extends ServiceEntityRepository
     public function findIssuerItems(): array
     {
         $issuerFrameworks = $this->findIssuerFrameworks();
-        $frameworkIds = array_map(fn ($lsDoc) => $lsDoc->getId(), $issuerFrameworks);
+        $frameworkIds = array_map(fn ($lsDoc): ?int => $lsDoc->getId(), $issuerFrameworks);
 
         return $this->createQueryBuilder('i')
             ->select('i', 'a', 'd')

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\ImportLog;
@@ -8,6 +10,8 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * ImportLogRepository.
+ *
+ * @extends ServiceEntityRepository<ImportLog>
  */
 class ImportLogRepository extends ServiceEntityRepository
 {

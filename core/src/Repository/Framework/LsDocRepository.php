@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\CaseApiInterface;
@@ -27,6 +29,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * @method LsDoc[]|array findByCreator(string $creator)
  * @method LsDoc|null findOneByIdentifier(string $identifier)
  * @method LsDoc|null findOneBy(array $criteria, array $orderBy = null)
+ *
+ * @extends ServiceEntityRepository<LsDoc>
  */
 class LsDocRepository extends ServiceEntityRepository
 {
@@ -81,7 +85,7 @@ class LsDocRepository extends ServiceEntityRepository
     public function findAllNonPrivateQueryBuilder(string $alias = 'd'): QueryBuilder
     {
         return $this->createQueryBuilder($alias)
-            ->where("({$alias}.adoptionStatus != :status OR {$alias}.adoptionStatus IS NULL)")
+            ->where(sprintf('(%s.adoptionStatus != :status OR %s.adoptionStatus IS NULL)', $alias, $alias))
             ->setParameter('status', LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT)
             ;
     }
@@ -265,8 +269,6 @@ class LsDocRepository extends ServiceEntityRepository
     {
         $conn = $this->getEntityManager()->getConnection();
 
-        $params = ['lsDocId' => $lsDoc->getId()];
-
         if (null === $progressCallback) {
             $progressCallback = static function (string $message = ''): void {
             };
@@ -428,7 +430,7 @@ xENDx;
         $em = $this->getEntityManager();
 
         if (null === $progressCallback) {
-            $progressCallback = static function ($message = '') {
+            $progressCallback = static function ($message = ''): void {
             };
         }
 
@@ -437,6 +439,7 @@ xENDx;
         $item = $toDoc->createItem();
         $item->setFullStatement($fromDoc->getTitle());
         $item->setNotes($fromDoc->getNote());
+
         $toDoc->addTopLsItem($item);
         $em->persist($item);
 
@@ -476,7 +479,7 @@ xENDx;
         ];
 
         $rubrics = $this->findAllUsedRubrics($doc, Query::HYDRATE_OBJECT);
-        if (0 < count($rubrics)) {
+        if ([] !== $rubrics) {
             $pkg['CFRubrics'] = $rubrics;
         }
 
@@ -916,7 +919,7 @@ xENDx;
         $query->setParameter('lsDocId', $lsDoc->getId());
 
         return array_map(
-            function ($rec) {
+            function (array $rec) {
                 $ret = $rec[0];
                 $ret['originLsItem'] = [
                     'id' => $rec['oi_id'],

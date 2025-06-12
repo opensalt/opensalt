@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\LsDefSubject;
@@ -25,7 +27,7 @@ class LsDefSubjectRepository extends AbstractLsDefinitionRepository
 
         if (null !== $search) {
             $qb->andWhere('s.title LIKE :search')
-                ->setParameter('search', "%$search%");
+                ->setParameter('search', sprintf('%%%s%%', $search));
         }
 
         return $qb->getQuery()->getResult();
@@ -38,7 +40,7 @@ class LsDefSubjectRepository extends AbstractLsDefinitionRepository
      */
     public function findByIdentifiers(array $identifiers): array
     {
-        if (0 === count($identifiers)) {
+        if ([] === $identifiers) {
             return [];
         }
 
