@@ -198,6 +198,7 @@ class FrameworkService
     public function updateTreeItem(LsDoc $doc, int|string $itemId, array $updates, array &$rv): void
     {
         // Note that $lsItemId may be of the form "copy-<uuid>" when copying from another framework
+        $itemId = (string) $itemId;
 
         // set assocGroup if supplied; pass this in when necessary below
         $assocGroup = null;
@@ -370,8 +371,10 @@ class FrameworkService
     /**
      * Remove the appropriate childOf associations for the item based on the update array.
      */
-    protected function deleteTreeChildAssociations(LsItem $lsItem, array $updates, string $lsItemId, array &$rv): void
+    protected function deleteTreeChildAssociations(LsItem $lsItem, array $updates, int|string $lsItemId, array &$rv): void
     {
+        $lsItemId = (string) $lsItemId;
+
         // delete childOf association if specified
         if ('all' !== $updates['deleteChildOf']['assocId']) {
             /** @var ?LsAssociation $assoc */
@@ -413,11 +416,13 @@ class FrameworkService
             return;
         }
 
+        $lsItemId = (string) $lsItemId;
+
         // as of now the only thing we update is sequenceNumber
         if (array_key_exists('sequenceNumber', $updates['updateChildOf']) && $assoc->getSequenceNumber() !== (int) $updates['updateChildOf']['sequenceNumber']) {
             $assoc->setSequenceNumber((int) $updates['updateChildOf']['sequenceNumber']);
-            $rv['return'][(string) $lsItemId]['association'] = $assoc;
-            $rv['return'][(string) $lsItemId]['sequenceNumber'] = $updates['updateChildOf']['sequenceNumber'];
+            $rv['return'][$lsItemId]['association'] = $assoc;
+            $rv['return'][$lsItemId]['sequenceNumber'] = $updates['updateChildOf']['sequenceNumber'];
             if (!array_key_exists('assoc-u', $rv['changes'])) {
                 $rv['changes']['assoc-u'] = [];
             }
@@ -430,7 +435,7 @@ class FrameworkService
      *
      * @throws \UnexpectedValueException
      */
-    protected function addTreeChildOfAssociations(LsItem $lsItem, array $updates, string $lsItemId, array &$rv, ?LsDefAssociationGrouping $assocGroup = null): void
+    protected function addTreeChildOfAssociations(LsItem $lsItem, array $updates, int|string $lsItemId, array &$rv, ?LsDefAssociationGrouping $assocGroup = null): void
     {
         // parent could be a doc or item
         if ('item' === $updates['newChildOf']['parentType']) {
@@ -441,6 +446,7 @@ class FrameworkService
             $parentItem = $this->docRepository->find($updates['newChildOf']['parentId']);
         }
 
+        $lsItemId = (string) $lsItemId;
         $rv['return'][$lsItemId]['association'] = $lsItem->addParent($parentItem, $updates['newChildOf']['sequenceNumber'], $assocGroup);
         $rv['return'][$lsItemId]['sequenceNumber'] = $updates['newChildOf']['sequenceNumber'];
 
