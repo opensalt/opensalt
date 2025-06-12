@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Security\Voter;
 
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -7,16 +9,13 @@ use Symfony\Component\Security\Core\Role\RoleHierarchyInterface;
 
 class RoleChecker
 {
-    final public const ROLE_EDITOR = 'ROLE_EDITOR';
-    final public const ROLE_ADMIN = 'ROLE_ADMIN';
-    final public const ROLE_SUPER_EDITOR = 'ROLE_SUPER_EDITOR';
-    final public const ROLE_SUPER_USER = 'ROLE_SUPER_USER';
+    final public const string ROLE_EDITOR = 'ROLE_EDITOR';
+    final public const string ROLE_ADMIN = 'ROLE_ADMIN';
+    final public const string ROLE_SUPER_EDITOR = 'ROLE_SUPER_EDITOR';
+    final public const string ROLE_SUPER_USER = 'ROLE_SUPER_USER';
 
-    private RoleHierarchyInterface $roleHierarchy;
-
-    public function __construct(RoleHierarchyInterface $roleHierarchy)
+    public function __construct(private readonly RoleHierarchyInterface $roleHierarchy)
     {
-        $this->roleHierarchy = $roleHierarchy;
     }
 
     public function isEditor(TokenInterface $token): bool

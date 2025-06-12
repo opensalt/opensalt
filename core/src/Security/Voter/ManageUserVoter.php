@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Security\Voter;
 
 use App\Entity\User\User;
@@ -15,9 +17,9 @@ class ManageUserVoter extends Voter
 {
     use RoleCheckTrait;
 
-    final public const MANAGE = Permission::MANAGE_USERS;
-    final public const MANAGE_ALL = Permission::MANAGE_ALL_USERS;
-    final public const MANAGE_THIS = Permission::MANAGE_THIS_USER;
+    final public const string MANAGE = Permission::MANAGE_USERS;
+    final public const string MANAGE_ALL = Permission::MANAGE_ALL_USERS;
+    final public const string MANAGE_THIS = Permission::MANAGE_THIS_USER;
 
     #[\Override]
     public function supportsAttribute(string $attribute): bool

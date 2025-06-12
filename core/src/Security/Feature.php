@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Security;
 
 class Feature
 {
-    final public const COMMENTS = 'comments';
+    final public const string COMMENTS = 'comments';
 }

@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Serializer\Api1;
 
+use App\DTO\Api1\ImsxCodeMinor;
 use App\DTO\Api1\ImsxStatusInfo;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
@@ -32,7 +35,7 @@ class ImsxStatusInfoNormalizer implements NormalizerInterface
             'imsx_description' => $data->description,
         ];
 
-        if (!empty($data->codeMinor)) {
+        if ($data->codeMinor instanceof ImsxCodeMinor) {
             foreach ($data->codeMinor->codeMinorField as $minor) {
                 $return['imsx_codeMinor']['imsx_codeMinorField'][] = [
                     'ims_codeMinorFieldName' => $minor->name,

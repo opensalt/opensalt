@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Security\Voter;
 
 use App\Security\Permission;
@@ -14,7 +16,7 @@ class ManageAdditionalFieldVoter extends Voter
 {
     use RoleCheckTrait;
 
-    final public const MANAGE = Permission::ADDITIONAL_FIELDS_MANAGE;
+    final public const string MANAGE = Permission::ADDITIONAL_FIELDS_MANAGE;
 
     #[\Override]
     public function supportsAttribute(string $attribute): bool

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Serializer\CaseJson;
 
 use App\Entity\Framework\LsAssociation;
@@ -73,10 +75,13 @@ final class CfPackageNormalizer implements NormalizerAwareInterface, NormalizerI
 
         /** @var iterable<LsAssociation> $items */
         $items = $this->docRepository->findAllAssociationsIterator($data, Query::HYDRATE_OBJECT);
-        foreach ($items as $key => $obj) {
+        foreach ($items as $obj) {
             $this->entityManager->detach($obj);
-            if (!$this->canListDocument($obj, 'origin') ||
-                !$this->canListDocument($obj, 'destination')) {
+            if (!$this->canListDocument($obj, 'origin')) {
+                // Remove associations to frameworks one can't normally see
+                continue;
+            }
+            if (!$this->canListDocument($obj, 'destination')) {
                 // Remove associations to frameworks one can't normally see
                 continue;
             }
@@ -114,7 +119,7 @@ final class CfPackageNormalizer implements NormalizerAwareInterface, NormalizerI
         $this->normalizer = $normalizer;
     }
 
-    protected function canListDocument(LsAssociation $obj, string $which): bool
+    private function canListDocument(LsAssociation $obj, string $which): bool
     {
         $target = match ($which) {
             'origin' => $obj->getOrigin(),

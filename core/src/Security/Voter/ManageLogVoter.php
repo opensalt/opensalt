@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Security\Voter;
 
 use App\Security\Permission;
@@ -14,7 +16,7 @@ class ManageLogVoter extends Voter
 {
     use RoleCheckTrait;
 
-    final public const MANAGE = Permission::MANAGE_SYSTEM_LOGS;
+    final public const string MANAGE = Permission::MANAGE_SYSTEM_LOGS;
 
     #[\Override]
     public function supportsAttribute(string $attribute): bool

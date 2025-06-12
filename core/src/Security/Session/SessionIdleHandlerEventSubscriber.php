@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Security\Session;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -29,6 +31,7 @@ class SessionIdleHandlerEventSubscriber implements EventSubscriberInterface
         $session = $request->getSession();
 
         $session->start();
+
         $lapse = time() - $session->getMetadataBag()->getLastUsed();
 
         if ($lapse < $this->sessionMaxIdleTime) {

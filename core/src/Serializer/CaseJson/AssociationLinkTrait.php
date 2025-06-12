@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Serializer\CaseJson;
 
 use App\Entity\Framework\LsAssociation;
@@ -42,7 +44,7 @@ trait AssociationLinkTrait
             }
         }
 
-        if (0 === count($associationSet)) {
+        if ([] === $associationSet) {
             return null;
         }
 

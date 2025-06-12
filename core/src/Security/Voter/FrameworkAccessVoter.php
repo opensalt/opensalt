@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Security\Voter;
 
 use App\Entity\Framework\LsDoc;
@@ -17,13 +19,13 @@ class FrameworkAccessVoter extends Voter
 {
     use RoleCheckTrait;
 
-    final public const LIST = Permission::FRAMEWORK_LIST; // User can see the framework in a list
-    final public const VIEW = Permission::FRAMEWORK_VIEW;
-    final public const EDIT = Permission::FRAMEWORK_EDIT;
-    final public const EDIT_ALL = Permission::FRAMEWORK_EDIT_ALL;
-    final public const DELETE = Permission::FRAMEWORK_DELETE;
-    final public const CREATE = Permission::FRAMEWORK_CREATE;
-    final public const DOWNLOAD_EXCEL = Permission::FRAMEWORK_DOWNLOAD_EXCEL;
+    final public const string LIST = Permission::FRAMEWORK_LIST; // User can see the framework in a list
+    final public const string VIEW = Permission::FRAMEWORK_VIEW;
+    final public const string EDIT = Permission::FRAMEWORK_EDIT;
+    final public const string EDIT_ALL = Permission::FRAMEWORK_EDIT_ALL;
+    final public const string DELETE = Permission::FRAMEWORK_DELETE;
+    final public const string CREATE = Permission::FRAMEWORK_CREATE;
+    final public const string DOWNLOAD_EXCEL = Permission::FRAMEWORK_DOWNLOAD_EXCEL;
 
     #[\Override]
     public function supportsAttribute(string $attribute): bool

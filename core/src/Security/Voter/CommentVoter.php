@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Security\Voter;
 
 use App\Entity\Comment\Comment;
@@ -18,10 +20,10 @@ class CommentVoter extends Voter
     use RoleCheckTrait;
     use FeatureCheckTrait;
 
-    final public const COMMENT = Permission::COMMENT_ADD;
-    final public const VIEW = Permission::COMMENT_VIEW;
-    final public const UPDATE = Permission::COMMENT_UPDATE;
-    final public const DELETE = Permission::COMMENT_DELETE;
+    final public const string COMMENT = Permission::COMMENT_ADD;
+    final public const string VIEW = Permission::COMMENT_VIEW;
+    final public const string UPDATE = Permission::COMMENT_UPDATE;
+    final public const string DELETE = Permission::COMMENT_DELETE;
 
     #[\Override]
     public function supportsAttribute(string $attribute): bool

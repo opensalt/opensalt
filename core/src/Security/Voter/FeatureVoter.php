@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Security\Voter;
 
 use App\Security\Permission;
@@ -14,7 +16,7 @@ class FeatureVoter extends Voter
 {
     use RoleCheckTrait;
 
-    final public const FEATURE_DEV_ENV = Permission::FEATURE_DEV_ENV_CHECK;
+    final public const string FEATURE_DEV_ENV = Permission::FEATURE_DEV_ENV_CHECK;
 
     #[\Override]
     public function supportsAttribute(string $attribute): bool

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Serializer\CaseJson;
 
 use App\Entity\Framework\CfRubricCriterion;
@@ -41,7 +43,7 @@ final class CfRubricCriterionNormalizer implements NormalizerAwareInterface, Nor
 
         $jsonLd = $context['case-json-ld'] ?? null;
         $addContext = (null !== $jsonLd) ? ($context['add-case-context'] ?? null) : null;
-        $addType = (null === $addContext) ? ($context['add-case-type'] ?? null) : $addContext;
+        $addType = $addContext ?? $context['add-case-type'] ?? null;
         $addCriterionLevels = !($context['no-sub-items'] ?? false);
         $case10 = in_array('CASE-1.0', $context['groups'] ?? []);
         if (null !== ($context['add-case-context'] ?? null)) {

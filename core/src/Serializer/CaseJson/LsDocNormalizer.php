@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Serializer\CaseJson;
 
 use App\Entity\Framework\LsDoc;
@@ -8,7 +10,7 @@ use App\Util\Collection;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-final class LsDocNormalizer implements NormalizerInterface
+final readonly class LsDocNormalizer implements NormalizerInterface
 {
     use DateCallbackTrait;
     use AssociationLinkTrait;
@@ -16,8 +18,8 @@ final class LsDocNormalizer implements NormalizerInterface
     use LastChangeDateTimeTrait;
 
     public function __construct(
-        private readonly AuthorizationCheckerInterface $authorizationChecker,
-        private readonly Api1Uris $api1Uris,
+        private AuthorizationCheckerInterface $authorizationChecker,
+        private Api1Uris $api1Uris,
     ) {
     }
 
@@ -42,7 +44,7 @@ final class LsDocNormalizer implements NormalizerInterface
 
         $jsonLd = $context['case-json-ld'] ?? null;
         $addContext = (null !== $jsonLd) ? ($context['add-case-context'] ?? null) : null;
-        $addType = (null === $addContext) ? ($context['add-case-type'] ?? null) : $addContext;
+        $addType = $addContext ?? $context['add-case-type'] ?? null;
         $case10 = in_array('CASE-1.0', $context['groups'] ?? []);
         $subject = $data->getSubject();
         $subjectURIs = $data->getSubjects();
@@ -64,7 +66,7 @@ final class LsDocNormalizer implements NormalizerInterface
             'CFPackageURI' => $this->createPackageLinkUri($data, 'LsDoc', $context),
             'publisher' => $data->getPublisher(),
             'description' => $data->getDescription(),
-            'subject' => count($subject ?? []) > 0
+            'subject' => ($subject ?? []) !== []
                 ? $subject
                 : null,
             'subjectURI' => count($subjectURIs) > 0

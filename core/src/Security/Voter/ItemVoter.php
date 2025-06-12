@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Security\Voter;
 
 use App\Entity\Framework\LsDoc;
@@ -18,8 +20,8 @@ class ItemVoter extends Voter
     use DeferDecisionTrait;
     use RoleCheckTrait;
 
-    final public const ADD_TO = Permission::ITEM_ADD_TO;
-    final public const EDIT = Permission::ITEM_EDIT;
+    final public const string ADD_TO = Permission::ITEM_ADD_TO;
+    final public const string EDIT = Permission::ITEM_EDIT;
 
     #[\Override]
     public function supportsAttribute(string $attribute): bool

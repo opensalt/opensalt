@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Security\Voter;
 
 use App\Entity\Framework\LsDoc;
@@ -16,7 +18,7 @@ class FrameworkManageEditorsVoter extends Voter
 {
     use RoleCheckTrait;
 
-    final public const MANAGE_EDITORS = Permission::MANAGE_EDITORS;
+    final public const string MANAGE_EDITORS = Permission::MANAGE_EDITORS;
 
     #[\Override]
     public function supportsAttribute(string $attribute): bool

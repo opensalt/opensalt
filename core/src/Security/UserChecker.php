@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is derived from the UserChecker class from the Symfony package.
  */

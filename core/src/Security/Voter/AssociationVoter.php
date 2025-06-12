@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Security\Voter;
 
 use App\Entity\Framework\LsAssociation;
@@ -19,8 +21,8 @@ class AssociationVoter extends Voter
     use RoleCheckTrait;
     use DeferDecisionTrait;
 
-    final public const ADD_TO = Permission::ASSOCIATION_ADD_TO;
-    final public const EDIT = Permission::ASSOCIATION_EDIT;
+    final public const string ADD_TO = Permission::ASSOCIATION_ADD_TO;
+    final public const string EDIT = Permission::ASSOCIATION_EDIT;
 
     #[\Override]
     public function supportsAttribute(string $attribute): bool

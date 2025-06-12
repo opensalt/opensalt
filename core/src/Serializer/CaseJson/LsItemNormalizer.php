@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Serializer\CaseJson;
 
 use App\Entity\Framework\LsItem;
@@ -8,7 +10,7 @@ use App\Util\Collection;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-final class LsItemNormalizer implements NormalizerInterface
+final readonly class LsItemNormalizer implements NormalizerInterface
 {
     use DateCallbackTrait;
     use AssociationLinkTrait;
@@ -16,8 +18,8 @@ final class LsItemNormalizer implements NormalizerInterface
     use LastChangeDateTimeTrait;
 
     public function __construct(
-        private readonly AuthorizationCheckerInterface $authorizationChecker,
-        private readonly Api1Uris $api1Uris,
+        private AuthorizationCheckerInterface $authorizationChecker,
+        private Api1Uris $api1Uris,
     ) {
     }
 
@@ -42,7 +44,7 @@ final class LsItemNormalizer implements NormalizerInterface
 
         $jsonLd = $context['case-json-ld'] ?? null;
         $addContext = (null !== $jsonLd) ? ($context['add-case-context'] ?? null) : null;
-        $addType = (null === $addContext) ? ($context['add-case-type'] ?? null) : $addContext;
+        $addType = $addContext ?? $context['add-case-type'] ?? null;
         $case10 = in_array('CASE-1.0', $context['groups'] ?? []);
         $conceptKeywords = $data->getConceptKeywordsArray();
         $conceptKeywordsUri = $data->getConcepts();
@@ -65,14 +67,14 @@ final class LsItemNormalizer implements NormalizerInterface
             'humanCodingScheme' => $data->getHumanCodingScheme(),
             'listEnumeration' => $data->getListEnumInSource(),
             'abbreviatedStatement' => $data->getAbbreviatedStatement(),
-            'conceptKeywords' => count($conceptKeywords) > 0
+            'conceptKeywords' => [] !== $conceptKeywords
                 ? $conceptKeywords
                 : null,
             'conceptKeywordsURI' => count($conceptKeywordsUri) > 0
                 ? $this->api1Uris->getLinkUri($conceptKeywordsUri[0])
                 : null,
             'notes' => $data->getNotes(),
-            'subject' => $case10 ? null : (count($subject ?? []) > 0
+            'subject' => $case10 ? null : (($subject ?? []) !== []
                 ? $subject
                 : null),
             'subjectURI' => $case10 ? null : (count($subjectURIs) > 0
