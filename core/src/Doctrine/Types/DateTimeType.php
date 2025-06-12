@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Doctrine\Types;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
@@ -59,7 +61,7 @@ class DateTimeType extends \Doctrine\DBAL\Types\DateTimeType
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
         if (!in_array($column['precision'] ?? 0, [0, 10], false)) {
-            return "DATETIME({$column['precision']})";
+            return sprintf('DATETIME(%s)', $column['precision']);
         }
 
         return parent::getSQLDeclaration($column, $platform);

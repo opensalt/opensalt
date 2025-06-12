@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\DataTransformer\CaseJson;
 
 use App\DTO\CaseJson\CFConcept;
@@ -9,7 +11,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class ConceptsTransformer
 {
-    public function __construct(private EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
     }
 
@@ -20,7 +22,7 @@ class ConceptsTransformer
      */
     public function transform(array $cfConcepts): array
     {
-        if (0 === count($cfConcepts)) {
+        if ([] === $cfConcepts) {
             return [];
         }
 
@@ -43,7 +45,7 @@ class ConceptsTransformer
         /** @var LsDefConceptRepository $repo */
         $repo = $this->em->getRepository(LsDefConcept::class);
 
-        $newIds = array_map(static fn (CFConcept $itemType) => $itemType->identifier->toString(), $cfConcepts);
+        $newIds = array_map(static fn (CFConcept $itemType): string => $itemType->identifier->toString(), $cfConcepts);
 
         return $repo->findByIdentifiers($newIds);
     }

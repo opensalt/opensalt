@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Issuer;
 
 use App\Domain\Issuer\Command\AddIssuerCommand;
@@ -39,9 +41,7 @@ class IssuerController extends AbstractController
     public function list(): Response
     {
         $issuers = $this->queryBus->sendWithRouting(IssuerListProjection::QUERY_ALL_ISSUERS);
-        usort($issuers, function ($a, $b) {
-            return $a->name <=> $b->name;
-        });
+        usort($issuers, fn ($a, $b): int => $a->name <=> $b->name);
 
         return $this->render('issuer/list.html.twig', [
             'issuers' => $issuers,
@@ -81,8 +81,8 @@ class IssuerController extends AbstractController
 
                 return $this->redirectToRoute('issuer_registry_index');
             }
-        } catch (\Throwable $e) {
-            $form->addError(new FormError('Error adding new document: '.$e->getMessage()));
+        } catch (\Throwable $throwable) {
+            $form->addError(new FormError('Error adding new document: '.$throwable->getMessage()));
         }
 
         return $this->render('issuer/new.html.twig', [
@@ -126,8 +126,8 @@ class IssuerController extends AbstractController
 
                 return $this->redirectToRoute('issuer_registry_index');
             }
-        } catch (\Throwable $e) {
-            $form->addError(new FormError('Error adding new document: '.$e->getMessage()));
+        } catch (\Throwable $throwable) {
+            $form->addError(new FormError('Error adding new document: '.$throwable->getMessage()));
         }
 
         return $this->render('issuer/edit.html.twig', [
@@ -141,7 +141,7 @@ class IssuerController extends AbstractController
         $uuid = Uuid::fromString($id);
         $issuer = $this->repository->findBy($uuid);
 
-        if (!$issuer) {
+        if (null === $issuer) {
             throw $this->createNotFoundException('Issuer not found');
         }
 

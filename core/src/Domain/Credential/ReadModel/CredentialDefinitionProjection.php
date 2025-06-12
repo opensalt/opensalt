@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Credential\ReadModel;
 
 use App\Domain\Credential\Entity\CredentialDefinition;
@@ -45,7 +47,7 @@ class CredentialDefinitionProjection
 
         $this->documentStore->addDocument(
             self::NAME,
-            $event->id,
+            $event->id->toString(),
             [
                 'id' => $event->id->toBase58(),
                 'versionId' => $event->versionId->toBase58(),
@@ -63,12 +65,12 @@ class CredentialDefinitionProjection
     {
         $json = json5_decode($event->newContent, true);
 
-        $curDoc = $this->documentStore->getDocument(self::NAME, $event->id);
+        $curDoc = $this->documentStore->getDocument(self::NAME, $event->id->toString());
         $curDoc['name'] = $json['name'] ?? 'Unknown';
 
         $this->documentStore->updateDocument(
             self::NAME,
-            $event->id,
+            $event->id->toString(),
             $curDoc
         );
     }
@@ -80,7 +82,7 @@ class CredentialDefinitionProjection
 
         $this->documentStore->updateDocument(
             self::NAME,
-            $event->id,
+            $event->id->toString(),
             [
                 'id' => $event->id->toBase58(),
                 'versionId' => $event->versionId->toBase58(),
@@ -96,17 +98,17 @@ class CredentialDefinitionProjection
     #[EventHandler(DefinitionHierarchyWasChanged::NAME)]
     public function whenDefinitionHierarchyWasChanged(DefinitionHierarchyWasChanged $event): void
     {
-        $docVersion = $this->documentStore->getDocument(self::NAME, $event->id);
+        $docVersion = $this->documentStore->getDocument(self::NAME, $event->id->toString());
         $docVersion['hierarchyParent'] = $event->hierarchyParent;
-        $this->documentStore->updateDocument(self::NAME, $event->id, $docVersion);
+        $this->documentStore->updateDocument(self::NAME, $event->id->toString(), $docVersion);
     }
 
     #[EventHandler(DefinitionOrganizationWasChanged::NAME)]
     public function whenDefinitionOrganizationWasChanged(DefinitionOrganizationWasChanged $event): void
     {
-        $docVersion = $this->documentStore->getDocument(self::NAME, $event->id);
+        $docVersion = $this->documentStore->getDocument(self::NAME, $event->id->toString());
         $docVersion['org'] = $event->organization;
-        $this->documentStore->updateDocument(self::NAME, $event->id, $docVersion);
+        $this->documentStore->updateDocument(self::NAME, $event->id->toString(), $docVersion);
     }
 
     #[QueryHandler('getAllCredentialDefinitions')]

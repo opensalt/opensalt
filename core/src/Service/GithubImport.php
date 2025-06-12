@@ -84,6 +84,7 @@ class GithubImport
         }
 
         // Build the lsItems array
+        /** @var LsItem[] $lsItems */
         $lsItems = [];
         $sequenceNumbers = [];
         $humanCodingValues = [];
@@ -135,8 +136,8 @@ class GithubImport
                 // check if the item returns a humancodingscheme
                 $parent = $content[$i][$lsItemKeys['isChildOf'] ?? null] ?? null;
                 if (empty($parent)) {
-                    $humanCoding = $lsItem->getHumanCodingScheme();
-                    $parent = substr($humanCoding, 0, strrpos($humanCoding, '.'));
+                    $humanCoding = $lsItem->getHumanCodingScheme() ?? '';
+                    $parent = substr($humanCoding, 0, strrpos($humanCoding, '.') ?: 0);
                 }
 
                 if (array_key_exists($parent, $humanCodingValues)) {

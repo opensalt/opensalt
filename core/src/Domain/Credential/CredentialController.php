@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Credential;
 
 use App\Domain\Credential\Command\ChangeDefinitionContent;
@@ -57,7 +59,7 @@ class CredentialController extends AbstractController
         }
         ksort($hierarchy);
         foreach ($hierarchy as $list) {
-            usort($list, function ($a, $b) { return $a['name'] <=> $b['name']; });
+            usort($list, fn ($a, $b): int => $a['name'] <=> $b['name']);
         }
 
         return $this->render('credential/list.html.twig', [
@@ -105,12 +107,12 @@ class CredentialController extends AbstractController
     }
 
     #[Route('/credential/{id}/{versionId}/edit', name: 'credential_edit', methods: ['GET', 'POST'])]
-    public function editAction(Request $request, string $id, string $versionId, #[CurrentUser] User $user): Response
+    public function edit(Request $request, string $id, string $versionId, #[CurrentUser] User $user): Response
     {
         try {
             $uuid = Uuid::fromBase58($id);
             $credential = $this->repository->findBy($uuid);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             throw $this->createNotFoundException('No credential found');
         }
 
@@ -168,8 +170,8 @@ class CredentialController extends AbstractController
                 );
 
                 return $this->redirectToRoute('credential_index', [], Response::HTTP_SEE_OTHER);
-            } catch (\Throwable $e) {
-                $form->addError(new FormError('Error updating credential: '.$e->getMessage()));
+            } catch (\Throwable $throwable) {
+                $form->addError(new FormError('Error updating credential: '.$throwable->getMessage()));
             }
         }
 
@@ -181,12 +183,12 @@ class CredentialController extends AbstractController
     }
 
     #[Route('/credential/{id}/{versionId}/publish', name: 'credential_publish', methods: ['POST'])]
-    public function publishAction(Request $request, string $id, string $versionId, #[CurrentUser] User $user): Response
+    public function publish(Request $request, string $id, string $versionId, #[CurrentUser] User $user): Response
     {
         try {
             $uuid = Uuid::fromBase58($id);
             $credential = $this->repository->findBy($uuid);
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             throw $this->createNotFoundException('No credential found');
         }
 
@@ -200,12 +202,12 @@ class CredentialController extends AbstractController
     }
 
     #[Route('/credential/{id}/{versionId}/deprecate', name: 'credential_deprecate', methods: ['POST'])]
-    public function deprecateAction(Request $request, string $id, string $versionId, #[CurrentUser] User $user): Response
+    public function deprecate(Request $request, string $id, string $versionId, #[CurrentUser] User $user): Response
     {
         try {
             $uuid = Uuid::fromBase58($id);
             $credential = $this->repository->findBy($uuid);
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             throw $this->createNotFoundException('No credential found');
         }
 
@@ -219,12 +221,12 @@ class CredentialController extends AbstractController
     }
 
     #[Route('/credential/{id}/hierarchy', name: 'credential_hierarchy', methods: ['GET', 'POST'])]
-    public function hierarchyAction(Request $request, string $id, #[CurrentUser] User $user): Response
+    public function hierarchy(Request $request, string $id, #[CurrentUser] User $user): Response
     {
         try {
             $uuid = Uuid::fromBase58($id);
             $credential = $this->repository->findBy($uuid);
-        } catch (\Throwable $e) {
+        } catch (\Throwable $throwable) {
             throw $this->createNotFoundException('No credential found');
         }
 
@@ -249,8 +251,8 @@ class CredentialController extends AbstractController
                 );
 
                 return $this->redirectToRoute('credential_index', [], Response::HTTP_SEE_OTHER);
-            } catch (\Throwable $e) {
-                $form->addError(new FormError('Error updating credential: '.$e->getMessage()));
+            } catch (\Throwable $throwable) {
+                $form->addError(new FormError('Error updating credential: '.$throwable->getMessage()));
             }
         }
 
@@ -262,12 +264,12 @@ class CredentialController extends AbstractController
     }
 
     #[Route('/credential/{id}/organization', name: 'credential_organization', methods: ['GET', 'POST'])]
-    public function organizationAction(Request $request, string $id, #[CurrentUser] User $user): Response
+    public function organization(Request $request, string $id, #[CurrentUser] User $user): Response
     {
         try {
             $uuid = Uuid::fromBase58($id);
             $credential = $this->repository->findBy($uuid);
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             throw $this->createNotFoundException('No credential found');
         }
 
@@ -311,7 +313,7 @@ class CredentialController extends AbstractController
         try {
             $uuid = Uuid::fromBase58($id);
             $credential = $this->repository->findBy($uuid);
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             throw $this->createNotFoundException('No credential found');
         }
 
@@ -333,7 +335,7 @@ class CredentialController extends AbstractController
 
         try {
             $credential = $this->repository->findBy($uuid);
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             throw $this->createNotFoundException('No credential found');
         }
 
@@ -368,7 +370,7 @@ class CredentialController extends AbstractController
             $deprecateForm = $this->createDeprecateForm($credential);
         }
 
-        $history = $store->load(CredentialDefinition::STREAM, metadataMatcher: (new MetadataMatcher())->withMetadataMatch('_aggregate_id', Operator::EQUALS(), $uuid->toString()), deserialize: false);
+        $store->load(CredentialDefinition::STREAM, metadataMatcher: new MetadataMatcher()->withMetadataMatch('_aggregate_id', Operator::EQUALS(), $uuid->toString()), deserialize: false);
         //dump($history);
 
         return $this->render('credential/show.html.twig', [

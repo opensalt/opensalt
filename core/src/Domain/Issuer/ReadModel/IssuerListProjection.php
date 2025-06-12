@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Issuer\ReadModel;
 
 use App\Domain\Issuer\DTO\IssuerDto;

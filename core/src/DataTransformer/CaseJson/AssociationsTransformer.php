@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\DataTransformer\CaseJson;
 
 use App\DTO\CaseJson\CFPackageAssociation;
@@ -62,7 +64,7 @@ class AssociationsTransformer
         /** @var LsAssociationRepository $repo */
         $repo = $this->em->getRepository(LsAssociation::class);
 
-        $newIds = array_map(static fn (CFPackageAssociation $item) => $item->identifier->toString(), $cfAssociations);
+        $newIds = array_map(static fn (CFPackageAssociation $item): string => $item->identifier->toString(), $cfAssociations);
 
         return $repo->findByIdentifiers($newIds);
     }

@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Doctrine;
 
-use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
 
 /**
@@ -16,6 +17,7 @@ class CustomMySQLSchemaManager extends MySQLSchemaManager
         'item_atId',
     ];
 
+    #[\Override]
     protected function _getPortableTableIndexesList(array $tableIndexes, string $tableName): array
     {
         foreach ($tableIndexes as $k => $v) {
@@ -32,11 +34,7 @@ class CustomMySQLSchemaManager extends MySQLSchemaManager
                 continue;
             }
 
-            if ('PRIMARY' === $v['key_name']) {
-                $v['primary'] = true;
-            } else {
-                $v['primary'] = false;
-            }
+            $v['primary'] = 'PRIMARY' === $v['key_name'];
 
             if (str_contains($v['index_type'], 'FULLTEXT')) {
                 $v['flags'] = ['FULLTEXT'];

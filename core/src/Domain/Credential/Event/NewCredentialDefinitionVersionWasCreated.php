@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Credential\Event;
 
 use Ecotone\Modelling\Attribute\NamedEvent;

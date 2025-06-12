@@ -85,7 +85,7 @@ final class CredentialDefinition
     {
         $keys = array_keys($this->versions);
 
-        Assert::isTrue(0 !== count($keys), 'The credential definition has no versions');
+        Assert::isTrue([] !== $keys, 'The credential definition has no versions');
 
         return max($keys);
     }
@@ -173,7 +173,7 @@ final class CredentialDefinition
     {
         $lastVer = $this->getLastVersion();
 
-        if (!$lastVer->getPublishedAt()) {
+        if (null === $lastVer->getPublishedAt()) {
             // Not published, so we can just make the change
             return [new DefinitionContentWasChanged($this->id, $lastVer->getId(), $command->newContent)];
         }
@@ -185,7 +185,7 @@ final class CredentialDefinition
         $content['id'] = $router->generate('credential_show', ['id' => $command->id->toBase58(), 'versionId' => $verId->toBase58()], Router::ABSOLUTE_URL);
         $content = json_encode($content);
 
-        if (!$lastVer->getDeprecatedAt()) {
+        if (null === $lastVer->getDeprecatedAt()) {
             return [
                 new CredentialDefinitionWasDeprecated($this->id, $lastVer->getId()),
                 new NewCredentialDefinitionVersionWasCreated($this->id, $verId, $this->hierarchyParent, $this->organization, $content, $createdAt),

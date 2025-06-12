@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\DataTransformer\CaseJson;
 
 use App\DTO\CaseJson\CFItemType;
@@ -9,7 +11,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class ItemTypesTransformer
 {
-    public function __construct(private EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
     }
 
@@ -20,7 +22,7 @@ class ItemTypesTransformer
      */
     public function transform(array $cfItemTypes): array
     {
-        if (0 === count($cfItemTypes)) {
+        if ([] === $cfItemTypes) {
             return [];
         }
 
@@ -43,7 +45,7 @@ class ItemTypesTransformer
         /** @var LsDefItemTypeRepository $repo */
         $repo = $this->em->getRepository(LsDefItemType::class);
 
-        $newIds = array_map(static fn (CFItemType $itemType) => $itemType->identifier->toString(), $cfItemTypes);
+        $newIds = array_map(static fn (CFItemType $itemType): string => $itemType->identifier->toString(), $cfItemTypes);
 
         return $repo->findByIdentifiers($newIds);
     }

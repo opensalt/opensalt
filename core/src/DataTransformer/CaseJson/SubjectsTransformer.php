@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\DataTransformer\CaseJson;
 
 use App\DTO\CaseJson\CFSubject;
@@ -9,7 +11,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class SubjectsTransformer
 {
-    public function __construct(private EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
     }
 
@@ -20,7 +22,7 @@ class SubjectsTransformer
      */
     public function transform(array $cfSubjects): array
     {
-        if (0 === count($cfSubjects)) {
+        if ([] === $cfSubjects) {
             return [];
         }
 
@@ -43,7 +45,7 @@ class SubjectsTransformer
         /** @var LsDefSubjectRepository $repo */
         $repo = $this->em->getRepository(LsDefSubject::class);
 
-        $newIds = array_map(static fn (CFSubject $subject) => $subject->identifier->toString(), $subjects);
+        $newIds = array_map(static fn (CFSubject $subject): string => $subject->identifier->toString(), $subjects);
 
         return $repo->findByIdentifiers($newIds);
     }

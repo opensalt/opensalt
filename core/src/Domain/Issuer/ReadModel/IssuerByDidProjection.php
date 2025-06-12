@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Issuer\ReadModel;
 
 use App\Domain\Issuer\DTO\IssuerDto;
@@ -42,7 +44,7 @@ class IssuerByDidProjection
     #[EventHandler(IssuerDidWasAdded::NAME)]
     public function whenIssuerDidAdded(IssuerDidWasAdded $event): void
     {
-        $dto = $this->queryBus->sendWithRouting(IssuerListProjection::QUERY_ISSUER_BY_ID, ['id' => $event->id]);
+        $this->queryBus->sendWithRouting(IssuerListProjection::QUERY_ISSUER_BY_ID, ['id' => $event->id]);
 
         $this->documentStore->addDocument(
             self::NAME,

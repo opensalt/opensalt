@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\DataTransformer\CaseJson;
 
 use App\DTO\CaseJson\CFLicense;
@@ -9,7 +11,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class LicencesTransformer
 {
-    public function __construct(private EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
     }
 
@@ -20,7 +22,7 @@ class LicencesTransformer
      */
     public function transform(array $cfLicences): array
     {
-        if (0 === count($cfLicences)) {
+        if ([] === $cfLicences) {
             return [];
         }
 
@@ -43,7 +45,7 @@ class LicencesTransformer
         /** @var LsDefLicenceRepository $repo */
         $repo = $this->em->getRepository(LsDefLicence::class);
 
-        $newIds = array_map(static fn (CFLicense $itemType) => $itemType->identifier->toString(), $cfLicences);
+        $newIds = array_map(static fn (CFLicense $itemType): string => $itemType->identifier->toString(), $cfLicences);
 
         return $repo->findByIdentifiers($newIds);
     }

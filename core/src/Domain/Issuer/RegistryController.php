@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Issuer;
 
 use App\DTO\ItemType\OrganizationDto;
@@ -27,7 +29,7 @@ class RegistryController extends AbstractController
         // Get list of organisations with identifiers
         $issuers = $this->identifierItemRepository->findIssuerItems();
 
-        if (!$issuers) {
+        if ([] === $issuers) {
             throw $this->createNotFoundException('No issuers found');
         }
 
@@ -47,7 +49,7 @@ class RegistryController extends AbstractController
     {
         $issuerInfo = $this->identifierItemRepository->findIssuerById($id);
 
-        if (!$issuerInfo) {
+        if (null === $issuerInfo || [] === $issuerInfo) {
             throw $this->createNotFoundException('Issuer not found');
         }
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\DataTransformer\CaseJson;
 
 use App\DTO\CaseJson\CFAssociationGrouping;
@@ -9,7 +11,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 class AssociationGroupingsTransformer
 {
-    public function __construct(private EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
     }
 
@@ -20,7 +22,7 @@ class AssociationGroupingsTransformer
      */
     public function transform(array $cfAssociationGroupings): array
     {
-        if (0 === count($cfAssociationGroupings)) {
+        if ([] === $cfAssociationGroupings) {
             return [];
         }
 
@@ -43,7 +45,7 @@ class AssociationGroupingsTransformer
         /** @var LsDefAssociationGroupingRepository $repo */
         $repo = $this->em->getRepository(LsDefAssociationGrouping::class);
 
-        $newIds = array_map(static fn (CFAssociationGrouping $group) => $group->identifier->toString(), $cfAssociationGroupings);
+        $newIds = array_map(static fn (CFAssociationGrouping $group): string => $group->identifier->toString(), $cfAssociationGroupings);
 
         return $repo->findByIdentifiers($newIds);
     }

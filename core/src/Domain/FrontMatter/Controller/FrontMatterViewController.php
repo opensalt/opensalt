@@ -25,7 +25,7 @@ class FrontMatterViewController extends AbstractController
     {
         $template = $this->twigTemplateRepository->findOneBy(['filename' => 'front:'.$path.'.html.twig']);
 
-        if (!$template) {
+        if (null === $template) {
             throw $this->createNotFoundException('Page not found.');
         }
 

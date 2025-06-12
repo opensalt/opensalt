@@ -68,7 +68,7 @@ class IssuerRegistryController extends AbstractController
 
         $output = $this->getSignedStatement($registry, $key);
 
-        return new Response($output, 200, ['Content-Type' => 'application/entity-statement+jwt']);
+        return new Response($output, Response::HTTP_OK, ['Content-Type' => 'application/entity-statement+jwt']);
     }
 
     #[Route('/fetch', 'issuer_registry_fetch')]
@@ -119,7 +119,7 @@ class IssuerRegistryController extends AbstractController
 
         $output = $this->getSignedStatement($ret, $key);
 
-        return new Response($output, 200, ['Content-Type' => 'application/entity-statement+jwt']);
+        return new Response($output, Response::HTTP_OK, ['Content-Type' => 'application/entity-statement+jwt']);
     }
 
     #[Route('/subordinate_listing', 'issuer_registry_list')]
@@ -146,7 +146,7 @@ class IssuerRegistryController extends AbstractController
         LsDefItemTypeRepository $itemTypeRepository,
     ): Response {
         $issuerFrameworks = $identifierItemRepository->findIssuerFrameworks();
-        $frameworkIds = array_map(fn ($lsDoc) => $lsDoc->getId(), $issuerFrameworks);
+        $frameworkIds = array_map(fn ($lsDoc): ?int => $lsDoc->getId(), $issuerFrameworks);
 
         $governanceDocType = $itemTypeRepository->findBy(['title' => 'Governance Document']);
 

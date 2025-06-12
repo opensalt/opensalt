@@ -33,7 +33,7 @@ class FrontMatterEditController extends AbstractController
     public function list(): Response
     {
         $templates = $this->twigTemplateRepository->findAll();
-        usort($templates, fn ($a, $b) => $a->getFilename() <=> $b->getFilename());
+        usort($templates, fn ($a, $b): int => $a->getFilename() <=> $b->getFilename());
 
         return $this->render('front_matter/list.html.twig', [
             'templates' => $templates,
@@ -72,6 +72,7 @@ class FrontMatterEditController extends AbstractController
         $updateTemplate->id = $template->getId();
         $updateTemplate->filename = $template->getFilename();
         $updateTemplate->source = $template->getSource();
+
         $form = $this->createForm(FrontMatterType::class, $updateTemplate);
         $form->handleRequest($request);
 
