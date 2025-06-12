@@ -195,7 +195,7 @@ class FrameworkService
         return $rv;
     }
 
-    public function updateTreeItem(LsDoc $doc, string $itemId, array $updates, array &$rv): void
+    public function updateTreeItem(LsDoc $doc, int|string $itemId, array $updates, array &$rv): void
     {
         // Note that $lsItemId may be of the form "copy-<uuid>" when copying from another framework
 
@@ -335,7 +335,7 @@ class FrameworkService
     /**
      * Get the item to update, either the original or a copy based on the update array.
      */
-    protected function getTreeItemForUpdate(LsDoc $lsDoc, array $updates, string $lsItemId, ?LsDefAssociationGrouping $assocGroup = null): ?LsItem
+    protected function getTreeItemForUpdate(LsDoc $lsDoc, array $updates, int|string $lsItemId, ?LsDefAssociationGrouping $assocGroup = null): ?LsItem
     {
         if (!array_key_exists('copyFromId', $updates)) {
             return $this->itemRepository->find($lsItemId);
@@ -404,7 +404,7 @@ class FrameworkService
     /**
      * Update the childOf associations based on the update array.
      */
-    protected function updateTreeChildOfAssociations(LsItem $lsItem, array $updates, string $lsItemId, array &$rv): void
+    protected function updateTreeChildOfAssociations(LsItem $lsItem, array $updates, int|string $lsItemId, array &$rv): void
     {
         // update childOf association if specified
         /** @var ?LsAssociation $assoc */
@@ -416,8 +416,8 @@ class FrameworkService
         // as of now the only thing we update is sequenceNumber
         if (array_key_exists('sequenceNumber', $updates['updateChildOf']) && $assoc->getSequenceNumber() !== (int) $updates['updateChildOf']['sequenceNumber']) {
             $assoc->setSequenceNumber((int) $updates['updateChildOf']['sequenceNumber']);
-            $rv['return'][$lsItemId]['association'] = $assoc;
-            $rv['return'][$lsItemId]['sequenceNumber'] = $updates['updateChildOf']['sequenceNumber'];
+            $rv['return'][(string) $lsItemId]['association'] = $assoc;
+            $rv['return'][(string) $lsItemId]['sequenceNumber'] = $updates['updateChildOf']['sequenceNumber'];
             if (!array_key_exists('assoc-u', $rv['changes'])) {
                 $rv['changes']['assoc-u'] = [];
             }
