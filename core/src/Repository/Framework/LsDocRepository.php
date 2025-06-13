@@ -287,12 +287,28 @@ xENDx;
         $stmt = <<<'xENDx'
 DELETE FROM ls_association
  WHERE ls_doc_id = :lsDocId
-    OR origin_lsitem_id IN (
+;
+xENDx;
+        $preparedStatement = $conn->prepare($stmt);
+        $preparedStatement->bindValue('lsDocId', $lsDoc->getId());
+        $preparedStatement->executeStatement();
+
+        $stmt = <<<'xENDx'
+DELETE FROM ls_association
+ WHERE origin_lsitem_id IN (
       SELECT i.id
         FROM ls_item i
        WHERE i.ls_doc_id = :lsDocId
     )
-    OR destination_lsitem_id IN (
+;
+xENDx;
+        $preparedStatement = $conn->prepare($stmt);
+        $preparedStatement->bindValue('lsDocId', $lsDoc->getId());
+        $preparedStatement->executeStatement();
+
+        $stmt = <<<'xENDx'
+DELETE FROM ls_association
+ WHERE destination_lsitem_id IN (
       SELECT i.id
         FROM ls_item i
        WHERE i.ls_doc_id = :lsDocId

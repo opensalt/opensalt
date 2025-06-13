@@ -1022,7 +1022,7 @@ class Framework implements Context
         $I->click('.btn-import-spreadsheet');
         $I->waitForElementNotVisible('#wizard', 60);
 
-        $this->creatorName = 'ImportSpreadsheet';
+        $this->creatorName = '1 ImportSpreadsheet';
         $this->rememberedFramework = 'SampleFramework';
 
         try {

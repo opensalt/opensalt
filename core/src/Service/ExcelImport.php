@@ -462,8 +462,12 @@ final class ExcelImport
         }
     }
 
-    private function setEducationalAlignment(LsItem $item, ?string $passedGradeString): void
+    private function setEducationalAlignment(LsItem $item, string|int|null $passedGradeString): void
     {
+        if (is_int($passedGradeString)) {
+            $passedGradeString = (string) $passedGradeString;
+        }
+
         $item->setEducationalAlignment(EducationLevelSet::fromString($passedGradeString)->toString());
     }
 }
