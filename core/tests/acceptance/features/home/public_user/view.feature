@@ -3,7 +3,7 @@ Feature: An anonymous user can view the home page
   As an anonymous user
   I need to see a homepage
 
-  @smoke @anonymous @0901-0005
+  @smoke @anonymous @0901-0005 @not-dev-env
   Scenario: 0901-0005 An anonymous user lands on the front page
     Given I am on the homepage
     Then I should see "Competency Frameworks"

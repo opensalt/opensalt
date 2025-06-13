@@ -123,7 +123,7 @@ class GithubImport
             // updates but doesn't double up the associations.
             $thisItemsUUID = $lsItem->getIdentifier();
             $associationExists = $em->getRepository(LsAssociation::class)->findOneBy(['originNodeIdentifier' => $thisItemsUUID]);
-            $logDetails = date('Y/m/d h:i:s A ').sprintf('The lsItem with the Human coding scheme of %s and UUID of %s has been added.', $content[$i]['Human Coding Scheme'], $thisItemsUUID);
+            $logDetails = date('Y/m/d h:i:s A ').sprintf('The lsItem with the Human coding scheme of %s and UUID of %s has been added.', $content[$i]['Human Coding Scheme'] ?? '', $thisItemsUUID);
 
             if (null === $associationExists) {
                 // Log new items added.
@@ -224,10 +224,7 @@ class GithubImport
         $this->getEntityManager()->persist($association);
     }
 
-    /**
-     * @param string $humanCodingScheme
-     */
-    protected function encodeHumanCodingScheme($humanCodingScheme): string
+    protected function encodeHumanCodingScheme(string $humanCodingScheme): string
     {
         $prefix = 'data:text/x-ref-unresolved;base64,';
 

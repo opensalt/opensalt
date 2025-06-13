@@ -369,13 +369,13 @@ final class ExcelImport
         return $association;
     }
 
-    private function getCellValueOrNull(Worksheet $sheet, int $col, int $row): mixed
+    private function getCellValueOrNull(Worksheet $sheet, int $col, int $row): ?string
     {
         if (!$sheet->cellExists([$col, $row])) {
             return null;
         }
 
-        return $sheet->getCell([$col, $row])->getValue();
+        return $sheet->getCell([$col, $row])->getValueString();
     }
 
     private function checkRemovedItems(LsDoc $doc, array $array): void

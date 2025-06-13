@@ -350,7 +350,7 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
         [$textType, $metadataString] = array_pad(explode(';', $dataString, 2), 2, null);
 
         $metadata = ['textType' => $textType];
-        foreach (explode(';', $metadataString) as $param) {
+        foreach (explode(';', $metadataString ?? '') as $param) {
             [$name, $value] = array_pad(explode('=', $param, 2), 2, null);
             if (null !== $name && '' !== $name) {
                 $metadata[$name] = $value ?? true;
