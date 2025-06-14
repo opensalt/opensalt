@@ -54,7 +54,7 @@ services:
         condition: service_healthy
     environment:
       APP_ENV: "${APP_ENV:-prod}"
-      APP_RUNTIME: 'Runtime\\FrankenPhpSymfony\\Runtime'
+      APP_RUNTIME: "${APP_RUNTIME:-Runtime\\FrankenPhpSymfony\\Runtime}"
       SERVER_NAME: ${SERVER_NAME:-localhost}, :80
       MYSQL_DATABASE:
       MYSQL_USER:
