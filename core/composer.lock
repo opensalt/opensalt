@@ -1157,16 +1157,16 @@
         },
         {
             "name": "doctrine/dbal",
-            "version": "4.2.3",
+            "version": "4.2.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/dbal.git",
-                "reference": "33d2d7fe1269b2301640c44cf2896ea607b30e3e"
+                "reference": "b37d160498ea91a2382a2ebe825c4ea6254fc0ec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/dbal/zipball/33d2d7fe1269b2301640c44cf2896ea607b30e3e",
-                "reference": "33d2d7fe1269b2301640c44cf2896ea607b30e3e",
+                "url": "https://api.github.com/repos/doctrine/dbal/zipball/b37d160498ea91a2382a2ebe825c4ea6254fc0ec",
+                "reference": "b37d160498ea91a2382a2ebe825c4ea6254fc0ec",
                 "shasum": ""
             },
             "require": {
@@ -1176,15 +1176,15 @@
                 "psr/log": "^1|^2|^3"
             },
             "require-dev": {
-                "doctrine/coding-standard": "12.0.0",
+                "doctrine/coding-standard": "13.0.0",
                 "fig/log-test": "^1",
                 "jetbrains/phpstorm-stubs": "2023.2",
-                "phpstan/phpstan": "2.1.1",
-                "phpstan/phpstan-phpunit": "2.0.3",
+                "phpstan/phpstan": "2.1.17",
+                "phpstan/phpstan-phpunit": "2.0.6",
                 "phpstan/phpstan-strict-rules": "^2",
-                "phpunit/phpunit": "10.5.39",
-                "slevomat/coding-standard": "8.13.1",
-                "squizlabs/php_codesniffer": "3.10.2",
+                "phpunit/phpunit": "10.5.46",
+                "slevomat/coding-standard": "8.16.2",
+                "squizlabs/php_codesniffer": "3.13.1",
                 "symfony/cache": "^6.3.8|^7.0",
                 "symfony/console": "^5.4|^6.3|^7.0"
             },
@@ -1243,7 +1243,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/dbal/issues",
-                "source": "https://github.com/doctrine/dbal/tree/4.2.3"
+                "source": "https://github.com/doctrine/dbal/tree/4.2.4"
             },
             "funding": [
                 {
@@ -1259,7 +1259,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-03-07T18:29:05+00:00"
+            "time": "2025-06-15T23:15:01+00:00"
         },
         {
             "name": "doctrine/deprecations",
@@ -1311,16 +1311,16 @@
         },
         {
             "name": "doctrine/doctrine-bundle",
-            "version": "2.14.0",
+            "version": "2.14.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/DoctrineBundle.git",
-                "reference": "ca6a7350b421baf7fbdefbf9f4993292ed18effb"
+                "reference": "0a118222ab21ba05bd9f17fbaa6a3800865274f4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/DoctrineBundle/zipball/ca6a7350b421baf7fbdefbf9f4993292ed18effb",
-                "reference": "ca6a7350b421baf7fbdefbf9f4993292ed18effb",
+                "url": "https://api.github.com/repos/doctrine/DoctrineBundle/zipball/0a118222ab21ba05bd9f17fbaa6a3800865274f4",
+                "reference": "0a118222ab21ba05bd9f17fbaa6a3800865274f4",
                 "shasum": ""
             },
             "require": {
@@ -1347,9 +1347,9 @@
             "require-dev": {
                 "doctrine/annotations": "^1 || ^2",
                 "doctrine/cache": "^1.11 || ^2.0",
-                "doctrine/coding-standard": "^12",
+                "doctrine/coding-standard": "^13",
                 "doctrine/deprecations": "^1.0",
-                "doctrine/orm": "^2.17 || ^3.0",
+                "doctrine/orm": "^2.17 || ^3.1",
                 "friendsofphp/proxy-manager-lts": "^1.0",
                 "phpstan/phpstan": "2.1.1",
                 "phpstan/phpstan-phpunit": "2.0.3",
@@ -1413,7 +1413,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/DoctrineBundle/issues",
-                "source": "https://github.com/doctrine/DoctrineBundle/tree/2.14.0"
+                "source": "https://github.com/doctrine/DoctrineBundle/tree/2.14.1"
             },
             "funding": [
                 {
@@ -1429,7 +1429,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-03-22T17:28:21+00:00"
+            "time": "2025-06-09T20:22:28+00:00"
         },
         {
             "name": "doctrine/doctrine-fixtures-bundle",
@@ -2037,16 +2037,16 @@
         },
         {
             "name": "doctrine/orm",
-            "version": "3.3.3",
+            "version": "3.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/orm.git",
-                "reference": "1f1891d3e20ef9881e81c2f32c53e9dc88dfc9a7"
+                "reference": "4664373bd0668d71b40cc368b950de95e1dba2f8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/orm/zipball/1f1891d3e20ef9881e81c2f32c53e9dc88dfc9a7",
-                "reference": "1f1891d3e20ef9881e81c2f32c53e9dc88dfc9a7",
+                "url": "https://api.github.com/repos/doctrine/orm/zipball/4664373bd0668d71b40cc368b950de95e1dba2f8",
+                "reference": "4664373bd0668d71b40cc368b950de95e1dba2f8",
                 "shasum": ""
             },
             "require": {
@@ -2121,9 +2121,9 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/orm/issues",
-                "source": "https://github.com/doctrine/orm/tree/3.3.3"
+                "source": "https://github.com/doctrine/orm/tree/3.4.0"
             },
-            "time": "2025-05-02T17:42:51+00:00"
+            "time": "2025-06-14T11:47:14+00:00"
         },
         {
             "name": "doctrine/persistence",
@@ -2343,21 +2343,21 @@
         },
         {
             "name": "ecotone/dbal",
-            "version": "1.257.0",
+            "version": "1.259.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ecotoneframework/dbal.git",
-                "reference": "a9f4b37cfa7622e4827edcaa7a827e4a1f77e0ef"
+                "reference": "dea450d8d4ee8f121e5d457ba6bdb7dc55e018f8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ecotoneframework/dbal/zipball/a9f4b37cfa7622e4827edcaa7a827e4a1f77e0ef",
-                "reference": "a9f4b37cfa7622e4827edcaa7a827e4a1f77e0ef",
+                "url": "https://api.github.com/repos/ecotoneframework/dbal/zipball/dea450d8d4ee8f121e5d457ba6bdb7dc55e018f8",
+                "reference": "dea450d8d4ee8f121e5d457ba6bdb7dc55e018f8",
                 "shasum": ""
             },
             "require": {
                 "doctrine/dbal": "^3.9|^4.0",
-                "ecotone/enqueue": "~1.257.0",
+                "ecotone/enqueue": "~1.259.1",
                 "enqueue/dsn": "^0.10.4"
             },
             "conflict": {
@@ -2368,7 +2368,7 @@
                 "doctrine/cache": "^1.0.0|^2.0",
                 "doctrine/orm": "^2.11|^3.0",
                 "doctrine/persistence": "^2.5|^3.4",
-                "ecotone/jms-converter": "~1.257.0",
+                "ecotone/jms-converter": "~1.259.1",
                 "phpstan/phpstan": "^1.8",
                 "phpunit/phpunit": "^10.5|^11.0",
                 "symfony/expression-language": "^6.0|^7.0",
@@ -2380,7 +2380,7 @@
                     "repository": "dbal"
                 },
                 "branch-alias": {
-                    "dev-main": "1.257.0-dev"
+                    "dev-main": "1.259.1-dev"
                 },
                 "license-info": {
                     "Apache-2.0": {
@@ -2398,7 +2398,7 @@
                         "../local_packages.json"
                     ]
                 },
-                "release-time": "2025-06-10 18:42:10"
+                "release-time": "2025-06-15 14:21:20"
             },
             "autoload": {
                 "psr-4": {
@@ -2424,7 +2424,7 @@
                 "ecotone"
             ],
             "support": {
-                "source": "https://github.com/ecotoneframework/dbal/tree/1.257.0"
+                "source": "https://github.com/ecotoneframework/dbal/tree/1.259.1"
             },
             "funding": [
                 {
@@ -2432,20 +2432,20 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-06-10T18:42:40+00:00"
+            "time": "2025-06-15T14:21:56+00:00"
         },
         {
             "name": "ecotone/ecotone",
-            "version": "1.257.0",
+            "version": "1.259.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ecotoneframework/ecotone.git",
-                "reference": "e485e2fbfbb6e64411dcb94400883b0e52acd973"
+                "reference": "1809e53efca9d3c7df8bc0b471c1cc87f35bb9b2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ecotoneframework/ecotone/zipball/e485e2fbfbb6e64411dcb94400883b0e52acd973",
-                "reference": "e485e2fbfbb6e64411dcb94400883b0e52acd973",
+                "url": "https://api.github.com/repos/ecotoneframework/ecotone/zipball/1809e53efca9d3c7df8bc0b471c1cc87f35bb9b2",
+                "reference": "1809e53efca9d3c7df8bc0b471c1cc87f35bb9b2",
                 "shasum": ""
             },
             "require": {
@@ -2467,7 +2467,7 @@
                     "repository": "ecotone"
                 },
                 "branch-alias": {
-                    "dev-main": "1.257.0-dev"
+                    "dev-main": "1.259.1-dev"
                 },
                 "license-info": {
                     "Apache-2.0": {
@@ -2485,7 +2485,7 @@
                         "../local_packages.json"
                     ]
                 },
-                "release-time": "2025-06-10 18:42:10"
+                "release-time": "2025-06-15 14:21:20"
             },
             "autoload": {
                 "psr-4": {
@@ -2516,7 +2516,7 @@
                 "service-bus"
             ],
             "support": {
-                "source": "https://github.com/ecotoneframework/ecotone/tree/1.257.0"
+                "source": "https://github.com/ecotoneframework/ecotone/tree/1.259.1"
             },
             "funding": [
                 {
@@ -2524,24 +2524,24 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-06-10T18:42:42+00:00"
+            "time": "2025-06-15T14:21:57+00:00"
         },
         {
             "name": "ecotone/enqueue",
-            "version": "1.257.0",
+            "version": "1.259.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ecotoneframework/enqueue.git",
-                "reference": "255b969a4780a81ebc888fde900ef4800ef99fc8"
+                "reference": "0ed2fa76580eb8a2ea56609937273dd30a3e2631"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ecotoneframework/enqueue/zipball/255b969a4780a81ebc888fde900ef4800ef99fc8",
-                "reference": "255b969a4780a81ebc888fde900ef4800ef99fc8",
+                "url": "https://api.github.com/repos/ecotoneframework/enqueue/zipball/0ed2fa76580eb8a2ea56609937273dd30a3e2631",
+                "reference": "0ed2fa76580eb8a2ea56609937273dd30a3e2631",
                 "shasum": ""
             },
             "require": {
-                "ecotone/ecotone": "~1.257.0",
+                "ecotone/ecotone": "~1.259.1",
                 "enqueue/dsn": "^0.10.4",
                 "queue-interop/queue-interop": "^0.8"
             },
@@ -2558,7 +2558,7 @@
                     "repository": "enqueue"
                 },
                 "branch-alias": {
-                    "dev-main": "1.257.0-dev"
+                    "dev-main": "1.259.1-dev"
                 },
                 "license-info": {
                     "Apache-2.0": {
@@ -2576,7 +2576,7 @@
                         "../local_packages.json"
                     ]
                 },
-                "release-time": "2025-06-10 18:42:10"
+                "release-time": "2025-06-15 14:21:20"
             },
             "autoload": {
                 "psr-4": {
@@ -2601,7 +2601,7 @@
                 "enqueue"
             ],
             "support": {
-                "source": "https://github.com/ecotoneframework/enqueue/tree/1.257.0"
+                "source": "https://github.com/ecotoneframework/enqueue/tree/1.259.1"
             },
             "funding": [
                 {
@@ -2609,24 +2609,24 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-06-10T18:42:38+00:00"
+            "time": "2025-06-15T14:21:51+00:00"
         },
         {
             "name": "ecotone/jms-converter",
-            "version": "1.257.0",
+            "version": "1.259.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ecotoneframework/jms-converter.git",
-                "reference": "e632a5103a20d824e565ab29123599d1d4364480"
+                "reference": "19dbe4c0a1219fec3c7bc3fb16d3fc52b3efff66"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ecotoneframework/jms-converter/zipball/e632a5103a20d824e565ab29123599d1d4364480",
-                "reference": "e632a5103a20d824e565ab29123599d1d4364480",
+                "url": "https://api.github.com/repos/ecotoneframework/jms-converter/zipball/19dbe4c0a1219fec3c7bc3fb16d3fc52b3efff66",
+                "reference": "19dbe4c0a1219fec3c7bc3fb16d3fc52b3efff66",
                 "shasum": ""
             },
             "require": {
-                "ecotone/ecotone": "~1.257.0",
+                "ecotone/ecotone": "~1.259.1",
                 "jms/serializer": "^3.32",
                 "symfony/cache": "^5.4|^6.1|^7.0"
             },
@@ -2642,7 +2642,7 @@
                     "repository": "jms-converter"
                 },
                 "branch-alias": {
-                    "dev-main": "1.257.0-dev"
+                    "dev-main": "1.259.1-dev"
                 },
                 "license-info": {
                     "Apache-2.0": {
@@ -2660,7 +2660,7 @@
                         "../local_packages.json"
                     ]
                 },
-                "release-time": "2025-06-10 18:42:10"
+                "release-time": "2025-06-15 14:21:20"
             },
             "autoload": {
                 "psr-4": {
@@ -2690,7 +2690,7 @@
                 "xml"
             ],
             "support": {
-                "source": "https://github.com/ecotoneframework/jms-converter/tree/1.257.0"
+                "source": "https://github.com/ecotoneframework/jms-converter/tree/1.259.1"
             },
             "funding": [
                 {
@@ -2698,24 +2698,24 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-06-10T18:42:36+00:00"
+            "time": "2025-06-15T14:21:56+00:00"
         },
         {
             "name": "ecotone/pdo-event-sourcing",
-            "version": "1.257.0",
+            "version": "1.259.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ecotoneframework/pdo-event-sourcing.git",
-                "reference": "d9c1b5c631fff7881aaa868ea0ceed75074f70e0"
+                "reference": "7ec18e3a05562ef2f898214d888935e4bc88bf8f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ecotoneframework/pdo-event-sourcing/zipball/d9c1b5c631fff7881aaa868ea0ceed75074f70e0",
-                "reference": "d9c1b5c631fff7881aaa868ea0ceed75074f70e0",
+                "url": "https://api.github.com/repos/ecotoneframework/pdo-event-sourcing/zipball/7ec18e3a05562ef2f898214d888935e4bc88bf8f",
+                "reference": "7ec18e3a05562ef2f898214d888935e4bc88bf8f",
                 "shasum": ""
             },
             "require": {
-                "ecotone/dbal": "~1.257.0",
+                "ecotone/dbal": "~1.259.1",
                 "prooph/pdo-event-store": "^1.16.3"
             },
             "require-dev": {
@@ -2729,7 +2729,7 @@
                     "repository": "pdo-event-sourcing"
                 },
                 "branch-alias": {
-                    "dev-main": "1.257.0-dev"
+                    "dev-main": "1.259.1-dev"
                 },
                 "license-info": {
                     "Apache-2.0": {
@@ -2747,7 +2747,7 @@
                         "../local_packages.json"
                     ]
                 },
-                "release-time": "2025-06-10 18:42:10"
+                "release-time": "2025-06-15 14:21:20"
             },
             "autoload": {
                 "psr-4": {
@@ -2772,7 +2772,7 @@
                 "ecotone"
             ],
             "support": {
-                "source": "https://github.com/ecotoneframework/pdo-event-sourcing/tree/1.257.0"
+                "source": "https://github.com/ecotoneframework/pdo-event-sourcing/tree/1.259.1"
             },
             "funding": [
                 {
@@ -2780,24 +2780,24 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-06-10T18:42:39+00:00"
+            "time": "2025-06-15T14:21:50+00:00"
         },
         {
             "name": "ecotone/symfony-bundle",
-            "version": "1.257.0",
+            "version": "1.259.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ecotoneframework/symfony-bundle.git",
-                "reference": "30aa5d5d84bd0ab6a3cd45a8fd1b62257356bd39"
+                "reference": "6eecb160c9c4596d5eee4436ea9f3f84f6f95dc3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ecotoneframework/symfony-bundle/zipball/30aa5d5d84bd0ab6a3cd45a8fd1b62257356bd39",
-                "reference": "30aa5d5d84bd0ab6a3cd45a8fd1b62257356bd39",
+                "url": "https://api.github.com/repos/ecotoneframework/symfony-bundle/zipball/6eecb160c9c4596d5eee4436ea9f3f84f6f95dc3",
+                "reference": "6eecb160c9c4596d5eee4436ea9f3f84f6f95dc3",
                 "shasum": ""
             },
             "require": {
-                "ecotone/ecotone": "~1.257.0",
+                "ecotone/ecotone": "~1.259.1",
                 "symfony/console": "^5.4|^6.0|^7.0",
                 "symfony/dependency-injection": ">=v5.4.19 <6.0.0 || >=v6.0.19 <6.1.0 || >=v6.1.11 <6.2.0 || >=v6.2.5 <7.0.0 || >=v7.0.0 <8.0.0",
                 "symfony/framework-bundle": "^5.4|^6.0|^7.0"
@@ -2809,7 +2809,7 @@
                 "behat/behat": "^3.10",
                 "doctrine/doctrine-bundle": "^2.7.2",
                 "doctrine/orm": "^2.11|^3.0",
-                "ecotone/dbal": "~1.257.0",
+                "ecotone/dbal": "~1.259.1",
                 "friends-of-behat/symfony-extension": "<=2.4.2|^2.5",
                 "monolog/monolog": "^2.9|^3.3.1",
                 "phpstan/phpstan": "^1.8",
@@ -2827,7 +2827,7 @@
                     "repository": "symfony"
                 },
                 "branch-alias": {
-                    "dev-main": "1.257.0-dev"
+                    "dev-main": "1.259.1-dev"
                 },
                 "license-info": {
                     "Apache-2.0": {
@@ -2845,7 +2845,7 @@
                         "../local_packages.json"
                     ]
                 },
-                "release-time": "2025-06-10 18:42:10"
+                "release-time": "2025-06-15 14:21:20"
             },
             "autoload": {
                 "psr-4": {
@@ -2877,7 +2877,7 @@
                 "symfony"
             ],
             "support": {
-                "source": "https://github.com/ecotoneframework/symfony-bundle/tree/1.257.0"
+                "source": "https://github.com/ecotoneframework/symfony-bundle/tree/1.259.1"
             },
             "funding": [
                 {
@@ -2885,7 +2885,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-06-10T18:42:40+00:00"
+            "time": "2025-06-15T14:21:51+00:00"
         },
         {
             "name": "egulias/email-validator",
