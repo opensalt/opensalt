@@ -20,6 +20,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Uid\Uuid;
@@ -78,6 +79,10 @@ class IssuerRegistryController extends AbstractController
     ): Response {
         // ?sub=<did>
         $issuerInfo = $identifierRepository->findIssuerInfo($sub);
+
+        if (null === $issuerInfo) {
+            throw new NotFoundHttpException('Issuer not found');
+        }
 
         $keys = [];
         foreach ($issuerInfo['keys'] as $issuerKey) {

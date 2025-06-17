@@ -108,10 +108,14 @@ class IdentifierItemRepository extends ServiceEntityRepository
     /**
      * @return array{issuer: LsItem, org: OrganizationDto, keys: PublicKeyDto[]}
      */
-    public function findIssuerInfo(string $sub): array
+    public function findIssuerInfo(string $sub): ?array
     {
         /** @var LsItem $issuer */
         $issuer = $this->findOneBy(['uri' => $sub]);
+
+        if (null === $issuer) {
+            return null;
+        }
 
         $assocs = $this->getEntityManager()->getRepository(LsAssociation::class)
             ->findAllAssociationsFor($issuer->getIdentifier());
