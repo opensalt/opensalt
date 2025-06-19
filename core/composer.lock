@@ -62,16 +62,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.345.0",
+            "version": "3.346.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "61b4675bc02db8d7f3e1ba6931dc827c5ae23aa8"
+                "reference": "be313721b8d786e515b5df3e09b1771befbad2c6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/61b4675bc02db8d7f3e1ba6931dc827c5ae23aa8",
-                "reference": "61b4675bc02db8d7f3e1ba6931dc827c5ae23aa8",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/be313721b8d786e515b5df3e09b1771befbad2c6",
+                "reference": "be313721b8d786e515b5df3e09b1771befbad2c6",
                 "shasum": ""
             },
             "require": {
@@ -153,9 +153,9 @@
             "support": {
                 "forum": "https://github.com/aws/aws-sdk-php/discussions",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.345.0"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.346.0"
             },
-            "time": "2025-06-17T18:09:42+00:00"
+            "time": "2025-06-18T18:49:34+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -6805,16 +6805,16 @@
         },
         {
             "name": "prooph/pdo-event-store",
-            "version": "v1.16.4",
+            "version": "v1.16.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/prooph/pdo-event-store.git",
-                "reference": "3472adad347af44227020e08f3ff56d9e366761f"
+                "reference": "b58ab0621d623de0f8f4569ac816ac093cd65047"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/prooph/pdo-event-store/zipball/3472adad347af44227020e08f3ff56d9e366761f",
-                "reference": "3472adad347af44227020e08f3ff56d9e366761f",
+                "url": "https://api.github.com/repos/prooph/pdo-event-store/zipball/b58ab0621d623de0f8f4569ac816ac093cd65047",
+                "reference": "b58ab0621d623de0f8f4569ac816ac093cd65047",
                 "shasum": ""
             },
             "require": {
@@ -6872,9 +6872,9 @@
             "homepage": "http://getprooph.org/",
             "support": {
                 "issues": "https://github.com/prooph/pdo-event-store/issues",
-                "source": "https://github.com/prooph/pdo-event-store/tree/v1.16.4"
+                "source": "https://github.com/prooph/pdo-event-store/tree/v1.16.5"
             },
-            "time": "2025-06-12T14:36:18+00:00"
+            "time": "2025-06-18T10:51:01+00:00"
         },
         {
             "name": "psr/cache",
@@ -16615,16 +16615,16 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "12.3.0",
+            "version": "12.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "9075a8efc66e11bc55c319062e147bdb06777267"
+                "reference": "ddec29dfc128eba9c204389960f2063f3b7fa170"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/9075a8efc66e11bc55c319062e147bdb06777267",
-                "reference": "9075a8efc66e11bc55c319062e147bdb06777267",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/ddec29dfc128eba9c204389960f2063f3b7fa170",
+                "reference": "ddec29dfc128eba9c204389960f2063f3b7fa170",
                 "shasum": ""
             },
             "require": {
@@ -16680,7 +16680,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
                 "security": "https://github.com/sebastianbergmann/php-code-coverage/security/policy",
-                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/12.3.0"
+                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/12.3.1"
             },
             "funding": [
                 {
@@ -16700,7 +16700,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-05-23T15:49:03+00:00"
+            "time": "2025-06-18T08:58:13+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -17137,12 +17137,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "2b9122a87c062376685eede1e0a0ce8e31544fe6"
+                "reference": "7dacc91c92dcf3b81a600376d2a2f693eff91e35"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/2b9122a87c062376685eede1e0a0ce8e31544fe6",
-                "reference": "2b9122a87c062376685eede1e0a0ce8e31544fe6",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/7dacc91c92dcf3b81a600376d2a2f693eff91e35",
+                "reference": "7dacc91c92dcf3b81a600376d2a2f693eff91e35",
                 "shasum": ""
             },
             "conflict": {
@@ -17499,7 +17499,7 @@
                 "joyqi/hyper-down": "<=2.4.27",
                 "jsdecena/laracom": "<2.0.9",
                 "jsmitty12/phpwhois": "<5.1",
-                "juzaweb/cms": "<=3.4",
+                "juzaweb/cms": "<=3.4.2",
                 "jweiland/events2": "<8.3.8|>=9,<9.0.6",
                 "jweiland/kk-downloader": "<1.2.2",
                 "kazist/phpwhois": "<=4.2.6",
@@ -18082,7 +18082,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-06-16T22:05:27+00:00"
+            "time": "2025-06-18T19:04:39+00:00"
         },
         {
             "name": "sebastian/cli-parser",

@@ -22,25 +22,25 @@ return [
         'version' => '3.2.2',
     ],
     'vue' => [
-        'version' => '3.5.16',
+        'version' => '3.5.17',
         'package_specifier' => 'vue/dist/vue.esm-bundler.js',
     ],
     '@vue/runtime-dom' => [
-        'version' => '3.5.16',
+        'version' => '3.5.17',
     ],
     '@vue/compiler-dom' => [
-        'version' => '3.5.16',
+        'version' => '3.5.17',
     ],
     '@vue/shared' => [
-        'version' => '3.5.16',
+        'version' => '3.5.17',
     ],
     '@vue/runtime-core' => [
-        'version' => '3.5.16',
+        'version' => '3.5.17',
     ],
     '@vue/compiler-core' => [
-        'version' => '3.5.16',
+        'version' => '3.5.17',
     ],
     '@vue/reactivity' => [
-        'version' => '3.5.16',
+        'version' => '3.5.17',
     ],
 ];
