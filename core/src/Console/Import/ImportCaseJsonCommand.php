@@ -4,49 +4,44 @@ declare(strict_types=1);
 
 namespace App\Console\Import;
 
-use App\Console\BaseDoctrineCommand;
 use App\Entity\User\Organization;
 use App\Event\CommandEvent;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-#[AsCommand('import:case-json', 'Import CASE JSON file')]
-class ImportCaseJsonCommand extends BaseDoctrineCommand
+#[AsCommand(
+    name: 'import:case-json',
+    description: 'Import CASE JSON file'
+)]
+class ImportCaseJsonCommand
 {
-    #[\Override]
-    protected function configure(): void
-    {
-        $this
-            ->addArgument('filename', InputArgument::REQUIRED, 'JSON File')
-            ->addOption('title', null, InputOption::VALUE_OPTIONAL, 'Title of the framework', 'Imported CSV')
-            ->addOption('creator', null, InputOption::VALUE_OPTIONAL, 'Creator of the framework', 'System')
-        ;
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private readonly EventDispatcherInterface $dispatcher,
+    ) {
     }
 
-    #[\Override]
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $filename = $input->getArgument('filename');
-
+    public function __invoke(
+        SymfonyStyle $io,
+        #[Argument(description: 'JSON File')] string $filename,
+        #[Option(description: 'Title of the framework')] string $title = 'Imported CSV',
+        #[Option(description: 'Creator of the framework')] string $creator = 'System',
+    ): int {
         $fileContent = file_get_contents($filename);
-
         if (false === $fileContent) {
-            $output->writeln('File not found.');
+            $io->writeln('File not found.');
 
             return Command::FAILURE;
         }
-
         $org = $this->em->getRepository(Organization::class)->findOneByName('PCG');
-
         $command = new \App\Command\Import\ImportCaseJsonCommand($fileContent, $org);
-//        $command = new ImportGenericCsvCommand($filename, $input->getOption('creator'), $input->getOption('title'));
         $this->dispatcher->dispatch(new CommandEvent($command), CommandEvent::class);
-
-        $output->writeln('Done.');
+        $io->writeln('Done.');
 
         return Command::SUCCESS;
     }

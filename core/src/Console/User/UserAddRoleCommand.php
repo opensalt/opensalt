@@ -5,49 +5,67 @@ declare(strict_types=1);
 namespace App\Console\User;
 
 use App\Command\User\AddUserRoleCommand;
+use App\Entity\User\User;
+use App\Event\CommandEvent;
+use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
+use Symfony\Component\Console\Question\Question;
+use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-#[AsCommand('salt:user:add-role', 'Add a role to a local user')]
-class UserAddRoleCommand extends UserRoleCommand
+#[AsCommand(
+    name: 'salt:user:add-role',
+    description: 'Add a role to a local user'
+)]
+class UserAddRoleCommand
 {
-    #[\Override]
-    protected function configure(): void
+    public function __construct(private readonly EventDispatcherInterface $dispatcher)
     {
-        $this
-            ->addArgument('username', InputArgument::REQUIRED, 'Email address or username of the user to change')
-            ->addArgument('role', InputArgument::REQUIRED, 'Role to give the user (editor, admin, super-user)')
-        ;
     }
 
-    #[\Override]
-    protected function interact(InputInterface $input, OutputInterface $output): void
-    {
-        parent::interact($input, $output);
+    public function __invoke(
+        SymfonyStyle $io,
+        InputInterface $input,
+        OutputInterface $output,
+        #[Argument(description: 'Email address or username of the user to change')] ?string $username = null,
+        #[Argument(description: 'Role to give the user (editor, admin, super-user)')] ?string $role = null,
+    ): int {
+        $helper = new QuestionHelper();
+        if (empty($username)) {
+            $question = new Question('Email address or username of new user: ');
+            $question->setValidator(function (string $value): string {
+                if ('' === trim($value)) {
+                    throw new \Exception('The username can not be empty');
+                }
 
-        /** @var QuestionHelper $helper */
-        $helper = $this->getHelper('question');
-
-        if (empty($input->getArgument('role'))) {
+                return $value;
+            });
+            $username = $helper->ask($input, $output, $question);
+        }
+        if (empty($role)) {
             $question = new ChoiceQuestion('Role to give the user: ', ['viewer', 'editor', 'admin', 'super user'], 0);
             $role = $helper->ask($input, $output, $question);
-            $input->setArgument('role', $role);
         }
-    }
+        try {
+            $role = trim($role);
+            $role = 'ROLE_'.preg_replace('/[^A-Z]/', '_', strtoupper($role));
+            if (!\in_array($role, User::USER_ROLES, true)) {
+                throw new \RuntimeException(sprintf('Role "%s" is not valid.', $role));
+            }
+        } catch (\Exception $exception) {
+            $io->writeln('<error>'.$exception->getMessage().'</error>');
 
-    #[\Override]
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        if (0 !== $this->doChange($input, $output, AddUserRoleCommand::class)) {
             return Command::FAILURE;
         }
-
-        $output->writeln(sprintf('The role "%s" has been added.', $input->getArgument('role')));
+        $username = trim($username);
+        $command = new AddUserRoleCommand($username, $role);
+        $this->dispatcher->dispatch(new CommandEvent($command), CommandEvent::class);
+        $io->writeln(sprintf('The role "%s" has been added.', $role));
 
         return Command::SUCCESS;
     }

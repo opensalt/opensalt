@@ -5,37 +5,36 @@ declare(strict_types=1);
 namespace App\Console\User;
 
 use App\Command\User\SetUserPasswordCommand;
-use App\Console\BaseDispatchingCommand;
 use App\Event\CommandEvent;
+use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
+use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-#[AsCommand('salt:user:set-password', 'Set the password for a local user')]
-class UserSetPasswordCommand extends BaseDispatchingCommand
+#[AsCommand(
+    name: 'salt:user:set-password',
+    description: 'Set the password for a local user'
+)]
+class UserSetPasswordCommand
 {
-    #[\Override]
-    protected function configure(): void
+    public function __construct(private readonly EventDispatcherInterface $dispatcher)
     {
-        $this
-            ->addArgument('username', InputArgument::REQUIRED, 'Email address or username of the user to change')
-            ->addArgument('password', InputArgument::OPTIONAL, 'New password for the user')
-        ;
     }
 
-    #[\Override]
-    protected function interact(InputInterface $input, OutputInterface $output): void
-    {
-        parent::interact($input, $output);
-
-        /** @var QuestionHelper $helper */
-        $helper = $this->getHelper('question');
-
-        if (empty($input->getArgument('username'))) {
+    public function __invoke(
+        SymfonyStyle $io,
+        InputInterface $input,
+        OutputInterface $output,
+        #[Argument(description: 'Email address or username of the user to change')] ?string $username = null,
+        #[Argument(description: 'New password for the user')] ?string $password = null,
+    ): int {
+        $helper = new QuestionHelper();
+        if (empty($username)) {
             $question = new Question('Email address or username of new user: ');
             $question->setValidator(function (string $value): string {
                 if ('' === trim($value)) {
@@ -45,34 +44,22 @@ class UserSetPasswordCommand extends BaseDispatchingCommand
                 return $value;
             });
             $username = $helper->ask($input, $output, $question);
-            $input->setArgument('username', $username);
         }
-
-        if (empty($input->getArgument('password'))) {
+        if (empty($password)) {
             $question = new Question('New password for the user (leave empty to generate one): ');
             $password = $helper->ask($input, $output, $question);
-            $input->setArgument('password', $password);
         }
-    }
-
-    #[\Override]
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $username = trim($input->getArgument('username'));
-        $password = $input->getArgument('password');
+        $username = trim($username);
         if (null !== $password) {
             $password = trim($password);
         }
-
         $command = new SetUserPasswordCommand($username, $password);
         $this->dispatcher->dispatch(new CommandEvent($command), CommandEvent::class);
         $newPassword = $command->getPlainPassword();
-
         if (null === $password || '' === $password) {
-            // A password was generated
-            $output->writeln(sprintf('The password for "%s" has been set to "%s".', $input->getArgument('username'), $newPassword));
+            $io->writeln(sprintf('The password for "%s" has been set to "%s".', $username, $newPassword));
         } else {
-            $output->writeln(sprintf('The password for "%s" has been set.', $input->getArgument('username')));
+            $io->writeln(sprintf('The password for "%s" has been set.', $username));
         }
 
         return Command::SUCCESS;
