@@ -60,11 +60,11 @@
     "@rollup/plugin-inject": "^5.0.5",
     "@symfony/stimulus-bridge": "^4.0.0",
     "@symfony/ux-vue": "file:vendor/symfony/ux-vue/assets",
-    "@vitejs/plugin-vue": "^5.1.5",
+    "@vitejs/plugin-vue": "^6.0",
     "sass-embedded": "^1.80.3",
     "sass-migrator": "^2.2.0",
     "url": "^0.11.4",
-    "vite": "^6.0.11",
+    "vite": "^7.0",
     "vite-plugin-symfony": "^8",
     "vue": "^3.0"
   },

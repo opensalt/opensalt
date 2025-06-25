@@ -29,9 +29,11 @@ export default defineConfig({
     ],
     css: {
         preprocessorOptions: {
-            scss: {
-                api: 'legacy'
-            }
+        }
+    },
+    resolve: {
+        alias: {
+            "node_modules/bootstrap/scss/": fileURLToPath(new URL("./node_modules/bootstrap/scss/", import.meta.url)),
         }
     },
     build: {
@@ -39,7 +41,7 @@ export default defineConfig({
             {
                 find: /jquery/,
                 replacement: fileURLToPath(new URL('./assets/js/_jquery.js', import.meta.url))
-            }
+            },
         ],
         //target: "ES2022",
         rollupOptions: {
