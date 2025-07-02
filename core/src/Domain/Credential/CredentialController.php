@@ -331,7 +331,11 @@ class CredentialController extends AbstractController
     #[Route('/credential/{id}/{versionId}.{_format}', name: 'credential_show', defaults: ['_format' => null], methods: ['GET'])]
     public function show(Request $request, string $id, string $versionId, EventStore $store): Response
     {
-        $uuid = Uuid::fromBase58($id);
+        try {
+            $uuid = Uuid::fromBase58($id);
+        } catch (\Throwable) {
+            throw $this->createNotFoundException('No credential found');
+        }
 
         try {
             $credential = $this->repository->findBy($uuid);
