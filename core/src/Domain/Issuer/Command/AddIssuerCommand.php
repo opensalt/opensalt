@@ -17,7 +17,7 @@ final readonly class AddIssuerCommand
         public ?string $notes = null,
         public ?string $orgType = null,
         public ?bool $trusted = null,
-        null|Uuid|string $id = null,
+        Uuid|string|null $id = null,
     ) {
         if ($id instanceof Uuid) {
             $this->id = $id;
