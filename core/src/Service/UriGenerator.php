@@ -6,6 +6,7 @@ namespace App\Service;
 
 use App\Entity\Framework\IdentifiableInterface;
 use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\LsItem;
 use App\Entity\Framework\Package;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -30,15 +31,28 @@ class UriGenerator
             $id = self::PACKAGE_PREFIX.$id;
         }
 
-        return $this->getPublicUriForIdentifier($id);
+        $frameworkId = null;
+        if ($obj instanceof LsItem) {
+            $frameworkId = $obj->getLsDocIdentifier();
+        }
+
+        return $this->getPublicUriForIdentifier($id, $frameworkId);
     }
 
-    public function getPublicUriForIdentifier(string $id): string
+    public function getPublicUriForIdentifier(?string $id, ?string $frameworkId = null): ?string
     {
-        if (preg_match('/^data:text/', $id)) {
+        if (null === $id || '' === $id) {
+            return null;
+        }
+
+        if (str_starts_with($id, 'data:text')) {
             return $id;
         }
 
-        return $this->router->generate('uri_lookup', ['uri' => $id], UrlGeneratorInterface::ABSOLUTE_URL);
+        if (null === $frameworkId) {
+            return $this->router->generate('uri_lookup', ['uri' => $id], UrlGeneratorInterface::ABSOLUTE_URL);
+        }
+
+        return $this->router->generate('uri_lookup_framework', ['uri' => $id, 'framework' => $frameworkId], UrlGeneratorInterface::ABSOLUTE_URL);
     }
 }

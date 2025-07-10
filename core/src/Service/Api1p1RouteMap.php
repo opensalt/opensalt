@@ -18,22 +18,22 @@ use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Entity\Framework\Package;
 
-final class Api1RouteMap
+final class Api1p1RouteMap
 {
     /** @var array<class-string, string> */
     public static array $routeMap = [
-        Package::class => 'api_v1p0_cfpackage',
-        LsDoc::class => 'api_v1p0_cfdocument',
-        LsItem::class => 'api_v1p0_cfitem',
-        LsDefItemType::class => 'api_v1p0_cfitemtype',
-        LsAssociation::class => 'api_v1p0_cfassociation',
-        LsDefAssociationGrouping::class => 'api_v1p0_cfassociationgrouping',
-        LsDefConcept::class => 'api_v1p0_cfconcept',
-        LsDefLicence::class => 'api_v1p0_cflicense',
-        LsDefSubject::class => 'api_v1p0_cfsubject',
-        CfRubric::class => 'api_v1p0_cfrubric',
-        CfRubricCriterion::class => 'api_v1p0_cfrubriccriterion',
-        CfRubricCriterionLevel::class => 'api_v1p0_cfrubriccriterionlevel',
+        Package::class => 'api_v1p1_cfpackage',
+        LsDoc::class => 'api_v1p1_cfdocument',
+        LsItem::class => 'api_v1p1_cfitem',
+        LsDefItemType::class => 'api_v1p1_cfitemtype',
+        LsAssociation::class => 'api_v1p1_cfassociation',
+        LsDefAssociationGrouping::class => 'api_v1p1_cfassociationgrouping',
+        LsDefConcept::class => 'api_v1p1_cfconcept',
+        LsDefLicence::class => 'api_v1p1_cflicense',
+        LsDefSubject::class => 'api_v1p1_cfsubject',
+        CfRubric::class => 'api_v1p1_cfrubric',
+        CfRubricCriterion::class => 'api_v1p1_cfrubriccriterion',
+        CfRubricCriterionLevel::class => 'api_v1p1_cfrubriccriterionlevel',
     ];
 
     public static function getForClass(string $class): ?string

@@ -7,7 +7,6 @@ namespace App\Twig\Extension;
 use App\Entity\Framework\IdentifiableInterface;
 use App\Service\IdentifiableObjectHelper;
 use App\Service\UriGenerator;
-use Symfony\Component\Routing\RouterInterface;
 use Twig\Attribute\AsTwigFilter;
 use Twig\Attribute\AsTwigFunction;
 use Twig\Attribute\AsTwigTest;
@@ -16,7 +15,6 @@ readonly class CaseUriExtension
 {
     public function __construct(
         private UriGenerator $uriGenerator,
-        private RouterInterface $router,
         private IdentifiableObjectHelper $uriHelper,
     ) {
     }
@@ -25,10 +23,6 @@ readonly class CaseUriExtension
     #[AsTwigFunction('object_uri')]
     public function getObjectUri(?IdentifiableInterface $obj, ?string $route = null): ?string
     {
-        if (null === $obj) {
-            return null;
-        }
-
         return $this->uriGenerator->getUri($obj, $route);
     }
 
@@ -36,14 +30,6 @@ readonly class CaseUriExtension
     #[AsTwigFunction('uri_for_identifier')]
     public function getUriForIdentifier(?string $identifier): ?string
     {
-        if (null === $identifier || '' === $identifier) {
-            return null;
-        }
-
-        if (str_starts_with($identifier, 'data:text')) {
-            return $identifier;
-        }
-
         return $this->uriGenerator->getPublicUriForIdentifier($identifier);
     }
 
@@ -62,21 +48,13 @@ readonly class CaseUriExtension
 
         $obj = $this->uriHelper->findObjectByUri($uri);
 
-        if (null === $obj) {
-            return null;
-        }
-
-        return $this->router->generate('uri_lookup', ['uri' => $obj->getIdentifier()], RouterInterface::ABSOLUTE_URL);
+        return $this->uriGenerator->getUri($obj);
     }
 
     #[AsTwigFilter('local_remote_uri')]
     public function getLocalOrRemoteUri(?string $uri): ?string
     {
-        if (null === $uri) {
-            return null;
-        }
-
-        if (str_starts_with($uri, 'local:')) {
+        if (str_starts_with($uri ?? '', 'local:')) {
             return $this->getLocalUri($uri);
         }
 

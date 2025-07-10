@@ -65,8 +65,9 @@ class UriController extends AbstractController
         return $this->render('uri/no_uri.html.twig', ['uri' => null], new Response('', Response::HTTP_NOT_FOUND));
     }
 
+    #[Route(path: '/uri/{framework}/{uri}.{_format}', name: 'uri_lookup_framework', defaults: ['_format' => null], methods: ['GET'])]
     #[Route(path: '/uri/{uri}.{_format}', name: 'uri_lookup', defaults: ['_format' => null], methods: ['GET'])]
-    public function findUri(Request $request, string $uri, ?string $_format): Response
+    public function findUri(Request $request, string $uri, ?string $framework = null, ?string $_format = null): Response
     {
         if ($request->isXmlHttpRequest()) {
             $_format = 'json';
@@ -80,7 +81,7 @@ class UriController extends AbstractController
             $uri = preg_replace('/^'.UriGenerator::PACKAGE_PREFIX.'/', '', $uri);
         }
 
-        $obj = $this->objectHelper->findObjectByIdentifier($uri);
+        $obj = $this->objectHelper->findObjectByIdentifier($uri, $framework);
         if (null === $obj) {
             return $this->generateNotFoundResponse($request, $uri);
         }
@@ -176,7 +177,7 @@ class UriController extends AbstractController
         return $response;
     }
 
-    private function determineRequestFormat(Request $request, ?string $_format): void
+    private function determineRequestFormat(Request $request, ?string $_format = null): void
     {
         if ($request->headers->has('x-opensalt')) {
             $request->setRequestFormat('opensalt');
