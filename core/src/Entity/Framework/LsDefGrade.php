@@ -9,19 +9,32 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'ls_def_grade')]
 #[ORM\Entity(repositoryClass: LsDefGradeRepository::class)]
-class LsDefGrade extends AbstractLsBase
+class LsDefGrade implements IdentifiableInterface
 {
+    use IdentifiableTrait;
+    use CloneIdentifiableTrait;
+    use ExtraDataTrait;
+    use ExtensionTrait;
+
     #[ORM\Column(name: 'title', type: 'string', length: 1024, nullable: true)]
-    protected ?string $title = null;
+    private ?string $title = null;
 
     #[ORM\Column(name: 'description', type: 'text', nullable: true)]
-    protected ?string $description = null;
+    private ?string $description = null;
 
     #[ORM\Column(name: 'code', type: 'string', length: 255)]
     private string $code;
 
     #[ORM\Column(name: 'rank', type: 'integer', nullable: true)]
-    private int $rank;
+    private ?int $rank = null;
+
+    public function __construct(?string $identifier = null)
+    {
+        $this->setIdentifierOrNew($identifier);
+
+        $this->updatedAt = new \DateTimeImmutable();
+        $this->changedAt = $this->updatedAt;
+    }
 
     public function setTitle(?string $title): static
     {

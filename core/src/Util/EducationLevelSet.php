@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Util;
 
-class EducationLevelSet
+final readonly class EducationLevelSet
 {
-    private readonly array $grades;
+    private array $grades;
 
     public function __construct(array $passedGrades)
     {

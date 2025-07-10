@@ -14,9 +14,7 @@ trait CloneIdentifiableTrait
         $this->id = null;
 
         // Generate a new identifier
-        $identifier = Uuid::uuid1()->toString();
-        $this->identifier = $identifier;
-
+        $this->identifier = Uuid::uuid1()->toString();
         $this->uri = 'local:'.$this->identifier;
 
         // Set last change/update to now

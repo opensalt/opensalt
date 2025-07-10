@@ -9,8 +9,13 @@ use Doctrine\Common\Collections\Collection;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class Package extends AbstractLsBase
+class Package
 {
+    use IdentifiableTrait;
+    use CloneIdentifiableTrait;
+    use ExtraDataTrait;
+    use ExtensionTrait;
+
     /**
      * @var Collection<array-key, LsItem>
      */
@@ -37,7 +42,11 @@ class Package extends AbstractLsBase
         private LsDoc $doc,
         UuidInterface|string|null $identifier = null,
     ) {
-        parent::__construct($identifier);
+        $this->setIdentifierOrNew($identifier);
+
+        $this->updatedAt = new \DateTimeImmutable();
+        $this->changedAt = $this->updatedAt;
+
         $this->items = new ArrayCollection();
         $this->associations = new ArrayCollection();
         $this->rubrics = new ArrayCollection();

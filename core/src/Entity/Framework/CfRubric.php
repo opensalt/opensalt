@@ -13,8 +13,13 @@ use Ramsey\Uuid\UuidInterface;
 #[ORM\MappedSuperclass]
 #[ORM\Table(name: 'rubric')]
 #[ORM\Entity(repositoryClass: CfRubricRepository::class)]
-class CfRubric extends AbstractLsBase implements CaseApiInterface
+class CfRubric implements CaseApiInterface
 {
+    use IdentifiableTrait;
+    use CloneIdentifiableTrait;
+    use ExtraDataTrait;
+    use ExtensionTrait;
+
     #[ORM\Column(name: 'title', type: 'text', length: 65535, nullable: true)]
     private ?string $title = null;
 
@@ -24,12 +29,16 @@ class CfRubric extends AbstractLsBase implements CaseApiInterface
     /**
      * @var Collection<array-key, CfRubricCriterion>
      */
-    #[ORM\OneToMany(mappedBy: 'rubric', targetEntity: CfRubricCriterion::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: CfRubricCriterion::class, mappedBy: 'rubric', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $criteria;
 
     public function __construct(UuidInterface|string|null $identifier = null)
     {
-        parent::__construct($identifier);
+        $this->setIdentifierOrNew($identifier);
+
+        $this->updatedAt = new \DateTimeImmutable();
+        $this->changedAt = $this->updatedAt;
+
         $this->criteria = new ArrayCollection();
     }
 

@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 trait ExtensionTrait
 {
     #[ORM\Column(name: 'ext', type: 'json', nullable: true)]
-    protected ?array $extensions = null;
+    private ?array $extensions = null;
 
     public function getExtensions(): array
     {

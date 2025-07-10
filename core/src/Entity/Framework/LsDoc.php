@@ -23,8 +23,13 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[UniqueEntity('uri')]
 #[UniqueEntity('urlName')]
 #[UniqueEntity('identifier')]
-class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterface
+class LsDoc implements CaseApiInterface, LockableInterface
 {
+    use IdentifiableTrait;
+    use CloneIdentifiableTrait;
+    use ExtraDataTrait;
+    use ExtensionTrait;
+
     final public const string ADOPTION_STATUS_PRIVATE_DRAFT = 'Private Draft';
     final public const string ADOPTION_STATUS_DRAFT = 'Draft';
     final public const string ADOPTION_STATUS_ADOPTED = 'Adopted';
@@ -189,7 +194,10 @@ class LsDoc extends AbstractLsBase implements CaseApiInterface, LockableInterfac
 
     public function __construct(UuidInterface|string|null $identifier = null)
     {
-        parent::__construct($identifier);
+        $this->setIdentifierOrNew($identifier);
+
+        $this->updatedAt = new \DateTimeImmutable();
+        $this->changedAt = $this->updatedAt;
 
         $this->lsItems = new ArrayCollection();
         $this->docAssociations = new ArrayCollection();

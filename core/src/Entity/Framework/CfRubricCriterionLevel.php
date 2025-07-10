@@ -10,8 +10,13 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\MappedSuperclass]
 #[ORM\Table(name: 'rubric_criterion_level')]
 #[ORM\Entity(repositoryClass: CfRubricCriterionLevelRepository::class)]
-class CfRubricCriterionLevel extends AbstractLsBase implements CaseApiInterface
+class CfRubricCriterionLevel implements CaseApiInterface
 {
+    use IdentifiableTrait;
+    use CloneIdentifiableTrait;
+    use ExtraDataTrait;
+    use ExtensionTrait;
+
     #[ORM\Column(name: 'description', type: 'text', length: 65535, nullable: true)]
     private ?string $description = null;
 
@@ -33,7 +38,10 @@ class CfRubricCriterionLevel extends AbstractLsBase implements CaseApiInterface
         private CfRubricCriterion $criterion,
         ?string $identifier = null,
     ) {
-        parent::__construct($identifier);
+        $this->setIdentifierOrNew($identifier);
+
+        $this->updatedAt = new \DateTimeImmutable();
+        $this->changedAt = $this->updatedAt;
     }
 
     public function getDescription(): ?string

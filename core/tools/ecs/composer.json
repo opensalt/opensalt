@@ -1,7 +1,8 @@
 {
     "require": {
         "symplify/easy-coding-standard": "^12.2",
-        "escapestudios/symfony2-coding-standard": "^3.13"
+        "escapestudios/symfony2-coding-standard": "^3.13",
+        "friendsofphp/php-cs-fixer": "^3.82"
     },
     "config": {
         "preferred-install": {

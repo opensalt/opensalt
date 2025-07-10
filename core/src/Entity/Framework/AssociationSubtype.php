@@ -34,6 +34,7 @@ class AssociationSubtype
 
     #[ORM\Column(type: 'integer')]
     #[Assert\NotNull]
+    #[Assert\Choice([self::DIR_BOTH, self::DIR_FORWARD, self::DIR_INVERSE])]
     private int $direction;
 
     #[ORM\Column(type: 'string', length: 512)]

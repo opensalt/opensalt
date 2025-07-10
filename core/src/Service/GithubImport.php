@@ -67,19 +67,11 @@ class GithubImport
 
         if (null !== $missingFieldsLog && count($missingFieldsLog) > 0) {
             foreach ($missingFieldsLog as $messageError) {
-                $errorLog = new ImportLog();
-                $errorLog->setLsDoc($lsDoc);
-                $errorLog->setMessage($messageError);
-                $errorLog->setMessageType('warning');
-
+                $errorLog = new ImportLog($lsDoc, 'warning', $messageError);
                 $em->persist($errorLog);
             }
         } else {
-            $successLog = new ImportLog();
-            $successLog->setLsDoc($lsDoc);
-            $successLog->setMessage('Items successfully imported.');
-            $successLog->setMessageType('info');
-
+            $successLog = new ImportLog($lsDoc, 'info', 'Items successfully imported.');
             $em->persist($successLog);
         }
 
@@ -127,10 +119,7 @@ class GithubImport
 
             if (null === $associationExists) {
                 // Log new items added.
-                $errorLog = new ImportLog();
-                $errorLog->setLsDoc($lsDoc);
-                $errorLog->setMessage($logDetails);
-                $errorLog->setMessageType('warning');
+                $errorLog = new ImportLog($lsDoc, 'warning', $logDetails);
                 $em->persist($errorLog);
 
                 // check if the item returns a humancodingscheme
@@ -256,11 +245,7 @@ class GithubImport
 
             // Log if we make an update.
             $logDetails = date('Y/m/d h:i:s A ').sprintf('The lsItem with the Human coding scheme of %s has been updated.', $data[$lsItemKeys['humanCodingScheme']]);
-            $errorLog = new ImportLog();
-            $errorLog->setLsDoc($lsDoc);
-            $errorLog->setMessage($logDetails);
-            $errorLog->setMessageType('warning');
-
+            $errorLog = new ImportLog($lsDoc, 'warning', $logDetails);
             $em->persist($errorLog);
 
             return $lsItem;

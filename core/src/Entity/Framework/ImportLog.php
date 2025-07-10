@@ -17,55 +17,34 @@ class ImportLog
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'AUTO')]
     #[ORM\Column(name: 'id', type: 'integer')]
-    protected ?int $id = null;
-
-    #[ORM\ManyToOne(targetEntity: LsDoc::class, inversedBy: 'importLogs')]
-    #[ORM\JoinColumn(name: 'ls_doc_id', referencedColumnName: 'id', nullable: false)]
-    #[Assert\NotBlank]
-    protected ?LsDoc $lsDoc = null;
-
-    #[ORM\Column(name: 'message_text', type: 'string', length: 250)]
-    #[Assert\NotBlank]
-    protected ?string $message = null;
-
-    #[ORM\Column(name: 'message_type', type: 'string', length: 30, nullable: false)]
-    protected string $messageType = 'warning';
+    private ?int $id = null;
 
     #[ORM\Column(name: 'is_read', type: 'boolean', nullable: false, options: ['default' => 0])]
-    protected bool $read = false;
-
-    public function setLsDoc(LsDoc $lsDoc): void
-    {
-        $this->lsDoc = $lsDoc;
+    public private(set) bool $read = false {
+        get => $this->read;
     }
 
-    public function setMessage(string $message): void
-    {
-        $this->message = $message;
-    }
-
-    public function isRead(): bool
-    {
-        return $this->read;
-    }
-
-    public function getMessage(): ?string
-    {
-        return $this->message;
+    public function __construct(
+        #[ORM\ManyToOne(targetEntity: LsDoc::class, inversedBy: 'importLogs')]
+        #[ORM\JoinColumn(name: 'ls_doc_id', referencedColumnName: 'id', nullable: false)]
+        #[Assert\NotBlank]
+        public private(set) ?LsDoc $lsDoc = null {
+            get => $this->lsDoc;
+        },
+        #[ORM\Column(name: 'message_type', type: 'string', length: 30)]
+        public private(set) string $messageType = 'warning' {
+            get => $this->messageType;
+        },
+        #[ORM\Column(name: 'message_text', type: 'string', length: 250)]
+        #[Assert\NotBlank]
+        public private(set) ?string $message = null {
+            get => $this->message;
+        },
+    ) {
     }
 
     public function markAsRead(): void
     {
         $this->read = true;
-    }
-
-    public function getMessageType(): ?string
-    {
-        return $this->messageType;
-    }
-
-    public function setMessageType(string $messageType): void
-    {
-        $this->messageType = $messageType;
     }
 }

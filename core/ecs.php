@@ -24,7 +24,7 @@ return ECSConfig::configure()
 
     ->withPhpCsFixerSets(
         doctrineAnnotation: true,
-        php83Migration: true,
+        php84Migration: true,
         symfony: true,
     )
 

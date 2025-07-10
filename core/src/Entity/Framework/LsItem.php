@@ -17,6 +17,7 @@ use App\Repository\Framework\LsItemRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -25,8 +26,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: LsItemRepository::class)]
 #[UniqueEntity('uri')]
 #[ORM\Index(name: 'type_idx', columns: ['discriminator'])]
-class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterface
+class LsItem implements CaseApiInterface, LockableInterface
 {
+    use IdentifiableTrait;
+    use ExtraDataTrait;
+    use ExtensionTrait;
     use AccessAdditionalFieldTrait;
 
     public const array TYPES = [
@@ -175,7 +179,10 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
 
     public function __construct(UuidInterface|string|null $identifier = null)
     {
-        parent::__construct($identifier);
+        $this->setIdentifierOrNew($identifier);
+
+        $this->updatedAt = new \DateTimeImmutable();
+        $this->changedAt = $this->updatedAt;
 
         $this->associations = new ArrayCollection();
         $this->inverseAssociations = new ArrayCollection();
@@ -195,10 +202,18 @@ class LsItem extends AbstractLsBase implements CaseApiInterface, LockableInterfa
     /**
      * Clone the LsItem - Do not carry over any associations.
      */
-    #[\Override]
     public function __clone()
     {
-        parent::__clone();
+        // Clear values for new item
+        $this->id = null;
+
+        // Generate a new identifier
+        $this->identifier = Uuid::uuid1()->toString();
+        $this->uri = 'local:'.$this->identifier;
+
+        // Set last change/update to now
+        $this->updatedAt = new \DateTimeImmutable();
+        $this->changedAt = $this->updatedAt;
 
         // Clear values for new item
         $this->associations = new ArrayCollection();

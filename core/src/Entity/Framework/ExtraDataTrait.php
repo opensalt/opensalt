@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 trait ExtraDataTrait
 {
     #[ORM\Column(name: 'extra', type: 'json', nullable: true)]
-    protected ?array $extra = null;
+    private ?array $extra = null;
 
     public function getExtra(): array
     {

@@ -9,8 +9,13 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'ls_def_concept')]
 #[ORM\Entity(repositoryClass: LsDefConceptRepository::class)]
-class LsDefConcept extends AbstractLsBase implements CaseApiInterface
+class LsDefConcept implements CaseApiInterface
 {
+    use IdentifiableTrait;
+    use CloneIdentifiableTrait;
+    use ExtraDataTrait;
+    use ExtensionTrait;
+
     #[ORM\Column(name: 'title', type: 'string', length: 1024)]
     protected string $title;
 
@@ -25,7 +30,10 @@ class LsDefConcept extends AbstractLsBase implements CaseApiInterface
 
     public function __construct(?string $identifier = null)
     {
-        parent::__construct($identifier);
+        $this->setIdentifierOrNew($identifier);
+
+        $this->updatedAt = new \DateTimeImmutable();
+        $this->changedAt = $this->updatedAt;
     }
 
     public function setTitle(string $title): static

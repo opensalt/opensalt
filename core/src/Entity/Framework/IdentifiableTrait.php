@@ -15,18 +15,18 @@ trait IdentifiableTrait
     #[ORM\Column(name: 'id', type: 'integer')]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'AUTO')]
-    protected ?int $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(name: 'identifier', type: 'string', length: 300, unique: true, nullable: false)]
     #[Assert\NotBlank()]
     #[Assert\Uuid(strict: false)]
     #[Assert\Length(max: 300)]
-    protected ?string $identifier = null;
+    private ?string $identifier = null;
 
     #[ORM\Column(name: 'uri', type: 'string', length: 300, unique: true, nullable: true)]
     #[Assert\NotBlank]
     #[Assert\Length(max: 300)]
-    protected ?string $uri = null;
+    private ?string $uri = null;
 
     #[ORM\Column(name: 'changed_at', type: 'datetime', precision: 6)]
     #[Gedmo\Timestampable(on: 'update')]
@@ -34,7 +34,7 @@ trait IdentifiableTrait
 
     #[ORM\Column(name: 'updated_at', type: 'datetime', precision: 6)]
     #[Gedmo\Timestampable(on: 'update')]
-    protected \DateTimeInterface $updatedAt;
+    private \DateTimeInterface $updatedAt;
 
     /**
      * Get the internal id of the object (or null if not persisted).
@@ -42,6 +42,16 @@ trait IdentifiableTrait
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setIdentifierOrNew(UuidInterface|string|null $identifier = null): void
+    {
+        if (null === $identifier) {
+            $identifier = Uuid::uuid1()->toString();
+        }
+
+        $this->setIdentifier($identifier);
+        $this->uri = 'local:'.$this->identifier;
     }
 
     /**

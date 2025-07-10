@@ -346,10 +346,7 @@ final class ExcelImport
         if (array_key_exists($associationType, $allTypes)) {
             $association->setType($allTypes[$associationType]);
         } else {
-            $log = new ImportLog();
-            $log->setLsDoc($doc);
-            $log->setMessageType('error');
-            $log->setMessage(sprintf('Invalid Association Type (%s on row %d.', $fields['associationType'], $row));
+            $log = new ImportLog($doc, 'error', sprintf('Invalid Association Type (%s on row %d.', $fields['associationType'], $row));
 
             $this->entityManager->persist($log);
 

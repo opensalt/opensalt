@@ -13,8 +13,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Index(name: 'dest_id_idx', columns: ['destination_node_identifier'])]
 #[ORM\Index(name: 'orig_id_idx', columns: ['origin_node_identifier'])]
 #[ORM\Entity(repositoryClass: LsAssociationRepository::class)]
-class LsAssociation extends AbstractLsBase implements CaseApiInterface
+class LsAssociation implements CaseApiInterface
 {
+    use IdentifiableTrait;
+    use CloneIdentifiableTrait;
+    use ExtraDataTrait;
+    use ExtensionTrait;
     use AccessAdditionalFieldTrait;
 
     final public const string CHILD_OF = 'Is Child Of';
@@ -110,7 +114,10 @@ class LsAssociation extends AbstractLsBase implements CaseApiInterface
 
     public function __construct(UuidInterface|string|null $identifier = null)
     {
-        parent::__construct($identifier);
+        $this->setIdentifierOrNew($identifier);
+
+        $this->updatedAt = new \DateTimeImmutable();
+        $this->changedAt = $this->updatedAt;
     }
 
     public function __toString(): string

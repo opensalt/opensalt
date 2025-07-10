@@ -12,8 +12,13 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\MappedSuperclass]
 #[ORM\Table(name: 'rubric_criterion')]
 #[ORM\Entity(repositoryClass: CfRubricCriterionRepository::class)]
-class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
+class CfRubricCriterion implements CaseApiInterface
 {
+    use IdentifiableTrait;
+    use CloneIdentifiableTrait;
+    use ExtraDataTrait;
+    use ExtensionTrait;
+
     #[ORM\Column(name: 'category', type: 'string', nullable: true)]
     private ?string $category = null;
 
@@ -33,7 +38,7 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
     /**
      * @var Collection<array-key, CfRubricCriterionLevel>
      */
-    #[ORM\OneToMany(mappedBy: 'criterion', targetEntity: CfRubricCriterionLevel::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: CfRubricCriterionLevel::class, mappedBy: 'criterion', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $levels;
 
     public function __construct(
@@ -42,7 +47,11 @@ class CfRubricCriterion extends AbstractLsBase implements CaseApiInterface
         private CfRubric $rubric,
         ?string $identifier = null,
     ) {
-        parent::__construct($identifier);
+        $this->setIdentifierOrNew($identifier);
+
+        $this->updatedAt = new \DateTimeImmutable();
+        $this->changedAt = $this->updatedAt;
+
         $this->levels = new ArrayCollection();
     }
 

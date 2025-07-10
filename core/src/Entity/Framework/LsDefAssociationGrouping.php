@@ -10,8 +10,13 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Table(name: 'ls_def_association_grouping')]
 #[ORM\Entity(repositoryClass: LsDefAssociationGroupingRepository::class)]
-class LsDefAssociationGrouping extends AbstractLsBase implements CaseApiInterface
+class LsDefAssociationGrouping implements CaseApiInterface
 {
+    use IdentifiableTrait;
+    use CloneIdentifiableTrait;
+    use ExtraDataTrait;
+    use ExtensionTrait;
+
     #[ORM\ManyToOne(targetEntity: LsDoc::class, inversedBy: 'associationGroupings')]
     #[Assert\NotNull]
     private ?LsDoc $lsDoc = null;
@@ -21,6 +26,14 @@ class LsDefAssociationGrouping extends AbstractLsBase implements CaseApiInterfac
 
     #[ORM\Column(name: 'description', type: 'text', nullable: true)]
     protected ?string $description = null;
+
+    public function __construct(?string $identifier = null)
+    {
+        $this->setIdentifierOrNew($identifier);
+
+        $this->updatedAt = new \DateTimeImmutable();
+        $this->changedAt = $this->updatedAt;
+    }
 
     public function getLsDoc(): ?LsDoc
     {
