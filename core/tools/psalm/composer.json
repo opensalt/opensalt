@@ -2,7 +2,7 @@
     "require": {
         "vimeo/psalm": "^7.0"
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "beta",
     "replace": {
         "symfony/polyfill-php83": "*",
         "symfony/polyfill-php84": "*"
