@@ -41,7 +41,6 @@ class Comment
     private Collection $upvotes;
 
     #[ORM\Column(type: 'datetime', precision: 6)]
-    #[Gedmo\Timestampable(on: 'create')]
     private \DateTimeInterface $createdAt;
 
     #[ORM\Column(type: 'datetime', precision: 6)]

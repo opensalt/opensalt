@@ -21,7 +21,6 @@ class CommentUpvote
     private ?int $id = null;
 
     #[ORM\Column(type: 'datetime', precision: 6)]
-    #[Gedmo\Timestampable(on: 'create')]
     private \DateTimeInterface $createdAt;
 
     #[ORM\Column(type: 'datetime', precision: 6)]
@@ -37,7 +36,7 @@ class CommentUpvote
         private Comment $comment,
     ) {
         $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
+        $this->updatedAt = $this->createdAt;
     }
 
     public function getId(): ?int
