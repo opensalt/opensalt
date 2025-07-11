@@ -26,6 +26,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class LsDoc implements CaseApiInterface, LockableInterface
 {
     use IdentifiableTrait;
+    use ChangedAtTrait;
     use CloneIdentifiableTrait;
     use ExtraDataTrait;
     use ExtensionTrait;

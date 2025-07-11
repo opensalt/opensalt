@@ -13,6 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class LsDefAssociationGrouping implements CaseApiInterface
 {
     use IdentifiableTrait;
+    use ChangedAtTrait;
     use CloneIdentifiableTrait;
     use ExtraDataTrait;
     use ExtensionTrait;

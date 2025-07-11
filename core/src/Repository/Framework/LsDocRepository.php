@@ -64,13 +64,13 @@ class LsDocRepository extends ServiceEntityRepository
      */
     public function apiFindOneByClassIdentifier(array $id): CaseApiInterface
     {
-        /** @var ?CaseApiInterface $obj */
-        $obj = $this->getEntityManager()->getRepository($id['class'])->findOneBy(['identifier' => $id['id']]);
-        if (null === $obj) {
+        /** @var array<array-key, ?CaseApiInterface> $obj */
+        $obj = $this->getEntityManager()->getRepository($id['class'])->findBy(['identifier' => $id['id']], null, 1);
+        if ([] === $obj) {
             throw new NotFoundHttpException(sprintf('%s object not found.', $id['class']));
         }
 
-        return $obj;
+        return $obj[array_key_first($obj)];
     }
 
     public function findOneBySlug(string $slug): ?LsDoc

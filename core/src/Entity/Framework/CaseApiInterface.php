@@ -9,6 +9,6 @@ namespace App\Entity\Framework;
  *
  * Identifies objects that are exposed via the CASE API
  */
-interface CaseApiInterface extends IdentifiableInterface
+interface CaseApiInterface extends IdentifiableInterface, ChangedAtInterface
 {
 }

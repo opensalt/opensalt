@@ -16,6 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class LsAssociation implements CaseApiInterface
 {
     use IdentifiableTrait;
+    use ChangedAtTrait;
     use CloneIdentifiableTrait;
     use ExtraDataTrait;
     use ExtensionTrait;

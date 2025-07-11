@@ -12,6 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 class LsDefSubject implements CaseApiInterface
 {
     use IdentifiableTrait;
+    use ChangedAtTrait;
     use CloneIdentifiableTrait;
     use ExtraDataTrait;
     use ExtensionTrait;

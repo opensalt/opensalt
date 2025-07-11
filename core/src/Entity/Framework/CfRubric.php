@@ -16,6 +16,7 @@ use Ramsey\Uuid\UuidInterface;
 class CfRubric implements CaseApiInterface
 {
     use IdentifiableTrait;
+    use ChangedAtTrait;
     use CloneIdentifiableTrait;
     use ExtraDataTrait;
     use ExtensionTrait;

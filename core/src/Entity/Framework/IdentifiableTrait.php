@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Entity\Framework;
 
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -27,14 +26,6 @@ trait IdentifiableTrait
     #[Assert\NotBlank]
     #[Assert\Length(max: 300)]
     private ?string $uri = null;
-
-    #[ORM\Column(name: 'changed_at', type: 'datetime', precision: 6)]
-    #[Gedmo\Timestampable(on: 'update')]
-    private \DateTimeInterface $changedAt;
-
-    #[ORM\Column(name: 'updated_at', type: 'datetime', precision: 6)]
-    #[Gedmo\Timestampable(on: 'update')]
-    private \DateTimeInterface $updatedAt;
 
     /**
      * Get the internal id of the object (or null if not persisted).
@@ -88,29 +79,5 @@ trait IdentifiableTrait
     public function getUri(): string
     {
         return $this->uri;
-    }
-
-    public function setChangedAt(\DateTimeInterface $changedAt): static
-    {
-        $this->changedAt = $changedAt;
-
-        return $this;
-    }
-
-    public function getChangedAt(): \DateTimeInterface
-    {
-        return $this->changedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): static
-    {
-        $this->updatedAt = $updatedAt;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): \DateTimeInterface
-    {
-        return $this->updatedAt;
     }
 }

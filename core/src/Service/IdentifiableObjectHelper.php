@@ -48,10 +48,10 @@ readonly class IdentifiableObjectHelper
                 $query['lsDocIdentifier'] = $frameworkUuid->toString();
             }
 
-            /** @var ?IdentifiableInterface $obj */
-            $obj = $this->registry->getRepository($objectType)->findOneBy($query);
-            if (null !== $obj) {
-                return $obj;
+            /** @var array<array-key, ?IdentifiableInterface> $obj */
+            $obj = $this->registry->getRepository($objectType)->findBy($query, null, 1);
+            if ([] !== $obj) {
+                return $obj[array_key_first($obj)];
             }
         }
 
@@ -68,10 +68,10 @@ readonly class IdentifiableObjectHelper
                 continue;
             }
 
-            /** @var ?IdentifiableInterface $obj */
-            $obj = $this->registry->getRepository($objectType)->findOneBy(['uri' => $uri]);
-            if (null !== $obj) {
-                return $obj;
+            /** @var array<array-key, ?IdentifiableInterface> $obj */
+            $obj = $this->registry->getRepository($objectType)->findBy(['uri' => $uri], null, 1);
+            if ([] !== $obj) {
+                return $obj[array_key_first($obj)];
             }
         }
 

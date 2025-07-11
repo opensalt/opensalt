@@ -26,9 +26,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: LsItemRepository::class)]
 #[UniqueEntity('uri')]
 #[ORM\Index(name: 'type_idx', columns: ['discriminator'])]
+#[ORM\UniqueConstraint(name: 'ls_item_identifier', columns: ['identifier', 'ls_doc_identifier'])]
+#[ORM\UniqueConstraint(name: 'ls_item_uri', columns: ['uri', 'ls_doc_identifier'])]
 class LsItem implements CaseApiInterface, LockableInterface
 {
-    use IdentifiableTrait;
+    use ChangedAtTrait;
     use ExtraDataTrait;
     use ExtensionTrait;
     use AccessAdditionalFieldTrait;
@@ -60,6 +62,22 @@ class LsItem implements CaseApiInterface, LockableInterface
     public const string ITEM_TYPE_FORM = LsItemType::class;
 
     public const string TYPE_KEY = 'salt:type';
+
+    #[ORM\Column(name: 'id', type: 'integer')]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'AUTO')]
+    private ?int $id = null;
+
+    #[ORM\Column(name: 'identifier', type: 'string', length: 300, nullable: false)]
+    #[Assert\NotBlank()]
+    #[Assert\Uuid(strict: false)]
+    #[Assert\Length(max: 300)]
+    private ?string $identifier = null;
+
+    #[ORM\Column(name: 'uri', type: 'string', length: 300, nullable: true)]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 300)]
+    private ?string $uri = null;
 
     #[ORM\Column(name: 'ls_doc_identifier', type: 'string', length: 300, nullable: false)]
     #[Assert\NotBlank]
@@ -197,6 +215,63 @@ class LsItem implements CaseApiInterface, LockableInterface
     public function __toString(): string
     {
         return $this->getUri();
+    }
+
+    /**
+     * Get the internal id of the object (or null if not persisted).
+     */
+    #[\Override]
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function setIdentifierOrNew(UuidInterface|string|null $identifier = null): void
+    {
+        if (null === $identifier) {
+            $identifier = Uuid::uuid1()->toString();
+        }
+
+        $this->setIdentifier($identifier);
+        $this->uri = 'local:'.$this->identifier;
+    }
+
+    /**
+     * @throws \InvalidArgumentException
+     */
+    public function setIdentifier(UuidInterface|string $identifier): static
+    {
+        // If the identifier is in the form of a UUID then lower case it
+        if ($identifier instanceof UuidInterface) {
+            $identifier = strtolower($identifier->toString());
+        } elseif (Uuid::isValid($identifier)) {
+            $identifier = strtolower(Uuid::fromString($identifier)->toString());
+        } else {
+            throw new \InvalidArgumentException('The identifier must be a UUID.');
+        }
+
+        $this->identifier = $identifier;
+
+        return $this;
+    }
+
+    #[\Override]
+    public function getIdentifier(): string
+    {
+        return $this->identifier;
+    }
+
+    public function setUri(string $uri): static
+    {
+        $this->uri = $uri;
+
+        return $this;
+    }
+
+    #[\Override]
+    public function getUri(): string
+    {
+        return $this->uri;
     }
 
     /**

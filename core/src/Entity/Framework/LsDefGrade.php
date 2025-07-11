@@ -9,9 +9,10 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'ls_def_grade')]
 #[ORM\Entity(repositoryClass: LsDefGradeRepository::class)]
-class LsDefGrade implements IdentifiableInterface
+class LsDefGrade implements IdentifiableInterface, ChangedAtInterface
 {
     use IdentifiableTrait;
+    use ChangedAtTrait;
     use CloneIdentifiableTrait;
     use ExtraDataTrait;
     use ExtensionTrait;

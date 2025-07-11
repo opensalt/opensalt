@@ -15,6 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
 class CfRubricCriterion implements CaseApiInterface
 {
     use IdentifiableTrait;
+    use ChangedAtTrait;
     use CloneIdentifiableTrait;
     use ExtraDataTrait;
     use ExtensionTrait;

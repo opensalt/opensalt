@@ -13,6 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 class CfRubricCriterionLevel implements CaseApiInterface
 {
     use IdentifiableTrait;
+    use ChangedAtTrait;
     use CloneIdentifiableTrait;
     use ExtraDataTrait;
     use ExtensionTrait;
