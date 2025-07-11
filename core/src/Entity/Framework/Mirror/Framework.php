@@ -8,6 +8,7 @@ use App\Entity\Framework\LsDoc;
 use App\Repository\Framework\Mirror\FrameworkRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Swaggest\JsonDiff\JsonDiff;
@@ -76,7 +77,7 @@ class Framework
     #[ORM\Column(name: 'error_type', type: 'string', nullable: true)]
     private ?string $errorType = null;
 
-    #[ORM\Column(name: 'updated_at', type: 'datetime', precision: 6)]
+    #[ORM\Column(name: 'updated_at', type: Types::DATETIMETZ_IMMUTABLE, precision: 6)]
     #[Gedmo\Timestampable(on: 'update')]
     private \DateTimeInterface $updatedAt;
 

@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Entity\Framework;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 trait ExtraDataTrait
 {
-    #[ORM\Column(name: 'extra', type: 'json', nullable: true)]
+    #[ORM\Column(name: 'extra', type: Types::JSON, nullable: true)]
     private ?array $extra = null;
 
     public function getExtra(): array

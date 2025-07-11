@@ -7,6 +7,7 @@ namespace App\Entity\Framework\Mirror;
 use App\Repository\Framework\Mirror\ServerRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -43,7 +44,7 @@ class Server
     #[ORM\Column(name: 'last_check', type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $lastCheck = null;
 
-    #[ORM\Column(name: 'updated_at', type: 'datetime', precision: 6)]
+    #[ORM\Column(name: 'updated_at', type: Types::DATETIMETZ_IMMUTABLE, precision: 6)]
     #[Gedmo\Timestampable(on: 'update')]
     private \DateTimeInterface $updatedAt;
 

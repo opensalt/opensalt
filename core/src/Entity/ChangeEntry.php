@@ -7,6 +7,7 @@ namespace App\Entity;
 use App\Entity\Framework\LsDoc;
 use App\Entity\User\User;
 use App\Repository\ChangeEntryRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -30,7 +31,7 @@ class ChangeEntry
     #[ORM\Column(name: 'doc_id', type: 'integer', nullable: true)]
     protected ?int $doc;
 
-    #[ORM\Column(name: 'changed_at', type: 'datetime', precision: 6)]
+    #[ORM\Column(name: 'changed_at', type: Types::DATETIMETZ_IMMUTABLE, precision: 6)]
     #[Gedmo\Timestampable(on: 'update')]
     protected \DateTimeInterface $changedAt;
 

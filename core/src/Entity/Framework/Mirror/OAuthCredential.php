@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity\Framework\Mirror;
 
 use App\Repository\Framework\Mirror\OAuthCredentialRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -33,7 +34,7 @@ class OAuthCredential
         'http://purl.imsglobal.org/casenetwork/case/v1p0/scope/core.readonly',
     ];
 
-    #[ORM\Column(name: 'updated_at', type: 'datetime', precision: 6)]
+    #[ORM\Column(name: 'updated_at', type: Types::DATETIMETZ_IMMUTABLE, precision: 6)]
     #[Gedmo\Timestampable(on: 'update')]
     private \DateTimeInterface $updatedAt;
 

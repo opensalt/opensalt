@@ -7,6 +7,7 @@ namespace App\Entity\Framework;
 use App\Entity\LockableInterface;
 use App\Entity\User\User;
 use App\Repository\Framework\ObjectLockRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'salt_object_lock')]
@@ -20,7 +21,7 @@ class ObjectLock
     #[ORM\GeneratedValue(strategy: 'AUTO')]
     protected ?int $id = null;
 
-    #[ORM\Column(name: 'expiry', type: 'datetime', precision: 6, nullable: false)]
+    #[ORM\Column(name: 'expiry', type: Types::DATETIMETZ_IMMUTABLE, precision: 6, nullable: false)]
     protected \DateTime $timeout;
 
     #[ORM\Column(name: 'obj_type', type: 'string', nullable: false)]

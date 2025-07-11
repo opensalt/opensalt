@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace App\Entity\Framework;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 trait ChangedAtTrait
 {
-    #[ORM\Column(name: 'changed_at', type: 'datetime', precision: 6)]
+    #[ORM\Column(name: 'changed_at', type: Types::DATETIMETZ_IMMUTABLE, precision: 6)]
     #[Gedmo\Timestampable(on: 'update')]
     private \DateTimeInterface $changedAt;
 
-    #[ORM\Column(name: 'updated_at', type: 'datetime', precision: 6)]
+    #[ORM\Column(name: 'updated_at', type: Types::DATETIMETZ_IMMUTABLE, precision: 6)]
     #[Gedmo\Timestampable(on: 'update')]
     private \DateTimeInterface $updatedAt;
 

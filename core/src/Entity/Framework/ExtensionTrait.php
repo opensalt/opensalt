@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Entity\Framework;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 trait ExtensionTrait
 {
-    #[ORM\Column(name: 'ext', type: 'json', nullable: true)]
+    #[ORM\Column(name: 'ext', type: Types::JSON, nullable: true)]
     private ?array $extensions = null;
 
     public function getExtensions(): array

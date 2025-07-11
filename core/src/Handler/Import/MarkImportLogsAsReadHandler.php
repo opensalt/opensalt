@@ -28,7 +28,7 @@ class MarkImportLogsAsReadHandler extends AbstractDoctrineHandler
 
         $doc = $command->getDoc();
         foreach ($doc->getImportLogs() as $log) {
-            $log->markAsRead();
+            $log->read = true;
         }
 
         $notification = new NotificationEvent(

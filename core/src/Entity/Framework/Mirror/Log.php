@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity\Framework\Mirror;
 
 use App\Repository\Framework\Mirror\LogRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Table(name: 'mirror_log')]
@@ -19,7 +20,7 @@ class Log
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'datetime', precision: 6)]
+    #[ORM\Column(type: Types::DATETIMETZ_IMMUTABLE, precision: 6)]
     private \DateTimeInterface $occurredAt;
 
     public function __construct(

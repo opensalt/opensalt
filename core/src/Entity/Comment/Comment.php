@@ -10,6 +10,7 @@ use App\Entity\User\User;
 use App\Repository\CommentRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -40,10 +41,10 @@ class Comment
     #[ORM\OneToMany(mappedBy: 'comment', targetEntity: CommentUpvote::class)]
     private Collection $upvotes;
 
-    #[ORM\Column(type: 'datetime', precision: 6)]
+    #[ORM\Column(type: Types::DATETIMETZ_IMMUTABLE, precision: 6)]
     private \DateTimeInterface $createdAt;
 
-    #[ORM\Column(type: 'datetime', precision: 6)]
+    #[ORM\Column(type: Types::DATETIMETZ_IMMUTABLE, precision: 6)]
     #[Gedmo\Timestampable(on: 'update')]
     private \DateTimeInterface $updatedAt;
 

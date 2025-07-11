@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entity\Comment;
 
 use App\Entity\User\User;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -20,10 +21,10 @@ class CommentUpvote
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(type: 'datetime', precision: 6)]
+    #[ORM\Column(type: Types::DATETIMETZ_IMMUTABLE, precision: 6)]
     private \DateTimeInterface $createdAt;
 
-    #[ORM\Column(type: 'datetime', precision: 6)]
+    #[ORM\Column(type: Types::DATETIMETZ_IMMUTABLE, precision: 6)]
     #[Gedmo\Timestampable(on: 'update')]
     private \DateTimeInterface $updatedAt;
 

@@ -19,12 +19,10 @@ doctrine:
                 password: '%database_password%'
                 options:  '%pdo_options%'
                 charset:  utf8mb4
-                schema_filter: ~^(?!(cache_items|LearningStandards|std_|map_|grade_level))~
+                schema_filter: ~^(?!(cache_items|LearningStandards|std_|map_|grade_level|ecotone|event_streams$|projections$|_[0-9a-f]{40}$))~
                 server_version: 8.4.4
                 use_savepoints: true
                 profiling_collect_backtrace: '%kernel.debug%'
-                mapping_types:
-                    json: string
                 default_table_options:
                     charset: utf8mb4
                     collate: utf8mb4_unicode_ci
