@@ -16,6 +16,7 @@ use App\Form\Type\LsItemType;
 use App\Repository\Framework\LsItemRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
@@ -28,8 +29,22 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Index(name: 'type_idx', columns: ['discriminator'])]
 #[ORM\UniqueConstraint(name: 'ls_item_identifier', columns: ['identifier', 'ls_doc_identifier'])]
 #[ORM\UniqueConstraint(name: 'ls_item_uri', columns: ['uri', 'ls_doc_identifier'])]
+#[ORM\AttributeOverrides([
+    new ORM\AttributeOverride('identifier', new ORM\Column(
+        name: 'identifier',
+        length: 300,
+        unique: false,
+    )),
+    new ORM\AttributeOverride('uri', new ORM\Column(
+        name: 'uri',
+        length: 300,
+        unique: false,
+        nullable: true,
+    )),
+])]
 class LsItem implements CaseApiInterface, LockableInterface
 {
+    use IdentifiableTrait;
     use ChangedAtTrait;
     use ExtraDataTrait;
     use ExtensionTrait;
@@ -63,28 +78,12 @@ class LsItem implements CaseApiInterface, LockableInterface
 
     public const string TYPE_KEY = 'salt:type';
 
-    #[ORM\Column(name: 'id', type: 'integer')]
-    #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'AUTO')]
-    private ?int $id = null;
-
-    #[ORM\Column(name: 'identifier', type: 'string', length: 300, nullable: false)]
-    #[Assert\NotBlank()]
-    #[Assert\Uuid(strict: false)]
-    #[Assert\Length(max: 300)]
-    private ?string $identifier = null;
-
-    #[ORM\Column(name: 'uri', type: 'string', length: 300, nullable: true)]
-    #[Assert\NotBlank]
-    #[Assert\Length(max: 300)]
-    private ?string $uri = null;
-
-    #[ORM\Column(name: 'ls_doc_identifier', type: 'string', length: 300, nullable: false)]
+    #[ORM\Column(name: 'ls_doc_identifier', type: Types::STRING, length: 300, nullable: false)]
     #[Assert\NotBlank]
     #[Assert\Length(max: 300)]
     private string $lsDocIdentifier;
 
-    #[ORM\Column(name: 'ls_doc_uri', type: 'string', length: 300, nullable: true)]
+    #[ORM\Column(name: 'ls_doc_uri', type: Types::STRING, length: 300, nullable: true)]
     #[Assert\Length(max: 300)]
     private ?string $lsDocUri = null;
 
@@ -96,26 +95,26 @@ class LsItem implements CaseApiInterface, LockableInterface
     #[ORM\Column(name: 'discriminator', options: ['default' => 0])]
     private int $discriminator = 0;
 
-    #[ORM\Column(name: 'human_coding_scheme', type: 'string', length: 80, nullable: true)]
+    #[ORM\Column(name: 'human_coding_scheme', type: Types::STRING, length: 80, nullable: true)]
     #[Assert\Length(max: 80)]
     private ?string $humanCodingScheme = null;
 
-    #[ORM\Column(name: 'list_enum_in_source', type: 'string', length: 20, nullable: true)]
+    #[ORM\Column(name: 'list_enum_in_source', type: Types::STRING, length: 20, nullable: true)]
     #[Assert\Length(max: 20)]
     private ?string $listEnumInSource = null;
 
-    #[ORM\Column(name: 'full_statement', type: 'text', nullable: false)]
+    #[ORM\Column(name: 'full_statement', type: Types::TEXT, nullable: false)]
     #[Assert\NotBlank]
     private string $fullStatement;
 
-    #[ORM\Column(name: 'abbreviated_statement', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'abbreviated_statement', type: Types::TEXT, nullable: true)]
     #[Assert\Length(max: 255)]
     private ?string $abbreviatedStatement = null;
 
     /**
      * @var string[]|null
      */
-    #[ORM\Column(name: 'concept_keywords', type: 'json', nullable: true)]
+    #[ORM\Column(name: 'concept_keywords', type: Types::JSON, nullable: true)]
     #[Assert\All([new Assert\Type('string')])]
     private ?array $conceptKeywords = [];
 
@@ -128,13 +127,13 @@ class LsItem implements CaseApiInterface, LockableInterface
     #[ORM\InverseJoinColumn(name: 'concept_id', referencedColumnName: 'id')]
     private Collection $concepts;
 
-    #[ORM\Column(name: 'notes', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'notes', type: Types::TEXT, nullable: true)]
     private ?string $notes = null;
 
     /**
      * @var string[]|null
      */
-    #[ORM\Column(name: 'subject', type: 'json', nullable: true)]
+    #[ORM\Column(name: 'subject', type: Types::JSON, nullable: true)]
     #[Assert\All([new Assert\Type('string')])]
     private ?array $subject = [];
 
@@ -148,11 +147,11 @@ class LsItem implements CaseApiInterface, LockableInterface
     #[Assert\All([new Assert\Type(LsDefSubject::class)])]
     private Collection $subjects;
 
-    #[ORM\Column(name: 'language', type: 'string', length: 10, nullable: true)]
+    #[ORM\Column(name: 'language', type: Types::STRING, length: 10, nullable: true)]
     #[Assert\Length(max: 10)]
     private ?string $language = null;
 
-    #[ORM\Column(name: 'educational_alignment', type: 'string', length: 300, nullable: true)]
+    #[ORM\Column(name: 'educational_alignment', type: Types::STRING, length: 300, nullable: true)]
     #[Assert\Length(max: 300)]
     private ?string $educationalAlignment = null;
 
@@ -160,17 +159,17 @@ class LsItem implements CaseApiInterface, LockableInterface
     #[ORM\JoinColumn(name: 'item_type_id', referencedColumnName: 'id')]
     private ?LsDefItemType $itemType = null;
 
-    #[ORM\Column(name: 'item_type_text', type: 'string', nullable: true)]
+    #[ORM\Column(name: 'item_type_text', type: Types::STRING, nullable: true)]
     #[Assert\Length(max: 255)]
     private ?string $itemTypeText = null;
 
-    #[ORM\Column(name: 'alternative_label', type: 'text', nullable: true)]
+    #[ORM\Column(name: 'alternative_label', type: Types::TEXT, nullable: true)]
     private ?string $alternativeLabel = null;
 
-    #[ORM\Column(name: 'status_start', type: 'date', nullable: true)]
+    #[ORM\Column(name: 'status_start', type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $statusStart = null;
 
-    #[ORM\Column(name: 'status_end', type: 'date', nullable: true)]
+    #[ORM\Column(name: 'status_end', type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $statusEnd = null;
 
     #[ORM\ManyToOne(targetEntity: LsDefLicence::class)]
@@ -215,63 +214,6 @@ class LsItem implements CaseApiInterface, LockableInterface
     public function __toString(): string
     {
         return $this->getUri();
-    }
-
-    /**
-     * Get the internal id of the object (or null if not persisted).
-     */
-    #[\Override]
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
-
-    public function setIdentifierOrNew(UuidInterface|string|null $identifier = null): void
-    {
-        if (null === $identifier) {
-            $identifier = Uuid::uuid1()->toString();
-        }
-
-        $this->setIdentifier($identifier);
-        $this->uri = 'local:'.$this->identifier;
-    }
-
-    /**
-     * @throws \InvalidArgumentException
-     */
-    public function setIdentifier(UuidInterface|string $identifier): static
-    {
-        // If the identifier is in the form of a UUID then lower case it
-        if ($identifier instanceof UuidInterface) {
-            $identifier = strtolower($identifier->toString());
-        } elseif (Uuid::isValid($identifier)) {
-            $identifier = strtolower(Uuid::fromString($identifier)->toString());
-        } else {
-            throw new \InvalidArgumentException('The identifier must be a UUID.');
-        }
-
-        $this->identifier = $identifier;
-
-        return $this;
-    }
-
-    #[\Override]
-    public function getIdentifier(): string
-    {
-        return $this->identifier;
-    }
-
-    public function setUri(string $uri): static
-    {
-        $this->uri = $uri;
-
-        return $this;
-    }
-
-    #[\Override]
-    public function getUri(): string
-    {
-        return $this->uri;
     }
 
     /**
