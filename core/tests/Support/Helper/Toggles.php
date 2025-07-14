@@ -17,7 +17,7 @@ class Toggles extends \Codeception\Module
         }
 
         /** @var Symfony $symfony */
-        $symfony = $this->getModule(Symfony2Module::class);
+        $symfony = $this->getModule('Symfony');
 
         $features = $symfony->grabService(FeatureManager::class);
 

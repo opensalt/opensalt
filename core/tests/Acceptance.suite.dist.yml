@@ -1,13 +1,13 @@
 actor: AcceptanceTester
 modules:
     enabled:
-        - Tests\Support\Helper\Symfony2Module:
+        - Symfony:
             app_path: 'src'
             var_path: 'var'
-            environment: 'prod'
+            environment: 'test'
             part: SERVICES
         - Doctrine:
-            depends: Tests\Support\Helper\Symfony2Module
+            depends: Symfony
             cleanup: false
         - REST:
             depends: PhpBrowser

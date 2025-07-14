@@ -4,6 +4,7 @@ modules:
         - Tests\Support\Helper\Symfony2Module:
             app_path: 'src'
             var_path: 'var'
+            environment: 'test'
         - Doctrine:
             depends: Tests\Support\Helper\Symfony2Module
         - Tests\Support\Helper\Functional
