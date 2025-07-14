@@ -660,7 +660,7 @@ class DocTreeController extends AbstractController
             foreach ($locks as $lock) {
                 $expiry = false;
                 if ($lock->getUser() !== $user) {
-                    $expiry = (int) $lock->getTimeout()->add(new \DateInterval('PT30S'))->format('Uv');
+                    $expiry = (int) \DateTime::createFromInterface($lock->getTimeout())->add(new \DateInterval('PT30S'))->format('Uv');
                 }
 
                 if (LsDoc::class === $lock->getObjectType()) {

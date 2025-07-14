@@ -18,19 +18,19 @@ class CustomMySQLSchemaManager extends MySQLSchemaManager
     ];
 
     #[\Override]
-    protected function _getPortableTableIndexesList(array $tableIndexes, string $tableName): array
+    protected function _getPortableTableIndexesList(array $rows, string $tableName): array
     {
-        foreach ($tableIndexes as $k => $v) {
+        foreach ($rows as $k => $v) {
             $v = array_change_key_case($v, CASE_LOWER);
             if (in_array($v['key_name'], self::INDEXES_TO_FILTER, true)) {
                 // Ignore specific set of indexes
-                unset($tableIndexes[$k]);
+                unset($rows[$k]);
                 continue;
             }
 
             if (null === $v['column_name']) {
                 // Ignore indexes with no columns (functional indexes)
-                unset($tableIndexes[$k]);
+                unset($rows[$k]);
                 continue;
             }
 
@@ -47,9 +47,9 @@ class CustomMySQLSchemaManager extends MySQLSchemaManager
                 $v['length'] = isset($v['sub_part']) ? (int) $v['sub_part'] : null;
             }
 
-            $tableIndexes[$k] = $v;
+            $rows[$k] = $v;
         }
 
-        return parent::_getPortableTableIndexesList($tableIndexes, $tableName);
+        return parent::_getPortableTableIndexesList($rows, $tableName);
     }
 }
