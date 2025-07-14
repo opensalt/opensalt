@@ -1,9 +1,0 @@
-actor: FunctionalTester
-modules:
-    enabled:
-        - Symfony2Module:
-            app_path: 'src'
-            var_path: 'var'
-        - Doctrine:
-            depends: Symfony2Module
-        - \Helper\Functional

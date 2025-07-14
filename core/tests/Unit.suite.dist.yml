@@ -1,0 +1,14 @@
+actor: UnitTester
+modules:
+    enabled:
+        - Tests\Support\Helper\Symfony2Module:
+            app_path: 'src'
+            var_path: 'var'
+            environment: 'prod'
+            part: SERVICES
+        - Doctrine:
+            depends: Tests\Support\Helper\Symfony2Module
+            cleanup: true
+        - Tests\Support\Helper\Unit
+        - Tests\Support\Helper\UserManagement
+step_decorators: ~

@@ -1,0 +1,9 @@
+actor: ApiTester
+modules:
+    enabled:
+        - REST:
+            depends: PhpBrowser
+            url: 'http://web'
+        - Tests\Support\Helper\Api
+step_decorators: ~
+

@@ -1,0 +1,10 @@
+actor: FunctionalTester
+modules:
+    enabled:
+        - Tests\Support\Helper\Symfony2Module:
+            app_path: 'src'
+            var_path: 'var'
+        - Doctrine:
+            depends: Tests\Support\Helper\Symfony2Module
+        - Tests\Support\Helper\Functional
+step_decorators: ~

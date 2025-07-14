@@ -29,6 +29,7 @@ doctrine:
         types:
             json: App\Doctrine\Types\JsonType
             datetime: App\Doctrine\Types\DateTimeType
+            datetimetz_immutable: App\Doctrine\Types\DateTimeTzImmutableType
         #mapping_types:
         #    json: string
         #    uuid: char(36)

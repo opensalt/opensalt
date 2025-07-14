@@ -64,7 +64,7 @@ jobs:
 
       - name: Initialize db data
         run: |
-          docker compose exec web ./bin/console --env=prod import:generic-csv tests/_data/test_items.csv
+          docker compose exec web ./bin/console --env=prod import:generic-csv tests/Support/Data/test_items.csv
 
       - name: Run tests
         run: ./core/bin/run-tests ${RUN_TEST_ARGS:-$DEFAULT_RUN_TEST_ARGS}

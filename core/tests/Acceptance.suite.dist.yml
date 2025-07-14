@@ -1,0 +1,59 @@
+actor: AcceptanceTester
+modules:
+    enabled:
+        - Tests\Support\Helper\Symfony2Module:
+            app_path: 'src'
+            var_path: 'var'
+            environment: 'prod'
+            part: SERVICES
+        - Doctrine:
+            depends: Tests\Support\Helper\Symfony2Module
+            cleanup: false
+        - REST:
+            depends: PhpBrowser
+            url: 'http://web'
+        - WebDriver:
+            url: 'http://web'
+            browser: chrome
+            host: chrome
+            capabilities:
+                chromeOptions:
+                    args: ['--headless', '--disable-gpu']
+            restart: true
+            window_size: 1500x1100
+            log_js_errors: true
+            wait: 5
+            request_timeout: 120
+            pageload_timeout: 120
+        - Tests\Support\Helper\Acceptance
+        - Tests\Support\Helper\UserManagement
+        - Tests\Support\Helper\Guzzle
+        - Tests\Support\Helper\Toggles
+        - Tests\Support\Helper\Remember
+        - Tests\Support\Helper\PdfReader
+        - Asserts
+        - Sequence
+
+# Add Codeception\Step\Retry trait to AcceptanceTester to enable retries
+step_decorators:
+    - Codeception\Step\ConditionalAssertion
+    - Codeception\Step\TryTo
+    - Codeception\Step\Retry
+
+paths:
+    envs: tests/_envs
+
+gherkin:
+    contexts:
+        default:
+            - Tests\Support\AcceptanceTester
+            - "Tests\\Support\\Context\\Login"
+            - "Tests\\Support\\Page\\Framework"
+            - "Tests\\Support\\Page\\Item"
+            - "Tests\\Support\\Page\\Exemplar"
+            - "Tests\\Support\\Page\\Notification"
+            - "Tests\\Support\\Page\\Organization"
+            - "Tests\\Support\\Page\\FrameworkLogs"
+            - "Tests\\Support\\Page\\SystemLogs"
+            - "Tests\\Support\\Page\\User"
+            - "Tests\\Support\\Page\\Comment"

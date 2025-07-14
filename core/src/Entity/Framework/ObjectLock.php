@@ -22,7 +22,7 @@ class ObjectLock
     protected ?int $id = null;
 
     #[ORM\Column(name: 'expiry', type: Types::DATETIMETZ_IMMUTABLE, precision: 6, nullable: false)]
-    protected \DateTime $timeout;
+    protected \DateTimeInterface $timeout;
 
     #[ORM\Column(name: 'obj_type', type: 'string', nullable: false)]
     protected string $objectType;
@@ -43,7 +43,7 @@ class ObjectLock
         if (null === $obj->getId()) {
             throw new \RuntimeException('Attempt to lock non-persisted object.');
         }
-        $this->timeout = new \DateTime(sprintf('now + %d minutes', $minutes));
+        $this->timeout = new \DateTimeImmutable(sprintf('now + %d minutes', $minutes));
         $this->objectType = $obj::class;
         $this->objectId = (string) $obj->getId();
         if ($obj instanceof LsDoc) {
@@ -68,14 +68,14 @@ class ObjectLock
         return new \DateTime() > $this->timeout;
     }
 
-    public function getTimeout(): \DateTime
+    public function getTimeout(): \DateTimeInterface
     {
         return $this->timeout;
     }
 
     public function addTime(int $minutes): void
     {
-        $this->timeout = new \DateTime(sprintf('now + %d minutes', $minutes));
+        $this->timeout = new \DateTimeImmutable(sprintf('now + %d minutes', $minutes));
     }
 
     public function getObjectType(): string
