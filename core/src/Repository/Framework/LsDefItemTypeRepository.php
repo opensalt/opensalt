@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\LsDefItemType;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method LsDefItemType|null findOneByTitle(string $title)
  * @method LsDefItemType|null findOneByIdentifier(string $identifier)
  */
-class LsDefItemTypeRepository extends AbstractLsDefinitionRepository
+class LsDefItemTypeRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

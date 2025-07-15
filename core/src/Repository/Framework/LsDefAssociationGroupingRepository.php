@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\LsDefAssociationGrouping;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method LsDefAssociationGrouping|null findOneByIdentifier(string $identifier)
  */
-class LsDefAssociationGroupingRepository extends AbstractLsDefinitionRepository
+class LsDefAssociationGroupingRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

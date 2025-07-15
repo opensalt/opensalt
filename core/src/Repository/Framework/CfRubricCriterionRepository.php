@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\CfRubricCriterion;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-class CfRubricCriterionRepository extends AbstractLsBaseRepository
+class CfRubricCriterionRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

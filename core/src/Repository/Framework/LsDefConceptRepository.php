@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\LsDefConcept;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method LsDefConcept|null findOneByIdentifier(string $identifier)
  */
-class LsDefConceptRepository extends AbstractLsDefinitionRepository
+class LsDefConceptRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

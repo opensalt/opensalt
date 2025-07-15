@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\LsDefLicence;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method LsDefLicence|null findOneByIdentifier(string $identifier)
  */
-class LsDefLicenceRepository extends AbstractLsDefinitionRepository
+class LsDefLicenceRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
