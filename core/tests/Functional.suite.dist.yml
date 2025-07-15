@@ -1,7 +1,7 @@
 actor: FunctionalTester
 modules:
     enabled:
-        - TSymfony:
+        - Symfony:
             app_path: 'src'
             var_path: 'var'
             environment: 'test'
