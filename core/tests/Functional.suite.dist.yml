@@ -1,11 +1,11 @@
 actor: FunctionalTester
 modules:
     enabled:
-        - Tests\Support\Helper\Symfony2Module:
+        - TSymfony:
             app_path: 'src'
             var_path: 'var'
             environment: 'test'
         - Doctrine:
-            depends: Tests\Support\Helper\Symfony2Module
+            depends: Symfony
         - Tests\Support\Helper\Functional
 step_decorators: ~

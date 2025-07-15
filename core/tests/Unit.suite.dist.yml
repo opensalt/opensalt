@@ -1,13 +1,13 @@
 actor: UnitTester
 modules:
     enabled:
-        - Tests\Support\Helper\Symfony2Module:
+        - Symfony:
             app_path: 'src'
             var_path: 'var'
             environment: 'test'
             part: SERVICES
         - Doctrine:
-            depends: Tests\Support\Helper\Symfony2Module
+            depends: Symfony
             cleanup: true
         - Tests\Support\Helper\Unit
         - Tests\Support\Helper\UserManagement
