@@ -28,6 +28,7 @@ doctrine:
                     collate: utf8mb4_unicode_ci
         types:
             json: App\Doctrine\Types\JsonType
+            date: App\Doctrine\Types\DateType
             datetime: App\Doctrine\Types\DateTimeType
             datetimetz_immutable: App\Doctrine\Types\DateTimeTzImmutableType
         #mapping_types:
