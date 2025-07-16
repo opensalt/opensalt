@@ -42,7 +42,7 @@ final readonly class ConceptsTransformer
      *
      * @return LsDefConcept[]
      */
-    protected function findExistingConcepts(array $cfConcepts): array
+    private function findExistingConcepts(array $cfConcepts): array
     {
         $newIds = array_map(static fn (CFConcept $itemType): string => $itemType->identifier->toString(), $cfConcepts);
 
@@ -52,7 +52,7 @@ final readonly class ConceptsTransformer
     /**
      * @param LsDefConcept[] $existingConcepts
      */
-    protected function updateConcept(CFConcept $cfConcept, array &$existingConcepts): void
+    private function updateConcept(CFConcept $cfConcept, array &$existingConcepts): void
     {
         $concept = $this->findOrCreateConcept($cfConcept, $existingConcepts);
         $concept->setUri($cfConcept->uri);
@@ -67,7 +67,7 @@ final readonly class ConceptsTransformer
     /**
      * @param LsDefConcept[] $existingConcepts
      */
-    protected function findOrCreateConcept(CFConcept $cfConcept, array &$existingConcepts): LsDefConcept
+    private function findOrCreateConcept(CFConcept $cfConcept, array &$existingConcepts): LsDefConcept
     {
         if (!array_key_exists($cfConcept->identifier->toString(), $existingConcepts)) {
             $newConcept = new LsDefConcept($cfConcept->identifier->toString());

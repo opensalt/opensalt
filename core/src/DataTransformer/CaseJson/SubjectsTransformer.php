@@ -42,7 +42,7 @@ final readonly class SubjectsTransformer
      *
      * @return LsDefSubject[]
      */
-    protected function findExistingSubjects(array $subjects): array
+    private function findExistingSubjects(array $subjects): array
     {
         $newIds = array_map(static fn (CFSubject $subject): string => $subject->identifier->toString(), $subjects);
 
@@ -52,7 +52,7 @@ final readonly class SubjectsTransformer
     /**
      * @param LsDefSubject[] $existingSubjects
      */
-    protected function updateSubject(CFSubject $cfSubject, array &$existingSubjects): void
+    private function updateSubject(CFSubject $cfSubject, array &$existingSubjects): void
     {
         $subject = $this->findOrCreateSubject($cfSubject, $existingSubjects);
         $subject->setUri($cfSubject->uri);
@@ -66,7 +66,7 @@ final readonly class SubjectsTransformer
     /**
      * @param LsDefSubject[] $existingSubjects
      */
-    protected function findOrCreateSubject(CFSubject $cfSubject, array &$existingSubjects): LsDefSubject
+    private function findOrCreateSubject(CFSubject $cfSubject, array &$existingSubjects): LsDefSubject
     {
         if (!array_key_exists($cfSubject->identifier->toString(), $existingSubjects)) {
             $subject = new LsDefSubject($cfSubject->identifier->toString());

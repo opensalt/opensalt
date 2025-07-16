@@ -42,7 +42,7 @@ final readonly class LicencesTransformer
      *
      * @return LsDefLicence[]
      */
-    protected function findExistingLicences(array $cfLicences): array
+    private function findExistingLicences(array $cfLicences): array
     {
         $newIds = array_map(static fn (CFLicense $itemType): string => $itemType->identifier->toString(), $cfLicences);
 
@@ -52,7 +52,7 @@ final readonly class LicencesTransformer
     /**
      * @param LsDefLicence[] $licences
      */
-    protected function updateLicence(CFLicense $cfLicence, array &$licences): void
+    private function updateLicence(CFLicense $cfLicence, array &$licences): void
     {
         $licence = $this->findOrCreateLicence($cfLicence, $licences);
         $licence->setUri($cfLicence->uri);
@@ -66,7 +66,7 @@ final readonly class LicencesTransformer
     /**
      * @param LsDefLicence[] $licences
      */
-    protected function findOrCreateLicence(CFLicense $cfLicense, array &$licences): LsDefLicence
+    private function findOrCreateLicence(CFLicense $cfLicense, array &$licences): LsDefLicence
     {
         if (!array_key_exists($cfLicense->identifier->toString(), $licences)) {
             $licence = new LsDefLicence($cfLicense->identifier->toString());

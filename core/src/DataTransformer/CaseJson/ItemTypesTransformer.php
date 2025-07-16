@@ -42,7 +42,7 @@ final readonly class ItemTypesTransformer
      *
      * @return LsDefItemType[]
      */
-    protected function findExistingItemTypes(array $cfItemTypes): array
+    private function findExistingItemTypes(array $cfItemTypes): array
     {
         $newIds = array_map(static fn (CFItemType $itemType): string => $itemType->identifier->toString(), $cfItemTypes);
 
@@ -52,7 +52,7 @@ final readonly class ItemTypesTransformer
     /**
      * @param LsDefItemType[] $existingItemTypes
      */
-    protected function updateItemType(CFItemType $cfItemType, array &$existingItemTypes): void
+    private function updateItemType(CFItemType $cfItemType, array &$existingItemTypes): void
     {
         $type = $this->findOrCreateItemType($cfItemType, $existingItemTypes);
         $type->setUri($cfItemType->uri);
@@ -69,7 +69,7 @@ final readonly class ItemTypesTransformer
     /**
      * @param LsDefItemType[] $existingItemTypes
      */
-    protected function findOrCreateItemType(CFItemType $cfItemType, array &$existingItemTypes): LsDefItemType
+    private function findOrCreateItemType(CFItemType $cfItemType, array &$existingItemTypes): LsDefItemType
     {
         if (!array_key_exists($cfItemType->identifier->toString(), $existingItemTypes)) {
             $newItemType = new LsDefItemType($cfItemType->identifier->toString());

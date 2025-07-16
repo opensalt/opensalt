@@ -42,7 +42,7 @@ final readonly class AssociationGroupingsTransformer
      *
      * @return LsDefAssociationGrouping[]
      */
-    protected function findExistingGroups(array $cfAssociationGroupings): array
+    private function findExistingGroups(array $cfAssociationGroupings): array
     {
         $newIds = array_map(static fn (CFAssociationGrouping $group): string => $group->identifier->toString(), $cfAssociationGroupings);
 
@@ -52,7 +52,7 @@ final readonly class AssociationGroupingsTransformer
     /**
      * @param LsDefAssociationGrouping[] $existingAssociationGroups
      */
-    protected function updateAssociationGrouping(CFAssociationGrouping $cfAssociationGrouping, array &$existingAssociationGroups): void
+    private function updateAssociationGrouping(CFAssociationGrouping $cfAssociationGrouping, array &$existingAssociationGroups): void
     {
         $grouping = $this->findOrCreateAssociationGrouping($cfAssociationGrouping, $existingAssociationGroups);
         $grouping->setUri($cfAssociationGrouping->uri);
@@ -66,7 +66,7 @@ final readonly class AssociationGroupingsTransformer
     /**
      * @param LsDefAssociationGrouping[] $existingAssociationGroups
      */
-    protected function findOrCreateAssociationGrouping(CFAssociationGrouping $cfAssociationGrouping, array &$existingAssociationGroups): LsDefAssociationGrouping
+    private function findOrCreateAssociationGrouping(CFAssociationGrouping $cfAssociationGrouping, array &$existingAssociationGroups): LsDefAssociationGrouping
     {
         if (!array_key_exists($cfAssociationGrouping->identifier->toString(), $existingAssociationGroups)) {
             $newGrouping = new LsDefAssociationGrouping($cfAssociationGrouping->identifier->toString());
