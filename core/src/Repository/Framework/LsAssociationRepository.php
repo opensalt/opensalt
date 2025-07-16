@@ -140,7 +140,7 @@ class LsAssociationRepository extends ServiceEntityRepository
      *
      * @return LsAssociation[]
      */
-    public function findByIdentifiers(array $identifiers): array
+    public function findByIdentifiers(array $identifiers, LsDoc $doc): array
     {
         if ([] === $identifiers) {
             return [];
@@ -148,6 +148,9 @@ class LsAssociationRepository extends ServiceEntityRepository
 
         $qb = $this->createQueryBuilder('t', 't.identifier');
         $qb->where($qb->expr()->in('t.identifier', $identifiers));
+        $qb->andWhere('t.lsDoc = :docId')
+            ->setParameter('docId', $doc->getId())
+        ;
 
         return $qb->getQuery()->getResult();
     }

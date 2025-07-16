@@ -44,7 +44,7 @@ final class AssociationsTransformer
         $this->definitions = $definitions;
         $this->items = $items;
 
-        $associations = $this->findExistingAssociations($cfAssociations);
+        $associations = $this->findExistingAssociations($cfAssociations, $doc);
 
         foreach ($cfAssociations as $cfAssociation) {
             $association = $associations[$cfAssociation->identifier->toString()] ?? $this->createAssociation($cfAssociation, $doc);
@@ -61,11 +61,11 @@ final class AssociationsTransformer
      *
      * @return LsAssociation[]
      */
-    private function findExistingAssociations(array $cfAssociations): array
+    private function findExistingAssociations(array $cfAssociations, LsDoc $doc): array
     {
         $newIds = array_map(static fn (CFPackageAssociation $item): string => $item->identifier->toString(), $cfAssociations);
 
-        return $this->repository->findByIdentifiers($newIds);
+        return $this->repository->findByIdentifiers($newIds, $doc);
     }
 
     /**

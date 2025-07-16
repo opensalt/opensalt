@@ -60,7 +60,7 @@ class DateTimeType extends \Doctrine\DBAL\Types\DateTimeType
     #[\Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
-        if (!in_array($column['precision'] ?? 0, [0, 10], false)) {
+        if (!in_array($column['precision'] ?? 0, range(0, 10), false)) {
             return sprintf('DATETIME(%s)', $column['precision']);
         }
 
