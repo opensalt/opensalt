@@ -9,10 +9,12 @@ use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Repository\Framework\LsDefAssociationGroupingRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-class AssociationGroupingsTransformer
+final readonly class AssociationGroupingsTransformer
 {
-    public function __construct(private readonly EntityManagerInterface $em)
-    {
+    public function __construct(
+        private EntityManagerInterface $em,
+        private LsDefAssociationGroupingRepository $repository,
+    ) {
     }
 
     /**
@@ -42,12 +44,9 @@ class AssociationGroupingsTransformer
      */
     protected function findExistingGroups(array $cfAssociationGroupings): array
     {
-        /** @var LsDefAssociationGroupingRepository $repo */
-        $repo = $this->em->getRepository(LsDefAssociationGrouping::class);
-
         $newIds = array_map(static fn (CFAssociationGrouping $group): string => $group->identifier->toString(), $cfAssociationGroupings);
 
-        return $repo->findByIdentifiers($newIds);
+        return $this->repository->findByIdentifiers($newIds);
     }
 
     /**

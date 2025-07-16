@@ -9,10 +9,12 @@ use App\Entity\Framework\LsDefLicence;
 use App\Repository\Framework\LsDefLicenceRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-class LicencesTransformer
+final readonly class LicencesTransformer
 {
-    public function __construct(private readonly EntityManagerInterface $em)
-    {
+    public function __construct(
+        private EntityManagerInterface $em,
+        private LsDefLicenceRepository $repository,
+    ) {
     }
 
     /**
@@ -42,12 +44,9 @@ class LicencesTransformer
      */
     protected function findExistingLicences(array $cfLicences): array
     {
-        /** @var LsDefLicenceRepository $repo */
-        $repo = $this->em->getRepository(LsDefLicence::class);
-
         $newIds = array_map(static fn (CFLicense $itemType): string => $itemType->identifier->toString(), $cfLicences);
 
-        return $repo->findByIdentifiers($newIds);
+        return $this->repository->findByIdentifiers($newIds);
     }
 
     /**

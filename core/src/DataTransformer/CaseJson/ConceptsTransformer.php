@@ -9,10 +9,12 @@ use App\Entity\Framework\LsDefConcept;
 use App\Repository\Framework\LsDefConceptRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-class ConceptsTransformer
+final readonly class ConceptsTransformer
 {
-    public function __construct(private readonly EntityManagerInterface $em)
-    {
+    public function __construct(
+        private EntityManagerInterface $em,
+        private LsDefConceptRepository $repository,
+    ) {
     }
 
     /**
@@ -42,12 +44,9 @@ class ConceptsTransformer
      */
     protected function findExistingConcepts(array $cfConcepts): array
     {
-        /** @var LsDefConceptRepository $repo */
-        $repo = $this->em->getRepository(LsDefConcept::class);
-
         $newIds = array_map(static fn (CFConcept $itemType): string => $itemType->identifier->toString(), $cfConcepts);
 
-        return $repo->findByIdentifiers($newIds);
+        return $this->repository->findByIdentifiers($newIds);
     }
 
     /**

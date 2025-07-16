@@ -8,12 +8,17 @@ use App\DTO\CaseJson\CFPackageDocument;
 use App\DTO\CaseJson\Definitions;
 use App\Entity\Framework\FrameworkType;
 use App\Entity\Framework\LsDoc;
+use App\Repository\Framework\FrameworkTypeRepository;
+use App\Repository\Framework\LsDocRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-class DocumentTransformer
+final readonly class DocumentTransformer
 {
-    public function __construct(private readonly EntityManagerInterface $em)
-    {
+    public function __construct(
+        private EntityManagerInterface $em,
+        private LsDocRepository $repository,
+        private FrameworkTypeRepository $frameworkTypeRepository,
+    ) {
     }
 
     public function transform(CFPackageDocument $cfDocument, Definitions $definitions): LsDoc
@@ -27,7 +32,7 @@ class DocumentTransformer
 
     private function findOrCreateDocument(CFPackageDocument $cfDocument): LsDoc
     {
-        $doc = $this->em->getRepository(LsDoc::class)->findOneByIdentifier($cfDocument->identifier->toString());
+        $doc = $this->repository->findOneByIdentifier($cfDocument->identifier->toString());
 
         if (null === $doc) {
             $doc = new LsDoc($cfDocument->identifier->toString());
@@ -43,7 +48,7 @@ class DocumentTransformer
             return null;
         }
 
-        $frameworkTypeObj = $this->em->getRepository(FrameworkType::class)->findOneBy(['frameworkType' => $frameworkType]);
+        $frameworkTypeObj = $this->frameworkTypeRepository->findOneBy(['frameworkType' => $frameworkType]);
 
         if (null === $frameworkTypeObj) {
             $frameworkTypeObj = new FrameworkType($frameworkType);

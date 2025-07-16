@@ -16,7 +16,7 @@ use App\Repository\Framework\LsAssociationRepository;
 use App\Service\LoggerTrait;
 use Doctrine\ORM\EntityManagerInterface;
 
-class AssociationsTransformer
+final class AssociationsTransformer
 {
     use LoggerTrait;
 
@@ -27,8 +27,10 @@ class AssociationsTransformer
      */
     private array $items;
 
-    public function __construct(private EntityManagerInterface $em)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private readonly LsAssociationRepository $repository,
+    ) {
     }
 
     /**
@@ -61,12 +63,9 @@ class AssociationsTransformer
      */
     private function findExistingAssociations(array $cfAssociations): array
     {
-        /** @var LsAssociationRepository $repo */
-        $repo = $this->em->getRepository(LsAssociation::class);
-
         $newIds = array_map(static fn (CFPackageAssociation $item): string => $item->identifier->toString(), $cfAssociations);
 
-        return $repo->findByIdentifiers($newIds);
+        return $this->repository->findByIdentifiers($newIds);
     }
 
     /**

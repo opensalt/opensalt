@@ -11,20 +11,29 @@ use App\Entity\Framework\CfRubric;
 use App\Entity\Framework\CfRubricCriterion;
 use App\Entity\Framework\CfRubricCriterionLevel;
 use App\Entity\Framework\LsItem;
+use App\Repository\Framework\CfRubricCriterionLevelRepository;
+use App\Repository\Framework\CfRubricCriterionRepository;
+use App\Repository\Framework\CfRubricRepository;
+use App\Repository\Framework\LsItemRepository;
 use App\Service\LoggerTrait;
 use Doctrine\ORM\EntityManagerInterface;
 
-class RubricsTransformer
+final class RubricsTransformer
 {
     use LoggerTrait;
 
     /**
-     * @var LsItem[]|array
+     * @var LsItem[]
      */
     private array $items;
 
-    public function __construct(private EntityManagerInterface $em)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private readonly CfRubricRepository $repository,
+        private readonly CfRubricCriterionRepository $criterionRepository,
+        private readonly CfRubricCriterionLevelRepository $criterionLevelRepository,
+        private readonly LsItemRepository $itemRepository,
+    ) {
     }
 
     /**
@@ -59,7 +68,7 @@ class RubricsTransformer
     {
         $identifiers = array_map(static fn (CFPackageRubric $rubric): string => $rubric->identifier->toString(), $cfRubrics);
 
-        return $this->em->getRepository(CfRubric::class)->findByIdentifier($identifiers);
+        return $this->repository->findByIdentifier($identifiers);
     }
 
     private function createRubric(CFPackageRubric $cfRubric): CfRubric
@@ -112,7 +121,7 @@ class RubricsTransformer
 
     private function createCriterion(CFPackageCriterion $cfCriterion, CfRubric $rubric): CfRubricCriterion
     {
-        $criterion = $this->em->getRepository(CfRubricCriterion::class)->findOneBy(['identifier' => $cfCriterion->identifier->toString()]);
+        $criterion = $this->criterionRepository->findOneBy(['identifier' => $cfCriterion->identifier->toString()]);
 
         if (null !== $criterion) {
             return $criterion;
@@ -180,7 +189,7 @@ class RubricsTransformer
 
     private function createCriterionLevel(CFPackageCriterionLevel $cfCriterionLevel, CfRubricCriterion $criterion): CfRubricCriterionLevel
     {
-        $level = $this->em->getRepository(CfRubricCriterionLevel::class)->findOneBy(['identifier' => $cfCriterionLevel->identifier->toString()]);
+        $level = $this->criterionLevelRepository->findOneBy(['identifier' => $cfCriterionLevel->identifier->toString()]);
 
         if (null !== $level) {
             return $level;
@@ -214,7 +223,7 @@ class RubricsTransformer
 
     private function findItem(string $itemIdentifier): LsItem
     {
-        $item = $this->em->getRepository(LsItem::class)->findOneByIdentifier($itemIdentifier);
+        $item = $this->itemRepository->findOneByIdentifier($itemIdentifier);
 
         if (null === $item) {
             $this->error(sprintf('Item %s for CFRubricCriterion is missing', $itemIdentifier));

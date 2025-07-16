@@ -9,10 +9,12 @@ use App\Entity\Framework\LsDefSubject;
 use App\Repository\Framework\LsDefSubjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-class SubjectsTransformer
+final readonly class SubjectsTransformer
 {
-    public function __construct(private readonly EntityManagerInterface $em)
-    {
+    public function __construct(
+        private EntityManagerInterface $em,
+        private LsDefSubjectRepository $repository,
+    ) {
     }
 
     /**
@@ -42,12 +44,9 @@ class SubjectsTransformer
      */
     protected function findExistingSubjects(array $subjects): array
     {
-        /** @var LsDefSubjectRepository $repo */
-        $repo = $this->em->getRepository(LsDefSubject::class);
-
         $newIds = array_map(static fn (CFSubject $subject): string => $subject->identifier->toString(), $subjects);
 
-        return $repo->findByIdentifiers($newIds);
+        return $this->repository->findByIdentifiers($newIds);
     }
 
     /**

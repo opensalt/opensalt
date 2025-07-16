@@ -9,10 +9,12 @@ use App\Entity\Framework\LsDefItemType;
 use App\Repository\Framework\LsDefItemTypeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-class ItemTypesTransformer
+final readonly class ItemTypesTransformer
 {
-    public function __construct(private readonly EntityManagerInterface $em)
-    {
+    public function __construct(
+        private EntityManagerInterface $em,
+        private LsDefItemTypeRepository $repository,
+    ) {
     }
 
     /**
@@ -42,12 +44,9 @@ class ItemTypesTransformer
      */
     protected function findExistingItemTypes(array $cfItemTypes): array
     {
-        /** @var LsDefItemTypeRepository $repo */
-        $repo = $this->em->getRepository(LsDefItemType::class);
-
         $newIds = array_map(static fn (CFItemType $itemType): string => $itemType->identifier->toString(), $cfItemTypes);
 
-        return $repo->findByIdentifiers($newIds);
+        return $this->repository->findByIdentifiers($newIds);
     }
 
     /**

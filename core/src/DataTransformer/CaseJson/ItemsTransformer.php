@@ -14,14 +14,16 @@ use App\Service\LoggerTrait;
 use App\Util\EducationLevelSet;
 use Doctrine\ORM\EntityManagerInterface;
 
-class ItemsTransformer
+final class ItemsTransformer
 {
     use LoggerTrait;
 
     private Definitions $definitions;
 
-    public function __construct(private EntityManagerInterface $em)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private readonly LsItemRepository $repository,
+    ) {
     }
 
     /**
@@ -52,12 +54,9 @@ class ItemsTransformer
      */
     private function findExistingItems(array $cfItems): array
     {
-        /** @var LsItemRepository $repo */
-        $repo = $this->em->getRepository(LsItem::class);
-
         $newIds = array_map(static fn (CFPackageItem $item): string => $item->identifier->toString(), $cfItems);
 
-        return $repo->findByIdentifiers($newIds);
+        return $this->repository->findByIdentifiers($newIds);
     }
 
     /**
