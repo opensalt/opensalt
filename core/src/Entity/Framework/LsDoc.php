@@ -63,9 +63,9 @@ class LsDoc implements CaseApiInterface, LockableInterface
     #[Assert\Length(max: 300)]
     private ?string $publisher = null;
 
-    #[ORM\Column(name: 'title', type: 'string', length: 120, nullable: false)]
+    #[ORM\Column(name: 'title', type: 'string', length: 300, nullable: false)]
     #[Assert\NotBlank]
-    #[Assert\Length(max: 120)]
+    #[Assert\Length(max: 300)]
     private ?string $title = null;
 
     #[ORM\Column(name: 'url_name', type: 'string', length: 255, unique: true, nullable: true)]

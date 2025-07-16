@@ -38,7 +38,7 @@ class Framework
     #[ORM\Column(name: 'creator', type: 'string', nullable: true)]
     private ?string $creator = null;
 
-    #[ORM\Column(name: 'title', type: 'string', nullable: true)]
+    #[ORM\Column(name: 'title', type: 'string', length: 300, nullable: true)]
     private ?string $title = null;
 
     #[ORM\OneToOne(mappedBy: 'mirroredFramework', targetEntity: LsDoc::class)]
