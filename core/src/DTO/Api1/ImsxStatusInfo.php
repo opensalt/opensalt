@@ -15,20 +15,31 @@ class ImsxStatusInfo
     final public const string SEVERITY_WARNING = 'warning';
     final public const string SEVERITY_ERROR = 'error';
 
-    public static array $codeMajorValues = [
+    final public const array CODE_MAJOR_VALUES = [
         self::CODE_MAJOR_SUCCESS,
         self::CODE_MAJOR_PROCESSING,
         self::CODE_MAJOR_FAILURE,
         self::CODE_MAJOR_UNSUPPORTED,
     ];
 
-    public static array $severityValues = [
+    final public const array SEVERITY_VALUES = [
         self::SEVERITY_STATUS,
         self::SEVERITY_WARNING,
         self::SEVERITY_ERROR,
     ];
 
-    public function __construct(public string $codeMajor, public string $severity, public ?ImsxCodeMinor $codeMinor = null, public ?string $description = null)
-    {
+    public function __construct(
+        public string $codeMajor,
+        public string $severity,
+        public ?ImsxCodeMinor $codeMinor = null,
+        public ?string $description = null,
+    ) {
+        if (!in_array($this->codeMajor, self::CODE_MAJOR_VALUES, true)) {
+            throw new \InvalidArgumentException(sprintf('Value %s is invalid.', $this->codeMajor));
+        }
+
+        if (!in_array($this->severity, self::SEVERITY_VALUES, true)) {
+            throw new \InvalidArgumentException(sprintf('Value %s is invalid.', $this->severity));
+        }
     }
 }
