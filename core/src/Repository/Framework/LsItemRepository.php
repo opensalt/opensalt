@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\LsAssociation;
+use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\Criteria;
@@ -164,14 +165,17 @@ class LsItemRepository extends ServiceEntityRepository
      *
      * @return LsItem[]
      */
-    public function findByIdentifiers(array $identifiers): array
+    public function findByIdentifiers(array $identifiers, LsDoc $doc): array
     {
         if ([] === $identifiers) {
             return [];
         }
 
         $qb = $this->createQueryBuilder('t', 't.identifier');
-        $qb->where($qb->expr()->in('t.identifier', $identifiers));
+        $qb->where($qb->expr()->in('t.identifier', $identifiers))
+            ->andWhere('t.lsDoc = :lsDocId')
+            ->setParameter('lsDocId', $doc->getId())
+        ;
 
         return $qb->getQuery()->getResult();
     }

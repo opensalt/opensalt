@@ -35,7 +35,7 @@ final class ItemsTransformer
     {
         $this->definitions = $definitions;
 
-        $items = $this->findExistingItems($cfItems);
+        $items = $this->findExistingItems($cfItems, $doc);
 
         foreach ($cfItems as $cfItem) {
             $item = $items[$cfItem->identifier->toString()] ?? $this->createItem($cfItem, $doc);
@@ -52,11 +52,11 @@ final class ItemsTransformer
      *
      * @return LsItem[]
      */
-    private function findExistingItems(array $cfItems): array
+    private function findExistingItems(array $cfItems, LsDoc $doc): array
     {
         $newIds = array_map(static fn (CFPackageItem $item): string => $item->identifier->toString(), $cfItems);
 
-        return $this->repository->findByIdentifiers($newIds);
+        return $this->repository->findByIdentifiers($newIds, $doc);
     }
 
     /**
