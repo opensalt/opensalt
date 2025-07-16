@@ -35,6 +35,14 @@ class MirroredServerDTOType extends AbstractType
                 ],
                 'help' => 'Enter the URL of the server you want to mirror.',
             ])
+            ->add('serverType', ChoiceType::class, [
+                'label' => 'Server Type',
+                'help' => 'Which version of CASE does the server use?',
+                'choices' => [
+                    'CASE 1.0' => Server::TYPE_CASE_1_0,
+                    'CASE 1.1' => Server::TYPE_CASE_1_1,
+                ],
+            ])
             ->add('autoAddFoundFrameworks', ChoiceType::class, [
                 'label' => 'Automatically add frameworks?',
                 'help' => 'Should all frameworks found on this server be automatically added to the list of frameworks being mirrored?',

@@ -89,9 +89,14 @@ class MirrorServer
             $mirroredDoc->setInclude($include ?? $server->isAddFoundFrameworks());
         }
 
+        $packageEndpoint = match ($server->getServerType()) {
+            Server::TYPE_CASE_1_1 => Server::URL_CASE_1_1_PACKAGE,
+            default => Server::URL_CASE_1_0_PACKAGE,
+        };
+
         if (null === $url) {
             $uri = UriString::parse($server->getUrl());
-            $uri['path'] = rtrim($uri['path'], '/').Server::URL_CASE_1_0_PACKAGE.'/'.($doc['CFPackageURI']['identifier'] ?? $doc['identifier']);
+            $uri['path'] = rtrim($uri['path'], '/').$packageEndpoint.'/'.($doc['CFPackageURI']['identifier'] ?? $doc['identifier']);
             $uri['query'] = null;
             $uri['fragment'] = null;
             $url = UriString::build($uri);
@@ -186,8 +191,13 @@ class MirrorServer
 
     private function fetchDocumentListJson(Server $server): string
     {
+        $listEndpoint = match ($server->getServerType()) {
+            Server::TYPE_CASE_1_1 => Server::URL_CASE_1_1_LIST,
+            default => Server::URL_CASE_1_0_LIST,
+        };
+
         $uri = UriString::parse($server->getUrl());
-        $uri['path'] = rtrim($uri['path'], '/').Server::URL_CASE_1_0_LIST;
+        $uri['path'] = rtrim($uri['path'], '/').$listEndpoint;
         $url = UriString::build($uri);
 
         return $this->fetchUrlWithCredentials($url, $server->getCredentials());

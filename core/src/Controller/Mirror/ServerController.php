@@ -99,6 +99,7 @@ class ServerController extends AbstractController
     {
         $serverDto = new MirroredServerDTO();
         $serverDto->url = $server->getUrl();
+        $serverDto->serverType = $server->getServerType();
         $serverDto->autoAddFoundFrameworks = $server->isAddFoundFrameworks();
         $serverDto->credentials = $server->getCredentials();
         $serverDto->status = $server->getStatus();
@@ -108,6 +109,7 @@ class ServerController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $server->setUrl($serverDto->url);
+            $server->setServerType($serverDto->serverType);
             $server->setCredentials($serverDto->credentials);
             $server->setAddFoundFrameworks($serverDto->autoAddFoundFrameworks);
             $server->setStatus($serverDto->status);

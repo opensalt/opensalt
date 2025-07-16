@@ -1,0 +1,21 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Edit Mirrored Framework | {{ parent() }}{% endblock %}
+
+{% block body %}
+    <h1>Edit Mirrored Framework</h1>
+
+    {{ form_start(form) }}
+    {{ form_widget(form) }}
+
+    <div class="form-group">
+        <div class="col-sm-12 text-right">
+            <button class="btn btn-primary">{{ button_label|default('Save') }}</button>
+        </div>
+    </div>
+    {{ form_end(form) }}
+
+    <div class="text-right">
+        <a href="{{ path('mirror_server_list', {'id': server.id}) }}">back to framework list</a>
+    </div>
+{% endblock %}

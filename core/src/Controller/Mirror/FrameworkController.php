@@ -7,7 +7,9 @@ namespace App\Controller\Mirror;
 use App\Entity\Framework\Mirror\Framework;
 use App\Entity\Framework\Mirror\Log;
 use App\Form\DTO\MirroredFrameworkDTO;
+use App\Form\DTO\MirroredFrameworkEditDTO;
 use App\Form\Type\MirroredFrameworkDTOType;
+use App\Form\Type\MirroredFrameworkEditDTOType;
 use App\Repository\Framework\LsDocRepository;
 use App\Security\Permission;
 use App\Service\MirrorServer;
@@ -49,6 +51,34 @@ class FrameworkController extends AbstractController
 
         return $this->render('mirror/framework/new.html.twig', [
             'mirrored_framework' => $frameworkDto,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route(path: '/{id}/edit', name: 'mirror_framework_edit')]
+    public function edit(Request $request, Framework $framework): Response
+    {
+        $frameworkDto = new MirroredFrameworkEditDTO();
+        $frameworkDto->url = $framework->getUrl();
+
+        $form = $this->createForm(MirroredFrameworkEditDTOType::class, $frameworkDto);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $framework->setUrl($frameworkDto->url);
+
+                $this->managerRegistry->getManager()->flush();
+
+                return $this->redirectToRoute('mirror_server_list', ['id' => $framework->getServer()->getId()]);
+            } catch (\Exception $e) {
+                $this->addFlash('error', $e->getMessage());
+            }
+        }
+
+        return $this->render('mirror/framework/edit.html.twig', [
+            'mirrored_framework' => $frameworkDto,
+            'server' => $framework->getServer(),
             'form' => $form->createView(),
         ]);
     }

@@ -22,6 +22,7 @@
         <thead>
             <tr>
                 <th>Status</th>
+                <th>CASE</th>
                 <th>Framework</th>
                 <th>Last Check</th>
                 <th>Last Change</th>
@@ -47,6 +48,9 @@
                         {%- else -%}
                             <i class="fa fa-minus-circle" title="Excluded" aria-label="Excluded"></i>
                         {%- endif -%}
+                    </td>
+                    <td>
+                        {% if framework.server.serverType == 'CASE/1.1' %}1.1{% else %}1.0{% endif %}
                     </td>
                     <td>
                         <span title="{{ framework.identifier }}">{{ framework.creator }} / {{ framework.title }}</span>
@@ -87,6 +91,8 @@
                                 <input class="btn btn-default" type="submit" value="Stop Mirroring" />
                                 {{ form_end(disableForms[framework.id]) }}
                             {% endif %}
+
+                            <a class="btn btn-default" href="{{ path('mirror_framework_edit', {'id': framework.id}) }}">Edit</a>
                         {% endif %}
                     </td>
                 </tr>

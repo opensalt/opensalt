@@ -16,6 +16,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 class Server
 {
     final public const string TYPE_CASE_1_0 = 'CASE/1.0';
+    final public const string TYPE_CASE_1_1 = 'CASE/1.1';
     final public const string TYPE_DIRECT = 'Direct URI/0.0';
 
     final public const string STATUS_ACTIVE = 'active';
@@ -23,6 +24,9 @@ class Server
 
     final public const string URL_CASE_1_0_LIST = '/ims/case/v1p0/CFDocuments';
     final public const string URL_CASE_1_0_PACKAGE = '/ims/case/v1p0/CFPackages';
+
+    final public const string URL_CASE_1_1_LIST = '/ims/case/v1p1/CFDocuments';
+    final public const string URL_CASE_1_1_PACKAGE = '/ims/case/v1p1/CFPackages';
 
     #[ORM\Column(name: 'id', type: 'integer')]
     #[ORM\Id]

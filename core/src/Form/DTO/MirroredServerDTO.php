@@ -16,6 +16,10 @@ class MirroredServerDTO
     public ?string $url = null;
 
     #[Assert\NotNull]
+    #[Assert\Choice(choices: [Server::TYPE_CASE_1_0, Server::TYPE_CASE_1_1])]
+    public ?string $serverType = Server::TYPE_CASE_1_0;
+
+    #[Assert\NotNull]
     public bool $autoAddFoundFrameworks = false;
 
     public ?OAuthCredential $credentials = null;

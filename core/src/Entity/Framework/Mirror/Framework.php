@@ -106,6 +106,7 @@ class Framework
         #[ORM\Column(name: 'identifier', type: 'string', nullable: false)]
         private string $identifier,
     ) {
+        $this->updatedAt = new \DateTimeImmutable();
         $this->logs = new ArrayCollection();
     }
 
