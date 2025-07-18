@@ -428,7 +428,7 @@ div.fancytree-drag-helper span.fancytree-childcounter {
     // document
     .fancytree-container span.fancytree-icon, .fancytree-container span.fancytree-icon:hover
     {
-        background-image: url('#{$salt-view-font-path}/static/img/doc.png');
+        background-image: url('../../icons/ph/graph-fill.svg');
         background-position: inherit;
         background-size: 20px;
         width:20px;
@@ -439,19 +439,69 @@ div.fancytree-drag-helper span.fancytree-childcounter {
     .fancytree-container ul .fancytree-ico-cf span.fancytree-icon, .fancytree-container ul .fancytree-ico-cf span.fancytree-icon:hover,
     .fancytree-container ul .fancytree-ico-ef span.fancytree-icon, .fancytree-container ul .fancytree-ico-ef span.fancytree-icon:hover
     {
-        background-image: url('#{$salt-view-font-path}/static/img/folder.png');
+        background-image: url('../../icons/material-symbols/folder.svg');
     }
 
     .fancytree-force-folder, .fancytree-force-folder:hover
     {
-        background-image: url('#{$salt-view-font-path}/static/img/folder.png') !important;
+        background-image: url('../../icons/material-symbols/folder.svg');
+    }
+
+    .treeDiv .ui-fancytree {
+        .objecttype-item {
+            .fancytree-icon, .fancytree-icon:hover {
+                background-image: url('../../icons/lucide/target.svg');
+            }
+        }
+
+        .objecttype-job {
+            .fancytree-icon, .fancytree-icon:hover {
+                background-image: url('../../icons/material-symbols/work.svg');
+            }
+        }
+
+        .objecttype-course {
+            .fancytree-icon, .fancytree-icon:hover {
+                background-image: url('../../icons/iconoir/learning.svg');
+            }
+        }
+
+        .objecttype-assessment {
+            .fancytree-icon, .fancytree-icon:hover {
+                background-image: url('../../icons/iconoir/learning.svg');
+            }
+        }
+
+        .objecttype-credential {
+            .fancytree-icon, .fancytree-icon:hover {
+                background-image: url('../../icons/ph/certificate.svg');
+            }
+        }
+
+        .objecttype-organization {
+            .fancytree-icon, .fancytree-icon:hover {
+                background-image: url('../../icons/tdesign/institution-filled.svg');
+            }
+        }
+
+        .objecttype-identifier {
+            .fancytree-icon, .fancytree-icon:hover {
+                background-image: url('../../icons/lucide/id-card.svg');
+            }
+        }
+
+        .objecttype-public_key {
+            .fancytree-icon, .fancytree-icon:hover {
+                background-image: url('../../icons/lucide/key-round.svg');
+            }
+        }
     }
 
     // leaf
     .fancytree-container ul .fancytree-exp-n span.fancytree-icon, .fancytree-container ul .fancytree-exp-n span.fancytree-icon:hover,
     .fancytree-container ul .fancytree-exp-nl span.fancytree-icon, .fancytree-container ul .fancytree-exp-nl span.fancytree-icon:hover
     {
-        background-image: url('#{$salt-view-font-path}/static/img/item.png');
+        background-image: url('../../icons/lucide/target.svg');
     }
 }
 

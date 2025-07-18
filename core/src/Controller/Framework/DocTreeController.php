@@ -219,7 +219,8 @@ class DocTreeController extends AbstractController
         ];
 
         $itemTypes = [];
-        foreach ($items as $item) {
+        foreach ($items as $key => $item) {
+            $items[$key]['objectType'] = LsItem::objectTypeForDiscriminator($item['discriminator']);
             if (!empty($item['itemType'])) {
                 $itemTypes[$item['itemType']['code']] = $item['itemType'];
             }

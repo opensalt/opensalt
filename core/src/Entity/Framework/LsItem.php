@@ -93,6 +93,7 @@ class LsItem implements CaseApiInterface, LockableInterface
     private LsDoc $lsDoc;
 
     #[ORM\Column(name: 'discriminator', options: ['default' => 0])]
+    #[Assert\Choice(choices: self::TYPES)]
     private int $discriminator = 0;
 
     #[ORM\Column(name: 'human_coding_scheme', type: Types::STRING, length: 80, nullable: true)]
@@ -445,6 +446,21 @@ class LsItem implements CaseApiInterface, LockableInterface
         $this->discriminator = $discriminator;
 
         return $this;
+    }
+
+    public static function objectTypeForDiscriminator(int $discriminator): string
+    {
+        $objectType = array_search($discriminator, self::TYPES, true);
+        if (false === $objectType || 'default' === $objectType) {
+            return 'item';
+        }
+
+        return $objectType;
+    }
+
+    public function getObjectType(): string
+    {
+        return self::objectTypeForDiscriminator($this->discriminator);
     }
 
     /**

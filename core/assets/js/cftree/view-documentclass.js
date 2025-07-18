@@ -452,6 +452,7 @@ function ApxDocument(initializer, apx) {
                     let child = {
                         "title": a.origin.item,
                         "key": a.origin.item,
+                        "extraClasses": "objecttype-"+self.itemHash[a.origin.item].objectType,
                         "children": [],
                         "seq": a.seq,
                         "childOfAssocId": a.id,     // stash the assocId for use elsewhere
@@ -596,6 +597,7 @@ function ApxDocument(initializer, apx) {
                     let child = {
                         "title": treeItemTitle(orphan),
                         "key": orphan.identifier,
+                        "extraClasses": "objecttype-"+orphan.objectType,
                         "children": [],
                         "seq": i,
                         "ref": orphan
