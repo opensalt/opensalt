@@ -1,0 +1,422 @@
+
+
+
+
+
+
+<!DOCTYPE html>
+<html class="gl-system ui-neutral with-top-bar with-header " lang="en">
+<head prefix="og: http://ogp.me/ns#">
+<meta charset="utf-8">
+<meta content="IE=edge" http-equiv="X-UA-Compatible">
+<meta content="width=device-width, initial-scale=1" name="viewport">
+<title>LICENSE · master · EOS / eos-icons · GitLab</title>
+<script nonce="HL3PrcH+7YU6WskbXHr5iQ==">
+//<![CDATA[
+window.gon={};gon.math_rendering_limits_enabled=true;gon.features={"inlineBlame":false,"directoryCodeDropdownUpdates":false,"repositoryFileTreeBrowser":false,"repositoryLockInformation":false};gon.licensed_features={"fileLocks":true,"remoteDevelopment":true};
+//]]>
+</script>
+
+<script nonce="HL3PrcH+7YU6WskbXHr5iQ==">
+//<![CDATA[
+const root = document.documentElement;
+if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+  root.classList.add('gl-dark');
+}
+
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+  if (e.matches) {
+    root.classList.add('gl-dark');
+  } else {
+    root.classList.remove('gl-dark');
+  }
+});
+
+//]]>
+</script>
+<script nonce="HL3PrcH+7YU6WskbXHr5iQ==">
+//<![CDATA[
+var gl = window.gl || {};
+gl.startup_calls = {"":{}};
+gl.startup_graphql_calls = [{"query":"query getBlobInfo(\n  $projectPath: ID!\n  $filePath: [String!]!\n  $ref: String!\n  $refType: RefType\n  $shouldFetchRawText: Boolean!\n) {\n  project(fullPath: $projectPath) {\n    __typename\n    id\n    repository {\n      __typename\n      empty\n      blobs(paths: $filePath, ref: $ref, refType: $refType) {\n        __typename\n        nodes {\n          __typename\n          id\n          webPath\n          name\n          size\n          rawSize\n          rawTextBlob @include(if: $shouldFetchRawText)\n          fileType\n          language\n          path\n          blamePath\n          editBlobPath\n          gitpodBlobUrl\n          ideEditPath\n          forkAndEditPath\n          ideForkAndEditPath\n          codeNavigationPath\n          projectBlobPathRoot\n          forkAndViewPath\n          environmentFormattedExternalUrl\n          environmentExternalUrlForRouteMap\n          canModifyBlob\n          canModifyBlobWithWebIde\n          canCurrentUserPushToBranch\n          archived\n          storedExternally\n          externalStorage\n          externalStorageUrl\n          rawPath\n          replacePath\n          pipelineEditorPath\n          simpleViewer {\n            fileType\n            tooLarge\n            type\n            renderError\n          }\n          richViewer {\n            fileType\n            tooLarge\n            type\n            renderError\n          }\n        }\n      }\n    }\n  }\n}\n","variables":{"projectPath":"SUSE-UIUX/eos-icons","ref":"master","refType":null,"filePath":"LICENSE","shouldFetchRawText":true}}];
+
+if (gl.startup_calls && window.fetch) {
+  Object.keys(gl.startup_calls).forEach(apiCall => {
+   gl.startup_calls[apiCall] = {
+      fetchCall: fetch(apiCall, {
+        // Emulate XHR for Rails AJAX request checks
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        // fetch won’t send cookies in older browsers, unless you set the credentials init option.
+        // We set to `same-origin` which is default value in modern browsers.
+        // See https://github.com/whatwg/fetch/pull/585 for more information.
+        credentials: 'same-origin'
+      })
+    };
+  });
+}
+if (gl.startup_graphql_calls && window.fetch) {
+  const headers = {"X-CSRF-Token":"bQPFJs4u55zaoVDtpJ4V8jKReM6Y49nL6sagKxqhE_qf_hZ0Aaz_DXb5_gfbKAvzMwLQ03BqqtW-ARodMB_FRw","x-gitlab-feature-category":"source_code_management"};
+  const url = `https://gitlab.com/api/graphql`
+
+  const opts = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...headers,
+    }
+  };
+
+  gl.startup_graphql_calls = gl.startup_graphql_calls.map(call => ({
+    ...call,
+    fetchCall: fetch(url, {
+      ...opts,
+      credentials: 'same-origin',
+      body: JSON.stringify(call)
+    })
+  }))
+}
+
+
+//]]>
+</script>
+
+<link rel="prefetch" href="/assets/webpack/monaco.ae67d3fe.chunk.js">
+
+<meta content="light dark" name="color-scheme">
+<link rel="stylesheet" href="/assets/application-25a3c9d40ea87afd36ac7535c1e6f048aee3b7c9fae87ee069337ceadf89338f.css" media="(prefers-color-scheme: light)" />
+<link rel="stylesheet" href="/assets/application_dark-2cbdb15f3bbe4f78770fe8d337bce1d34cf1f21b9c4ca827f11be419538f5abe.css" media="(prefers-color-scheme: dark)" />
+<link rel="stylesheet" href="/assets/page_bundles/tree-cf421adb867c351dcc3f02283fdc1d13b0145061f220fc150f7ca8a30712dea4.css" /><link rel="stylesheet" href="/assets/page_bundles/projects-77b5acbb7d6eb36c59bad45176289b071e92899ef00542bd0804cd5de71776ab.css" /><link rel="stylesheet" href="/assets/page_bundles/commit_description-1e2cba4dda3c7b30dd84924809020c569f1308dea51520fe1dd5d4ce31403195.css" /><link rel="stylesheet" href="/assets/page_bundles/work_items-e215c820c2fcf217c48993a02970cc9b73615b383b1759ea74d18973181a4120.css" /><link rel="stylesheet" href="/assets/page_bundles/notes_shared-a4a075916eb03f69149eba8eaf8b8060cdc5a133c37fa9d2aa61ea06604e1104.css" />
+<link rel="stylesheet" href="/assets/application_utilities-f77f86f78d4146d4c2c821bc481cee77b897df284886ad189d8dcb1234cb9651.css" media="(prefers-color-scheme: light)" />
+<link rel="stylesheet" href="/assets/application_utilities_dark-f77f86f78d4146d4c2c821bc481cee77b897df284886ad189d8dcb1234cb9651.css" media="(prefers-color-scheme: dark)" />
+<link rel="stylesheet" href="/assets/tailwind-1f7ae058c2c671ddf22ddfe8170e2c29cc8890063071abe7e6d0d39b7c02bdde.css" />
+
+
+<link rel="stylesheet" href="/assets/fonts-fae5d3f79948bd85f18b6513a025f863b19636e85b09a1492907eb4b1bb0557b.css" />
+<link rel="stylesheet" href="/assets/highlight/themes/white-6d56415764689b01a74f919451cff6f219c0cad5ec7fb3a86afa72cfd7933fe9.css" media="(prefers-color-scheme: light)" />
+<link rel="stylesheet" href="/assets/highlight/themes/dark-214f585bae81b97212b0599c586021ac90788fa2b38ae8edb26ef49c31986b40.css" media="(prefers-color-scheme: dark)" />
+
+<script src="/assets/webpack/runtime.35e89768.bundle.js" defer="defer" nonce="HL3PrcH+7YU6WskbXHr5iQ=="></script>
+<script src="/assets/webpack/main.9e339f9f.chunk.js" defer="defer" nonce="HL3PrcH+7YU6WskbXHr5iQ=="></script>
+<script src="/assets/webpack/tracker.b9cfd08f.chunk.js" defer="defer" nonce="HL3PrcH+7YU6WskbXHr5iQ=="></script>
+<script src="/assets/webpack/analytics.77633cfc.chunk.js" defer="defer" nonce="HL3PrcH+7YU6WskbXHr5iQ=="></script>
+<script nonce="HL3PrcH+7YU6WskbXHr5iQ==">
+//<![CDATA[
+window.snowplowOptions = {"namespace":"gl","hostname":"snowplowprd.trx.gitlab.net","cookieDomain":".gitlab.com","appId":"gitlab","formTracking":true,"linkClickTracking":true}
+
+gl = window.gl || {};
+gl.snowplowStandardContext = {"schema":"iglu:com.gitlab/gitlab_standard/jsonschema/1-1-7","data":{"environment":"production","source":"gitlab-rails","correlation_id":"01K0PYFTGB02ARGE0MXH1TR9NF","plan":"gold","extra":{},"user_id":null,"global_user_id":null,"user_type":null,"is_gitlab_team_member":null,"namespace_id":666247,"ultimate_parent_namespace_id":666247,"project_id":4600360,"feature_enabled_by_namespace_ids":null,"realm":"saas","instance_id":"ea8bf810-1d6f-4a6a-b4fd-93e8cbd8b57f","unique_instance_id":"b5fa1911-0638-5651-8ec4-5b892ef92e35","host_name":"gitlab.com","instance_version":"18.3.0","context_generated_at":"2025-07-21T16:53:50.424Z"}}
+gl.snowplowPseudonymizedPageUrl = "https://gitlab.com/namespace666247/project4600360/-/blob/:repository_path";
+gl.maskedDefaultReferrerUrl = null;
+gl.ga4MeasurementId = 'G-ENFH3X7M5Y';
+gl.duoEvents = ["ai_question_category","perform_completion_worker","process_gitlab_duo_question","ai_response_time","click_purchase_seats_button_group_duo_pro_home_page","default_answer","detected_high_comment_temperature","detected_repeated_high_comment_temperature","error_answer","execute_llm_method","finish_duo_workflow_execution","forced_high_temperature_commenting","i_quickactions_q","request_ask_help","request_duo_chat_response","requested_comment_temperature","retry_duo_workflow_execution","start_duo_workflow_execution","submit_gitlab_duo_question","tokens_per_embedding","tokens_per_user_request_prompt","tokens_per_user_request_response"];
+gl.onlySendDuoEvents = false;
+
+
+//]]>
+</script>
+<link rel="preload" href="/assets/application_utilities-f77f86f78d4146d4c2c821bc481cee77b897df284886ad189d8dcb1234cb9651.css" as="style" type="text/css" nonce="t6ROFcUUicUZmThbRDxEXg==">
+<link rel="preload" href="/assets/application-25a3c9d40ea87afd36ac7535c1e6f048aee3b7c9fae87ee069337ceadf89338f.css" as="style" type="text/css" nonce="t6ROFcUUicUZmThbRDxEXg==">
+<link rel="preload" href="/assets/highlight/themes/white-6d56415764689b01a74f919451cff6f219c0cad5ec7fb3a86afa72cfd7933fe9.css" as="style" type="text/css" nonce="t6ROFcUUicUZmThbRDxEXg==">
+<link crossorigin="" href="https://snowplowprd.trx.gitlab.net" rel="preconnect">
+<link as="font" crossorigin="" href="/assets/gitlab-sans/GitLabSans-1e0a5107ea3bbd4be93e8ad2c503467e43166cd37e4293570b490e0812ede98b.woff2" rel="preload">
+<link as="font" crossorigin="" href="/assets/gitlab-sans/GitLabSans-Italic-38eaf1a569a54ab28c58b92a4a8de3afb96b6ebc250cf372003a7b38151848cc.woff2" rel="preload">
+<link as="font" crossorigin="" href="/assets/gitlab-mono/GitLabMono-08d2c5e8ff8fd3d2d6ec55bc7713380f8981c35f9d2df14e12b835464d6e8f23.woff2" rel="preload">
+<link as="font" crossorigin="" href="/assets/gitlab-mono/GitLabMono-Italic-38e58d8df29485a20c550da1d0111e2c2169f6dcbcf894f2cd3afbdd97bcc588.woff2" rel="preload">
+<link rel="preload" href="/assets/fonts-fae5d3f79948bd85f18b6513a025f863b19636e85b09a1492907eb4b1bb0557b.css" as="style" type="text/css" nonce="t6ROFcUUicUZmThbRDxEXg==">
+
+
+
+<script src="/assets/webpack/sentry.e0b6f490.chunk.js" defer="defer" nonce="HL3PrcH+7YU6WskbXHr5iQ=="></script>
+
+<script src="/assets/webpack/commons-pages.admin.application_settings.service_accounts-pages.groups.analytics.dashboards-pages.gr-e678ee4c.35cb51b8.chunk.js" defer="defer" nonce="HL3PrcH+7YU6WskbXHr5iQ=="></script>
+<script src="/assets/webpack/commons-pages.search.show-super_sidebar.0700cd46.chunk.js" defer="defer" nonce="HL3PrcH+7YU6WskbXHr5iQ=="></script>
+<script src="/assets/webpack/super_sidebar.9c733e8a.chunk.js" defer="defer" nonce="HL3PrcH+7YU6WskbXHr5iQ=="></script>
+<script src="/assets/webpack/commons-pages.projects-pages.projects.activity-pages.projects.alert_management.details-pages.project-a2aaf4a3.c580582e.chunk.js" defer="defer" nonce="HL3PrcH+7YU6WskbXHr5iQ=="></script>
+<script src="/assets/webpack/commons-pages.admin.application_settings.service_accounts-pages.admin.gitlab_duo.self_hosted-pages.a-41fb7d39.207262fa.chunk.js" defer="defer" nonce="HL3PrcH+7YU6WskbXHr5iQ=="></script>
+<script src="/assets/webpack/5.ad59c115.chunk.js" defer="defer" nonce="HL3PrcH+7YU6WskbXHr5iQ=="></script>
+<script src="/assets/webpack/commons-pages.groups.packages-pages.groups.registry.repositories-pages.groups.security.policies.edit-429ebfda.6ced2cfe.chunk.js" defer="defer" nonce="HL3PrcH+7YU6WskbXHr5iQ=="></script>
+<script src="/assets/webpack/commons-pages.groups.security.policies.edit-pages.groups.security.policies.new-pages.projects.blob.s-f60e2da3.77128ab2.chunk.js" defer="defer" nonce="HL3PrcH+7YU6WskbXHr5iQ=="></script>
+<script src="/assets/webpack/41.ff00f90e.chunk.js" defer="defer" nonce="HL3PrcH+7YU6WskbXHr5iQ=="></script>
+<script src="/assets/webpack/commons-pages.projects.blob.show-pages.projects.show-pages.projects.snippets.edit-pages.projects.sni-42df7d4c.36e15549.chunk.js" defer="defer" nonce="HL3PrcH+7YU6WskbXHr5iQ=="></script>
+<script src="/assets/webpack/118.0182a4c2.chunk.js" defer="defer" nonce="HL3PrcH+7YU6WskbXHr5iQ=="></script>
+<script src="/assets/webpack/120.08e1c644.chunk.js" defer="defer" nonce="HL3PrcH+7YU6WskbXHr5iQ=="></script>
+<script src="/assets/webpack/commons-pages.projects.blob.show-pages.projects.show-pages.projects.snippets.show-pages.projects.tre-c684fcf6.c15845db.chunk.js" defer="defer" nonce="HL3PrcH+7YU6WskbXHr5iQ=="></script>
+<script src="/assets/webpack/139.528220ea.chunk.js" defer="defer" nonce="HL3PrcH+7YU6WskbXHr5iQ=="></script>
+<script src="/assets/webpack/commons-pages.groups.show-pages.projects.blob.show-pages.projects.show-pages.projects.tree.show.1f77d11b.chunk.js" defer="defer" nonce="HL3PrcH+7YU6WskbXHr5iQ=="></script>
+<script src="/assets/webpack/commons-pages.projects.blob.show-pages.projects.show-pages.projects.tree.show.a4d44653.chunk.js" defer="defer" nonce="HL3PrcH+7YU6WskbXHr5iQ=="></script>
+<script src="/assets/webpack/commons-pages.projects.blob.show-pages.projects.tree.show.688fd4d5.chunk.js" defer="defer" nonce="HL3PrcH+7YU6WskbXHr5iQ=="></script>
+<script src="/assets/webpack/commons-pages.projects.blob.show-pages.projects.commit.show.38b9821b.chunk.js" defer="defer" nonce="HL3PrcH+7YU6WskbXHr5iQ=="></script>
+<script src="/assets/webpack/pages.projects.blob.show.1692a333.chunk.js" defer="defer" nonce="HL3PrcH+7YU6WskbXHr5iQ=="></script>
+
+<meta content="object" property="og:type">
+<meta content="GitLab" property="og:site_name">
+<meta content="LICENSE · master · EOS / eos-icons · GitLab" property="og:title">
+<meta content="GitLab.com" property="og:description">
+<meta content="https://gitlab.com/assets/twitter_card-570ddb06edf56a2312253c5872489847a0f385112ddbcd71ccfa1570febab5d2.jpg" property="og:image">
+<meta content="64" property="og:image:width">
+<meta content="64" property="og:image:height">
+<meta content="https://gitlab.com/SUSE-UIUX/eos-icons/-/blob/master/LICENSE" property="og:url">
+<meta content="summary" property="twitter:card">
+<meta content="LICENSE · master · EOS / eos-icons · GitLab" property="twitter:title">
+<meta content="GitLab.com" property="twitter:description">
+<meta content="https://gitlab.com/assets/twitter_card-570ddb06edf56a2312253c5872489847a0f385112ddbcd71ccfa1570febab5d2.jpg" property="twitter:image">
+
+<meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="Kr8JMAglGFGJBGo2N7xrAcH4IjS4-m0iKPrH4ZsvwtvYQtpix6cAwCVcxNxICnUAwGuKKVBzHjx8PX3XsZEUZg" />
+<meta name="csp-nonce" content="HL3PrcH+7YU6WskbXHr5iQ==" />
+<meta name="action-cable-url" content="/-/cable" />
+<link href="/-/manifest.json" rel="manifest">
+<link rel="icon" type="image/png" href="/assets/favicon-72a2cad5025aa931d6ea56c3201d1f18e68a8cd39788c7c80d5b2b82aa5143ef.png" id="favicon" data-original-href="/assets/favicon-72a2cad5025aa931d6ea56c3201d1f18e68a8cd39788c7c80d5b2b82aa5143ef.png" />
+<link rel="apple-touch-icon" type="image/x-icon" href="/assets/apple-touch-icon-b049d4bc0dd9626f31db825d61880737befc7835982586d015bded10b4435460.png" />
+<link href="/search/opensearch.xml" rel="search" title="Search GitLab" type="application/opensearchdescription+xml">
+
+
+
+
+<meta content="GitLab.com" name="description">
+<meta content="#ececef" name="theme-color">
+</head>
+
+<body class="tab-width-8 gl-browser-generic gl-platform-other body-fixed-scrollbar" data-group="SUSE-UIUX" data-group-full-path="SUSE-UIUX" data-namespace-id="666247" data-page="projects:blob:show" data-page-type-id="master/LICENSE" data-project="eos-icons" data-project-full-path="SUSE-UIUX/eos-icons" data-project-id="4600360">
+<div id="js-tooltips-container"></div>
+<div id="js-drawer-container"></div>
+
+<script nonce="HL3PrcH+7YU6WskbXHr5iQ==">
+//<![CDATA[
+gl = window.gl || {};
+gl.client = {"isGeneric":true,"isOther":true};
+
+
+//]]>
+</script>
+
+
+<header class="header-logged-out" data-testid="navbar">
+<a class="gl-sr-only gl-accessibility" href="#content-body">Skip to content</a>
+<div class="container-fluid">
+<nav aria-label="Explore GitLab" class="header-logged-out-nav gl-flex gl-gap-3 gl-justify-between">
+<div class="gl-flex gl-items-center gl-gap-1">
+<span class="gl-sr-only">GitLab</span>
+<a title="Homepage" id="logo" class="header-logged-out-logo has-tooltip" aria-label="Homepage" data-track-label="main_navigation" data-track-action="click_gitlab_logo_link" data-track-property="navigation_top" href="/"><svg aria-hidden="true" role="img" class="tanuki-logo" width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path class="tanuki-shape tanuki" d="m24.507 9.5-.034-.09L21.082.562a.896.896 0 0 0-1.694.091l-2.29 7.01H7.825L5.535.653a.898.898 0 0 0-1.694-.09L.451 9.411.416 9.5a6.297 6.297 0 0 0 2.09 7.278l.012.01.03.022 5.16 3.867 2.56 1.935 1.554 1.176a1.051 1.051 0 0 0 1.268 0l1.555-1.176 2.56-1.935 5.197-3.89.014-.01A6.297 6.297 0 0 0 24.507 9.5Z"
+        fill="#E24329"/>
+  <path class="tanuki-shape right-cheek" d="m24.507 9.5-.034-.09a11.44 11.44 0 0 0-4.56 2.051l-7.447 5.632 4.742 3.584 5.197-3.89.014-.01A6.297 6.297 0 0 0 24.507 9.5Z"
+        fill="#FC6D26"/>
+  <path class="tanuki-shape chin" d="m7.707 20.677 2.56 1.935 1.555 1.176a1.051 1.051 0 0 0 1.268 0l1.555-1.176 2.56-1.935-4.743-3.584-4.755 3.584Z"
+        fill="#FCA326"/>
+  <path class="tanuki-shape left-cheek" d="M5.01 11.461a11.43 11.43 0 0 0-4.56-2.05L.416 9.5a6.297 6.297 0 0 0 2.09 7.278l.012.01.03.022 5.16 3.867 4.745-3.584-7.444-5.632Z"
+        fill="#FC6D26"/>
+</svg>
+
+</a></div>
+<ul class="gl-list-none gl-p-0 gl-m-0 gl-flex gl-gap-3 gl-items-center gl-grow">
+<li class="header-logged-out-nav-item header-logged-out-dropdown md:gl-hidden">
+<button class="header-logged-out-toggle" data-toggle="dropdown" type="button">
+<span class="gl-sr-only">
+Menu
+</span>
+<svg class="s16" data-testid="hamburger-icon"><use href="/assets/icons-bd9d2d5f12542ba903c8cf5e5567631554ba79f4f1dc661dc0a9302e585924fb.svg#hamburger"></use></svg>
+</button>
+<div class="dropdown-menu">
+<ul>
+<li>
+<a href="https://about.gitlab.com/why-gitlab">Why GitLab
+</a></li>
+<li>
+<a href="https://about.gitlab.com/pricing">Pricing
+</a></li>
+<li>
+<a href="https://about.gitlab.com/sales">Contact Sales
+</a></li>
+<li>
+<a href="/explore">Explore</a>
+</li>
+</ul>
+</div>
+</li>
+<li class="header-logged-out-nav-item gl-hidden md:gl-inline-block">
+<a href="https://about.gitlab.com/why-gitlab">Why GitLab
+</a></li>
+<li class="header-logged-out-nav-item gl-hidden md:gl-inline-block">
+<a href="https://about.gitlab.com/pricing">Pricing
+</a></li>
+<li class="header-logged-out-nav-item gl-hidden gl-inline-block">
+<a href="https://about.gitlab.com/sales">Contact Sales
+</a></li>
+<li class="header-logged-out-nav-item gl-hidden md:gl-inline-block">
+<a class="" href="/explore">Explore</a>
+</li>
+</ul>
+<ul class="gl-list-none gl-p-0 gl-m-0 gl-flex gl-gap-3 gl-items-center gl-justify-end">
+<li class="header-logged-out-nav-item">
+<a href="/users/sign_in?redirect_to_referer=yes">Sign in</a>
+</li>
+<li class="header-logged-out-nav-item">
+<a class="gl-button btn btn-md btn-confirm !gl-inline-flex" href="/users/sign_up"><span class="gl-button-text">
+Get free trial
+
+</span>
+
+</a></li>
+</ul>
+</nav>
+</div>
+</header>
+
+<div class="layout-page page-with-super-sidebar">
+<aside class="js-super-sidebar super-sidebar super-sidebar-loading" data-command-palette="{&quot;project_files_url&quot;:&quot;/SUSE-UIUX/eos-icons/-/files/master?format=json&quot;,&quot;project_blob_url&quot;:&quot;/SUSE-UIUX/eos-icons/-/blob/master&quot;}" data-force-desktop-expanded-sidebar="" data-is-saas="true" data-root-path="/" data-sidebar="{&quot;whats_new_most_recent_release_items_count&quot;:4,&quot;whats_new_version_digest&quot;:&quot;ef706d99c35ee24aed0cc2329f0951832c077ed5627e3e4f73a3876419d907c1&quot;,&quot;is_logged_in&quot;:false,&quot;compare_plans_url&quot;:&quot;https://about.gitlab.com/pricing&quot;,&quot;context_switcher_links&quot;:[{&quot;title&quot;:&quot;Explore&quot;,&quot;link&quot;:&quot;/explore&quot;,&quot;icon&quot;:&quot;compass&quot;}],&quot;current_menu_items&quot;:[{&quot;id&quot;:&quot;project_overview&quot;,&quot;title&quot;:&quot;eos-icons&quot;,&quot;entity_id&quot;:4600360,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons&quot;,&quot;link_classes&quot;:&quot;shortcuts-project&quot;,&quot;is_active&quot;:false},{&quot;id&quot;:&quot;manage_menu&quot;,&quot;title&quot;:&quot;Manage&quot;,&quot;icon&quot;:&quot;users&quot;,&quot;avatar_shape&quot;:&quot;rect&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/activity&quot;,&quot;is_active&quot;:false,&quot;items&quot;:[{&quot;id&quot;:&quot;activity&quot;,&quot;title&quot;:&quot;Activity&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/activity&quot;,&quot;link_classes&quot;:&quot;shortcuts-project-activity&quot;,&quot;is_active&quot;:false},{&quot;id&quot;:&quot;members&quot;,&quot;title&quot;:&quot;Members&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/project_members&quot;,&quot;is_active&quot;:false},{&quot;id&quot;:&quot;labels&quot;,&quot;title&quot;:&quot;Labels&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/labels&quot;,&quot;is_active&quot;:false}],&quot;separated&quot;:false},{&quot;id&quot;:&quot;plan_menu&quot;,&quot;title&quot;:&quot;Plan&quot;,&quot;icon&quot;:&quot;planning&quot;,&quot;avatar_shape&quot;:&quot;rect&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/issues&quot;,&quot;is_active&quot;:false,&quot;items&quot;:[{&quot;id&quot;:&quot;project_issue_list&quot;,&quot;title&quot;:&quot;Issues&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/issues&quot;,&quot;link_classes&quot;:&quot;shortcuts-issues has-sub-items&quot;,&quot;pill_count_field&quot;:&quot;openIssuesCount&quot;,&quot;pill_count_dynamic&quot;:false,&quot;is_active&quot;:false},{&quot;id&quot;:&quot;boards&quot;,&quot;title&quot;:&quot;Issue boards&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/boards&quot;,&quot;link_classes&quot;:&quot;shortcuts-issue-boards&quot;,&quot;is_active&quot;:false},{&quot;id&quot;:&quot;milestones&quot;,&quot;title&quot;:&quot;Milestones&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/milestones&quot;,&quot;is_active&quot;:false},{&quot;id&quot;:&quot;iterations&quot;,&quot;title&quot;:&quot;Iterations&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/cadences&quot;,&quot;is_active&quot;:false},{&quot;id&quot;:&quot;project_wiki&quot;,&quot;title&quot;:&quot;Wiki&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/wikis/home&quot;,&quot;link_classes&quot;:&quot;shortcuts-wiki&quot;,&quot;is_active&quot;:false},{&quot;id&quot;:&quot;requirements&quot;,&quot;title&quot;:&quot;Requirements&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/requirements_management/requirements&quot;,&quot;is_active&quot;:false}],&quot;separated&quot;:false},{&quot;id&quot;:&quot;code_menu&quot;,&quot;title&quot;:&quot;Code&quot;,&quot;icon&quot;:&quot;code&quot;,&quot;avatar_shape&quot;:&quot;rect&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/merge_requests&quot;,&quot;is_active&quot;:true,&quot;items&quot;:[{&quot;id&quot;:&quot;project_merge_request_list&quot;,&quot;title&quot;:&quot;Merge requests&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/merge_requests&quot;,&quot;link_classes&quot;:&quot;shortcuts-merge_requests&quot;,&quot;pill_count_field&quot;:&quot;openMergeRequestsCount&quot;,&quot;pill_count_dynamic&quot;:false,&quot;is_active&quot;:false},{&quot;id&quot;:&quot;files&quot;,&quot;title&quot;:&quot;Repository&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/tree/master&quot;,&quot;link_classes&quot;:&quot;shortcuts-tree&quot;,&quot;is_active&quot;:true},{&quot;id&quot;:&quot;branches&quot;,&quot;title&quot;:&quot;Branches&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/branches&quot;,&quot;is_active&quot;:false},{&quot;id&quot;:&quot;commits&quot;,&quot;title&quot;:&quot;Commits&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/commits/master?ref_type=heads&quot;,&quot;link_classes&quot;:&quot;shortcuts-commits&quot;,&quot;is_active&quot;:false},{&quot;id&quot;:&quot;tags&quot;,&quot;title&quot;:&quot;Tags&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/tags&quot;,&quot;is_active&quot;:false},{&quot;id&quot;:&quot;graphs&quot;,&quot;title&quot;:&quot;Repository graph&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/network/master?ref_type=heads&quot;,&quot;link_classes&quot;:&quot;shortcuts-network&quot;,&quot;is_active&quot;:false},{&quot;id&quot;:&quot;compare&quot;,&quot;title&quot;:&quot;Compare revisions&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/compare?from=master\u0026to=master&quot;,&quot;is_active&quot;:false},{&quot;id&quot;:&quot;project_snippets&quot;,&quot;title&quot;:&quot;Snippets&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/snippets&quot;,&quot;link_classes&quot;:&quot;shortcuts-snippets&quot;,&quot;is_active&quot;:false},{&quot;id&quot;:&quot;file_locks&quot;,&quot;title&quot;:&quot;Locked files&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/path_locks&quot;,&quot;is_active&quot;:false}],&quot;separated&quot;:false},{&quot;id&quot;:&quot;deploy_menu&quot;,&quot;title&quot;:&quot;Deploy&quot;,&quot;icon&quot;:&quot;deployments&quot;,&quot;avatar_shape&quot;:&quot;rect&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/releases&quot;,&quot;is_active&quot;:false,&quot;items&quot;:[{&quot;id&quot;:&quot;releases&quot;,&quot;title&quot;:&quot;Releases&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/releases&quot;,&quot;link_classes&quot;:&quot;shortcuts-deployments-releases&quot;,&quot;is_active&quot;:false},{&quot;id&quot;:&quot;container_registry&quot;,&quot;title&quot;:&quot;Container registry&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/container_registry&quot;,&quot;is_active&quot;:false},{&quot;id&quot;:&quot;model_registry&quot;,&quot;title&quot;:&quot;Model registry&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/ml/models&quot;,&quot;is_active&quot;:false}],&quot;separated&quot;:false},{&quot;id&quot;:&quot;monitor_menu&quot;,&quot;title&quot;:&quot;Monitor&quot;,&quot;icon&quot;:&quot;monitor&quot;,&quot;avatar_shape&quot;:&quot;rect&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/incidents&quot;,&quot;is_active&quot;:false,&quot;items&quot;:[{&quot;id&quot;:&quot;incidents&quot;,&quot;title&quot;:&quot;Incidents&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/incidents&quot;,&quot;is_active&quot;:false},{&quot;id&quot;:&quot;service_desk&quot;,&quot;title&quot;:&quot;Service Desk&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/issues/service_desk&quot;,&quot;is_active&quot;:false}],&quot;separated&quot;:false},{&quot;id&quot;:&quot;analyze_menu&quot;,&quot;title&quot;:&quot;Analyze&quot;,&quot;icon&quot;:&quot;chart&quot;,&quot;avatar_shape&quot;:&quot;rect&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/value_stream_analytics&quot;,&quot;is_active&quot;:false,&quot;items&quot;:[{&quot;id&quot;:&quot;cycle_analytics&quot;,&quot;title&quot;:&quot;Value stream analytics&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/value_stream_analytics&quot;,&quot;link_classes&quot;:&quot;shortcuts-project-cycle-analytics&quot;,&quot;is_active&quot;:false},{&quot;id&quot;:&quot;contributors&quot;,&quot;title&quot;:&quot;Contributor analytics&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/graphs/master?ref_type=heads&quot;,&quot;is_active&quot;:false},{&quot;id&quot;:&quot;repository_analytics&quot;,&quot;title&quot;:&quot;Repository analytics&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/graphs/master/charts&quot;,&quot;link_classes&quot;:&quot;shortcuts-repository-charts&quot;,&quot;is_active&quot;:false},{&quot;id&quot;:&quot;code_review&quot;,&quot;title&quot;:&quot;Code review analytics&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/analytics/code_reviews&quot;,&quot;is_active&quot;:false},{&quot;id&quot;:&quot;issues&quot;,&quot;title&quot;:&quot;Issue analytics&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/analytics/issues_analytics&quot;,&quot;is_active&quot;:false},{&quot;id&quot;:&quot;insights&quot;,&quot;title&quot;:&quot;Insights&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/insights/&quot;,&quot;link_classes&quot;:&quot;shortcuts-project-insights&quot;,&quot;is_active&quot;:false},{&quot;id&quot;:&quot;model_experiments&quot;,&quot;title&quot;:&quot;Model experiments&quot;,&quot;link&quot;:&quot;/SUSE-UIUX/eos-icons/-/ml/experiments&quot;,&quot;is_active&quot;:false}],&quot;separated&quot;:false}],&quot;current_context_header&quot;:&quot;Project&quot;,&quot;support_path&quot;:&quot;https://about.gitlab.com/get-help/&quot;,&quot;docs_path&quot;:&quot;/help/docs&quot;,&quot;display_whats_new&quot;:true,&quot;show_version_check&quot;:null,&quot;search&quot;:{&quot;search_path&quot;:&quot;/search&quot;,&quot;issues_path&quot;:&quot;/dashboard/issues&quot;,&quot;mr_path&quot;:&quot;/dashboard/merge_requests&quot;,&quot;autocomplete_path&quot;:&quot;/search/autocomplete&quot;,&quot;settings_path&quot;:&quot;/search/settings&quot;,&quot;search_context&quot;:{&quot;group&quot;:{&quot;id&quot;:666247,&quot;name&quot;:&quot;EOS&quot;,&quot;full_name&quot;:&quot;EOS&quot;},&quot;group_metadata&quot;:{&quot;issues_path&quot;:&quot;/groups/SUSE-UIUX/-/issues&quot;,&quot;mr_path&quot;:&quot;/groups/SUSE-UIUX/-/merge_requests&quot;},&quot;project&quot;:{&quot;id&quot;:4600360,&quot;name&quot;:&quot;eos-icons&quot;},&quot;project_metadata&quot;:{&quot;mr_path&quot;:&quot;/SUSE-UIUX/eos-icons/-/merge_requests&quot;,&quot;issues_path&quot;:&quot;/SUSE-UIUX/eos-icons/-/issues&quot;},&quot;code_search&quot;:true,&quot;ref&quot;:&quot;master&quot;,&quot;scope&quot;:null,&quot;for_snippets&quot;:null}},&quot;panel_type&quot;:&quot;project&quot;,&quot;shortcut_links&quot;:[{&quot;title&quot;:&quot;Snippets&quot;,&quot;href&quot;:&quot;/explore/snippets&quot;,&quot;css_class&quot;:&quot;dashboard-shortcuts-snippets&quot;},{&quot;title&quot;:&quot;Groups&quot;,&quot;href&quot;:&quot;/explore/groups&quot;,&quot;css_class&quot;:&quot;dashboard-shortcuts-groups&quot;},{&quot;title&quot;:&quot;Projects&quot;,&quot;href&quot;:&quot;/explore/projects/starred&quot;,&quot;css_class&quot;:&quot;dashboard-shortcuts-projects&quot;}],&quot;terms&quot;:&quot;/-/users/terms&quot;}"></aside>
+
+
+<div class="content-wrapper">
+<div class="broadcast-wrapper">
+
+
+
+</div>
+<div class="alert-wrapper alert-wrapper-top-space gl-flex gl-flex-col gl-gap-3 container-fluid container-limited">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+<div class="top-bar-fixed container-fluid" data-testid="top-bar">
+<div class="top-bar-container gl-flex gl-items-center gl-gap-2">
+<div class="gl-grow gl-basis-0 gl-flex gl-items-center gl-justify-start gl-gap-3">
+<button class="gl-button btn btn-icon btn-md btn-default btn-default-tertiary js-super-sidebar-toggle-expand super-sidebar-toggle -gl-ml-3" aria-controls="super-sidebar" aria-expanded="false" aria-label="Primary navigation sidebar" type="button"><svg class="s16 gl-icon gl-button-icon " data-testid="sidebar-icon"><use href="/assets/icons-bd9d2d5f12542ba903c8cf5e5567631554ba79f4f1dc661dc0a9302e585924fb.svg#sidebar"></use></svg>
+
+</button>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"EOS","item":"https://gitlab.com/SUSE-UIUX"},{"@type":"ListItem","position":2,"name":"eos-icons","item":"https://gitlab.com/SUSE-UIUX/eos-icons"},{"@type":"ListItem","position":3,"name":"Repository","item":"https://gitlab.com/SUSE-UIUX/eos-icons/-/blob/master/LICENSE"}]}
+
+
+</script>
+<div data-testid="breadcrumb-links" id="js-vue-page-breadcrumbs-wrapper">
+<div data-breadcrumbs-json="[{&quot;text&quot;:&quot;EOS&quot;,&quot;href&quot;:&quot;/SUSE-UIUX&quot;,&quot;avatarPath&quot;:&quot;/uploads/-/system/group/avatar/666247/ico.png&quot;},{&quot;text&quot;:&quot;eos-icons&quot;,&quot;href&quot;:&quot;/SUSE-UIUX/eos-icons&quot;,&quot;avatarPath&quot;:null},{&quot;text&quot;:&quot;Repository&quot;,&quot;href&quot;:&quot;/SUSE-UIUX/eos-icons/-/blob/master/LICENSE&quot;,&quot;avatarPath&quot;:null}]" id="js-vue-page-breadcrumbs"></div>
+<div id="js-injected-page-breadcrumbs"></div>
+<div id="js-page-breadcrumbs-extra"></div>
+</div>
+
+
+</div>
+</div>
+</div>
+
+<div class="container-fluid container-limited project-highlight-puc">
+<main class="content" id="content-body" itemscope itemtype="http://schema.org/SoftwareSourceCode">
+<div class="flash-container flash-container-page sticky" data-testid="flash-container">
+<div id="js-global-alerts"></div>
+</div>
+
+
+
+
+
+
+<div class="js-signature-container" data-signatures-path="/SUSE-UIUX/eos-icons/-/commits/d84deac9f7cd1719e90dcc9ca55219d7a0b40844/signatures?limit=1"></div>
+
+<div class="tree-holder gl-pt-4" id="tree-holder">
+<div data-blob-path="LICENSE" data-breadcrumbs-can-collaborate="false" data-breadcrumbs-can-edit-tree="false" data-breadcrumbs-can-push-code="false" data-breadcrumbs-can-push-to-branch="false" data-breadcrumbs-new-blob-path="/SUSE-UIUX/eos-icons/-/new/master" data-breadcrumbs-new-branch-path="/SUSE-UIUX/eos-icons/-/branches/new" data-breadcrumbs-new-dir-path="/SUSE-UIUX/eos-icons/-/create_dir/master" data-breadcrumbs-new-tag-path="/SUSE-UIUX/eos-icons/-/tags/new" data-breadcrumbs-upload-path="/SUSE-UIUX/eos-icons/-/create/master" data-escaped-ref="master" data-history-link="/SUSE-UIUX/eos-icons/-/commits/master" data-new-workspace-path="/-/remote_development/workspaces/new" data-organization-id="1" data-project-id="4600360" data-project-path="SUSE-UIUX/eos-icons" data-project-root-path="/SUSE-UIUX/eos-icons" data-project-short-path="eos-icons" data-ref="master" data-ref-type="" data-root-ref="master" id="js-repository-blob-header-app"></div>
+<div class="info-well">
+<div data-history-link="/SUSE-UIUX/eos-icons/-/commits/master" id="js-last-commit"></div>
+<div class="gl-hidden sm:gl-block">
+<div data-blob-path="LICENSE" data-branch="master" data-branch-rules-path="/SUSE-UIUX/eos-icons/-/settings/repository#js-branch-rules" data-project-path="SUSE-UIUX/eos-icons" id="js-code-owners"></div>
+<div class="well-segment blob-auxiliary-viewer">
+<div class="blob-viewer" data-path="LICENSE" data-type="auxiliary">
+<svg class="s16" data-testid="scale-icon"><use href="/assets/icons-bd9d2d5f12542ba903c8cf5e5567631554ba79f4f1dc661dc0a9302e585924fb.svg#scale"></use></svg>
+This project is licensed under the <strong>MIT License</strong>.
+<a target="_blank" rel="noopener noreferrer" href="https://opensource.org/licenses/MIT">Learn more</a>
+
+</div>
+
+</div>
+
+</div>
+</div>
+<div class="blob-content-holder js-per-page" data-blame-per-page="1000" id="blob-content-holder">
+<div data-blob-path="LICENSE" data-can-download-code="true" data-escaped-ref="master" data-explain-code-available="false" data-full-name="EOS / eos-icons" data-new-workspace-path="/-/remote_development/workspaces/new" data-organization-id="1" data-original-branch="master" data-project-path="SUSE-UIUX/eos-icons" data-ref-type="" data-resource-id="gid://gitlab/Project/4600360" data-user-id="" id="js-view-blob-app">
+<div class="gl-spinner-container" role="status"><span aria-hidden class="gl-spinner gl-spinner-md gl-spinner-dark !gl-align-text-bottom"></span><span class="gl-sr-only !gl-absolute">Loading</span>
+</div>
+</div>
+</div>
+
+</div>
+<script nonce="HL3PrcH+7YU6WskbXHr5iQ==">
+//<![CDATA[
+  window.gl = window.gl || {};
+  window.gl.webIDEPath = '/-/ide/project/SUSE-UIUX/eos-icons/edit/master/-/LICENSE'
+
+
+//]]>
+</script>
+<div data-ambiguous="false" data-ref="master" id="js-ambiguous-ref-modal"></div>
+
+</main>
+</div>
+
+
+</div>
+</div>
+
+
+<script nonce="HL3PrcH+7YU6WskbXHr5iQ==">
+//<![CDATA[
+if ('loading' in HTMLImageElement.prototype) {
+  document.querySelectorAll('img.lazy').forEach(img => {
+    img.loading = 'lazy';
+    let imgUrl = img.dataset.src;
+    // Only adding width + height for avatars for now
+    if (imgUrl.indexOf('/avatar/') > -1 && imgUrl.indexOf('?') === -1) {
+      const targetWidth = img.getAttribute('width') || img.width;
+      imgUrl += `?width=${targetWidth}`;
+    }
+    img.src = imgUrl;
+    img.removeAttribute('data-src');
+    img.classList.remove('lazy');
+    img.classList.add('js-lazy-loaded');
+    img.dataset.testid = 'js-lazy-loaded-content';
+  });
+}
+
+//]]>
+</script>
+<script nonce="HL3PrcH+7YU6WskbXHr5iQ==">
+//<![CDATA[
+gl = window.gl || {};
+gl.experiments = {};
+
+
+//]]>
+</script>
+
+</body>
+</html>
+

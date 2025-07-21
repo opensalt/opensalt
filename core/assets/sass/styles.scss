@@ -254,7 +254,7 @@ table.table thead th.sorting_desc:after {
 // Framework list styling
 .framework-list {
     summary::before {
-        //content: url(../icons/fa-solid/landmark.svg) / "Creator";
+        //content: url(../icons/tdesign/institution-filled.svg) / "Creator";
         content: "";
         //display: inline-block;
         width: 1rem;
@@ -280,13 +280,13 @@ table.table thead th.sorting_desc:after {
 // Credential list styling
 .credential-list {
     summary::before {
-        //content: url(../icons/fa-solid/landmark.svg) / "Creator";
+        //content: url(../icons/tdesign/institution-filled.svg) / "Creator";
         content: "";
         //display: inline-block;
         width: 1rem;
         height: 1rem;
-        -webkit-mask: url(../icons/fa-solid/landmark.svg);
-        mask: url(../icons/fa-solid/landmark.svg);
+        -webkit-mask: url(../icons/tdesign/institution-filled.svg);
+        mask: url(../icons/tdesign/institution-filled.svg);
         background-color: rgba(var(--bs-primary-rgb));
         //-webkit-mask-size: cover;
         //mask-size: cover;
