@@ -89,6 +89,7 @@ class OrganizationType extends AbstractType
             ->add('webpage', UrlType::class, [
                 'label' => 'Webpage',
                 'required' => false,
+                'default_protocol' => 'https',
                 'help' => 'Webpage that describes this organization.',
             ])
             ->add('jurisdiction', TextType::class, [

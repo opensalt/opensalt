@@ -39,6 +39,7 @@ class CourseType extends AbstractType
             ->add('webpage', UrlType::class, [
                 'label' => 'Webpage',
                 'required' => false,
+                'default_protocol' => 'https',
                 'help' => 'Webpage that describes this course.',
             ])
             ->add('codedNotation', TextType::class, [

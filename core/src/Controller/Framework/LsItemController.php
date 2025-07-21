@@ -328,6 +328,7 @@ class LsItemController extends AbstractController
             'id' => $item->getId(),
             'identifier' => $item->getIdentifier(),
             'uri' => $item->getUri(),
+            'objectType' => $item->getObjectType(),
             'fullStatement' => $item->getFullStatement(),
             'humanCodingScheme' => $item->getHumanCodingScheme(),
             'listEnumInSource' => $item->getListEnumInSource(),
