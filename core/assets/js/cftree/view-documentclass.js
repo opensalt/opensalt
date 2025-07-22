@@ -452,7 +452,7 @@ function ApxDocument(initializer, apx) {
                     let child = {
                         "title": a.origin.item,
                         "key": a.origin.item,
-                        "extraClasses": "objecttype-"+self.itemHash[a.origin.item].objectType,
+                        "extraClasses": "object-type-"+self.itemHash[a.origin.item].objectType,
                         "children": [],
                         "seq": a.seq,
                         "childOfAssocId": a.id,     // stash the assocId for use elsewhere
@@ -597,7 +597,7 @@ function ApxDocument(initializer, apx) {
                     let child = {
                         "title": treeItemTitle(orphan),
                         "key": orphan.identifier,
-                        "extraClasses": "objecttype-"+orphan.objectType,
+                        "extraClasses": "object-type-"+orphan.objectType,
                         "children": [],
                         "seq": i,
                         "ref": orphan
@@ -1351,7 +1351,11 @@ function ApxDocument(initializer, apx) {
                 title = '<span style="float:right" class="lessImportant">Version ' + render.escaped(item.version) + '</span>' + title;
             }
             $jq.find(".itemTitleSpan").html(title);
-            $jq.find(".itemTitleIcon").attr("src", "/static/img/doc.png");
+            $jq.closest('section').data('object-type', 'doc');
+            $jq.closest('section').removeClass((i, className) => {
+                return (className.match(/(^|\s)object-type-\S+/g) || []).join(' ')
+            });
+            $jq.closest('section').addClass('object-type-doc');
 
             /////////////////////////////////////
             // Show item details
@@ -1466,11 +1470,11 @@ function ApxDocument(initializer, apx) {
         function showItem() {
 // show title and appropriate icon
             $jq.find(".itemTitleSpan").html(self.getItemTitle(item));
-            if (item.setToParent === true || (!empty(item.ftNodeData) && item.ftNodeData.children.length > 0)) {
-                $jq.find(".itemTitleIcon").attr("src", "/static/img/folder.png");
-            } else {
-                $jq.find(".itemTitleIcon").attr("src", "/static/img/item.png");
-            }
+            $jq.closest('section').data('object-type', item.objectType);
+            $jq.closest('section').removeClass((i, className) => {
+                return (className.match(/(^|\s)object-type-\S+/g) || []).join(' ')
+            });
+            $jq.closest('section').addClass('object-type-'+item.objectType);
 
             // show item details
             let html = "";
@@ -1928,13 +1932,11 @@ function ApxDocument(initializer, apx) {
 
             // if this is the currentItem, update the icon
             if (item == self.currentItem) {
-                let src;
-                if (item.setToParent) {
-                    src = "/static/img/folder.png";
-                } else {
-                    src = "/static/img/item.png";
-                }
-                $("#itemInfo").find(".itemTitleIcon").attr("src", src);
+                $jq.closest('section').data('object-type', item.objectType);
+                $jq.closest('section').removeClass((i, className) => {
+                    return (className.match(/(^|\s)object-type-\S+/g) || []).join(' ')
+                });
+                $jq.closest('section').addClass('object-type-'+item.objectType);
             }
         }
 

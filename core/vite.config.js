@@ -4,6 +4,7 @@ import vuePlugin from "@vitejs/plugin-vue";
 import inject from '@rollup/plugin-inject';
 import commonjs from '@rollup/plugin-commonjs';
 import { fileURLToPath } from 'url';
+import Components from 'unplugin-vue-components/vite';
 
 /* if you're using React */
 // import react from '@vitejs/plugin-react';
@@ -11,6 +12,7 @@ import { fileURLToPath } from 'url';
 export default defineConfig({
     plugins: [
         commonjs(),
+        Components({}),
         /*
         inject({
             $: 'jquery',
