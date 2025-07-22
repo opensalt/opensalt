@@ -270,14 +270,14 @@ export default function (apx) {
 
                     if (ref.title) {
                         title = render.inline(ref.title);
-                    } else if (ref.astmt) {
-                        title = render.inline(ref.astmt);
-                    } else if (ref.fstmt) {
-                        title = render.inline(ref.fstmt);
+                    } else if (ref.abbreviatedStatement) {
+                        title = render.inline(ref.abbreviatedStatement);
+                    } else if (ref.fullStatement) {
+                        title = render.inline(ref.fullStatement);
                     }
 
-                    if (ref.hcs) {
-                        title = '<span class="item-humanCodingScheme">' + render.escaped(ref.hcs) + '</span> ' + title;
+                    if (ref.humanCodingScheme) {
+                        title = '<span class="item-humanCodingScheme">' + render.escaped(ref.humanCodingScheme) + '</span> ' + title;
                     }
 
                     $title.html(title);

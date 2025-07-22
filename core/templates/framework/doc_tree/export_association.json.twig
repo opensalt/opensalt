@@ -10,7 +10,7 @@
 "groupId": {{ lsAssociation.group.id |json_encode |raw }},
 {% endif %}
 {% if lsAssociation.sequenceNumber is not null %}
-"seq": {{ lsAssociation.sequenceNumber |json_encode |raw }},
+"sequenceNumber": {{ lsAssociation.sequenceNumber |json_encode |raw }},
 {% endif %}
 {# Simplify origin and destination data #}
 "origin": {
@@ -39,6 +39,6 @@
 {% if lsAssociation.notes is not null %}
 "annotation": {{ lsAssociation.notes |json_encode |raw }},
 {% endif %}
-"mod": {{ lsAssociation.updatedAt |date('c') |replace({'+00:00':''}) |json_encode |raw }}
+"lastChangeDateTime": {{ lsAssociation.updatedAt |date('c') |replace({'+00:00':''}) |json_encode |raw }}
 }
 {% endblock %}

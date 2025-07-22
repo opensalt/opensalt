@@ -533,17 +533,17 @@ export default function (apx) {
             "item": {
                 "identifier": i.identifier,
                 "saltId": i.id,
-                "fullStatement": i.fstmt,
-                "abbreviatedStatement": i.astmt,
-                "humanCodingScheme": i.hcs,
-                "listEnumInSource": i.le,
-                "conceptKeywords": i.ck,
-                "conceptKeywordsURI": i.cku,
+                "fullStatement": i.fullStatement,
+                "abbreviatedStatement": i.abbreviatedStatement,
+                "humanCodingScheme": i.humanCodingScheme,
+                "listEnumInSource": i.listEnumInSource,
+                "conceptKeywords": i.conceptKeywords,
+                "conceptKeywordsURI": i.conceptKeywordsURI,
                 "notes": i.notes,
-                "language": i.lang,
-                "educationalAlignment": i.el,
-                "itemType": i.itp,
-                "lastChangeDateTime": i.mod
+                "language": i.language,
+                "educationalAlignment": i.educationalAlignment,
+                "itemType": i.itemType,
+                "lastChangeDateTime": i.lastChangeDateTime
             }
         };
 

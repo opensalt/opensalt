@@ -266,23 +266,6 @@ function ApxDocument(initializer, apx) {
             }
         }
 
-        // items: some field names are abbreviated
-        for (let i = 0; i < self.items.length; ++i) {
-            let item = self.items[i];
-            changeKey(item, "fullStatement", "fstmt");
-            changeKey(item, "abbreviatedStatement", "astmt");
-            changeKey(item, "humanCodingScheme", "hcs");
-            changeKey(item, "listEnumInSource", "le");
-            changeKey(item, "conceptKeywords", "ck");
-            changeKey(item, "conceptKeywordsURI", "cku");
-            changeKey(item, "language", "lang");
-            changeKey(item, "educationalAlignment", "el");
-            changeKey(item, "itemType", "itp");
-            changeKey(item, "lastChangeDateTime", "mod");
-            // things that remain the same: identifier, notes
-            // the condensed format will also include an id field
-        }
-
         // CFAssociations: define a function for converting origin and dest data
         function assocTarget(assoc, oldKey, newKey) {
             // we don't know the document
@@ -344,8 +327,6 @@ function ApxDocument(initializer, apx) {
                 delete assoc.CFAssociationGroupingURI;
             }
             changeKey(assoc, "associationType", "type");
-            changeKey(assoc, "sequenceNumber", "seq");
-            changeKey(assoc, "lastChangeDateTime", "mod");
             assocTarget(assoc, "originNodeURI", "origin");
             assocTarget(assoc, "destinationNodeURI", "dest");
 
@@ -454,7 +435,7 @@ function ApxDocument(initializer, apx) {
                         "key": a.origin.item,
                         "extraClasses": "object-type-"+self.itemHash[a.origin.item].objectType,
                         "children": [],
-                        "seq": a.seq,
+                        "sequenceNumber": a.sequenceNumber,
                         "childOfAssocId": a.id,     // stash the assocId for use elsewhere
                         // we really shouldn't need to set a default ref like this, but just in case...
                         "ref": {
@@ -498,9 +479,9 @@ function ApxDocument(initializer, apx) {
 
             // sort children of parent
             parent.children.sort(function(a,b) {
-                // try to sort by a.seq
-                let seqA = a.seq * 1;
-                let seqB = b.seq * 1;
+                // try to sort by a.sequenceNumber
+                let seqA = a.sequenceNumber * 1;
+                let seqB = b.sequenceNumber * 1;
                 if (isNaN(seqA)) seqA = 100000;
                 if (isNaN(seqB)) seqB = 100000;
                 // if seqA != seqB, sort by seq
@@ -511,11 +492,11 @@ function ApxDocument(initializer, apx) {
                 // else try to sort by the item's listEnumeration field
                 let leA = 100000;
                 let leB = 100000;
-                if (!empty(a.ref) && !empty(a.ref.le)) {
-                    leA = a.ref.le*1;
+                if (!empty(a.ref) && !empty(a.ref.listEnumInSource)) {
+                    leA = a.ref.listEnumInSource*1;
                 }
-                if (!empty(b.ref) && !empty(b.ref.le)) {
-                    leB = b.ref.le*1;
+                if (!empty(b.ref) && !empty(b.ref.listEnumInSource)) {
+                    leB = b.ref.listEnumInSource*1;
                 }
 
                 if (isNaN(leA)) leA = 100000;
@@ -527,8 +508,8 @@ function ApxDocument(initializer, apx) {
 
                 // else try to sort by the item's human coding scheme
 
-                let hcsA = op(a, "ref", "hcs");
-                let hcsB = op(b, "ref", "hcs");
+                let hcsA = op(a, "ref", "humanCodingScheme");
+                let hcsB = op(b, "ref", "humanCodingScheme");
 
                 if (empty(hcsA) && empty(hcsB)) return 0;
                 if (empty(hcsB)) return -1;
@@ -584,7 +565,7 @@ function ApxDocument(initializer, apx) {
                     "key": "orphans",
                     "children": [],
                     "folder": true,
-                    "seq": 100000,
+                    "sequenceNumber": 100000,
                     "ref": {
                         "nodeType": "item",
                         "item": "orphanParent",
@@ -599,7 +580,7 @@ function ApxDocument(initializer, apx) {
                         "key": orphan.identifier,
                         "extraClasses": "object-type-"+orphan.objectType,
                         "children": [],
-                        "seq": i,
+                        "sequenceNumber": i,
                         "ref": orphan
                     };
                     // then link the ft node to the childItem if we're rendering the left side
@@ -732,8 +713,8 @@ function ApxDocument(initializer, apx) {
 
         if (item !== self.doc) {
             // add humanCodingScheme to the start if we have one
-            if (!empty(item.hcs)) {
-                title = '<span class="item-humanCodingScheme">' + render.escaped(item.hcs) + '</span> ' + title;
+            if (!empty(item.humanCodingScheme)) {
+                title = '<span class="item-humanCodingScheme">' + render.escaped(item.humanCodingScheme) + '</span> ' + title;
             }
         }
 
@@ -747,8 +728,8 @@ function ApxDocument(initializer, apx) {
 
         if (item !== self.doc) {
             // add humanCodingScheme to the start if we have one
-            if (!empty(item.hcs)) {
-                title = '<span class="item-humanCodingScheme">' + render.escaped(item.hcs) + '</span> ' + title;
+            if (!empty(item.humanCodingScheme)) {
+                title = '<span class="item-humanCodingScheme">' + render.escaped(item.humanCodingScheme) + '</span> ' + title;
             }
         }
 
@@ -761,14 +742,14 @@ function ApxDocument(initializer, apx) {
         if (item === self.doc && !empty(item.title)) {
             // for the document, use title
             title = item.title;
-        } else if (!empty(item.fstmt)) {
+        } else if (!empty(item.fullStatement)) {
             // else it's an item
             // by default we'll use the fullStatement, which is a required field for CF items
-            title = item.fstmt;
+            title = item.fullStatement;
 
             // use abbreviatedStatement if we have one and requireFullStatement isn't true
-            if (!empty(item.astmt) && requireFullStatement !== true) {
-                title = item.astmt;
+            if (!empty(item.abbreviatedStatement) && requireFullStatement !== true) {
+                title = item.abbreviatedStatement;
             }
         } else if (!empty(item.item) && 'orphanParent' === item.item) {
             // else it's an orphan
@@ -931,8 +912,8 @@ function ApxDocument(initializer, apx) {
             assoc.identifier = atts.identifier; // this isn't really needed
         }
 
-        if (!empty(atts.seq)) {
-            assoc.seq = atts.seq;
+        if (!empty(atts.sequenceNumber)) {
+            assoc.sequenceNumber = atts.sequenceNumber;
         }
 
         if (!empty(atts.groupId)) {
@@ -1167,8 +1148,8 @@ function ApxDocument(initializer, apx) {
                     atts['dest'] = item.newAssoc.dest;
                     delete atts.destItem;
                 }
-                if ("undefined" !== typeof item.newAssoc.seq) {
-                    atts['seq'] = item.newAssoc.seq;
+                if ("undefined" !== typeof item.newAssoc.sequenceNumber) {
+                    atts['sequenceNumber'] = item.newAssoc.sequenceNumber;
                 }
                 if ("undefined" !== typeof item.newAssoc.groupId) {
                     atts['groupId'] = item.newAssoc.groupId;
@@ -1480,16 +1461,16 @@ function ApxDocument(initializer, apx) {
             let html = "";
             let key, attributes, val;
             for (key in attributes = {
-                'fstmt': 'Full Statement',
+                'fullStatement': 'Full Statement',
                 'identifier': 'Identifier',
-                'ck': 'Concept Keywords',
-                'el': 'Education Level',
-                'itp': 'Type',
+                'conceptKeywords': 'Concept Keywords',
+                'educationAlignment': 'Education Level',
+                'itemType': 'Type',
                 'notes': 'Notes'
             }) {
                 if (!empty(item[key])) {
                     val = item[key];
-                    if (key === 'fstmt' || key === 'notes') {
+                    if (key === 'fullStatement' || key === 'notes') {
                         html += '<li class="list-group-item markdown-body">'
                             + '<strong>' + attributes[key] + ':</strong> '
                             + render.block(val)
@@ -1511,7 +1492,7 @@ function ApxDocument(initializer, apx) {
                             + '</li>'
                         ;
                     } else {
-                        // TODO: deal with ck, el, itp
+                        // TODO: deal with conceptKeywords, educationAlignment, itemType
                         html += '<li class="list-group-item">'
                             + '<strong>' + attributes[key] + ':</strong> '
                             + '<span class="item-' + key + '">'
@@ -1524,11 +1505,11 @@ function ApxDocument(initializer, apx) {
             }
 
             for (key in attributes = {
-                'le': 'List Enumeration in Source',
-                'cku': 'Concept Keywords URI',
-                'lang': 'Language',
+                'listEnumInSource': 'List Enumeration in Source',
+                'conceptKeywordsURI': 'Concept Keywords URI',
+                'language': 'Language',
                 'licenceUri': 'Licence URI',
-                'mod': 'Last Changed'
+                'lastChangeDateTime': 'Last Changed'
             }) {
                 if (!empty(item[key])) {
                     val = item[key];
@@ -1932,6 +1913,7 @@ function ApxDocument(initializer, apx) {
 
             // if this is the currentItem, update the icon
             if (item == self.currentItem) {
+                const $jq = $("#itemInfo").find(".itemTitleIcon");
                 $jq.closest('section').data('object-type', item.objectType);
                 $jq.closest('section').removeClass((i, className) => {
                     return (className.match(/(^|\s)object-type-\S+/g) || []).join(' ')

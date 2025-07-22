@@ -282,7 +282,7 @@ export default function (apx) {
                 changes[id] = 'x';
                 let item;
                 if ("undefined" === typeof apx.mainDoc.itemIdHash[id]) {
-                    item = apx.mainDoc.itemIdHash[id].fstmt;
+                    item = apx.mainDoc.itemIdHash[id].fullStatement;
                 } else {
                     item = "unknown";
                 }
@@ -382,8 +382,8 @@ export default function (apx) {
                 let a = apx.mainDoc.assocIdHash[data.id];
                 // most common (only?) change is sequence number
                 if ("undefined" !== typeof a) {
-                    a.seq = data.seq;
-                    a.mod = data.mod;
+                    a.sequenceNumber = data.sequenceNumber;
+                    a.lastChangeDateTime = data.lastChangeDateTime;
                 }
 
                 apx.refreshPage();
@@ -429,7 +429,7 @@ export default function (apx) {
                     let warning = setTimeout(function (id) {
                         let item;
                         if ("undefined" !== typeof apx.mainDoc.itemIdHash[id]) {
-                            item = apx.mainDoc.itemIdHash[id].fstmt;
+                            item = apx.mainDoc.itemIdHash[id].fullStatement;
                         } else {
                             item = "unknown";
                         }
@@ -491,7 +491,7 @@ export default function (apx) {
 
                         let item;
                         if ("undefined" !== typeof apx.mainDoc.itemIdHash[id]) {
-                            item = apx.mainDoc.itemIdHash[id].fstmt;
+                            item = apx.mainDoc.itemIdHash[id].fullStatement;
                         } else {
                             item = "unknown";
                         }

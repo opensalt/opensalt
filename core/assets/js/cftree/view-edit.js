@@ -1662,17 +1662,17 @@ export default function (apx) {
                             // the first three attributes come back from the server
                             "id": o.lsItemId,
                             "identifier": o.lsItemIdentifier,
-                            "fstmt": o.fullStatement,
+                            "fullStatement": o.fullStatement,
                             // the rest come from the original item
-                            "hcs": n.data.ref.hcs,
-                            "le": n.data.ref.le,
-                            "astmt": n.data.ref.astmt,
-                            "ck": n.data.ref.ck,
-                            "cku": n.data.ref.cku,
+                            "humanCodingScheme": n.data.ref.humanCodingScheme,
+                            "listEnumInSource": n.data.ref.listEnumInSource,
+                            "abbreviatedStatement": n.data.ref.abbreviatedStatement,
+                            "conceptKeywords": n.data.ref.conceptKeywords,
+                            "conceptKeywordsURI": n.data.ref.conceptKeywordsURI,
                             "notes": n.data.ref.notes,
-                            "lang": n.data.ref.lang,
-                            "el": n.data.ref.el,
-                            "itp": n.data.ref.itp
+                            "language": n.data.ref.language,
+                            "educationalAlignment": n.data.ref.educationalAlignment,
+                            "itemType": n.data.ref.itemType
                         });
                     }
 
@@ -1691,7 +1691,7 @@ export default function (apx) {
                     if (empty(existingAssoc)) {
                         let atts = {
                             "id": o.assocId,
-                            "seq": o.sequenceNumber * 1,
+                            "sequenceNumber": o.sequenceNumber * 1,
                             "originItem": item,
                             "type": "isChildOf",
                             "destItem": n.parent.data.ref, // parent item is the node's parent's ref
@@ -1701,7 +1701,7 @@ export default function (apx) {
                         apx.mainDoc.addInverseAssociation(a);
 
                     } else {
-                        existingAssoc.seq = o.sequenceNumber * 1;
+                        existingAssoc.sequenceNumber = o.sequenceNumber * 1;
                     }
                 }
             }

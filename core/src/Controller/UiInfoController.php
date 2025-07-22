@@ -163,7 +163,7 @@ class UiInfoController extends AbstractController
                     $ret['assocData']['groupId'] = $assoc->getGroup()->getId();
                 }
                 if ($assoc->getSequenceNumber()) {
-                    $ret['assocData']['seq'] = $assoc->getSequenceNumber();
+                    $ret['assocData']['sequenceNumber'] = $assoc->getSequenceNumber();
                 }
             }
         }
@@ -212,8 +212,8 @@ class UiInfoController extends AbstractController
                 'uri' => $destIdentifier,
             ],
             'groupId' => $association->getGroup()?->getId(),
-            'seq' => $association->getSequenceNumber(),
-            'mod' => $association->getUpdatedAt()->format('Y-m-d\TH:i:s'),
+            'sequenceNumber' => $association->getSequenceNumber(),
+            'lastChangeDateTime' => $association->getUpdatedAt()->format('Y-m-d\TH:i:s'),
         ];
     }
 }
