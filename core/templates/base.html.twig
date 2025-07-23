@@ -57,12 +57,6 @@
                                                 {% endif %}
                                                 <li role="separator" class="dropdown-divider"></li>
 
-                                                <li><a href="{{ url("credential_index") }}" class="dropdown-item">List credentials</a></li>
-                                                {% if is_granted(constant('App\\Security\\Permission::CREDENTIAL_DEF_CREATE')) %}
-                                                    <li><a href="{{ url("credential_new") }}" class="dropdown-item">Add credential</a></li>
-                                                {% endif %}
-                                                <li role="separator" class="dropdown-divider"></li>
-
                                                 <li><a href="{{ url("issuer_registry_index") }}" class="dropdown-item">List issuers</a></li>
                                                 {#
                                                 {% if is_granted(constant('App\\Security\\Permission::ISSUER_REGISTRY_ADD')) %}

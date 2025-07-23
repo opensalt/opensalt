@@ -38,8 +38,10 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Uid\Uuid;
 
 #[AsController]
+#[IsGranted('ROLE_SUPER_USER')]
 class CredentialController extends AbstractController
 {
+    #[\Deprecated(message: 'The independent credential setup is deprecated, use frameworks')]
     public function __construct(
         private readonly CommandBus $commandBus,
         private readonly QueryBus $queryBus,

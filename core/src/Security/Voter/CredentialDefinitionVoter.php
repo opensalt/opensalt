@@ -67,7 +67,7 @@ class CredentialDefinitionVoter extends Voter
 
     private function canCreateCredentialDef(TokenInterface $token): bool
     {
-        if ($this->roleChecker->isEditor($token)) {
+        if ($this->roleChecker->isSuperUser($token)) {
             return true;
         }
 
@@ -98,13 +98,12 @@ class CredentialDefinitionVoter extends Voter
             return false;
         }
 
-        // Allow editing if the user is a super-editor
-        if ($this->roleChecker->isSuperEditor($token)) {
+        // Allow editing if the user is a super-user only
+        if ($this->roleChecker->isSuperUser($token)) {
             return true;
         }
 
-        // Lastly check if the user is in the same organization
-        return $user->getOrg()->getId() === $subject->getOrganization();
+        return false;
     }
 
     private function canDeleteCredentialDef(CredentialDefinition $subject, TokenInterface $token): bool
@@ -114,7 +113,7 @@ class CredentialDefinitionVoter extends Voter
 
     private function canEditAllCredentialDefs(TokenInterface $token): bool
     {
-        if ($this->roleChecker->isSuperEditor($token)) {
+        if ($this->roleChecker->isSuperUser($token)) {
             return true;
         }
 
