@@ -41,7 +41,10 @@ class CommentRepository extends ServiceEntityRepository
 
         $comment->setCreatedByCurrentUser(true);
 
-        $parent = $this->find($parentId);
+        $parent = null;
+        if (null !== $parentId && $parentId > 0) {
+            $parent = $this->find($parentId);
+        }
         $comment->setParent($parent);
 
         $this->getEntityManager()->persist($comment);

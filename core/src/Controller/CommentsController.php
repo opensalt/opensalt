@@ -218,7 +218,11 @@ class CommentsController extends AbstractController
             return new JsonResponse(['error' => ['message' => 'Invalid user']], Response::HTTP_UNAUTHORIZED);
         }
 
-        $parentId = $request->request->getInt('parent');
+        try {
+            $parentId = $request->request->getInt('parent');
+        } catch (\Throwable) {
+            $parentId = null;
+        }
         $content = $request->request->getString('content');
         $fileUrl = null;
         $fileMimeType = null;
