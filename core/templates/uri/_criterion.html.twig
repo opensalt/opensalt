@@ -38,7 +38,9 @@
                         <li><strong>Requires {{ conditions.requires }} of:</strong>
                             <ul>
                                 {% for c in criteria %}
-                                    {{ include('uri/_criterion.html.twig', {criterion: c}) }}
+                                    {% if c is not empty %}
+                                        {{ include('uri/_criterion.html.twig', {criterion: c}) }}
+                                    {% endif %}
                                 {% endfor %}
                             </ul>
                         </li>
@@ -46,7 +48,9 @@
                 {% else %}
                     <ul>
                         {% for c in criteria %}
-                            {{ include('uri/_criterion.html.twig', {criterion: c}) }}
+                            {% if c is not empty %}
+                                {{ include('uri/_criterion.html.twig', {criterion: c}) }}
+                            {% endif %}
                         {% endfor %}
                     </ul>
                 {% endif %}

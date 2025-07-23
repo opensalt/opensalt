@@ -1,5 +1,5 @@
 {% set criteria = [] %}
-{% if criterion.itemType.title|default(null) starts with 'Credential - ' %}
+{% if ((criterion.itemType.title|default(null) starts with 'Credential - ') or (criterion.objectType|default(null) == 'credential')) %}
     {% set associations = associationRepo.findAllAssociationsForAsSplitArray(criterion.identifier).inverseAssociations %}
     {% for association in associations %}
         {% if association.type == 'Precedes' %}
@@ -19,7 +19,9 @@
                     <li><strong>Requires {{ conditions.requires }} of:</strong>
                         <ul>
                             {% for c in criteria %}
-                                {{ include('pathway/_criterion.html.twig', {criterion: c}) }}
+                                {% if c is not empty %}
+                                    {{ include('pathway/_criterion.html.twig', {criterion: c}) }}
+                                {% endif %}
                             {% endfor %}
                         </ul>
                     </li>
@@ -27,7 +29,9 @@
             {% else %}
                 <ul>
                     {% for c in criteria %}
-                        {{ include('pathway/_criterion.html.twig', {criterion: c}) }}
+                        {% if c is not empty %}
+                            {{ include('pathway/_criterion.html.twig', {criterion: c}) }}
+                        {% endif %}
                     {% endfor %}
                 </ul>
             {% endif %}

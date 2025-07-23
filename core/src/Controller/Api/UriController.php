@@ -125,16 +125,9 @@ class UriController extends AbstractController
 
         if ($obj instanceof LsItem) {
             $type = $obj->getItemType()?->getTitle();
-            if (str_starts_with($type ?? '', 'Credential - ') && in_array($request->getRequestFormat(), ['html', 'jsonld'])) {
+            if ((LsItem::TYPES['credential'] === $obj->getDiscriminator() || str_starts_with($type ?? '', 'Credential - '))
+                && in_array($request->getRequestFormat(), ['html', 'jsonld'])) {
                 return $this->renderCredentialView($obj, $request, $response);
-            }
-
-            if (LsItem::TYPES['credential'] === $obj->getDiscriminator() && 'jsonld' === $request->getRequestFormat()) {
-                $credential = json5_decode($obj->getExtensionProperty('ob3') ?? ($obj->getExtraProperty('extendedItem') ?? [])['ob3'] ?? '', true);
-                $iri = $this->api1Uris->getUri($obj);
-                $idAdded = array_merge(['@context' => [], 'id' => $iri], $credential);
-
-                return new JsonResponse($idAdded);
             }
         }
 
@@ -306,9 +299,34 @@ xENDx;
     {
         $response->setPublic();
 
+        $credential = json5_decode($obj->getExtensionProperty('ob3') ?? ($obj->getExtraProperty('extendedItem') ?? [])['ob3'] ?? 'null', true);
+
+        if (null === $credential) {
+            $credential = [
+                'type' => ['Achievement'],
+                'achievementType' => null,
+                'name' => $obj->getAbbreviatedStatement() ?? $obj->getFullStatement(),
+                'description' => $obj->getFullStatement(),
+                'humanCode' => $obj->getHumanCodingScheme() ?? '',
+                'criteria' => [
+                    'narrative' => '',
+                    'id' => $this->uriGenerator->getUri($obj).'.html',
+                ],
+                'alignment' => [],
+                'image' => [
+                    'id' => '',
+                    'type' => 'Image',
+                ],
+            ];
+        }
+
+        $iri = $this->api1Uris->getUri($obj);
+        $credential = array_merge(['@context' => [], 'id' => $iri], $credential);
+
+        $img = ('' !== ($credential['image']['id'] ?? '')) ? $credential['image']['id'] : '';
+
         $allAssociations = $this->associationRepository->findAllAssociationsForAsSplitArray($obj->getIdentifier());
         $associations = $allAssociations['associations'];
-        $img = null;
         $criteria = [];
         $alignments = [];
         foreach ($associations as $association) {
@@ -336,6 +354,8 @@ xENDx;
                     break;
             }
         }
+
+        $credential['image']['id'] = $img;
 
         $associations = $allAssociations['inverseAssociations'];
         foreach ($associations as $association) {
@@ -370,7 +390,7 @@ xENDx;
             }
         }
 
-        if ('jsonld' === $request->getRequestFormat()) {
+        if (null === $credential['achievementType']) {
             $achievementType = preg_replace('/Credential - /', '', $obj->getItemType()?->getTitle() ?? 'Credential - Achievement');
             if (!in_array($achievementType, [
                 'Achievement',
@@ -404,37 +424,22 @@ xENDx;
                 'MicroCredential',
                 'ResearchDoctorate',
                 'SecondarySchoolDiploma',
-              ], true)) {
+            ], true)) {
                 $achievementType = 'ext:'.$achievementType;
             }
 
-            $credential = [
-                '@context' => [
-                    'https://www.w3.org/ns/credentials/v2',
-                    'https://purl.imsglobal.org/spec/ob/v3p0/context-3.0.3.json',
-                ],
-                'id' => $this->uriGenerator->getUri($obj),
-                'type' => ['Achievement'],
-                'achievementType' => $achievementType,
-                'name' => $obj->getAbbreviatedStatement() ?? $obj->getFullStatement(),
-                'description' => $obj->getFullStatement(),
-                'humanCode' => $obj->getHumanCodingScheme() ?? '',
-                'criteria' => [
-                    'narrative' => null,
-                    'id' => $this->uriGenerator->getUri($obj).'.html',
-                ],
-                'alignment' => [],
-                'image' => [
-                    'id' => $img ?? '',
-                    'type' => 'Image',
-                ],
-            ];
+            $credential['achievementType'] = $achievementType;
+        }
 
+        if ('jsonld' === $request->getRequestFormat()) {
             $narrative = [];
             foreach ($criteria as $criterion) {
                 $narrative[] = '- '.($criterion->getAbbreviatedStatement() ?? $criterion->getFullStatement());
             }
-            $credential['criteria']['narrative'] = implode("\n", $narrative);
+            if ('' !== ($credential['criteria']['narrative'] ?? '')) {
+                $credential['criteria']['narrative'] .= "\n\n";
+            }
+            $credential['criteria']['narrative'] .= implode("\n", $narrative);
 
             if ('' === $credential['criteria']['narrative']) {
                 unset($credential['criteria']['narrative']);
@@ -452,15 +457,15 @@ xENDx;
                     'targetUrl' => $this->uriGenerator->getUri($alignment),
                 ];
             }
-            if ([] === $credential['alignment']) {
+            if ([] === ($credential['alignment'] ?? 'X')) {
                 unset($credential['alignment']);
             }
 
-            if ('' === $credential['humanCode']) {
+            if ('' === ($credential['humanCode'] ?? 'X')) {
                 unset($credential['humanCode']);
             }
 
-            if ('' === $credential['image']['id']) {
+            if ('' === ($credential['image']['id'] ?? 'X')) {
                 unset($credential['image']);
             }
 
@@ -474,6 +479,7 @@ xENDx;
             'alignments' => $alignments,
             'associationRepo' => $this->associationRepository,
             'itemRepo' => $this->itemRepository,
+            'credential' => $credential,
         ], $response);
     }
 

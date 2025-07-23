@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Credential;
 
+use App\Entity\Framework\LsItem;
 use App\Repository\Framework\LsAssociationRepository;
 use App\Repository\Framework\LsItemRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -27,7 +28,7 @@ class PathwayController extends AbstractController
         $credential = $this->itemRepository->findOneByIdentifier($id);
         $checked = $request->query->all('has');
 
-        if (!str_starts_with($credential?->getItemType()?->getTitle() ?? '', 'Credential - ')) {
+        if (!str_starts_with($credential?->getItemType()?->getTitle() ?? '', 'Credential - ') && (LsItem::TYPES['credential'] !== $credential->getDiscriminator())) {
             throw $this->createNotFoundException('No pathway found');
         }
 
