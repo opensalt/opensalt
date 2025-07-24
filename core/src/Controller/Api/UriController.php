@@ -65,8 +65,14 @@ class UriController extends AbstractController
         return $this->render('uri/no_uri.html.twig', ['uri' => null], new Response('', Response::HTTP_NOT_FOUND));
     }
 
-    #[Route(path: '/uri/{framework}/{uri}.{_format}', name: 'uri_lookup_framework', defaults: ['_format' => null], methods: ['GET'])]
+    #[\Deprecated(message: 'Everything should move to using a framework identifier in the URI, left for credentials "in the wild"', since: '3.4.0')]
     #[Route(path: '/uri/{uri}.{_format}', name: 'uri_lookup', defaults: ['_format' => null], methods: ['GET'])]
+    public function findUriSingleIdentifier(Request $request, string $uri, ?string $_format = null): Response
+    {
+        return $this->findUri($request, $uri, null, $_format);
+    }
+
+    #[Route(path: '/uri/{framework}/{uri}.{_format}', name: 'uri_lookup_framework', defaults: ['_format' => null], methods: ['GET'])]
     public function findUri(Request $request, string $uri, ?string $framework = null, ?string $_format = null): Response
     {
         if ($request->isXmlHttpRequest()) {
