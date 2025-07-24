@@ -330,6 +330,7 @@ i.object-type {
     background-size: 1em 1em;
     background-color: transparent;
     display: inline-block;
+    margin-right: 0.25em;
 }
 i.object-type-doc {
     background-image: url('../icons/ph/graph-fill.svg');
@@ -357,4 +358,48 @@ i.object-type-identifier {
 }
 i.object-type-public_key {
     background-image: url('../icons/lucide/key-round.svg');
+}
+
+.credential-page {
+    .tree {
+        margin-top: 20px;
+        margin-left: -3.3em;
+    }
+    .tree summary, .tree summary::-webkit-details-marker {
+        display: flex;
+        cursor: pointer;
+        list-style: none;
+    }
+    .tree summary::before {
+        content: '';
+        width: 1em;
+        height: 1em;
+        background: url('../icons/material-symbols/play-arrow.svg');
+        background-size: cover;
+        margin-right: 0.25em;
+        transition: 0.2s;
+    }
+    .tree details[open] > summary::before {
+        transform: rotate(90deg);
+    }
+    .tree summary.children-0::before {
+        background: none;
+    }
+
+    .tree ul {
+        padding-left: 0;
+        margin-left: 0;
+        list-style: none;
+    }
+    .tree li {
+        padding-left: 1.3em;
+        padding-top: 5px;
+        list-style: none;
+    }
+
+    .tree span.title {
+        display: inline-block;
+        vertical-align: top;
+        width: calc(100% - 42px);
+    }
 }

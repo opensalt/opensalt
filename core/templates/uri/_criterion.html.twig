@@ -15,13 +15,7 @@
 <li>
         <details>
             <summary class="children-{{ criteria|length }}">
-                {% if isCredential %}
-                    <i class="object-type object-type-credential"></i>
-                {% elseif isAssessment %}
-                    <i class="object-type object-type-assessment"></i>
-                {% else %}
-                    <i class="object-type object-type-{{ criterion.objectType|default('item') }}"></i>
-                {% endif %}
+                <i class="object-type object-type-{{ criterion.objectType|default('item') }}"></i>
                 <span class="title">
                 {%  if criterion.humanCodingScheme is not empty %}<strong class="cred-hcs">{{ criterion.humanCodingScheme }}</strong> {% endif %}
                 {{ criterion.abbreviatedStatment|default(criterion.fullStatement) }}
