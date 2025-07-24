@@ -20,6 +20,8 @@ doctrine:
                 options:  '%pdo_options%'
                 charset:  utf8mb4
                 schema_filter: ~^(?!(cache_items|LearningStandards|std_|map_|grade_level))~
+                # To remove ecotone tables from doctrine migration generation
+                #schema_filter: ~^(?!(cache_items|LearningStandards|std_|map_|grade_level|ecotone|event_streams$|projections$|_[0-9a-f]{40}$))~
                 server_version: 8.4.4
                 use_savepoints: true
                 profiling_collect_backtrace: '%kernel.debug%'

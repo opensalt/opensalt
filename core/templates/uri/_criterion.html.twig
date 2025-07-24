@@ -1,26 +1,26 @@
 {% set criteria = [] %}
 {% set isCredential = false %}
 {% set isAssessment = false %}
-{% if criterion.itemType.title|default(null) starts with 'Credential - ' %}
+{% if (criterion.itemType.title|default(null) starts with 'Credential - ') or (criterion.objectType == 'credential') %}
     {% set isCredential = true %}
     {% set associations = associationRepo.findAllAssociationsForAsSplitArray(criterion.identifier).inverseAssociations %}
     {% for association in associations %}
         {% if association.type == 'Precedes' %}
-            {% set criteria = criteria|merge([itemRepo.findOneByIdentifier(association.originNodeIdentifier)])%}
+            {% set criteria = criteria|merge([itemRepo.findOneByIdentifier(association.originNodeIdentifier)]|filter(c => c is not empty))%}
         {% endif %}
     {% endfor %}
-{% elseif criterion.itemType.title|default(null) starts with 'Assessment - ' %}
+{% elseif (criterion.itemType.title|default(null) starts with 'Assessment - ') or (criterion.objectType == 'assessment') %}
     {% set isAssessment = true %}
 {% endif %}
 <li>
         <details>
             <summary class="children-{{ criteria|length }}">
                 {% if isCredential %}
-                    <i class="fa fa-id-card-o"></i>
+                    <i class="object-type object-type-credential"></i>
                 {% elseif isAssessment %}
-                    <i class="fa fa-pencil-square-o"></i>
+                    <i class="object-type object-type-assessment"></i>
                 {% else %}
-                    <i class="fa fa-bullseye"></i>
+                    <i class="object-type object-type-{{ criterion.objectType|default('item') }}"></i>
                 {% endif %}
                 <span class="title">
                 {%  if criterion.humanCodingScheme is not empty %}<strong class="cred-hcs">{{ criterion.humanCodingScheme }}</strong> {% endif %}
@@ -38,9 +38,7 @@
                         <li><strong>Requires {{ conditions.requires }} of:</strong>
                             <ul>
                                 {% for c in criteria %}
-                                    {% if c is not empty %}
-                                        {{ include('uri/_criterion.html.twig', {criterion: c}) }}
-                                    {% endif %}
+                                    {{ include('uri/_criterion.html.twig', {criterion: c}) }}
                                 {% endfor %}
                             </ul>
                         </li>
@@ -48,9 +46,7 @@
                 {% else %}
                     <ul>
                         {% for c in criteria %}
-                            {% if c is not empty %}
-                                {{ include('uri/_criterion.html.twig', {criterion: c}) }}
-                            {% endif %}
+                            {{ include('uri/_criterion.html.twig', {criterion: c}) }}
                         {% endfor %}
                     </ul>
                 {% endif %}
