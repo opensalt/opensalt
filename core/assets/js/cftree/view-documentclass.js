@@ -1382,7 +1382,7 @@ function ApxDocument(initializer, apx) {
                     } else if (key === 'identifier') {
                         val = $('<div>').append(
                             $('<a>', {
-                                href: apx.path.uri.replace('ID', val),
+                                href: apx.path.uri.replace('FID', item.identifier).replace('ID', val),
                                 text: render.escaped(val)
                             })
                         ).html();
@@ -1479,7 +1479,7 @@ function ApxDocument(initializer, apx) {
                     } else if (key === 'identifier') {
                         val = $('<div>').append(
                             $('<a>', {
-                                href: apx.path.uri.replace('ID', val),
+                                href: apx.path.uri.replace('FID', item.doc.doc.identifier).replace('ID', val),
                                 text: render.escaped(val)
                             })
                         ).html();
