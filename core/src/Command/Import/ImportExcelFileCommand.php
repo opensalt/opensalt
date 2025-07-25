@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Command\Import;
 
 use App\Command\BaseCommand;
-use App\Entity\User\Organization;
+use App\Entity\User\AccessGroup;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class ImportExcelFileCommand extends BaseCommand
@@ -15,7 +15,7 @@ class ImportExcelFileCommand extends BaseCommand
         #[Assert\NotBlank]
         private readonly string $excelFilePath,
         private readonly ?string $creator = null,
-        private readonly ?Organization $organization = null,
+        private readonly ?AccessGroup $organization = null,
     ) {
     }
 
@@ -24,7 +24,7 @@ class ImportExcelFileCommand extends BaseCommand
         return $this->excelFilePath;
     }
 
-    public function getOrganization(): ?Organization
+    public function getOrganization(): ?AccessGroup
     {
         return $this->organization;
     }

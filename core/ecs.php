@@ -19,6 +19,16 @@ return ECSConfig::configure()
         \PhpCsFixer\Fixer\Import\NoUnusedImportsFixer::class,
     ])
 
+    ->withConfiguredRule(
+        \PhpCsFixer\Fixer\Phpdoc\PhpdocAlignFixer::class,
+        ['align' => 'left']
+    )
+
+    ->withConfiguredRule(
+        \ErickSkrauch\PhpCsFixer\Fixer\FunctionNotation\AlignMultilineParametersFixer::class,
+        ['variables' => false]
+    )
+
     ->withSets([
     ])
 
@@ -40,7 +50,6 @@ return ECSConfig::configure()
    ->withSkip([
        \PhpCsFixer\Fixer\Operator\ConcatSpaceFixer::class => null,
        \PhpCsFixer\Fixer\Operator\BinaryOperatorSpacesFixer::class => null,
-       \PhpCsFixer\Fixer\Phpdoc\PhpdocAlignFixer::class => null,
        \PhpCsFixer\Fixer\Phpdoc\PhpdocSummaryFixer::class => null,
        \PhpCsFixer\Fixer\Phpdoc\PhpdocToCommentFixer::class => null,
        \PhpCsFixer\Fixer\Phpdoc\PhpdocVarWithoutNameFixer::class => null,

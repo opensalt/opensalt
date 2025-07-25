@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Command\User;
 
 use App\Command\BaseCommand;
-use App\Entity\User\Organization;
+use App\Entity\User\AccessGroup;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class AddUserByNameCommand extends BaseCommand
@@ -17,7 +17,7 @@ class AddUserByNameCommand extends BaseCommand
         #[Assert\NotBlank]
         private readonly string $userName,
         #[Assert\NotNull]
-        private readonly Organization $organization,
+        private readonly AccessGroup $organization,
         private readonly ?string $plainPassword = null,
         private readonly ?string $role = null,
     ) {
@@ -28,7 +28,7 @@ class AddUserByNameCommand extends BaseCommand
         return $this->userName;
     }
 
-    public function getOrganization(): Organization
+    public function getOrganization(): AccessGroup
     {
         return $this->organization;
     }

@@ -2,7 +2,7 @@
 
 namespace Tests\Support\Helper;
 
-use App\Entity\User\Organization;
+use App\Entity\User\AccessGroup;
 use App\Entity\User\User;
 use App\Repository\User\UserRepository;
 use App\Service\User\UserManager;
@@ -120,7 +120,7 @@ class UserManagement extends \Codeception\Module
             $userManager->setUserPassword($username, $password);
             $em->flush();
         } else {
-            $orgRepo = $em->getRepository(Organization::class);
+            $orgRepo = $em->getRepository(AccessGroup::class);
             $org = $orgRepo->createQueryBuilder('o')
                 ->where('o.name like :prefix')
                 ->setParameter(':prefix', 'TEST:%')
@@ -128,7 +128,7 @@ class UserManagement extends \Codeception\Module
                 ->getQuery()
                 ->getOneOrNullResult();
             if (!$org) {
-                $org = $orgRepo->addNewOrganization(
+                $org = $orgRepo->addNewAccessGroup(
                     'TEST:'.str_replace("'", '', $faker->company())
                 );
                 $em->flush($org);

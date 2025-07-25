@@ -6,7 +6,7 @@ namespace App\Entity\Framework;
 
 use App\Entity\Framework\Mirror\Framework;
 use App\Entity\LockableInterface;
-use App\Entity\User\Organization;
+use App\Entity\User\AccessGroup;
 use App\Entity\User\User;
 use App\Entity\User\UserDocAcl;
 use App\Repository\Framework\LsDocRepository;
@@ -36,10 +36,10 @@ class LsDoc implements CaseApiInterface, LockableInterface
     final public const string ADOPTION_STATUS_ADOPTED = 'Adopted';
     final public const string ADOPTION_STATUS_DEPRECATED = 'Deprecated';
 
-    #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'frameworks')]
+    #[ORM\ManyToOne(targetEntity: AccessGroup::class, inversedBy: 'frameworks')]
     #[ORM\JoinColumn(name: 'org_id', referencedColumnName: 'id', nullable: true)]
-    #[Assert\Type(Organization::class)]
-    protected ?Organization $org = null;
+    #[Assert\Type(AccessGroup::class)]
+    protected ?AccessGroup $org = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'frameworks')]
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: true)]
@@ -660,7 +660,7 @@ class LsDoc implements CaseApiInterface, LockableInterface
      * Add an associated doc.
      *
      * @param string $identifier
-     * @param string $autoLoad   - "true" or "false"
+     * @param string $autoLoad - "true" or "false"
      * @param string $url
      * @param string $title
      */
@@ -787,7 +787,7 @@ class LsDoc implements CaseApiInterface, LockableInterface
     /**
      * Get the organization owner for the framework.
      */
-    public function getOrg(): ?Organization
+    public function getOrg(): ?AccessGroup
     {
         return $this->org;
     }
@@ -795,7 +795,7 @@ class LsDoc implements CaseApiInterface, LockableInterface
     /**
      * Set the organization owner for the framework.
      */
-    public function setOrg(?Organization $org = null): static
+    public function setOrg(?AccessGroup $org = null): static
     {
         $this->org = $org;
 
@@ -820,7 +820,7 @@ class LsDoc implements CaseApiInterface, LockableInterface
         return $this;
     }
 
-    public function getOwner(): User|Organization|null
+    public function getOwner(): User|AccessGroup|null
     {
         /* @noinspection ProperNullCoalescingOperatorUsageInspection */
         return $this->org ?? $this->user;

@@ -4,28 +4,27 @@ declare(strict_types=1);
 
 namespace App\Handler\User;
 
-use App\Command\User\AddOrganizationCommand;
+use App\Command\User\UpdateAccessGroupCommand;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class AddOrganizationHandler extends BaseUserHandler
+class UpdateAccessGroupHandler extends BaseUserHandler
 {
     #[\Override]
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
-        /** @var AddOrganizationCommand $command */
+        /** @var UpdateAccessGroupCommand $command */
         $command = $event->getCommand();
         $this->validate($command, $command);
 
-        $organization = $command->getOrg();
-        $this->validate($command, $organization);
+        $accessGroup = $command->getAccessGroup();
 
-        $this->em->persist($organization);
+        $this->em->persist($accessGroup);
 
         $command->setNotificationEvent(new NotificationEvent(
-            'O01',
-            sprintf('Organization "%s" added', $organization->getName()),
+            'O04',
+            sprintf('Organization "%s" modified', $accessGroup->getName()),
             null
         ));
     }

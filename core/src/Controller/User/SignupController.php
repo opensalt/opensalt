@@ -7,9 +7,9 @@ namespace App\Controller\User;
 use App\Command\CommandDispatcherTrait;
 use App\Command\Email\SendAdminNotificationEmailCommand;
 use App\Command\Email\SendSignupReceivedEmailCommand;
-use App\Command\User\AddOrganizationCommand;
+use App\Command\User\AddAccessGroupCommand;
 use App\Command\User\AddUserCommand;
-use App\Entity\User\Organization;
+use App\Entity\User\AccessGroup;
 use App\Entity\User\User;
 use App\Form\Type\SignupType;
 use Novaway\Bundle\FeatureFlagBundle\Attribute\FeatureEnabled;
@@ -53,10 +53,10 @@ class SignupController extends AbstractController
                 ->hashPassword($targetUser, $targetUser->getPlainPassword());
 
             if (null !== $form['newOrg']->getData()) {
-                $org = new Organization();
+                $org = new AccessGroup();
                 $org->setName($form['newOrg']->getData());
 
-                $commandOrg = new AddOrganizationCommand($org);
+                $commandOrg = new AddAccessGroupCommand($org);
 
                 try {
                     $this->sendCommand($commandOrg);

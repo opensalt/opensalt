@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace App\Form\Type;
 
-use App\Entity\User\Organization;
+use App\Entity\User\AccessGroup;
 use App\Entity\User\User;
 use App\Security\Permission;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -32,9 +32,6 @@ class UserType extends AbstractType
     ) {
     }
 
-    /**
-     * {@inheritdoc}
-     */
     #[\Override]
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -67,8 +64,9 @@ class UserType extends AbstractType
 
         if ($this->authorizationChecker->isGranted(Permission::MANAGE_ALL_USERS)) {
             $builder->add('org', EntityType::class, [
-                'class' => Organization::class,
+                'class' => AccessGroup::class,
                 'choice_label' => 'name',
+                'label' => 'Group',
             ]);
         }
     }

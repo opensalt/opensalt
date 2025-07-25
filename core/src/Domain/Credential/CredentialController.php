@@ -18,7 +18,7 @@ use App\Domain\Credential\Form\CredentialDefinitionCreateType;
 use App\Domain\Credential\Form\CredentialDefinitionHierarchyType;
 use App\Domain\Credential\Form\CredentialDefinitionOrganizationType;
 use App\Entity\User\User;
-use App\Repository\User\OrganizationRepository;
+use App\Repository\User\AccessGroupRepository;
 use App\Security\Permission;
 use Ecotone\EventSourcing\EventStore;
 use Ecotone\Modelling\CommandBus;
@@ -46,7 +46,7 @@ class CredentialController extends AbstractController
         private readonly CommandBus $commandBus,
         private readonly QueryBus $queryBus,
         private readonly CredentialDefinitionRepository $repository,
-        private readonly OrganizationRepository $organizationRepository,
+        private readonly AccessGroupRepository $organizationRepository,
     ) {
     }
 

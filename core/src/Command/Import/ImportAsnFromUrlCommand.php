@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Command\Import;
 
 use App\Command\BaseCommand;
-use App\Entity\User\Organization;
+use App\Entity\User\AccessGroup;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class ImportAsnFromUrlCommand extends BaseCommand
@@ -15,7 +15,7 @@ class ImportAsnFromUrlCommand extends BaseCommand
         #[Assert\NotBlank]
         private readonly string $asnIdOrUrl,
         private readonly ?string $creator = null,
-        private readonly ?Organization $organization = null,
+        private readonly ?AccessGroup $organization = null,
     ) {
     }
 
@@ -24,7 +24,7 @@ class ImportAsnFromUrlCommand extends BaseCommand
         return $this->asnIdOrUrl;
     }
 
-    public function getOrganization(): ?Organization
+    public function getOrganization(): ?AccessGroup
     {
         return $this->organization;
     }

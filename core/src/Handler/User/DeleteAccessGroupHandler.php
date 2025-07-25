@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace App\Handler\User;
 
-use App\Command\User\UpdateOrganizationCommand;
+use App\Command\User\DeleteAccessGroupCommand;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class UpdateOrganizationHandler extends BaseUserHandler
+class DeleteAccessGroupHandler extends BaseUserHandler
 {
     #[\Override]
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
-        /** @var UpdateOrganizationCommand $command */
+        /** @var DeleteAccessGroupCommand $command */
         $command = $event->getCommand();
         $this->validate($command, $command);
 
-        $organization = $command->getOrg();
+        $accessGroup = $command->getAccessGroup();
 
-        $this->em->persist($organization);
+        $this->em->remove($accessGroup);
 
         $command->setNotificationEvent(new NotificationEvent(
-            'O04',
-            sprintf('Organization "%s" modified', $organization->getName()),
+            'O03',
+            sprintf('Organization "%s" deleted', $accessGroup->getName()),
             null
         ));
     }

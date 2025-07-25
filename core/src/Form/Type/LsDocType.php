@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Form\Type;
 
-use App\Entity\User\Organization;
+use App\Entity\User\AccessGroup;
 use App\Entity\User\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -29,7 +29,7 @@ class LsDocType extends AbstractLsDocCreateType
                 // 'disabled' => true,
                 'placeholder' => 'None',
                 'label' => 'Owning Organization',
-                'class' => Organization::class,
+                'class' => AccessGroup::class,
                 'choice_label' => 'name',
             ])
             ->add('user', EntityType::class, [

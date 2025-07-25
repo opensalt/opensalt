@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Import;
 
-use App\Entity\User\Organization;
+use App\Entity\User\AccessGroup;
 use App\Event\CommandEvent;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\Argument;
@@ -38,7 +38,7 @@ class ImportCaseJsonCommand
 
             return Command::FAILURE;
         }
-        $org = $this->em->getRepository(Organization::class)->findOneByName('PCG');
+        $org = $this->em->getRepository(AccessGroup::class)->findOneByName('PCG');
         $command = new \App\Command\Import\ImportCaseJsonCommand($fileContent, $org);
         $this->dispatcher->dispatch(new CommandEvent($command), CommandEvent::class);
         $io->writeln('Done.');

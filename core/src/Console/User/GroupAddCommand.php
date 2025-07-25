@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Console\User;
 
-use App\Command\User\AddOrganizationByNameCommand;
-use App\Entity\User\Organization;
+use App\Command\User\AddAccessGroupByNameCommand;
+use App\Entity\User\AccessGroup;
 use App\Event\CommandEvent;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\Argument;
@@ -19,10 +19,10 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 #[AsCommand(
-    name: 'salt:org:add',
-    description: 'Add an organization'
+    name: 'salt:group:add',
+    description: 'Add an access group'
 )]
-class OrgAddCommand
+class GroupAddCommand
 {
     public function __construct(
         private readonly EntityManagerInterface $em,
@@ -34,36 +34,36 @@ class OrgAddCommand
         SymfonyStyle $io,
         InputInterface $input,
         OutputInterface $output,
-        #[Argument(description: 'Organization name for the new user')] ?string $org = null,
+        #[Argument(description: 'Group name for the new user')] ?string $group = null,
     ): int {
         $helper = new QuestionHelper();
         $em = $this->em;
-        if (empty($org)) {
-            $question = new Question('New organization name: ');
+        if (empty($group)) {
+            $question = new Question('New group name: ');
             $question->setValidator(function (string $value) use ($em): string {
                 if ('' === trim($value)) {
-                    throw new \Exception('The organization name must not be empty');
+                    throw new \Exception('The group name must not be empty');
                 }
-                $org = $em->getRepository(Organization::class)->findOneByName($value);
-                if (null !== $org) {
-                    throw new \Exception('The organization name must not already exist');
+                $group = $em->getRepository(AccessGroup::class)->findOneByName($value);
+                if (null !== $group) {
+                    throw new \Exception('The group name must not already exist');
                 }
 
                 return $value;
             });
-            $org = $helper->ask($input, $output, $question);
+            $group = $helper->ask($input, $output, $question);
         }
-        $org = trim($org);
-        $orgRepository = $em->getRepository(Organization::class);
-        $orgObj = $orgRepository->findOneByName($org);
-        if (null !== $orgObj) {
-            $io->writeln(sprintf('<error>Organization "%s" already exists.</error>', $org));
+        $group = trim($group);
+        $accessGroupRepository = $em->getRepository(AccessGroup::class);
+        $groupObj = $accessGroupRepository->findOneByName($group);
+        if (null !== $groupObj) {
+            $io->writeln(sprintf('<error>Group "%s" already exists.</error>', $group));
 
             return Command::FAILURE;
         }
-        $command = new AddOrganizationByNameCommand($org);
+        $command = new AddAccessGroupByNameCommand($group);
         $this->dispatcher->dispatch(new CommandEvent($command), CommandEvent::class);
-        $io->writeln(sprintf('The organization "%s" has been added.', $org));
+        $io->writeln(sprintf('The group "%s" has been added.', $group));
 
         return Command::SUCCESS;
     }

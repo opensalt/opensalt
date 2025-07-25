@@ -30,7 +30,7 @@ class Permission
 
     final public const string MANAGE_MIRRORS = 'manage_mirrors';
 
-    final public const string MANAGE_ORGANIZATIONS = 'manage_organizations';
+    final public const string MANAGE_ACCESS_GROUPS = 'manage_access_groups';
 
     final public const string MANAGE_USERS = 'manage_users';
     final public const string MANAGE_THIS_USER = 'manage_user';

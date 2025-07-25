@@ -40,10 +40,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
     #[ORM\Column(name: 'id', type: 'integer')]
     protected ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'users')]
+    #[ORM\ManyToOne(targetEntity: AccessGroup::class, inversedBy: 'users')]
     #[ORM\JoinColumn(name: 'org_id', referencedColumnName: 'id', nullable: false)]
     #[Assert\NotBlank]
-    protected Organization $org;
+    protected AccessGroup $org;
 
     #[ORM\Column(name: 'username', type: 'string', length: 255, unique: true)]
     #[Assert\NotBlank(groups: ['registration', 'Default'])]
@@ -286,12 +286,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         }
     }
 
-    public function getOrg(): Organization
+    public function getOrg(): AccessGroup
     {
         return $this->org;
     }
 
-    public function setOrg(Organization $org): void
+    public function setOrg(AccessGroup $org): void
     {
         $this->org = $org;
     }

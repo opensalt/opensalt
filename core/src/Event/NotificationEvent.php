@@ -89,7 +89,7 @@ class NotificationEvent extends Event
 
         foreach ($orig as $type => $set) {
             /**
-             * @var string|int                 $key
+             * @var string|int $key
              * @var string|IdentifiableInterface|null $value
              */
             foreach ($set as $key => $value) {

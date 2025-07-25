@@ -9,10 +9,10 @@
       </li>
     </ul>
 
-    {% if is_granted(constant('App\\Security\\Permission::MANAGE_ORGANIZATIONS')) %}
+    {% if is_granted(constant('App\\Security\\Permission::MANAGE_ACCESS_GROUPS')) %}
         <form class="row g-8 mb-2 align-items-center">
             <div class="col-auto">
-                <label for="search_form_organization" class="col-form-label">Organization:</label>
+                <label for="search_form_organization" class="col-form-label">Group:</label>
             </div>
             <div class="col-auto">
                 <input type="text" class="form-control" autocomplete="off" id="search_form_organization" name="organization">
@@ -24,7 +24,7 @@
         <thead>
             <tr>
                 <th>Id</th>
-                <th>Organization</th>
+                <th>Group</th>
                 <th>Username</th>
                 <th>Roles</th>
                 <th>Status</th>

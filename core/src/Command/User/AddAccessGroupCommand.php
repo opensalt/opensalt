@@ -4,6 +4,6 @@ declare(strict_types=1);
 
 namespace App\Command\User;
 
-class DeleteOrganizationCommand extends OrganizationCommand
+class AddAccessGroupCommand extends AccessGroupCommand
 {
 }

@@ -11,8 +11,8 @@
         {% if lsDoc.org is not empty %}
             By default:
             <ul>
-                <li>all editors in your organization will have edit access to this framework</li>
-                <li>no one outside your organization will be able to edit this framework</li>
+                <li>all editors in your group will have edit access to this framework</li>
+                <li>no one outside your group will be able to edit this framework</li>
             </ul>
             You can add exceptions for access to specific users by adding them below.
         {% else %}
@@ -32,7 +32,7 @@
             <thead>
             <tr>
                 <th>User</th>
-                <th>Organization</th>
+                <th>Group</th>
                 <th class="col-lg-1">Access</th>
                 <th class="col-lg-2"></th>
             </tr>
@@ -59,7 +59,7 @@
             <div class="col-md-6 row">
                 <div class="card card-default card-body">
                     <p>
-                        Select a user from your organization to <strong>deny</strong> them access to edit this framework.
+                        Select a user from your group to <strong>deny</strong> them access to edit this framework.
                     </p>
                     {{ form_start(addOrgUserForm) }}
                         {{ form_widget(addOrgUserForm) }}
@@ -73,7 +73,7 @@
                 <div class="card card-default card-body">
                     <p>
                         {% if lsDoc.org is not empty %}
-                            Enter the username for an editor outside your organization to <strong>allow</strong> them to edit this framework.
+                            Enter the username for an editor outside your group to <strong>allow</strong> them to edit this framework.
                         {% else %}
                             Enter the username for an editor to <strong>allow</strong> them to edit this framework.
                         {% endif %}

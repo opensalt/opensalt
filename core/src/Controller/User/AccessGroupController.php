@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Controller\User;
 
 use App\Command\CommandDispatcherTrait;
-use App\Command\User\AddOrganizationCommand;
-use App\Command\User\DeleteOrganizationCommand;
-use App\Command\User\UpdateOrganizationCommand;
-use App\Entity\User\Organization;
-use App\Form\Type\OrganizationType;
+use App\Command\User\AddAccessGroupCommand;
+use App\Command\User\DeleteAccessGroupCommand;
+use App\Command\User\UpdateAccessGroupCommand;
+use App\Entity\User\AccessGroup;
+use App\Form\Type\AccessGroupType;
 use App\Security\Permission;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,9 +21,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route(path: '/admin/organization')]
-#[IsGranted(Permission::MANAGE_ORGANIZATIONS)]
-class OrganizationController extends AbstractController
+#[Route(path: '/admin/access_group')]
+#[IsGranted(Permission::MANAGE_ACCESS_GROUPS)]
+class AccessGroupController extends AbstractController
 {
     use CommandDispatcherTrait;
 
@@ -35,14 +35,14 @@ class OrganizationController extends AbstractController
     /**
      * Lists all organization entities.
      */
-    #[Route(path: '/', methods: ['GET'], name: 'admin_organization_index')]
+    #[Route(path: '/', methods: ['GET'], name: 'admin_access_group_index')]
     public function index(): Response
     {
         $em = $this->managerRegistry->getManager();
 
-        $organizations = $em->getRepository(Organization::class)->findAll();
+        $organizations = $em->getRepository(AccessGroup::class)->findAll();
 
-        return $this->render('user/organization/index.html.twig', [
+        return $this->render('user/access_group/index.html.twig', [
             'organizations' => $organizations,
         ]);
     }
@@ -50,25 +50,25 @@ class OrganizationController extends AbstractController
     /**
      * Creates a new organization entity.
      */
-    #[Route(path: '/new', name: 'admin_organization_new', methods: ['GET', 'POST'])]
+    #[Route(path: '/new', name: 'admin_access_group_new', methods: ['GET', 'POST'])]
     public function create(Request $request): Response
     {
-        $organization = new Organization();
-        $form = $this->createForm(OrganizationType::class, $organization);
+        $organization = new AccessGroup();
+        $form = $this->createForm(AccessGroupType::class, $organization);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
-                $command = new AddOrganizationCommand($organization);
+                $command = new AddAccessGroupCommand($organization);
                 $this->sendCommand($command);
 
-                return $this->redirectToRoute('admin_organization_index');
+                return $this->redirectToRoute('admin_access_group_index');
             } catch (\Exception $e) {
                 $form->addError(new FormError($e->getMessage()));
             }
         }
 
-        return $this->render('user/organization/new.html.twig', [
+        return $this->render('user/access_group/new.html.twig', [
             'organization' => $organization,
             'form' => $form->createView(),
         ]);
@@ -77,12 +77,12 @@ class OrganizationController extends AbstractController
     /**
      * Finds and displays an organization entity.
      */
-    #[Route(path: '/{id}', name: 'admin_organization_show', methods: ['GET'])]
-    public function show(Organization $organization): Response
+    #[Route(path: '/{id}', name: 'admin_access_group_show', methods: ['GET'])]
+    public function show(AccessGroup $organization): Response
     {
         $deleteForm = $this->createDeleteForm($organization);
 
-        return $this->render('user/organization/show.html.twig', [
+        return $this->render('user/access_group/show.html.twig', [
             'organization' => $organization,
             'delete_form' => $deleteForm->createView(),
         ]);
@@ -91,25 +91,25 @@ class OrganizationController extends AbstractController
     /**
      * Displays a form to edit an existing organization entity.
      */
-    #[Route(path: '/{id}/edit', name: 'admin_organization_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Organization $organization): Response
+    #[Route(path: '/{id}/edit', name: 'admin_access_group_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, AccessGroup $organization): Response
     {
         $deleteForm = $this->createDeleteForm($organization);
-        $editForm = $this->createForm(OrganizationType::class, $organization);
+        $editForm = $this->createForm(AccessGroupType::class, $organization);
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
             try {
-                $command = new UpdateOrganizationCommand($organization);
+                $command = new UpdateAccessGroupCommand($organization);
                 $this->sendCommand($command);
 
-                return $this->redirectToRoute('admin_organization_index');
+                return $this->redirectToRoute('admin_access_group_index');
             } catch (\Exception $e) {
                 $editForm->addError(new FormError($e->getMessage()));
             }
         }
 
-        return $this->render('user/organization/edit.html.twig', [
+        return $this->render('user/access_group/edit.html.twig', [
             'organization' => $organization,
             'edit_form' => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
@@ -119,27 +119,27 @@ class OrganizationController extends AbstractController
     /**
      * Deletes an organization entity.
      */
-    #[Route(path: '/{id}', name: 'admin_organization_delete', methods: ['DELETE'])]
-    public function delete(Request $request, Organization $organization): RedirectResponse
+    #[Route(path: '/{id}', name: 'admin_access_group_delete', methods: ['DELETE'])]
+    public function delete(Request $request, AccessGroup $organization): RedirectResponse
     {
         $form = $this->createDeleteForm($organization);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $command = new DeleteOrganizationCommand($organization);
+            $command = new DeleteAccessGroupCommand($organization);
             $this->sendCommand($command);
         }
 
-        return $this->redirectToRoute('admin_organization_index');
+        return $this->redirectToRoute('admin_access_group_index');
     }
 
     /**
      * Creates a form to delete an organization entity.
      */
-    private function createDeleteForm(Organization $organization): FormInterface
+    private function createDeleteForm(AccessGroup $organization): FormInterface
     {
         return $this->createFormBuilder()
-            ->setAction($this->generateUrl('admin_organization_delete', ['id' => $organization->getId()]))
+            ->setAction($this->generateUrl('admin_access_group_delete', ['id' => $organization->getId()]))
             ->setMethod(Request::METHOD_DELETE)
             ->getForm()
         ;

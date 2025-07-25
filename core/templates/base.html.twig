@@ -66,9 +66,9 @@
                                                 <li role="separator" class="dropdown-divider"></li>
 
                                                 {%- set seperator_1 = false -%}
-                                                {% if is_granted(constant('App\\Security\\Permission::MANAGE_ORGANIZATIONS')) %}
+                                                {% if is_granted(constant('App\\Security\\Permission::MANAGE_ACCESS_GROUPS')) %}
                                                     {%- set seperator_1 = true -%}
-                                                    <li><a href="{{ url("admin_organization_index") }}" class="dropdown-item">Manage organizations</a></li>
+                                                    <li><a href="{{ url("admin_access_group_index") }}" class="dropdown-item">Manage access groups</a></li>
                                                 {% endif %}
                                                 {% if is_granted(constant('App\\Security\\Permission::MANAGE_USERS')) %}
                                                     {%- set seperator_1 = true -%}

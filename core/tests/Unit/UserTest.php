@@ -2,7 +2,7 @@
 
 namespace Tests\Unit;
 
-use App\Entity\User\Organization;
+use App\Entity\User\AccessGroup;
 use App\Entity\User\User;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -22,7 +22,7 @@ class UserTest extends \Codeception\Test\Unit
         /* @var User $user */
         $user = new User();
 
-        $org = $em->getRepository(Organization::class)->find(1);
+        $org = $em->getRepository(AccessGroup::class)->find(1);
 
         $user->setUsername('usertest');
         $user->setPassword('passwordaB3');

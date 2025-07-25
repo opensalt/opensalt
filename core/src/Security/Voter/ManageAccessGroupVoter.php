@@ -12,11 +12,11 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 /**
  * @extends Voter<string, mixed|null>
  */
-class ManageOrganizationVoter extends Voter
+class ManageAccessGroupVoter extends Voter
 {
     use RoleCheckTrait;
 
-    final public const string MANAGE = Permission::MANAGE_ORGANIZATIONS;
+    final public const string MANAGE = Permission::MANAGE_ACCESS_GROUPS;
 
     #[\Override]
     public function supportsAttribute(string $attribute): bool

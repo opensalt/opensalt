@@ -1,13 +1,13 @@
 {% extends base_template %}
 
 {% block body %}
-    <h1>Add an Organization</h1>
+    <h1>Add an Access Group</h1>
 
     {{ form_start(form) }}
         {{ form_widget(form) }}
         <ul class="list-inline float-end">
             <li class="list-inline-item">
-                <a class="btn btn-default" href="{{ path('admin_organization_index') }}">Back to the list</a>
+                <a class="btn btn-default" href="{{ path('admin_access_group_index') }}">Back to the list</a>
             </li>
             <li class="list-inline-item">
                 <input class="btn btn-primary" type="submit" value="Add" />

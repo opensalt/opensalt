@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\User;
 
-use App\Entity\User\Organization;
+use App\Entity\User\AccessGroup;
 use App\Entity\User\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -24,7 +24,7 @@ class UserManager
      *
      * @throws \Exception if it was not possible to gather sufficient entropy
      */
-    public function addNewUser(string $username, Organization $org, ?string $plainPassword = null, ?string $role = null, ?int $status = null): string
+    public function addNewUser(string $username, AccessGroup $org, ?string $plainPassword = null, ?string $role = null, ?int $status = null): string
     {
         if (null === $plainPassword || ('' === trim($plainPassword))) {
             // if there is no password, make something ugly up

@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Console\User;
 
 use App\Command\User\AddUserByNameCommand;
-use App\Entity\User\Organization;
+use App\Entity\User\AccessGroup;
 use App\Entity\User\User;
 use App\Event\CommandEvent;
-use App\Repository\User\OrganizationRepository;
+use App\Repository\User\AccessGroupRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -31,7 +31,7 @@ class UserAddCommand
     public function __construct(
         private readonly EventDispatcherInterface $dispatcher,
         private readonly EntityManagerInterface $em,
-        private readonly OrganizationRepository $organizationRepository,
+        private readonly AccessGroupRepository $accessGroupRepository,
     ) {
     }
 
@@ -40,32 +40,32 @@ class UserAddCommand
         InputInterface $input,
         OutputInterface $output,
         #[Argument(description: 'Email address or username of the new user')] ?string $username = null,
-        #[Argument(description: 'Organization name for the new user')] ?string $org = null,
+        #[Argument(description: 'Group name for the new user')] ?string $group = null,
         #[Option(description: 'Initial password for the new user', shortcut: 'p')] ?string $password = null,
         #[Option(description: 'Role to give the new user (editor, admin, super-user)', shortcut: 'r')] ?string $role = null,
     ): int {
         $helper = new QuestionHelper();
         $em = $this->em;
-        if (empty($org)) {
-            $orgObjs = $this->organizationRepository->findAll();
-            $orgs = [];
-            foreach ($orgObjs as $o) {
-                $orgs[] = $o->getName();
+        if (empty($group)) {
+            $groupObjs = $this->accessGroupRepository->findAll();
+            $groups = [];
+            foreach ($groupObjs as $o) {
+                $groups[] = $o->getName();
             }
-            $question = new Question('Organization name for the new user: ');
-            $question->setAutocompleterValues($orgs);
+            $question = new Question('Group name for the new user: ');
+            $question->setAutocompleterValues($groups);
             $question->setValidator(function (string $value) use ($em): string {
                 if ('' === trim($value)) {
-                    throw new \Exception('The organization name must exist');
+                    throw new \Exception('The group name must exist');
                 }
-                $org = $em->getRepository(Organization::class)->findOneByName($value);
-                if (null === $org) {
-                    throw new \Exception('The organization name must exist');
+                $group = $em->getRepository(AccessGroup::class)->findOneByName($value);
+                if (null === $group) {
+                    throw new \Exception('The group name must exist');
                 }
 
                 return $value;
             });
-            $org = $helper->ask($input, $output, $question);
+            $group = $helper->ask($input, $output, $question);
         }
         if (empty($username)) {
             $question = new Question('Email address or username of new user: ');
@@ -99,7 +99,7 @@ class UserAddCommand
             $role = $helper->ask($input, $output, $question);
         }
         $username = trim($username);
-        $org = trim($org);
+        $group = trim($group);
         $password = trim($password);
         $role = trim($role);
         if ('' === $role) {
@@ -111,13 +111,13 @@ class UserAddCommand
 
             return Command::FAILURE;
         }
-        $orgObj = $em->getRepository(Organization::class)->findOneByName($org);
-        if (empty($orgObj)) {
-            $io->writeln(sprintf('<error>Organization "%s" is not valid.</error>', $org));
+        $groupObj = $em->getRepository(AccessGroup::class)->findOneByName($group);
+        if (empty($groupObj)) {
+            $io->writeln(sprintf('<error>Group "%s" is not valid.</error>', $group));
 
             return Command::FAILURE;
         }
-        $command = new AddUserByNameCommand($username, $orgObj, $password, $role);
+        $command = new AddUserByNameCommand($username, $groupObj, $password, $role);
         $this->dispatcher->dispatch(new CommandEvent($command), CommandEvent::class);
         $newPassword = $command->getNewPassword();
         if ('' === $password) {

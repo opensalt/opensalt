@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Command\Import;
 
 use App\Command\BaseCommand;
-use App\Entity\User\Organization;
+use App\Entity\User\AccessGroup;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class ImportGenericCsvCommand extends BaseCommand
@@ -16,7 +16,7 @@ class ImportGenericCsvCommand extends BaseCommand
         private readonly string $filePath,
         private readonly ?string $creator = null,
         private readonly ?string $title = null,
-        private readonly ?Organization $organization = null,
+        private readonly ?AccessGroup $organization = null,
     ) {
     }
 
@@ -25,7 +25,7 @@ class ImportGenericCsvCommand extends BaseCommand
         return $this->filePath;
     }
 
-    public function getOrganization(): ?Organization
+    public function getOrganization(): ?AccessGroup
     {
         return $this->organization;
     }

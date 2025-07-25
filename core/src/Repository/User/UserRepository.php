@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repository\User;
 
-use App\Entity\User\Organization;
+use App\Entity\User\AccessGroup;
 use App\Entity\User\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -13,7 +13,7 @@ use Symfony\Bridge\Doctrine\Security\User\UserLoaderInterface;
 /**
  * UserRepository.
  *
- * @method array findByOrg(Organization $org)
+ * @method array findByOrg(AccessGroup $org)
  *
  * @extends ServiceEntityRepository<User>
  */

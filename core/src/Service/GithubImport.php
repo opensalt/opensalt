@@ -141,8 +141,8 @@ class GithubImport
     }
 
     /**
-     * @param int       $position
-     * @param string    $frameworkToAssociate
+     * @param int $position
+     * @param string $frameworkToAssociate
      */
     public function saveAssociations($position, array $content, array $lsItemKeys, LsItem $lsItem, LsDoc $lsDoc, $frameworkToAssociate): void
     {
@@ -159,8 +159,8 @@ class GithubImport
     }
 
     /**
-     * @param string  $cfAssociation
-     * @param string  $frameworkToAssociate
+     * @param string $cfAssociation
+     * @param string $frameworkToAssociate
      */
     public function addItemRelated(LsDoc $lsDoc, LsItem $lsItem, $cfAssociation, $frameworkToAssociate, string $assocType): void
     {

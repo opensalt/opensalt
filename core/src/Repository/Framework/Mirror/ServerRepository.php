@@ -12,7 +12,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method Server[]    findAll()
+ * @method Server[] findAll()
  * @method Server|null findOneByUrl(string $url)
  *
  * @extends ServiceEntityRepository<Server>

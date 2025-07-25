@@ -4,7 +4,7 @@
         "CFDocumentURI": {{ lsItem.lsDocUri|local_uri |json_encode |raw }},
         "identifier": {{ lsItem.identifier |json_encode |raw }},
         "uri": {{ object_uri(lsItem) |json_encode |raw }},
-{#- organizationCOmpetencyCode -#}
+{#- organizationCompetencyCode -#}
 {#- competencyEffectiveDate -#}
 {#- competencyTerminationDate -#}
         "fullStatement": {{ lsItem.fullStatement |json_encode |raw }},

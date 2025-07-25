@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Credential\Form;
 
 use App\Domain\Credential\DTO\CredentialDefinitionDto;
-use App\Entity\User\Organization;
+use App\Entity\User\AccessGroup;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -40,7 +40,7 @@ class CredentialDefinitionCreateType extends AbstractType
                 'placeholder' => 'None',
                 'help' => 'Select the organization that this credential definition belongs to.',
                 'label' => 'Owning Organization',
-                'class' => Organization::class,
+                'class' => AccessGroup::class,
                 'choice_label' => 'name',
             ])
             ->add('content', HiddenType::class)
