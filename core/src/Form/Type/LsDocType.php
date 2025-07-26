@@ -28,7 +28,7 @@ class LsDocType extends AbstractLsDocCreateType
                 'disabled' => !$this->authorizationChecker->isGranted('ROLE_ADMIN'),
                 // 'disabled' => true,
                 'placeholder' => 'None',
-                'label' => 'Owning Organization',
+                'label' => 'Owning Access Group',
                 'class' => AccessGroup::class,
                 'choice_label' => 'name',
             ])
