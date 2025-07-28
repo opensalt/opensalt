@@ -1477,9 +1477,15 @@ function ApxDocument(initializer, apx) {
                             + '</li>'
                         ;
                     } else if (key === 'identifier') {
+                        let docIdentifier = item.doc?.doc?.identifier || apx.mainDoc.doc?.identifier || null;
+                        let itemId = val;
+                        if (null === docIdentifier) {
+                            docIdentifier = itemId;
+                            itemId = '';
+                        }
                         val = $('<div>').append(
                             $('<a>', {
-                                href: apx.path.uri.replace('FID', item.doc.doc.identifier).replace('ID', val),
+                                href: apx.path.uri.replace('FID', docIdentifier).replace('ID', itemId),
                                 text: render.escaped(val)
                             })
                         ).html();
