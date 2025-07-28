@@ -1,6 +1,6 @@
 Feature: The framework can be uploaded as Excel
   In order to copy a framework from excel file
-  As an organization-editor
+  As an group-editor
   I need to upload a Excel file of the framework
 
   @super-user @framework @excel @duplicate @1013-1214

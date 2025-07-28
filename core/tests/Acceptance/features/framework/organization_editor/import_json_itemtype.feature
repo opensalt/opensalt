@@ -1,9 +1,9 @@
 Feature: The framework can be uploaded
   In order to copy a framework from another server
-  As an organization-editor
+  As an group-editor
   I need to upload a CASE file of the framework
 
-  @organization-editor @framework @case-file @json @0201-0823
+  @group-editor @framework @case-file @json @0201-0823
   Scenario: 0201-0823 A CASE file can be uploaded and downloaded
     Given I log in as a user with role "Editor"
     And I am on the homepage

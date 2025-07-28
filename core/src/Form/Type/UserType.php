@@ -42,7 +42,7 @@ class UserType extends AbstractType
                 'Super Editor' => 'ROLE_SUPER_EDITOR',
             ];
         }
-        $roleChoices['Organization Admin'] = 'ROLE_ADMIN';
+        $roleChoices['Group Admin'] = 'ROLE_ADMIN';
         $roleChoices['Editor'] = 'ROLE_EDITOR';
         //$roleChoices['User'] = 'ROLE_USER';
 

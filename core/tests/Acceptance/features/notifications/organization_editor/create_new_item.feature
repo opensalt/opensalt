@@ -1,8 +1,8 @@
 Feature: Change Notifications
 When a user creates an item, Item Create Notifications are displayed
 
-  @0108-0823 @change-notification @ui @organization-editor
-  Scenario: 0108-0823 Item Create Notifications when logged in as an Organization Editor
+  @0108-0823 @change-notification @ui @group-editor
+  Scenario: 0108-0823 Item Create Notifications when logged in as a Group Editor
     Given I am logged in as an "Editor"
     And I log a new "Admin"
     When I create a framework

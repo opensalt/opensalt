@@ -1,8 +1,8 @@
 Feature: Change Log Interaction
   New button <Log View> to view logs
 
-  @0117-0701 @logs @ui @organization-admin @duplicate
-  Scenario: 0117-0701 Log View shows the table of data elements - Logged in as Organization Admin
+  @0117-0701 @logs @ui @group-admin @duplicate
+  Scenario: 0117-0701 Log View shows the table of data elements - Logged in as Group Admin
     Given I am logged in as an "Admin"
     When I create a framework
     Then I see the Log View button in the title section

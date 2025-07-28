@@ -1,8 +1,8 @@
 Feature: Change Notifications
 When a user moves an item, Item Move Notifications are displayed
 
-  @0108-0826 @change-notification @ui @organization-admin
-  Scenario: 0108-0826 Item Move Notifications when logged in as an Organization Admin
+  @0108-0826 @change-notification @ui @group-admin
+  Scenario: 0108-0826 Item Move Notifications when logged in as a Group Admin
     Given I am logged in as an "Admin"
     And I log a new "Editor"
     When I create a framework

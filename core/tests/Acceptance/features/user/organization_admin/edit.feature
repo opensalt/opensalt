@@ -1,6 +1,6 @@
 Feature: Edit an existing User
   In order to a edit a user
-  As an organization admin
+  As a group admin
   I need to have access to the user profile page
 
   @admin @user @edit-user @1011-1058

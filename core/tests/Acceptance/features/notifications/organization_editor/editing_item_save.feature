@@ -1,8 +1,8 @@
 Feature: Change Notifications
 When an item is being edited, a notification is shown and buttons that allow editing are disabled.
 
-  @0108-0808 @change-notification @ui @organization-editor
-  Scenario: 0108-0813 Notification for item being edited when logged in as an Organization Editor
+  @0108-0808 @change-notification @ui @group-editor
+  Scenario: 0108-0813 Notification for item being edited when logged in as a Group Editor
     Given I am logged in as an "Editor"
     And I log a new "Admin"
     When I create a framework

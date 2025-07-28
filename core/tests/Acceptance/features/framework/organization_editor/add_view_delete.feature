@@ -1,10 +1,10 @@
 Feature: Adding, viewing and deleting a framework
   In order to confirm the application can add a new framework
-  As an organization editor
+  As a group editor
   I need to see a all of the fields
 
-  @organization-editor @framework @add-framework @1013-1408
-  Scenario: 1013-1408 An organization editor can add a framework
+  @group-editor @framework @add-framework @1013-1408
+  Scenario: 1013-1408 A group editor can add a framework
     Given I log in as a user with role "Editor"
     Then I should see "Create a new Framework" button
 

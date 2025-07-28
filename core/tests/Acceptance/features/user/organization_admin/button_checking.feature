@@ -1,9 +1,9 @@
 Feature: Back to the list
   In order to see if Back to List button work
-  As an organization admin
+  As a group admin
   I need to have access to the user profile page
 
-  @organization-admin @user @1117-1333
+  @group-admin @user @1117-1333
   Scenario: 1117-1333 Back to the Users list from the Add a User page
     Given I log in as a user with role "Admin"
     And I am on the User list page
@@ -11,7 +11,7 @@ Feature: Back to the list
     And I click the "Back to the list" button
     Then I am on the User list page
 
-  @organization-admin @user @1117-1335
+  @group-admin @user @1117-1335
   Scenario: 1117-1335 Back to the Users list from the User edit page
     Given I log in as a user with role "Admin"
     And I add a new user
@@ -20,7 +20,7 @@ Feature: Back to the list
     And I click the "Back to the list" button
     Then I am on the User list page
 
-  @organization-admin @user @1117-1343
+  @group-admin @user @1117-1343
   Scenario: 1117-1343  Back to the Users list from the User page
     Given I log in as a user with role "Admin"
     And I add a new user

@@ -10,7 +10,7 @@ Feature: Create new user account password should be 8 characters long
         Then I fill in the "Username (Email address)" with "user@opensalt.com"
         Then I fill in the "Password" with "Password123!"
         Then I fill in the "Confirm Password" with "password"
-        Then I select option "3" from "Organization"
+        Then I select option "3" from "Group"
         Then I click "Submit"
         Then I should see "Passwords do not match"
 
@@ -24,7 +24,7 @@ Feature: Create new user account password should be 8 characters long
         Then I fill in the "Username (Email address)" with "user@opensalt.com"
         Then I fill in the "Password" with "password"
         Then I fill in the "Confirm Password" with "password"
-        Then I select option "3" from "Organization"
+        Then I select option "3" from "Group"
         Then I click "Submit"
         Then I should see "Password does not match required criteria"
 
@@ -38,6 +38,6 @@ Feature: Create new user account password should be 8 characters long
         Then I fill in the "Username (Email address)" with "user@opensalt.com"
         Then I fill in the "Password" with "pass@1"
         Then I fill in the "Confirm Password" with "pass@1"
-        Then I select option "3" from "Organization"
+        Then I select option "3" from "Group"
         Then I click "Submit"
         Then I should see "Password must be at least 8 characters long"

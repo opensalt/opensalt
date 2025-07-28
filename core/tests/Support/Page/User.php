@@ -27,7 +27,7 @@ class User implements Context
         $roleMap = [
             'Super User' => '#salt_userbundle_user_roles_0',
             'Super Editor' => '#salt_userbundle_user_roles_1',
-            'Organization Admin' => '#salt_userbundle_user_roles_2',
+            'Group Admin' => '#salt_userbundle_user_roles_2',
             'Editor' => '#salt_userbundle_user_roles_3',
         ];
         /** @var \Faker\Generator $faker */
@@ -231,7 +231,7 @@ class User implements Context
         $I->amOnPage('/admin/user/');
         $I->see('User list');
         $I->see('Id');
-        $I->see('Organization');
+        $I->see('Group');
         $I->see('Username');
         $I->see('Roles');
         $I->see('Actions');
@@ -334,12 +334,13 @@ class User implements Context
 
     /**
      * @Then /^I search organization and role type$/
+     * @Then /^I search group and role type$/
      */
-    public function iSearchOrgAndRole(): void
+    public function iSearchGroupAndRole(): void
     {
         $I = $this->I;
         $I->amOnPage('/admin/user/');
-        $I->see('Organization');
+        $I->see('Group');
         $organization = $I->grabTextFrom('//*[@id="datatable"]/tbody/tr[1]/td[2]');
         $I->fillField('#search_form_organization', $organization);
         $I->see($organization, '//*[@id="datatable"]/tbody/tr[1]/td[2]');

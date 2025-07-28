@@ -1,8 +1,8 @@
 Feature: Change Log Interaction
   Framework that has at least 25 changes
 
-  @0117-0708 @logs @ui @organization-editor
-  Scenario: 0117-0708 User should see 25 rows in the data table when 25 selected from the Show Entries selected - Logged in as Organization Editor
+  @0117-0708 @logs @ui @group-editor
+  Scenario: 0117-0708 User should see 25 rows in the data table when 25 selected from the Show Entries selected - Logged in as Group Editor
     Given I am logged in as an "Editor"
     #And a <frameworkName> exists that has at least 25 changes
     When I create a framework

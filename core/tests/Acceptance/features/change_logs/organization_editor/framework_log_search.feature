@@ -1,8 +1,8 @@
 Feature: Change Log Interaction
   Search form on the Log view page
 
-  @0117-0707 @logs @ui @organization-editor
-  Scenario: 0117-0707 Searching for an item in the search form shows the table of data elements with those item rows - Logged in as Organization Editor
+  @0117-0707 @logs @ui @group-editor
+  Scenario: 0117-0707 Searching for an item in the search form shows the table of data elements with those item rows - Logged in as Group Editor
     Given I am logged in as an "Editor"
     When I create a framework
     And I add the item "First trial Item"

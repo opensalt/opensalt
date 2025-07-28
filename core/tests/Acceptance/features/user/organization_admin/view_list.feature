@@ -1,6 +1,6 @@
 Feature: List of Users
   In order to see List of Users
-  As an organization admin
+  As a group admin
   I need to have access to the User list page
 
   @admin @user @view-user-list @1011-0930

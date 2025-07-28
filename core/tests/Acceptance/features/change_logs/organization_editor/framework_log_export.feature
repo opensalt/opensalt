@@ -1,7 +1,7 @@
 Feature: Change Log Interaction
   Framework Log Export
 
-  @0117-0726 @logs @ui @organization-editor
+  @0117-0726 @logs @ui @group-editor
   Scenario: 0117-0726 User can have a copy in csv with all of the history data - Logged in as Org Editor
     Given I am logged in as an "Editor"
     #And a <frameworkName> exists that has history

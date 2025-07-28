@@ -1,8 +1,8 @@
 Feature: Change Log Interaction
   New button <Log View> to view logs
 
-  @incomplete @0117-0706 @logs @ui @organization-editor
-  Scenario: 0117-0706 Add new item, Update of an item, Move item shows the table of data elements - Logged in as Organization Editor
+  @incomplete @0117-0706 @logs @ui @group-editor
+  Scenario: 0117-0706 Add new item, Update of an item, Move item shows the table of data elements - Logged in as Group Editor
     Given I am logged in as an "Editor"
     When I create a framework
     And I add the item "First Item"

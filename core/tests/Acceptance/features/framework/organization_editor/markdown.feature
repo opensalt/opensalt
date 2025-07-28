@@ -1,9 +1,9 @@
 Feature: A framework with markdown can be loaded
   In order to add styling to statements
-  As an organization editor
+  As a group editor
   I need to be able to use markdown in the full statement
 
-  @organization-editor @case-file @markdown @1107-0825
+  @group-editor @case-file @markdown @1107-0825
   Scenario: 1107-0825 A CASE file can contain markdown syntax
     Given I log in as a user with role "Editor"
     And I am on the homepage

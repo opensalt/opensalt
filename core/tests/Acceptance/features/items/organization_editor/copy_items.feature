@@ -1,10 +1,10 @@
 Feature: Coping a item
   In order to confirm the application can copy item
-  As an or organization editor
+  As a group editor
   I need to see a all of the item in another framework
 
-  @organization-editor @item @copy-item @1016-0926
-  Scenario: 1016-0926 An organization-editor user can edit a item
+  @group-editor @item @copy-item @1016-0926
+  Scenario: 1016-0926 A group-editor user can edit a item
     Given I log in as a user with role "Editor"
     Then I create a framework
     And I add a Item

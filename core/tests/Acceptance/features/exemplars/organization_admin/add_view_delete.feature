@@ -1,10 +1,10 @@
 Feature: Adding, viewing and deleting a exemplars
   In order to confirm the application can add a new exemplars
-  As an organization_admin
+  As a group-admin
   I need to see a all of the fields
 
-  @smoke @organization-admin @exemplar @add-exemplar @1017-0945 @duplicate
-  Scenario: 1017-0945 An organization_admin can add a exemplar
+  @smoke @group-admin @exemplar @add-exemplar @1017-0945 @duplicate
+  Scenario: 1017-0945 A group-admin can add a exemplar
     Given I log in as a user with role "Admin"
     Then I create a framework
     And I add a Item

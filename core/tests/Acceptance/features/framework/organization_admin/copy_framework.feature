@@ -1,7 +1,7 @@
 Feature: Copying framework content to another framework
 
-  @organization-admin @framework @copy-framework @1033-1433
-  Scenario: 1033-1433 An organization-admin can copy a framework
+  @group-admin @framework @copy-framework @1033-1433
+  Scenario: 1033-1433 A group-admin can copy a framework
     Given I log in as a user with role "Admin"
     Given I am on a framework page
     Then I should see the copy framework modal button

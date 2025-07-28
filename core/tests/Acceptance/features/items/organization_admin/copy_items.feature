@@ -1,10 +1,10 @@
 Feature: Coping a item
   In order to confirm the application can copy item
-  As an or organization admin
+  As a group admin
   I need to see a all of the item in another framework
 
-  @organization-admin @item @copy-item @1016-0926 @duplicate
-  Scenario: 1016-0926 An organization-admin user can edit a item
+  @group-admin @item @copy-item @1016-0926 @duplicate
+  Scenario: 1016-0926 A group-admin user can edit a item
     Given I log in as a user with role "Admin"
     Then I create a framework
     And I add a Item

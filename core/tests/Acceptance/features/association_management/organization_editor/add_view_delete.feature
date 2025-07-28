@@ -1,10 +1,10 @@
 Feature: Adding, viewing and deleting a association management
   In order to confirm the application can add a new association management
-  As an organization-editor
+  As an group-editor
   I need to see a all of the fields
 
-  @organization-editor @association @add-association @1109-1505
-  Scenario: 1109-1505 An organization-editor can add a association group
+  @group-editor @association @add-association @1109-1505
+  Scenario: 1109-1505 A group-editor can add a association group
     Given I log in as a user with role "Editor"
     Then I create a framework
     And I add a Item

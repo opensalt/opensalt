@@ -1,6 +1,6 @@
 Feature: Add new User
   In order to a add a user
-  As an organization admin
+  As a group admin
   I need to have access to the user profile page
 
   @super-user @user @add-user @1016-1245 @duplicate

@@ -1,9 +1,9 @@
 Feature: The excel export contains smart level values
   In order to manipulate frameworks
-  As an organization-editor
+  As an group-editor
   I need to export an excel file
 
-  @organization-editor @case-file @smartlevel @framework @1016-1340
+  @group-editor @case-file @smartlevel @framework @1016-1340
   Scenario: 1016-1340 A CASE file contains smart levels
     Given I log in as a user with role "Editor"
     And I am on the homepage

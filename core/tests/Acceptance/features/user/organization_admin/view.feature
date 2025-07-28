@@ -1,6 +1,6 @@
 Feature: View User
   In order to a users profile
-  As an organization admin
+  As a group admin
   I need to have access to the user profile page
 
   @admin @user @view-user @1011-0945

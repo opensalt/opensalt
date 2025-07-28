@@ -1,9 +1,9 @@
 Feature: The framework can be uploaded as Excel
   In order to copy a framework from excel file
-  As an organization-editor
+  As an group-editor
   I need to upload a Excel file of the framework
 
-  @organization-editor @framework @excel @1013-1213
+  @group-editor @framework @excel @1013-1213
   Scenario: 1013-1213 A Excel file can be uploaded and downloaded
     Given I log in as a user with role "Editor"
     And I am on the homepage

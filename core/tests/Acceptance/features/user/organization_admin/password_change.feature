@@ -1,6 +1,6 @@
 Feature: Password Management
   In order to change my password
-  As an organization admin
+  As a group admin
   I need to put in a new password
 
   @admin @user @password @1011-0905

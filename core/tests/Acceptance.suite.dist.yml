@@ -52,7 +52,7 @@ gherkin:
             - "Tests\\Support\\Page\\Item"
             - "Tests\\Support\\Page\\Exemplar"
             - "Tests\\Support\\Page\\Notification"
-            - "Tests\\Support\\Page\\Organization"
+            - "Tests\\Support\\Page\\Group"
             - "Tests\\Support\\Page\\FrameworkLogs"
             - "Tests\\Support\\Page\\SystemLogs"
             - "Tests\\Support\\Page\\User"

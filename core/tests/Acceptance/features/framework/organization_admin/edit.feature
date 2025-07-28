@@ -1,10 +1,10 @@
 Feature: The framework is editable
   In order to confirm the framework can be edited
-  As an organization-admin
+  As an group-admin
   I need to edit a framework
 
-  @organization-admin @view-framework @1016-1344 @12121 @duplicate
-  Scenario: 1016-1344 An organization-admin can edit a framework
+  @group-admin @view-framework @1016-1344 @12121 @duplicate
+  Scenario: 1016-1344 A group-admin can edit a framework
     Given I log in as a user with role "Admin"
     When I create a framework
     And I edit the fields in a framework

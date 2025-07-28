@@ -1,6 +1,6 @@
 Feature: Suspend an existing User
   In order to a suspend a user
-  As an organization admin
+  As a group admin
   I need to have access to the user profile page
 
   @admin @user @suspend @1011-1416

@@ -10,7 +10,7 @@ Feature: Create new account validations
         Then I fill in the "Username (Email address)" with "username"
         Then I fill in the "Password" with "Password123!"
         Then I fill in the "Confirm Password" with "Password123!"
-        Then I select option "3" from "Organization"
+        Then I select option "3" from "Group"
         Then I click "Submit"
         Then I should see "This value is not a valid email address."
 
@@ -24,7 +24,7 @@ Feature: Create new account validations
         Then I fill in the "Username (Email address)" with "user@opensalt.com"
         Then I fill in the "Password" with "Password123!"
         Then I fill in the "Confirm Password" with "password"
-        Then I select option "3" from "Organization"
+        Then I select option "3" from "Group"
         Then I click "Submit"
         Then I should see "Passwords do not match"
 
@@ -38,6 +38,6 @@ Feature: Create new account validations
         Then I fill in the "Username (Email address)" with "user@opensalt.com"
         Then I fill in the "Password" with "password"
         Then I fill in the "Confirm Password" with "password"
-        Then I select option "3" from "Organization"
+        Then I select option "3" from "Group"
         Then I click "Submit"
         Then I should see "Password does not match required criteria"

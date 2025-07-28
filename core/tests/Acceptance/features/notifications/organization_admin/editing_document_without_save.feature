@@ -1,8 +1,8 @@
 Feature: Change Notifications
 When the Document is being edited, a notification is shown and buttons that allow editing are disabled.
 
-  @0108-0800 @change-notification @ui @organization-admin @duplicate
-  Scenario: 0108-0800 Notification for document being edited when logged in as an Organization Admin
+  @0108-0800 @change-notification @ui @group-admin @duplicate
+  Scenario: 0108-0800 Notification for document being edited when logged in as a Group Admin
     Given I am logged in as an "Admin"
     And I log a new "Editor"
     When I create a framework

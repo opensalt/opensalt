@@ -88,24 +88,27 @@ class SystemLogs implements Context
 
     /**
      * @Given /^I should see the add of the organization in the log$/
+     * @Given /^I should see the add of the group in the log$/
      */
-    public function iShouldSeeTheAddOfTheOrganizationInTheLog()
+    public function iShouldSeeTheAddOfTheGroupInTheLog()
     {
         $this->I->see($this->I->getRememberedString('lastNewOrg').'" added');
     }
 
     /**
      * @Given /^I should see the update of the organization in the log$/
+     * @Given /^I should see the update of the group in the log$/
      */
-    public function iShouldSeeTheUpdateOfTheOrganizationInTheLog()
+    public function iShouldSeeTheUpdateOfTheGroupInTheLog()
     {
         $this->I->see($this->I->getRememberedString('lastChangedOrg').'" modified');
     }
 
     /**
      * @Given /^I should see the delete of the organization in the log$/
+     * @Given /^I should see the delete of the group in the log$/
      */
-    public function iShouldSeeTheDeleteOfTheOrganizationInTheLog()
+    public function iShouldSeeTheDeleteOfTheGroupInTheLog()
     {
         $this->I->see($this->I->getRememberedString('lastDeletedOrg').'" deleted');
     }

@@ -1,6 +1,6 @@
 Feature: Delete User
   In order to a delete a user
-  As an organization admin
+  As a group admin
   I need to have access to the user list page
 
   @admin @user @delete-user @1011-0953
