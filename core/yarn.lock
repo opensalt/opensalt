@@ -472,7 +472,7 @@
     schema-utils "^3.0.0 || ^4.0.0"
 
 "@symfony/ux-vue@file:vendor/symfony/ux-vue/assets":
-  version "2.27.0"
+  version "2.28.1"
 
 "@types/estree@*", "@types/estree@1.0.8", "@types/estree@^1.0.0":
   version "1.0.8"
@@ -1700,9 +1700,9 @@ sass-embedded@^1.80.3:
     sass-embedded-win32-x64 "1.89.2"
 
 sass-migrator@^2.2.0:
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/sass-migrator/-/sass-migrator-2.4.0.tgz#9aa750400faf9d9eceab7e761eb0cc60b13a979a"
-  integrity sha512-ZFY98rJ35DjYZl5MFpYJ/pCo6xObYPvyuYEEosS1BntNByIclXQg6tDf188T8XLL8X2EZfxev79M+8iy9sbI9w==
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/sass-migrator/-/sass-migrator-2.4.1.tgz#8fac89b04acdb105fc92c0de9091db493e702eb5"
+  integrity sha512-+aGq0XTCTuyO8ZdtZ/EIkhuLxf1Nteav1GFHW81ebjbR1gudPVt9585/OsEBzcPwTAHwhvjHbt7tkc+uDNTJvQ==
 
 "schema-utils@^3.0.0 || ^4.0.0":
   version "4.3.2"
