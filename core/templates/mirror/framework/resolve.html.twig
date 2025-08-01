@@ -19,7 +19,7 @@
             {% if currentFramework.org is not null %}
                 the <q>{{ currentFramework.org.name }}</q> group.
             {% elseif currentFramework.user is not null %}
-                the <q>{{ currentFramework.user.username}}</q> user.
+                the <q>{{ currentFramework.user.userIdentifier}}</q> user.
             {% else %}
                 no one.
             {% endif %}

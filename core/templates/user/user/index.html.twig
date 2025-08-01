@@ -36,7 +36,7 @@
                 <tr>
                     <td><a href="{{ path('admin_user_show', { 'id': user.id }) }}">{{ user.id }}</a></td>
                     <td>{{ user.org.name }}</td>
-                    <td>{{ user.username }}</td>
+                    <td>{{ user.userIdentifier }}</td>
                     <td>
                         {%- for role in user.roles -%}
                         {% if not loop.first %}, {% endif %}{{ role |replace({'ROLE_':'', '_':' '}) |title }}

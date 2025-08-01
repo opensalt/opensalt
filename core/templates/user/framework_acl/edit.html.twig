@@ -40,7 +40,7 @@
             <tbody>
             {% for acl in acls %}
                 <tr class="{{ acl.access == 0 ? "bg-danger" : "bg-success" }}">
-                    <td>{{ acl.user.username }}</td>
+                    <td>{{ acl.user.userIdentifier }}</td>
                     <td>{{ acl.user.org.name }}</td>
                     <td>{{ acl.access == 1 ? "Allowed" : "Denied" }}</td>
                     <td>
