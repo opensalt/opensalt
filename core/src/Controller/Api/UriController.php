@@ -305,7 +305,10 @@ xENDx;
     {
         $response->setPublic();
 
-        $credential = json5_decode($obj->getExtensionProperty('ob3') ?? ($obj->getExtraProperty('extendedItem') ?? [])['ob3'] ?? 'null', true);
+        $credential = $obj->getExtensionProperty('ob3') ?? ($obj->getExtraProperty('extendedItem') ?? [])['ob3'] ?? 'null';
+        if (is_string($credential)) {
+            $credential = json5_decode($credential, true);
+        }
 
         if (null === $credential) {
             $credential = [

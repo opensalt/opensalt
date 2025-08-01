@@ -24,9 +24,14 @@ class CredentialDto implements ItemTypeInterface
     #[\Override]
     public static function fromItem(LsItem $item): self
     {
-        return new self(
-            $item->getExtensionProperty(self::CREDENTIAL_KEY)
-        );
+        $ob3 = $item->getExtensionProperty(self::CREDENTIAL_KEY);
+
+        if (is_array($ob3)) {
+            // The ob3 is stored as an array instead of a string
+            $ob3 = json_encode($ob3, JSON_THROW_ON_ERROR|JSON_UNESCAPED_SLASHES);
+        }
+
+        return new self($ob3);
     }
 
     #[\Override]
