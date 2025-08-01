@@ -760,7 +760,12 @@ function ApxDocument(initializer, apx) {
     };
 
     self.getAssociationTypePretty = function(a) {
-        let s = a.type[0].toUpperCase() + a.type.substr(1).replace(/([A-Z])/g, " $1");
+        let s = '';
+        if (a.type.substr(0, 4) === 'ext:') {
+            s = a.type;
+        } else {
+            s = a.type[0].toUpperCase() + a.type.substr(1).replace(/([A-Z])/g, " $1");
+        }
         if (a.inverse === true) {
             // look for inverse assoc type
             for (let i = 0; i < apx.assocTypes.length; ++i) {
