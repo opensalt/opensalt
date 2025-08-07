@@ -3,6 +3,7 @@ includes:
 	- './tools/phpstan/vendor/phpstan/phpstan-symfony/rules.neon'
 	- './tools/phpstan/vendor/phpstan/phpstan-doctrine/extension.neon'
 	- './tools/phpstan/vendor/phpstan/phpstan-doctrine/rules.neon'
+	- './tools/phpstan/vendor/tomasvotruba/cognitive-complexity/config/extension.neon'
 	- phpstan-baseline.neon
 
 rules:
@@ -38,6 +39,10 @@ parameters:
 	treatPhpDocTypesAsCertain: false
 
 	editorUrl: 'phpstorm://open?file=%%file%%&line=%%line%%'
+
+	cognitive_complexity:
+		class: 120  # Get to 50
+		function: 50  # Get to 8
 
 	ignoreErrors:
 		-

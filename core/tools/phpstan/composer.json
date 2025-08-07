@@ -7,6 +7,7 @@
         "phpstan/phpstan-doctrine": "^2.0",
         "phpstan/phpstan-webmozart-assert": "^2.0",
         "phpstan/phpstan-deprecation-rules": "^2.0",
-        "symplify/phpstan-rules": "^14.3"
+        "symplify/phpstan-rules": "^14.3",
+        "tomasvotruba/cognitive-complexity": "^1.0"
     }
 }
