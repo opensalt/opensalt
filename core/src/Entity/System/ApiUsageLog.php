@@ -20,7 +20,7 @@ class ApiUsageLog
     #[ORM\Column]
     public private(set) ?int $id = null;
 
-    #[ORM\Column(name: 'created_at', type:  Types::DATETIMETZ_IMMUTABLE, precision: 6)]
+    #[ORM\Column(name: 'created_at', type: Types::DATETIMETZ_IMMUTABLE, precision: 6)]
     public private(set) \DateTimeImmutable $createdAt;
 
     #[ORM\Column(name: 'user_identifier', length: 255)]

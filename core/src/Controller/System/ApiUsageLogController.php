@@ -53,17 +53,17 @@ final class ApiUsageLogController extends AbstractController
         $beforeTs = $request->query->get('before_ts');
         $beforeId = $request->query->get('before_id');
 
-        $afterTsDt = (null !== $afterTs && $afterTs !== '') ? new \DateTimeImmutable('@'.((int) $afterTs)) : null;
-        $afterIdInt = (null !== $afterId && $afterId !== '') ? (int) $afterId : null;
-        $beforeTsDt = (null !== $beforeTs && $beforeTs !== '') ? new \DateTimeImmutable('@'.((int) $beforeTs)) : null;
-        $beforeIdInt = (null !== $beforeId && $beforeId !== '') ? (int) $beforeId : null;
+        $afterTsDt = (null !== $afterTs && '' !== $afterTs) ? new \DateTimeImmutable('@'.((int) $afterTs)) : null;
+        $afterIdInt = (null !== $afterId && '' !== $afterId) ? (int) $afterId : null;
+        $beforeTsDt = (null !== $beforeTs && '' !== $beforeTs) ? new \DateTimeImmutable('@'.((int) $beforeTs)) : null;
+        $beforeIdInt = (null !== $beforeId && '' !== $beforeId) ? (int) $beforeId : null;
 
         // Fetch limit+1 to detect if there is a "next" page of older records
         $results = $this->repo->filterByCursor(
-            $userIdentifier !== '' ? $userIdentifier : null,
+            '' !== $userIdentifier ? $userIdentifier : null,
             $from,
             $to,
-            $endpoint !== '' ? $endpoint : null,
+            '' !== $endpoint ? $endpoint : null,
             $afterTsDt,
             $afterIdInt,
             $beforeTsDt,
@@ -96,13 +96,13 @@ final class ApiUsageLogController extends AbstractController
             $olderQs = \array_filter(\array_merge($baseQs, [
                 'after_ts' => (int) $last->createdAt->format('U'),
                 'after_id' => $last->id,
-            ]), static fn ($v) => null !== $v && $v !== '');
+            ]), static fn ($v) => null !== $v && '' !== $v);
 
             // "Newer" moves towards newer items (prev page), by providing a 'before' cursor based on the first item
             $newerQs = \array_filter(\array_merge($baseQs, [
                 'before_ts' => (int) $first->createdAt->format('U'),
                 'before_id' => $first->id,
-            ]), static fn ($v) => null !== $v && $v !== '');
+            ]), static fn ($v) => null !== $v && '' !== $v);
         }
 
         $identifiers = $this->repo->distinctUserIdentifiers();
