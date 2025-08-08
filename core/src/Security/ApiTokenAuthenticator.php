@@ -7,6 +7,7 @@ namespace App\Security;
 use App\Entity\User\ApiToken;
 use App\Repository\User\ApiTokenRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\AccessToken\AccessTokenHandlerInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
@@ -14,11 +15,13 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 final readonly class ApiTokenAuthenticator implements AccessTokenHandlerInterface
 {
     public function __construct(
-        private ApiTokenRepository $apiTokenRepository,
-        private EntityManagerInterface $em,
-    ) {
+            private ApiTokenRepository $apiTokenRepository,
+            private EntityManagerInterface $em,
+            private RequestStack $requestStack,
+        ) {
     }
 
+    #[\Override]
     public function getUserBadgeFrom(string $accessToken): UserBadge
     {
         try {
@@ -36,11 +39,18 @@ final readonly class ApiTokenAuthenticator implements AccessTokenHandlerInterfac
             throw new AuthenticationException();
         }
 
+        // Mark this request as authenticated via API token for downstream logging
+        $req = $this->requestStack->getCurrentRequest();
+        if (null !== $req) {
+            $req->attributes->set('_api_token_user_identifier', $apiToken->user->getUserIdentifier());
+            $req->attributes->set('_api_token_id', $apiToken->id);
+        }
+
         // Update last-used timestamp
         $apiToken->lastUsed = new \DateTimeImmutable();
         $this->em->flush();
 
         // Let Security load the User via its identifier
-        return new UserBadge($apiToken->user->getUserIdentifier(), null, ['apiToken' => true]);
+        return new UserBadge($apiToken->user->getUserIdentifier());
     }
 }

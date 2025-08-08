@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}API Usage Log Entry{% endblock %}
+
+{% block body %}
+<div class="container mt-3">
+    <h1>API Usage Log Entry</h1>
+
+    <dl class="row">
+        <dt class="col-sm-3">Timestamp</dt>
+        <dd class="col-sm-9">{{ log.createdAt|date('Y-m-d H:i:s.u') }}</dd>
+
+        <dt class="col-sm-3">User</dt>
+        <dd class="col-sm-9">{{ log.userIdentifier }}</dd>
+
+        <dt class="col-sm-3">IP</dt>
+        <dd class="col-sm-9">{{ log.ip }}</dd>
+
+        <dt class="col-sm-3">Method</dt>
+        <dd class="col-sm-9">{{ log.method }}</dd>
+
+        <dt class="col-sm-3">Endpoint URL</dt>
+        <dd class="col-sm-9"><a href="{{ log.endpointUrl }}" target="_blank" rel="noopener">{{ log.endpointUrl }}</a></dd>
+
+        <dt class="col-sm-3">Status</dt>
+        <dd class="col-sm-9">
+            <span class="{{ log.statusCode >= 200 and log.statusCode < 400 ? 'text-success' : 'text-danger' }}">
+                {{ log.statusCode }}
+            </span>
+        </dd>
+
+        <dt class="col-sm-3">Summary</dt>
+        <dd class="col-sm-9"><code>{{ log.request }}</code></dd>
+
+        <dt class="col-sm-3">Full Request</dt>
+        <dd class="col-sm-9">
+            {% if log.requestFull %}
+                <pre class="border p-2 bg-light" style="white-space: pre-wrap">{{ log.requestFull.request |default('') }}</pre>
+                <pre class="border p-2 bg-light" style="white-space: pre-wrap">{{ log.requestFull.headers |default('') }}</pre>
+                <pre class="border p-2 bg-light" style="white-space: pre-wrap">{{ log.requestFull.body |default('') }}</pre>
+            {% else %}
+                <em>No full request captured for this entry.</em>
+            {% endif %}
+        </dd>
+    </dl>
+
+    <a href="{{ path('system_api_usage_index') }}" class="btn btn-secondary">Back to list</a>
+</div>
+{% endblock %}
+

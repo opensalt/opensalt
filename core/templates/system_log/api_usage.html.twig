@@ -1,0 +1,103 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}API Usage Log{% endblock %}
+
+{% block body %}
+<div class="container mt-3">
+    <h1>API Usage Log</h1>
+
+    <form method="get" action="{{ path('system_api_usage_index') }}" class="mb-3">
+        <div class="row g-2">
+            <div class="col-md-3">
+                <label class="form-label">User</label>
+                <select name="user" class="form-select">
+                    <option value="">All</option>
+                    {% for uid in identifiers %}
+                        <option value="{{ uid }}" {{ uid == user ? 'selected' : '' }}>{{ uid }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">From</label>
+                <input type="date" name="from" value="{{ from }}" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">To</label>
+                <input type="date" name="to" value="{{ to }}" class="form-control" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Endpoint contains</label>
+                <input type="text" name="endpoint" value="{{ endpoint }}" class="form-control" placeholder="/api/v1/..." />
+            </div>
+            <div class="col-md-1">
+                <label class="form-label">Per page</label>
+                <input type="number" name="limit" min="1" max="500" value="{{ limit }}" class="form-control" />
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-sm table-striped table-hover align-middle">
+            <thead>
+                <tr>
+                    <th style="white-space:nowrap;">Timestamp</th>
+                    <th>User</th>
+                    <th>IP</th>
+                    <th>Request</th>
+                    <th>Endpoint URL</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for l in logs %}
+                <tr>
+                    <td style="white-space:nowrap;">{{ l.createdAt|date('Y-m-d H:i:s') }}</td>
+                    <td>{{ l.userIdentifier }}</td>
+                    <td>{{ l.ip }}</td>
+                    <td>
+                        <a href="{{ path('system_api_usage_show', {id: l.id}) }}">View</a>
+                    </td>
+                    <td style="max-width: 600px; word-break: break-all;">
+                        <a href="{{ l.endpointUrl }}" target="_blank" rel="noopener">{{ l.endpointUrl }}</a>
+                    </td>
+                    <td>
+                        <span class="{{ l.statusCode >= 200 and l.statusCode < 400 ? 'text-success' : 'text-danger' }}">
+                            {{ l.statusCode }}
+                        </span>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="6" class="text-center">No logs found.</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <nav aria-label="Pagination">
+        <ul class="pagination">
+            {# Newer (prev) #}
+            {% if has_prev and newer_qs %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ path('system_api_usage_index', newer_qs) }}">&laquo; Newer</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">&laquo; Newer</span></li>
+            {% endif %}
+
+            {# Older (next) #}
+            {% if has_next and older_qs %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ path('system_api_usage_index', older_qs) }}">Older &raquo;</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">Older &raquo;</span></li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endblock %}
