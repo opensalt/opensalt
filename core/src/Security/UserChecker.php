@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace App\Security;
 
 use App\Entity\User\User;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AccountExpiredException;
 use Symfony\Component\Security\Core\Exception\CredentialsExpiredException;
 use Symfony\Component\Security\Core\Exception\DisabledException;
@@ -68,7 +69,7 @@ class UserChecker implements UserCheckerInterface
      * {@inheritdoc}
      */
     #[\Override]
-    public function checkPostAuth(UserInterface $user): void
+    public function checkPostAuth(UserInterface $user, ?TokenInterface $token = null): void
     {
         if (!$user instanceof User) {
             return;

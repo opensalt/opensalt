@@ -90,6 +90,7 @@
                                                     <li role="separator" class="dropdown-divider"></li>
                                                 {% endif %}
 
+                                                <li><a href="{{ url("account_token_index") }}" class="dropdown-item">Manage API tokens</a></li>
                                                 <li><a href="{{ url("user_change_password") }}" class="dropdown-item">Change password</a></li>
                                                 {% if isFeatureEnabled('mfa') %}
                                                     <li><a href="{{ url("app_2fa_reset_confirm") }}" class="dropdown-item">Reset 2FA Config</a></li>

@@ -170,6 +170,10 @@ FROM salt_core_app AS salt_core_dev
 
 ENV APP_ENV=dev XDEBUG_MODE=off
 
+RUN apt-get update && apt-get install --no-install-recommends -y \
+	nodejs \
+	&& rm -rf /var/lib/apt/lists/*
+
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
 RUN set -eux; \

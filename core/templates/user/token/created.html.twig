@@ -1,0 +1,37 @@
+{% extends 'layout.html.twig' %}
+
+{% block body %}
+    <h1>API Token Created</h1>
+
+    <div class="alert alert-warning">
+        This token will be shown only once. Copy it now and store it securely. You will not be able to see it again.
+    </div>
+
+    <div class="mb-3 d-none">
+        <label class="form-label">Token name</label>
+        <div>{{ name }}</div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Token value</label>
+        <input type="text" class="form-control" readonly value="{{ token }}" onclick="this.select();" />
+        <small class="form-text text-muted">Click to select, then copy to your clipboard.</small>
+    </div>
+
+    <div class="mb-3 d-none">
+        <label class="form-label">Expires</label>
+        <div>
+            {% if expiresAt %}
+                {{ expiresAt|date('Y-m-d') }}
+            {% else %}
+                &mdash;
+            {% endif %}
+        </div>
+    </div>
+
+    <ul class="list-inline float-end">
+        <li class="list-inline-item">
+            <a class="btn btn-primary" href="{{ path('account_token_index') }}">Back to tokens</a>
+        </li>
+    </ul>
+{% endblock %}

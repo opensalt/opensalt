@@ -213,6 +213,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
      * the plain-text password is stored on this object.
      */
     #[\Override]
+    #[\Deprecated]
     public function eraseCredentials(): void
     {
     }

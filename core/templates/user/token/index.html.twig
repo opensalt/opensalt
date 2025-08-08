@@ -1,0 +1,75 @@
+{% extends 'layout.html.twig' %}
+
+{% block body %}
+    <h1>Manage API Tokens</h1>
+
+    <div {{ stimulus_controller('visibility', {'content': 'hideable'}) }}>
+        <div class="d-none" {{ stimulus_target('visibility', 'hideable') }}>
+            <div class="alert alert-info">
+                Token values are shown only once immediately after creation. You will not be able to view a token again later.
+            </div>
+
+            <h2>Create a new token</h2>
+            {{ form_start(form) }}
+                {{ form_widget(form) }}
+                <ul class="list-inline float-end">
+                    <li class="list-inline-item">
+                        <input class="btn btn-primary" type="submit" value="Create token" />
+                    </li>
+                </ul>
+            {{ form_end(form) }}
+        </div>
+
+        <button type="button" {{ stimulus_action('visibility', 'toggle') }} {{ stimulus_target('visibility', 'hideable') }} class="btn btn-secondary mb-3 float-end">
+            Generate New Token
+        </button>
+
+
+        <div {{ stimulus_target('visibility', 'hideable') }}>
+            <h2 class="mt-4">Your tokens</h2>
+
+            <table class="table table-condensed table-hover table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Created</th>
+                        <th>Expires</th>
+                        <th>Last used</th>
+                        <th class="col-md-3">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for token in tokens %}
+                    <tr>
+                        <td>{{ token.name }}</td>
+                        <td>{{ token.createdAt|date('Y-m-d H:i') }}</td>
+                        <td>
+                            {% if token.expiresAt %}
+                                {{ token.expiresAt|date('Y-m-d') }}
+                            {% else %}
+                                &mdash;
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if token.lastUsed %}
+                                {{ token.lastUsed|date('Y-m-d H:i') }}
+                            {% else %}
+                                &mdash;
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ form_start(delete_form[token.id], {'attr': {'class': 'd-inline-block'}}) }}
+                                <input class="btn btn-danger" type="submit" value="Delete">
+                            {{ form_end(delete_form[token.id]) }}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">No tokens created yet.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
