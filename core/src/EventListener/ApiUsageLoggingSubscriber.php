@@ -71,8 +71,8 @@ final readonly class ApiUsageLoggingSubscriber implements EventSubscriberInterfa
         $headersText = implode("\n", $headerLines);
 
         $body = (string) $request->getContent();
-        $truncated = false;
         /*
+        $truncated = false;
         $maxLen = 60000; // TEXT is up to ~64KB; leave headroom
         if (null !== $body && strlen($body) > $maxLen) {
             $body = substr($body, 0, $maxLen);
