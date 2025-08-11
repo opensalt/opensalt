@@ -42,22 +42,7 @@ final readonly class ApiUsageLoggingSubscriber implements EventSubscriberInterfa
         $userIdentifier = $request->attributes->getString('_api_token_user_identifier');
         $apiTokenId = $request->attributes->getInt('_api_token_id');
 
-        // If not set by authenticator (failed/expired token case), try to decode association best-effort
-        if ('' === $userIdentifier || 0 === $apiTokenId) {
-            $tokenHeader = trim(substr($auth, 7));
-            try {
-                $id = ApiToken::decodedId($tokenHeader);
-                $apiToken = $this->apiTokenRepository->find($id);
-                if (null !== $apiToken) {
-                    $userIdentifier = $apiToken->user->getUserIdentifier();
-                    $apiTokenId = $apiToken->id;
-                }
-            } catch (\Throwable) {
-                // Ignore decode errors; we'll log without user association if necessary
-            }
-        }
-
-        // If we still cannot resolve a user identifier, skip logging as it's not an API token we recognize.
+        // If we do not have a user identifier, skip logging as it's not an API token we recognize.
         if ('' === $userIdentifier) {
             return;
         }
