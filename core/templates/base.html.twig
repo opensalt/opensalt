@@ -74,10 +74,6 @@
                                                     {%- set seperator_1 = true -%}
                                                     <li><a href="{{ url("admin_user_index") }}" class="dropdown-item">Manage users</a></li>
                                                 {% endif %}
-                                                {% if is_granted(constant('App\\Security\\Permission::MANAGE_SYSTEM_LOGS')) %}
-                                                    {%- set seperator_1 = true -%}
-                                                    <li><a href="{{ url("system_logs_show") }}" class="dropdown-item">Manage system logs</a></li>
-                                                {% endif %}
                                                 {% if is_granted(constant('App\\Security\\Permission::MANAGE_MIRRORS')) %}
                                                     {%- set seperator_1 = true -%}
                                                     <li><a href="{{ url("mirror_server_index") }}" class="dropdown-item">Manage mirrors</a></li>
@@ -85,6 +81,14 @@
                                                 {% if is_granted(constant('App\\Security\\Permission::FRONT_MATTER_EDIT_ALL')) %}
                                                     {%- set seperator_1 = true -%}
                                                     <li><a href="{{ url("front_matter_list") }}" class="dropdown-item">Manage front matter</a></li>
+                                                {% endif %}
+                                                {% if is_granted(constant('App\\Security\\Permission::MANAGE_SYSTEM_LOGS')) %}
+                                                    {%- set seperator_1 = true -%}
+                                                    <li><a href="{{ url("system_logs_show") }}" class="dropdown-item">View system logs</a></li>
+                                                {% endif %}
+                                                {% if is_granted('ROLE_SUPER_USER')) %}
+                                                    {%- set seperator_1 = true -%}
+                                                    <li><a href="{{ url("system_api_usage_index") }}" class="dropdown-item">View API logs</a></li>
                                                 {% endif %}
                                                 {% if seperator_1 %}
                                                     <li role="separator" class="dropdown-divider"></li>
