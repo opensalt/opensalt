@@ -86,7 +86,7 @@
                                                     {%- set seperator_1 = true -%}
                                                     <li><a href="{{ url("system_logs_show") }}" class="dropdown-item">View system logs</a></li>
                                                 {% endif %}
-                                                {% if is_granted('ROLE_SUPER_USER')) %}
+                                                {% if is_granted('ROLE_SUPER_USER') %}
                                                     {%- set seperator_1 = true -%}
                                                     <li><a href="{{ url("system_api_usage_index") }}" class="dropdown-item">View API logs</a></li>
                                                 {% endif %}
