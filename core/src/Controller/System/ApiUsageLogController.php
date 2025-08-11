@@ -24,13 +24,13 @@ final class ApiUsageLogController extends AbstractController
     #[Route(path: '/', name: 'system_api_usage_index', methods: ['GET'])]
     public function index(Request $request): Response
     {
-        $limit = min(500, max(1, (int) $request->query->get('limit', 50)));
+        $limit = min(500, max(1, $request->query->getInt('limit', 50)));
 
-        $userIdentifier = trim((string) $request->query->get('user', ''));
-        $endpoint = trim((string) $request->query->get('endpoint', ''));
+        $userIdentifier = trim($request->query->getString('user', ''));
+        $endpoint = trim($request->query->getString('endpoint', ''));
 
         $from = null;
-        $fromParam = (string) $request->query->get('from', '');
+        $fromParam = $request->query->getString('from', '');
         if ('' !== $fromParam) {
             $fromDt = \DateTimeImmutable::createFromFormat('Y-m-d', $fromParam) ?: null;
             if ($fromDt) {
@@ -39,7 +39,7 @@ final class ApiUsageLogController extends AbstractController
         }
 
         $to = null;
-        $toParam = (string) $request->query->get('to', '');
+        $toParam = $request->query->getString('to', '');
         if ('' !== $toParam) {
             $toDt = \DateTimeImmutable::createFromFormat('Y-m-d', $toParam) ?: null;
             if ($toDt) {
@@ -48,15 +48,15 @@ final class ApiUsageLogController extends AbstractController
         }
 
         // Cursor parameters (epoch seconds + id)
-        $afterTs = $request->query->get('after_ts');
-        $afterId = $request->query->get('after_id');
-        $beforeTs = $request->query->get('before_ts');
-        $beforeId = $request->query->get('before_id');
+        $afterTs = $request->query->getInt('after_ts');
+        $afterId = $request->query->getInt('after_id');
+        $beforeTs = $request->query->getInt('before_ts');
+        $beforeId = $request->query->getInt('before_id');
 
-        $afterTsDt = (null !== $afterTs && '' !== $afterTs) ? new \DateTimeImmutable('@'.((int) $afterTs)) : null;
-        $afterIdInt = (null !== $afterId && '' !== $afterId) ? (int) $afterId : null;
-        $beforeTsDt = (null !== $beforeTs && '' !== $beforeTs) ? new \DateTimeImmutable('@'.((int) $beforeTs)) : null;
-        $beforeIdInt = (null !== $beforeId && '' !== $beforeId) ? (int) $beforeId : null;
+        $afterTsDt = (0 !== $afterTs) ? new \DateTimeImmutable('@'.$afterTs) : null;
+        $afterIdInt = (0 !== $afterId) ? $afterId : null;
+        $beforeTsDt = (0 !== $beforeTs) ? new \DateTimeImmutable('@'.$beforeTs) : null;
+        $beforeIdInt = (0 !== $beforeId) ? $beforeId : null;
 
         // Fetch limit+1 to detect if there is a "next" page of older records
         $results = $this->repo->filterByCursor(

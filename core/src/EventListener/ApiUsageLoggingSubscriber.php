@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\EventListener;
 
 use App\Entity\System\ApiUsageLog;
-use App\Entity\User\ApiToken;
-use App\Repository\User\ApiTokenRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
@@ -16,7 +14,6 @@ final readonly class ApiUsageLoggingSubscriber implements EventSubscriberInterfa
 {
     public function __construct(
         private EntityManagerInterface $em,
-        private ApiTokenRepository $apiTokenRepository,
     ) {
     }
 
@@ -73,7 +70,7 @@ final readonly class ApiUsageLoggingSubscriber implements EventSubscriberInterfa
         }
         $headersText = implode("\n", $headerLines);
 
-        $body = $request->getContent();
+        $body = (string) $request->getContent();
         $truncated = false;
         /*
         $maxLen = 60000; // TEXT is up to ~64KB; leave headroom
@@ -86,12 +83,13 @@ final readonly class ApiUsageLoggingSubscriber implements EventSubscriberInterfa
         $requestFull = [
             'request' => $startLine,
             'headers' => $headersText,
-            'body' => ($body ?? '').$truncated ? "\n\n-- [truncated] --" : '',
+            // 'body' => $body.($truncated ? "\n\n-- [truncated] --" : ''),
+            'body' => $body,
         ];
 
         $log = new ApiUsageLog(
             userIdentifier: $userIdentifier,
-            apiTokenId: is_int($apiTokenId) ? $apiTokenId : null,
+            apiTokenId: $apiTokenId,
             ip: $ip,
             method: $method,
             request: $requestSummary,
