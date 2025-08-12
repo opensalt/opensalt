@@ -1,0 +1,87 @@
+{% extends "layout.html.twig" %}
+
+{% block stylesheets %}
+{{ parent() }}
+    <link rel="stylesheet" href="//unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
+    <style>
+        pre {
+            display: inherit;
+            padding: inherit;
+            line-height: inherit;
+            border: inherit;
+            background-color: inherit;
+            overflow: inherit;
+        }
+        .swagger-ui .info pre.base-url {
+            color: transparent;
+        }
+        pre.base-url:before {
+            content: "[ Base URL: /ims/case/v1p0 ]";
+            color: #3b4151;
+        }
+        hgroup.main a:before {
+            content: "[ OpenAPI JSON file: ";
+        }
+        hgroup.main a:after {
+            content: " ]";
+        }
+        .swagger-ui .info {
+            margin-bottom: 15px;
+        }
+        .swagger-ui .info .title {
+            font-size: 24px;
+        }
+        .model-box {
+            padding: 5px;
+        }
+        .opblock-tag {
+            background-color: rgba(97,175,254,.3);
+        }
+        .opblock-tag .markdown {
+            font-size: 12px;
+        }
+        .try-out, .try-out__btn,
+        .scheme-container,
+        .information-container > section > div > div:nth-child(3), .info .info__tos,
+        .information-container > section > div > div:nth-child(4), .info .info__contact,
+        .information-container > section > div > div:nth-child(5), .info .info__license
+        {
+            display: none;
+        }
+    </style>
+{% endblock %}
+
+{# No need for site-wide javascript code on this page #}
+{% block sitejavascripts %}
+{% endblock %}
+
+{# Remove login/logout links on this page #}
+{% block navbar_right %}
+{% endblock %}
+
+{% block javascripts %}
+    <script src="//unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js" crossorigin></script>
+    <script src="//unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js" crossorigin></script>
+    <script>
+    const ui = SwaggerUIBundle({
+        url: '/case-v1p1-openapi.json',
+        dom_id: '.swagger-section',
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ]
+    });
+    </script>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <aside class="card card-default shadow" style="margin: 0 0 10px;">
+        <p class="card-body text-center" style="margin:0;">
+            This documentation is automatically generated from the content of Appendix B1 in the <a href="https://www.imsglobal.org/sites/default/files/spec/case/v1p1/rest_binding/caseservicev1p1_restbindv1p0.html#AppB1">CASE® 1.1 Specification (REST/JSON Binding)</a> document.
+        </p>
+    </aside>
+    <div class="swagger-section">
+    </div>
+</div>
+{% endblock %}

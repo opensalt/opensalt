@@ -2,7 +2,7 @@
 
 {% block stylesheets %}
 {{ parent() }}
-    <link rel="stylesheet" href="//unpkg.com/swagger-ui-dist@4.18/swagger-ui.css" />
+    <link rel="stylesheet" href="//unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
     <style>
         pre {
             display: inherit;
@@ -60,22 +60,30 @@
 {% endblock %}
 
 {% block javascripts %}
-    <script src="//unpkg.com/swagger-ui-dist@4.18/swagger-ui-bundle.js"></script>
+    <script src="//unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js" crossorigin></script>
+    <script src="//unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js" crossorigin></script>
     <script>
-    var ui = SwaggerUIBundle({
+    const ui = SwaggerUIBundle({
         url: '/case-v1p0-swagger.json',
+        /*
+        urls: [
+            { url: '/case-v1p0-swagger.json', 'name': 'CASE 1.0' },
+            { url: '/case-v1p1-openapi.json', 'name': 'CASE 1.1' },
+        ],
+         */
         dom_id: '.swagger-section',
         presets: [
           SwaggerUIBundle.presets.apis,
-          SwaggerUIBundle.SwaggerUIStandalonePreset
-        ]
+          SwaggerUIStandalonePreset
+        ],
+        // layout: "StandaloneLayout",
     });
     </script>
 {% endblock %}
 
 {% block body %}
 <div class="container">
-    <aside class="card card-default" style="margin: 0 0 -35px; border-color: #aaa; box-shadow: 3px 3px #ddd;">
+    <aside class="card card-default shadow" style="margin: 0 0 10px;">
         <p class="card-body text-center" style="margin:0;">
             This documentation is automatically generated from the content of Appendix B1 in the <a href="https://www.imsglobal.org/sites/default/files/CASE/casev1p0/rest_binding/caseservicev1p0_restbindv1p0.html#AppB1">CASE® 1.0 Specification (REST API)</a> document.
         </p>
