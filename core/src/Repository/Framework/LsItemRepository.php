@@ -14,7 +14,7 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @extends ServiceEntityRepository<LsItem>
  *
- * @method null|LsItem findOneByIdentifier(string $identifier)
+ * @method LsItem|null findOneByIdentifier(string $identifier)
  */
 class LsItemRepository extends ServiceEntityRepository
 {
