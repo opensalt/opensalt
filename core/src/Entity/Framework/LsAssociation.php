@@ -390,6 +390,8 @@ class LsAssociation implements CaseApiInterface
         if (str_starts_with($type, 'ext:') && (1 === preg_match('/^ext:[a-zA-Z0-9.\-_]+$/', $type))) {
             // Allow extension types for CASE 1.1
             $this->type = $type;
+
+            return $this;
         }
 
         if (in_array($type, self::allTypes(), true)) {

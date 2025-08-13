@@ -73,11 +73,27 @@ class CaseImport
             if (empty($item['fullStatement']) && (!empty($item['alternativeLabel']) || !empty($item['abbreviatedStatement']))) {
                 $json['CFItems'][$key]['fullStatement'] = $item['alternativeLabel'] ?? $item['abbreviatedStatement'];
             }
+
+            // Some Satchel items for Georgia have an empty array for extensions
+            if ([] === ($item['extensions'] ?? '')) {
+                unset($json['CFItems'][$key]['extensions']);
+            }
+
+            // Some Satchel items for Georgia have a bad CFItemTypeURI (not a LinkURI)
+            if ('*CLEAR*' === ($item['CFItemTypeURI'] ?? '')) {
+                unset($json['CFItems'][$key]['CFItemTypeURI']);
+            }
+
+            // Some Satchel frameworks for Georgia have an invalid statusStartDate format
+            if (1 === preg_match('!^(\d{1,2})/(\d{1,2})/(\d{2,4})$!', $item['statusStartDate'] ?? '', $matches)) {
+                $json['CFItems'][$key]['statusStartDate'] = sprintf('%04d-%02d-%02d', $matches[3], $matches[1], $matches[2]);
+            }
         }
 
         // Try fixing up for issue we have seen in the CASE Network where the URI is the identifier instead of a URI
         // but the item has the URI available
-        foreach (($json['CFAssociations'] ?? []) as $key => $association) {
+        foreach (($json['
+}CFAssociations'] ?? []) as $key => $association) {
             $node = $association['originNodeURI'];
             if ($node['identifier'] === $node['uri']) {
                 $json['CFAssociations'][$key]['originNodeURI']['uri'] = $items[$node['identifier']] ?? $node['uri'];
