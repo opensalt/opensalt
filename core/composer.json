@@ -86,6 +86,7 @@
         "league/oauth2-github": "^3.0",
         "league/uri": "^7.0",
         "milo/github-api": "^2.0",
+        "nelmio/api-doc-bundle": "^5.5",
         "nelmio/cors-bundle": "^2.0",
         "nelmio/security-bundle": "^3.0",
         "novaway/feature-flag-bundle": "dev-symfony-7.2",

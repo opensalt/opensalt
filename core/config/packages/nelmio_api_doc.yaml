@@ -1,0 +1,22 @@
+nelmio_api_doc:
+    html_config:
+        assets_mode: 'bundle' # Other values: 'cdn', 'bundle', 'offline'
+    documentation:
+        info:
+            title: OpenSALT
+            description: LER Registry Service
+            version: 4.0.0
+        components:
+            securitySchemes:
+                Bearer:
+                    type: http
+                    scheme: bearer
+                    bearerFormat: Token obtained from UI
+        security:
+            - Bearer: []
+    areas: # to filter documented areas
+        path_patterns:
+            #- ^/api/v1(?!(/doc|/lor)$)
+            - ^/api/v1/documents
+            - ^/api/v1/packages
+

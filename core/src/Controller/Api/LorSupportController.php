@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Controller\Api;
 
-use App\Entity\Framework\LsDoc;
-use App\Entity\Framework\LsItem;
 use App\Repository\Framework\LsDocRepository;
 use App\Repository\Framework\LsItemRepository;
 use App\Service\LoggerTrait;
@@ -14,7 +12,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(path: '/api/v1/lor')]
 class LorSupportController extends AbstractController
 {
     use LoggerTrait;
@@ -26,7 +23,7 @@ class LorSupportController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/creators', name: 'api_get_creators', methods: ['GET'])]
+    #[Route(path: '/api/v1/lor/creators', name: 'api_get_creators', methods: ['GET'])]
     public function getCreators(Request $request): JsonResponse
     {
         // Get all creators for public documents
@@ -35,7 +32,6 @@ class LorSupportController extends AbstractController
         $creators = [];
         $lastModified = new \DateTime('now - 10 years');
         foreach ($results as $doc) {
-            /** @var LsDoc $doc */
             $creator = $doc->getCreator();
             $creators[$creator] = $creator;
             if ($doc->getUpdatedAt() > $lastModified) {
@@ -57,7 +53,7 @@ class LorSupportController extends AbstractController
         return $response;
     }
 
-    #[Route(path: '/frameworksByCreator/{creator}', name: 'api_get_frameworks_by_creator', methods: ['GET'])]
+    #[Route(path: '/api/v1/lor/frameworksByCreator/{creator}', name: 'api_get_frameworks_by_creator', methods: ['GET'])]
     public function getFrameworksByCreator(Request $request, string $creator): JsonResponse
     {
         $results = $this->docRepository->findNonPrivateByCreator(urldecode($creator));
@@ -65,7 +61,6 @@ class LorSupportController extends AbstractController
         $docs = [];
         $lastModified = new \DateTime('now - 10 years');
         foreach ($results as $doc) {
-            /** @var LsDoc $doc */
             $docs[] = [
                 'identifier' => $doc->getIdentifier(),
                 'title' => $doc->getTitle(),
@@ -89,7 +84,7 @@ class LorSupportController extends AbstractController
         return $response;
     }
 
-    #[Route(path: '/exactMatchIdentifiers/{identifier}', name: 'api_get_exact_matches', methods: ['GET'])]
+    #[Route(path: '/api/v1/lor/exactMatchIdentifiers/{identifier}', name: 'api_get_exact_matches', methods: ['GET'])]
     public function getMatches(Request $request, string $identifier): JsonResponse
     {
         $results = $this->itemRepository->findExactMatches($identifier);
@@ -97,7 +92,6 @@ class LorSupportController extends AbstractController
         $items = [];
         $lastModified = new \DateTime('now - 10 years');
         foreach ($results as $item) {
-            /** @var LsItem $item */
             $items[] = $item->getIdentifier();
             if ($item->getUpdatedAt() > $lastModified) {
                 $lastModified = $item->getUpdatedAt();

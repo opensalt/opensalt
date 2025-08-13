@@ -65,6 +65,7 @@ nelmio_security:
                 - 'data:'
                 - 'blob:'
                 - unpkg.com
+                - cdn.jsdelivr.net
             img-src:
                 - '*'
                 - 'data:'
@@ -74,6 +75,7 @@ nelmio_security:
                 - unpkg.com
                 - fonts.googleapis.com
                 - maxcdn.bootstrapcdn.com
+                - cdn.jsdelivr.net
             font-src:
                 - 'self'
                 - 'data:'

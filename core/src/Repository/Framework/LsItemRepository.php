@@ -14,7 +14,7 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @extends ServiceEntityRepository<LsItem>
  *
- * @method LsItem|null findOneByIdentifier(string $identifier)
+ * @method null|LsItem findOneByIdentifier(string $identifier)
  */
 class LsItemRepository extends ServiceEntityRepository
 {
@@ -116,6 +116,9 @@ class LsItemRepository extends ServiceEntityRepository
         return false;
     }
 
+    /**
+     * @return LsItem[]
+     */
     public function findExactMatches(string $identifier): array
     {
         $assocRepo = $this->getEntityManager()->getRepository(LsAssociation::class);
