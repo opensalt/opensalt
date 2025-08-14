@@ -86,14 +86,16 @@ class CaseImport
 
             // Some Satchel frameworks for Georgia have an invalid statusStartDate format
             if (1 === preg_match('!^(\d{1,2})/(\d{1,2})/(\d{2,4})$!', $item['statusStartDate'] ?? '', $matches)) {
+                if (2 === strlen($matches[3])) {
+                    $matches[3] = sprintf('20%s', $matches[3]);
+                }
                 $json['CFItems'][$key]['statusStartDate'] = sprintf('%04d-%02d-%02d', $matches[3], $matches[1], $matches[2]);
             }
         }
 
         // Try fixing up for issue we have seen in the CASE Network where the URI is the identifier instead of a URI
         // but the item has the URI available
-        foreach (($json['
-}CFAssociations'] ?? []) as $key => $association) {
+        foreach (($json['CFAssociations'] ?? []) as $key => $association) {
             $node = $association['originNodeURI'];
             if ($node['identifier'] === $node['uri']) {
                 $json['CFAssociations'][$key]['originNodeURI']['uri'] = $items[$node['identifier']] ?? $node['uri'];
