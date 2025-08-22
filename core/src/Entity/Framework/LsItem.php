@@ -27,21 +27,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: LsItemRepository::class)]
 #[UniqueEntity('uri')]
 #[ORM\Index(name: 'type_idx', columns: ['discriminator'])]
-#[ORM\UniqueConstraint(name: 'ls_item_identifier', columns: ['identifier', 'ls_doc_identifier'])]
-#[ORM\UniqueConstraint(name: 'ls_item_uri', columns: ['uri', 'ls_doc_identifier'])]
-#[ORM\AttributeOverrides([
-    new ORM\AttributeOverride('identifier', new ORM\Column(
-        name: 'identifier',
-        length: 300,
-        unique: false,
-    )),
-    new ORM\AttributeOverride('uri', new ORM\Column(
-        name: 'uri',
-        length: 300,
-        unique: false,
-        nullable: true,
-    )),
-])]
 class LsItem implements CaseApiInterface, LockableInterface
 {
     use IdentifiableTrait;
