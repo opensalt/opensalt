@@ -39,9 +39,7 @@ export default function (apx) {
             'selector': '.fancytree-title',
             // "content": content,  // this is for popover
             "title": function (e) {
-                return ""; // TODO: Fix this, "this" seems to be null now in next line
-                let node = $.ui.fancytree.getNode(e);
-                return apx.treeDoc1.tooltipContent(node);
+                return apx.treeDoc1.tooltipContent($.ui.fancytree.getNode(e));
             },
             "delay": { "show": 200, "hide": 100 },
             "placement": "top",
