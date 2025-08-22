@@ -972,6 +972,9 @@
     "symfony/yaml": {
         "version": "v4.0.10"
     },
+    "symfonycasts/sass-bundle": {
+        "version": "v0.8.2"
+    },
     "tecnickcom/tcpdf": {
         "version": "6.2.17"
     },

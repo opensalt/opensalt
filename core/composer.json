@@ -115,10 +115,11 @@
         "symfony/intl": "*",
         "symfony/lock": "*",
         "symfony/mailer": "*",
-        "symfony/mercure-bundle": "^0.3.0",
+        "symfony/mercure-bundle": "^0.3",
         "symfony/messenger": "*",
         "symfony/mime": "*",
         "symfony/monolog-bundle": "^3.3",
+        "symfony/object-mapper": "*",
         "symfony/process": "*",
         "symfony/property-access": "*",
         "symfony/property-info": "*",
@@ -138,6 +139,7 @@
         "symfony/validator": "*",
         "symfony/web-link": "*",
         "symfony/yaml": "*",
+        "symfonycasts/sass-bundle": "^0.8.2",
         "tecnickcom/tcpdf": "^6.2",
         "tetranz/select2entity-bundle": "dev-symfony-7 as 3.0.0.1",
         "twig/extra-bundle": "^2.12|^3.0",
@@ -200,6 +202,7 @@
             "cache:clear": "symfony-cmd",
             "assets:install --symlink --relative %PUBLIC_DIR%": "symfony-cmd",
             "importmap:install": "symfony-cmd",
+            "sass:build": "symfony-cmd",
             "asset-map:compile": "symfony-cmd"
         },
         "post-install-cmd": [
