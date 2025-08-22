@@ -101,3 +101,27 @@ migrate:
 clean: cache-clear
 	rm -rf core/build/* core/public/build/*
 .PHONY: clean
+
+# Linting
+ecs:
+	cd core/tools/ecs ; composer install
+	cd core ; ./tools/ecs/vendor/bin/ecs check --clear-cache --fix src/
+.PHONY: ecs
+
+phpstan:
+	cd core/tools/phpstan ; composer install
+	cd core ; ./tools/phpstan/vendor/bin/phpstan analyse --memory-limit 1G
+.PHONY: phpstan
+
+psalm:
+	cd core/tools/psalm ; composer install
+	cd core ; ./tools/psalm/vendor/bin/psalm --no-cache
+.PHONY: psalm
+
+lint: ecs phpstan psalm
+.PHONY: lint
+
+# Testing
+test:
+	./core/bin/run-tests --fail-fast --steps -x incomplete -x duplicate -x skip -x skip-firefox -x 0117-0708 -x 0108-0801 -x 1013-1444 -x change-notification -x not-dev-env
+.PHONY: test
