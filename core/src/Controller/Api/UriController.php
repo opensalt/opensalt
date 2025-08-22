@@ -87,7 +87,7 @@ class UriController extends AbstractController
             $uri = preg_replace('/^'.UriGenerator::PACKAGE_PREFIX.'/', '', $uri);
         }
 
-        $obj = $this->objectHelper->findObjectByIdentifier($uri);
+        $obj = $this->objectHelper->findObjectByIdentifier($uri, $framework);
         if (null === $obj) {
             return $this->generateNotFoundResponse($request, $uri);
         }
