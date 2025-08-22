@@ -13,21 +13,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Index(name: 'dest_id_idx', columns: ['destination_node_identifier'])]
 #[ORM\Index(name: 'orig_id_idx', columns: ['origin_node_identifier'])]
 #[ORM\Entity(repositoryClass: LsAssociationRepository::class)]
-#[ORM\UniqueConstraint(name: 'ls_association_identifier', columns: ['identifier', 'ls_doc_identifier'])]
-#[ORM\UniqueConstraint(name: 'ls_association_uri', columns: ['uri', 'ls_doc_identifier'])]
-#[ORM\AttributeOverrides([
-    new ORM\AttributeOverride('identifier', new ORM\Column(
-        name: 'identifier',
-        length: 300,
-        unique: false,
-    )),
-    new ORM\AttributeOverride('uri', new ORM\Column(
-        name: 'uri',
-        length: 300,
-        unique: false,
-        nullable: true,
-    )),
-])]
 class LsAssociation implements CaseApiInterface
 {
     use IdentifiableTrait;
