@@ -10,6 +10,9 @@ framework:
             - '*/assets/sass/**'
             - '*/assets/js/**'
         missing_import_mode: strict
+        precompress:
+            # possible values: 'brotli', 'zstandard', 'gzip'
+            format: 'gzip'
 
 when@prod:
     framework:

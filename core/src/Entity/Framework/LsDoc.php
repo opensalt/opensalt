@@ -932,7 +932,7 @@ class LsDoc implements CaseApiInterface, LockableInterface
         return $this;
     }
 
-    public function createItem(?string $identifier = null): LsItem
+    public function createItem(string|UuidInterface|null $identifier = null): LsItem
     {
         $item = new LsItem($identifier);
         $item->setLsDoc($this);

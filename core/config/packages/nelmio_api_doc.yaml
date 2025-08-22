@@ -1,6 +1,21 @@
 nelmio_api_doc:
     html_config:
         assets_mode: 'bundle' # Other values: 'cdn', 'bundle', 'offline'
+        swagger_ui_config:
+            filter: false
+        redocly_config:
+            onlyRequiredInSamples: false
+            sortRequiredPropsFirst: true
+            hideSchemaTitles: true
+            jsonSamplesExpandLevel: 1
+        stoplight_config:
+            basePath: '/api/v1/doc-stoplight'
+            hideSchemas: true
+            hideExport: true
+            router: memory
+    use_validation_groups: true
+    type_info: true
+    models: { use_jms: false }
     documentation:
         info:
             title: OpenSALT
