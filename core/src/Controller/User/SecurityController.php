@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\User;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -14,19 +15,28 @@ class SecurityController extends AbstractController
 {
     public function __construct(
         private readonly AuthenticationUtils $authenticationUtils,
+        private readonly Security $security,
     ) {
     }
 
     #[Route(path: '/login', name: 'login')]
     public function login(Request $request): Response
     {
+        $redirect = $request->headers->get('referer');
+
+        if ($this->security->isGranted('IS_AUTHENTICATED_FULLY')) {
+            if (null !== $redirect) {
+                return $this->redirect($redirect);
+            }
+
+            return $this->redirectToRoute('salt_index');
+        }
+
         // get the login error if there is one
         $error = $this->authenticationUtils->getLastAuthenticationError();
 
         // last username entered by the user
         $lastUsername = $this->authenticationUtils->getLastUsername();
-
-        $redirect = $request->headers->get('referer');
 
         return $this->render('user/security/login.html.twig', [
             'last_username' => $lastUsername,
