@@ -9,6 +9,7 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
@@ -24,12 +25,17 @@ class SecurityController extends AbstractController
     {
         $redirect = $request->headers->get('referer');
 
+        // If the referer is not our site, ignore it
+        if (!str_starts_with($redirect ?? '', $this->generateUrl('salt_index', [], UrlGeneratorInterface::ABSOLUTE_URL))) {
+            $redirect = null;
+        }
+
         if ($this->security->isGranted('IS_AUTHENTICATED_FULLY')) {
-            if (null !== $redirect) {
-                return $this->redirect($redirect);
+            if (null === $redirect || str_starts_with($redirect, $this->generateUrl('login', [], UrlGeneratorInterface::ABSOLUTE_URL))) {
+                return $this->redirectToRoute('salt_index');
             }
 
-            return $this->redirectToRoute('salt_index');
+            return $this->redirect($redirect);
         }
 
         // get the login error if there is one
