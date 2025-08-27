@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Functional;
 
 use App\Entity\User\AccessGroup;
 use App\Entity\User\User;

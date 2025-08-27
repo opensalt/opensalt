@@ -123,5 +123,9 @@ lint: ecs phpstan psalm
 
 # Testing
 test:
-	./core/bin/run-tests --fail-fast --steps -x incomplete -x duplicate -x skip -x skip-firefox -x 0117-0708 -x 0108-0801 -x 1013-1444 -x change-notification -x not-dev-env
+	./core/bin/run-tests --fail-fast --steps -x incomplete -x duplicate -x skip -x skip-firefox -x 0117-0708 -x 0108-0801 -x 1013-1444 -x change-notification -x not-dev-env $(tests)
 .PHONY: test
+
+unit-test:
+	./core/bin/run-tests Unit $(tests)
+.PHONY: unit-test

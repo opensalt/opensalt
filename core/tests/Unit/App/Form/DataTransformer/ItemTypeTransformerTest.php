@@ -18,9 +18,14 @@ class ItemTypeTransformerTest extends \Codeception\Test\Unit
         $itemType = new LsDefItemType();
         $itemType->setTitle('Testing');
 
+        $reflection = new \ReflectionClass($itemType);
+        $idProperty = $reflection->getProperty('id');
+        $idProperty->setAccessible(true);
+        $idProperty->setValue($itemType, 111);
+
         $transformed = $transformer->transform($itemType);
 
         $this->assertTrue(is_array($transformed));
-        $this->assertEquals(['' => 'Testing'], $transformed);
+        $this->assertEquals([111 => 'Testing'], $transformed);
     }
 }

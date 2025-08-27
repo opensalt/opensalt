@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Functional;
 
 use App\Entity\Comment\Comment;
 use App\Entity\Comment\CommentUpvote;

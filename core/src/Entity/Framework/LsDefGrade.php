@@ -63,7 +63,7 @@ class LsDefGrade implements IdentifiableInterface, ChangedAtInterface
 
     public function getCode(): string
     {
-        return $this->code;
+        return $this->code ?? '';
     }
 
     public function setCode(string $code): void
@@ -83,6 +83,6 @@ class LsDefGrade implements IdentifiableInterface, ChangedAtInterface
 
     public function getLabel(): string
     {
-        return sprintf('%s - %s', $this->getCode(), $this->getTitle());
+        return sprintf('%s - %s', $this->getCode(), $this->getTitle() ?? '');
     }
 }

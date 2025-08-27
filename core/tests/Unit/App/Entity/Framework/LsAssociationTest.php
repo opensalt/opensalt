@@ -3,10 +3,402 @@
 namespace Tests\Unit\App\Entity\Framework;
 
 use App\Entity\Framework\LsAssociation;
+use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\LsItem;
+use App\Entity\Framework\LsDefAssociationGrouping;
+use Ramsey\Uuid\Uuid;
 
 class LsAssociationTest extends \Codeception\Test\Unit
 {
+    /**
+     * @var \Tests\Support\UnitTester
+     */
+    protected $tester;
+
     // tests
+    public function testConstructor()
+    {
+        $lsAssociation = new LsAssociation();
+
+        $this->assertInstanceOf(LsAssociation::class, $lsAssociation);
+        $this->assertNotNull($lsAssociation->getIdentifier());
+        $this->assertInstanceOf(\DateTimeImmutable::class, $lsAssociation->getUpdatedAt());
+        $this->assertInstanceOf(\DateTimeImmutable::class, $lsAssociation->getChangedAt());
+    }
+
+    public function testConstructorWithIdentifier()
+    {
+        $identifier = Uuid::uuid4()->toString();
+        $lsAssociation = new LsAssociation($identifier);
+
+        $this->assertEquals($identifier, $lsAssociation->getIdentifier());
+    }
+
+    public function testSetAndGetLsDocIdentifier()
+    {
+        $lsAssociation = new LsAssociation();
+        $lsDocIdentifier = Uuid::uuid4()->toString();
+
+        $lsAssociation->setLsDocIdentifier($lsDocIdentifier);
+        $this->assertEquals($lsDocIdentifier, $lsAssociation->getLsDocIdentifier());
+    }
+
+    public function testSetAndGetLsDocUri()
+    {
+        $lsAssociation = new LsAssociation();
+        $lsDocUri = 'https://example.com/doc';
+
+        $lsAssociation->setLsDocUri($lsDocUri);
+        $this->assertEquals($lsDocUri, $lsAssociation->getLsDocUri());
+    }
+
+    public function testSetAndGetOriginNodeIdentifier()
+    {
+        $lsAssociation = new LsAssociation();
+        $originNodeIdentifier = Uuid::uuid4()->toString();
+
+        $lsAssociation->setOriginNodeIdentifier($originNodeIdentifier);
+        $this->assertEquals($originNodeIdentifier, $lsAssociation->getOriginNodeIdentifier());
+    }
+
+    public function testSetAndGetOriginNodeUri()
+    {
+        $lsAssociation = new LsAssociation();
+        $originNodeUri = 'https://example.com/item/1';
+
+        $lsAssociation->setOriginNodeUri($originNodeUri);
+        $this->assertEquals($originNodeUri, $lsAssociation->getOriginNodeUri());
+    }
+
+    public function testSetAndGetOriginNodeTargetType()
+    {
+        $lsAssociation = new LsAssociation();
+        $targetType = 'item';
+
+        $lsAssociation->setOriginNodeTargetType($targetType);
+        $this->assertEquals($targetType, $lsAssociation->getOriginNodeTargetType());
+    }
+
+    public function testSetAndGetDestinationNodeIdentifier()
+    {
+        $lsAssociation = new LsAssociation();
+        $destinationNodeIdentifier = Uuid::uuid4()->toString();
+
+        $lsAssociation->setDestinationNodeIdentifier($destinationNodeIdentifier);
+        $this->assertEquals($destinationNodeIdentifier, $lsAssociation->getDestinationNodeIdentifier());
+    }
+
+    public function testSetAndGetDestinationNodeUri()
+    {
+        $lsAssociation = new LsAssociation();
+        $destinationNodeUri = 'https://example.com/item/2';
+
+        $lsAssociation->setDestinationNodeUri($destinationNodeUri);
+        $this->assertEquals($destinationNodeUri, $lsAssociation->getDestinationNodeUri());
+    }
+
+    public function testSetAndGetDestinationNodeTargetType()
+    {
+        $lsAssociation = new LsAssociation();
+        $targetType = 'item';
+
+        $lsAssociation->setDestinationNodeTargetType($targetType);
+        $this->assertEquals($targetType, $lsAssociation->getDestinationNodeTargetType());
+    }
+
+    public function testSetAndGetType()
+    {
+        $lsAssociation = new LsAssociation();
+        $type = LsAssociation::CHILD_OF;
+
+        $lsAssociation->setType($type);
+        $this->assertEquals($type, $lsAssociation->getType());
+    }
+
+    public function testSetTypeWithInvalidType()
+    {
+        $lsAssociation = new LsAssociation();
+
+        $this->expectException(\InvalidArgumentException::class);
+        $lsAssociation->setType('Invalid Type');
+    }
+
+    public function testSetAndGetSequenceNumber()
+    {
+        $lsAssociation = new LsAssociation();
+
+        $lsAssociation->setSequenceNumber(5);
+        $this->assertEquals(5, $lsAssociation->getSequenceNumber());
+
+        $lsAssociation->setSequenceNumber('10');
+        $this->assertEquals(10, $lsAssociation->getSequenceNumber());
+
+        $lsAssociation->setSequenceNumber(null);
+        $this->assertEquals(0, $lsAssociation->getSequenceNumber()); // Default value is 0, not null
+    }
+
+    public function testSetSequenceNumberWithInvalidValue()
+    {
+        $lsAssociation = new LsAssociation();
+
+        $this->expectException(\InvalidArgumentException::class);
+        $lsAssociation->setSequenceNumber('abc');
+    }
+
+    public function testSetAndGetSubtype()
+    {
+        $lsAssociation = new LsAssociation();
+        $subtype = 'subtype';
+
+        $lsAssociation->setSubtype($subtype);
+        $this->assertEquals($subtype, $lsAssociation->getSubtype());
+    }
+
+    public function testSetAndGetNotes()
+    {
+        $lsAssociation = new LsAssociation();
+        $notes = 'These are some notes';
+
+        $lsAssociation->setNotes($notes);
+        $this->assertEquals($notes, $lsAssociation->getNotes());
+    }
+
+    public function testSetAndGetGroup()
+    {
+        $lsAssociation = new LsAssociation();
+        $group = new LsDefAssociationGrouping();
+
+        $lsAssociation->setGroup($group);
+        $this->assertEquals($group, $lsAssociation->getGroup());
+    }
+
+    public function testSetAndGetLsDoc()
+    {
+        $lsAssociation = new LsAssociation();
+        $lsDoc = new LsDoc();
+
+        $lsAssociation->setLsDoc($lsDoc);
+        $this->assertEquals($lsDoc, $lsAssociation->getLsDoc());
+    }
+
+    public function testSetAndGetOriginLsDoc()
+    {
+        $lsAssociation = new LsAssociation();
+        $lsDoc = new LsDoc();
+
+        $lsAssociation->setOriginLsDoc($lsDoc);
+        $this->assertEquals($lsDoc, $lsAssociation->getOriginLsDoc());
+    }
+
+    public function testSetAndGetOriginLsItem()
+    {
+        $lsAssociation = new LsAssociation();
+        $lsItem = new LsItem();
+
+        $lsAssociation->setOriginLsItem($lsItem);
+        $this->assertEquals($lsItem, $lsAssociation->getOriginLsItem());
+    }
+
+    public function testSetAndGetDestinationLsDoc()
+    {
+        $lsAssociation = new LsAssociation();
+        $lsDoc = new LsDoc();
+
+        $lsAssociation->setDestinationLsDoc($lsDoc);
+        $this->assertEquals($lsDoc, $lsAssociation->getDestinationLsDoc());
+    }
+
+    public function testSetAndGetDestinationLsItem()
+    {
+        $lsAssociation = new LsAssociation();
+        $lsItem = new LsItem();
+
+        $lsAssociation->setDestinationLsItem($lsItem);
+        $this->assertEquals($lsItem, $lsAssociation->getDestinationLsItem());
+    }
+
+    public function testSetOriginWithLsDoc()
+    {
+        $lsAssociation = new LsAssociation();
+        $lsDoc = new LsDoc();
+
+        $lsAssociation->setOrigin($lsDoc);
+        $this->assertEquals($lsDoc, $lsAssociation->getOriginLsDoc());
+    }
+
+    public function testSetOriginWithLsItem()
+    {
+        $lsAssociation = new LsAssociation();
+        $lsItem = new LsItem();
+
+        $lsAssociation->setOrigin($lsItem);
+        $this->assertEquals($lsItem, $lsAssociation->getOriginLsItem());
+    }
+
+    public function testSetOriginWithString()
+    {
+        $lsAssociation = new LsAssociation();
+        $uri = 'https://example.com/item';
+
+        $lsAssociation->setOrigin($uri);
+        $this->assertEquals($uri, $lsAssociation->getOriginNodeUri());
+        $this->assertEquals($uri, $lsAssociation->getOriginNodeIdentifier());
+    }
+
+    public function testSetDestinationWithLsDoc()
+    {
+        $lsAssociation = new LsAssociation();
+        $lsDoc = new LsDoc();
+
+        $lsAssociation->setDestination($lsDoc);
+        $this->assertEquals($lsDoc, $lsAssociation->getDestinationLsDoc());
+    }
+
+    public function testSetDestinationWithLsItem()
+    {
+        $lsAssociation = new LsAssociation();
+        $lsItem = new LsItem();
+
+        $lsAssociation->setDestination($lsItem);
+        $this->assertEquals($lsItem, $lsAssociation->getDestinationLsItem());
+    }
+
+    public function testSetDestinationWithString()
+    {
+        $lsAssociation = new LsAssociation();
+        $uri = 'https://example.com/item';
+
+        $lsAssociation->setDestination($uri);
+        $this->assertEquals($uri, $lsAssociation->getDestinationNodeUri());
+        $this->assertEquals($uri, $lsAssociation->getDestinationNodeIdentifier());
+    }
+
+    public function testGetOrigin()
+    {
+        $lsAssociation = new LsAssociation();
+
+        // Test with LsDoc
+        $lsDoc = new LsDoc();
+        $lsAssociation->setOriginLsDoc($lsDoc);
+        $this->assertEquals($lsDoc, $lsAssociation->getOrigin());
+
+        // Test with LsItem
+        $lsItem = new LsItem();
+        $lsAssociation->setOriginLsItem($lsItem);
+        $lsAssociation->setOriginLsDoc(null);
+        $this->assertEquals($lsItem, $lsAssociation->getOrigin());
+
+        // Test with URI
+        $lsAssociation->setOriginLsItem(null);
+        $lsAssociation->setOriginNodeUri('https://example.com/item');
+        $this->assertEquals('https://example.com/item', $lsAssociation->getOrigin());
+    }
+
+    public function testGetDestination()
+    {
+        $lsAssociation = new LsAssociation();
+
+        // Test with LsDoc
+        $lsDoc = new LsDoc();
+        $lsAssociation->setDestinationLsDoc($lsDoc);
+        $this->assertEquals($lsDoc, $lsAssociation->getDestination());
+
+        // Test with LsItem
+        $lsItem = new LsItem();
+        $lsAssociation->setDestinationLsItem($lsItem);
+        $lsAssociation->setDestinationLsDoc(null);
+        $this->assertEquals($lsItem, $lsAssociation->getDestination());
+
+        // Test with URI
+        $lsAssociation->setDestinationLsItem(null);
+        $lsAssociation->setDestinationNodeUri('https://example.com/item');
+        $this->assertEquals('https://example.com/item', $lsAssociation->getDestination());
+    }
+
+    public function testGetNormalizedType()
+    {
+        $lsAssociation = new LsAssociation();
+
+        $lsAssociation->setType(LsAssociation::CHILD_OF);
+        $this->assertEquals('isChildOf', $lsAssociation->getNormalizedType());
+
+        $lsAssociation->setType(LsAssociation::EXACT_MATCH_OF);
+        $this->assertEquals('exactMatchOf', $lsAssociation->getNormalizedType());
+    }
+
+    public function testCoerceType()
+    {
+        $lsAssociation = new LsAssociation();
+
+        $this->assertEquals(LsAssociation::CHILD_OF, $lsAssociation->coerceType('is child of'));
+        $this->assertEquals(LsAssociation::EXACT_MATCH_OF, $lsAssociation->coerceType('exact match of'));
+        $this->assertNull($lsAssociation->coerceType('invalid type'));
+    }
+
+    public function testAllTypes()
+    {
+        $types = LsAssociation::allTypes();
+
+        $this->assertIsArray($types);
+        $this->assertContains(LsAssociation::CHILD_OF, $types);
+        $this->assertContains(LsAssociation::EXACT_MATCH_OF, $types);
+        $this->assertContains(LsAssociation::RELATED_TO, $types);
+    }
+
+    public function testTypeChoiceList()
+    {
+        $choiceList = LsAssociation::typeChoiceList();
+
+        $this->assertIsArray($choiceList);
+        $this->assertArrayHasKey(LsAssociation::RELATED_TO, $choiceList);
+        $this->assertArrayHasKey(LsAssociation::EXACT_MATCH_OF, $choiceList);
+    }
+
+    public function testInverseName()
+    {
+        $this->assertEquals(LsAssociation::INVERSE_CHILD_OF, LsAssociation::inverseName(LsAssociation::CHILD_OF));
+        $this->assertEquals(LsAssociation::INVERSE_EXACT_MATCH_OF, LsAssociation::inverseName(LsAssociation::EXACT_MATCH_OF));
+        $this->assertNull(LsAssociation::inverseName('invalid type'));
+    }
+
+    public function testAllTypesForImportFromCSV()
+    {
+        $types = LsAssociation::allTypesForImportFromCSV();
+
+        $this->assertIsArray($types);
+        $this->assertArrayHasKey('isPartOf', $types);
+        $this->assertArrayHasKey('exemplar', $types);
+    }
+
+    public function testCanEdit()
+    {
+        $lsAssociation = new LsAssociation();
+        $lsDoc = new LsDoc();
+
+        $lsAssociation->setLsDoc($lsDoc);
+        $this->assertTrue($lsAssociation->canEdit());
+    }
+
+    public function testToString()
+    {
+        $lsAssociation = new LsAssociation();
+
+        $this->assertEquals($lsAssociation->getUri(), (string)$lsAssociation);
+    }
+
+    public function testConstants()
+    {
+        $this->assertEquals('Is Child Of', LsAssociation::CHILD_OF);
+        $this->assertEquals('Exact Match Of', LsAssociation::EXACT_MATCH_OF);
+        $this->assertEquals('Is Related To', LsAssociation::RELATED_TO);
+        $this->assertEquals('Is Part Of', LsAssociation::PART_OF);
+        $this->assertEquals('Replaced By', LsAssociation::REPLACED_BY);
+        $this->assertEquals('Precedes', LsAssociation::PRECEDES);
+        $this->assertEquals('Has Skill Level', LsAssociation::SKILL_LEVEL);
+        $this->assertEquals('Is Peer Of', LsAssociation::IS_PEER_OF);
+        $this->assertEquals('Is Translation Of', LsAssociation::IS_TRANSLATION_OF);
+        $this->assertEquals('Exemplar', LsAssociation::EXEMPLAR);
+    }
 
     /**
      * @param string $uri Uri to be split
