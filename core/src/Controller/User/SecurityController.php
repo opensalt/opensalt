@@ -30,6 +30,18 @@ class SecurityController extends AbstractController
             $redirect = null;
         }
 
+        // If the redirect is to the login page, try finding _target_path
+        if (null === $redirect || str_starts_with($redirect, $this->generateUrl('login', [], UrlGeneratorInterface::ABSOLUTE_URL))) {
+            $redirect = $request->request->getString('_target_path');
+        }
+
+        // If no referer or _target_path check the session
+        if ('' === $redirect) {
+            $firewallConfig = $this->security->getFirewallConfig($request);
+            $session = $request->getSession();
+            $redirect = $session->get('_security.'.$firewallConfig->getName().'.target_path');
+        }
+
         if ($this->security->isGranted('IS_AUTHENTICATED_FULLY')) {
             if (null === $redirect || str_starts_with($redirect, $this->generateUrl('login', [], UrlGeneratorInterface::ABSOLUTE_URL))) {
                 return $this->redirectToRoute('salt_index');
