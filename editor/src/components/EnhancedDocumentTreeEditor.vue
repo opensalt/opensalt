@@ -34,26 +34,10 @@
         />
 
         <!-- Association Group Selector -->
-        <div class="mb-3">
-          <label for="associationGroupSelect" class="form-label fw-bold">Association Group</label>
-          <select
-            id="associationGroupSelect"
-            class="form-select"
-            v-model="selectedAssociationGroup"
-            @change="onAssociationGroupChange"
-          >
-            <option
-              v-for="group in associationGroups"
-              :key="group.id"
-              :value="group.id"
-            >
-              {{ group.title }}
-            </option>
-          </select>
-          <div class="form-text">
-            Filter items by their association group
-          </div>
-        </div>
+        <AssociationGroupSelector
+          v-model="selectedAssociationGroupValue"
+          :association-groups="associationGroups"
+        />
 
         <!-- Tree View -->
         <div class="mt-3">
@@ -64,6 +48,8 @@
       <!-- Details/info panel -->
       <section class="col-7 details-panel">
         <RightSidePanel
+          :current-document="currentDoc"
+          :association-groups="associationGroups"
           :selected-item="selectedItem"
           :initial-mode="rightPanelMode"
           @mode-changed="onRightPanelModeChanged"
@@ -74,6 +60,9 @@
           @add-association="onAddAssociation"
           @edit-association="onEditAssociation"
           @delete-association="onDeleteAssociation"
+          @edit-document="onEditDocument"
+          @add-root-item="onAddRootItem"
+          @manage-association-groups="onManageAssociationGroups"
         />
       </section>
     </main>
@@ -143,6 +132,7 @@ import TreeView from './TreeView.vue';
 import RightSidePanel from './RightSidePanel.vue';
 import DocumentSelector from './DocumentSelector.vue';
 import SearchFilter from './SearchFilter.vue';
+import AssociationGroupSelector from './AssociationGroupSelector.vue';
 import EditDocModal from './EditDocModal.vue';
 import AddNewChildModal from './AddNewChildModal.vue';
 import AssociateModal from './AssociateModal.vue';
@@ -190,7 +180,7 @@ const rightPanelMode = ref('itemDetails');
 const availableDocuments = computed(() => frameworkStore.documents);
 const availableSubjects = computed(() => frameworkStore.availableSubjects);
 const associationGroups = computed(() => frameworkStore.associationGroups);
-const selectedAssociationGroup = computed({
+const selectedAssociationGroupValue = computed({
   get: () => frameworkStore.selectedAssociationGroup,
   set: (value) => frameworkStore.setSelectedAssociationGroup(value)
 });
@@ -247,13 +237,10 @@ function onFilter(filters) {
 function onClearSearch() {
   frameworkStore.setSearchQuery('');
   frameworkStore.clearFilters();
-  frameworkStore.setSelectedAssociationGroup('all');
+  selectedAssociationGroupValue.value = 'all';
 }
 
-function onAssociationGroupChange() {
-  // The v-model will automatically update the store
-  // Additional logic can be added here if needed
-}
+
 
 // Modal event handlers
 function onEditItem(item) {
@@ -326,6 +313,19 @@ function onAssocGroupSaved(group) {
 
 function onAssocGroupDeleted(group) {
   console.log('Association group deleted:', group);
+}
+
+function onEditDocument() {
+  showEditDocModal.value = true;
+}
+
+function onAddRootItem() {
+  // Handle adding root item - could open a modal or navigate to item creation
+  console.log('Add root item requested');
+}
+
+function onManageAssociationGroups() {
+  showAssocGroupModal.value = true;
 }
 
 function findItem(items, id) {
