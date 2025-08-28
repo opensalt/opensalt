@@ -6,13 +6,12 @@
       </div>
       <div v-else role="tree" aria-label="Document structure tree">
         <TreeNode
-          v-for="(item, idx) in doc.items"
-          :key="item.identifier"
-          :item="item"
+          :key="documentRoot.identifier"
+          :item="documentRoot"
           :level="0"
           :selected-id="selectedId"
-          :parent-items="doc.items"
-          :index="idx"
+          :parent-items="[documentRoot]"
+          :index="0"
           @select="onSelect"
           @dblclick="onDblClick"
           @move="onMove"
@@ -23,7 +22,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import TreeNode from './TreeNode.vue';
 
 const props = defineProps({
@@ -32,6 +31,23 @@ const props = defineProps({
 
 const emit = defineEmits(['select', 'dblclick']);
 const selectedId = ref(null);
+
+// Create a document root node with items as children
+const documentRoot = computed(() => {
+  if (!props.doc) return null;
+
+  return {
+    identifier: props.doc.id || 'document-root',
+    title: props.doc.title || 'Document Root',
+    abbreviatedTitle: props.doc.title || 'Document Root',
+    hcs: '', // No human coding scheme for document root
+    children: props.doc.items || [],
+    itemType: 'document',
+    lastChanged: props.doc.lastModified || '',
+    // Add other document properties as needed
+    ...props.doc
+  };
+});
 
 function onSelect(id) {
   selectedId.value = id;
@@ -74,4 +90,4 @@ function onMove({ fromIdx, toIdx, parentItems }) {
   border-radius: 4px;
   padding: 2px 6px;
 }
-</style> 
+</style>

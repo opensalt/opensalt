@@ -192,24 +192,23 @@
       </div>
 
       <!-- Associations -->
-      <div v-if="filteredAssociations.length > 0" class="card mb-3">
+      <div v-if="groupedAssociations.length > 0" class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h6 class="mb-0">Associations</h6>
           <button type="button" class="btn btn-sm btn-outline-primary" @click="$emit('add-association', selectedItem)">
             <i class="bi bi-plus"></i> Add
           </button>
         </div>
-        <div class="card-body p-0">
-          <div class="associations-list">
-            <AssociationItem
-              v-for="assoc in filteredAssociations"
-              :key="assoc.identifier || assoc.id"
-              :association="assoc"
-              :association-groups="associationGroups"
-              @edit="$emit('edit-association', $event)"
-              @delete="$emit('delete-association', $event)"
-            />
-          </div>
+        <div class="card-body">
+          <GroupedAssocitationDisplay
+            v-for="group in groupedAssociations"
+            :key="group.type"
+            :association-type="group.type"
+            :associations="group.associations"
+            :association-groups="associationGroups"
+            @edit-association="$emit('edit-association', $event)"
+            @delete-association="$emit('delete-association', $event)"
+          />
         </div>
       </div>
 
@@ -236,6 +235,7 @@
 <script setup>
 import { computed } from 'vue';
 import AssociationItem from './AssociationItem.vue';
+import GroupedAssocitationDisplay from './GroupedAssociationDisplay.vue';
 
 const props = defineProps({
   selectedItem: Object,
@@ -264,12 +264,29 @@ function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString();
 }
 
-// Filter out isChildOf associations from display
-const filteredAssociations = computed(() => {
+// Group associations by type (excluding isChildOf)
+const groupedAssociations = computed(() => {
   if (!props.selectedItem?.associations) return [];
-  return props.selectedItem.associations.filter(assoc =>
+
+  const filtered = props.selectedItem.associations.filter(assoc =>
     assoc.associationType !== 'isChildOf' && assoc.type !== 'isChildOf'
   );
+
+  // Group by association type
+  const groups = {};
+  filtered.forEach(assoc => {
+    const type = assoc.associationType || assoc.type || 'unknown';
+    if (!groups[type]) {
+      groups[type] = [];
+    }
+    groups[type].push(assoc);
+  });
+
+  // Convert to array format for template
+  return Object.keys(groups).map(type => ({
+    type,
+    associations: groups[type]
+  })).sort((a, b) => a.type.localeCompare(b.type));
 });
 
 // Document statistics
