@@ -26,6 +26,9 @@ export const useFrameworkStore = defineStore('framework', () => {
   const currentDocumentRubrics = ref([]);
   const currentDocumentAssociations = ref([]);
 
+  // View state
+  const currentView = ref('tree'); // 'tree', 'association', 'log'
+
   // Getters
   const filteredDocuments = computed(() => {
     if (!searchQuery.value && !Object.values(selectedFilters.value).some(filter => filter)) {
@@ -141,8 +144,8 @@ export const useFrameworkStore = defineStore('framework', () => {
         subject: doc.subject || '',
         status: doc.adoptionStatus || 'Draft',
         lastModified: doc.lastChangeDateTime || '',
-        language: doc.language || 'en',
-        version: doc.version || '1.0'
+        language: doc.language || '',
+        version: doc.version || ''
       }));
 
     } catch (err) {
@@ -201,8 +204,8 @@ export const useFrameworkStore = defineStore('framework', () => {
         statusStartDate: cfDoc.statusStartDate || null,
         statusEndDate: cfDoc.statusEndDate || null,
         lastModified: cfDoc.lastChangeDateTime || '',
-        language: cfDoc.language || 'en',
-        version: cfDoc.version || '1.0',
+        language: cfDoc.language || '',
+        version: cfDoc.version || '',
         officialSourceURL: cfDoc.officialSourceURL || '',
         publisher: cfDoc.publisher || '',
         licenseURI: cfDoc.licenseURI || null,
@@ -494,6 +497,10 @@ export const useFrameworkStore = defineStore('framework', () => {
     error.value = null;
   }
 
+  function setCurrentView(view) {
+    currentView.value = view;
+  }
+
   return {
     // State
     documents,
@@ -507,6 +514,7 @@ export const useFrameworkStore = defineStore('framework', () => {
     currentDocumentDefinitions,
     currentDocumentRubrics,
     currentDocumentAssociations,
+    currentView,
 
     // Getters
     filteredDocuments,
@@ -522,6 +530,7 @@ export const useFrameworkStore = defineStore('framework', () => {
     setFilters,
     clearFilters,
     setSelectedAssociationGroup,
+    setCurrentView,
     selectDocument,
     clearError
   };

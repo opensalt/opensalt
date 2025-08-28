@@ -12,6 +12,7 @@
           :selected-id="selectedId"
           :parent-items="[documentRoot]"
           :index="0"
+          :startExpanded="true"
           @select="onSelect"
           @dblclick="onDblClick"
           @move="onMove"

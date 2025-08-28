@@ -8,7 +8,13 @@
       </div>
     </nav>
     <div class="container-fluid">
-      <DocumentTreeEditor />
+      <!-- View Switcher -->
+      <ViewSwitcher />
+
+      <!-- Conditional View Rendering -->
+      <TreeViewContainer v-if="currentView === 'tree'" />
+      <AssociationView v-else-if="currentView === 'association'" />
+      <LogView v-else-if="currentView === 'log'" />
     </div>
 
     <!-- Toast notifications -->
@@ -36,8 +42,15 @@
 </template>
 
 <script setup>
-import { ref, provide } from 'vue';
-import DocumentTreeEditor from './components/EnhancedDocumentTreeEditor.vue';
+import { ref, provide, computed } from 'vue';
+import { useFrameworkStore } from './stores/frameworkStore';
+import ViewSwitcher from './components/ViewSwitcher.vue';
+import TreeViewContainer from './components/EnhancedDocumentTreeEditor.vue';
+import AssociationView from './components/AssociationView.vue';
+import LogView from './components/LogView.vue';
+
+const frameworkStore = useFrameworkStore();
+const currentView = computed(() => frameworkStore.currentView);
 
 const toasts = ref([]);
 let toastId = 0;

@@ -27,6 +27,7 @@
 
         <!-- Search and Filter -->
         <SearchFilter
+          v-if="false"
           :available-subjects="availableSubjects"
           @search="onSearch"
           @filter="onFilter"

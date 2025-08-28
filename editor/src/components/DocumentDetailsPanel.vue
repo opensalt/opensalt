@@ -30,14 +30,14 @@
           <div class="col-sm-6">
             <strong>Creator:</strong> {{ document.creator || 'Unknown' }}
           </div>
-          <div class="col-sm-6">
-            <strong>Language:</strong> {{ document.language || 'en' }}
+          <div class="col-sm-6" v-if="document.language?.length">
+            <strong>Language:</strong> {{ document.language || '' }}
           </div>
         </div>
 
         <div class="row mt-2">
-          <div class="col-sm-6">
-            <strong>Version:</strong> {{ document.version || '1.0' }}
+          <div class="col-sm-6" v-if="document.version?.length">
+            <strong>Version:</strong> {{ document.version || '' }}
           </div>
           <div class="col-sm-6">
             <strong>Framework Type:</strong> {{ document.frameworkType || 'Standard' }}

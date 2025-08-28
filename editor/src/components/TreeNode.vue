@@ -62,11 +62,15 @@ const props = defineProps({
   level: Number,
   selectedId: String,
   parentItems: Array,
-  index: Number
+  index: Number,
+    startExpanded: {
+        type: Boolean,
+        default: false
+    }
 });
 const emit = defineEmits(['select', 'dblclick', 'move']);
 
-const isExpanded = ref(false); // Start closed by default
+const isExpanded = ref(props.startExpanded); // Start closed by default
 const isFocused = ref(false);
 const hasChildren = computed(() => props.item.children && props.item.children.length > 0);
 
