@@ -1,0 +1,23 @@
+{
+  "name": "editor",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.0",
+    "bootstrap-icons": "^1.11.0",
+    "papaparse": "^5.4.1",
+    "pinia": "^3.0.3",
+    "vue": "^3.4.0",
+    "vue-multiselect": "^3.0.0-beta.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.1",
+    "sass": "^1.91.0",
+    "vite": "^7.1.3"
+  }
+}

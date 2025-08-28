@@ -1,0 +1,508 @@
+// SCSS styles based on core/assets/sass/cftree/view.scss patterns
+// Converted for Vue.js components using Bootstrap 5
+
+@use "sass:color";
+
+// Brand colors from brand-variables.scss
+$primary: #337ab7;
+$brand-header: #78c9e9;
+$brand-header-light: color.adjust(#78c9e9, $lightness: 20%);
+$brand-header-alternate: #e6793a;
+$brand-header-alternate-light: color.adjust(#e6793a, $lightness: 30%);
+$doc-status-draft: #f0ad4e;
+$doc-status-deprecated: #d9534f;
+$alternate-doc-bg: #ffd;
+$neutral-bg: #777;
+$neutral-bg-light: #ddd;
+$dragbar-bg: #D5D5D5;
+$text-color: #333;
+$text-color-light: #777;
+$white: #fff;
+$black: #000;
+
+// Layout variables
+$tree-side-height: calc(100vh - 243px);
+$border-radius: 4px;
+$font-size-base: 0.875rem;
+
+// Document Tree Editor Layout
+.document-tree-editor {
+  .header-section {
+    background: $brand-header-alternate-light;
+    border: 3px solid $brand-header-alternate;
+    color: $black;
+    border-radius: $border-radius;
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    font-size: 1.6em;
+    font-weight: bold;
+
+    .doc-title {
+      font-weight: bold;
+      margin-bottom: 0;
+    }
+
+    .doc-status {
+      &.draft, &.private {
+        background-color: color.adjust($doc-status-draft, $lightness: 30%);
+        border: 3px solid $doc-status-draft;
+      }
+
+      &.deprecated {
+        background-color: color.adjust($doc-status-deprecated, $lightness: 30%);
+        border: 3px solid $doc-status-deprecated;
+      }
+    }
+  }
+
+  .tree-panel {
+    height: $tree-side-height;
+    overflow: auto;
+    background: $white;
+    border-right: 1px solid #dee2e6;
+  }
+
+  .details-panel {
+    height: $tree-side-height;
+    overflow: auto;
+    background: #f8f9fa;
+  }
+}
+
+// Tree Node Styles
+.tree-node {
+  .tree-node-label {
+    padding: 2px 6px;
+    border-radius: $border-radius;
+    transition: background-color 0.2s;
+    user-select: text;
+    -webkit-user-select: text;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #f8f9fa;
+    }
+
+    &.selected {
+      background: #e3f2fd;
+      border-radius: $border-radius;
+      font-weight: 600;
+    }
+
+    &.drag-over {
+      background-color: #d1ecf1;
+      border: 2px dashed #17a2b8;
+    }
+
+    &.dragging {
+      opacity: 0.5;
+    }
+  }
+
+  .coding-scheme {
+    font-weight: bold;
+    color: $primary;
+  }
+}
+
+// Item Details Panel
+.item-details-panel {
+  .item-title {
+    margin: 0 5px 15px 5px;
+    font-size: 1.4em;
+
+    .item-title-icon {
+      width: 8%;
+      margin-right: 1%;
+      margin-left: -5px;
+      padding: 5px;
+      background-color: $white;
+      border-radius: $border-radius;
+      display: inline-block;
+    }
+
+    .item-title-span {
+      width: 89%;
+      vertical-align: top;
+      line-height: 1.1em;
+      max-height: calc(2.2em + 5px);
+      padding-top: 5px;
+      overflow-y: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .item-section {
+    background-color: color.adjust(#5bc0de, $lightness: 30%);
+    border: 3px solid #5bc0de;
+    border-radius: $border-radius;
+  }
+
+  .item-options {
+    text-align: center;
+    margin: 15px 0;
+    line-height: 2.8em;
+
+    .dropdown-menu {
+      line-height: 1.3em;
+    }
+  }
+
+  .ls-item-details-main {
+    margin-bottom: 10px;
+  }
+
+  .ls-item-details-more-info-link {
+    text-align: right;
+    margin: 0 5px 10px 0;
+    cursor: pointer;
+  }
+}
+
+// Association Styles
+.association-item-display {
+  background-color: $neutral-bg;
+  color: $white;
+  border-radius: $border-radius;
+  padding: 10px;
+  min-height: 80px;
+}
+
+.association-direction-switched {
+  transform: rotate(180deg);
+}
+
+// Instructions
+.instructions {
+  padding: 7px;
+  border-radius: $border-radius;
+  margin-bottom: 10px;
+  min-height: 32px;
+
+  &.bg-info {
+    background-color: rgba(217, 237, 247, 1) !important; // #d9edf7
+  }
+}
+
+// Document Selector
+.document-selector {
+  .card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    padding: 0.5rem 1rem;
+
+    h6 {
+      margin-bottom: 0;
+      font-weight: 600;
+    }
+  }
+
+  .card-body {
+    padding: 1rem;
+  }
+}
+
+// Search Filter
+.search-filter {
+  .input-group-text {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+  }
+
+  .form-control:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  }
+
+  .advanced-filters {
+    .card-header {
+      background-color: #f8f9fa;
+      border-bottom: 1px solid #dee2e6;
+      padding: 0.5rem 1rem;
+    }
+
+    .card-body {
+      padding: 1rem;
+    }
+  }
+}
+
+// Modal Styles
+.modal-content {
+  .modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    padding: 1rem 1.5rem;
+
+    .modal-title {
+      font-weight: 600;
+    }
+  }
+
+  .modal-body {
+    padding: 1.5rem;
+  }
+
+  .modal-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    padding: 1rem 1.5rem;
+  }
+}
+
+// Form Styles
+.form-control:focus,
+.form-select:focus {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+// Button Styles
+.btn-outline-primary {
+  border-color: $primary;
+  color: $primary;
+
+  &:hover {
+    background-color: $primary;
+    border-color: $primary;
+  }
+}
+
+// Badge Styles
+.badge {
+  font-size: 0.75em;
+}
+
+// List Group Styles
+.list-group-item {
+  &.lsassociation {
+    cursor: pointer;
+
+    &.lsassociation-other-doc {
+      background-color: $alternate-doc-bg;
+    }
+  }
+}
+
+// Spinner Styles
+.spinner-outer {
+  width: 50%;
+  text-align: center;
+  margin: 0 auto;
+  background-color: $neutral-bg;
+  color: $white;
+  padding: 8px;
+  border-radius: 5px;
+}
+
+.spinner-cog {
+  font-size: 1.6em;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.spinner-text {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 1.2em;
+  padding-left: 10px;
+}
+
+// Drag and Drop Styles
+.drag-helper {
+  background-color: $white;
+  opacity: 0.8;
+  padding: 5px;
+  border-radius: $border-radius;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+// Tree Icons (using Bootstrap Icons as fallback)
+.tree-icon {
+  width: 20px;
+  height: 24px;
+  background-size: 20px;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+// Specific icon types
+.object-type-doc .tree-icon {
+  // Document icon
+}
+
+.object-type-item .tree-icon {
+  // Target icon
+}
+
+.object-type-job .tree-icon {
+  // Role binding icon
+}
+
+.object-type-course .tree-icon {
+  // Learning tools icon
+}
+
+.object-type-assessment .tree-icon {
+  // Learning icon
+}
+
+.object-type-credential .tree-icon {
+  // Certificate icon
+}
+
+.object-type-organization .tree-icon {
+  // Building icon
+}
+
+.object-type-identifier .tree-icon {
+  // ID card icon
+}
+
+.object-type-public_key .tree-icon {
+  // Key icon
+}
+
+// Responsive Design
+@media screen and (min-width: 992px) {
+  .tree-side-left-inner {
+    width: calc(100% - 28px);
+  }
+
+  .right-tree-side-right-inner {
+    width: calc(100% - 23px);
+  }
+}
+
+// High Contrast Mode Support
+@media (prefers-contrast: high) {
+  .tree-node-label.selected {
+    background: $black;
+    color: $white;
+  }
+
+  .tree-node-label.drag-over {
+    background: $black;
+    border-color: $white;
+  }
+}
+
+// Reduced Motion Support
+@media (prefers-reduced-motion: reduce) {
+  .tree-node-label,
+  .expand-indicator {
+    transition: none;
+  }
+}
+
+// Utility Classes
+.vcenter {
+  display: inline-block;
+  vertical-align: middle;
+  float: none;
+}
+
+.less-important {
+  font-size: 0.85em;
+  color: $text-color-light;
+  padding-left: 5px;
+  white-space: nowrap;
+}
+
+// Tooltip Styles
+.tooltip-inner {
+  max-width: 350px;
+  font-size: 12px;
+  text-align: left;
+
+  p {
+    margin-bottom: 0;
+  }
+}
+
+// Mark/Highlight Styles
+.mark, mark {
+  padding: 0.1em;
+}
+
+// Tree Has Association Indicator
+.tree-has-association {
+  position: absolute;
+  right: 5px;
+
+  img {
+    height: 10px;
+    background-color: $white;
+    vertical-align: baseline;
+  }
+}
+
+// Chooser Mode Styles
+.chooser-mode-background {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: 100vw;
+  background-color: $neutral-bg-light;
+  opacity: 0.8;
+  display: none;
+}
+
+.chooser-mode-doc-tree {
+  max-width: 800px;
+  margin: 0 auto !important;
+  border-right: 0 !important;
+  padding: 10px;
+  height: auto !important;
+}
+
+.chooser-mode-item-details {
+  position: fixed;
+  z-index: 10;
+  right: -600px;
+  top: 10px;
+  width: 80vw !important;
+  max-width: 600px;
+  border-left: 0 !important;
+  height: auto !important;
+}
+
+.chooser-mode-buttons {
+  display: none;
+  text-align: right;
+  margin-right: -10px;
+  margin-top: -5px;
+}
+
+// Tree Item Buttons
+.tree-item-buttons {
+  position: absolute;
+  right: 5px;
+  padding: 4px 0 4px 6px;
+  margin-top: -5px;
+}
+
+// Toggle Container
+.toggle-container-left,
+.toggle-container-right {
+  position: relative;
+  top: 50%;
+  cursor: pointer;
+  text-align: center;
+}
+
+// Drag Bar
+.dragbar {
+  background-color: $dragbar-bg;
+  height: 100%;
+  float: right;
+  width: 5px;
+  cursor: col-resize;
+}
+
+// Notifications Switch Location
+.notifications-switch-location {
+  width: 3rem;
+  text-align: center;
+}
