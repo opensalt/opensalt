@@ -1,124 +1,14 @@
 <template>
   <div class="item-details-panel">
     <!-- Document Details (when no item selected) -->
-    <div v-if="!selectedItem && currentDocument" class="document-details">
-      <!-- Document Header -->
-      <div class="card mb-3">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <h6 class="mb-0">Document Details</h6>
-          <div class="btn-group btn-group-sm">
-            <button
-              type="button"
-              class="btn btn-outline-primary"
-              @click="$emit('edit-document')"
-              title="Edit document"
-            >
-              <i class="bi bi-pencil"></i>
-            </button>
-          </div>
-        </div>
-        <div class="card-body">
-          <h5 class="card-title">
-            <span class="badge bg-primary me-2">{{ currentDocument.status || 'Draft' }}</span>
-            {{ currentDocument.title || 'Untitled Document' }}
-          </h5>
-
-          <div v-if="currentDocument.description" class="mb-3">
-            <strong>Description:</strong>
-            <p class="mt-1">{{ currentDocument.description }}</p>
-          </div>
-
-          <div class="row">
-            <div class="col-sm-6">
-              <strong>Creator:</strong> {{ currentDocument.creator || 'Unknown' }}
-            </div>
-            <div class="col-sm-6">
-              <strong>Language:</strong> {{ currentDocument.language || 'en' }}
-            </div>
-          </div>
-
-          <div class="row mt-2">
-            <div class="col-sm-6">
-              <strong>Version:</strong> {{ currentDocument.version || '1.0' }}
-            </div>
-            <div class="col-sm-6">
-              <strong>Framework Type:</strong> {{ currentDocument.frameworkType || 'Standard' }}
-            </div>
-          </div>
-
-          <div v-if="currentDocument.subject && currentDocument.subject.length > 0" class="mt-3">
-            <strong>Subject:</strong>
-            <div class="mt-1">
-              <span v-for="subject in currentDocument.subject" :key="subject" class="badge bg-secondary me-1">
-                {{ subject }}
-              </span>
-            </div>
-          </div>
-
-          <div v-if="currentDocument.publisher" class="mt-2">
-            <strong>Publisher:</strong> {{ currentDocument.publisher }}
-          </div>
-
-          <div v-if="currentDocument.officialSourceURL" class="mt-2">
-            <strong>Source URL:</strong>
-            <a :href="currentDocument.officialSourceURL" target="_blank" class="text-decoration-none">
-              {{ currentDocument.officialSourceURL }}
-            </a>
-          </div>
-
-          <div v-if="currentDocument.notes" class="mt-3">
-            <strong>Notes:</strong>
-            <p class="mt-1">{{ currentDocument.notes }}</p>
-          </div>
-
-          <div v-if="currentDocument.lastModified" class="mt-2">
-            <small class="text-muted">
-              Last modified: {{ formatDate(currentDocument.lastModified) }}
-            </small>
-          </div>
-        </div>
-      </div>
-
-      <!-- Document Statistics -->
-      <div class="card mb-3">
-        <div class="card-header">
-          <h6 class="mb-0">Document Statistics</h6>
-        </div>
-        <div class="card-body">
-          <div class="row text-center">
-            <div class="col-4">
-              <div class="fs-4 fw-bold text-primary">{{ itemCount }}</div>
-              <div class="text-muted small">Items</div>
-            </div>
-            <div class="col-4">
-              <div class="fs-4 fw-bold text-success">{{ associationCount }}</div>
-              <div class="text-muted small">Associations</div>
-            </div>
-            <div class="col-4">
-              <div class="fs-4 fw-bold text-info">{{ associationGroupCount }}</div>
-              <div class="text-muted small">Groups</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Document Actions -->
-      <div class="card">
-        <div class="card-header">
-          <h6 class="mb-0">Actions</h6>
-        </div>
-        <div class="card-body">
-          <div class="d-grid gap-2">
-            <button type="button" class="btn btn-outline-primary" @click="$emit('add-root-item')">
-              <i class="bi bi-plus-circle"></i> Add Root Item
-            </button>
-            <button type="button" class="btn btn-outline-secondary" @click="$emit('manage-association-groups')">
-              <i class="bi bi-tags"></i> Manage Groups
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <DocumentDetailsPanel
+      v-if="!selectedItem && currentDocument"
+      :document="currentDocument"
+      :association-groups="associationGroups"
+      @edit-document="$emit('edit-document')"
+      @add-root-item="$emit('add-root-item')"
+      @manage-association-groups="$emit('manage-association-groups')"
+    />
 
     <!-- No Document Loaded -->
     <div v-else-if="!selectedItem && !currentDocument" class="text-center text-muted p-4">
@@ -127,121 +17,24 @@
     </div>
 
     <!-- Item Details (when item selected) -->
-    <div v-else class="item-details">
-      <!-- Item Header -->
-      <div class="card mb-3">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <h6 class="mb-0">Item Details</h6>
-          <div class="btn-group btn-group-sm">
-            <button
-              type="button"
-              class="btn btn-outline-primary"
-              @click="$emit('edit-item', selectedItem)"
-              title="Edit item"
-            >
-              <i class="bi bi-pencil"></i>
-            </button>
-            <button
-              type="button"
-              class="btn btn-outline-danger"
-              @click="$emit('delete-item', selectedItem)"
-              title="Delete item"
-            >
-              <i class="bi bi-trash"></i>
-            </button>
-          </div>
-        </div>
-        <div class="card-body">
-          <h5 class="card-title">
-            <span v-if="selectedItem.humanCodingScheme" class="badge bg-secondary me-2">
-              {{ selectedItem.humanCodingScheme }}
-            </span>
-            {{ selectedItem.title || selectedItem.abbreviatedTitle || selectedItem.identifier }}
-          </h5>
-
-          <div v-if="selectedItem.fullStatement" class="mb-3">
-            <strong>Full Statement:</strong>
-            <div class="mt-1 markdown-content" v-html="renderedFullStatement"></div>
-            <div v-if="hasMarkdownContent" class="mt-1">
-              <small class="text-muted">
-                <i class="bi bi-markdown"></i> Rendered as Markdown
-              </small>
-            </div>
-          </div>
-
-          <div v-if="selectedItem.abbreviatedStatement && selectedItem.abbreviatedStatement !== selectedItem.fullStatement" class="mb-3">
-            <strong>Abbreviated Statement:</strong>
-            <p class="mt-1">{{ selectedItem.abbreviatedStatement }}</p>
-          </div>
-
-          <div v-if="selectedItem.notes" class="mb-3">
-            <strong>Notes:</strong>
-            <p class="mt-1">{{ selectedItem.notes }}</p>
-          </div>
-
-          <div class="row">
-            <div class="col-sm-6">
-              <strong>Item Type:</strong> {{ selectedItem.itemType || 'General' }}
-            </div>
-            <div class="col-sm-6">
-              <strong>Language:</strong> {{ selectedItem.language || 'en' }}
-            </div>
-          </div>
-
-          <div v-if="selectedItem.lastChanged" class="mt-2">
-            <small class="text-muted">
-              Last changed: {{ formatDate(selectedItem.lastChanged) }}
-            </small>
-          </div>
-        </div>
-      </div>
-
-      <!-- Associations -->
-      <div v-if="groupedAssociations.length > 0" class="card mb-3">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <h6 class="mb-0">Associations</h6>
-          <button type="button" class="btn btn-sm btn-outline-primary" @click="$emit('add-association', selectedItem)">
-            <i class="bi bi-plus"></i> Add
-          </button>
-        </div>
-        <div class="card-body">
-          <GroupedAssociationDisplay
-            v-for="group in groupedAssociations"
-            :key="group.type"
-            :association-type="group.type"
-            :associations="group.associations"
-            :association-groups="associationGroups"
-            @edit-association="$emit('edit-association', $event)"
-            @delete-association="$emit('delete-association', $event)"
-          />
-        </div>
-      </div>
-
-      <!-- Actions -->
-      <div class="card">
-        <div class="card-header">
-          <h6 class="mb-0">Actions</h6>
-        </div>
-        <div class="card-body">
-          <div class="d-grid gap-2">
-            <button type="button" class="btn btn-outline-primary" @click="$emit('add-child', selectedItem)">
-              <i class="bi bi-plus-circle"></i> Add Child Item
-            </button>
-            <button type="button" class="btn btn-outline-secondary" @click="$emit('add-exemplar', selectedItem)">
-              <i class="bi bi-link-45deg"></i> Add Exemplar
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <ItemDetails
+      v-else
+      :item="selectedItem"
+      :association-groups="associationGroups"
+      @edit-item="$emit('edit-item', $event)"
+      @delete-item="$emit('delete-item', $event)"
+      @add-child="$emit('add-child', $event)"
+      @add-exemplar="$emit('add-exemplar', $event)"
+      @add-association="$emit('add-association', $event)"
+      @edit-association="$emit('edit-association', $event)"
+      @delete-association="$emit('delete-association', $event)"
+    />
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import AssociationItem from './AssociationItem.vue';
-import { renderMarkdown, hasMarkdown } from '../utils/markdownRenderer.js';
-import GroupedAssociationDisplay from './GroupedAssociationDisplay.vue';
+import DocumentDetailsPanel from './DocumentDetailsPanel.vue';
+import ItemDetails from './ItemDetails.vue';
 
 const props = defineProps({
   selectedItem: Object,
@@ -264,178 +57,8 @@ const emit = defineEmits([
   'add-root-item',
   'manage-association-groups'
 ]);
-
-function formatDate(dateString) {
-  if (!dateString) return '';
-  return new Date(dateString).toLocaleDateString();
-}
-
-// Group associations by type (excluding isChildOf)
-const groupedAssociations = computed(() => {
-  if (!props.selectedItem?.associations) return [];
-
-  const filtered = props.selectedItem.associations.filter(assoc =>
-    assoc.associationType !== 'isChildOf' && assoc.type !== 'isChildOf'
-  );
-
-  // Group by association type
-  const groups = {};
-  filtered.forEach(assoc => {
-    const type = assoc.associationType || assoc.type || 'unknown';
-    if (!groups[type]) {
-      groups[type] = [];
-    }
-    groups[type].push(assoc);
-  });
-
-  // Convert to array format for template
-  return Object.keys(groups).map(type => ({
-    type,
-    associations: groups[type]
-  })).sort((a, b) => a.type.localeCompare(b.type));
-});
-
-// Document statistics
-const itemCount = computed(() => {
-  return props.currentDocument?.items?.length || 0;
-});
-
-const associationCount = computed(() => {
-  if (!props.currentDocument?.items) return 0;
-  return props.currentDocument.items.reduce((total, item) => {
-    return total + (item.associations?.filter(assoc =>
-      assoc.associationType !== 'isChildOf' && assoc.type !== 'isChildOf'
-    ).length || 0);
-  }, 0);
-});
-
-const associationGroupCount = computed(() => {
-  return props.associationGroups?.filter(group => group.id !== 'all' && group.id !== 'default').length || 0;
-});
-
-// Render fullStatement as markdown
-const renderedFullStatement = computed(() => {
-  if (!props.selectedItem?.fullStatement) return '';
-  return renderMarkdown(props.selectedItem.fullStatement);
-});
-
-// Check if fullStatement contains markdown
-const hasMarkdownContent = computed(() => {
-  if (!props.selectedItem?.fullStatement) return false;
-  return hasMarkdown(props.selectedItem.fullStatement);
-});
 </script>
 
 <style scoped>
-.associations-list {
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-/* Markdown content styling */
-.markdown-content {
-  padding: 0.75rem;
-  background-color: #f8f9fa;
-  border-radius: 0.375rem;
-  border: 1px solid #dee2e6;
-  font-size: 0.875rem;
-  line-height: 1.5;
-}
-
-.markdown-content h1,
-.markdown-content h2,
-.markdown-content h3,
-.markdown-content h4,
-.markdown-content h5,
-.markdown-content h6 {
-  margin-top: 0;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  color: #495057;
-}
-
-.markdown-content h1 { font-size: 1.25rem; }
-.markdown-content h2 { font-size: 1.125rem; }
-.markdown-content h3 { font-size: 1rem; }
-
-.markdown-content p {
-  margin-bottom: 0.75rem;
-}
-
-.markdown-content ul,
-.markdown-content ol {
-  margin-bottom: 0.75rem;
-  padding-left: 1.5rem;
-}
-
-.markdown-content li {
-  margin-bottom: 0.25rem;
-}
-
-.markdown-content blockquote {
-  border-left: 4px solid #dee2e6;
-  padding-left: 1rem;
-  margin: 1rem 0;
-  color: #6c757d;
-  font-style: italic;
-}
-
-.markdown-content code {
-  background-color: #e9ecef;
-  padding: 0.125rem 0.25rem;
-  border-radius: 0.25rem;
-  font-size: 0.8125rem;
-  font-family: 'Courier New', monospace;
-}
-
-.markdown-content pre {
-  background-color: #e9ecef;
-  padding: 0.75rem;
-  border-radius: 0.375rem;
-  overflow-x: auto;
-  margin: 0.75rem 0;
-}
-
-.markdown-content pre code {
-  background-color: transparent;
-  padding: 0;
-  border-radius: 0;
-}
-
-.markdown-content table {
-  width: 100%;
-  margin-bottom: 0.75rem;
-  border-collapse: collapse;
-}
-
-.markdown-content th,
-.markdown-content td {
-  padding: 0.375rem 0.75rem;
-  border: 1px solid #dee2e6;
-  text-align: left;
-}
-
-.markdown-content th {
-  background-color: #f8f9fa;
-  font-weight: 600;
-}
-
-.markdown-content a {
-  color: #0d6efd;
-  text-decoration: none;
-}
-
-.markdown-content a:hover {
-  text-decoration: underline;
-}
-
-/* KaTeX styling */
-.markdown-content .katex {
-  font-size: 1em;
-}
-
-.markdown-content .katex-display {
-  margin: 1rem 0;
-  text-align: center;
-}
+/* ItemDetailsPanel specific styles can be added here if needed */
 </style>
