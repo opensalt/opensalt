@@ -161,7 +161,12 @@
 
           <div v-if="selectedItem.fullStatement" class="mb-3">
             <strong>Full Statement:</strong>
-            <p class="mt-1">{{ selectedItem.fullStatement }}</p>
+            <div class="mt-1 markdown-content" v-html="renderedFullStatement"></div>
+            <div v-if="hasMarkdownContent" class="mt-1">
+              <small class="text-muted">
+                <i class="bi bi-markdown"></i> Rendered as Markdown
+              </small>
+            </div>
           </div>
 
           <div v-if="selectedItem.abbreviatedStatement && selectedItem.abbreviatedStatement !== selectedItem.fullStatement" class="mb-3">
@@ -200,7 +205,7 @@
           </button>
         </div>
         <div class="card-body">
-          <GroupedAssocitationDisplay
+          <GroupedAssociationDisplay
             v-for="group in groupedAssociations"
             :key="group.type"
             :association-type="group.type"
@@ -235,7 +240,8 @@
 <script setup>
 import { computed } from 'vue';
 import AssociationItem from './AssociationItem.vue';
-import GroupedAssocitationDisplay from './GroupedAssociationDisplay.vue';
+import { renderMarkdown, hasMarkdown } from '../utils/markdownRenderer.js';
+import GroupedAssociationDisplay from './GroupedAssociationDisplay.vue';
 
 const props = defineProps({
   selectedItem: Object,
@@ -306,11 +312,130 @@ const associationCount = computed(() => {
 const associationGroupCount = computed(() => {
   return props.associationGroups?.filter(group => group.id !== 'all' && group.id !== 'default').length || 0;
 });
+
+// Render fullStatement as markdown
+const renderedFullStatement = computed(() => {
+  if (!props.selectedItem?.fullStatement) return '';
+  return renderMarkdown(props.selectedItem.fullStatement);
+});
+
+// Check if fullStatement contains markdown
+const hasMarkdownContent = computed(() => {
+  if (!props.selectedItem?.fullStatement) return false;
+  return hasMarkdown(props.selectedItem.fullStatement);
+});
 </script>
 
 <style scoped>
 .associations-list {
   max-height: 300px;
   overflow-y: auto;
+}
+
+/* Markdown content styling */
+.markdown-content {
+  padding: 0.75rem;
+  background-color: #f8f9fa;
+  border-radius: 0.375rem;
+  border: 1px solid #dee2e6;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #495057;
+}
+
+.markdown-content h1 { font-size: 1.25rem; }
+.markdown-content h2 { font-size: 1.125rem; }
+.markdown-content h3 { font-size: 1rem; }
+
+.markdown-content p {
+  margin-bottom: 0.75rem;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  margin-bottom: 0.75rem;
+  padding-left: 1.5rem;
+}
+
+.markdown-content li {
+  margin-bottom: 0.25rem;
+}
+
+.markdown-content blockquote {
+  border-left: 4px solid #dee2e6;
+  padding-left: 1rem;
+  margin: 1rem 0;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.markdown-content code {
+  background-color: #e9ecef;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.8125rem;
+  font-family: 'Courier New', monospace;
+}
+
+.markdown-content pre {
+  background-color: #e9ecef;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+
+.markdown-content pre code {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+.markdown-content table {
+  width: 100%;
+  margin-bottom: 0.75rem;
+  border-collapse: collapse;
+}
+
+.markdown-content th,
+.markdown-content td {
+  padding: 0.375rem 0.75rem;
+  border: 1px solid #dee2e6;
+  text-align: left;
+}
+
+.markdown-content th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.markdown-content a {
+  color: #0d6efd;
+  text-decoration: none;
+}
+
+.markdown-content a:hover {
+  text-decoration: underline;
+}
+
+/* KaTeX styling */
+.markdown-content .katex {
+  font-size: 1em;
+}
+
+.markdown-content .katex-display {
+  margin: 1rem 0;
+  text-align: center;
 }
 </style>
