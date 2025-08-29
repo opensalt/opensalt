@@ -94,6 +94,8 @@ function getAssociationIcon(type) {
 
 .association-group-items {
   padding: 0.5rem;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 .association-group-items:deep(.association-item) {

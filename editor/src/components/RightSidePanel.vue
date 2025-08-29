@@ -1,5 +1,5 @@
 <template>
-  <div class="right-side-panel">
+  <div class="right-side-panel ms-3">
     <!-- Control Buttons -->
     <div class="d-flex justify-content-between align-items-center mb-3 p-2 bg-light rounded">
       <div class="btn-group" role="group" aria-label="Right side mode">

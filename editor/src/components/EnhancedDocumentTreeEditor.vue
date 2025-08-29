@@ -1,13 +1,5 @@
 <template>
   <div>
-    <!-- Header row: document name (left), status (right) -->
-    <header class="d-flex align-items-center justify-content-between mb-2 header-section">
-      <h1 class="fs-4 fw-bold text-uppercase mb-0 doc-title">{{ docTitle }}</h1>
-      <div>
-        <span class="badge bg-warning text-dark fs-5 px-4 py-2 doc-status" :class="{ draft: docStatus === 'Draft', deprecated: docStatus === 'Deprecated' }" role="status" aria-live="polite">{{ docStatus }}</span>
-      </div>
-    </header>
-
     <div v-if="loading" class="d-flex justify-content-center align-items-center" style="height: 80vh;" role="status" aria-live="polite">
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Loading document...</span>
@@ -141,6 +133,7 @@ import EditAssociationModal from './EditAssociationModal.vue';
 import DeleteItemsModal from './DeleteItemsModal.vue';
 import ExemplarModal from './ExemplarModal.vue';
 import AssociationGroupModal from './AssociationGroupModal.vue';
+import ViewSwitcher from './ViewSwitcher.vue';
 
 // Use the Pinia store
 const frameworkStore = useFrameworkStore();

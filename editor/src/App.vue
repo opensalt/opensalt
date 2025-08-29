@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="editor">
     <nav class="navbar navbar-expand navbar-light bg-light mb-3">
       <div class="container-fluid">
         <a class="navbar-brand" href="#">
@@ -8,8 +8,14 @@
       </div>
     </nav>
     <div class="container-fluid">
-      <!-- View Switcher -->
+    <!-- Header row: document name (left), status (right) -->
+    <header class="d-flex align-items-center justify-content-between mb-2 header-section">
+      <h1 class="fs-4 fw-bold mb-0 doc-title">{{ docTitle }}</h1>
       <ViewSwitcher />
+      <div>
+        <span class="badge bg-warning text-dark fs-5 px-4 py-2 doc-status" :class="{ draft: docStatus === 'Draft', deprecated: docStatus === 'Deprecated' }" role="status" aria-live="polite">{{ docStatus }}</span>
+      </div>
+    </header>
 
       <!-- Conditional View Rendering -->
       <TreeViewContainer v-if="currentView === 'tree'" />
@@ -66,6 +72,10 @@ function removeToast(id) {
 
 // Provide notification function to child components
 provide('notify', notify);
+
+const doc = computed(() => frameworkStore.currentDocument || { title: '', status: '', items: [] });
+const docTitle = computed(() => doc.value.title);
+const docStatus = computed(() => doc.value.status || 'Draft');
 </script>
 
 <style>

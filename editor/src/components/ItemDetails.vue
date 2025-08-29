@@ -28,7 +28,7 @@
           <span v-if="item.humanCodingScheme" class="badge bg-secondary me-2">
             {{ item.humanCodingScheme }}
           </span>
-          {{ item.title || item.abbreviatedTitle || item.identifier }}
+          {{ item.abbreviatedStatement || '' }}
         </h5>
 
         <div v-if="item.fullStatement" class="mb-3">
@@ -65,6 +65,23 @@
             Last changed: {{ formatDate(item.lastChanged) }}
           </small>
         </div>
+
+    <!-- Actions -->
+    <div class="card mt-3">
+      <div class="card-header">
+        <h6 class="mb-0">Actions</h6>
+      </div>
+      <div class="card-body">
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-outline-primary" @click="$emit('add-child', item)">
+            <i class="bi bi-plus-circle"></i> Add Child Item
+          </button>
+          <button type="button" class="btn btn-outline-secondary" @click="$emit('add-exemplar', item)">
+            <i class="bi bi-link-45deg"></i> Add Exemplar
+          </button>
+        </div>
+      </div>
+    </div>
       </div>
     </div>
 
@@ -86,23 +103,6 @@
           @edit-association="$emit('edit-association', $event)"
           @delete-association="$emit('delete-association', $event)"
         />
-      </div>
-    </div>
-
-    <!-- Actions -->
-    <div class="card">
-      <div class="card-header">
-        <h6 class="mb-0">Actions</h6>
-      </div>
-      <div class="card-body">
-        <div class="d-grid gap-2">
-          <button type="button" class="btn btn-outline-primary" @click="$emit('add-child', item)">
-            <i class="bi bi-plus-circle"></i> Add Child Item
-          </button>
-          <button type="button" class="btn btn-outline-secondary" @click="$emit('add-exemplar', item)">
-            <i class="bi bi-link-45deg"></i> Add Exemplar
-          </button>
-        </div>
       </div>
     </div>
   </div>

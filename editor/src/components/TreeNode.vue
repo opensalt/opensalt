@@ -12,7 +12,7 @@
         style="cursor:pointer"
       >
         <span v-if="item.hcs" class="coding-scheme" style="font-weight: bold;">{{ item.hcs }}: </span>
-        {{ item.abbreviatedTitle || item.title || item.identifier }}
+        {{ item.abbreviatedStatement || item.fullStatement || item.identifier }}
       </span>
       <slot name="actions" :item="item" />
     </summary>

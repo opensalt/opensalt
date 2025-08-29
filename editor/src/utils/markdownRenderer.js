@@ -1,5 +1,5 @@
 import MarkdownIt from 'markdown-it';
-import markdownItKatex from '@iktakahiro/markdown-it-katex';
+import markdownItKatex from '@vscode/markdown-it-katex';
 import markdownItUnderline from 'markdown-it-underline';
 import sanitizeHtml from 'sanitize-html';
 
