@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\Repository\Framework;
 
+use App\DTO\Api\V1\DocumentFilterDto;
+use App\DTO\Api\V1\DocumentListResponseDto;
+use App\DTO\Api\V1\DocumentPaginationDto;
+use App\DTO\Api\V1\DocumentPaginationResponseDto;
 use App\Entity\Framework\CaseApiInterface;
 use App\Entity\Framework\CfRubric;
 use App\Entity\Framework\LsAssociation;
@@ -952,5 +956,100 @@ xENDx;
             },
             $query->getResult(AbstractQuery::HYDRATE_ARRAY)
         );
+    }
+
+    public function findDocumentsWithPagination(DocumentPaginationDto $pagination, DocumentFilterDto $filter): DocumentListResponseDto
+    {
+        $qb = $this->createQueryBuilder('d')
+            ->select('d')
+            ->leftJoin('d.subjects', 's')
+            ->leftJoin('d.mirroredFramework', 'm');
+
+        // Apply filters
+        if (null !== $filter->creator) {
+            $qb->andWhere('d.creator LIKE :creator')
+               ->setParameter('creator', '%'.$filter->creator.'%');
+        }
+
+        if (null !== $filter->title) {
+            $qb->andWhere('d.title LIKE :title')
+               ->setParameter('title', '%'.$filter->title.'%');
+        }
+
+        if (null !== $filter->adoptionStatus) {
+            $qb->andWhere('d.adoptionStatus = :adoptionStatus')
+               ->setParameter('adoptionStatus', $filter->adoptionStatus);
+        }
+
+        if (null !== $filter->subject) {
+            $qb->andWhere('d.subject LIKE :subject OR s.title = :subject')
+               ->setParameter('subject', $filter->subject);
+        }
+
+        if (null !== $filter->language) {
+            $qb->andWhere('d.language = :language')
+               ->setParameter('language', $filter->language);
+        }
+
+        if (null !== $filter->caseVersion) {
+            $qb->andWhere('d.caseVersion = :caseVersion')
+               ->setParameter('caseVersion', $filter->caseVersion);
+        }
+
+        if (null !== $filter->publisher) {
+            $qb->andWhere('d.publisher LIKE :publisher')
+               ->setParameter('publisher', '%'.$filter->publisher.'%');
+        }
+
+        // Apply cursor-based pagination
+        $cursorId = $pagination->getCursor();
+        if (null !== $cursorId) {
+            if ('next' === $pagination->direction) {
+                $qb->andWhere('d.id > :cursor')
+                   ->setParameter('cursor', $cursorId);
+            } else {
+                $qb->andWhere('d.id < :cursor')
+                   ->setParameter('cursor', $cursorId);
+            }
+        }
+
+        // Apply sorting
+        $qb->orderBy($filter->getSort(), $filter->getOrder())
+           ->addOrderBy('d.id', $filter->getOrder()); // Secondary sort by ID for consistent pagination
+
+        // Apply limit
+        $qb->setMaxResults($pagination->getLimit() + 1); // +1 to check if there are more results
+
+        $documents = $qb->getQuery()->getResult() ?? [];
+
+        // Check if there are more results
+        $hasMore = count($documents) > $pagination->getLimit();
+        if ($hasMore) {
+            array_pop($documents); // Remove the extra item
+        }
+
+        // Create pagination metadata
+        $paginationData = new DocumentPaginationResponseDto(
+            $hasMore && 'next' === $pagination->direction,
+            null !== $cursorId && 'prev' === $pagination->direction,
+            null,
+            null,
+            count($documents) // This is approximate for performance
+        );
+
+        if (!empty($documents)) {
+            $lastDoc = end($documents);
+            $firstDoc = reset($documents);
+
+            if ($paginationData->hasNextPage) {
+                $paginationData->nextCursor = $pagination->encodeCursor($lastDoc->getId());
+            }
+
+            if ($paginationData->hasPrevPage) {
+                $paginationData->prevCursor = $pagination->encodeCursor($firstDoc->getId());
+            }
+        }
+
+        return new DocumentListResponseDto($documents, $paginationData);
     }
 }
