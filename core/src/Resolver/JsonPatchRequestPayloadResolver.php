@@ -7,6 +7,7 @@ namespace App\Resolver;
 use App\DTO\Api\V1\PatchDto;
 use App\DTO\Api\V1\PatchOperation;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Attribute\AsTargetedValueResolver;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\HttpKernel\Controller\ValueResolverInterface;
 use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
@@ -15,6 +16,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+#[AsTargetedValueResolver()]
 readonly class JsonPatchRequestPayloadResolver implements ValueResolverInterface
 {
     public function __construct(

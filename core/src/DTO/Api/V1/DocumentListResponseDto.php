@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\DTO\Api\V1;
 
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 
 #[OA\Schema(
@@ -14,24 +15,24 @@ class DocumentListResponseDto
 {
     /** @var DocumentDto[] */
     #[OA\Property(
+        description: 'Array of documents',
         type: 'array',
-        items: new OA\Items(ref: '#/components/schemas/DocumentDto'),
-        description: 'Array of documents'
+        items: new OA\Items(ref: '#/components/schemas/DocumentDto')
     )]
     public array $data;
 
     #[OA\Property(
-        ref: '#/components/schemas/DocumentPaginationResponseDto',
-        description: 'Pagination metadata'
+        ref: new Model(type: DocumentPaginationResponseDto::class),
+        description: 'Pagination metadata',
     )]
     public DocumentPaginationResponseDto $pagination;
 
     /** @var array<string, mixed> */
     #[OA\Property(
+        description: 'Links to related resources',
         type: 'object',
         nullable: true,
-        additionalProperties: true,
-        description: 'Links to related resources'
+        additionalProperties: true
     )]
     public ?array $links = null;
 
