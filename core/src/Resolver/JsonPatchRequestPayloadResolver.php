@@ -27,7 +27,6 @@ readonly class JsonPatchRequestPayloadResolver implements ValueResolverInterface
 
     public function supports(Request $request, ArgumentMetadata $argument): bool
     {
-        var_dump('ARGUMENT_TYPE', $argument->getType());
         return count($argument->getAttributes(MapRequestPayload::class, ArgumentMetadata::IS_INSTANCEOF)) > 0
             && PatchDto::class === $argument->getType();
     }
