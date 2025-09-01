@@ -20,7 +20,7 @@ class DeleteItemHandler extends BaseFrameworkHandler
         $item = $command->getItem();
         $hasChildren = $item->getChildren();
 
-        if ($hasChildren->isEmpty()) {
+        if (!$hasChildren->isEmpty()) {
             throw new \Exception('Cannot delete an item with children.');
         }
 
