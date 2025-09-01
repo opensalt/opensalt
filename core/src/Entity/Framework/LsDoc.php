@@ -55,7 +55,7 @@ class LsDoc implements CaseApiInterface, LockableInterface
     private ?string $officialUri = null;
 
     #[ORM\Column(name: 'creator', type: 'string', length: 300, nullable: false)]
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(message: 'The creator field is required.')]
     #[Assert\Length(max: 300)]
     private ?string $creator = null;
 
@@ -64,7 +64,7 @@ class LsDoc implements CaseApiInterface, LockableInterface
     private ?string $publisher = null;
 
     #[ORM\Column(name: 'title', type: 'string', length: 300, nullable: false)]
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(message: 'The title field is required.')]
     #[Assert\Length(max: 300)]
     private ?string $title = null;
 

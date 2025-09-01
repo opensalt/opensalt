@@ -79,7 +79,7 @@ class LsItem implements CaseApiInterface, LockableInterface
     public const string TYPE_KEY = 'salt:type';
 
     #[ORM\Column(name: 'ls_doc_identifier', type: Types::STRING, length: 300, nullable: false)]
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(message: 'The document identifier cannot be empty.')]
     #[Assert\Length(max: 300)]
     private string $lsDocIdentifier;
 
@@ -105,7 +105,7 @@ class LsItem implements CaseApiInterface, LockableInterface
     private ?string $listEnumInSource = null;
 
     #[ORM\Column(name: 'full_statement', type: Types::TEXT, nullable: false)]
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(message: 'The full statement cannot be empty.')]
     private string $fullStatement;
 
     #[ORM\Column(name: 'abbreviated_statement', type: Types::TEXT, nullable: true)]
