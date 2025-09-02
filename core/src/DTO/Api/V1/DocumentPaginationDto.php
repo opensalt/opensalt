@@ -15,20 +15,41 @@ class DocumentPaginationDto
 {
     #[Assert\Range(min: 1, max: 1000)]
     #[OA\Property(
-        description: 'Maximum number of documents to return (1-100)',
+        description: 'Maximum number of documents to return (1-1000)',
         type: 'integer',
         default: 100,
         maximum: 1000,
         minimum: 1
     )]
-    public int $limit = 100;
+    public int $limit = 100 {
+        get { return max(1, min(1000, $this->limit ?: 100)); }
+    }
 
     #[OA\Property(
-        description: 'Cursor for pagination (base64 encoded document ID)',
+        description: 'Cursor for pagination (document identifier)',
         type: 'string',
         nullable: true
     )]
-    public ?string $cursor = null;
+    public ?string $cursor = null {
+        get {
+            if (null === $this->cursor) {
+                return null;
+            }
+            $decoded = base64_decode($this->cursor, true);
+            if (false === $decoded) {
+                return null;
+            }
+
+            return $decoded;
+        }
+        set(?string $value) {
+            if (null === $value) {
+                $this->cursor = null;
+            } else {
+                $this->cursor = base64_encode($value);
+            }
+        }
+    }
 
     #[Assert\Choice(['next', 'prev'])]
     #[OA\Property(
@@ -39,30 +60,8 @@ class DocumentPaginationDto
     )]
     public string $direction = 'next';
 
-    public function getLimit(): int
+    public function encodeCursor(string $identifier): string
     {
-        return max(1, min(100, $this->limit));
-    }
-
-    public function getCursor(): ?int
-    {
-        if (null === $this->cursor) {
-            return null;
-        }
-
-        // Decode base64 cursor to get the document ID
-        $decoded = base64_decode($this->cursor, true);
-        if (false === $decoded) {
-            return null;
-        }
-
-        $id = (int) $decoded;
-
-        return $id > 0 ? $id : null;
-    }
-
-    public function encodeCursor(int $id): string
-    {
-        return base64_encode((string) $id);
+        return base64_encode($identifier);
     }
 }

@@ -1002,28 +1002,28 @@ xENDx;
         }
 
         // Apply cursor-based pagination
-        $cursorId = $pagination->getCursor();
+        $cursorId = $pagination->cursor;
         if (null !== $cursorId) {
             if ('next' === $pagination->direction) {
-                $qb->andWhere('d.id > :cursor')
+                $qb->andWhere('d.identifier > :cursor')
                    ->setParameter('cursor', $cursorId);
             } else {
-                $qb->andWhere('d.id < :cursor')
+                $qb->andWhere('d.identifier < :cursor')
                    ->setParameter('cursor', $cursorId);
             }
         }
 
         // Apply sorting
         $qb->orderBy($filter->getSort(), $filter->getOrder())
-           ->addOrderBy('d.id', $filter->getOrder()); // Secondary sort by ID for consistent pagination
+           ->addOrderBy('d.identifier', $filter->getOrder()); // Secondary sort by identifier for consistent pagination
 
         // Apply limit
-        $qb->setMaxResults($pagination->getLimit() + 1); // +1 to check if there are more results
+        $qb->setMaxResults($pagination->limit + 1); // +1 to check if there are more results
 
         $documents = $qb->getQuery()->getResult() ?? [];
 
         // Check if there are more results
-        $hasMore = count($documents) > $pagination->getLimit();
+        $hasMore = count($documents) > $pagination->limit;
         if ($hasMore) {
             array_pop($documents); // Remove the extra item
         }
@@ -1042,11 +1042,11 @@ xENDx;
             $firstDoc = reset($documents);
 
             if ($paginationData->hasNextPage) {
-                $paginationData->nextCursor = $pagination->encodeCursor($lastDoc->getId());
+                $paginationData->nextCursor = $pagination->encodeCursor($lastDoc->getIdentifier());
             }
 
             if ($paginationData->hasPrevPage) {
-                $paginationData->prevCursor = $pagination->encodeCursor($firstDoc->getId());
+                $paginationData->prevCursor = $pagination->encodeCursor($firstDoc->getIdentifier());
             }
         }
 
