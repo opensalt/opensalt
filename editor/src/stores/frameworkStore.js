@@ -128,32 +128,106 @@ export const useFrameworkStore = defineStore('framework', () => {
     error.value = null;
 
     try {
-      const response = await fetch('http://web.salt-default/ims/case/v1p1/CFDocuments');
-      if (!response.ok) {
-        throw new Error(`Failed to fetch documents: ${response.statusText}`);
+      const baseUrl = 'http://web.salt-default';
+      const endpoint = '/api/v1/documents';
+      const limit = 50; // Adjust as needed
+      let allDocuments = [];
+      let cursor = null;
+      let hasNextPage = true;
+
+      // Get authentication token - replace with actual token retrieval logic
+      const token = getAuthToken(); // Implement this function to retrieve Bearer token
+
+      while (hasNextPage) {
+        const params = new URLSearchParams({
+          limit: limit.toString(),
+          direction: 'next'
+        });
+
+        if (cursor) {
+          params.append('cursor', cursor);
+        }
+
+        const url = `${baseUrl}${endpoint}?${params.toString()}`;
+
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            throw new Error('Authentication failed. Please check your token.');
+          } else if (response.status === 403) {
+            throw new Error('Access denied. You do not have permission to view documents.');
+          } else {
+            throw new Error(`Failed to fetch documents: ${response.status} ${response.statusText}`);
+          }
+        }
+
+        const data = await response.json();
+
+        if (!data.data || !Array.isArray(data.data)) {
+          throw new Error('Invalid response format: expected data array');
+        }
+
+        // Transform the data to match our expected format
+        const transformedDocs = data.data.map(doc => ({
+          id: doc.identifier,
+          title: doc.title || 'Untitled Document',
+          description: doc.description || '',
+          creator: doc.creator || '',
+          subject: Array.isArray(doc.subject) ? doc.subject.join(', ') : (doc.subject || ''),
+          status: doc.adoptionStatus || 'Draft',
+          lastModified: doc.lastChangeDateTime || '',
+          language: doc.language || '',
+          version: doc.version || ''
+        }));
+
+        allDocuments = allDocuments.concat(transformedDocs);
+
+        // Check pagination
+        if (data.pagination && typeof data.pagination.hasNextPage === 'boolean') {
+          hasNextPage = data.pagination.hasNextPage;
+          cursor = data.pagination.nextCursor || null;
+        } else {
+          // If no pagination info, assume no more pages
+          hasNextPage = false;
+        }
       }
 
-      const data = await response.json();
-
-      // Transform the data to match our expected format
-      documents.value = (data.CFDocuments || []).map(doc => ({
-        id: doc.identifier,
-        title: doc.title || 'Untitled Document',
-        description: doc.description || '',
-        creator: doc.creator || '',
-        subject: doc.subject || '',
-        status: doc.adoptionStatus || 'Draft',
-        lastModified: doc.lastChangeDateTime || '',
-        language: doc.language || '',
-        version: doc.version || ''
-      }));
+      documents.value = allDocuments;
 
     } catch (err) {
       error.value = err.message;
       console.error('Error fetching documents:', err);
+      // Keep any previously loaded documents if there was an error
+      if (documents.value.length === 0) {
+        documents.value = [];
+      }
     } finally {
       loading.value = false;
     }
+  }
+
+  // Helper function to get authentication token
+  // Replace this with your actual token retrieval logic
+  function getAuthToken() {
+    // Example implementations:
+    // return localStorage.getItem('authToken');
+    // return store.getters.getAuthToken;
+    // return config.apiToken;
+
+    // For now, return a placeholder - replace with actual implementation
+    const token = localStorage.getItem('saltApiToken') || process.env.VUE_APP_API_TOKEN;
+    if (!token) {
+      throw new Error('No authentication token found. Please log in or configure API token.');
+    }
+    return token;
   }
 
   async function fetchDocument(identifier) {
