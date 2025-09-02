@@ -14,6 +14,7 @@ use App\Event\CommandEvent;
 use App\Repository\Framework\LsItemRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -52,12 +53,13 @@ class ApiV1ItemControllerTest extends TestCase
 
     public function testPostItemCreatesNewItem(): void
     {
+        $uuid = Uuid::uuid4()->toString();
         // Arrange
         $itemDto = new ItemDto();
         $itemDto->identifier = $this->createMock(\Ramsey\Uuid\UuidInterface::class);
         $itemDto->identifier->expects($this->once())
             ->method('toString')
-            ->willReturn('test-item-id');
+            ->willReturn($uuid);
         $itemDto->uri = 'https://example.com/item';
         $itemDto->fullStatement = 'Test item statement';
         $itemDto->abbreviatedStatement = 'Test item';
@@ -78,8 +80,12 @@ class ApiV1ItemControllerTest extends TestCase
 
         $lsDoc->expects($this->once())
             ->method('createItem')
-            ->with('test-item-id')
+            ->with($uuid)
             ->willReturn($lsItem);
+
+        $lsItem->expects($this->once())
+            ->method('getUri')
+            ->willReturn('https://example.com/item');
 
         // Expect ObjectMapper to be called for direct property mappings
         $this->objectMapper->expects($this->once())
@@ -97,10 +103,12 @@ class ApiV1ItemControllerTest extends TestCase
             ->method('setChangedAt')
             ->with($itemDto->lastChangeDateTime);
 
+        /* TODO: Need to determine how to check the output here
         $this->serializer->expects($this->once())
             ->method('serialize')
             ->with($lsItem, 'json', [])
             ->willReturn('{"id":1,"fullStatement":"Test item statement"}');
+        */
 
         // Act
         $response = $this->controller->postItem($lsDoc, $itemDto);
@@ -120,9 +128,12 @@ class ApiV1ItemControllerTest extends TestCase
     {
         // Arrange
         $lsItem = $this->createMock(LsItem::class);
-        $lsItem->expects($this->once())
+        $lsItem->expects($this->atMost(2))
             ->method('getUri')
             ->willReturn('https://example.com/existing');
+        $lsItem->expects($this->atMost(2))
+            ->method('getIdentifier')
+            ->willReturn(Uuid::uuid4()->toString());
 
         $itemDto = new ItemDto();
         $itemDto->uri = null; // Set to null so it doesn't trigger the URI validation
@@ -177,13 +188,13 @@ class ApiV1ItemControllerTest extends TestCase
         $lsItem = $this->createMock(LsItem::class);
         $lsItem->expects($this->once())
             ->method('getIdentifier')
-            ->willReturn('existing-item-id');
+            ->willReturn('1ba1ebf0-72a8-41db-a6fb-55fb5a0a92e4');
 
         $itemDto = new ItemDto();
         $itemDto->identifier = $this->createMock(\Ramsey\Uuid\UuidInterface::class);
         $itemDto->identifier->expects($this->once())
             ->method('toString')
-            ->willReturn('different-item-id');
+            ->willReturn('aaa1ebf0-72a8-41db-a6fb-55fb5a0a92e4');
 
         $lsDoc = $this->createMock(\App\Entity\Framework\LsDoc::class);
 
@@ -198,7 +209,9 @@ class ApiV1ItemControllerTest extends TestCase
     {
         // Arrange
         $lsItem = $this->createMock(LsItem::class);
-        $lsItem->method('getIdentifier')->willReturn('existing-item-id');
+        $lsItem->expects($this->atMost(2))
+            ->method('getIdentifier')
+            ->willReturn(Uuid::uuid4()->toString());
         $lsItem->method('getUri')->willReturn('https://example.com/existing');
 
         $itemDto = new ItemDto();

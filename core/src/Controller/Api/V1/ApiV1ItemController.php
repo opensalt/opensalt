@@ -148,7 +148,10 @@ class ApiV1ItemController extends AbstractController
         $command = new AddItemCommand($lsItem, $lsItem->getLsDoc(), $parentItem, $assocGroup);
         $this->sendCommand($command);
 
-        return new JsonResponse($this->serializer->serialize(['data' => $lsItem], 'json', []), json: true);
+        $serialized = $this->serializer->serialize(['data' => $lsItem], 'json', []);
+        dump($serialized);
+
+        return new JsonResponse($serialized, json: true);
     }
 
     #[Route('/api/v1/packages/{documentIdentifier}/items/{itemIdentifier}', name: 'app_api_v1_item_get', methods: ['GET'])]
@@ -188,9 +191,20 @@ class ApiV1ItemController extends AbstractController
         #[MapEntity(mapping: ['documentIdentifier' => 'identifier'])] LsDoc $doc,
         #[MapRequestPayload(validationGroups: ['update'])] ItemDto $item,
     ): Response {
-        $item->identifier = Uuid::fromString($lsItem->getIdentifier());
-        $item->uri = $lsItem->getUri();
+        if (null === $item->identifier) {
+            $item->identifier = Uuid::fromString($lsItem->getIdentifier());
+        }
+        if (null === $item->uri) {
+            $item->uri = $lsItem->getUri();
+        }
         $item->lastChangeDateTime ??= new \DateTimeImmutable();
+
+        if ($item->identifier->toString() !== $lsItem->getIdentifier()) {
+            throw new BadRequestHttpException('The identifier must not be changed.');
+        }
+        if ($item->uri !== $lsItem->getUri()) {
+            throw new BadRequestHttpException('The uri must not be changed.');
+        }
 
         $lsItem = $this->updateItem($lsItem, $item);
         $command = new UpdateItemCommand($lsItem);

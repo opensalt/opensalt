@@ -7,7 +7,6 @@ namespace App\Controller\Api\V1;
 use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\AddDocumentCommand;
 use App\Command\Framework\UpdateDocumentCommand;
-use App\Controller\Api\UriController;
 use App\DTO\Api\V1\DocumentDto;
 use App\DTO\Api\V1\DocumentFilterDto;
 use App\DTO\Api\V1\DocumentListResponseDto;
@@ -64,13 +63,13 @@ class ApiV1DocumentController extends AbstractController
     )]
     #[OA\Parameter(
         name: 'limit',
-        description: 'Maximum number of documents to return (1-100)',
+        description: 'Maximum number of documents to return (1-1000)',
         in: 'query',
-        schema: new OA\Schema(type: 'integer', default: 20, maximum: 100, minimum: 1)
+        schema: new OA\Schema(type: 'integer', default: 100, maximum: 1000, minimum: 1)
     )]
     #[OA\Parameter(
         name: 'cursor',
-        description: 'Cursor for pagination (base64 encoded document ID)',
+        description: 'Cursor for pagination (base64 encoded document identifier)',
         in: 'query',
         schema: new OA\Schema(type: 'string')
     )]

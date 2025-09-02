@@ -24,7 +24,7 @@ class DocumentDto
     #[Assert\NotNull(message: 'The identifier is required', groups: ['view'])]
     #[Assert\NotBlank(message: 'The identifier is required', groups: ['view'])]
     #[Map('identifier')]
-    public UuidInterface $identifier;
+    public ?UuidInterface $identifier = null;
 
     #[Groups(['create', 'update', 'view'])]
     #[OA\Property(

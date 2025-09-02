@@ -19,6 +19,7 @@ use App\Security\Permission;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use Nelmio\ApiDocBundle\Attribute\Security;
 use OpenApi\Attributes as OA;
+use Ramsey\Uuid\Uuid;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -56,7 +57,6 @@ class ApiV1PackageController extends AbstractController
     }
 
     #[Route('/api/v1/packages', methods: ['GET'])]
-    #[IsGranted(Permission::FRAMEWORK_LIST)]
     #[OA\Get(
         operationId: 'api_v1_packages_index',
         description: 'Get a list of documents with pagination and filtering',
@@ -144,6 +144,7 @@ class ApiV1PackageController extends AbstractController
         #[MapQueryString] DocumentFilterDto $filter,
     ): Response {
         // Get documents with pagination and filtering
+        // TODO: Only show documents that the current user can see
         $result = $this->lsDocRepository->findDocumentsWithPagination($pagination, $filter);
 
         return new JsonResponse($this->serializer->serialize($result, 'json', []), json: true);
@@ -165,7 +166,7 @@ class ApiV1PackageController extends AbstractController
         #[MapEntity(mapping: ['documentIdentifier' => 'identifier'])] LsDoc $doc,
     ): Response {
         return $this->forward(UriController::class.'::findUri', [
-            'uri' => $doc->getIdentifier(),
+            'uri' => 'p'.$doc->getIdentifier(),
             '_format' => 'json',
         ]);
     }
@@ -188,6 +189,14 @@ class ApiV1PackageController extends AbstractController
     ): Response {
         $lsDoc = new LsDoc();
         $lsDoc->setIdentifier($documentDto->identifier);
+
+        if (null === $documentDto->identifier) {
+            $documentDto->identifier = Uuid::fromString($lsDoc->getIdentifier());
+        }
+        if (null === $documentDto->uri) {
+            $documentDto->uri = $lsDoc->getUri();
+        }
+
         $this->objectMapper->map($documentDto, $lsDoc);
 
         $command = new AddDocumentCommand($lsDoc);
@@ -218,6 +227,9 @@ class ApiV1PackageController extends AbstractController
         #[MapEntity(mapping: ['documentIdentifier' => 'identifier'])] LsDoc $doc,
         #[MapRequestPayload(validationGroups: ['update'])] DocumentDto $documentDto,
     ): Response {
+        $documentDto->identifier = Uuid::fromString($doc->getIdentifier());
+        $documentDto->uri = $doc->getUri();
+
         // Update document properties using ObjectMapper
         $this->objectMapper->map($documentDto, $doc);
 
