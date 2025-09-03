@@ -37,8 +37,7 @@ class FrameworkList
 
             // Optimization: All but "Private Draft" are viewable to everyone (if not mirrored), only auth check "Private Draft"
             if ((null !== $user && $this->authorizationChecker->isGranted(Permission::FRAMEWORK_LIST, $lsDoc))
-                || (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $lsDoc->getAdoptionStatus()
-                    && (!$lsDoc->isMirrored() || true === $lsDoc->getMirroredFramework()?->isVisible()))) {
+                || (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $lsDoc->getAdoptionStatus())) {
                 $lsDocs[$lsDoc->getCreator()][] = $lsDoc;
             }
         }

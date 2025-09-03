@@ -18,6 +18,7 @@ use App\Entity\Framework\LsDefLicence;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Entity\User\User;
+use App\Security\Permission;
 use App\Util\Compare;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Driver\Exception;
@@ -42,7 +43,7 @@ class LsDocRepository extends ServiceEntityRepository
 {
     public function __construct(
         ManagerRegistry $registry,
-        private Security $security,
+        readonly private Security $security,
     ) {
         parent::__construct($registry, LsDoc::class);
     }
@@ -52,15 +53,41 @@ class LsDocRepository extends ServiceEntityRepository
      */
     public function findForList(): array
     {
-        return $this->createQueryBuilder('d')
-            ->addSelect('d, s, m')
+        $user = $this->security->getUser();
+        if (!$user instanceof User) {
+            $user = null;
+        }
+
+        $qb = $this->createQueryBuilder('d')
+            ->select('d', 's', 'm')
             ->leftJoin('d.subjects', 's')
-            ->leftJoin('d.mirroredFramework', 'm')
-            ->orderBy('d.creator', 'ASC')
+            ->leftJoin('d.mirroredFramework', 'm');
+
+        // Apply user/organization filtering with extended access control
+        if (null !== $user) {
+            if (!$this->security->isGranted(Permission::FRAMEWORK_EDIT_ALL)) {
+                $isEditor = $this->security->isGranted('ROLE_EDITOR');
+                $qb->leftJoin('d.docAcls', 'acls', 'WITH', 'acls.user = :user')
+                    ->orWhere('(m.visible IS NULL OR m.visible = 1) AND (d.adoptionStatus != :privateDraft)')
+                    ->orWhere('(m.visible IS NOT NULL AND 1 = :isEditor)')
+                    ->orWhere('(d.org = :org OR d.user = :user OR acls.access = 1) AND (acls.access IS NULL OR acls.access != 0)')
+                    ->setParameter('isEditor', $isEditor ? 1 : 0)
+                    ->setParameter('user', $user)
+                    ->setParameter('org', $user->getOrg())
+                    ->setParameter('privateDraft', LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT);
+            }
+        }
+        if (null === $user) {
+            $qb->andWhere('m.visible IS NULL OR m.visible = 1')
+                ->andWhere('d.adoptionStatus != :privateDraft')
+                ->setParameter('privateDraft', LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT);
+        }
+
+        $qb->orderBy('d.creator', 'ASC')
             ->addOrderBy('d.title', 'ASC')
-            ->addOrderBy('d.adoptionStatus', 'ASC')
-            ->getQuery()
-            ->getResult();
+            ->addOrderBy('d.adoptionStatus', 'ASC');
+
+        return $qb->getQuery()->getResult();
     }
 
     /**
@@ -981,19 +1008,28 @@ xENDx;
         }
 
         $qb = $this->createQueryBuilder('d')
-            ->select('d')
-            ->leftJoin('d.mirroredFramework', 'm');
+            ->distinct()
+            ->select('d');
 
         // Apply user/organization filtering with extended access control
         if (null !== $user) {
-            $qb->leftJoin('d.docAcls', 'acls', 'WITH', 'acls.user = :user')
-                ->andWhere('((d.adoptionStatus != :privateDraft) OR ((d.org = :org OR d.user = :user OR acls.access = 1) AND (acls.access IS NULL OR acls.access != 0)))')
-                ->setParameter('user', $user)
-                ->setParameter('org', $user->getOrg())
-                ->setParameter('privateDraft', LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT);
+            if (!$this->security->isGranted(Permission::FRAMEWORK_EDIT_ALL)) {
+                $isEditor = $this->security->isGranted('ROLE_EDITOR');
+                $qb->leftJoin('d.docAcls', 'acls', 'WITH', 'acls.user = :user')
+                    ->leftJoin('d.mirroredFramework', 'm')
+                    ->orWhere('(m.visible IS NULL OR m.visible = 1) AND (d.adoptionStatus != :privateDraft)')
+                    ->orWhere('(m.visible IS NOT NULL AND 1 = :isEditor)')
+                    ->orWhere('(d.org = :org OR d.user = :user OR acls.access = 1) AND (acls.access IS NULL OR acls.access != 0)')
+                    ->setParameter('isEditor', $isEditor ? 1 : 0)
+                    ->setParameter('user', $user)
+                    ->setParameter('org', $user->getOrg())
+                    ->setParameter('privateDraft', LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT);
+            }
         }
         if (null === $user) {
-            $qb->andWhere('d.adoptionStatus != :privateDraft')
+            $qb->leftJoin('d.mirroredFramework', 'm')
+                ->andWhere('m.visible IS NULL OR m.visible = 1')
+                ->andWhere('d.adoptionStatus != :privateDraft')
                 ->setParameter('privateDraft', LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT);
         }
 
@@ -1056,28 +1092,28 @@ xENDx;
 
         $documents = $qb->getQuery()->getResult() ?? [];
 
-        // Add subject and licence data to objects (don't in original query to keep limit count correct)
-        $this->createQueryBuilder('d')
-            ->select('d', 's', 'l')
-            ->leftJoin('d.subjects', 's')
-            ->leftJoin('d.licence', 'l')
-            ->where('d.id IN (:documents)')
-            ->setParameter('documents', $documents)
-            ->getQuery()
-            ->getResult();
-
         // Check if there are more results
         $documentCount = count($documents);
         $hasMore = $documentCount > $pagination->size;
         if ($hasMore) {
             array_pop($documents); // Remove the extra item
+            --$documentCount;
         }
 
-        // Create pagination metadata
-        $hasNextPage = $hasMore;
+        // Add subject and licence data to objects (don't in original query to keep limit count correct)
+        $this->createQueryBuilder('d')
+            ->select('d', 's', 'l', 'ft')
+            ->leftJoin('d.subjects', 's')
+            ->leftJoin('d.licence', 'l')
+            ->leftJoin('d.frameworkType', 'ft')
+            ->where('d.id IN (:documents)')
+            ->setParameter('documents', $documents)
+            ->getQuery()
+            ->getResult();
 
+        // Create pagination metadata
         $paginationData = new DocumentPaginationResponseDto(
-            $hasNextPage,
+            $hasMore,
             null,
             $documentCount // This is approximate for performance
         );
@@ -1085,7 +1121,7 @@ xENDx;
         if (!empty($documents)) {
             $lastDoc = end($documents);
 
-            if ($hasNextPage) {
+            if ($hasMore) {
                 $title = null;
                 if ('d.creator' === $filter->sortField) {
                     $title = $lastDoc->getTitle() ?? '';
