@@ -19,12 +19,6 @@ class DocumentPaginationResponseDto
     public bool $hasNextPage;
 
     #[OA\Property(
-        description: 'Whether there is a previous page available',
-        type: 'boolean'
-    )]
-    public bool $hasPrevPage;
-
-    #[OA\Property(
         description: 'Cursor for the next page',
         type: 'string',
         nullable: true
@@ -32,24 +26,15 @@ class DocumentPaginationResponseDto
     public ?string $nextCursor;
 
     #[OA\Property(
-        description: 'Cursor for the previous page',
-        type: 'string',
-        nullable: true
-    )]
-    public ?string $prevCursor;
-
-    #[OA\Property(
         description: 'Total number of items',
         type: 'integer'
     )]
     public int $total;
 
-    public function __construct(bool $hasNextPage, bool $hasPrevPage, ?string $nextCursor, ?string $prevCursor, int $total)
+    public function __construct(bool $hasNextPage, ?string $nextCursor, int $total)
     {
         $this->hasNextPage = $hasNextPage;
-        $this->hasPrevPage = $hasPrevPage;
         $this->nextCursor = $nextCursor;
-        $this->prevCursor = $prevCursor;
         $this->total = $total;
     }
 }

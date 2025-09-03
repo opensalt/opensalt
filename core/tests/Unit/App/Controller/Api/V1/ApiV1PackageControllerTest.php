@@ -60,8 +60,8 @@ class ApiV1PackageControllerTest extends TestCase
 
         // Create DTOs
         $pagination = new DocumentPaginationDto();
-        $pagination->limit = 20;
-        $pagination->cursor = null;
+        $pagination->size = 20;
+        $pagination->after = null;
         $pagination->direction = 'next';
 
         $filter = new DocumentFilterDto();
@@ -91,8 +91,8 @@ class ApiV1PackageControllerTest extends TestCase
     {
         // Create DTOs with filter values
         $pagination = new DocumentPaginationDto();
-        $pagination->limit = 10;
-        $pagination->cursor = 'cursor123';
+        $pagination->size = 10;
+        $pagination->after = 'cursor123';
         $pagination->direction = 'next';
 
         $filter = new DocumentFilterDto();
@@ -279,8 +279,8 @@ class ApiV1PackageControllerTest extends TestCase
     {
         // Create DTOs with pagination values
         $pagination = new DocumentPaginationDto();
-        $pagination->limit = 5;
-        $pagination->cursor = base64_encode('123');
+        $pagination->size = 5;
+        $pagination->after = base64_encode('123');
         $pagination->direction = 'next';
 
         $filter = new DocumentFilterDto();
@@ -303,8 +303,8 @@ class ApiV1PackageControllerTest extends TestCase
     {
         // Create DTOs with all filter parameters
         $pagination = new DocumentPaginationDto();
-        $pagination->limit = 25;
-        $pagination->cursor = null;
+        $pagination->size = 25;
+        $pagination->after = null;
         $pagination->direction = 'next';
 
         $filter = new DocumentFilterDto();

@@ -61,90 +61,18 @@ class ApiV1DocumentController extends AbstractController
         description: 'Get a list of documents with pagination and filtering',
         summary: 'List documents',
     )]
-    #[OA\Parameter(
-        name: 'limit',
-        description: 'Maximum number of documents to return (1-1000)',
-        in: 'query',
-        schema: new OA\Schema(type: 'integer', default: 100, maximum: 1000, minimum: 1)
-    )]
-    #[OA\Parameter(
-        name: 'cursor',
-        description: 'Cursor for pagination (base64 encoded document identifier)',
-        in: 'query',
-        schema: new OA\Schema(type: 'string')
-    )]
-    #[OA\Parameter(
-        name: 'direction',
-        description: 'Pagination direction',
-        in: 'query',
-        schema: new OA\Schema(type: 'string', default: 'next', enum: ['next', 'prev'])
-    )]
-    #[OA\Parameter(
-        name: 'creator',
-        description: 'Filter by creator name (partial match)',
-        in: 'query',
-        schema: new OA\Schema(type: 'string')
-    )]
-    #[OA\Parameter(
-        name: 'title',
-        description: 'Filter by title (partial match)',
-        in: 'query',
-        schema: new OA\Schema(type: 'string')
-    )]
-    #[OA\Parameter(
-        name: 'adoptionStatus',
-        description: 'Filter by adoption status',
-        in: 'query',
-        schema: new OA\Schema(type: 'string', enum: ['Private Draft', 'Draft', 'Adopted', 'Deprecated'])
-    )]
-    #[OA\Parameter(
-        name: 'subject',
-        description: 'Filter by subject (exact match)',
-        in: 'query',
-        schema: new OA\Schema(type: 'string')
-    )]
-    #[OA\Parameter(
-        name: 'language',
-        description: 'Filter by language code',
-        in: 'query',
-        schema: new OA\Schema(type: 'string')
-    )]
-    #[OA\Parameter(
-        name: 'caseVersion',
-        description: 'Filter by CASE version',
-        in: 'query',
-        schema: new OA\Schema(type: 'string', enum: ['1.1'])
-    )]
-    #[OA\Parameter(
-        name: 'publisher',
-        description: 'Filter by publisher (partial match)',
-        in: 'query',
-        schema: new OA\Schema(type: 'string')
-    )]
-    #[OA\Parameter(
-        name: 'sort',
-        description: 'Sort field',
-        in: 'query',
-        schema: new OA\Schema(type: 'string', default: 'updatedAt', enum: ['updatedAt', 'title', 'identifier', 'lastChangeDateTime'])
-    )]
-    #[OA\Parameter(
-        name: 'order',
-        description: 'Sort direction',
-        in: 'query',
-        schema: new OA\Schema(type: 'string', default: 'desc', enum: ['asc', 'desc'])
-    )]
     #[OA\Response(
         response: Response::HTTP_OK,
         description: 'List of documents',
         content: new Model(type: DocumentListResponseDto::class),
     )]
     public function index(
-        #[MapQueryString] DocumentPaginationDto $pagination,
-        #[MapQueryString] DocumentFilterDto $filter,
+        #[MapQueryString(key: 'page')] DocumentPaginationDto $page,
+        #[MapQueryString(key: 'filter')] DocumentFilterDto $filter,
     ): Response {
         // Get documents with pagination and filtering
         // TODO: Filter to only the frameworks the user can see
-        $result = $this->lsDocRepository->findDocumentsWithPagination($pagination, $filter);
+        $result = $this->lsDocRepository->findDocumentsWithPagination($page, $filter);
 
         return new JsonResponse($this->serializer->serialize($result, 'json', []), json: true);
     }
