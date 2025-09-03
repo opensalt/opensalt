@@ -63,7 +63,7 @@ class ApiV1DocumentControllerTest extends TestCase
         $filter->order = 'desc';
 
         $documents = [];
-        $paginationData = new DocumentPaginationResponseDto(false, false, null, null, 0);
+        $paginationData = new DocumentPaginationResponseDto(false,  null, 0);
 
         $result = new DocumentListResponseDto($documents, $paginationData);
 
@@ -105,7 +105,7 @@ class ApiV1DocumentControllerTest extends TestCase
         $filter->order = 'asc';
 
         $documents = [];
-        $paginationData = new DocumentPaginationResponseDto(false, false, null, null, 0);
+        $paginationData = new DocumentPaginationResponseDto(false, null, 0);
 
         $result = new DocumentListResponseDto($documents, $paginationData);
 
@@ -296,7 +296,7 @@ class ApiV1DocumentControllerTest extends TestCase
         $filter->order = 'desc';
 
         $documents = [];
-        $paginationData = new DocumentPaginationResponseDto(false, false, null, null, 0);
+        $paginationData = new DocumentPaginationResponseDto(false, null, 0);
 
         $result = new DocumentListResponseDto($documents, $paginationData);
 
@@ -338,7 +338,7 @@ class ApiV1DocumentControllerTest extends TestCase
         $filter->order = 'asc';
 
         $documents = [];
-        $paginationData = new DocumentPaginationResponseDto(false, false, null, null, 0);
+        $paginationData = new DocumentPaginationResponseDto(false, null, 0);
 
         $result = new DocumentListResponseDto($documents, $paginationData);
 
