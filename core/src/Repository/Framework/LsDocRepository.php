@@ -17,6 +17,7 @@ use App\Entity\Framework\LsDefItemType;
 use App\Entity\Framework\LsDefLicence;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use App\Entity\User\User;
 use App\Util\Compare;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Driver\Exception;
@@ -24,6 +25,7 @@ use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -38,8 +40,10 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 class LsDocRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
-    {
+    public function __construct(
+        ManagerRegistry $registry,
+        private Security $security,
+    ) {
         parent::__construct($registry, LsDoc::class);
     }
 
@@ -958,95 +962,141 @@ xENDx;
         );
     }
 
+    private function getSortValue(LsDoc $doc, string $sortField): string
+    {
+        return match ($sortField) {
+            'd.title' => $doc->getTitle() ?? '',
+            'd.creator' => $doc->getCreator() ?? '',
+            'd.identifier' => $doc->getIdentifier(),
+            'd.changedAt' => $doc->getChangedAt()->format('c') ?? '',
+            default => $doc->getIdentifier(),
+        };
+    }
+
     public function findDocumentsWithPagination(DocumentPaginationDto $pagination, DocumentFilterDto $filter): DocumentListResponseDto
     {
+        $user = $this->security->getUser();
+        if (!$user instanceof User) {
+            $user = null;
+        }
+
         $qb = $this->createQueryBuilder('d')
             ->select('d')
-            ->leftJoin('d.subjects', 's')
             ->leftJoin('d.mirroredFramework', 'm');
+
+        // Apply user/organization filtering with extended access control
+        if (null !== $user) {
+            $qb->leftJoin('d.docAcls', 'acls', 'WITH', 'acls.user = :user')
+                ->andWhere('((d.adoptionStatus != :privateDraft) OR ((d.org = :org OR d.user = :user OR acls.access = 1) AND (acls.access IS NULL OR acls.access != 0)))')
+                ->setParameter('user', $user)
+                ->setParameter('org', $user->getOrg())
+                ->setParameter('privateDraft', LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT);
+        }
+        if (null === $user) {
+            $qb->andWhere('d.adoptionStatus != :privateDraft')
+                ->setParameter('privateDraft', LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT);
+        }
 
         // Apply filters
         if (null !== $filter->creator) {
-            $qb->andWhere('d.creator LIKE :creator')
+            $qb->andWhere('LOWER(d.creator) LIKE LOWER(:creator)')
                ->setParameter('creator', '%'.$filter->creator.'%');
         }
 
         if (null !== $filter->title) {
-            $qb->andWhere('d.title LIKE :title')
+            $qb->andWhere('LOWER(d.title) LIKE LOWER(:title)')
                ->setParameter('title', '%'.$filter->title.'%');
         }
 
         if (null !== $filter->adoptionStatus) {
-            $qb->andWhere('d.adoptionStatus = :adoptionStatus')
+            $qb->andWhere('LOWER(d.adoptionStatus) = LOWER(:adoptionStatus)')
                ->setParameter('adoptionStatus', $filter->adoptionStatus);
         }
 
         if (null !== $filter->subject) {
-            $qb->andWhere('d.subject LIKE :subject OR s.title = :subject')
+            $qb->leftJoin('d.subjects', 's');
+            $qb->andWhere('LOWER(d.subject) LIKE LOWER(:subject) OR LOWER(s.title) = LOWER(:subject)')
                ->setParameter('subject', $filter->subject);
         }
 
         if (null !== $filter->language) {
-            $qb->andWhere('d.language = :language')
+            $qb->andWhere('LOWER(d.language) = LOWER(:language)')
                ->setParameter('language', $filter->language);
         }
 
-        if (null !== $filter->caseVersion) {
-            $qb->andWhere('d.caseVersion = :caseVersion')
-               ->setParameter('caseVersion', $filter->caseVersion);
-        }
-
         if (null !== $filter->publisher) {
-            $qb->andWhere('d.publisher LIKE :publisher')
+            $qb->andWhere('LOWER(d.publisher) LIKE LOWER(:publisher)')
                ->setParameter('publisher', '%'.$filter->publisher.'%');
         }
 
         // Apply cursor-based pagination
-        $cursorId = $pagination->cursor;
-        if (null !== $cursorId) {
-            if ('next' === $pagination->direction) {
-                $qb->andWhere('d.identifier > :cursor')
-                   ->setParameter('cursor', $cursorId);
+        if (null !== $pagination->after) {
+            $decodedAfter = $pagination->decodeCursor($pagination->after);
+            if ('d.creator' === $filter->sortField) {
+                $qb->andWhere('(d.creator > :afterSortValue OR (d.creator = :afterSortValue AND (d.title > :afterTitle OR (d.title = :afterTitle AND d.identifier > :afterIdentifier))))')
+                    ->setParameter('afterSortValue', $decodedAfter['sortValue'])
+                    ->setParameter('afterTitle', $decodedAfter['title'] ?? '')
+                    ->setParameter('afterIdentifier', $decodedAfter['identifier']);
             } else {
-                $qb->andWhere('d.identifier < :cursor')
-                   ->setParameter('cursor', $cursorId);
+                $qb->andWhere('('.$filter->sortField.' > :afterSortValue OR ('.$filter->sortField.' = :afterSortValue AND d.identifier > :afterIdentifier))')
+                    ->setParameter('afterSortValue', $decodedAfter['sortValue'])
+                    ->setParameter('afterIdentifier', $decodedAfter['identifier']);
             }
         }
 
         // Apply sorting
-        $qb->orderBy($filter->getSort(), $filter->getOrder())
-           ->addOrderBy('d.identifier', $filter->getOrder()); // Secondary sort by identifier for consistent pagination
+        $qb->orderBy($filter->sortField, $filter->sortOrder);
+        if ('d.creator' === $filter->sortField) {
+            $qb->addOrderBy('d.title', $filter->sortOrder);
+        }
+        $qb->addOrderBy('d.identifier', $filter->sortOrder); // Secondary sort by identifier for consistent pagination
 
         // Apply limit
-        $qb->setMaxResults($pagination->limit + 1); // +1 to check if there are more results
+        $qb->setMaxResults($pagination->size + 1); // +1 to check if there are more results
 
         $documents = $qb->getQuery()->getResult() ?? [];
 
+        // Add subject and licence data to objects (don't in original query to keep limit count correct)
+        $this->createQueryBuilder('d')
+            ->select('d', 's', 'l')
+            ->leftJoin('d.subjects', 's')
+            ->leftJoin('d.licence', 'l')
+            ->where('d.id IN (:documents)')
+            ->setParameter('documents', $documents)
+            ->getQuery()
+            ->getResult();
+
+
+
         // Check if there are more results
-        $hasMore = count($documents) > $pagination->limit;
+        $documentCount = count($documents);
+        $hasMore = $documentCount > $pagination->size;
         if ($hasMore) {
             array_pop($documents); // Remove the extra item
         }
 
         // Create pagination metadata
+        $hasNextPage = $hasMore;
+
         $paginationData = new DocumentPaginationResponseDto(
-            $hasMore && 'next' === $pagination->direction,
-            null !== $cursorId && 'prev' === $pagination->direction,
+            $hasNextPage,
             null,
-            null,
-            count($documents) // This is approximate for performance
+            $documentCount // This is approximate for performance
         );
 
         if (!empty($documents)) {
             $lastDoc = end($documents);
-            $firstDoc = reset($documents);
 
-            if ($paginationData->hasNextPage) {
-                $paginationData->nextCursor = $pagination->encodeCursor($lastDoc->getIdentifier());
-            }
-
-            if ($paginationData->hasPrevPage) {
-                $paginationData->prevCursor = $pagination->encodeCursor($firstDoc->getIdentifier());
+            if ($hasNextPage) {
+                $title = null;
+                if ('d.creator' === $filter->sortField) {
+                    $title = $lastDoc->getTitle() ?? '';
+                }
+                $paginationData->nextCursor = $pagination->encodeCursor(
+                    $this->getSortValue($lastDoc, $filter->sortField),
+                    $lastDoc->getIdentifier(),
+                    $title
+                );
             }
         }
 

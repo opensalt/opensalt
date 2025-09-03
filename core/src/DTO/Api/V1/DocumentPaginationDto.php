@@ -15,53 +15,57 @@ class DocumentPaginationDto
 {
     #[Assert\Range(min: 1, max: 1000)]
     #[OA\Property(
+        property: 'page[size]',
         description: 'Maximum number of documents to return (1-1000)',
         type: 'integer',
         default: 100,
         maximum: 1000,
         minimum: 1
     )]
-    public int $limit = 100 {
-        get { return max(1, min(1000, $this->limit ?: 100)); }
+    public int $size = 100 {
+        get { return max(1, min(1000, $this->size ?: 100)); }
     }
 
     #[OA\Property(
-        description: 'Cursor for pagination (document identifier)',
+        property: 'page[after]',
+        description: 'Return documents after cursor',
         type: 'string',
         nullable: true
     )]
-    public ?string $cursor = null {
-        get {
-            if (null === $this->cursor) {
-                return null;
-            }
-            $decoded = base64_decode($this->cursor, true);
-            if (false === $decoded) {
-                return null;
-            }
+    public ?string $after = null;
 
-            return $decoded;
+    public function encodeCursor(string $sortValue, string $identifier, ?string $title = null): string
+    {
+        $data = $sortValue . '|' . $identifier;
+        if (null !== $title) {
+            $data .= '|' . $title;
         }
-        set(?string $value) {
-            if (null === $value) {
-                $this->cursor = null;
-            } else {
-                $this->cursor = base64_encode($value);
-            }
-        }
+        return base64_encode($data);
     }
 
-    #[Assert\Choice(['next', 'prev'])]
-    #[OA\Property(
-        description: 'Pagination direction',
-        type: 'string',
-        default: 'next',
-        enum: ['next', 'prev']
-    )]
-    public string $direction = 'next';
-
-    public function encodeCursor(string $identifier): string
+    /**
+     * @return array{sortValue: string, identifier: string, title?: string}
+     */
+    public function decodeCursor(string $cursor): array
     {
-        return base64_encode($identifier);
+        $decoded = base64_decode($cursor, true);
+        if (false === $decoded) {
+            throw new \InvalidArgumentException('Invalid cursor format');
+        }
+
+        $parts = explode('|', $decoded);
+        if (count($parts) < 2 || count($parts) > 3) {
+            throw new \InvalidArgumentException('Invalid cursor format');
+        }
+
+        $result = [
+            'sortValue' => $parts[0],
+            'identifier' => $parts[1],
+        ];
+        if (isset($parts[2])) {
+            $result['title'] = $parts[2];
+        }
+
+        return $result;
     }
 }

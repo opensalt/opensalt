@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\DTO\Api\V1;
 
+use Nelmio\ApiDocBundle\Attribute\Ignore;
 use OpenApi\Attributes as OA;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -14,13 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class DocumentFilterDto
 {
     #[OA\Property(
-        description: 'Filter by creator name (partial match)',
-        type: 'string',
-        nullable: true
-    )]
-    public ?string $creator = null;
-
-    #[OA\Property(
+        property: 'filter[title]',
         description: 'Filter by title (partial match)',
         type: 'string',
         nullable: true
@@ -28,75 +23,90 @@ class DocumentFilterDto
     public ?string $title = null;
 
     #[OA\Property(
-        description: 'Filter by adoption status',
-        type: 'string',
-        enum: ['Private Draft', 'Draft', 'Adopted', 'Deprecated'],
-        nullable: true
-    )]
-    public ?string $adoptionStatus = null;
-
-    #[OA\Property(
-        description: 'Filter by subject (exact match)',
+        property: 'filter[creator]',
+        description: 'Filter by creator name (partial match)',
         type: 'string',
         nullable: true
     )]
-    public ?string $subject = null;
+    public ?string $creator = null;
 
     #[OA\Property(
-        description: 'Filter by language code (e.g., "en", "fr")',
-        type: 'string',
-        nullable: true
-    )]
-    public ?string $language = null;
-
-    #[OA\Property(
-        description: 'Filter by CASE version',
-        type: 'string',
-        enum: ['1.1'],
-        nullable: true
-    )]
-    public ?string $caseVersion = null;
-
-    #[OA\Property(
+        property: 'filter[publisher]',
         description: 'Filter by publisher (partial match)',
         type: 'string',
         nullable: true
     )]
     public ?string $publisher = null;
 
-    #[Assert\Choice(['updatedAt', 'title', 'identifier', 'lastChangeDateTime'])]
+    #[Ignore]
     #[OA\Property(
+        property: 'filter[adoptionStatus]',
+        description: 'Filter by adoption status',
+        type: 'string',
+        // enum: ['Private Draft', 'Draft', 'Adopted', 'Deprecated'],
+        nullable: true
+    )]
+    public ?string $adoptionStatus = null;
+
+    #[Ignore]
+    #[OA\Property(
+        property: 'filter[subject]',
+        description: 'Filter by subject (exact match)',
+        type: 'string',
+        nullable: true
+    )]
+    public ?string $subject = null;
+
+    #[Ignore]
+    #[OA\Property(
+        property: 'filter[language]',
+        description: 'Filter by language code (e.g., "en", "fr", "en-US")',
+        type: 'string',
+        nullable: true
+    )]
+    public ?string $language = null;
+
+    #[Assert\Choice(['title', 'creator', 'identifier', 'lastChangeDateTime'])]
+    #[OA\Property(
+        property: 'filter[sort]',
         description: 'Sort field',
         type: 'string',
-        default: 'updatedAt',
-        enum: ['updatedAt', 'title', 'identifier', 'lastChangeDateTime']
+        default: 'identifier',
+        enum: ['title', 'creator', 'identifier', 'lastChangeDateTime']
     )]
-    public string $sort = 'updatedAt';
+    public string $sort = 'identifier';
+
+    #[Ignore]
+    public string $sortField {
+        get {
+            return match ($this->sort) {
+                'title' => 'd.title',
+                'creator' => 'd.creator',
+                'identifier' => 'd.identifier',
+                'lastChangeDateTime' => 'd.changedAt',
+                default => 'd.identifier',
+            };
+        }
+    }
 
     #[Assert\Choice(['asc', 'desc'])]
     #[OA\Property(
+        property: 'filter[order]',
         description: 'Sort direction',
         type: 'string',
-        default: 'desc',
+        default: 'asc',
         enum: ['asc', 'desc']
     )]
-    public string $order = 'desc';
+    public string $order = 'asc';
 
-    public function getSort(): string
-    {
-        return match ($this->sort) {
-            'title' => 'd.title',
-            'identifier' => 'd.identifier',
-            'lastChangeDateTime' => 'd.changedAt',
-            default => 'd.updatedAt',
-        };
+    #[Ignore]
+    public string $sortOrder {
+        get {
+            return 'DESC' === strtoupper($this->order) ? 'DESC' : 'ASC';
+        }
     }
 
-    public function getOrder(): string
-    {
-        return 'ASC' === strtoupper($this->order) ? 'ASC' : 'DESC';
-    }
-
+    #[Ignore]
     public function hasFilters(): bool
     {
         return null !== $this->creator
@@ -104,7 +114,6 @@ class DocumentFilterDto
             || null !== $this->adoptionStatus
             || null !== $this->subject
             || null !== $this->language
-            || null !== $this->caseVersion
             || null !== $this->publisher;
     }
 }
