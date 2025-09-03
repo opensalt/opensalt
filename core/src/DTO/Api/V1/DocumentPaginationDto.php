@@ -40,6 +40,7 @@ class DocumentPaginationDto
         if (null !== $title) {
             $data .= '|' . $title;
         }
+
         return base64_encode($data);
     }
 

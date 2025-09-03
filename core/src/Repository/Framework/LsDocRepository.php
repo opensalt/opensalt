@@ -1066,8 +1066,6 @@ xENDx;
             ->getQuery()
             ->getResult();
 
-
-
         // Check if there are more results
         $documentCount = count($documents);
         $hasMore = $documentCount > $pagination->size;
