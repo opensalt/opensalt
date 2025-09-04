@@ -38,7 +38,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import TreeView from './TreeView.vue';
-import InfoPanel from './InfoPanel.vue';
+import InfoPanel from '../shared/panels/InfoPanel.vue';
 
 const doc = ref({ title: '', status: '', items: [] });
 const loading = ref(true);

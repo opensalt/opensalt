@@ -12,7 +12,7 @@ nelmio_cors:
         origin_regex: false
         forced_allow_origin_value: null
     paths:
-        '^(/ims/case/|/uri/)':
+        '^(/ims/case/|/uri/|/api/v1/)':
             forced_allow_origin_value: '*'
             allow_origin: ['*']
             allow_headers:
@@ -26,7 +26,7 @@ nelmio_cors:
                 - 'X-Requested-With'
                 - 'X-OpenSALT'
                 #- '*'
-            allow_methods: ['GET']
+            allow_methods: ['GET', 'POST', 'PUT', 'DELETE']
             expose_headers:
                 - 'X-Total-Count'
                 - 'X-OpenSALT'

@@ -130,7 +130,7 @@ export const useFrameworkStore = defineStore('framework', () => {
     try {
       const baseUrl = 'http://web.salt-default';
       const endpoint = '/api/v1/documents';
-      const limit = 50; // Adjust as needed
+      const limit = 1000; // Adjust as needed
       let allDocuments = [];
       let cursor = null;
       let hasNextPage = true;
@@ -140,23 +140,25 @@ export const useFrameworkStore = defineStore('framework', () => {
 
       while (hasNextPage) {
         const params = new URLSearchParams({
-          limit: limit.toString(),
-          direction: 'next'
+          'page[size]': limit.toString(),
         });
 
         if (cursor) {
-          params.append('cursor', cursor);
+          params.append('page[after]', cursor);
         }
 
         const url = `${baseUrl}${endpoint}?${params.toString()}`;
 
-        const response = await fetch(url, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
+        const headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
-          }
+        };
+        if (token) {
+            headers.Authorization = `Bearer ${token}`;
+        }
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: headers,
         });
 
         if (!response.ok) {
@@ -182,7 +184,7 @@ export const useFrameworkStore = defineStore('framework', () => {
           description: doc.description || '',
           creator: doc.creator || '',
           subject: Array.isArray(doc.subject) ? doc.subject.join(', ') : (doc.subject || ''),
-          status: doc.adoptionStatus || 'Draft',
+          status: doc.adoptionStatus || '',
           lastModified: doc.lastChangeDateTime || '',
           language: doc.language || '',
           version: doc.version || ''
@@ -223,14 +225,19 @@ export const useFrameworkStore = defineStore('framework', () => {
     // return config.apiToken;
 
     // For now, return a placeholder - replace with actual implementation
-    const token = localStorage.getItem('saltApiToken') || process.env.VUE_APP_API_TOKEN;
+    const token = localStorage.getItem('saltApiToken') || null;
+    /*
     if (!token) {
       throw new Error('No authentication token found. Please log in or configure API token.');
     }
+     */
+
     return token;
   }
 
   async function fetchDocument(identifier) {
+    console.log('[DEBUG] frameworkStore.fetchDocument called with identifier:', identifier);
+    console.log('[DEBUG] Current currentDocument state before fetch:', currentDocument.value);
     loading.value = true;
     error.value = null;
 

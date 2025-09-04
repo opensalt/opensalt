@@ -120,20 +120,20 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { useFrameworkStore } from '../stores/frameworkStore';
+import { useFrameworkStore } from '../../stores/frameworkStore';
 import TreeView from './TreeView.vue';
-import RightSidePanel from './RightSidePanel.vue';
-import DocumentSelector from './DocumentSelector.vue';
-import SearchFilter from './SearchFilter.vue';
-import AssociationGroupSelector from './AssociationGroupSelector.vue';
-import EditDocModal from './EditDocModal.vue';
-import AddNewChildModal from './AddNewChildModal.vue';
-import AssociateModal from './AssociateModal.vue';
-import EditAssociationModal from './EditAssociationModal.vue';
-import DeleteItemsModal from './DeleteItemsModal.vue';
-import ExemplarModal from './ExemplarModal.vue';
-import AssociationGroupModal from './AssociationGroupModal.vue';
-import ViewSwitcher from './ViewSwitcher.vue';
+import RightSidePanel from '../shared/panels/RightSidePanel.vue';
+import DocumentSelector from '../shared/common/DocumentSelector.vue';
+import SearchFilter from '../shared/common/SearchFilter.vue';
+import AssociationGroupSelector from '../shared/common/AssociationGroupSelector.vue';
+import EditDocModal from '../shared/modals/EditDocModal.vue';
+import AddNewChildModal from '../shared/modals/AddNewChildModal.vue';
+import AssociateModal from '../association/AssociateModal.vue';
+import EditAssociationModal from '../association/EditAssociationModal.vue';
+import DeleteItemsModal from '../shared/modals/DeleteItemsModal.vue';
+import ExemplarModal from '../shared/modals/ExemplarModal.vue';
+import AssociationGroupModal from '../association/AssociationGroupModal.vue';
+import ViewSwitcher from '../shared/common/ViewSwitcher.vue';
 
 // Use the Pinia store
 const frameworkStore = useFrameworkStore();
@@ -184,13 +184,28 @@ const currentDoc = computed(() => frameworkStore.currentDocument);
 // Initialize data on mount
 onMounted(async () => {
   try {
-    // Fetch the list of available documents
-    await frameworkStore.fetchDocuments();
+    console.log('[DEBUG] EnhancedDocumentTreeEditor onMounted - currentDocument state:', {
+      currentDocument: frameworkStore.currentDocument,
+      isNull: frameworkStore.currentDocument === null,
+      isUndefined: frameworkStore.currentDocument === undefined,
+      isEmptyObject: frameworkStore.currentDocument && Object.keys(frameworkStore.currentDocument).length === 0,
+      hasItems: frameworkStore.currentDocument?.items?.length > 0,
+      documentKeys: frameworkStore.currentDocument ? Object.keys(frameworkStore.currentDocument) : []
+    });
 
-    // If there are documents available, load the first one as an example
-    if (frameworkStore.documents.length > 0) {
-      const firstDoc = frameworkStore.documents[0];
-      await frameworkStore.fetchDocument(firstDoc.id);
+    if (!frameworkStore.currentDocument || Object.keys(frameworkStore.currentDocument).length === 0) {
+      console.log('[DEBUG] No current document found, fetching documents...');
+      // Fetch the list of available documents
+      await frameworkStore.fetchDocuments();
+
+      // If there are documents available, load the first one as an example
+      if (frameworkStore.documents.length > 0) {
+        const firstDoc = frameworkStore.documents[0];
+        console.log('[DEBUG] Loading first document:', firstDoc.id);
+        await frameworkStore.fetchDocument(firstDoc.id);
+      }
+    } else {
+      console.log('[DEBUG] Current document already exists, skipping fetch');
     }
   } catch (e) {
     console.error('Error initializing data:', e);

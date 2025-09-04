@@ -90,7 +90,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { useFrameworkStore } from '../stores/frameworkStore';
+import { useFrameworkStore } from '../../stores/frameworkStore';
 
 const frameworkStore = useFrameworkStore();
 

@@ -110,8 +110,8 @@
 
 <script setup>
 import { computed } from 'vue';
-import AssociationGroupDisplay from './AssociationGroupDisplay.vue';
-import { renderMarkdown, hasMarkdown } from '../utils/markdownRenderer.js';
+import AssociationGroupDisplay from '../../association/AssociationGroupDisplay.vue';
+import { renderMarkdown, hasMarkdown } from '../../../utils/markdownRenderer.js';
 
 const props = defineProps({
   item: {

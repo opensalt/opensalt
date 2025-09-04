@@ -144,22 +144,36 @@ function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString();
 }
 
+// Recursive function to count all items in the hierarchy
+function countItemsRecursively(items) {
+  if (!items || !Array.isArray(items)) return 0;
+
+  let count = 0;
+  for (const item of items) {
+    count += 1; // Count this item
+    if (item.children && item.children.length > 0) {
+      count += countItemsRecursively(item.children); // Recursively count children
+    }
+  }
+  return count;
+}
+
 // Document statistics
 const itemCount = computed(() => {
-  return props.document?.items?.length || 0;
+  return countItemsRecursively(props.document?.items);
 });
 
 const associationCount = computed(() => {
   if (!props.document?.items) return 0;
   return props.document.items.reduce((total, item) => {
     return total + (item.associations?.filter(assoc =>
-      assoc.associationType !== 'isChildOf' && assoc.type !== 'isChildOf'
+      assoc.type !== 'isChildOf'
     ).length || 0);
   }, 0);
 });
 
 const associationGroupCount = computed(() => {
-  return props.associationGroups?.filter(group => group.id !== 'all' && group.id !== 'default').length || 0;
+  return props.associationGroups?.length || 0;
 });
 </script>
 

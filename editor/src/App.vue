@@ -50,10 +50,10 @@
 <script setup>
 import { ref, provide, computed } from 'vue';
 import { useFrameworkStore } from './stores/frameworkStore';
-import ViewSwitcher from './components/ViewSwitcher.vue';
-import TreeViewContainer from './components/EnhancedDocumentTreeEditor.vue';
-import AssociationView from './components/AssociationView.vue';
-import LogView from './components/LogView.vue';
+import ViewSwitcher from './components/shared/common/ViewSwitcher.vue';
+import TreeViewContainer from './components/tree/EnhancedDocumentTreeEditor.vue';
+import AssociationView from './components/association/AssociationView.vue';
+import LogView from './components/log/LogView.vue';
 
 const frameworkStore = useFrameworkStore();
 const currentView = computed(() => frameworkStore.currentView);

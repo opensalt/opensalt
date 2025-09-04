@@ -136,7 +136,7 @@
 <script setup>
 import { ref, reactive, watch, computed } from 'vue';
 import { Modal } from 'bootstrap';
-import { useFrameworkStore } from '../stores/frameworkStore';
+import { useFrameworkStore } from '../../../stores/frameworkStore';
 
 const props = defineProps({
   currentDoc1: Object,

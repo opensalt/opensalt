@@ -59,8 +59,8 @@
 <script setup>
 import { ref, watch } from 'vue';
 import ItemDetailsPanel from './ItemDetailsPanel.vue';
-import CopyItemsPanel from './CopyItemsPanel.vue';
-import AssociationPanel from './AssociationPanel.vue';
+import CopyItemsPanel from '../modals/CopyItemsPanel.vue';
+import AssociationPanel from '../../association/AssociationPanel.vue';
 
 const props = defineProps({
   selectedItem: Object,

@@ -4,6 +4,7 @@
       <span class="expand-indicator" aria-hidden="true">
         <i :class="isExpanded ? 'bi bi-caret-down-fill' : 'bi bi-caret-right-fill'"></i>
       </span>
+      <i :class="`bi ${iconClass}`"></i>
       <span
         class="tree-node-label"
         :class="{ 'selected': selectedId === item.identifier }"
@@ -12,7 +13,7 @@
         style="cursor:pointer"
       >
         <span v-if="item.hcs" class="coding-scheme" style="font-weight: bold;">{{ item.hcs }}: </span>
-        {{ item.abbreviatedStatement || item.fullStatement || item.identifier }}
+        {{ item.abbreviatedStatement || item.fullStatement || item.title || item.identifier }}
       </span>
       <slot name="actions" :item="item" />
     </summary>
@@ -39,6 +40,7 @@
   <div v-else class="tree-node" role="treeitem" :aria-level="level + 1">
     <div class="tree-node-content" :style="{ marginLeft: (level * 20) + 'px' }">
       <span class="no-children-spacer" aria-hidden="true"></span>
+      <i :class="`bi ${iconClass}`"></i>
       <span
         class="tree-node-label"
         :class="{ 'selected': selectedId === item.identifier }"
@@ -73,6 +75,20 @@ const emit = defineEmits(['select', 'dblclick', 'move']);
 const isExpanded = ref(props.startExpanded); // Start closed by default
 const isFocused = ref(false);
 const hasChildren = computed(() => props.item.children && props.item.children.length > 0);
+
+const iconClass = computed(() => {
+  const type = props.item.extensions?.['salt:type'] || props.item.itemType || 'item';
+  const iconMap = {
+    assessment: 'bi-clipboard-check',
+    course: 'bi-book',
+    credential: 'bi-award',
+    job: 'bi-briefcase',
+    organization: 'bi-building',
+    identifier: 'bi-tag',
+    item: 'bi-file-earmark'
+  };
+  return iconMap[type] || 'bi-file-earmark';
+});
 
 const onToggle = (event) => {
   // Only handle expansion/collapse

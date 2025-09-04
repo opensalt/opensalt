@@ -36,9 +36,9 @@ class DocumentPaginationDto
 
     public function encodeCursor(string $sortValue, string $identifier, ?string $title = null): string
     {
-        $data = $sortValue . '|' . $identifier;
+        $data = $sortValue.'|'.$identifier;
         if (null !== $title) {
-            $data .= '|' . $title;
+            $data .= '|'.$title;
         }
 
         return base64_encode($data);
