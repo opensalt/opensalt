@@ -43,7 +43,7 @@ class LsDocRepository extends ServiceEntityRepository
 {
     public function __construct(
         ManagerRegistry $registry,
-        readonly private Security $security,
+        private readonly Security $security,
     ) {
         parent::__construct($registry, LsDoc::class);
     }
@@ -1009,14 +1009,14 @@ xENDx;
 
         $qb = $this->createQueryBuilder('d')
             ->distinct()
-            ->select('d');
+            ->select('d')
+            ->leftJoin('d.mirroredFramework', 'm');
 
         // Apply user/organization filtering with extended access control
         if (null !== $user) {
             if (!$this->security->isGranted(Permission::FRAMEWORK_EDIT_ALL)) {
                 $isEditor = $this->security->isGranted('ROLE_EDITOR');
                 $qb->leftJoin('d.docAcls', 'acls', 'WITH', 'acls.user = :user')
-                    ->leftJoin('d.mirroredFramework', 'm')
                     ->orWhere('(m.visible IS NULL OR m.visible = 1) AND (d.adoptionStatus != :privateDraft)')
                     ->orWhere('(m.visible IS NOT NULL AND 1 = :isEditor)')
                     ->orWhere('(d.org = :org OR d.user = :user OR acls.access = 1) AND (acls.access IS NULL OR acls.access != 0)')
@@ -1027,8 +1027,7 @@ xENDx;
             }
         }
         if (null === $user) {
-            $qb->leftJoin('d.mirroredFramework', 'm')
-                ->andWhere('m.visible IS NULL OR m.visible = 1')
+            $qb->andWhere('m.visible IS NULL OR m.visible = 1')
                 ->andWhere('d.adoptionStatus != :privateDraft')
                 ->setParameter('privateDraft', LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT);
         }

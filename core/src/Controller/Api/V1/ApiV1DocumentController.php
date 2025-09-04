@@ -43,7 +43,7 @@ use Symfony\Component\Serializer\SerializerInterface;
     response: 404,
     description: 'The document cannot be found',
 )]
-#[OA\Tag('Document')]
+#[OA\Tag('Document', description: 'Operations on framework documents')]
 class ApiV1DocumentController extends AbstractController
 {
     use CommandDispatcherTrait;
@@ -77,7 +77,6 @@ class ApiV1DocumentController extends AbstractController
         return new JsonResponse($this->serializer->serialize($result, 'json', []), json: true);
     }
 
-    #[Route('/api/v1/packages/-/document', methods: ['POST'])]
     #[Route('/api/v1/documents', methods: ['POST'])]
     #[IsGranted(Permission::FRAMEWORK_CREATE)]
     #[OA\Post(
@@ -110,7 +109,6 @@ class ApiV1DocumentController extends AbstractController
         );
     }
 
-    #[Route('/api/v1/packages/{documentIdentifier}/document', methods: ['GET'])]
     #[Route('/api/v1/documents/{documentIdentifier}', methods: ['GET'])]
     #[IsGranted(Permission::FRAMEWORK_VIEW, 'doc')]
     #[OA\Get(
@@ -132,13 +130,12 @@ class ApiV1DocumentController extends AbstractController
         ]), Response::HTTP_OK, json: true);
     }
 
-    #[Route('/api/v1/packages/{documentIdentifier}/document', methods: ['PUT'])]
     #[Route('/api/v1/documents/{documentIdentifier}', methods: ['PUT'])]
     #[IsGranted(Permission::FRAMEWORK_EDIT, 'doc')]
     #[OA\Put(
         // operationId: 'api_v1_document_update',
-        description: 'Update an existing document',
-        summary: 'Update document',
+        description: 'Replace an existing document',
+        summary: 'Replace document',
     )]
     #[OA\RequestBody(content: new Model(type: DocumentDto::class, groups: ['update']))]
     #[OA\Response(

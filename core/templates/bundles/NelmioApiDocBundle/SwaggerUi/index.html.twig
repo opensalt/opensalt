@@ -6,3 +6,35 @@
 
 {% block header %}
 {% endblock header %}
+
+{% block swagger_initialization %}
+    <script type="text/javascript">
+        const tagOrder = [
+            'Document',
+            'Item',
+            'Association',
+            'Package',
+        ];
+        function tagSorter(a, b) {
+            const idxA = tagOrder.indexOf(a);
+            const idxB = tagOrder.indexOf(b);
+
+            const inRefA = idxA !== -1;
+            const inRefB = idxB !== -1;
+
+            if (inRefA && inRefB) {
+                return idxA - idxB;
+            } else if (inRefA) {
+                return -1;
+            } else if (inRefB) {
+                return 1;
+            } else {
+                return a.localeCompare(b);
+            }
+        };
+
+        window.onload = loadSwaggerUI({
+            tagsSorter: tagSorter
+        });
+    </script>
+{% endblock swagger_initialization %}

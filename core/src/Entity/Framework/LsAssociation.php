@@ -63,6 +63,19 @@ class LsAssociation implements CaseApiInterface
 
     final public const string INVERSE_EXEMPLAR = 'Exemplar For';
 
+    final public const array BASE_TYPES = [
+        'isChildOf',
+        'isRelatedTo',
+        'exactMatchOf',
+        'isPartOf',
+        'replacedBy',
+        'precedes',
+        'hasSkillLevel',
+        'isPeerOf',
+        'exemplar',
+        'isTranslationOf', // CASE 1.1
+    ];
+
     #[ORM\Column(name: 'ls_doc_identifier', type: 'string', length: 300, nullable: false)]
     #[Assert\Length(max: 300)]
     private ?string $lsDocIdentifier = null;
@@ -387,7 +400,7 @@ class LsAssociation implements CaseApiInterface
 
     public function setType(string $type): static
     {
-        if (str_starts_with($type, 'ext:') && (1 === preg_match('/^ext:[a-zA-Z0-9.\-_]+$/', $type))) {
+        if (str_starts_with($type, 'ext:') && (1 === preg_match('/^ext:[a-zA-Z0-9._-]+$/', $type))) {
             // Allow extension types for CASE 1.1
             $this->type = $type;
 

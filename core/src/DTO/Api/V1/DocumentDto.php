@@ -37,7 +37,7 @@ class DocumentDto
     #[Map('uri')]
     public ?string $uri = null;
 
-    #[Groups(['create', 'update', 'view'])]
+    #[Groups(['view'])]
     #[SerializedName('CFPackageURI')]
     #[Assert\NotNull(message: 'The link is required', groups: ['view'])]
     #[Assert\NotBlank(message: 'The link is required', groups: ['view'])]
@@ -62,7 +62,7 @@ class DocumentDto
     #[Map('title')]
     public string $title;
 
-    #[Groups(['create', 'update', 'view'])]
+    #[Groups(['view'])]
     #[Assert\NotNull(message: 'The date is required', groups: ['view'])]
     #[Assert\NotBlank(message: 'The date is required', groups: ['view'])]
     #[Map('changedAt')]

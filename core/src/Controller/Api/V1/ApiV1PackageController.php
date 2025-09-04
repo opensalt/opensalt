@@ -10,11 +10,7 @@ use App\Command\Framework\DeleteDocumentCommand;
 use App\Command\Framework\UpdateDocumentCommand;
 use App\Controller\Api\UriController;
 use App\DTO\Api\V1\DocumentDto;
-use App\DTO\Api\V1\DocumentFilterDto;
-use App\DTO\Api\V1\DocumentListResponseDto;
-use App\DTO\Api\V1\DocumentPaginationDto;
 use App\Entity\Framework\LsDoc;
-use App\Repository\Framework\LsDocRepository;
 use App\Security\Permission;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use Nelmio\ApiDocBundle\Attribute\Security;
@@ -24,7 +20,6 @@ use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\ObjectMapper\ObjectMapperInterface;
 use Symfony\Component\Routing\Attribute\Route;
@@ -44,122 +39,27 @@ use Symfony\Component\Serializer\SerializerInterface;
     response: 404,
     description: 'The package cannot be found',
 )]
-#[OA\Tag('Package')]
+#[OA\Tag('Package', description: 'Operations on framework packages')]
 class ApiV1PackageController extends AbstractController
 {
     use CommandDispatcherTrait;
 
     public function __construct(
         private readonly SerializerInterface $serializer,
-        private readonly LsDocRepository $lsDocRepository,
         private readonly ObjectMapperInterface $objectMapper,
     ) {
-    }
-
-    #[Route('/api/v1/packages', methods: ['GET'])]
-    #[OA\Get(
-        operationId: 'api_v1_packages_index',
-        description: 'Get a list of documents with pagination and filtering',
-        summary: 'List documents',
-    )]
-    #[OA\Parameter(
-        name: 'limit',
-        description: 'Maximum number of documents to return (1-1000)',
-        in: 'query',
-        schema: new OA\Schema(type: 'integer', default: 100, maximum: 1000, minimum: 1)
-    )]
-    #[OA\Parameter(
-        name: 'cursor',
-        description: 'Cursor for pagination (base64 encoded document ID)',
-        in: 'query',
-        schema: new OA\Schema(type: 'string')
-    )]
-    #[OA\Parameter(
-        name: 'direction',
-        description: 'Pagination direction',
-        in: 'query',
-        schema: new OA\Schema(type: 'string', enum: ['next', 'prev'], default: 'next')
-    )]
-    #[OA\Parameter(
-        name: 'creator',
-        description: 'Filter by creator name (partial match)',
-        in: 'query',
-        schema: new OA\Schema(type: 'string')
-    )]
-    #[OA\Parameter(
-        name: 'title',
-        description: 'Filter by title (partial match)',
-        in: 'query',
-        schema: new OA\Schema(type: 'string')
-    )]
-    #[OA\Parameter(
-        name: 'adoptionStatus',
-        description: 'Filter by adoption status',
-        in: 'query',
-        schema: new OA\Schema(type: 'string', enum: ['Private Draft', 'Draft', 'Adopted', 'Deprecated'])
-    )]
-    #[OA\Parameter(
-        name: 'subject',
-        description: 'Filter by subject (exact match)',
-        in: 'query',
-        schema: new OA\Schema(type: 'string')
-    )]
-    #[OA\Parameter(
-        name: 'language',
-        description: 'Filter by language code',
-        in: 'query',
-        schema: new OA\Schema(type: 'string')
-    )]
-    #[OA\Parameter(
-        name: 'caseVersion',
-        description: 'Filter by CASE version',
-        in: 'query',
-        schema: new OA\Schema(type: 'string', enum: ['1.1'])
-    )]
-    #[OA\Parameter(
-        name: 'publisher',
-        description: 'Filter by publisher (partial match)',
-        in: 'query',
-        schema: new OA\Schema(type: 'string')
-    )]
-    #[OA\Parameter(
-        name: 'sort',
-        description: 'Sort field',
-        in: 'query',
-        schema: new OA\Schema(type: 'string', default: 'lastChangeDateTime', enum: ['title', 'identifier', 'lastChangeDateTime'])
-    )]
-    #[OA\Parameter(
-        name: 'order',
-        description: 'Sort direction',
-        in: 'query',
-        schema: new OA\Schema(type: 'string', default: 'desc', enum: ['asc', 'desc'])
-    )]
-    #[OA\Response(
-        response: Response::HTTP_OK,
-        description: 'List of documents',
-        content: new Model(type: DocumentListResponseDto::class),
-    )]
-    public function index(
-        #[MapQueryString] DocumentPaginationDto $pagination,
-        #[MapQueryString] DocumentFilterDto $filter,
-    ): Response {
-        // Get documents with pagination and filtering
-        // TODO: Only show documents that the current user can see
-        $result = $this->lsDocRepository->findDocumentsWithPagination($pagination, $filter);
-
-        return new JsonResponse($this->serializer->serialize($result, 'json', []), json: true);
     }
 
     #[Route('/api/v1/packages/{documentIdentifier}', methods: ['GET'])]
     #[IsGranted(Permission::FRAMEWORK_VIEW, 'doc')]
     #[OA\Get(
         operationId: 'api_v1_package_get',
-        description: 'Get a single document',
-        summary: 'Get document',
+        description: 'Get a single package',
+        summary: 'Get framework package',
     )]
     #[OA\Response(
         response: Response::HTTP_OK,
-        description: 'The document',
+        description: 'The package',
         content: new Model(type: DocumentDto::class, groups: ['view']),
     )]
     public function getPackage(
@@ -175,13 +75,13 @@ class ApiV1PackageController extends AbstractController
     #[IsGranted(Permission::FRAMEWORK_CREATE)]
     #[OA\Post(
         operationId: 'api_v1_package_post',
-        description: 'Create a new document',
-        summary: 'Create document',
+        description: 'Create a new package',
+        summary: 'Create package',
     )]
     #[OA\RequestBody(content: new Model(type: DocumentDto::class, groups: ['create']))]
     #[OA\Response(
         response: Response::HTTP_CREATED,
-        description: 'Document created successfully',
+        description: 'Package created successfully',
         content: new Model(type: DocumentDto::class, groups: ['view'])
     )]
     public function postPackage(
@@ -214,13 +114,13 @@ class ApiV1PackageController extends AbstractController
     #[IsGranted(Permission::FRAMEWORK_EDIT, 'doc')]
     #[OA\Put(
         operationId: 'api_v1_package_put',
-        description: 'Update an existing document',
-        summary: 'Update document',
+        description: 'Replace an existing package',
+        summary: 'Replace package',
     )]
     #[OA\RequestBody(content: new Model(type: DocumentDto::class, groups: ['update']))]
     #[OA\Response(
         response: Response::HTTP_OK,
-        description: 'Document updated successfully',
+        description: 'Package updated successfully',
         content: new Model(type: DocumentDto::class, groups: ['view'])
     )]
     public function putPackage(
@@ -248,12 +148,12 @@ class ApiV1PackageController extends AbstractController
     #[IsGranted(Permission::FRAMEWORK_DELETE, 'doc')]
     #[OA\Delete(
         operationId: 'api_v1_package_delete',
-        description: 'Delete a document',
-        summary: 'Delete document',
+        description: 'Delete a framework package',
+        summary: 'Delete package',
     )]
     #[OA\Response(
         response: Response::HTTP_NO_CONTENT,
-        description: 'The document has been deleted',
+        description: 'The package has been deleted',
     )]
     public function deletePackage(
         #[MapEntity(mapping: ['documentIdentifier' => 'identifier'])] LsDoc $doc,

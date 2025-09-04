@@ -52,7 +52,7 @@ use Symfony\Component\Serializer\SerializerInterface;
     response: 404,
     description: 'The item cannot be found',
 )]
-#[OA\Tag('Item', description: 'Operations on items')]
+#[OA\Tag('Item', description: 'Operations on framework items')]
 class ApiV1ItemController extends AbstractController
 {
     use CommandDispatcherTrait;
