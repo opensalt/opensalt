@@ -184,4 +184,9 @@ class ItemDto
     )]
     #[Map('extensions')]
     public ?array $extensions = null;
+
+    public function __construct()
+    {
+        $this->lastChangeDateTime = new \DateTimeImmutable();
+    }
 }

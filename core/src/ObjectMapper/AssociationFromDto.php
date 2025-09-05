@@ -34,8 +34,12 @@ readonly class AssociationFromDto
             throw new \InvalidArgumentException('Expecting an existing Association object to map to', previous: $e);
         }
 
-        $value->setOrigin($source->originNodeUri->uri, $source->originNodeUri->identifier->toString(), $source->originNodeUri->targetType);
-        $value->setDestination($source->destinationNodeUri->uri, $source->destinationNodeUri->identifier->toString(), $source->destinationNodeUri->targetType);
+        if ($source->originNodeURI && $source->originNodeURI->uri) {
+            $value->setOrigin($source->originNodeURI->uri, $source->originNodeURI->identifier->toString(), $source->originNodeURI->targetType);
+        }
+        if ($source->destinationNodeURI && $source->destinationNodeURI->uri) {
+            $value->setDestination($source->destinationNodeURI->uri, $source->destinationNodeURI->identifier->toString(), $source->destinationNodeURI->targetType);
+        }
         $value->setChangedAt($source->lastChangeDateTime ?? new \DateTimeImmutable());
 
         // @TODO: find and set the group for the association

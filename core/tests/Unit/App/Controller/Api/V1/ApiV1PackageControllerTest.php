@@ -5,337 +5,330 @@ declare(strict_types=1);
 namespace Tests\Unit\App\Controller\Api\V1;
 
 use App\Controller\Api\V1\ApiV1PackageController;
+use App\DTO\Api\V1\PackageDto;
 use App\DTO\Api\V1\DocumentDto;
+use App\DTO\Api\V1\ItemDto;
+use App\DTO\Api\V1\AssociationDto;
+use App\DTO\Api\V1\DefinitionDto;
+use App\DTO\Api\V1\RubricDto;
 use App\DTO\Api\V1\DocumentFilterDto;
 use App\DTO\Api\V1\DocumentPaginationDto;
+use App\DTO\Api\V1\DocumentListResponseDto;
 use App\Entity\Framework\LsDoc;
 use App\Repository\Framework\LsDocRepository;
+use App\Repository\Framework\LsItemRepository;
+use App\Repository\Framework\LsAssociationRepository;
+use App\Repository\Framework\CfRubricRepository;
+use App\Repository\Framework\LsDefConceptRepository;
+use App\Repository\Framework\LsDefSubjectRepository;
+use App\Repository\Framework\LsDefLicenceRepository;
+use App\Repository\Framework\LsDefItemTypeRepository;
+use App\Repository\Framework\LsDefAssociationGroupingRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\ObjectMapper\ObjectMapperInterface;
 use Symfony\Component\Serializer\SerializerInterface;
+use Ramsey\Uuid\Uuid;
 
 class ApiV1PackageControllerTest extends TestCase
 {
     private ApiV1PackageController $controller;
     private SerializerInterface $serializer;
-    private LsDocRepository $lsDocRepository;
     private ObjectMapperInterface $objectMapper;
-    private EventDispatcherInterface $dispatcher;
+    private EntityManagerInterface $entityManager;
+    private LsDocRepository $lsDocRepository;
+    private LsItemRepository $lsItemRepository;
+    private LsAssociationRepository $lsAssociationRepository;
+    private CfRubricRepository $cfRubricRepository;
+    private LsDefConceptRepository $lsDefConceptRepository;
+    private LsDefSubjectRepository $lsDefSubjectRepository;
+    private LsDefLicenceRepository $lsDefLicenceRepository;
+    private LsDefItemTypeRepository $lsDefItemTypeRepository;
+    private LsDefAssociationGroupingRepository $lsDefAssociationGroupingRepository;
 
     protected function setUp(): void
     {
         $this->serializer = $this->createMock(SerializerInterface::class);
-        $this->lsDocRepository = $this->createMock(LsDocRepository::class);
         $this->objectMapper = $this->createMock(ObjectMapperInterface::class);
-        $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $this->entityManager = $this->createMock(EntityManagerInterface::class);
+        $this->lsDocRepository = $this->createMock(LsDocRepository::class);
+        $this->lsItemRepository = $this->createMock(LsItemRepository::class);
+        $this->lsAssociationRepository = $this->createMock(LsAssociationRepository::class);
+        $this->cfRubricRepository = $this->createMock(CfRubricRepository::class);
+        $this->lsDefConceptRepository = $this->createMock(LsDefConceptRepository::class);
+        $this->lsDefSubjectRepository = $this->createMock(LsDefSubjectRepository::class);
+        $this->lsDefLicenceRepository = $this->createMock(LsDefLicenceRepository::class);
+        $this->lsDefItemTypeRepository = $this->createMock(LsDefItemTypeRepository::class);
+        $this->lsDefAssociationGroupingRepository = $this->createMock(LsDefAssociationGroupingRepository::class);
 
         $this->controller = new ApiV1PackageController(
             $this->serializer,
+            $this->objectMapper,
+            $this->entityManager,
             $this->lsDocRepository,
-            $this->objectMapper
+            $this->lsItemRepository,
+            $this->lsAssociationRepository,
+            $this->cfRubricRepository,
+            $this->lsDefConceptRepository,
+            $this->lsDefSubjectRepository,
+            $this->lsDefLicenceRepository,
+            $this->lsDefItemTypeRepository,
+            $this->lsDefAssociationGroupingRepository
         );
-        $this->controller->setDispatcher($this->dispatcher);
+
+        // Set the dispatcher for command dispatching
+        $this->controller->setDispatcher($this->createMock(\Symfony\Component\EventDispatcher\EventDispatcherInterface::class));
     }
 
     public function testIndexReturnsJsonResponse(): void
     {
-        // Mock the repository to return empty results
-        $queryBuilderMock = $this->createMock(\Doctrine\ORM\QueryBuilder::class);
-        $queryMock = $this->createMock(\Doctrine\ORM\Query::class);
-        $queryMock->method('getResult')->willReturn([]);
-
-        $queryBuilderMock->method('getQuery')->willReturn($queryMock);
-        $queryBuilderMock->method('select')->willReturnSelf();
-        $queryBuilderMock->method('leftJoin')->willReturnSelf();
-        $queryBuilderMock->method('andWhere')->willReturnSelf();
-        $queryBuilderMock->method('setParameter')->willReturnSelf();
-        $queryBuilderMock->method('orderBy')->willReturnSelf();
-        $queryBuilderMock->method('addOrderBy')->willReturnSelf();
-        $queryBuilderMock->method('setMaxResults')->willReturnSelf();
-
-        $this->lsDocRepository->method('createQueryBuilder')->willReturn($queryBuilderMock);
-
-        // Create DTOs
         $pagination = new DocumentPaginationDto();
-        $pagination->size = 20;
-        $pagination->after = null;
-        $pagination->direction = 'next';
-
         $filter = new DocumentFilterDto();
-        $filter->creator = null;
-        $filter->title = null;
-        $filter->adoptionStatus = null;
-        $filter->subject = null;
-        $filter->language = null;
-        $filter->caseVersion = null;
-        $filter->publisher = null;
-        $filter->sort = 'updatedAt';
-        $filter->order = 'desc';
+        $paginationResponse = new \App\DTO\Api\V1\DocumentPaginationResponseDto(false, null, 0);
+        $responseDto = new DocumentListResponseDto([], $paginationResponse);
+
+        $this->lsDocRepository->expects($this->once())
+            ->method('findDocumentsWithPagination')
+            ->with($pagination, $filter)
+            ->willReturn($responseDto);
 
         $this->serializer->expects($this->once())
             ->method('serialize')
-            ->willReturn('{"data":[],"pagination":{"hasNextPage":false,"hasPrevPage":false,"nextCursor":null,"prevCursor":null,"total":0}}');
+            ->with($responseDto, 'json', [])
+            ->willReturn('{"data":[],"pagination":{"hasNextPage":false,"nextCursor":null,"total":0}}');
 
-        // Act
         $response = $this->controller->index($pagination, $filter);
 
-        // Assert
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
     }
 
-    public function testIndexWithFilters(): void
+    public function testGetPackageReturnsCompletePackageStructure(): void
     {
-        // Create DTOs with filter values
-        $pagination = new DocumentPaginationDto();
-        $pagination->size = 10;
-        $pagination->after = 'cursor123';
-        $pagination->direction = 'next';
+        $doc = new LsDoc();
+        $doc->setIdentifier('550e8400-e29b-41d4-a716-446655440000');
 
-        $filter = new DocumentFilterDto();
-        $filter->creator = 'Test Creator';
-        $filter->title = 'Test Title';
-        $filter->adoptionStatus = 'Draft';
-        $filter->subject = 'Mathematics';
-        $filter->language = 'en';
-        $filter->caseVersion = '1.1';
-        $filter->publisher = 'Test Publisher';
-        $filter->sort = 'title';
-        $filter->order = 'asc';
+        // Mock items
+        $item = new \App\Entity\Framework\LsItem();
+        $this->lsItemRepository->expects($this->once())
+            ->method('findBy')
+            ->with(['lsDoc' => $doc])
+            ->willReturn([$item]);
 
-        $this->serializer->expects($this->once())
+        // Mock associations
+        $association = new \App\Entity\Framework\LsAssociation();
+        $this->lsAssociationRepository->expects($this->once())
+            ->method('findBy')
+            ->with(['lsDoc' => $doc])
+            ->willReturn([$association]);
+
+        // Mock definitions
+        $this->lsDefConceptRepository->expects($this->once())
+            ->method('findAll')
+            ->willReturn([]);
+        $this->lsDefSubjectRepository->expects($this->once())
+            ->method('findAll')
+            ->willReturn([]);
+        $this->lsDefLicenceRepository->expects($this->once())
+            ->method('findAll')
+            ->willReturn([]);
+        $this->lsDefItemTypeRepository->expects($this->once())
+            ->method('findAll')
+            ->willReturn([]);
+        $this->lsDefAssociationGroupingRepository->expects($this->once())
+            ->method('findAll')
+            ->willReturn([]);
+
+        // Mock rubrics
+        $rubric = new \App\Entity\Framework\CfRubric();
+        $this->cfRubricRepository->expects($this->once())
+            ->method('findAll')
+            ->willReturn([$rubric]);
+
+        $this->serializer->expects($this->any())
+            ->method('deserialize')
+            ->willReturnCallback(function ($data, $class, $format = null) {
+                if ($class === DocumentDto::class) {
+                    return new DocumentDto();
+                } elseif ($class === ItemDto::class) {
+                    return new ItemDto();
+                } elseif ($class === AssociationDto::class) {
+                    return new AssociationDto();
+                } elseif ($class === RubricDto::class) {
+                    return new RubricDto();
+                }
+                return null;
+            });
+
+        $this->serializer->expects($this->any())
             ->method('serialize')
-            ->willReturn('{"data":[],"pagination":{"hasNextPage":false,"hasPrevPage":false,"nextCursor":null,"prevCursor":null,"total":0}}');
+            ->willReturn('{"CFDocument":{},"CFItems":[],"CFAssociations":[],"CFDefinitions":{},"CFRubrics":[]}');
 
-        // Act
-        $response = $this->controller->index($pagination, $filter);
+        $response = $this->controller->getPackage($doc);
 
-        // Assert
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
     }
 
-    public function testPostPackageCreatesNewDocument(): void
+    public function testPostPackageCreatesCompletePackage(): void
     {
-        // Arrange
-        $uuid = $this->createMock(\Ramsey\Uuid\UuidInterface::class);
-        $uuid->method('toString')->willReturn('550e8400-e29b-41d4-a716-446655440000');
+        $packageDto = new PackageDto();
+        $packageDto->CFDocument = new DocumentDto();
+        $packageDto->CFDocument->title = 'Test Package';
+        $packageDto->CFDocument->creator = 'Test Creator';
+        $packageDto->CFItems = [new ItemDto()];
+        $packageDto->CFAssociations = [new AssociationDto()];
+        $packageDto->CFDefinitions = new DefinitionDto();
+        $packageDto->CFRubrics = [new RubricDto()];
 
-        $documentDto = new DocumentDto();
-        $documentDto->identifier = $uuid;
-        $documentDto->uri = 'https://example.com/doc';
-        $documentDto->creator = 'Test Creator';
-        $documentDto->title = 'Test Document';
-        $documentDto->lastChangeDateTime = new \DateTimeImmutable();
-        $documentDto->caseVersion = '1.1';
-        $documentDto->publisher = 'Test Publisher';
-        $documentDto->description = 'Test Description';
-        $documentDto->subject = 'Mathematics';
-        $documentDto->language = 'en';
-        $documentDto->version = '1.0';
-        $documentDto->adoptionStatus = 'Draft';
-        $documentDto->statusStartDate = new \DateTimeImmutable();
-        $documentDto->statusEndDate = new \DateTimeImmutable();
-        $documentDto->notes = 'Test notes';
-        $documentDto->extensions = ['key' => 'value'];
+        $this->objectMapper->expects($this->any())
+            ->method('map');
 
-        $this->objectMapper->expects($this->once())
-            ->method('map')
-            ->with($documentDto, $this->isInstanceOf(LsDoc::class));
+        $this->entityManager->expects($this->any())
+            ->method('persist');
+        $this->entityManager->expects($this->any())
+            ->method('flush');
 
-        $this->serializer->expects($this->once())
+        $this->serializer->expects($this->any())
             ->method('serialize')
-            ->willReturn('{"id":1,"title":"Test Document"}');
+            ->willReturn('{"CFDocument":{},"CFItems":[],"CFAssociations":[],"CFDefinitions":{},"CFRubrics":[]}');
 
-        // Act
-        $response = $this->controller->postPackage($documentDto);
+        $response = $this->controller->postPackage($packageDto);
 
-        // Assert
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
     }
 
-    public function testPostPackageWithMinimalData(): void
+    public function testPutPackageUpdatesCompletePackage(): void
     {
-        // Arrange
-        $uuid = $this->createMock(\Ramsey\Uuid\UuidInterface::class);
-        $uuid->method('toString')->willReturn('550e8400-e29b-41d4-a716-446655440001');
+        $doc = new LsDoc();
+        $doc->setIdentifier('550e8400-e29b-41d4-a716-446655440001');
 
-        $documentDto = new DocumentDto();
-        $documentDto->identifier = $uuid;
-        $documentDto->uri = 'https://example.com/minimal';
-        $documentDto->creator = 'Minimal Creator';
-        $documentDto->title = 'Minimal Document';
+        $packageDto = new PackageDto();
+        $packageDto->CFDocument = new DocumentDto();
+        $packageDto->CFItems = [new ItemDto()];
+        $packageDto->CFAssociations = [new AssociationDto()];
+        $packageDto->CFRubrics = [new RubricDto()];
 
-        $this->objectMapper->expects($this->once())
-            ->method('map')
-            ->with($documentDto, $this->isInstanceOf(LsDoc::class));
+        // Mock existing items
+        $existingItem = new \App\Entity\Framework\LsItem();
+        $this->lsItemRepository->expects($this->any())
+            ->method('findBy')
+            ->with(['lsDoc' => $doc])
+            ->willReturn([$existingItem]);
 
-        $this->serializer->expects($this->once())
+        // Mock existing associations
+        $this->lsAssociationRepository->expects($this->any())
+            ->method('findBy')
+            ->with(['lsDoc' => $doc])
+            ->willReturn([]);
+
+        // Mock existing rubrics
+        $existingRubric = new \App\Entity\Framework\CfRubric();
+        $this->cfRubricRepository->expects($this->any())
+            ->method('findBy')
+            ->with(['lsDoc' => $doc])
+            ->willReturn([$existingRubric]);
+
+        $this->objectMapper->expects($this->any())
+            ->method('map');
+
+        $this->entityManager->expects($this->any())
+            ->method('flush');
+
+        $this->serializer->expects($this->any())
             ->method('serialize')
-            ->willReturn('{"id":1,"title":"Minimal Document"}');
+            ->willReturn('{"CFDocument":{},"CFItems":[],"CFAssociations":[],"CFDefinitions":{},"CFRubrics":[]}');
 
-        // Act
-        $response = $this->controller->postPackage($documentDto);
+        $response = $this->controller->putPackage($doc, $packageDto);
 
-        // Assert
-        $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
-    }
-
-    public function testGetPackageForwardsToUriController(): void
-    {
-        // The getPackage method forwards to UriController
-        // This would typically be tested in integration tests
-        $this->markTestIncomplete('Forwarding behavior should be tested in integration tests');
-    }
-
-    public function testPutPackageUpdatesExistingDocument(): void
-    {
-        // Arrange
-        $lsDoc = new LsDoc();
-        $lsDoc->setIdentifier('550e8400-e29b-41d4-a716-446655440002');
-
-        $documentDto = new DocumentDto();
-        $documentDto->uri = 'https://example.com/updated';
-        $documentDto->creator = 'Updated Creator';
-        $documentDto->title = 'Updated Document';
-        $documentDto->lastChangeDateTime = new \DateTimeImmutable();
-        $documentDto->caseVersion = '1.1';
-        $documentDto->publisher = 'Updated Publisher';
-        $documentDto->description = 'Updated Description';
-        $documentDto->subject = 'Updated Subject';
-        $documentDto->language = 'en';
-        $documentDto->version = '2.0';
-        $documentDto->adoptionStatus = 'Adopted';
-        $documentDto->statusStartDate = new \DateTimeImmutable();
-        $documentDto->statusEndDate = new \DateTimeImmutable();
-        $documentDto->notes = 'Updated notes';
-        $documentDto->extensions = ['updated' => 'value'];
-
-        $this->objectMapper->expects($this->once())
-            ->method('map')
-            ->with($documentDto, $lsDoc);
-
-        $this->serializer->expects($this->once())
-            ->method('serialize')
-            ->willReturn('{"id":1,"title":"Updated Document"}');
-
-        // Act
-        $response = $this->controller->putPackage($lsDoc, $documentDto);
-
-        // Assert
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
     }
 
-    public function testPutPackageWithPartialUpdate(): void
+    public function testDeletePackageRemovesAllComponents(): void
     {
-        // Arrange
-        $lsDoc = new LsDoc();
-        $lsDoc->setIdentifier('550e8400-e29b-41d4-a716-446655440004');
-        $lsDoc->setTitle('Original Title');
+        $doc = new LsDoc();
 
-        $documentDto = new DocumentDto();
-        $documentDto->uri = 'https://example.com/updated';
-        $documentDto->creator = 'Updated Creator';
-        $documentDto->title = 'Updated Title';
-        $documentDto->lastChangeDateTime = new \DateTimeImmutable();
+        // Mock items to delete
+        $item = new \App\Entity\Framework\LsItem();
+        $this->lsItemRepository->expects($this->any())
+            ->method('findBy')
+            ->with(['lsDoc' => $doc])
+            ->willReturn([$item]);
 
-        $this->objectMapper->expects($this->once())
-            ->method('map')
-            ->with($documentDto, $lsDoc);
+        // Mock associations to delete
+        $association = new \App\Entity\Framework\LsAssociation();
+        $this->lsAssociationRepository->expects($this->any())
+            ->method('findBy')
+            ->with(['lsDoc' => $doc])
+            ->willReturn([$association]);
 
-        $this->serializer->expects($this->once())
-            ->method('serialize')
-            ->willReturn('{"id":1,"title":"Updated Title"}');
+        // Mock rubrics to delete
+        $rubric = new \App\Entity\Framework\CfRubric();
+        $this->cfRubricRepository->expects($this->any())
+            ->method('findBy')
+            ->with(['lsDoc' => $doc])
+            ->willReturn([$rubric]);
 
-        // Act
-        $response = $this->controller->putPackage($lsDoc, $documentDto);
+        $response = $this->controller->deletePackage($doc);
 
-        // Assert
-        $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
-    }
-
-    public function testDeletePackageRemovesDocument(): void
-    {
-        // Arrange
-        $lsDoc = new LsDoc();
-        $lsDoc->setIdentifier('550e8400-e29b-41d4-a716-446655440003');
-
-        // Act
-        $response = $this->controller->deletePackage($lsDoc);
-
-        // Assert
         $this->assertInstanceOf(Response::class, $response);
         $this->assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 
-    public function testIndexWithCursorPagination(): void
+    public function testPostPackageWithEmptyPackage(): void
     {
-        // Create DTOs with pagination values
-        $pagination = new DocumentPaginationDto();
-        $pagination->size = 5;
-        $pagination->after = base64_encode('123');
-        $pagination->direction = 'next';
+        $packageDto = new PackageDto();
+        $packageDto->CFDocument = new DocumentDto();
+        $packageDto->CFDocument->title = 'Empty Package';
 
-        $filter = new DocumentFilterDto();
-        $filter->sort = 'updatedAt';
-        $filter->order = 'desc';
+        $this->objectMapper->expects($this->any())
+            ->method('map');
 
-        $this->serializer->expects($this->once())
+        $this->serializer->expects($this->any())
             ->method('serialize')
-            ->willReturn('{"data":[],"pagination":{"hasNextPage":false,"hasPrevPage":true,"nextCursor":null,"prevCursor":"prev123","total":10}}');
+            ->willReturn('{"CFDocument":{},"CFItems":[],"CFAssociations":[],"CFDefinitions":{},"CFRubrics":[]}');
 
-        // Act
-        $response = $this->controller->index($pagination, $filter);
+        $response = $this->controller->postPackage($packageDto);
 
-        // Assert
         $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
     }
 
-    public function testIndexWithAllFilterParameters(): void
+    public function testGetPackageWithNoComponents(): void
     {
-        // Create DTOs with all filter parameters
-        $pagination = new DocumentPaginationDto();
-        $pagination->size = 25;
-        $pagination->after = null;
-        $pagination->direction = 'next';
+        $doc = new LsDoc();
 
-        $filter = new DocumentFilterDto();
-        $filter->creator = 'John Doe';
-        $filter->title = 'Advanced Mathematics';
-        $filter->adoptionStatus = 'Adopted';
-        $filter->subject = 'Mathematics';
-        $filter->language = 'en-US';
-        $filter->caseVersion = '1.1';
-        $filter->publisher = 'Educational Standards Organization';
-        $filter->sort = 'title';
-        $filter->order = 'asc';
+        $this->lsItemRepository->expects($this->any())
+            ->method('findBy')
+            ->willReturn([]);
+        $this->lsAssociationRepository->expects($this->any())
+            ->method('findBy')
+            ->willReturn([]);
+        $this->cfRubricRepository->expects($this->any())
+            ->method('findBy')
+            ->willReturn([]);
 
-        $this->serializer->expects($this->once())
+        $this->lsDefConceptRepository->expects($this->any())->method('findAll')->willReturn([]);
+        $this->lsDefSubjectRepository->expects($this->any())->method('findAll')->willReturn([]);
+        $this->lsDefLicenceRepository->expects($this->any())->method('findAll')->willReturn([]);
+        $this->lsDefItemTypeRepository->expects($this->any())->method('findAll')->willReturn([]);
+        $this->lsDefAssociationGroupingRepository->expects($this->any())->method('findAll')->willReturn([]);
+
+        $this->serializer->expects($this->any())
+            ->method('deserialize')
+            ->willReturn(new DocumentDto());
+
+        $this->serializer->expects($this->any())
             ->method('serialize')
-            ->willReturn('{"data":[],"pagination":{"hasNextPage":false,"hasPrevPage":false,"nextCursor":null,"prevCursor":null,"total":0}}');
+            ->willReturn('{"CFDocument":{},"CFItems":[],"CFAssociations":[],"CFDefinitions":{},"CFRubrics":[]}');
 
-        // Act
-        $response = $this->controller->index($pagination, $filter);
+        $response = $this->controller->getPackage($doc);
 
-        // Assert
         $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
-    }
-
-    public function testGetDocumentsWithPaginationReturnsCorrectStructure(): void
-    {
-        // This is a private method, so we'd need reflection to test it directly
-        // In practice, this would be tested through the index method
-        // or we could make it protected and test it through a subclass
-
-        $this->markTestIncomplete('Private method testing requires reflection or subclassing');
     }
 }

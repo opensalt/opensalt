@@ -86,12 +86,12 @@ class ApiV1AssociationControllerCest
         $I->sendPost('/api/v1/packages/'.$this->testDoc->getIdentifier().'/associations', [
             'identifier' => Uuid::uuid4()->toString(),
             'associationType' => 'isRelatedTo',
-            'originNodeUri' => [
+            'originNodeURI' => [
                 'title' => 'Origin',
                 'identifier' => Uuid::uuid4()->toString(),
                 'uri' => 'http://example.com/origin',
             ],
-            'destinationNodeUri' => [
+            'destinationNodeURI' => [
                 'title' => 'Destination',
                 'identifier' => Uuid::uuid4()->toString(),
                 'uri' => 'http://example.com/destination',
@@ -144,12 +144,12 @@ class ApiV1AssociationControllerCest
         $I->sendPut('/api/v1/packages/'.$this->testDoc->getIdentifier().'/associations/'.$this->testAssociation->getIdentifier(), [
             'identifier' => $this->testAssociation->getIdentifier(),
             'associationType' => 'isPartOf',
-            'originNodeUri' => [
+            'originNodeURI' => [
                 'title' => 'Origin',
                 'identifier' => Uuid::uuid4()->toString(),
                 'uri' => 'http://example.com/origin',
             ],
-            'destinationNodeUri' => [
+            'destinationNodeURI' => [
                 'title' => 'Destination',
                 'identifier' => Uuid::uuid4()->toString(),
                 'uri' => 'http://example.com/destination',
@@ -166,12 +166,12 @@ class ApiV1AssociationControllerCest
         $I->sendPut('/api/v1/packages/'.$this->testDoc->getIdentifier().'/associations/'.$this->testAssociation->getIdentifier(), [
             // Missing required fields like associationType
             'identifier' => $this->testAssociation->getIdentifier(),
-            'originNodeUri' => [
+            'originNodeURI' => [
                 'title' => 'Origin',
                 'identifier' => Uuid::uuid4()->toString(),
                 'uri' => 'http://example.com/origin',
             ],
-            'destinationNodeUri' => [
+            'destinationNodeURI' => [
                 'title' => 'Destination',
                 'identifier' => Uuid::uuid4()->toString(),
                 'uri' => 'http://example.com/destination',

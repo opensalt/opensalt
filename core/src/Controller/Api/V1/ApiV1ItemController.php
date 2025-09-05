@@ -149,7 +149,6 @@ class ApiV1ItemController extends AbstractController
         $this->sendCommand($command);
 
         $serialized = $this->serializer->serialize(['data' => $lsItem], 'json', []);
-        dump($serialized);
 
         return new JsonResponse($serialized, json: true);
     }

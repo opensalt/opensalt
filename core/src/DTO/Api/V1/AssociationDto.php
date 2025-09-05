@@ -76,7 +76,7 @@ class AssociationDto
         description: 'The origin node for the association',
     )]
     #[Map(if: false)]
-    public LinkGenURI $originNodeUri;
+    public ?LinkGenURI $originNodeURI = null;
 
     #[Groups(['create', 'update', 'view'])]
     #[OA\Property(
@@ -84,7 +84,7 @@ class AssociationDto
         description: 'The destination node for the association',
     )]
     #[Map(if: false)]
-    public LinkGenURI $destinationNodeUri;
+    public ?LinkGenURI $destinationNodeURI = null;
 
     #[Groups(['create', 'update', 'view'])]
     #[OA\Property(
