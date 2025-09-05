@@ -82,15 +82,15 @@ class LsDefSubjectTest extends \Codeception\Test\Unit
         $title = 'Mathematics';
 
         $lsDefSubject->setTitle($title);
-        $this->assertEquals($title, (string)$lsDefSubject);
+        $this->assertEquals($title, (string) $lsDefSubject);
     }
 
     public function testToStringWithoutTitle()
     {
-        $identifier = \Ramsey\Uuid\Uuid::uuid4()->toString();
+        $identifier = Uuid::uuid4()->toString();
         $lsDefSubject = new LsDefSubject($identifier);
 
-        $this->assertEquals('Subject: ' . $identifier, (string)$lsDefSubject);
+        $this->assertEquals('Subject: ' . $identifier, (string) $lsDefSubject);
     }
 
     public function testDataIntegrity()

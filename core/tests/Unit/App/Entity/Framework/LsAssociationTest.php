@@ -3,9 +3,9 @@
 namespace Tests\Unit\App\Entity\Framework;
 
 use App\Entity\Framework\LsAssociation;
+use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
-use App\Entity\Framework\LsDefAssociationGrouping;
 use Ramsey\Uuid\Uuid;
 
 class LsAssociationTest extends \Codeception\Test\Unit
@@ -383,7 +383,7 @@ class LsAssociationTest extends \Codeception\Test\Unit
     {
         $lsAssociation = new LsAssociation();
 
-        $this->assertEquals($lsAssociation->getUri(), (string)$lsAssociation);
+        $this->assertEquals($lsAssociation->getUri(), (string) $lsAssociation);
     }
 
     public function testConstants()

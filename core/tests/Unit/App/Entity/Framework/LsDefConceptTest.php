@@ -95,7 +95,7 @@ class LsDefConceptTest extends \Codeception\Test\Unit
         $title = 'Systems Thinking';
 
         $lsDefConcept->setTitle($title);
-        $this->assertEquals($title, (string)$lsDefConcept);
+        $this->assertEquals($title, (string) $lsDefConcept);
     }
 
     public function testDataIntegrity()

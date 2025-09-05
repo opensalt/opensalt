@@ -7,6 +7,13 @@ namespace App\DTO\CaseJson;
 use OpenApi\Attributes as OA;
 use Ramsey\Uuid\UuidInterface;
 
+#[OA\Schema(
+    required: [
+        'title',
+        'identifier',
+        'uri',
+    ]
+)]
 class LinkURI
 {
     #[OA\Property(

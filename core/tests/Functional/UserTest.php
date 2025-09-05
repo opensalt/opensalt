@@ -16,10 +16,10 @@ class UserTest extends \Codeception\Test\Unit
     // tests
     public function testAddUser()
     {
-        /* @var EntityManagerInterface $em */
+        /** @var EntityManagerInterface $em */
         $em = $this->getModule('Doctrine')->em;
 
-        /* @var User $user */
+        /** @var User $user */
         $user = new User();
 
         $org = $em->getRepository(AccessGroup::class)->find(1);

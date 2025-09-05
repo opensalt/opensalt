@@ -3,13 +3,13 @@
 namespace Tests\Unit\App\Entity\Framework;
 
 use App\Entity\Framework\CfRubric;
-use App\Entity\Framework\LsItem;
-use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\CfRubricCriterion;
+use App\Entity\Framework\LsDefConcept;
 use App\Entity\Framework\LsDefItemType;
 use App\Entity\Framework\LsDefLicence;
 use App\Entity\Framework\LsDefSubject;
-use App\Entity\Framework\LsDefConcept;
-use App\Entity\Framework\CfRubricCriterion;
+use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\LsItem;
 use App\Form\Type\LsItemType;
 use Ramsey\Uuid\Uuid;
 
@@ -351,7 +351,7 @@ class LsItemTest extends \Codeception\Test\Unit
     {
         $lsItem = new LsItem();
 
-        $this->assertEquals($lsItem->getUri(), (string)$lsItem);
+        $this->assertEquals($lsItem->getUri(), (string) $lsItem);
     }
 
     public function testCanEdit()

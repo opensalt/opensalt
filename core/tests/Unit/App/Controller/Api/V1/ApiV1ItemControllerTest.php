@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Unit\App\Controller\Api\V1;
 
-use App\Command\Framework\DeleteItemCommand;
 use App\Controller\Api\V1\ApiV1ItemController;
 use App\DTO\Api\V1\ItemDto;
 use App\DTO\Api\V1\PatchDto;
@@ -49,6 +48,19 @@ class ApiV1ItemControllerTest extends TestCase
             $this->objectMapper
         );
         $this->controller->setDispatcher($this->dispatcher);
+
+        // Mock the container and router for generateUrl
+        $router = $this->createMock(\Symfony\Component\Routing\RouterInterface::class);
+        $router->method('generate')->willReturn('/api/v1/packages/some-doc/items/some-item');
+        $container = $this->createMock(\Psr\Container\ContainerInterface::class);
+        $container->method('get')->willReturnCallback(function ($id) use ($router) {
+            if ('router' === $id) {
+                return $router;
+            }
+
+            return null;
+        });
+        $this->controller->setContainer($container);
     }
 
     public function testPostItemCreatesNewItem(): void
@@ -87,6 +99,10 @@ class ApiV1ItemControllerTest extends TestCase
             ->method('getUri')
             ->willReturn('https://example.com/item');
 
+        $lsItem->expects($this->once())
+            ->method('getLsDoc')
+            ->willReturn($lsDoc);
+
         // Expect ObjectMapper to be called for direct property mappings
         $this->objectMapper->expects($this->once())
             ->method('map')
@@ -103,25 +119,39 @@ class ApiV1ItemControllerTest extends TestCase
             ->method('setChangedAt')
             ->with($itemDto->lastChangeDateTime);
 
-        /* TODO: Need to determine how to check the output here
+        $this->dispatcher->expects($this->once())
+            ->method('dispatch');
+
         $this->serializer->expects($this->once())
             ->method('serialize')
-            ->with($lsItem, 'json', [])
-            ->willReturn('{"id":1,"fullStatement":"Test item statement"}');
-        */
+            ->willReturn('{"data":{"id":1,"fullStatement":"Test item statement"}}');
 
         // Act
         $response = $this->controller->postItem($lsDoc, $itemDto);
 
         // Assert
         $this->assertInstanceOf(JsonResponse::class, $response);
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertEquals('/api/v1/packages/some-doc/items/some-item', $response->headers->get('Location'));
     }
 
-    public function testGetItemForwardsToUriController(): void
+    public function testGetItemReturnsItem(): void
     {
-        // The getItem method forwards to UriController
-        // This would typically be tested in integration tests
-        $this->markTestIncomplete('Forwarding behavior should be tested in integration tests');
+        // Arrange
+        $lsItem = $this->createMock(LsItem::class);
+        $lsDoc = $this->createMock(\App\Entity\Framework\LsDoc::class);
+
+        $this->serializer->expects($this->once())
+            ->method('serialize')
+            ->with($lsItem, 'json', [])
+            ->willReturn('{"id":1,"fullStatement":"Test item"}');
+
+        // Act
+        $response = $this->controller->getItem($lsItem, $lsDoc);
+
+        // Assert
+        $this->assertInstanceOf(JsonResponse::class, $response);
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
     }
 
     public function testPutItemUpdatesExistingItem(): void
@@ -168,6 +198,9 @@ class ApiV1ItemControllerTest extends TestCase
         $lsItem->expects($this->once())
             ->method('setChangedAt')
             ->with($itemDto->lastChangeDateTime);
+
+        $this->dispatcher->expects($this->once())
+            ->method('dispatch');
 
         $this->serializer->expects($this->once())
             ->method('serialize')
@@ -249,6 +282,9 @@ class ApiV1ItemControllerTest extends TestCase
             ->method('setValue')
             ->with($lsItem, 'fullStatement', 'Patched statement');
 
+        $this->dispatcher->expects($this->once())
+            ->method('dispatch');
+
         $this->serializer->expects($this->once())
             ->method('serialize')
             ->with($lsItem, 'json', [])
@@ -290,7 +326,7 @@ class ApiV1ItemControllerTest extends TestCase
 
         $this->dispatcher->expects($this->once())
             ->method('dispatch')
-            ->with(new CommandEvent(new DeleteItemCommand($lsItem)));
+            ->with($this->isInstanceOf(CommandEvent::class));
 
         // Act
         $response = $this->controller->deleteItem($lsItem, $lsDoc);

@@ -180,12 +180,12 @@ class AdditionalFieldTest extends \Codeception\Test\Unit
             'validation' => [
                 'required' => true,
                 'minLength' => 5,
-                'maxLength' => 255
+                'maxLength' => 255,
             ],
             'display' => [
                 'placeholder' => 'Enter value',
-                'helpText' => 'This is a help text'
-            ]
+                'helpText' => 'This is a help text',
+            ],
         ];
 
         $additionalField->setTypeInfo($complexTypeInfo);

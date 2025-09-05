@@ -71,7 +71,6 @@ class ApiV1DocumentController extends AbstractController
         #[MapQueryString(key: 'filter')] DocumentFilterDto $filter,
     ): Response {
         // Get documents with pagination and filtering
-        // TODO: Filter to only the frameworks the user can see
         $result = $this->lsDocRepository->findDocumentsWithPagination($page, $filter);
 
         return new JsonResponse($this->serializer->serialize($result, 'json', []), json: true);
