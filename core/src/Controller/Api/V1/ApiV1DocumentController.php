@@ -10,7 +10,7 @@ use App\Command\Framework\UpdateDocumentCommand;
 use App\DTO\Api\V1\DocumentDto;
 use App\DTO\Api\V1\DocumentFilterDto;
 use App\DTO\Api\V1\DocumentListResponseDto;
-use App\DTO\Api\V1\DocumentPaginationDto;
+use App\DTO\Api\V1\PaginationDto;
 use App\Entity\Framework\LsDoc;
 use App\Repository\Framework\LsDocRepository;
 use App\Security\Permission;
@@ -67,7 +67,7 @@ class ApiV1DocumentController extends AbstractController
         content: new Model(type: DocumentListResponseDto::class),
     )]
     public function index(
-        #[MapQueryString(key: 'page')] DocumentPaginationDto $page,
+        #[MapQueryString(key: 'page')] PaginationDto $page,
         #[MapQueryString(key: 'filter')] DocumentFilterDto $filter,
     ): Response {
         // Get documents with pagination and filtering

@@ -8,7 +8,7 @@ use App\Controller\Api\V1\ApiV1DocumentController;
 use App\DTO\Api\V1\DocumentDto;
 use App\DTO\Api\V1\DocumentFilterDto;
 use App\DTO\Api\V1\DocumentListResponseDto;
-use App\DTO\Api\V1\DocumentPaginationDto;
+use App\DTO\Api\V1\PaginationDto;
 use App\DTO\Api\V1\DocumentPaginationResponseDto;
 use App\Entity\Framework\LsDoc;
 use App\Repository\Framework\LsDocRepository;
@@ -46,7 +46,7 @@ class ApiV1DocumentControllerTest extends TestCase
     public function testIndexReturnsJsonResponse(): void
     {
         // Arrange
-        $pagination = new DocumentPaginationDto();
+        $pagination = new PaginationDto();
         $pagination->size = 20;
         $pagination->after = null;
         $pagination->direction = 'next';
@@ -88,7 +88,7 @@ class ApiV1DocumentControllerTest extends TestCase
     public function testIndexWithFilters(): void
     {
         // Arrange
-        $pagination = new DocumentPaginationDto();
+        $pagination = new PaginationDto();
         $pagination->size = 10;
         $pagination->after = 'cursor123';
         $pagination->direction = 'next';
@@ -286,7 +286,7 @@ class ApiV1DocumentControllerTest extends TestCase
     public function testIndexWithCursorPagination(): void
     {
         // Arrange
-        $pagination = new DocumentPaginationDto();
+        $pagination = new PaginationDto();
         $pagination->size = 5;
         $pagination->after = base64_encode('123');
         $pagination->direction = 'next';
@@ -321,7 +321,7 @@ class ApiV1DocumentControllerTest extends TestCase
     public function testIndexWithAllFilterParameters(): void
     {
         // Arrange
-        $pagination = new DocumentPaginationDto();
+        $pagination = new PaginationDto();
         $pagination->size = 25;
         $pagination->after = null;
         $pagination->direction = 'next';

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\DTO\Api\V1;
 
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\ObjectMapper\Attribute\Map;
@@ -48,7 +49,7 @@ class RubricDto
     #[Groups(['create', 'update', 'view'])]
     #[OA\Property(
         type: 'array',
-        items: new OA\Items(ref: '#/components/schemas/CFRubricCriteriaDto'),
+        items: new OA\Items(ref: new Model(type: CFRubricCriteriaDto::class)),
         nullable: true,
     )]
     #[Assert\All(new Assert\Type(CFRubricCriteriaDto::class))]

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\DTO\Api\V1;
 
+use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -72,7 +73,7 @@ class CFRubricCriteriaDto
     #[Groups(['create', 'update', 'view'])]
     #[OA\Property(
         type: 'array',
-        items: new OA\Items(ref: '#/components/schemas/CFRubricCriteriaLevelDto'),
+        items: new OA\Items(ref: new Model(type: CFRubricCriteriaLevelDto::class)),
         nullable: true,
     )]
     #[Assert\All(new Assert\Type(CFRubricCriteriaLevelDto::class))]

@@ -5,34 +5,30 @@ declare(strict_types=1);
 namespace Tests\Unit\App\Controller\Api\V1;
 
 use App\Controller\Api\V1\ApiV1PackageController;
-use App\DTO\Api\V1\PackageDto;
-use App\DTO\Api\V1\DocumentDto;
-use App\DTO\Api\V1\ItemDto;
 use App\DTO\Api\V1\AssociationDto;
 use App\DTO\Api\V1\DefinitionDto;
+use App\DTO\Api\V1\DocumentDto;
+use App\DTO\Api\V1\ItemDto;
+use App\DTO\Api\V1\PackageDto;
 use App\DTO\Api\V1\RubricDto;
-use App\DTO\Api\V1\DocumentFilterDto;
-use App\DTO\Api\V1\DocumentPaginationDto;
-use App\DTO\Api\V1\DocumentListResponseDto;
 use App\Entity\Framework\LsDoc;
+use App\Repository\Framework\CfRubricCriterionLevelRepository;
+use App\Repository\Framework\CfRubricCriterionRepository;
+use App\Repository\Framework\CfRubricRepository;
+use App\Repository\Framework\LsAssociationRepository;
+use App\Repository\Framework\LsDefAssociationGroupingRepository;
+use App\Repository\Framework\LsDefConceptRepository;
+use App\Repository\Framework\LsDefItemTypeRepository;
+use App\Repository\Framework\LsDefLicenceRepository;
+use App\Repository\Framework\LsDefSubjectRepository;
 use App\Repository\Framework\LsDocRepository;
 use App\Repository\Framework\LsItemRepository;
-use App\Repository\Framework\LsAssociationRepository;
-use App\Repository\Framework\CfRubricRepository;
-use App\Repository\Framework\CfRubricCriterionRepository;
-use App\Repository\Framework\CfRubricCriterionLevelRepository;
-use App\Repository\Framework\LsDefConceptRepository;
-use App\Repository\Framework\LsDefSubjectRepository;
-use App\Repository\Framework\LsDefLicenceRepository;
-use App\Repository\Framework\LsDefItemTypeRepository;
-use App\Repository\Framework\LsDefAssociationGroupingRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\ObjectMapper\ObjectMapperInterface;
 use Symfony\Component\Serializer\SerializerInterface;
-use Ramsey\Uuid\Uuid;
 
 class ApiV1PackageControllerTest extends TestCase
 {
@@ -90,29 +86,6 @@ class ApiV1PackageControllerTest extends TestCase
         $this->controller->setDispatcher($this->createMock(\Symfony\Component\EventDispatcher\EventDispatcherInterface::class));
     }
 
-    public function testIndexReturnsJsonResponse(): void
-    {
-        $pagination = new DocumentPaginationDto();
-        $filter = new DocumentFilterDto();
-        $paginationResponse = new \App\DTO\Api\V1\DocumentPaginationResponseDto(false, null, 0);
-        $responseDto = new DocumentListResponseDto([], $paginationResponse);
-
-        $this->lsDocRepository->expects($this->once())
-            ->method('findDocumentsWithPagination')
-            ->with($pagination, $filter)
-            ->willReturn($responseDto);
-
-        $this->serializer->expects($this->once())
-            ->method('serialize')
-            ->with($responseDto, 'json', [])
-            ->willReturn('{"data":[],"pagination":{"hasNextPage":false,"nextCursor":null,"total":0}}');
-
-        $response = $this->controller->index($pagination, $filter);
-
-        $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
-    }
-
     public function testGetPackageReturnsCompletePackageStructure(): void
     {
         $doc = new LsDoc();
@@ -158,15 +131,16 @@ class ApiV1PackageControllerTest extends TestCase
         $this->serializer->expects($this->any())
             ->method('deserialize')
             ->willReturnCallback(function ($data, $class, $format = null) {
-                if ($class === DocumentDto::class) {
+                if (DocumentDto::class === $class) {
                     return new DocumentDto();
-                } elseif ($class === ItemDto::class) {
+                } elseif (ItemDto::class === $class) {
                     return new ItemDto();
-                } elseif ($class === AssociationDto::class) {
+                } elseif (AssociationDto::class === $class) {
                     return new AssociationDto();
-                } elseif ($class === RubricDto::class) {
+                } elseif (RubricDto::class === $class) {
                     return new RubricDto();
                 }
+
                 return null;
             });
 

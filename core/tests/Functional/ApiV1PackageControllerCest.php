@@ -99,34 +99,6 @@ class ApiV1PackageControllerCest
         return $doc;
     }
 
-    // Test GET /api/v1/packages (index)
-    public function testIndexPackages(FunctionalTester $I): void
-    {
-        $I->amBearerAuthenticated($this->apiToken);
-        $I->haveHttpHeader('Accept', 'application/json');
-        $I->sendGet('/api/v1/packages');
-        $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseIsJson();
-        $I->seeResponseJsonMatchesJsonPath('$.data');
-        $I->seeResponseJsonMatchesJsonPath('$.pagination');
-    }
-
-    public function testIndexPackagesWithPagination(FunctionalTester $I): void
-    {
-        $I->amBearerAuthenticated($this->apiToken);
-        $I->sendGet('/api/v1/packages?page[size]=5');
-        $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseIsJson();
-    }
-
-    public function testIndexPackagesWithFilters(FunctionalTester $I): void
-    {
-        $I->amBearerAuthenticated($this->apiToken);
-        $I->sendGet('/api/v1/packages?filter[title]=Test&filter[creator]=Test Creator');
-        $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseIsJson();
-    }
-
     // Test GET /api/v1/packages/{documentIdentifier}
     public function testGetPackage(FunctionalTester $I): void
     {

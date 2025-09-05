@@ -18,9 +18,6 @@ use App\DTO\Api\V1\CFRubricCriteriaDto;
 use App\DTO\Api\V1\CFRubricCriteriaLevelDto;
 use App\DTO\Api\V1\DefinitionDto;
 use App\DTO\Api\V1\DocumentDto;
-use App\DTO\Api\V1\DocumentFilterDto;
-use App\DTO\Api\V1\DocumentListResponseDto;
-use App\DTO\Api\V1\DocumentPaginationDto;
 use App\DTO\Api\V1\ItemDto;
 use App\DTO\Api\V1\PackageDto;
 use App\DTO\Api\V1\RubricDto;
@@ -44,7 +41,6 @@ use App\Repository\Framework\LsDefConceptRepository;
 use App\Repository\Framework\LsDefItemTypeRepository;
 use App\Repository\Framework\LsDefLicenceRepository;
 use App\Repository\Framework\LsDefSubjectRepository;
-use App\Repository\Framework\LsDocRepository;
 use App\Repository\Framework\LsItemRepository;
 use App\Security\Permission;
 use Doctrine\Common\Collections\Collection;
@@ -57,7 +53,6 @@ use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\ObjectMapper\ObjectMapperInterface;
 use Symfony\Component\Routing\Attribute\Route;
@@ -86,7 +81,6 @@ class ApiV1PackageController extends AbstractController
         private readonly SerializerInterface $serializer,
         private readonly ObjectMapperInterface $objectMapper,
         private readonly EntityManagerInterface $entityManager,
-        private readonly LsDocRepository $lsDocRepository,
         private readonly LsItemRepository $lsItemRepository,
         private readonly LsAssociationRepository $lsAssociationRepository,
         private readonly CfRubricRepository $cfRubricRepository,
@@ -98,27 +92,6 @@ class ApiV1PackageController extends AbstractController
         private readonly LsDefItemTypeRepository $lsDefItemTypeRepository,
         private readonly LsDefAssociationGroupingRepository $lsDefAssociationGroupingRepository,
     ) {
-    }
-
-    #[Route('/api/v1/packages', methods: ['GET'])]
-    #[OA\Get(
-        operationId: 'api_v1_package_index',
-        description: 'Get a list of packages with pagination and filtering',
-        summary: 'List packages',
-    )]
-    #[OA\Response(
-        response: Response::HTTP_OK,
-        description: 'List of packages',
-        content: new Model(type: DocumentListResponseDto::class),
-    )]
-    public function index(
-        #[MapQueryString(key: 'page')] DocumentPaginationDto $page,
-        #[MapQueryString(key: 'filter')] DocumentFilterDto $filter,
-    ): Response {
-        // Get packages with pagination and filtering
-        $result = $this->lsDocRepository->findDocumentsWithPagination($page, $filter);
-
-        return new JsonResponse($this->serializer->serialize($result, 'json', []), json: true);
     }
 
     #[Route('/api/v1/packages/{documentIdentifier}', methods: ['GET'])]
