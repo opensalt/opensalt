@@ -14,6 +14,8 @@ use App\Command\Framework\DeleteItemCommand;
 use App\Command\Framework\UpdateDocumentCommand;
 use App\Command\Framework\UpdateItemCommand;
 use App\DTO\Api\V1\AssociationDto;
+use App\DTO\Api\V1\CFRubricCriteriaDto;
+use App\DTO\Api\V1\CFRubricCriteriaLevelDto;
 use App\DTO\Api\V1\DefinitionDto;
 use App\DTO\Api\V1\DocumentDto;
 use App\DTO\Api\V1\DocumentFilterDto;
@@ -22,7 +24,19 @@ use App\DTO\Api\V1\DocumentPaginationDto;
 use App\DTO\Api\V1\ItemDto;
 use App\DTO\Api\V1\PackageDto;
 use App\DTO\Api\V1\RubricDto;
+use App\Entity\Framework\CfRubric;
+use App\Entity\Framework\CfRubricCriterion;
+use App\Entity\Framework\CfRubricCriterionLevel;
+use App\Entity\Framework\LsAssociation;
+use App\Entity\Framework\LsDefAssociationGrouping;
+use App\Entity\Framework\LsDefConcept;
+use App\Entity\Framework\LsDefItemType;
+use App\Entity\Framework\LsDefLicence;
+use App\Entity\Framework\LsDefSubject;
 use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\LsItem;
+use App\Repository\Framework\CfRubricCriterionLevelRepository;
+use App\Repository\Framework\CfRubricCriterionRepository;
 use App\Repository\Framework\CfRubricRepository;
 use App\Repository\Framework\LsAssociationRepository;
 use App\Repository\Framework\LsDefAssociationGroupingRepository;
@@ -33,6 +47,7 @@ use App\Repository\Framework\LsDefSubjectRepository;
 use App\Repository\Framework\LsDocRepository;
 use App\Repository\Framework\LsItemRepository;
 use App\Security\Permission;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use Nelmio\ApiDocBundle\Attribute\Security;
@@ -75,6 +90,8 @@ class ApiV1PackageController extends AbstractController
         private readonly LsItemRepository $lsItemRepository,
         private readonly LsAssociationRepository $lsAssociationRepository,
         private readonly CfRubricRepository $cfRubricRepository,
+        private readonly CfRubricCriterionRepository $cfRubricCriterionRepository,
+        private readonly CfRubricCriterionLevelRepository $cfRubricCriterionLevelRepository,
         private readonly LsDefConceptRepository $lsDefConceptRepository,
         private readonly LsDefSubjectRepository $lsDefSubjectRepository,
         private readonly LsDefLicenceRepository $lsDefLicenceRepository,
@@ -129,44 +146,10 @@ class ApiV1PackageController extends AbstractController
             'json'
         );
 
-        // Get items for this document
-        $items = $this->lsItemRepository->findBy(['lsDoc' => $doc]);
-        $packageDto->CFItems = array_map(function ($item) {
-            return $this->serializer->deserialize(
-                $this->serializer->serialize($item, 'json', ['groups' => ['view']]),
-                ItemDto::class,
-                'json'
-            );
-        }, $items);
-
-        // Get associations
-        $associations = $this->lsAssociationRepository->findBy(['lsDoc' => $doc]);
-        $packageDto->CFAssociations = array_map(function ($assoc) {
-            return $this->serializer->deserialize(
-                $this->serializer->serialize($assoc, 'json', ['groups' => ['view']]),
-                AssociationDto::class,
-                'json'
-            );
-        }, $associations);
-
-        // Get definitions (concepts, subjects, licences, item types, association groupings)
-        $definitions = new DefinitionDto();
-        $definitions->CFConcepts = $this->lsDefConceptRepository->findAll();
-        $definitions->CFSubjects = $this->lsDefSubjectRepository->findAll();
-        $definitions->CFLicenses = $this->lsDefLicenceRepository->findAll();
-        $definitions->CFItemTypes = $this->lsDefItemTypeRepository->findAll();
-        $definitions->CFAssociationGroupings = $this->lsDefAssociationGroupingRepository->findAll();
-        $packageDto->CFDefinitions = $definitions;
-
-        // Get rubrics (rubrics are global, not document-specific)
-        $rubrics = $this->cfRubricRepository->findAll();
-        $packageDto->CFRubrics = array_map(function ($rubric) {
-            return $this->serializer->deserialize(
-                $this->serializer->serialize($rubric, 'json', ['groups' => ['view']]),
-                RubricDto::class,
-                'json'
-            );
-        }, $rubrics);
+        $packageDto->CFItems = $this->buildItems($doc);
+        $packageDto->CFAssociations = $this->buildAssociations($doc);
+        $packageDto->CFDefinitions = $this->buildDefinitions();
+        $packageDto->CFRubrics = $this->buildRubrics();
 
         return new JsonResponse(
             $this->serializer->serialize($packageDto, 'json', ['groups' => ['view']]),
@@ -212,7 +195,7 @@ class ApiV1PackageController extends AbstractController
         // Create items
         if ($packageDto->CFItems) {
             foreach ($packageDto->CFItems as $itemDto) {
-                $item = new \App\Entity\Framework\LsItem();
+                $item = new LsItem();
                 $item->setLsDoc($lsDoc);
                 $item->setIdentifier($itemDto->identifier ?? Uuid::uuid4()->toString());
                 $itemDto->identifier = Uuid::fromString($item->getIdentifier());
@@ -223,28 +206,7 @@ class ApiV1PackageController extends AbstractController
         }
 
         // Create associations
-        if ($packageDto->CFAssociations) {
-            foreach ($packageDto->CFAssociations as $assocDto) {
-                $assoc = new \App\Entity\Framework\LsAssociation();
-                $assoc->setLsDoc($lsDoc);
-                // Set uri for originNodeURI
-                if ($assocDto->originNodeURI && !$assocDto->originNodeURI->uri) {
-                    $originItem = $this->lsItemRepository->findOneBy(['identifier' => $assocDto->originNodeURI->identifier->toString()]);
-                    if ($originItem) {
-                        $assocDto->originNodeURI->uri = $originItem->getUri();
-                    }
-                }
-                // Set uri for destinationNodeURI
-                if ($assocDto->destinationNodeURI && !$assocDto->destinationNodeURI->uri) {
-                    $destinationItem = $this->lsItemRepository->findOneBy(['identifier' => $assocDto->destinationNodeURI->identifier->toString()]);
-                    if ($destinationItem) {
-                        $assocDto->destinationNodeURI->uri = $destinationItem->getUri();
-                    }
-                }
-                $this->objectMapper->map($assocDto, $assoc);
-                $this->sendCommand(new AddAssociationCommand($assoc));
-            }
-        }
+        $this->updateAssociations($lsDoc, $packageDto);
 
         // Handle definitions (these are global, not document-specific)
         if ($packageDto->CFDefinitions) {
@@ -254,11 +216,54 @@ class ApiV1PackageController extends AbstractController
         // Create rubrics
         if ($packageDto->CFRubrics) {
             foreach ($packageDto->CFRubrics as $rubricDto) {
-                $rubric = new \App\Entity\Framework\CfRubric();
+                $rubric = new CfRubric();
                 $rubric->setIdentifier($rubricDto->identifier ?? Uuid::uuid4()->toString());
                 $rubricDto->identifier = Uuid::fromString($rubric->getIdentifier());
                 $rubricDto->uri ??= $rubric->getUri();
-                $this->objectMapper->map($rubricDto, $rubric);
+                $rubric->setTitle($rubricDto->title ?? null);
+                $rubric->setDescription($rubricDto->description ?? null);
+
+                // Create criteria
+                if ($rubricDto->CFRubricCriteria) {
+                    foreach ($rubricDto->CFRubricCriteria as $criterionDto) {
+                        $criterion = new CfRubricCriterion($rubric);
+                        $criterion->setIdentifier($criterionDto->identifier ?? Uuid::uuid4()->toString());
+                        $criterionDto->identifier = Uuid::fromString($criterion->getIdentifier());
+                        $criterionDto->uri ??= $criterion->getUri();
+
+                        // Set item if CFItemURI is provided
+                        if ($criterionDto->CFItemURI) {
+                            $item = $this->lsItemRepository->findOneBy(['identifier' => $criterionDto->CFItemURI]);
+                            if ($item) {
+                                $criterion->setItem($item);
+                            }
+                        }
+
+                        $criterion->setCategory($criterionDto->category);
+                        $criterion->setDescription($criterionDto->description);
+                        $criterion->setWeight($criterionDto->weight);
+                        $criterion->setPosition($criterionDto->position);
+
+                        // Create levels
+                        if ($criterionDto->CFRubricCriteriaLevels) {
+                            foreach ($criterionDto->CFRubricCriteriaLevels as $levelDto) {
+                                $level = new CfRubricCriterionLevel($criterion);
+                                $level->setIdentifier($levelDto->identifier ?? Uuid::uuid4()->toString());
+                                $levelDto->identifier = Uuid::fromString($level->getIdentifier());
+                                $levelDto->uri ??= $level->getUri();
+                                $level->setDescription($levelDto->description);
+                                $level->setQuality($levelDto->quality);
+                                $level->setScore($levelDto->score);
+                                $level->setFeedback($levelDto->feedback);
+                                $level->setPosition($levelDto->position);
+                                $this->entityManager->persist($level);
+                            }
+                        }
+
+                        $this->entityManager->persist($criterion);
+                    }
+                }
+
                 $this->entityManager->persist($rubric);
             }
             $this->entityManager->flush();
@@ -275,7 +280,7 @@ class ApiV1PackageController extends AbstractController
         // Handle concepts
         if ($definitions->CFConcepts) {
             foreach ($definitions->CFConcepts as $concept) {
-                $entity = new \App\Entity\Framework\LsDefConcept();
+                $entity = new LsDefConcept();
                 $this->objectMapper->map($concept, $entity);
                 $this->entityManager->persist($entity);
             }
@@ -284,7 +289,7 @@ class ApiV1PackageController extends AbstractController
         // Handle subjects
         if ($definitions->CFSubjects) {
             foreach ($definitions->CFSubjects as $subject) {
-                $entity = new \App\Entity\Framework\LsDefSubject();
+                $entity = new LsDefSubject();
                 $this->objectMapper->map($subject, $entity);
                 $this->entityManager->persist($entity);
             }
@@ -293,7 +298,7 @@ class ApiV1PackageController extends AbstractController
         // Handle licences
         if ($definitions->CFLicenses) {
             foreach ($definitions->CFLicenses as $licence) {
-                $entity = new \App\Entity\Framework\LsDefLicence();
+                $entity = new LsDefLicence();
                 $this->objectMapper->map($licence, $entity);
                 $this->entityManager->persist($entity);
             }
@@ -302,7 +307,7 @@ class ApiV1PackageController extends AbstractController
         // Handle item types
         if ($definitions->CFItemTypes) {
             foreach ($definitions->CFItemTypes as $itemType) {
-                $entity = new \App\Entity\Framework\LsDefItemType();
+                $entity = new LsDefItemType();
                 $this->objectMapper->map($itemType, $entity);
                 $this->entityManager->persist($entity);
             }
@@ -311,13 +316,280 @@ class ApiV1PackageController extends AbstractController
         // Handle association groupings
         if ($definitions->CFAssociationGroupings) {
             foreach ($definitions->CFAssociationGroupings as $grouping) {
-                $entity = new \App\Entity\Framework\LsDefAssociationGrouping();
+                $entity = new LsDefAssociationGrouping();
                 $this->objectMapper->map($grouping, $entity);
                 $this->entityManager->persist($entity);
             }
         }
 
         $this->entityManager->flush();
+    }
+
+    private function updateDocument(LsDoc $doc, PackageDto $packageDto): void
+    {
+        if (null === $packageDto->CFDocument) {
+            return;
+        }
+
+        $documentDto = $packageDto->CFDocument;
+        $documentDto->identifier = Uuid::fromString($doc->getIdentifier());
+        $documentDto->uri = $doc->getUri();
+        $this->objectMapper->map($documentDto, $doc);
+        $this->sendCommand(new UpdateDocumentCommand($doc));
+    }
+
+    private function updateItems(LsDoc $doc, PackageDto $packageDto): void
+    {
+        if (null === $packageDto->CFItems) {
+            return;
+        }
+
+        $existingItems = $this->lsItemRepository->findBy(['lsDoc' => $doc]);
+        $existingItemIds = array_map(fn ($item) => $item->getIdentifier(), $existingItems);
+
+        foreach ($packageDto->CFItems as $itemDto) {
+            $itemId = $itemDto->identifier?->toString();
+            if (in_array($itemId, $existingItemIds)) {
+                $item = $this->lsItemRepository->findOneBy(['identifier' => $itemId]);
+                $this->objectMapper->map($itemDto, $item);
+                $this->sendCommand(new UpdateItemCommand($item));
+            } else {
+                $item = new LsItem();
+                $item->setLsDoc($doc);
+                $item->setIdentifier($itemDto->identifier ?? Uuid::uuid4()->toString());
+                $itemDto->identifier = Uuid::fromString($item->getIdentifier());
+                $itemDto->uri ??= $item->getUri();
+                $this->objectMapper->map($itemDto, $item);
+                $this->sendCommand(new AddItemCommand($item, $doc));
+            }
+        }
+    }
+
+    private function updateAssociations(LsDoc $doc, PackageDto $packageDto): void
+    {
+        foreach ($packageDto->CFAssociations ?? [] as $assocDto) {
+            $assoc = new LsAssociation();
+            $assoc->setLsDoc($doc);
+            if ($assocDto->originNodeURI && !$assocDto->originNodeURI->uri) {
+                $originItem = $this->lsItemRepository->findOneBy(['identifier' => $assocDto->originNodeURI->identifier->toString()]);
+                if ($originItem) {
+                    $assocDto->originNodeURI->uri = $originItem->getUri();
+                }
+            }
+            if ($assocDto->destinationNodeURI && !$assocDto->destinationNodeURI->uri) {
+                $destinationItem = $this->lsItemRepository->findOneBy(['identifier' => $assocDto->destinationNodeURI->identifier->toString()]);
+                if ($destinationItem) {
+                    $assocDto->destinationNodeURI->uri = $destinationItem->getUri();
+                }
+            }
+            $this->objectMapper->map($assocDto, $assoc);
+            $this->sendCommand(new AddAssociationCommand($assoc));
+        }
+    }
+
+    private function updateRubrics(PackageDto $packageDto): void
+    {
+        if (null === $packageDto->CFRubrics) {
+            return;
+        }
+
+        /** @var CfRubric[] $existingRubrics */
+        $existingRubrics = $this->cfRubricRepository->findAll();
+        $existingRubricIds = array_map(fn ($rubric): string => $rubric->getIdentifier(), $existingRubrics);
+
+        foreach ($packageDto->CFRubrics as $rubricDto) {
+            $rubricId = $rubricDto->identifier?->toString();
+            if (in_array($rubricId, $existingRubricIds)) {
+                $rubric = $this->cfRubricRepository->findOneBy(['identifier' => $rubricId]);
+                $rubric->setTitle($rubricDto->title ?? null);
+                $rubric->setDescription($rubricDto->description ?? null);
+            } else {
+                $rubric = new CfRubric();
+                $rubric->setIdentifier($rubricDto->identifier ?? Uuid::uuid4()->toString());
+                $rubricDto->identifier = Uuid::fromString($rubric->getIdentifier());
+                $rubricDto->uri ??= $rubric->getUri();
+                $rubric->setTitle($rubricDto->title ?? null);
+                $rubric->setDescription($rubricDto->description ?? null);
+                $this->entityManager->persist($rubric);
+            }
+
+            $this->updateRubricCriteria($rubric, $rubricDto);
+        }
+        $this->entityManager->flush();
+    }
+
+    private function updateRubricCriteria(CfRubric $rubric, RubricDto $rubricDto): void
+    {
+        if (null === $rubricDto->CFRubricCriteria) {
+            return;
+        }
+
+        $existingCriteria = $rubric->getCriteria();
+        $existingCriterionIds = array_map(fn ($criterion) => $criterion->getIdentifier(), $existingCriteria->toArray());
+
+        foreach ($rubricDto->CFRubricCriteria as $criterionDto) {
+            $criterionId = $criterionDto->identifier?->toString();
+            if (in_array($criterionId, $existingCriterionIds)) {
+                $criterion = $this->cfRubricCriterionRepository->findOneBy(['identifier' => $criterionId]);
+                $criterion->setCategory($criterionDto->category);
+                $criterion->setDescription($criterionDto->description);
+                $criterion->setWeight($criterionDto->weight);
+                $criterion->setPosition($criterionDto->position);
+            } else {
+                $criterion = new CfRubricCriterion($rubric);
+                $criterion->setIdentifier($criterionDto->identifier ?? Uuid::uuid4()->toString());
+                $criterionDto->identifier = Uuid::fromString($criterion->getIdentifier());
+                $criterionDto->uri ??= $criterion->getUri();
+
+                if ($criterionDto->CFItemURI) {
+                    $item = $this->lsItemRepository->findOneBy(['identifier' => $criterionDto->CFItemURI]);
+                    if ($item) {
+                        $criterion->setItem($item);
+                    }
+                }
+
+                $criterion->setCategory($criterionDto->category);
+                $criterion->setDescription($criterionDto->description);
+                $criterion->setWeight($criterionDto->weight);
+                $criterion->setPosition($criterionDto->position);
+                $this->entityManager->persist($criterion);
+            }
+
+            $this->updateRubricLevels($criterion, $criterionDto);
+        }
+    }
+
+    private function updateRubricLevels(CfRubricCriterion $criterion, CFRubricCriteriaDto $criterionDto): void
+    {
+        if (null === $criterionDto->CFRubricCriteriaLevels) {
+            return;
+        }
+
+        $existingLevels = $criterion->getLevels();
+        $existingLevelIds = array_map(fn ($level) => $level->getIdentifier(), $existingLevels->toArray());
+
+        foreach ($criterionDto->CFRubricCriteriaLevels as $levelDto) {
+            $levelId = $levelDto->identifier?->toString();
+            if (in_array($levelId, $existingLevelIds)) {
+                $level = $this->cfRubricCriterionLevelRepository->findOneBy(['identifier' => $levelId]);
+                $level->setDescription($levelDto->description);
+                $level->setQuality($levelDto->quality);
+                $level->setScore($levelDto->score);
+                $level->setFeedback($levelDto->feedback);
+                $level->setPosition($levelDto->position);
+            } else {
+                $level = new CfRubricCriterionLevel($criterion);
+                $level->setIdentifier($levelDto->identifier ?? Uuid::uuid4()->toString());
+                $levelDto->identifier = Uuid::fromString($level->getIdentifier());
+                $levelDto->uri ??= $level->getUri();
+                $level->setDescription($levelDto->description);
+                $level->setQuality($levelDto->quality);
+                $level->setScore($levelDto->score);
+                $level->setFeedback($levelDto->feedback);
+                $level->setPosition($levelDto->position);
+                $this->entityManager->persist($level);
+            }
+        }
+    }
+
+    private function buildItems(LsDoc $doc): array
+    {
+        $items = $this->lsItemRepository->findBy(['lsDoc' => $doc]);
+
+        return array_map(function ($item) {
+            return $this->serializer->deserialize(
+                $this->serializer->serialize($item, 'json', ['groups' => ['view']]),
+                ItemDto::class,
+                'json'
+            );
+        }, $items);
+    }
+
+    private function buildAssociations(LsDoc $doc): array
+    {
+        $associations = $this->lsAssociationRepository->findBy(['lsDoc' => $doc]);
+
+        return array_map(function ($assoc) {
+            return $this->serializer->deserialize(
+                $this->serializer->serialize($assoc, 'json', ['groups' => ['view']]),
+                AssociationDto::class,
+                'json'
+            );
+        }, $associations);
+    }
+
+    private function buildDefinitions(): DefinitionDto
+    {
+        $definitions = new DefinitionDto();
+        $definitions->CFConcepts = $this->lsDefConceptRepository->findAll();
+        $definitions->CFSubjects = $this->lsDefSubjectRepository->findAll();
+        $definitions->CFLicenses = $this->lsDefLicenceRepository->findAll();
+        $definitions->CFItemTypes = $this->lsDefItemTypeRepository->findAll();
+        $definitions->CFAssociationGroupings = $this->lsDefAssociationGroupingRepository->findAll();
+
+        return $definitions;
+    }
+
+    private function buildRubrics(): array
+    {
+        $rubrics = $this->cfRubricRepository->findAll();
+
+        return array_map(function ($rubric) {
+            $rubricDto = $this->serializer->deserialize(
+                $this->serializer->serialize($rubric, 'json', ['groups' => ['view']]),
+                RubricDto::class,
+                'json'
+            );
+
+            $rubricDto->CFRubricCriteria = $this->buildCriteria($rubric->getCriteria());
+
+            return $rubricDto;
+        }, $rubrics);
+    }
+
+    /**
+     * @param Collection<array-key, CfRubricCriterion> $criteria
+     *
+     * @return CFRubricCriteriaDto[]
+     */
+    private function buildCriteria(Collection $criteria): array
+    {
+        return array_map(function ($criterion) {
+            $criterionDto = new CFRubricCriteriaDto();
+            $criterionDto->identifier = Uuid::fromString($criterion->getIdentifier());
+            $criterionDto->uri = $criterion->getUri();
+            $criterionDto->category = $criterion->getCategory();
+            $criterionDto->description = $criterion->getDescription();
+            $criterionDto->CFItemURI = $criterion->getItem()?->getIdentifier();
+            $criterionDto->weight = $criterion->getWeight();
+            $criterionDto->position = $criterion->getPosition();
+            $criterionDto->lastChangeDateTime = $criterion->getChangedAt();
+            $criterionDto->CFRubricCriteriaLevels = $this->buildLevels($criterion->getLevels());
+
+            return $criterionDto;
+        }, $criteria->toArray());
+    }
+
+    /**
+     * @param Collection<array-key, CfRubricCriterionLevel> $levels
+     *
+     * @return CFRubricCriteriaLevelDto[]
+     */
+    private function buildLevels(Collection $levels): array
+    {
+        return array_map(function ($level) {
+            $levelDto = new CFRubricCriteriaLevelDto();
+            $levelDto->identifier = Uuid::fromString($level->getIdentifier());
+            $levelDto->uri = $level->getUri();
+            $levelDto->description = $level->getDescription();
+            $levelDto->quality = $level->getQuality();
+            $levelDto->score = $level->getScore();
+            $levelDto->feedback = $level->getFeedback();
+            $levelDto->position = $level->getPosition();
+            $levelDto->lastChangeDateTime = $level->getChangedAt();
+
+            return $levelDto;
+        }, $levels->toArray());
     }
 
     #[Route('/api/v1/packages/{documentIdentifier}', methods: ['PUT'])]
@@ -337,97 +609,14 @@ class ApiV1PackageController extends AbstractController
         #[MapEntity(mapping: ['documentIdentifier' => 'identifier'])] LsDoc $doc,
         #[MapRequestPayload(validationGroups: ['update'])] PackageDto $packageDto,
     ): Response {
-        // Update document
-        if ($packageDto->CFDocument) {
-            $documentDto = $packageDto->CFDocument;
-            $documentDto->identifier = Uuid::fromString($doc->getIdentifier());
-            $documentDto->uri = $doc->getUri();
-            $this->objectMapper->map($documentDto, $doc);
-            $this->sendCommand(new UpdateDocumentCommand($doc));
-        }
-
-        // Update/create items
-        if ($packageDto->CFItems) {
-            // First, get existing items
-            $existingItems = $this->lsItemRepository->findBy(['lsDoc' => $doc]);
-            $existingItemIds = array_map(fn ($item) => $item->getIdentifier(), $existingItems);
-
-            foreach ($packageDto->CFItems as $itemDto) {
-                $itemId = $itemDto->identifier?->toString();
-                if (in_array($itemId, $existingItemIds)) {
-                    // Update existing item
-                    $item = $this->lsItemRepository->findOneBy(['identifier' => $itemId]);
-                    $this->objectMapper->map($itemDto, $item);
-                    $this->sendCommand(new UpdateItemCommand($item));
-                } else {
-                    // Create new item
-                    $item = new \App\Entity\Framework\LsItem();
-                    $item->setLsDoc($doc);
-                    $item->setIdentifier($itemDto->identifier ?? Uuid::uuid4()->toString());
-                    $itemDto->identifier = Uuid::fromString($item->getIdentifier());
-                    $itemDto->uri ??= $item->getUri();
-                    $this->objectMapper->map($itemDto, $item);
-                    $this->sendCommand(new AddItemCommand($item, $doc));
-                }
-            }
-        }
-
-        // Update associations (similar logic)
-        if ($packageDto->CFAssociations) {
-            $existingAssocs = $this->lsAssociationRepository->findBy(['lsDoc' => $doc]);
-            foreach ($packageDto->CFAssociations as $assocDto) {
-                // For simplicity, recreate all associations
-                $assoc = new \App\Entity\Framework\LsAssociation();
-                $assoc->setLsDoc($doc);
-                // Set uri for originNodeURI
-                if ($assocDto->originNodeURI && !$assocDto->originNodeURI->uri) {
-                    $originItem = $this->lsItemRepository->findOneBy(['identifier' => $assocDto->originNodeURI->identifier->toString()]);
-                    if ($originItem) {
-                        $assocDto->originNodeURI->uri = $originItem->getUri();
-                    }
-                }
-                // Set uri for destinationNodeURI
-                if ($assocDto->destinationNodeURI && !$assocDto->destinationNodeURI->uri) {
-                    $destinationItem = $this->lsItemRepository->findOneBy(['identifier' => $assocDto->destinationNodeURI->identifier->toString()]);
-                    if ($destinationItem) {
-                        $assocDto->destinationNodeURI->uri = $destinationItem->getUri();
-                    }
-                }
-                $this->objectMapper->map($assocDto, $assoc);
-                $this->sendCommand(new AddAssociationCommand($assoc));
-            }
-        }
-
-        // Handle definitions
+        $this->updateDocument($doc, $packageDto);
+        $this->updateItems($doc, $packageDto);
+        $this->updateAssociations($doc, $packageDto);
         if ($packageDto->CFDefinitions) {
             $this->handleDefinitions($packageDto->CFDefinitions);
         }
+        $this->updateRubrics($packageDto);
 
-        // Update rubrics (rubrics are global, not document-specific)
-        if ($packageDto->CFRubrics) {
-            $existingRubrics = $this->cfRubricRepository->findAll();
-            $existingRubricIds = array_map(fn ($rubric) => $rubric->getIdentifier(), $existingRubrics);
-
-            foreach ($packageDto->CFRubrics as $rubricDto) {
-                $rubricId = $rubricDto->identifier?->toString();
-                if (in_array($rubricId, $existingRubricIds)) {
-                    // Update existing rubric
-                    $rubric = $this->cfRubricRepository->findOneBy(['identifier' => $rubricId]);
-                    $this->objectMapper->map($rubricDto, $rubric);
-                } else {
-                    // Create new rubric
-                    $rubric = new \App\Entity\Framework\CfRubric();
-                    $rubric->setIdentifier($rubricDto->identifier ?? Uuid::uuid4()->toString());
-                    $rubricDto->identifier = Uuid::fromString($rubric->getIdentifier());
-                    $rubricDto->uri ??= $rubric->getUri();
-                    $this->objectMapper->map($rubricDto, $rubric);
-                    $this->entityManager->persist($rubric);
-                }
-            }
-            $this->entityManager->flush();
-        }
-
-        // Return the updated package
         return $this->getPackage($doc);
     }
 

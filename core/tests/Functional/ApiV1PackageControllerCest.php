@@ -213,6 +213,27 @@ class ApiV1PackageControllerCest
                     'uri' => 'http://example.com/rubric',
                     'title' => 'New Rubric',
                     'description' => 'New rubric description',
+                    'CFRubricCriteria' => [
+                        [
+                            'identifier' => Uuid::uuid4()->toString(),
+                            'uri' => 'http://example.com/criterion',
+                            'category' => 'Content',
+                            'description' => 'Content criterion',
+                            'weight' => 1.0,
+                            'position' => 1,
+                            'CFRubricCriteriaLevels' => [
+                                [
+                                    'identifier' => Uuid::uuid4()->toString(),
+                                    'uri' => 'http://example.com/level',
+                                    'description' => 'Excellent',
+                                    'quality' => 'Excellent work',
+                                    'score' => 4.0,
+                                    'feedback' => 'Great job!',
+                                    'position' => 1,
+                                ],
+                            ],
+                        ],
+                    ],
                 ],
             ],
         ];
@@ -313,6 +334,27 @@ class ApiV1PackageControllerCest
                     'uri' => 'http://example.com/rubric',
                     'title' => 'Updated Rubric',
                     'description' => 'Updated rubric description',
+                    'CFRubricCriteria' => [
+                        [
+                            'identifier' => Uuid::uuid4()->toString(),
+                            'uri' => 'http://example.com/criterion',
+                            'category' => 'Updated Content',
+                            'description' => 'Updated content criterion',
+                            'weight' => 2.0,
+                            'position' => 1,
+                            'CFRubricCriteriaLevels' => [
+                                [
+                                    'identifier' => Uuid::uuid4()->toString(),
+                                    'uri' => 'http://example.com/level',
+                                    'description' => 'Outstanding',
+                                    'quality' => 'Outstanding work',
+                                    'score' => 5.0,
+                                    'feedback' => 'Excellent work!',
+                                    'position' => 1,
+                                ],
+                            ],
+                        ],
+                    ],
                 ],
             ],
         ];

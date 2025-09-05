@@ -6,11 +6,10 @@ namespace App\DTO\Api\V1;
 
 use OpenApi\Attributes as OA;
 use Ramsey\Uuid\UuidInterface;
-use Symfony\Component\ObjectMapper\Attribute\Map;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class RubricDto
+class CFRubricCriteriaDto
 {
     #[Groups(['create', 'update', 'view'])]
     #[OA\Property(
@@ -33,27 +32,51 @@ class RubricDto
     public ?string $uri = null;
 
     #[Groups(['create', 'update', 'view'])]
-    #[Assert\NotBlank(message: 'Cannot be an empty string', groups: ['create', 'update', 'view'])]
-    public string $title;
-
-    #[Groups(['view'])]
-    #[Assert\NotNull(message: 'The date is required', groups: ['view'])]
-    #[Assert\NotBlank(message: 'The date is required', groups: ['view'])]
-    public \DateTimeInterface $lastChangeDateTime;
+    #[OA\Property(
+        type: 'string',
+        nullable: true,
+    )]
+    public ?string $category = null;
 
     #[Groups(['create', 'update', 'view'])]
+    #[OA\Property(
+        type: 'string',
+        nullable: true,
+    )]
     public ?string $description = null;
 
-    /** @var CFRubricCriteriaDto[] */
+    #[Groups(['create', 'update', 'view'])]
+    #[OA\Property(
+        type: 'string',
+        format: 'uuid',
+        nullable: true,
+    )]
+    public ?string $CFItemURI = null;
+
+    #[Groups(['create', 'update', 'view'])]
+    #[OA\Property(
+        type: 'number',
+        format: 'float',
+        nullable: true,
+    )]
+    public ?float $weight = null;
+
+    #[Groups(['create', 'update', 'view'])]
+    #[OA\Property(
+        type: 'integer',
+        nullable: true,
+    )]
+    public ?int $position = null;
+
+    /** @var CFRubricCriteriaLevelDto[] */
     #[Groups(['create', 'update', 'view'])]
     #[OA\Property(
         type: 'array',
-        items: new OA\Items(ref: '#/components/schemas/CFRubricCriteriaDto'),
+        items: new OA\Items(ref: '#/components/schemas/CFRubricCriteriaLevelDto'),
         nullable: true,
     )]
-    #[Assert\All(new Assert\Type(CFRubricCriteriaDto::class))]
-    #[Map('criteria')]
-    public ?array $CFRubricCriteria = null;
+    #[Assert\All(new Assert\Type(CFRubricCriteriaLevelDto::class))]
+    public ?array $CFRubricCriteriaLevels = null;
 
     #[Groups(['create', 'update', 'view'])]
     #[OA\Property(
@@ -63,9 +86,14 @@ class RubricDto
     )]
     public ?array $extensions = null;
 
+    #[Groups(['view'])]
+    #[Assert\NotNull(message: 'The date is required', groups: ['view'])]
+    #[Assert\NotBlank(message: 'The date is required', groups: ['view'])]
+    public ?\DateTimeInterface $lastChangeDateTime = null;
+
     public function __construct()
     {
         $this->lastChangeDateTime = new \DateTimeImmutable();
-        $this->CFRubricCriteria = [];
+        $this->CFRubricCriteriaLevels = [];
     }
 }

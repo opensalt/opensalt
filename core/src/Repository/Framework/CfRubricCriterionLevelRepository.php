@@ -8,6 +8,9 @@ use App\Entity\Framework\CfRubricCriterionLevel;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<CfRubricCriterionLevel>
+ */
 class CfRubricCriterionLevelRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

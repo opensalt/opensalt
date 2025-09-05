@@ -10,6 +10,8 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method LsDefConcept|null findOneByIdentifier(string $identifier)
+ *
+ * @extends ServiceEntityRepository<LsDefConcept>
  */
 class LsDefConceptRepository extends ServiceEntityRepository
 {

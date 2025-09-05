@@ -19,6 +19,8 @@ use App\Repository\Framework\LsDocRepository;
 use App\Repository\Framework\LsItemRepository;
 use App\Repository\Framework\LsAssociationRepository;
 use App\Repository\Framework\CfRubricRepository;
+use App\Repository\Framework\CfRubricCriterionRepository;
+use App\Repository\Framework\CfRubricCriterionLevelRepository;
 use App\Repository\Framework\LsDefConceptRepository;
 use App\Repository\Framework\LsDefSubjectRepository;
 use App\Repository\Framework\LsDefLicenceRepository;
@@ -42,6 +44,8 @@ class ApiV1PackageControllerTest extends TestCase
     private LsItemRepository $lsItemRepository;
     private LsAssociationRepository $lsAssociationRepository;
     private CfRubricRepository $cfRubricRepository;
+    private CfRubricCriterionRepository $cfRubricCriterionRepository;
+    private CfRubricCriterionLevelRepository $cfRubricCriterionLevelRepository;
     private LsDefConceptRepository $lsDefConceptRepository;
     private LsDefSubjectRepository $lsDefSubjectRepository;
     private LsDefLicenceRepository $lsDefLicenceRepository;
@@ -57,6 +61,8 @@ class ApiV1PackageControllerTest extends TestCase
         $this->lsItemRepository = $this->createMock(LsItemRepository::class);
         $this->lsAssociationRepository = $this->createMock(LsAssociationRepository::class);
         $this->cfRubricRepository = $this->createMock(CfRubricRepository::class);
+        $this->cfRubricCriterionRepository = $this->createMock(CfRubricCriterionRepository::class);
+        $this->cfRubricCriterionLevelRepository = $this->createMock(CfRubricCriterionLevelRepository::class);
         $this->lsDefConceptRepository = $this->createMock(LsDefConceptRepository::class);
         $this->lsDefSubjectRepository = $this->createMock(LsDefSubjectRepository::class);
         $this->lsDefLicenceRepository = $this->createMock(LsDefLicenceRepository::class);
@@ -71,6 +77,8 @@ class ApiV1PackageControllerTest extends TestCase
             $this->lsItemRepository,
             $this->lsAssociationRepository,
             $this->cfRubricRepository,
+            $this->cfRubricCriterionRepository,
+            $this->cfRubricCriterionLevelRepository,
             $this->lsDefConceptRepository,
             $this->lsDefSubjectRepository,
             $this->lsDefLicenceRepository,
