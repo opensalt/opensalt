@@ -4,13 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Unit\App\Controller\Api\V1;
 
-use App\Command\Framework\AddAssociationCommand;
 use App\Command\Framework\DeleteAssociationCommand;
-use App\Command\Framework\UpdateAssociationCommand;
 use App\Controller\Api\V1\ApiV1AssociationController;
 use App\DTO\Api\V1\AssociationDto;
-use App\DTO\Api\V1\PatchDto;
-use App\DTO\Api\V1\PatchOperation;
 use App\Entity\Framework\LsAssociation;
 use App\Repository\Framework\LsAssociationRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -20,7 +16,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\ObjectMapper\ObjectMapperInterface;
-use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class ApiV1AssociationControllerTest extends TestCase

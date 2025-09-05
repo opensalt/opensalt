@@ -100,7 +100,7 @@ class LsDefItemTypeTest extends \Codeception\Test\Unit
         $title = 'Assessment Item';
 
         $lsDefItemType->setTitle($title);
-        $this->assertEquals($title, (string)$lsDefItemType);
+        $this->assertEquals($title, (string) $lsDefItemType);
     }
 
     public function testToStringWithoutTitle()
@@ -108,7 +108,7 @@ class LsDefItemTypeTest extends \Codeception\Test\Unit
         $identifier = Uuid::uuid4()->toString();
         $lsDefItemType = new LsDefItemType($identifier);
 
-        $this->assertEquals($identifier, (string)$lsDefItemType);
+        $this->assertEquals($identifier, (string) $lsDefItemType);
     }
 
     public function testDataIntegrity()

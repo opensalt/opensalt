@@ -2,11 +2,8 @@
 
 namespace Tests\Unit\App\Entity\Framework;
 
-use App\Entity\Framework\Package;
 use App\Entity\Framework\LsDoc;
-use App\Entity\Framework\LsItem;
-use App\Entity\Framework\LsAssociation;
-use App\Entity\Framework\CfRubric;
+use App\Entity\Framework\Package;
 use Ramsey\Uuid\Uuid;
 
 class PackageTest extends \Codeception\Test\Unit

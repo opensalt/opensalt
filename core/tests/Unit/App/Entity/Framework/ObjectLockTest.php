@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\App\Entity\Framework;
 
-use App\Entity\Framework\ObjectLock;
 use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\ObjectLock;
 use App\Entity\User\User;
 
 class ObjectLockTest extends \Codeception\Test\Unit
@@ -247,7 +247,6 @@ class ObjectLockTest extends \Codeception\Test\Unit
 
     public function testAddTimeMultipleTimes()
     {
-
         $lsDoc = new LsDoc();
         $this->setLsDocId($lsDoc, 1100);
         $user = new User();

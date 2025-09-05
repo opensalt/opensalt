@@ -2,8 +2,8 @@
 
 namespace Tests\Unit\App\Entity\Framework;
 
-use App\Entity\Framework\LsDocAttribute;
 use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\LsDocAttribute;
 
 class LsDocAttributeTest extends \Codeception\Test\Unit
 {

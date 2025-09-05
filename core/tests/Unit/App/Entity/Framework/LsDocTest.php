@@ -2,15 +2,13 @@
 
 namespace Tests\Unit\App\Entity\Framework;
 
-use App\Entity\Framework\LsDoc;
-use App\Entity\Framework\LsDefLicence;
-use App\Entity\Framework\LsDefSubject;
-use App\Entity\Framework\LsItem;
-use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\FrameworkType;
-use App\Entity\User\User;
+use App\Entity\Framework\LsAssociation;
+use App\Entity\Framework\LsDefLicence;
+use App\Entity\Framework\LsDoc;
+use App\Entity\Framework\LsItem;
 use App\Entity\User\AccessGroup;
-use Ramsey\Uuid\Uuid;
+use App\Entity\User\User;
 
 class LsDocTest extends \Codeception\Test\Unit
 {
@@ -231,7 +229,7 @@ class LsDocTest extends \Codeception\Test\Unit
 
         // Test without URL name (should return ID)
         $lsDoc->setUrlName(null);
-        $this->assertEquals((string)$lsDoc->getId(), $lsDoc->getSlug());
+        $this->assertEquals((string) $lsDoc->getId(), $lsDoc->getSlug());
     }
 
     public function testSetAndGetLicence()
@@ -309,7 +307,7 @@ class LsDocTest extends \Codeception\Test\Unit
     {
         $lsDoc = new LsDoc();
 
-        $this->assertEquals($lsDoc->getUri(), (string)$lsDoc);
+        $this->assertEquals($lsDoc->getUri(), (string) $lsDoc);
     }
 
     public function testCanEdit()

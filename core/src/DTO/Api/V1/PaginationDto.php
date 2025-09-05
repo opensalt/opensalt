@@ -8,15 +8,15 @@ use OpenApi\Attributes as OA;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[OA\Schema(
-    title: 'DocumentPagination',
-    description: 'Cursor-based pagination parameters for document queries'
+    title: 'Pagination',
+    description: 'Cursor-based pagination parameters for queries'
 )]
-class DocumentPaginationDto
+class PaginationDto
 {
     #[Assert\Range(min: 1, max: 1000)]
     #[OA\Property(
         property: 'page[size]',
-        description: 'Maximum number of documents to return (1-1000)',
+        description: 'Maximum number of objects to return (1-1000)',
         type: 'integer',
         default: 100,
         maximum: 1000,
@@ -28,7 +28,7 @@ class DocumentPaginationDto
 
     #[OA\Property(
         property: 'page[after]',
-        description: 'Return documents after cursor',
+        description: 'Return objects after cursor',
         type: 'string',
         nullable: true
     )]

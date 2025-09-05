@@ -123,7 +123,7 @@ class LsDefGradeTest extends \Codeception\Test\Unit
         // Code is not set (will be empty string)
 
         $expectedLabel = ' - Pre-Kindergarten';
-        $lsDefGrade->setCode(""); // Set empty code explicitly
+        $lsDefGrade->setCode(''); // Set empty code explicitly
         $this->assertEquals($expectedLabel, $lsDefGrade->getLabel());
     }
 

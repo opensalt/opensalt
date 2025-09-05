@@ -6,8 +6,8 @@ namespace App\Repository\Framework;
 
 use App\DTO\Api\V1\DocumentFilterDto;
 use App\DTO\Api\V1\DocumentListResponseDto;
-use App\DTO\Api\V1\DocumentPaginationDto;
 use App\DTO\Api\V1\DocumentPaginationResponseDto;
+use App\DTO\Api\V1\PaginationDto;
 use App\Entity\Framework\CaseApiInterface;
 use App\Entity\Framework\CfRubric;
 use App\Entity\Framework\LsAssociation;
@@ -1000,7 +1000,7 @@ xENDx;
         };
     }
 
-    public function findDocumentsWithPagination(DocumentPaginationDto $pagination, DocumentFilterDto $filter): DocumentListResponseDto
+    public function findDocumentsWithPagination(PaginationDto $pagination, DocumentFilterDto $filter): DocumentListResponseDto
     {
         $user = $this->security->getUser();
         if (!$user instanceof User) {

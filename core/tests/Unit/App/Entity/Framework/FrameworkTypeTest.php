@@ -132,7 +132,7 @@ class FrameworkTypeTest extends \Codeception\Test\Unit
             'State Standards',
             'District Standards',
             'International Standards',
-            'Professional Standards'
+            'Professional Standards',
         ];
 
         foreach ($commonTypes as $type) {

@@ -149,8 +149,12 @@ final class RubricsTransformer
         $criterion->setWeight($cfCriterion->weight);
         $criterion->setExtensions($cfCriterion->extensions);
 
-        $itemIdentifier = $cfCriterion->cfItemURI->identifier->toString();
-        $criterion->setItem($this->items[$itemIdentifier] ?? $this->findItem($itemIdentifier));
+        $itemIdentifier = $cfCriterion->cfItemURI?->identifier->toString();
+        if (null === $itemIdentifier) {
+            $criterion->setItem(null);
+        } else {
+            $criterion->setItem($this->items[$itemIdentifier] ?? $this->findItem($itemIdentifier));
+        }
 
         $this->updateLevels($criterion, $cfCriterion->cfRubricCriterionLevels);
 

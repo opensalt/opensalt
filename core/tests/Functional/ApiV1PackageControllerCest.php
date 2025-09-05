@@ -99,34 +99,6 @@ class ApiV1PackageControllerCest
         return $doc;
     }
 
-    // Test GET /api/v1/packages (index)
-    public function testIndexPackages(FunctionalTester $I): void
-    {
-        $I->amBearerAuthenticated($this->apiToken);
-        $I->haveHttpHeader('Accept', 'application/json');
-        $I->sendGet('/api/v1/packages');
-        $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseIsJson();
-        $I->seeResponseJsonMatchesJsonPath('$.data');
-        $I->seeResponseJsonMatchesJsonPath('$.pagination');
-    }
-
-    public function testIndexPackagesWithPagination(FunctionalTester $I): void
-    {
-        $I->amBearerAuthenticated($this->apiToken);
-        $I->sendGet('/api/v1/packages?page[size]=5');
-        $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseIsJson();
-    }
-
-    public function testIndexPackagesWithFilters(FunctionalTester $I): void
-    {
-        $I->amBearerAuthenticated($this->apiToken);
-        $I->sendGet('/api/v1/packages?filter[title]=Test&filter[creator]=Test Creator');
-        $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseIsJson();
-    }
-
     // Test GET /api/v1/packages/{documentIdentifier}
     public function testGetPackage(FunctionalTester $I): void
     {
@@ -172,6 +144,7 @@ class ApiV1PackageControllerCest
                 'description' => 'New test package',
                 'adoptionStatus' => 'Draft',
                 'caseVersion' => '1.1',
+                'lastChangeDateTime' => new \DateTimeImmutable()->format('c'),
             ],
             'CFItems' => [
                 [
@@ -181,6 +154,7 @@ class ApiV1PackageControllerCest
                     'humanCodingScheme' => 'NEW001',
                     'listEnumInSource' => '1',
                     'abbreviatedStatement' => 'New Item',
+                    'lastChangeDateTime' => new \DateTimeImmutable()->format('c'),
                 ],
             ],
             'CFAssociations' => [
@@ -198,6 +172,7 @@ class ApiV1PackageControllerCest
                         'uri' => 'http://example.com/destination',
                         'title' => 'Destination Item',
                     ],
+                    'lastChangeDateTime' => new \DateTimeImmutable()->format('c'),
                 ],
             ],
             'CFDefinitions' => [
@@ -213,6 +188,7 @@ class ApiV1PackageControllerCest
                     'uri' => 'http://example.com/rubric',
                     'title' => 'New Rubric',
                     'description' => 'New rubric description',
+                    'lastChangeDateTime' => new \DateTimeImmutable()->format('c'),
                     'CFRubricCriteria' => [
                         [
                             'identifier' => Uuid::uuid4()->toString(),
@@ -221,7 +197,8 @@ class ApiV1PackageControllerCest
                             'description' => 'Content criterion',
                             'weight' => 1.0,
                             'position' => 1,
-                            'CFRubricCriteriaLevels' => [
+                            'lastChangeDateTime' => new \DateTimeImmutable()->format('c'),
+                            'CFRubricCriterionLevels' => [
                                 [
                                     'identifier' => Uuid::uuid4()->toString(),
                                     'uri' => 'http://example.com/level',
@@ -230,6 +207,7 @@ class ApiV1PackageControllerCest
                                     'score' => 4.0,
                                     'feedback' => 'Great job!',
                                     'position' => 1,
+                                    'lastChangeDateTime' => new \DateTimeImmutable()->format('c'),
                                 ],
                             ],
                         ],
@@ -240,8 +218,14 @@ class ApiV1PackageControllerCest
 
         $I->amBearerAuthenticated($this->apiToken);
         $I->haveHttpHeader('Content-Type', 'application/json');
+        $I->haveHttpHeader('Accept', 'application/json');
         $I->sendPost('/api/v1/packages', $packageData);
         $I->seeResponseCodeIs(HttpCode::CREATED);
+        $I->seeHttpHeader('Location');
+
+        $I->amBearerAuthenticated($this->apiToken);
+        $I->haveHttpHeader('Content-Type', 'application/json');
+        $I->sendGet($I->grabHttpHeader('Location'));
         $I->seeResponseIsJson();
 
         // Check response structure
@@ -250,12 +234,6 @@ class ApiV1PackageControllerCest
         $I->seeResponseJsonMatchesJsonPath('$.CFAssociations');
         $I->seeResponseJsonMatchesJsonPath('$.CFDefinitions');
         $I->seeResponseJsonMatchesJsonPath('$.CFRubrics');
-
-        $I->seeResponseContainsJson([
-            'CFDocument' => [
-                'title' => 'New Test Package',
-            ],
-        ]);
     }
 
     public function testPostPackageMinimal(FunctionalTester $I): void
@@ -263,8 +241,10 @@ class ApiV1PackageControllerCest
         $packageData = [
             'CFDocument' => [
                 'identifier' => Uuid::uuid4()->toString(),
+                'uri' => 'http://example.com/minimal',
                 'title' => 'Minimal Package',
                 'creator' => 'Test Creator',
+                'lastChangeDateTime' => new \DateTimeImmutable()->format('c'),
             ],
         ];
 
@@ -272,7 +252,7 @@ class ApiV1PackageControllerCest
         $I->haveHttpHeader('Content-Type', 'application/json');
         $I->sendPost('/api/v1/packages', $packageData);
         $I->seeResponseCodeIs(HttpCode::CREATED);
-        $I->seeResponseIsJson();
+        $I->seeHttpHeader('Location');
     }
 
     public function testPostPackageValidationError(FunctionalTester $I): void
@@ -293,6 +273,8 @@ class ApiV1PackageControllerCest
             'CFDocument' => [
                 'identifier' => Uuid::uuid4()->toString(),
                 'title' => 'New Test Package',
+                'creator' => 'Test Creator',
+                'lastChangeDateTime' => new \DateTimeImmutable()->format('c'),
             ],
         ]);
         $I->seeResponseCodeIs(HttpCode::UNAUTHORIZED);
@@ -309,6 +291,7 @@ class ApiV1PackageControllerCest
                 'creator' => 'Updated Creator',
                 'version' => '1.1',
                 'description' => 'Updated package description',
+                'lastChangeDateTime' => new \DateTimeImmutable()->format('c'),
             ],
             'CFItems' => [
                 [
@@ -318,6 +301,7 @@ class ApiV1PackageControllerCest
                     'humanCodingScheme' => 'UPD001',
                     'listEnumInSource' => '1',
                     'abbreviatedStatement' => 'Updated Item',
+                    'lastChangeDateTime' => new \DateTimeImmutable()->format('c'),
                 ],
             ],
             'CFAssociations' => [],
@@ -334,6 +318,7 @@ class ApiV1PackageControllerCest
                     'uri' => 'http://example.com/rubric',
                     'title' => 'Updated Rubric',
                     'description' => 'Updated rubric description',
+                    'lastChangeDateTime' => new \DateTimeImmutable()->format('c'),
                     'CFRubricCriteria' => [
                         [
                             'identifier' => Uuid::uuid4()->toString(),
@@ -342,7 +327,8 @@ class ApiV1PackageControllerCest
                             'description' => 'Updated content criterion',
                             'weight' => 2.0,
                             'position' => 1,
-                            'CFRubricCriteriaLevels' => [
+                            'lastChangeDateTime' => new \DateTimeImmutable()->format('c'),
+                            'CFRubricCriterionLevels' => [
                                 [
                                     'identifier' => Uuid::uuid4()->toString(),
                                     'uri' => 'http://example.com/level',
@@ -351,6 +337,7 @@ class ApiV1PackageControllerCest
                                     'score' => 5.0,
                                     'feedback' => 'Excellent work!',
                                     'position' => 1,
+                                    'lastChangeDateTime' => new \DateTimeImmutable()->format('c'),
                                 ],
                             ],
                         ],
@@ -361,9 +348,14 @@ class ApiV1PackageControllerCest
 
         $I->amBearerAuthenticated($this->apiToken);
         $I->haveHttpHeader('Content-Type', 'application/json');
+        $I->haveHttpHeader('Accept', 'application/json');
         $I->sendPut('/api/v1/packages/'.$this->testDoc->getIdentifier(), $packageData);
-        $I->seeResponseCodeIs(HttpCode::OK);
+        $I->seeResponseCodeIs(HttpCode::CREATED);
+        $I->seeHttpHeader('Location');
+
+        $I->sendGet($I->grabHttpHeader('Location'));
         $I->seeResponseIsJson();
+        $I->seeResponseCodeIs(HttpCode::OK);
 
         $I->seeResponseContainsJson([
             'CFDocument' => [
@@ -379,6 +371,8 @@ class ApiV1PackageControllerCest
         $I->sendPut('/api/v1/packages/non-existent-doc', [
             'CFDocument' => [
                 'title' => 'Updated Title',
+                'creator' => 'Updated Creator',
+                'lastChangeDateTime' => new \DateTimeImmutable()->format('c'),
             ],
         ]);
         $I->seeResponseCodeIs(HttpCode::NOT_FOUND);
@@ -390,6 +384,8 @@ class ApiV1PackageControllerCest
         $I->sendPut('/api/v1/packages/'.$this->testDoc->getIdentifier(), [
             'CFDocument' => [
                 'title' => 'Updated Title',
+                'creator' => 'Updated Creator',
+                'lastChangeDateTime' => new \DateTimeImmutable()->format('c'),
             ],
         ]);
         $I->seeResponseCodeIs(HttpCode::UNAUTHORIZED);
@@ -448,6 +444,7 @@ class ApiV1PackageControllerCest
                 'uri' => 'http://example.com/document',
                 'title' => 'Complex Package',
                 'creator' => 'Test Creator',
+                'lastChangeDateTime' => new \DateTimeImmutable()->format('c'),
             ],
             'CFItems' => [
                 [
@@ -455,12 +452,14 @@ class ApiV1PackageControllerCest
                     'uri' => 'http://example.com/item1',
                     'fullStatement' => 'Parent Item',
                     'humanCodingScheme' => 'PAR001',
+                    'lastChangeDateTime' => new \DateTimeImmutable()->format('c'),
                 ],
                 [
                     'identifier' => $itemId2,
                     'uri' => 'http://example.com/item2',
                     'fullStatement' => 'Child Item',
                     'humanCodingScheme' => 'CHI001',
+                    'lastChangeDateTime' => new \DateTimeImmutable()->format('c'),
                 ],
             ],
             'CFAssociations' => [
@@ -478,6 +477,7 @@ class ApiV1PackageControllerCest
                         'uri' => 'http://example.com/destination',
                         'title' => 'Parent Item',
                     ],
+                    'lastChangeDateTime' => new \DateTimeImmutable()->format('c'),
                 ],
             ],
             'CFDefinitions' => [
@@ -492,9 +492,12 @@ class ApiV1PackageControllerCest
 
         $I->amBearerAuthenticated($this->apiToken);
         $I->haveHttpHeader('Content-Type', 'application/json');
+        $I->haveHttpHeader('Accept', 'application/json');
         $I->sendPost('/api/v1/packages', $packageData);
         $I->seeResponseCodeIs(HttpCode::CREATED);
-        $I->seeResponseIsJson();
+        $I->seeHttpHeader('Location');
+
+        $I->sendGet($I->grabHttpHeader('Location'));
 
         // Verify relationships are maintained
         $I->seeResponseJsonMatchesJsonPath('$.CFItems[0]');

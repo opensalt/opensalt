@@ -5,112 +5,75 @@ declare(strict_types=1);
 namespace Tests\Unit\App\Controller\Api\V1;
 
 use App\Controller\Api\V1\ApiV1PackageController;
-use App\DTO\Api\V1\PackageDto;
-use App\DTO\Api\V1\DocumentDto;
-use App\DTO\Api\V1\ItemDto;
-use App\DTO\Api\V1\AssociationDto;
-use App\DTO\Api\V1\DefinitionDto;
-use App\DTO\Api\V1\RubricDto;
-use App\DTO\Api\V1\DocumentFilterDto;
-use App\DTO\Api\V1\DocumentPaginationDto;
-use App\DTO\Api\V1\DocumentListResponseDto;
+use App\DTO\CaseJson\CFDefinition;
+use App\DTO\CaseJson\CFDocument;
+use App\DTO\CaseJson\CFPackage;
+use App\DTO\CaseJson\CFPackageAssociation;
+use App\DTO\CaseJson\CFPackageItem;
+use App\DTO\CaseJson\CFRubric;
 use App\Entity\Framework\LsDoc;
-use App\Repository\Framework\LsDocRepository;
-use App\Repository\Framework\LsItemRepository;
-use App\Repository\Framework\LsAssociationRepository;
-use App\Repository\Framework\CfRubricRepository;
-use App\Repository\Framework\CfRubricCriterionRepository;
-use App\Repository\Framework\CfRubricCriterionLevelRepository;
-use App\Repository\Framework\LsDefConceptRepository;
-use App\Repository\Framework\LsDefSubjectRepository;
-use App\Repository\Framework\LsDefLicenceRepository;
-use App\Repository\Framework\LsDefItemTypeRepository;
-use App\Repository\Framework\LsDefAssociationGroupingRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\ObjectMapper\ObjectMapperInterface;
-use Symfony\Component\Serializer\SerializerInterface;
+use Psr\Container\ContainerInterface;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ApiV1PackageControllerTest extends TestCase
 {
     private ApiV1PackageController $controller;
-    private SerializerInterface $serializer;
-    private ObjectMapperInterface $objectMapper;
-    private EntityManagerInterface $entityManager;
-    private LsDocRepository $lsDocRepository;
-    private LsItemRepository $lsItemRepository;
-    private LsAssociationRepository $lsAssociationRepository;
-    private CfRubricRepository $cfRubricRepository;
-    private CfRubricCriterionRepository $cfRubricCriterionRepository;
-    private CfRubricCriterionLevelRepository $cfRubricCriterionLevelRepository;
-    private LsDefConceptRepository $lsDefConceptRepository;
-    private LsDefSubjectRepository $lsDefSubjectRepository;
-    private LsDefLicenceRepository $lsDefLicenceRepository;
-    private LsDefItemTypeRepository $lsDefItemTypeRepository;
-    private LsDefAssociationGroupingRepository $lsDefAssociationGroupingRepository;
 
     protected function setUp(): void
     {
-        $this->serializer = $this->createMock(SerializerInterface::class);
-        $this->objectMapper = $this->createMock(ObjectMapperInterface::class);
-        $this->entityManager = $this->createMock(EntityManagerInterface::class);
-        $this->lsDocRepository = $this->createMock(LsDocRepository::class);
-        $this->lsItemRepository = $this->createMock(LsItemRepository::class);
-        $this->lsAssociationRepository = $this->createMock(LsAssociationRepository::class);
-        $this->cfRubricRepository = $this->createMock(CfRubricRepository::class);
-        $this->cfRubricCriterionRepository = $this->createMock(CfRubricCriterionRepository::class);
-        $this->cfRubricCriterionLevelRepository = $this->createMock(CfRubricCriterionLevelRepository::class);
-        $this->lsDefConceptRepository = $this->createMock(LsDefConceptRepository::class);
-        $this->lsDefSubjectRepository = $this->createMock(LsDefSubjectRepository::class);
-        $this->lsDefLicenceRepository = $this->createMock(LsDefLicenceRepository::class);
-        $this->lsDefItemTypeRepository = $this->createMock(LsDefItemTypeRepository::class);
-        $this->lsDefAssociationGroupingRepository = $this->createMock(LsDefAssociationGroupingRepository::class);
+        $this->validator = $this->createMock(ValidatorInterface::class);
 
         $this->controller = new ApiV1PackageController(
-            $this->serializer,
-            $this->objectMapper,
-            $this->entityManager,
-            $this->lsDocRepository,
-            $this->lsItemRepository,
-            $this->lsAssociationRepository,
-            $this->cfRubricRepository,
-            $this->cfRubricCriterionRepository,
-            $this->cfRubricCriterionLevelRepository,
-            $this->lsDefConceptRepository,
-            $this->lsDefSubjectRepository,
-            $this->lsDefLicenceRepository,
-            $this->lsDefItemTypeRepository,
-            $this->lsDefAssociationGroupingRepository
+            $this->validator,
         );
 
         // Set the dispatcher for command dispatching
-        $this->controller->setDispatcher($this->createMock(\Symfony\Component\EventDispatcher\EventDispatcherInterface::class));
-    }
+        $dispatcher = $this->createMock(\Symfony\Component\EventDispatcher\EventDispatcherInterface::class);
+        $this->controller->setDispatcher($dispatcher);
 
-    public function testIndexReturnsJsonResponse(): void
-    {
-        $pagination = new DocumentPaginationDto();
-        $filter = new DocumentFilterDto();
-        $paginationResponse = new \App\DTO\Api\V1\DocumentPaginationResponseDto(false, null, 0);
-        $responseDto = new DocumentListResponseDto([], $paginationResponse);
+        // Mock the container and router for generateUrl
+        $router = $this->createMock(RouterInterface::class);
+        $router->method('generate')->willReturn('/api/v1/packages/some-id');
+        $requestStack = $this->createMock(RequestStack::class);
+        $container = $this->createMock(ContainerInterface::class);
+        $container->method('get')->willReturnCallback(function ($id) use ($router, $requestStack) {
+            if ('router' === $id) {
+                return $router;
+            }
+            if ('request_stack' === $id) {
+                return $requestStack;
+            }
 
-        $this->lsDocRepository->expects($this->once())
-            ->method('findDocumentsWithPagination')
-            ->with($pagination, $filter)
-            ->willReturn($responseDto);
+            return null;
+        });
+        $this->controller->setContainer($container);
 
-        $this->serializer->expects($this->once())
-            ->method('serialize')
-            ->with($responseDto, 'json', [])
-            ->willReturn('{"data":[],"pagination":{"hasNextPage":false,"nextCursor":null,"total":0}}');
+        // Mock additional dependencies used in some tests
+        $this->objectMapper = $this->createMock(\Symfony\Component\Serializer\Encoder\JsonEncoder::class); // or appropriate class
+        $this->serializer = $this->createMock(\JMS\Serializer\SerializerInterface::class);
+        $this->lsItemRepository = $this->createMock(\App\Repository\Framework\LsItemRepository::class);
+        $this->lsAssociationRepository = $this->createMock(\App\Repository\Framework\LsAssociationRepository::class);
+        $this->cfRubricRepository = $this->createMock(\App\Repository\Framework\CfRubricRepository::class);
+        $this->lsDefConceptRepository = $this->createMock(\App\Repository\Framework\LsDefConceptRepository::class);
+        $this->lsDefSubjectRepository = $this->createMock(\App\Repository\Framework\LsDefSubjectRepository::class);
+        $this->lsDefLicenceRepository = $this->createMock(\App\Repository\Framework\LsDefLicenceRepository::class);
+        $this->lsDefItemTypeRepository = $this->createMock(\App\Repository\Framework\LsDefItemTypeRepository::class);
+        $this->lsDefAssociationGroupingRepository = $this->createMock(\App\Repository\Framework\LsDefAssociationGroupingRepository::class);
 
-        $response = $this->controller->index($pagination, $filter);
-
-        $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        // Mock controller methods
+        $this->controller = $this->getMockBuilder(ApiV1PackageController::class)
+            ->setConstructorArgs([$this->validator])
+            ->onlyMethods(['forward', 'generateUrl', 'sendCommand'])
+            ->getMock();
+        $this->controller->setDispatcher($dispatcher);
+        $this->controller->setContainer($container);
     }
 
     public function testGetPackageReturnsCompletePackageStructure(): void
@@ -118,61 +81,7 @@ class ApiV1PackageControllerTest extends TestCase
         $doc = new LsDoc();
         $doc->setIdentifier('550e8400-e29b-41d4-a716-446655440000');
 
-        // Mock items
-        $item = new \App\Entity\Framework\LsItem();
-        $this->lsItemRepository->expects($this->once())
-            ->method('findBy')
-            ->with(['lsDoc' => $doc])
-            ->willReturn([$item]);
-
-        // Mock associations
-        $association = new \App\Entity\Framework\LsAssociation();
-        $this->lsAssociationRepository->expects($this->once())
-            ->method('findBy')
-            ->with(['lsDoc' => $doc])
-            ->willReturn([$association]);
-
-        // Mock definitions
-        $this->lsDefConceptRepository->expects($this->once())
-            ->method('findAll')
-            ->willReturn([]);
-        $this->lsDefSubjectRepository->expects($this->once())
-            ->method('findAll')
-            ->willReturn([]);
-        $this->lsDefLicenceRepository->expects($this->once())
-            ->method('findAll')
-            ->willReturn([]);
-        $this->lsDefItemTypeRepository->expects($this->once())
-            ->method('findAll')
-            ->willReturn([]);
-        $this->lsDefAssociationGroupingRepository->expects($this->once())
-            ->method('findAll')
-            ->willReturn([]);
-
-        // Mock rubrics
-        $rubric = new \App\Entity\Framework\CfRubric();
-        $this->cfRubricRepository->expects($this->once())
-            ->method('findAll')
-            ->willReturn([$rubric]);
-
-        $this->serializer->expects($this->any())
-            ->method('deserialize')
-            ->willReturnCallback(function ($data, $class, $format = null) {
-                if ($class === DocumentDto::class) {
-                    return new DocumentDto();
-                } elseif ($class === ItemDto::class) {
-                    return new ItemDto();
-                } elseif ($class === AssociationDto::class) {
-                    return new AssociationDto();
-                } elseif ($class === RubricDto::class) {
-                    return new RubricDto();
-                }
-                return null;
-            });
-
-        $this->serializer->expects($this->any())
-            ->method('serialize')
-            ->willReturn('{"CFDocument":{},"CFItems":[],"CFAssociations":[],"CFDefinitions":{},"CFRubrics":[]}');
+        $this->controller->expects($this->once())->method('forward')->willReturn(new JsonResponse([], Response::HTTP_OK));
 
         $response = $this->controller->getPackage($doc);
 
@@ -182,30 +91,25 @@ class ApiV1PackageControllerTest extends TestCase
 
     public function testPostPackageCreatesCompletePackage(): void
     {
-        $packageDto = new PackageDto();
-        $packageDto->CFDocument = new DocumentDto();
-        $packageDto->CFDocument->title = 'Test Package';
-        $packageDto->CFDocument->creator = 'Test Creator';
-        $packageDto->CFItems = [new ItemDto()];
-        $packageDto->CFAssociations = [new AssociationDto()];
-        $packageDto->CFDefinitions = new DefinitionDto();
-        $packageDto->CFRubrics = [new RubricDto()];
+        $packageDto = new CFPackage();
+        $packageDto->cfDocument = new CFDocument();
+        $packageDto->cfDocument->identifier = Uuid::uuid4();
+        $packageDto->cfDocument->uri = 'http://example.com/package';
+        $packageDto->cfDocument->title = 'Test Package';
+        $packageDto->cfDocument->creator = 'Test Creator';
+        $packageDto->cfItems = [new CFPackageItem()];
+        $packageDto->cfAssociations = [new CFPackageAssociation()];
+        $packageDto->cfDefinitions = new CFDefinition();
+        $packageDto->cfRubrics = [new CFRubric()];
 
-        $this->objectMapper->expects($this->any())
-            ->method('map');
+        $req = new Request(content: json_encode($packageDto));
 
-        $this->entityManager->expects($this->any())
-            ->method('persist');
-        $this->entityManager->expects($this->any())
-            ->method('flush');
+        $this->controller->expects($this->once())->method('sendCommand');
+        $this->controller->expects($this->once())->method('generateUrl')->willReturn('/api/v1/packages/some-id');
 
-        $this->serializer->expects($this->any())
-            ->method('serialize')
-            ->willReturn('{"CFDocument":{},"CFItems":[],"CFAssociations":[],"CFDefinitions":{},"CFRubrics":[]}');
+        $response = $this->controller->postPackage($packageDto, $req, null);
 
-        $response = $this->controller->postPackage($packageDto);
-
-        $this->assertInstanceOf(JsonResponse::class, $response);
+        $this->assertInstanceOf(Response::class, $response);
         $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
     }
 
@@ -214,72 +118,26 @@ class ApiV1PackageControllerTest extends TestCase
         $doc = new LsDoc();
         $doc->setIdentifier('550e8400-e29b-41d4-a716-446655440001');
 
-        $packageDto = new PackageDto();
-        $packageDto->CFDocument = new DocumentDto();
-        $packageDto->CFItems = [new ItemDto()];
-        $packageDto->CFAssociations = [new AssociationDto()];
-        $packageDto->CFRubrics = [new RubricDto()];
+        $packageDto = new CFPackage();
+        $packageDto->cfDocument = new CFDocument();
+        $packageDto->cfDocument->identifier = Uuid::uuid4();
+        $packageDto->cfItems = [new CFPackageItem()];
+        $packageDto->cfAssociations = [new CFPackageAssociation()];
+        $packageDto->cfRubrics = [new CFRubric()];
 
-        // Mock existing items
-        $existingItem = new \App\Entity\Framework\LsItem();
-        $this->lsItemRepository->expects($this->any())
-            ->method('findBy')
-            ->with(['lsDoc' => $doc])
-            ->willReturn([$existingItem]);
+        $this->controller->expects($this->once())->method('sendCommand');
+        $this->controller->expects($this->once())->method('generateUrl')->willReturn('/api/v1/packages/some-id');
 
-        // Mock existing associations
-        $this->lsAssociationRepository->expects($this->any())
-            ->method('findBy')
-            ->with(['lsDoc' => $doc])
-            ->willReturn([]);
+        $response = $this->controller->putPackage($doc, $packageDto, new Request(), null);
 
-        // Mock existing rubrics
-        $existingRubric = new \App\Entity\Framework\CfRubric();
-        $this->cfRubricRepository->expects($this->any())
-            ->method('findBy')
-            ->with(['lsDoc' => $doc])
-            ->willReturn([$existingRubric]);
-
-        $this->objectMapper->expects($this->any())
-            ->method('map');
-
-        $this->entityManager->expects($this->any())
-            ->method('flush');
-
-        $this->serializer->expects($this->any())
-            ->method('serialize')
-            ->willReturn('{"CFDocument":{},"CFItems":[],"CFAssociations":[],"CFDefinitions":{},"CFRubrics":[]}');
-
-        $response = $this->controller->putPackage($doc, $packageDto);
-
-        $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        $this->assertInstanceOf(Response::class, $response);
+        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
     }
 
     public function testDeletePackageRemovesAllComponents(): void
     {
         $doc = new LsDoc();
-
-        // Mock items to delete
-        $item = new \App\Entity\Framework\LsItem();
-        $this->lsItemRepository->expects($this->any())
-            ->method('findBy')
-            ->with(['lsDoc' => $doc])
-            ->willReturn([$item]);
-
-        // Mock associations to delete
-        $association = new \App\Entity\Framework\LsAssociation();
-        $this->lsAssociationRepository->expects($this->any())
-            ->method('findBy')
-            ->with(['lsDoc' => $doc])
-            ->willReturn([$association]);
-
-        // Mock rubrics to delete
-        $rubric = new \App\Entity\Framework\CfRubric();
-        $this->cfRubricRepository->expects($this->any())
-            ->method('findBy')
-            ->with(['lsDoc' => $doc])
-            ->willReturn([$rubric]);
+        $this->controller->expects($this->once())->method('sendCommand');
 
         $response = $this->controller->deletePackage($doc);
 
@@ -289,20 +147,22 @@ class ApiV1PackageControllerTest extends TestCase
 
     public function testPostPackageWithEmptyPackage(): void
     {
-        $packageDto = new PackageDto();
-        $packageDto->CFDocument = new DocumentDto();
-        $packageDto->CFDocument->title = 'Empty Package';
+        $packageDto = new CFPackage();
+        $packageDto->cfDocument = new CFDocument();
+        $packageDto->cfDocument->identifier = Uuid::uuid4();
+        $packageDto->cfDocument->uri = 'http://example.com/empty';
+        $packageDto->cfDocument->creator = 'Test Creator';
+        $packageDto->cfDocument->title = 'Empty Package';
+        $packageDto->cfDocument->lastChangeDateTime = new \DateTime();
 
-        $this->objectMapper->expects($this->any())
-            ->method('map');
+        $req = new Request();
 
-        $this->serializer->expects($this->any())
-            ->method('serialize')
-            ->willReturn('{"CFDocument":{},"CFItems":[],"CFAssociations":[],"CFDefinitions":{},"CFRubrics":[]}');
+        $this->controller->expects($this->once())->method('sendCommand');
+        $this->controller->expects($this->once())->method('generateUrl')->willReturn('/api/v1/packages/some-id');
 
-        $response = $this->controller->postPackage($packageDto);
+        $response = $this->controller->postPackage($packageDto, $req, null);
 
-        $this->assertInstanceOf(JsonResponse::class, $response);
+        $this->assertInstanceOf(Response::class, $response);
         $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
     }
 
@@ -310,29 +170,7 @@ class ApiV1PackageControllerTest extends TestCase
     {
         $doc = new LsDoc();
 
-        $this->lsItemRepository->expects($this->any())
-            ->method('findBy')
-            ->willReturn([]);
-        $this->lsAssociationRepository->expects($this->any())
-            ->method('findBy')
-            ->willReturn([]);
-        $this->cfRubricRepository->expects($this->any())
-            ->method('findBy')
-            ->willReturn([]);
-
-        $this->lsDefConceptRepository->expects($this->any())->method('findAll')->willReturn([]);
-        $this->lsDefSubjectRepository->expects($this->any())->method('findAll')->willReturn([]);
-        $this->lsDefLicenceRepository->expects($this->any())->method('findAll')->willReturn([]);
-        $this->lsDefItemTypeRepository->expects($this->any())->method('findAll')->willReturn([]);
-        $this->lsDefAssociationGroupingRepository->expects($this->any())->method('findAll')->willReturn([]);
-
-        $this->serializer->expects($this->any())
-            ->method('deserialize')
-            ->willReturn(new DocumentDto());
-
-        $this->serializer->expects($this->any())
-            ->method('serialize')
-            ->willReturn('{"CFDocument":{},"CFItems":[],"CFAssociations":[],"CFDefinitions":{},"CFRubrics":[]}');
+        $this->controller->expects($this->once())->method('forward')->willReturn(new JsonResponse([], Response::HTTP_OK));
 
         $response = $this->controller->getPackage($doc);
 

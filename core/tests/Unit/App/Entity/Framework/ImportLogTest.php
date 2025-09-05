@@ -51,7 +51,6 @@ class ImportLogTest extends \Codeception\Test\Unit
         $this->assertEquals($messageType, $importLog->messageType);
     }
 
-
     public function testDefaultMessageType()
     {
         $lsDoc = new LsDoc();

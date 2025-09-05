@@ -83,7 +83,7 @@ class AssociationSubtypeTest extends \Codeception\Test\Unit
             'Has Skill Level',
             'Is Peer Of',
             'Exemplar',
-            'Is Translation Of'
+            'Is Translation Of',
         ];
 
         foreach ($validTypes as $type) {
@@ -97,7 +97,7 @@ class AssociationSubtypeTest extends \Codeception\Test\Unit
         $validDirections = [
             AssociationSubtype::DIR_BOTH,
             AssociationSubtype::DIR_FORWARD,
-            AssociationSubtype::DIR_INVERSE
+            AssociationSubtype::DIR_INVERSE,
         ];
 
         foreach ($validDirections as $direction) {

@@ -119,6 +119,7 @@ class ApiV1ItemController extends AbstractController
             new OA\Header(
                 header: 'Retry-After',
                 description: 'How long before trying to fetch the item',
+                required: false,
                 schema: new OA\Schema(
                     type: 'integer',
                     format: 'seconds',
@@ -150,7 +151,9 @@ class ApiV1ItemController extends AbstractController
 
         $serialized = $this->serializer->serialize(['data' => $lsItem], 'json', []);
 
-        return new JsonResponse($serialized, json: true);
+        return new JsonResponse($serialized, Response::HTTP_OK, [
+            'Location' => $this->generateUrl('app_api_v1_item_get', ['documentIdentifier' => $doc->getIdentifier(), 'itemIdentifier' => $lsItem->getIdentifier()]),
+        ], true);
     }
 
     #[Route('/api/v1/packages/{documentIdentifier}/items/{itemIdentifier}', name: 'app_api_v1_item_get', methods: ['GET'])]
