@@ -8,6 +8,9 @@ use App\Entity\Framework\LsDefGrade;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<LsDefGrade>
+ */
 class LsDefGradeRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)

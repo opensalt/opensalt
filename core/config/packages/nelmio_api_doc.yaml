@@ -3,6 +3,7 @@ nelmio_api_doc:
         assets_mode: 'bundle' # Other values: 'cdn', 'bundle', 'offline'
         swagger_ui_config:
             filter: false
+            default_sections_opened: false
         redocly_config:
             onlyRequiredInSamples: false
             sortRequiredPropsFirst: true
@@ -15,7 +16,8 @@ nelmio_api_doc:
             router: memory
     use_validation_groups: true
     type_info: true
-    models: { use_jms: false }
+    models:
+        use_jms: false
     documentation:
         info:
             title: OpenSALT
@@ -30,8 +32,9 @@ nelmio_api_doc:
         security:
             - Bearer: []
     areas: # to filter documented areas
-        path_patterns:
-            #- ^/api/v1(?!(/doc|/lor)$)
-            - ^/api/v1/documents
-            - ^/api/v1/packages
+        default:
+            path_patterns:
+                #- ^/api/v1(?!(/doc|/lor)$)
+                - ^/api/v1/documents
+                - ^/api/v1/packages
 

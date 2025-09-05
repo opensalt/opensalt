@@ -11,6 +11,8 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method LsDefAssociationGrouping|null findOneByIdentifier(string $identifier)
+ *
+ * @extends ServiceEntityRepository<LsDefAssociationGrouping>
  */
 class LsDefAssociationGroupingRepository extends ServiceEntityRepository
 {
