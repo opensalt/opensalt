@@ -106,7 +106,7 @@
         <h6 class="mb-0">Actions</h6>
       </div>
       <div class="card-body">
-        <div class="d-grid gap-2">
+        <div class="d-flex gap-2">
           <button type="button" class="btn btn-outline-primary" @click="$emit('add-root-item')">
             <i class="bi bi-plus-circle"></i> Add Root Item
           </button>

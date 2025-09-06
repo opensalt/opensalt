@@ -342,7 +342,7 @@ export const useFrameworkStore = defineStore('framework', () => {
         extensions: item.extensions || null,
         CFDocumentURI: item.CFDocumentURI || null,
         children: [],
-        sequenceNumber: 0
+        sequenceNumber: 0,
       });
     });
 

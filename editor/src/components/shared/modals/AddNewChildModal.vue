@@ -3,7 +3,7 @@
     <div class="modal-dialog modal-xl" role="document" style="width:99%">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="addNewChildModalLabel">Add New Child Item</h5>
+          <h5 class="modal-title" id="addNewChildModalLabel">{{ props.item ? 'Edit Item' : 'Add New Child Item' }}</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -60,6 +60,20 @@
             </div>
 
             <div class="row mb-3">
+              <label for="ls_item_listEnumInSource" class="col-sm-2 col-form-label">List Enum In Source</label>
+              <div class="col-sm-10">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="ls_item_listEnumInSource"
+                  name="ls_item[listEnumInSource]"
+                  v-model="formData.listEnumInSource"
+                  placeholder="List enum in source"
+                >
+              </div>
+            </div>
+
+            <div class="row mb-3">
               <label for="ls_item_itemType" class="col-sm-2 col-form-label">Item Type</label>
               <div class="col-sm-10">
                 <select class="form-select" id="ls_item_itemType" name="ls_item[itemType]" v-model="formData.itemType">
@@ -89,11 +103,14 @@
             <div class="row mb-3">
               <label for="ls_item_educationalAlignment" class="col-sm-2 col-form-label">Educational Alignment</label>
               <div class="col-sm-10">
-                <select class="form-select" id="ls_item_educationalAlignment" name="ls_item[educationalAlignment][]" multiple v-model="formData.educationalAlignment">
-                  <option v-for="alignment in availableAlignments" :key="alignment.id" :value="alignment.id">
-                    {{ alignment.title }} - {{ alignment.description }}
-                  </option>
-                </select>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="ls_item_educationalAlignment"
+                  name="ls_item[educationalAlignment]"
+                  v-model="formData.educationalAlignment"
+                  placeholder="Enter educational alignment"
+                >
               </div>
             </div>
 
@@ -136,13 +153,40 @@
                 </select>
               </div>
             </div>
+
+            <div class="row mb-3">
+              <label for="ls_item_licence" class="col-sm-2 col-form-label">Licence</label>
+              <div class="col-sm-10">
+                <select class="form-select" id="ls_item_licence" name="ls_item[licence]" v-model="formData.licence">
+                  <option value="">Select Licence</option>
+                  <option value="cc-by">Creative Commons BY</option>
+                  <option value="cc-by-sa">Creative Commons BY-SA</option>
+                  <option value="cc-by-nc">Creative Commons BY-NC</option>
+                  <option value="public-domain">Public Domain</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <label for="ls_item_educationLevel" class="col-sm-2 col-form-label">Education Level</label>
+              <div class="col-sm-10">
+                <MultiSelect
+                  v-model="formData.educationLevel"
+                  :options="educationLevelOptions"
+                  placeholder="Select education levels"
+                  search-placeholder="Search education levels..."
+                  option-value="value"
+                  option-label="label"
+                />
+              </div>
+            </div>
           </form>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
           <button type="button" class="btn btn-primary" @click="createItem" :disabled="saving">
             <span v-if="saving" class="spinner-border spinner-border-sm me-2" role="status"></span>
-            Create
+            {{ props.item ? 'Update' : 'Create' }}
           </button>
         </div>
       </div>
@@ -151,13 +195,16 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch } from 'vue';
+import { ref, reactive, watch, computed } from 'vue';
 import { Modal } from 'bootstrap';
+import educationLevelsData from '../../../data/EducationLevel.json';
+import MultiSelect from '../MultiSelect.vue';
 
 const props = defineProps({
   parentItem: Object,
   itemType: String,
-  show: Boolean
+  show: Boolean,
+  item: Object
 });
 
 const emit = defineEmits(['created', 'hidden']);
@@ -171,16 +218,31 @@ const formData = reactive({
   fullStatement: '',
   abbreviatedStatement: '',
   humanCodingScheme: '',
+  listEnumInSource: '',
   itemType: '',
   subjects: [],
-  educationalAlignment: [],
+  educationalAlignment: '',
   notes: '',
   conceptKeywords: '',
-  language: 'en'
+  language: 'en',
+  licence: '',
+  educationLevel: []
 });
 
 const availableSubjects = ref([]);
 const availableAlignments = ref([]);
+const educationLevels = ref([]);
+
+const educationLevelOptions = computed(() => {
+  return educationLevelsData.map(level => {
+    const key = Object.keys(level)[0];
+    const label = Object.values(level)[0];
+    return {
+      value: key,
+      label: label
+    };
+  });
+});
 
 watch(() => props.show, (newVal) => {
   if (newVal) {
@@ -214,6 +276,28 @@ function loadFormData() {
   });
   formData.language = 'en';
   formData.itemType = props.itemType || '';
+  formData.listEnumInSource = '';
+  formData.licence = '';
+  formData.educationLevel = [];
+
+  // If editing, populate form with item data
+  if (props.item) {
+    formData.fullStatement = props.item.fullStatement || '';
+    formData.abbreviatedStatement = props.item.abbreviatedStatement || '';
+    formData.humanCodingScheme = props.item.humanCodingScheme || '';
+    formData.listEnumInSource = props.item.listEnumInSource || '';
+    formData.itemType = props.item.itemType || '';
+    formData.subjects = props.item.subjects || [];
+    formData.educationalAlignment = Array.isArray(props.item.educationalAlignment) ? props.item.educationalAlignment.join(', ') : props.item.educationalAlignment || '';
+    formData.notes = props.item.notes || '';
+    formData.conceptKeywords = props.item.conceptKeywords || '';
+    formData.language = props.item.language || 'en';
+    formData.licence = props.item.licence || '';
+    formData.educationLevel = props.item.educationLevel || [];
+  }
+
+  // Load education levels from JSON
+  educationLevels.value = educationLevelsData;
 
   // Simulate loading available options - in real app this would be API calls
   setTimeout(() => {
