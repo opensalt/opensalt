@@ -75,3 +75,7 @@ span.fancytree-node {
 #notifications-switch:focus {
     color: $body-bg;
 }
+
+.editor-toolbar button.table {
+    width: unset;
+}

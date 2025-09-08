@@ -1,4 +1,4 @@
-import SimpleMDE from 'simplemde';
+import easyMDE from 'easymde';
 import render from "./render-md";
 
 const mde = (function() {
@@ -140,14 +140,19 @@ const mde = (function() {
     }
 
     const mde = function(element) {
-        return new SimpleMDE({
+        return new easyMDE({
             element: element,
+            toolbarButtonClassPrefix: 'mde',
+            inputStyle: 'contenteditable',
+            spellChecker: false,
+            nativeSpellcheck: true,
+            sideBySideFullscreen: false,
             toolbar: [{
-                name: "underlineText",
-                action: underlineText,
-                className: "fa fa-underline",
-                title: "Underline text",
-            },
+                    name: "underlineText",
+                    action: underlineText,
+                    className: "fa fa-underline",
+                    title: "Underline text",
+                },
                 "bold", "italic", "heading", "|",
                 {
                     name: "mathText",
@@ -164,7 +169,7 @@ const mde = (function() {
                 }, "|",
                 {
                     name: "image",
-                    action: SimpleMDE.drawImage,
+                    action: easyMDE.drawImage,
                     className: "fa fa-picture-o",
                     title: "Insert image via URL",
                 },
