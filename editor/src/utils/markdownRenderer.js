@@ -35,6 +35,7 @@ const sanitizeOptions = {
     'div': ['class'],
     'code': ['class'],
     'pre': ['class'],
+    'ol': ['type'],
     '*': ['style']
   },
   allowedStyles: {
