@@ -12,7 +12,8 @@ const md = new MarkdownIt({
 })
 .use(markdownItKatex, {
   throwOnError: false,
-  errorColor: '#cc0000'
+  errorColor: '#cc0000',
+  displayMode: true
 })
 .use(markdownItUnderline);
 
@@ -31,11 +32,11 @@ const sanitizeOptions = {
   allowedAttributes: {
     'a': ['href', 'title', 'target'],
     'img': ['src', 'alt', 'title'],
-    'span': ['class'],
+    'span': ['class', 'style', 'aria-hidden'],
     'div': ['class'],
     'code': ['class'],
     'pre': ['class'],
-    'ol': ['type'],
+    'ol': ['class', 'type'],
     '*': ['style']
   },
   allowedStyles: {
@@ -46,11 +47,19 @@ const sanitizeOptions = {
       'font-size': [/^\d+(?:px|em|%)$/],
       'font-weight': [/^\d+$/, /^bold$/],
       'text-decoration': [/^underline$/, /^line-through$/]
+    },
+    'span': {
+        'top': [/^./],
+        'bottom': [/^./],
+        'margin-left': [/^./],
+        'margin-right': [/^./],
+        'height': [/^./],
+        'vertical-align': [/^./],
     }
   },
   allowedClasses: {
-    'span': ['katex', 'katex-mathml'],
-    'div': ['katex-display'],
+    'span': [/^katex/, /^m/, 'struct', /^./],
+    'div': [/^katex/],
     'code': ['language-*'],
     'pre': ['language-*']
   }

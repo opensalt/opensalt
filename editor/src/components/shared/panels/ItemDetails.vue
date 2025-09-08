@@ -112,6 +112,7 @@
 import { computed } from 'vue';
 import AssociationGroupDisplay from '../../association/AssociationGroupDisplay.vue';
 import { renderMarkdown, hasMarkdown } from '../../../utils/markdownRenderer.js';
+import render from '../../../utils/render-md.js';
 
 const props = defineProps({
   item: {
@@ -167,7 +168,7 @@ const groupedAssociations = computed(() => {
 // Render fullStatement as markdown
 const renderedFullStatement = computed(() => {
   if (!props.item?.fullStatement) return '';
-  return renderMarkdown(props.item.fullStatement);
+  return render.block(props.item.fullStatement);
 });
 
 // Check if fullStatement contains markdown

@@ -19,15 +19,13 @@
             <div class="row mb-3">
               <label for="ls_item_fullStatement" class="col-sm-2 col-form-label">Full Statement *</label>
               <div class="col-sm-10">
-                <textarea
-                  class="form-control"
+                <EasyMDE
                   id="ls_item_fullStatement"
                   name="ls_item[fullStatement]"
-                  rows="3"
                   v-model="formData.fullStatement"
-                  required
+                  :required="true"
                   placeholder="Enter the complete statement for this competency item"
-                ></textarea>
+                />
               </div>
             </div>
 
@@ -199,6 +197,7 @@ import { ref, reactive, watch, computed } from 'vue';
 import { Modal } from 'bootstrap';
 import educationLevelsData from '../../../data/EducationLevel.json';
 import MultiSelect from '../MultiSelect.vue';
+import EasyMDE from '../EasyMDE.vue';
 
 const props = defineProps({
   parentItem: Object,
