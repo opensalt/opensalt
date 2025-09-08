@@ -95,13 +95,13 @@ class Item implements Context
         $I->waitForElementVisible('#ls_item', 30);
         $I->waitForElementVisible('#ls_item_listEnumInSource');
 
-        $I->executeJS("$('#ls_item_fullStatement').nextAll('.CodeMirror')[0].CodeMirror.getDoc().setValue('{$fullStatement}')");
+        $I->executeJS("$('#ls_item_fullStatement + .EasyMDEContainer .CodeMirror')[0].CodeMirror.getDoc().setValue('{$fullStatement}')");
         $I->fillField('#ls_item_humanCodingScheme', $item);
         $I->fillField('#ls_item_listEnumInSource', $enum);
         $I->fillField('#ls_item_abbreviatedStatement', $statement);
         $I->fillField('#ls_item_conceptKeywords', $keywords);
         $I->selectOption('ls_item[language]', ['value' => $this->itemData['language']]);
-        $I->executeJS("$('#ls_item_notes').nextAll('.CodeMirror')[0].CodeMirror.getDoc().setValue('{$note}')");
+        $I->executeJS("$('#ls_item_notes + .EasyMDEContainer .CodeMirror')[0].CodeMirror.getDoc().setValue('{$note}')");
 
         if (null !== $additionalField && !empty($additionalField)) {
             $I->see($additionalField);
@@ -180,13 +180,13 @@ class Item implements Context
     {
         $I = $this->I;
         $map = [
-//      'Full statement' => "$('#ls_item_fullStatement').nextAll('.CodeMirror')[0].CodeMirror.getDoc().setValue('{$fullStatement}')",
+//      'Full statement' => "$('#ls_item_fullStatement + .EasyMDEContainer .CodeMirror')[0].CodeMirror.getDoc().setValue('{$fullStatement}')",
             'Human coding scheme' => '#ls_item_humanCodingScheme',
             'List enum in source' => '#ls_item_listEnumInSource',
             'Abbreviated statement' => '#ls_item_abbreviatedStatement',
             'Concept keywords' => '#ls_item_conceptKeywords',
 //      'Language' => 'ls_item[language]',
-//      'Note' => "$('#ls_item_notes').nextAll('.CodeMirror')[0].CodeMirror.getDoc().setValue('{$note}')",
+//      'Note' => "$('#ls_item_notes + .EasyMDEContainer .CodeMirror')[0].CodeMirror.getDoc().setValue('{$note}')",
         ];
         $dataMap = [
 //      'Full statement' => 'fullStatement',
@@ -203,10 +203,10 @@ class Item implements Context
 //      $I->selectOption($map[$field], array('value' => $data));
 //    }
 //    if (in_array('Full statement', $field  )){
-//      $I->executeJS("$('#ls_item_fullStatement').nextAll('.CodeMirror')[0].CodeMirror.getDoc().setValue('{$data}')");
+//      $I->executeJS("$('#ls_item_fullStatement + .EasyMDEContainer .CodeMirror')[0].CodeMirror.getDoc().setValue('{$data}')");
 //    }
 //    if (in_array('Note', $field )){
-//      $I->executeJS("$('#ls_item_notes').nextAll('.CodeMirror')[0].CodeMirror.getDoc().setValue('{$data}')");
+//      $I->executeJS("$('#ls_item_notes + .EasyMDEContainer .CodeMirror')[0].CodeMirror.getDoc().setValue('{$data}')");
 //    }
 //    else {
         $I->fillField($map[$field], $data);
