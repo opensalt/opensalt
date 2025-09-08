@@ -39,7 +39,7 @@ doctrine:
     orm:
         auto_generate_proxy_classes: true
         #enable_lazy_ghost_objects: true ## Disabled in favour of enable_native_lazy_objects
-        enable_native_lazy_objects: true
+        # enable_native_lazy_objects: true ## removed: unsupported by current DoctrineBundle
         controller_resolver:
             auto_mapping: false
 

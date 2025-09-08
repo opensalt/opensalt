@@ -146,6 +146,16 @@ services:
         resource: '../src/Controller/'
         tags: ['controller.service_arguments']
 
+    # Explicitly register the LsDocRepository so its 2-arg constructor is used
+    App\Repository\Framework\LsDocRepository:
+        public: false
+        autowire: true
+        arguments:
+            $registry: '@doctrine'
+            $security: '@security.helper'
+        tags: ['doctrine.repository_service']
+
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
     App\Controller\User\OAuthServiceController:
