@@ -1,10 +1,10 @@
 <template>
-  <div class="tree-view card">
-    <div class="card-body">
+  <div class="tree-view card h-100">
+    <div class="card-body d-flex flex-column h-100">
       <div v-if="!doc">
         <em>No document loaded.</em>
       </div>
-      <div v-else role="tree" aria-label="Document structure tree">
+      <div v-else role="tree" aria-label="Document structure tree" class="flex-grow-1 overflow-auto">
         <TreeNode
           :key="documentRoot.identifier"
           :item="documentRoot"
@@ -66,7 +66,7 @@ function onMove({ fromIdx, toIdx, parentItems }) {
 
 <style scoped>
 .tree-view {
-  min-height: 300px;
+  /* Height controlled by flexbox parent */
 }
 
 .tree-view[role="tree"] {

@@ -1,6 +1,6 @@
 <template>
   <div class="log-view">
-    <div v-if="loading" class="d-flex justify-content-center align-items-center" style="height: 80vh;">
+    <div v-if="loading" class="d-flex justify-content-center align-items-center" style="height: 100%;">
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Loading logs...</span>
       </div>
@@ -8,10 +8,10 @@
     <div v-else-if="error" class="alert alert-danger my-4" role="alert">
       {{ error }}
     </div>
-    <div v-else class="row g-0" style="height: 80vh;">
+    <div v-else class="row g-0" style="height: 100%;">
       <!-- Log Entries Panel -->
-      <section class="col-8 log-entries-panel">
-        <div class="p-3 h-100">
+      <section class="col-8 log-entries-panel d-flex flex-column">
+        <div class="p-3 flex-grow-1 d-flex flex-column">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h3 class="mb-0">Activity Log</h3>
             <div class="btn-group" role="group">
@@ -42,7 +42,7 @@
             </div>
           </div>
 
-          <div class="log-container border rounded p-3" style="height: calc(100% - 60px); overflow-y: auto;">
+          <div class="log-container border rounded p-3 flex-grow-1 overflow-auto">
             <div v-if="filteredLogs.length === 0" class="text-center text-muted py-5">
               <i class="bi bi-list-check fs-1 mb-3"></i>
               <p>No log entries found.</p>
@@ -81,10 +81,10 @@
       </section>
 
       <!-- Log Summary Panel -->
-      <section class="col-4 log-summary-panel">
-        <div class="p-3 h-100">
+      <section class="col-4 log-summary-panel d-flex flex-column">
+        <div class="p-3 flex-grow-1 d-flex flex-column">
           <h4 class="mb-3">Log Summary</h4>
-          <div class="summary-container">
+          <div class="summary-container flex-grow-1 overflow-auto">
             <div class="summary-item mb-3">
               <div class="summary-label">Total Entries</div>
               <div class="summary-value h3 text-primary">{{ logs.length }}</div>

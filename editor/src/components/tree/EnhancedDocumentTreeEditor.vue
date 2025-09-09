@@ -1,14 +1,14 @@
 <template>
   <div>
-    <div v-if="loading" class="d-flex justify-content-center align-items-center" style="height: 80vh;" role="status" aria-live="polite">
+    <div v-if="loading" class="d-flex justify-content-center align-items-center" style="height: 100%;" role="status" aria-live="polite">
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Loading document...</span>
       </div>
     </div>
     <div v-else-if="error" class="alert alert-danger my-4" role="alert" aria-live="assertive">{{ error }}</div>
-    <main v-else class="row g-0" style="height: 80vh;">
+    <main v-else class="row g-0" style="height: 100%;">
       <!-- Tree panel -->
-      <section class="col-5 tree-panel">
+      <section class="col-5 tree-panel d-flex flex-column">
         <!-- Document Selector -->
         <DocumentSelector
           :current-doc1="currentDoc"
@@ -33,13 +33,13 @@
         />
 
         <!-- Tree View -->
-        <div class="mt-3">
+        <div class="mt-3 flex-grow-1 overflow-auto">
           <TreeView :doc="filteredDoc" @select="onSelect" :search="searchQuery" />
         </div>
       </section>
 
       <!-- Details/info panel -->
-      <section class="col-7 details-panel">
+      <section class="col-7 details-panel d-flex flex-column">
         <RightSidePanel
           :current-document="currentDoc"
           :association-groups="associationGroups"

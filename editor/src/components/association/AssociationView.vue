@@ -1,6 +1,6 @@
 <template>
   <div class="association-view">
-    <div v-if="loading" class="d-flex justify-content-center align-items-center" style="height: 80vh;">
+    <div v-if="loading" class="d-flex justify-content-center align-items-center" style="height: 100%;">
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Loading associations...</span>
       </div>
@@ -11,12 +11,12 @@
     <div v-else-if="!currentDocument" class="alert alert-info my-4" role="alert">
       Please select a document to view associations.
     </div>
-    <div v-else class="row g-0" style="height: 80vh;">
+    <div v-else class="row g-0" style="height: 100%;">
       <!-- Association Graph Panel -->
-      <section class="col-8 association-graph-panel">
-        <div class="p-3 h-100">
+      <section class="col-8 association-graph-panel d-flex flex-column">
+        <div class="p-3 flex-grow-1 d-flex flex-column">
           <h3 class="mb-3">Association Network</h3>
-          <div class="association-graph-container border rounded p-3 h-75">
+          <div class="association-graph-container border rounded p-3 flex-grow-1 overflow-auto">
             <div v-if="associations.length === 0" class="text-center text-muted">
               <i class="bi bi-share fs-1 mb-3"></i>
               <p>No associations found in this document.</p>
@@ -56,10 +56,10 @@
       </section>
 
       <!-- Association Details Panel -->
-      <section class="col-4 association-details-panel">
-        <div class="p-3 h-100">
+      <section class="col-4 association-details-panel d-flex flex-column">
+        <div class="p-3 flex-grow-1 d-flex flex-column">
           <h4 class="mb-3">Association Statistics</h4>
-          <div class="stats-container">
+          <div class="stats-container flex-grow-1 overflow-auto">
             <div class="stat-item mb-3">
               <div class="stat-label">Total Associations</div>
               <div class="stat-value h3 text-primary">{{ associations.length }}</div>

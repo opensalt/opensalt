@@ -21,7 +21,7 @@ $white: #fff;
 $black: #000;
 
 // Layout variables
-$tree-side-height: calc(100vh - 243px);
+$tree-side-height: 100%;
 $border-radius: 4px;
 $font-size-base: 0.875rem;
 
@@ -56,15 +56,11 @@ $font-size-base: 0.875rem;
   }
 
   .tree-panel {
-    height: $tree-side-height;
-    overflow: auto;
     background: $white;
     border-right: 1px solid #dee2e6;
   }
 
   .details-panel {
-    height: $tree-side-height;
-    overflow: auto;
     background: #f8f9fa;
   }
 }

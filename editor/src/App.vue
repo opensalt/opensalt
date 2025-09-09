@@ -1,5 +1,5 @@
 <template>
-  <div id="editor">
+  <div id="editor" style="height: 100%; overflow: hidden;">
     <nav class="navbar navbar-expand navbar-light bg-light mb-3">
       <div class="container-fluid">
         <a class="navbar-brand" href="#">
@@ -7,7 +7,7 @@
         </a>
       </div>
     </nav>
-    <div class="container-fluid">
+    <div class="container-fluid" style="height: calc(100% - 76px); overflow: hidden;">
     <!-- Header row: document name (left), status (right) -->
     <header class="d-flex align-items-center justify-content-between mb-2 header-section">
       <h1 class="fs-4 fw-bold mb-0 doc-title">{{ docTitle }}</h1>
