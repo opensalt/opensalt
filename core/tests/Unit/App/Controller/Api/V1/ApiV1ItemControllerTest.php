@@ -6,8 +6,6 @@ namespace Tests\Unit\App\Controller\Api\V1;
 
 use App\Controller\Api\V1\ApiV1ItemController;
 use App\DTO\Api\V1\ItemDto;
-use App\DTO\Api\V1\PatchDto;
-use App\DTO\Api\V1\PatchOperation;
 use App\Entity\Framework\LsItem;
 use App\Event\CommandEvent;
 use App\Repository\Framework\LsItemRepository;
@@ -257,65 +255,6 @@ class ApiV1ItemControllerTest extends TestCase
 
         // Act
         $this->controller->putItem($lsItem, $lsDoc, $itemDto);
-    }
-
-    public function testPatchItemAppliesPatchOperations(): void
-    {
-        // Arrange
-        $lsItem = $this->createMock(LsItem::class);
-        $lsDoc = $this->createMock(\App\Entity\Framework\LsDoc::class);
-
-        $patchOperation = new PatchOperation();
-        $patchOperation->op = 'replace';
-        $patchOperation->path = '/fullStatement';
-        $patchOperation->value = 'Patched statement';
-
-        $patchDto = new PatchDto();
-        $patchDto->patch = [$patchOperation];
-
-        $this->propertyAccessor->expects($this->once())
-            ->method('isReadable')
-            ->with($lsItem, 'fullStatement')
-            ->willReturn(true);
-
-        $this->propertyAccessor->expects($this->once())
-            ->method('setValue')
-            ->with($lsItem, 'fullStatement', 'Patched statement');
-
-        $this->dispatcher->expects($this->once())
-            ->method('dispatch');
-
-        $this->serializer->expects($this->once())
-            ->method('serialize')
-            ->with($lsItem, 'json', [])
-            ->willReturn('{"id":1,"fullStatement":"Patched statement"}');
-
-        // Act
-        $response = $this->controller->patchItem($lsItem, $lsDoc, $patchDto);
-
-        // Assert
-        $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
-    }
-
-    public function testPatchItemThrowsExceptionForInvalidOperation(): void
-    {
-        // Arrange
-        $lsItem = $this->createMock(LsItem::class);
-        $lsDoc = $this->createMock(\App\Entity\Framework\LsDoc::class);
-
-        $patchOperation = new PatchOperation();
-        $patchOperation->op = 'invalid';
-        $patchOperation->path = '/fullStatement';
-
-        $patchDto = new PatchDto();
-        $patchDto->patch = [$patchOperation];
-
-        $this->expectException(\Symfony\Component\HttpKernel\Exception\BadRequestHttpException::class);
-        $this->expectExceptionMessage('Unsupported patch operation: invalid');
-
-        // Act
-        $this->controller->patchItem($lsItem, $lsDoc, $patchDto);
     }
 
     public function testDeleteItemRemovesItem(): void

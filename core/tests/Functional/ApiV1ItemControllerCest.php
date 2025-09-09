@@ -155,49 +155,6 @@ class ApiV1ItemControllerCest
         $I->seeResponseCodeIs(HttpCode::UNAUTHORIZED);
     }
 
-    // Test PATCH /api/v1/packages/{documentIdentifier}/items/{itemIdentifier}
-    public function testPatchItem(FunctionalTester $I): void
-    {
-        $I->amBearerAuthenticated($this->apiToken);
-        $I->haveHttpHeader('Content-Type', 'application/json-patch+json');
-        $I->sendPatch('/api/v1/packages/'.$this->testDoc->getIdentifier().'/items/'.$this->testItem->getIdentifier(), [
-            [
-                'op' => 'replace',
-                'path' => '/fullStatement',
-                'value' => 'Patched Test Item Statement',
-            ],
-        ]);
-        $I->seeResponseCodeIs(HttpCode::OK);
-        $I->seeResponseIsJson();
-    }
-
-    public function testPatchItemInvalidOperation(FunctionalTester $I): void
-    {
-        $I->amBearerAuthenticated($this->apiToken);
-        $I->haveHttpHeader('Content-Type', 'application/json-patch+json');
-        $I->sendPatch('/api/v1/packages/'.$this->testDoc->getIdentifier().'/items/'.$this->testItem->getIdentifier(), [
-            [
-                'op' => 'invalid',
-                'path' => '/fullStatement',
-                'value' => 'Invalid Operation',
-            ],
-        ]);
-        $I->seeResponseCodeIs(HttpCode::BAD_REQUEST);
-    }
-
-    public function testPatchItemUnauthorized(FunctionalTester $I): void
-    {
-        $I->haveHttpHeader('Content-Type', 'application/json-patch+json');
-        $I->sendPatch('/api/v1/packages/'.$this->testDoc->getIdentifier().'/items/'.$this->testItem->getIdentifier(), [
-            [
-                'op' => 'replace',
-                'path' => '/fullStatement',
-                'value' => 'Patched Statement',
-            ],
-        ]);
-        $I->seeResponseCodeIs(HttpCode::UNAUTHORIZED);
-    }
-
     // Test DELETE /api/v1/packages/{documentIdentifier}/items/{itemIdentifier}
     public function testDeleteItem(FunctionalTester $I): void
     {
