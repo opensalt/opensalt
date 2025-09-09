@@ -4,6 +4,7 @@ namespace Tests\Functional;
 
 use App\Entity\Comment\Comment;
 use App\Entity\Comment\CommentUpvote;
+use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use Doctrine\ORM\EntityManager;
 use Ramsey\Uuid\Uuid;
@@ -27,6 +28,7 @@ class CommentTest extends \Codeception\Test\Unit
 
         $comment->setParent(null);
         $comment->setItem($item);
+        $comment->setDocument($item->getLsDoc());
 
         $em->persist($comment);
         $em->flush();
@@ -151,6 +153,7 @@ class CommentTest extends \Codeception\Test\Unit
         $itemId = $this->addLsItem();
         $item = $em->getRepository(LsItem::class)->find($itemId);
         $comment->setItem($item);
+        $comment->setDocument($item->getLsDoc());
         $comment->setParent(null);
 
         $em->persist($comment);
@@ -161,16 +164,36 @@ class CommentTest extends \Codeception\Test\Unit
 
     public function addLsItem()
     {
-        $identifier = Uuid::uuid4()->toString();
         $docIdentifier = Uuid::uuid4()->toString();
-        $lsItemId = $this->tester->haveInRepository(LsItem::class,
+        $this->tester->haveInRepository(LsDoc::class,
             [
-                'identifier' => $identifier,
-                'lsDocIdentifier' => $docIdentifier,
+                'identifier' => $docIdentifier,
+                'uri' => 'local:'.$docIdentifier,
+                'title' => 'Test Document',
+                'creator' => 'Test Creator',
+                'version' => '1.0',
+                'description' => 'Test document for testing',
+                'adoptionStatus' => 'Draft',
+                'statusStart' => new \DateTimeImmutable(),
+                'changedAt' => new \DateTimeImmutable(),
+                'updatedAt' => new \DateTimeImmutable(),
+            ]
+        );
+        $doc = $this->tester->grabEntityFromRepository(LsDoc::class, ['identifier' => $docIdentifier]);
+
+        $identifier = Uuid::uuid4()->toString();
+        $item = new LsItem($identifier);
+        $item->setLsDoc($doc);
+        $this->tester->haveInRepository($item,
+            [
                 'fullStatement' => 'codeception',
+                'humanCodingScheme' => '1.1.1',
+                'listEnumInSource' => '1.1.1',
+                'changedAt' => new \DateTimeImmutable(),
+                'updatedAt' => new \DateTimeImmutable(),
             ]
         );
 
-        return $lsItemId;
+        return $this->tester->grabEntityFromRepository(LsItem::class, ['identifier' => $identifier])->getId();
     }
 }
