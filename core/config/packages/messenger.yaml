@@ -4,26 +4,64 @@ framework:
         # failure_transport: failed
         failure_transport: failed
 
-        #buses:
-        #    messenger.default:
-        #        default_middleware: allow_no_handlers
+        buses:
+            messenger.bus.default:
+                default_middleware: allow_no_handlers
+                middleware:
+                    - 'App\Messenger\Middleware\PriorityRoutingMiddleware'
 
         transports:
             # https://symfony.com/doc/current/messenger.html#transport-configuration
             # async: '%env(MESSENGER_TRANSPORT_DSN)%'
             # failed: 'doctrine://default?queue_name=failed'
             # sync: 'sync://'
-            async:
+            async_priority_high: # Target max 1 minute before handling
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
                 options:
                     use_notify: true
                     check_delayed_interval: 30000
+                    queue_name: high
                 retry_strategy:
                     max_retries: 5
                     multiplier: 2
                     delay: 5000
                     jitter: 0.1
-
+                serializer: messenger.transport.symfony_serializer
+            async_priority_medium: # Target max 10 minutes before handling
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    use_notify: true
+                    check_delayed_interval: 30000
+                    queue_name: medium
+                retry_strategy:
+                    max_retries: 5
+                    multiplier: 2
+                    delay: 5000
+                    jitter: 0.1
+                serializer: messenger.transport.symfony_serializer
+            async_priority_low: # Target max 1 hour before handling
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    use_notify: true
+                    check_delayed_interval: 30000
+                    queue_name: low
+                retry_strategy:
+                    max_retries: 5
+                    multiplier: 2
+                    delay: 5000
+                    jitter: 0.1
+                serializer: messenger.transport.symfony_serializer
+            async_priority_very_low: # Target max 1 day before handling
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    use_notify: true
+                    check_delayed_interval: 30000
+                    queue_name: very_low
+                retry_strategy:
+                    max_retries: 5
+                    multiplier: 2
+                    delay: 5000
+                    jitter: 0.1
                 serializer: messenger.transport.symfony_serializer
             failed: 'doctrine://default?queue_name=failed'
             sync: 'sync://'
