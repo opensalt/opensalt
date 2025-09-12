@@ -115,6 +115,13 @@
       @deleted="onAssocGroupDeleted"
       @hidden="showAssocGroupModal = false"
     />
+
+    <EditItemModal
+      :item="selectedItem"
+      :show="showEditItemModal"
+      @saved="onItemSaved"
+      @hidden="showEditItemModal = false"
+    />
   </div>
 </template>
 
@@ -127,6 +134,7 @@ import DocumentSelector from '../shared/common/DocumentSelector.vue';
 import SearchFilter from '../shared/common/SearchFilter.vue';
 import AssociationGroupSelector from '../shared/common/AssociationGroupSelector.vue';
 import EditDocModal from '../shared/modals/EditDocModal.vue';
+import EditItemModal from '../shared/modals/EditItemModal.vue';
 import AddNewChildModal from '../shared/modals/AddNewChildModal.vue';
 import AssociateModal from '../association/AssociateModal.vue';
 import EditAssociationModal from '../association/EditAssociationModal.vue';
@@ -152,6 +160,7 @@ const filteredDoc = computed(() => ({
 
 // Modal states
 const showEditDocModal = ref(false);
+const showEditItemModal = ref(false);
 const showAddChildModal = ref(false);
 const showAssociateModal = ref(false);
 const showEditAssociationModal = ref(false);
@@ -253,7 +262,7 @@ function onClearSearch() {
 
 // Modal event handlers
 function onEditItem(item) {
-  showEditDocModal.value = true;
+  showEditItemModal.value = true;
 }
 
 function onDeleteItem(item) {
@@ -335,6 +344,10 @@ function onAddRootItem() {
 
 function onManageAssociationGroups() {
   showAssocGroupModal.value = true;
+}
+
+function onItemSaved(updatedItem) {
+  frameworkStore.updateItem(updatedItem);
 }
 
 function findItem(items, id) {

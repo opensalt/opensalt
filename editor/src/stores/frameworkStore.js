@@ -584,6 +584,41 @@ export const useFrameworkStore = defineStore('framework', () => {
     currentView.value = view;
   }
 
+  function updateItem(updatedItem) {
+    if (!currentDocument.value || !updatedItem || !updatedItem.identifier) {
+      console.warn('Cannot update item: missing document or item identifier');
+      return false;
+    }
+
+    const updated = updateItemRecursively(currentDocument.value.items, updatedItem);
+    if (updated) {
+      console.log('Item updated successfully:', updatedItem.identifier);
+    } else {
+      console.warn('Item not found for update:', updatedItem.identifier);
+    }
+    return updated;
+  }
+
+  function updateItemRecursively(items, updatedItem) {
+    if (!Array.isArray(items)) return false;
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.identifier === updatedItem.identifier) {
+        // Update the item properties, preserving structure
+        Object.assign(item, updatedItem);
+        // Ensure children and associations are preserved if not overwritten
+        if (!updatedItem.children) item.children = item.children || [];
+        if (!updatedItem.associations) item.associations = item.associations || [];
+        return true;
+      }
+      if (item.children && updateItemRecursively(item.children, updatedItem)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   return {
     // State
     documents,
@@ -615,6 +650,7 @@ export const useFrameworkStore = defineStore('framework', () => {
     setSelectedAssociationGroup,
     setCurrentView,
     selectDocument,
-    clearError
+    clearError,
+    updateItem
   };
 });
