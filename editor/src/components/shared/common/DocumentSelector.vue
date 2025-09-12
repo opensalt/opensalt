@@ -32,19 +32,13 @@
                   :value="doc.id"
                   :selected="doc.id === currentDoc1?.id"
                 >
-                  {{ doc.title }} ({{ doc.id }})
+                  {{ doc.title || 'Unknown Name' }} ({{ doc.id || 'No Identifier' }})
                 </option>
               </optgroup>
               <optgroup label="External Documents">
                 <option value="external">Load external document...</option>
               </optgroup>
             </select>
-            <div v-if="currentDoc1" class="mt-2">
-              <small class="text-muted">
-                <strong>Status:</strong> {{ currentDoc1.status || 'Draft' }}<br>
-                <strong>Items:</strong> {{ currentDoc1.itemCount || 0 }}
-              </small>
-            </div>
           </div>
         </div>
       </div>
@@ -80,19 +74,13 @@
                   :value="doc.id"
                   :selected="doc.id === currentDoc2?.id"
                 >
-                  {{ doc.title }} ({{ doc.id }})
+                  {{ doc.title || 'Unknown Name' }} ({{ doc.id || 'No Identifier' }})
                 </option>
               </optgroup>
               <optgroup label="External Documents">
                 <option value="external">Load external document...</option>
               </optgroup>
             </select>
-            <div v-if="currentDoc2" class="mt-2">
-              <small class="text-muted">
-                <strong>Status:</strong> {{ currentDoc2.status || 'Draft' }}<br>
-                <strong>Items:</strong> {{ currentDoc2.itemCount || 0 }}
-              </small>
-            </div>
           </div>
         </div>
       </div>
