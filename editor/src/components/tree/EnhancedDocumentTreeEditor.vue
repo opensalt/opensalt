@@ -226,9 +226,15 @@ async function onDocumentChanged({ side, documentId }) {
   }
 }
 
-function onExternalDocumentRequested({ url }) {
+async function onExternalDocumentRequested({ url }) {
   // Handle external document request
   console.log('External document requested:', url);
+  try {
+    await frameworkStore.loadExternalDocument(url);
+  } catch (error) {
+    console.error('Error loading external document:', error);
+    // The store's error state will be displayed in the template
+  }
 }
 
 function onSearch({ query, filters }) {

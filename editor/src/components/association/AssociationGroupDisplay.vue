@@ -14,8 +14,9 @@
         :key="assoc.identifier || assoc.id"
         :association="assoc"
         :association-groups="associationGroups"
-        @edit="$emit('edit-association', $event)"
-        @delete="$emit('delete-association', $event)"
+        :is-read-only="isReadOnly"
+        @edit="!isReadOnly ? $emit('edit-association', $event) : null"
+        @delete="!isReadOnly ? $emit('delete-association', $event) : null"
       />
     </div>
   </div>
@@ -36,6 +37,10 @@ const props = defineProps({
   associationGroups: {
     type: Array,
     default: () => []
+  },
+  isReadOnly: {
+    type: Boolean,
+    default: false
   }
 });
 

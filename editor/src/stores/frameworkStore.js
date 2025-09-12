@@ -309,6 +309,100 @@ export const useFrameworkStore = defineStore('framework', () => {
     }
   }
 
+  async function loadExternalDocument(url) {
+    console.log('[DEBUG] frameworkStore.loadExternalDocument called with url:', url);
+    loading.value = true;
+    error.value = null;
+
+    let data = null;
+    let finalUrl = url;
+
+    try {
+      // Initial fetch from provided URL
+      let response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch from initial URL: ${response.status} ${response.statusText}`);
+      }
+
+      data = await response.json();
+
+      // Check if response has CFDocument; if not, check for CFPackageURI
+      if (!data.CFDocument) {
+        if (data.CFPackageURI && data.CFPackageURI.uri) {
+          console.log('[DEBUG] No CFDocument found, fetching from CFPackageURI:', data.CFPackageURI.uri);
+          finalUrl = data.CFPackageURI.uri;
+          response = await fetch(finalUrl);
+          if (!response.ok) {
+            throw new Error(`Failed to fetch from CFPackageURI: ${response.status} ${response.statusText}`);
+          }
+          data = await response.json();
+        } else {
+          throw new Error('Response does not contain CFDocument or CFPackageURI');
+        }
+      }
+
+      // Now process the final data (either initial or from CFPackageURI)
+      // Extract CFDefinitions from the package
+      const cfDefinitions = data.CFDefinitions || {};
+      const cfAssociationGroupings = cfDefinitions.CFAssociationGroupings || [];
+      currentDocumentAssociationGroupings.value = cfAssociationGroupings;
+
+      // Store all definitions for potential use
+      currentDocumentDefinitions.value = {
+        concepts: cfDefinitions.CFConcepts || [],
+        subjects: cfDefinitions.CFSubjects || [],
+        licenses: cfDefinitions.CFLicenses || [],
+        itemTypes: cfDefinitions.CFItemTypes || [],
+        extensions: cfDefinitions.extensions || null
+      };
+
+      // Extract CFRubrics from the package
+      currentDocumentRubrics.value = data.CFRubrics || [];
+
+      // Extract CFAssociations from the package
+      currentDocumentAssociations.value = data.CFAssociations || [];
+
+      // Transform the CASE format to our internal format
+      const cfDoc = data.CFDocument || {};
+      const items = transformCASEItems(data.CFItems || [], data.CFAssociations || []);
+
+      currentDocument.value = {
+        id: cfDoc.identifier || 'external-' + Date.now(),
+        uri: cfDoc.uri || finalUrl,
+        title: cfDoc.title || 'External Document',
+        description: cfDoc.description || null,
+        creator: cfDoc.creator || '',
+        subject: cfDoc.subject || null,
+        subjectURI: cfDoc.subjectURI || [],
+        status: cfDoc.adoptionStatus || 'Draft',
+        statusStartDate: cfDoc.statusStartDate || null,
+        statusEndDate: cfDoc.statusEndDate || null,
+        lastModified: cfDoc.lastChangeDateTime || new Date().toISOString(),
+        language: cfDoc.language || null,
+        version: cfDoc.version || null,
+        officialSourceURL: cfDoc.officialSourceURL || finalUrl,
+        publisher: cfDoc.publisher || null,
+        licenseURI: cfDoc.licenseURI || null,
+        notes: cfDoc.notes || null,
+        frameworkType: cfDoc.frameworkType || null,
+        caseVersion: cfDoc.caseVersion || null,
+        extensions: cfDoc.extensions || null,
+        CFPackageURI: cfDoc.CFPackageURI || finalUrl,
+        items: items,
+        isReadOnly: true
+      };
+
+      return currentDocument.value;
+
+    } catch (err) {
+      error.value = err.message;
+      console.error('Error loading external document:', err);
+      throw err;
+    } finally {
+      loading.value = false;
+    }
+  }
+
   function transformCASEItems(cfItems, cfAssociations) {
     const items = new Map();
     const children = new Map();
@@ -689,6 +783,7 @@ export const useFrameworkStore = defineStore('framework', () => {
     // Actions
     fetchDocuments,
     fetchDocument,
+    loadExternalDocument,
     setSearchQuery,
     setFilters,
     clearFilters,

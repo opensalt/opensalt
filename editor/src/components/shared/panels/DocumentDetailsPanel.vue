@@ -7,7 +7,7 @@
             <img :src="docIcon" class="me-2 item-icon" aria-hidden="true" />
             Document Details
         </h6>
-        <div class="btn-group btn-group-sm">
+        <div class="btn-group btn-group-sm" v-if="!isReadOnly">
           <button
             type="button"
             class="btn btn-outline-primary"
@@ -16,6 +16,9 @@
           >
             <i class="bi bi-pencil"></i>
           </button>
+        </div>
+        <div v-else class="text-muted small" title="Document is read-only">
+          <i class="bi bi-lock-fill"></i> Read-only
         </div>
       </div>
       <div class="card-body">
@@ -48,8 +51,8 @@
         </div>
 
         <div v-if="document.subject && document.subject.length > 0" class="mt-3">
-          <strong>Subject:</strong>
-          <div class="mt-1">
+          <strong>Subject: </strong>
+          <div class="mt-1 d-inline-flex">
             <span v-for="subject in document.subject" :key="subject" class="badge bg-secondary me-1">
               {{ subject }}
             </span>
@@ -61,8 +64,7 @@
         </div>
 
         <div v-if="document.officialSourceURL" class="mt-2">
-          <strong>Source URL:</strong>
-          <a :href="document.officialSourceURL" target="_blank" class="text-decoration-none">
+          <strong>Source URL:</strong> <a :href="document.officialSourceURL" target="_blank" class="text-decoration-none">
             {{ document.officialSourceURL }}
           </a>
         </div>
@@ -109,7 +111,7 @@
         <h6 class="mb-0">Actions</h6>
       </div>
       <div class="card-body">
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2" v-if="!isReadOnly">
           <div class="btn-group">
             <button type="button" class="btn btn-outline-primary" @click="showModal('general')">
               <i class="bi bi-plus-circle"></i> Add Root Item
@@ -133,6 +135,9 @@
           <button type="button" class="btn btn-outline-secondary" @click="$emit('manage-association-groups')">
             <i class="bi bi-tags"></i> Manage Groups
           </button>
+        </div>
+        <div v-else class="text-muted small" title="Document is read-only">
+          <i class="bi bi-lock-fill"></i> No actions available (read-only)
         </div>
       </div>
     </div>
@@ -166,6 +171,8 @@ const props = defineProps({
     default: () => []
   }
 });
+
+const isReadOnly = computed(() => props.document?.isReadOnly || false);
 
 const emit = defineEmits([
   'edit-document',

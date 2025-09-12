@@ -25,7 +25,7 @@
       </div>
     </div>
 
-    <div class="association-actions btn-group btn-group-sm ms-3">
+    <div class="association-actions btn-group btn-group-sm ms-3" v-if="!isReadOnly">
       <button
         type="button"
         class="btn btn-outline-primary"
@@ -43,6 +43,9 @@
         <i class="bi bi-trash"></i>
       </button>
     </div>
+    <div v-else class="text-muted small ms-3" title="Read-only">
+      <i class="bi bi-lock-fill"></i>
+    </div>
   </div>
 </template>
 
@@ -57,6 +60,10 @@ const props = defineProps({
   associationGroups: {
     type: Array,
     default: () => []
+  },
+  isReadOnly: {
+    type: Boolean,
+    default: false
   }
 });
 

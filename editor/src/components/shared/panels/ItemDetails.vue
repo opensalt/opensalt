@@ -7,7 +7,7 @@
           <img :src="itemIconSrc" class="me-2 item-icon" aria-hidden="true" />
           Item Details
         </h6>
-        <div class="btn-group btn-group-sm">
+        <div class="btn-group btn-group-sm" v-if="!isReadOnly">
           <button
             type="button"
             class="btn btn-outline-primary"
@@ -24,6 +24,9 @@
           >
             <i class="bi bi-trash"></i>
           </button>
+        </div>
+        <div v-else class="text-muted small" title="Document is read-only">
+          <i class="bi bi-lock-fill"></i> Read-only
         </div>
       </div>
       <div class="card-body">
@@ -49,11 +52,6 @@
           <p class="mt-1">{{ item.abbreviatedStatement }}</p>
         </div>
 
-        <div v-if="item.notes" class="mb-3">
-          <strong>Notes:</strong>
-          <p class="mt-1">{{ item.notes }}</p>
-        </div>
-
         <div class="row">
           <div v-if="item.itemType" class="col-sm-6">
             <strong>Item Type:</strong> {{ item.itemType || 'General' }}
@@ -69,13 +67,18 @@
           </small>
         </div>
 
-      <!-- Actions -->
+          <div v-if="item.notes" class="mb-3">
+              <strong>Notes:</strong>
+              <p class="mt-1">{{ item.notes }}</p>
+          </div>
+
+          <!-- Actions -->
       <div class="card mt-3">
         <div class="card-header">
           <h6 class="mb-0">Actions</h6>
         </div>
         <div class="card-body">
-          <div class="d-flex gap-2">
+          <div class="d-flex gap-2" v-if="!isReadOnly">
             <div class="btn-group">
               <button type="button" class="btn btn-outline-primary" @click="showModal('general')">
                 <i class="bi bi-plus-circle"></i> Add Child Item
@@ -100,6 +103,9 @@
               <i class="bi bi-link-45deg"></i> Add Exemplar
             </button>
           </div>
+          <div v-else class="text-muted small" title="Document is read-only">
+            <i class="bi bi-lock-fill"></i> No actions available (read-only)
+          </div>
         </div>
       </div>
 
@@ -107,9 +113,12 @@
       <div v-if="groupedAssociations.length > 0" class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h6 class="mb-0">Associations</h6>
-          <button type="button" class="btn btn-sm btn-outline-primary" @click="$emit('add-association', item)">
+          <button v-if="!isReadOnly" type="button" class="btn btn-sm btn-outline-primary" @click="$emit('add-association', item)">
             <i class="bi bi-plus"></i> Add
           </button>
+          <span v-else class="text-muted small" title="Document is read-only">
+            <i class="bi bi-lock-fill"></i>
+          </span>
         </div>
         <div class="card-body">
           <AssociationGroupDisplay
@@ -118,8 +127,9 @@
             :association-type="group.type"
             :associations="group.associations"
             :association-groups="associationGroups"
-            @edit-association="$emit('edit-association', $event)"
-            @delete-association="$emit('delete-association', $event)"
+            :is-read-only="isReadOnly"
+            @edit-association="!isReadOnly ? $emit('edit-association', $event) : null"
+            @delete-association="!isReadOnly ? $emit('delete-association', $event) : null"
           />
         </div>
       </div>
@@ -180,6 +190,10 @@ const props = defineProps({
   item: {
     type: Object,
     required: true
+  },
+  currentDocument: {
+    type: Object,
+    default: null
   },
   associationGroups: {
     type: Array,
@@ -302,6 +316,8 @@ function handleDropdownClick(type) {
     console.warn(`Invalid type: ${type}`);
   }
 }
+
+const isReadOnly = computed(() => props.currentDocument?.isReadOnly || false);
 </script>
 
 <style scoped>

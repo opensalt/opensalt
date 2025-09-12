@@ -20,6 +20,7 @@
     <ItemDetails
       v-else
       :item="selectedItem"
+      :current-document="currentDocument"
       :association-groups="associationGroups"
       @edit-item="$emit('edit-item', $event)"
       @delete-item="$emit('delete-item', $event)"
