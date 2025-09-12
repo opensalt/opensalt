@@ -6,7 +6,7 @@
           <i class="bi bi-record-circle fs-2 me-3" style="color: #1976d2;" aria-hidden="true"></i>
           <div>
             <h2 class="fs-4 fw-bold mb-1">{{ selectedItem.title }}</h2>
-            <p class="text-muted mb-0">{{ selectedItem.hcs }}</p>
+            <p class="text-muted mb-0">{{ selectedItem.humanCodingScheme }}</p>
           </div>
         </div>
         <dl class="mb-2">
@@ -43,4 +43,4 @@ function identifierUrl(id) {
 
 <style scoped>
 /* Add any component-specific styles here */
-</style> 
+</style>

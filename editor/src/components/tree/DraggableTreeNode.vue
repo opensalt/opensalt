@@ -17,7 +17,7 @@
         @drop="onDrop"
         @dragend="onDragEnd"
       >
-        <span v-if="item.hcs" class="coding-scheme" style="font-weight: bold;">{{ item.hcs }}: </span>
+        <span v-if="item.humanCodingScheme" class="coding-scheme" style="font-weight: bold;">{{ item.humanCodingScheme }}: </span>
         {{ item.abbreviatedTitle || item.title || item.identifier }}
       </span>
       <slot name="actions" :item="item" />
@@ -61,7 +61,7 @@
         @drop="onDrop"
         @dragend="onDragEnd"
       >
-        <span v-if="item.hcs" class="coding-scheme" style="font-weight: bold;">{{ item.hcs }}: </span>
+        <span v-if="item.humanCodingScheme" class="coding-scheme" style="font-weight: bold;">{{ item.humanCodingScheme }}: </span>
         {{ item.abbreviatedTitle || item.title || item.identifier }}
       </span>
       <slot name="actions" :item="item" />

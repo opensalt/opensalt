@@ -277,22 +277,22 @@ export const useFrameworkStore = defineStore('framework', () => {
         id: cfDoc.identifier,
         uri: cfDoc.uri || '',
         title: cfDoc.title || 'Untitled',
-        description: cfDoc.description || '',
+        description: cfDoc.description || null,
         creator: cfDoc.creator || '',
-        subject: cfDoc.subject || '',
+        subject: cfDoc.subject || null,
         subjectURI: cfDoc.subjectURI || [],
         status: cfDoc.adoptionStatus || 'Draft',
         statusStartDate: cfDoc.statusStartDate || null,
         statusEndDate: cfDoc.statusEndDate || null,
         lastModified: cfDoc.lastChangeDateTime || '',
-        language: cfDoc.language || '',
-        version: cfDoc.version || '',
-        officialSourceURL: cfDoc.officialSourceURL || '',
-        publisher: cfDoc.publisher || '',
+        language: cfDoc.language || null,
+        version: cfDoc.version || null,
+        officialSourceURL: cfDoc.officialSourceURL || null,
+        publisher: cfDoc.publisher || null,
         licenseURI: cfDoc.licenseURI || null,
-        notes: cfDoc.notes || '',
-        frameworkType: cfDoc.frameworkType || '',
-        caseVersion: cfDoc.caseVersion || '',
+        notes: cfDoc.notes || null,
+        frameworkType: cfDoc.frameworkType || null,
+        caseVersion: cfDoc.caseVersion || null,
         extensions: cfDoc.extensions || null,
         CFPackageURI: cfDoc.CFPackageURI || null,
         items: items
@@ -321,18 +321,17 @@ export const useFrameworkStore = defineStore('framework', () => {
         title: item.fullStatement || item.abbreviatedStatement || 'Untitled Item',
         fullStatement: item.fullStatement || '',
         abbreviatedTitle: item.abbreviatedStatement || item.fullStatement || 'Untitled Item',
-        abbreviatedStatement: item.abbreviatedStatement || '',
+        abbreviatedStatement: item.abbreviatedStatement || null,
         alternativeLabel: item.alternativeLabel || '',
-        hcs: item.humanCodingScheme || '',
-        humanCodingScheme: item.humanCodingScheme || '',
-        listEnumeration: item.listEnumeration || '',
+        humanCodingScheme: item.humanCodingScheme || null,
+        listEnumeration: item.listEnumeration || null,
         lastChanged: item.lastChangeDateTime || '',
-        itemType: item.CFItemType || 'item',
+        itemType: item.CFItemType || null,
         CFItemTypeURI: item.CFItemTypeURI || null,
         conceptKeywords: item.conceptKeywords || [],
         conceptKeywordsURI: item.conceptKeywordsURI || null,
-        notes: item.notes || '',
-        language: item.language || '',
+        notes: item.notes || null,
+        language: item.language || null,
         educationLevel: item.educationLevel || [],
         licenseURI: item.licenseURI || null,
         statusStartDate: item.statusStartDate || null,
@@ -416,8 +415,8 @@ export const useFrameworkStore = defineStore('framework', () => {
             return seqA - seqB;
           }
 
-          const schemeA = a.hcs || '';
-          const schemeB = b.hcs || '';
+          const schemeA = a.humanCodingScheme || '';
+          const schemeB = b.humanCodingScheme || '';
           if (schemeA !== schemeB) {
             return schemeA.localeCompare(schemeB);
           }
@@ -441,8 +440,8 @@ export const useFrameworkStore = defineStore('framework', () => {
         return seqA - seqB;
       }
 
-      const schemeA = a.hcs || '';
-      const schemeB = b.hcs || '';
+      const schemeA = a.humanCodingScheme || '';
+      const schemeB = b.humanCodingScheme || '';
       if (schemeA !== schemeB) {
         return schemeA.localeCompare(schemeB);
       }
@@ -466,9 +465,9 @@ export const useFrameworkStore = defineStore('framework', () => {
         const query = searchQuery.toLowerCase();
         const title = item.title?.toLowerCase() || '';
         const abbreviatedTitle = item.abbreviatedTitle?.toLowerCase() || '';
-        const hcs = item.hcs?.toLowerCase() || '';
+        const humanCodingScheme = item.humanCodingScheme?.toLowerCase() || '';
 
-        if (!title.includes(query) && !abbreviatedTitle.includes(query) && !hcs.includes(query)) {
+        if (!title.includes(query) && !abbreviatedTitle.includes(query) && !humanCodingScheme.includes(query)) {
           matches = false;
         }
       }

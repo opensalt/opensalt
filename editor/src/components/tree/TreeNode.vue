@@ -12,7 +12,7 @@
         @dblclick.stop="dblClick"
         style="cursor:pointer"
       >
-        <span v-if="item.hcs" class="coding-scheme" style="font-weight: bold;">{{ item.hcs }}: </span>
+        <span v-if="item.humanCodingScheme" class="coding-scheme" style="font-weight: bold;">{{ item.humanCodingScheme }}: </span>
         {{ item.abbreviatedStatement || item.fullStatement || item.title || item.identifier }}
       </span>
       <slot name="actions" :item="item" />
@@ -48,7 +48,7 @@
         @dblclick="dblClick"
         style="cursor:pointer"
       >
-        <span v-if="item.hcs" class="coding-scheme" style="font-weight: bold;">{{ item.hcs }}: </span>
+        <span v-if="item.humanCodingScheme" class="coding-scheme" style="font-weight: bold;">{{ item.humanCodingScheme }}: </span>
         {{ item.abbreviatedTitle || item.title || item.identifier }}
       </span>
       <slot name="actions" :item="item" />

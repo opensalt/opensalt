@@ -41,7 +41,7 @@ const documentRoot = computed(() => {
     identifier: props.doc.id || 'document-root',
     title: props.doc.title || 'Document Root',
     abbreviatedTitle: props.doc.title || 'Document Root',
-    hcs: '', // No human coding scheme for document root
+    humanCodingScheme: '', // No human coding scheme for document root
     children: props.doc.items || [],
     itemType: 'document',
     lastChanged: props.doc.lastModified || '',

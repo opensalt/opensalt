@@ -70,7 +70,7 @@ onMounted(async () => {
         identifier: item.identifier,
         title: item.fullStatement,
         abbreviatedTitle: item.abbreviatedStatement || item.fullStatement,
-        hcs: item.humanCodingScheme,
+        humanCodingScheme: item.humanCodingScheme,
         lastChanged: item.lastChangeDateTime,
         children: []
       });
@@ -117,8 +117,8 @@ onMounted(async () => {
           }
 
           // Secondary sort by humanCodingScheme if sequenceNumbers are equal
-          const schemeA = a.hcs || '';
-          const schemeB = b.hcs || '';
+          const schemeA = a.humanCodingScheme || '';
+          const schemeB = b.humanCodingScheme || '';
           if (schemeA !== schemeB) {
             return schemeA.localeCompare(schemeB);
           }
@@ -161,8 +161,8 @@ onMounted(async () => {
       }
 
       // Tertiary sort by humanCodingScheme if sequenceNumbers are equal
-      const schemeA = a.hcs || '';
-      const schemeB = b.hcs || '';
+      const schemeA = a.humanCodingScheme || '';
+      const schemeB = b.humanCodingScheme || '';
       if (schemeA !== schemeB) {
         return schemeA.localeCompare(schemeB);
       }

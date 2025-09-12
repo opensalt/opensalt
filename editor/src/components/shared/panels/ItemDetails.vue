@@ -55,10 +55,10 @@
         </div>
 
         <div class="row">
-          <div class="col-sm-6">
+          <div v-if="item.itemType" class="col-sm-6">
             <strong>Item Type:</strong> {{ item.itemType || 'General' }}
           </div>
-          <div class="col-sm-6">
+          <div v-if="item.language" class="col-sm-6">
             <strong>Language:</strong> {{ item.language || 'en' }}
           </div>
         </div>
