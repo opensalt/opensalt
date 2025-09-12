@@ -31,6 +31,7 @@
                   :key="doc.id"
                   :value="doc.id"
                   :selected="doc.id === currentDoc1?.id"
+                  :style="(doc.id === currentDoc1?.id) ? 'color: blue;' : ''"
                 >
                   {{ doc.title || 'Unknown Name' }} ({{ doc.id || 'No Identifier' }})
                 </option>
@@ -73,8 +74,10 @@
                   :key="doc.id"
                   :value="doc.id"
                   :selected="doc.id === currentDoc2?.id"
+                  :style="(doc.id === currentDoc1?.id) ? 'color: blue;' : ''"
                 >
-                  {{ doc.title || 'Unknown Name' }} ({{ doc.id || 'No Identifier' }})
+                    {{ doc.id === currentDoc1?.id ? '** Current Document ** - ' : '' }}
+                    {{ doc.title || 'Unknown Name' }} ({{ doc.id || 'No Identifier' }})
                 </option>
               </optgroup>
               <optgroup label="External Documents">
