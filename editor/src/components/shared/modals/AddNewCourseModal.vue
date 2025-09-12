@@ -8,7 +8,7 @@
     <div class="modal-dialog modal-xl" role="document" style="width:99%" @click.stop>
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="addNewCourseModalLabel">{{ props.item ? 'Edit Course' : 'Add New Course' }}</h5>
+          <h5 class="modal-title" id="addNewCourseModalLabel">{{ isEdit ? 'Edit Course' : 'Add New Course' }}</h5>
           <button type="button" class="btn-close" @click="closeModal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -107,9 +107,9 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
-          <button type="button" class="btn btn-primary" @click="createItem" :disabled="saving">
+          <button type="button" class="btn btn-primary" @click="saveItem" :disabled="saving">
             <span v-if="saving" class="spinner-border spinner-border-sm me-2" role="status"></span>
-            {{ props.item ? 'Update' : 'Create' }}
+            {{ isEdit ? 'Update' : 'Create' }}
           </button>
         </div>
       </div>
@@ -127,11 +127,13 @@ const props = defineProps({
   item: Object
 });
 
-const emit = defineEmits(['created', 'hidden']);
+const emit = defineEmits(['created', 'updated', 'hidden']);
 
 const loading = ref(false);
 const error = ref('');
 const saving = ref(false);
+
+const isEdit = computed(() => !!props.item);
 
 const formData = reactive({
   name: '',
@@ -149,7 +151,7 @@ watch(() => props.show, (newVal) => {
 });
 
 watch(() => props.itemType, (newType) => {
-  if (newType) {
+  if (newType && !isEdit.value) {
     formData.itemType = newType;
   }
 }, { immediate: true });
@@ -158,27 +160,27 @@ function loadFormData() {
   loading.value = true;
   error.value = '';
 
-  // Reset form
-  formData.name = '';
-  formData.description = '';
-  formData.codedNotation = '';
-  formData.inLanguage = '';
-  formData.deliveryType = '';
-  formData.webpage = '';
-
-  if (props.item) {
+  if (isEdit.value) {
     formData.name = props.item.name || '';
     formData.description = props.item.description || '';
     formData.codedNotation = props.item.codedNotation || '';
     formData.inLanguage = props.item.inLanguage || '';
     formData.deliveryType = props.item.deliveryType || '';
     formData.webpage = props.item.webpage || '';
+  } else {
+    // Reset for new
+    formData.name = '';
+    formData.description = '';
+    formData.codedNotation = '';
+    formData.inLanguage = '';
+    formData.deliveryType = '';
+    formData.webpage = '';
   }
 
   loading.value = false;
 }
 
-function createItem() {
+function saveItem() {
   if (!formData.name.trim()) {
     error.value = 'Name is required';
     return;
@@ -187,23 +189,32 @@ function createItem() {
   saving.value = true;
   error.value = '';
 
-  // Simulate creating item - in real app this would be an API call
+  // Simulate saving item - in real app this would be an API call
   setTimeout(() => {
     try {
-      const newItem = {
-        identifier: 'item_' + Date.now(),
-        ...formData,
-        parentId: props.parentItem?.identifier || null,
-        created: new Date().toISOString(),
-        children: []
-      };
-
-      emit('created', newItem);
+      let savedItem;
+      if (isEdit.value) {
+        savedItem = {
+          ...props.item,
+          ...formData,
+          updated: new Date().toISOString()
+        };
+        emit('updated', savedItem);
+      } else {
+        savedItem = {
+          identifier: 'item_' + Date.now(),
+          ...formData,
+          parentId: props.parentItem?.identifier || null,
+          created: new Date().toISOString(),
+          children: []
+        };
+        emit('created', savedItem);
+      }
       if (modal.value) {
         modal.value.hide();
       }
     } catch (e) {
-      error.value = 'Failed to create item: ' + e.message;
+      error.value = 'Failed to save item: ' + e.message;
     } finally {
       saving.value = false;
     }

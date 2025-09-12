@@ -8,7 +8,7 @@
           <button
             type="button"
             class="btn btn-outline-primary"
-            @click="$emit('edit-item', item)"
+            @click="showEditModal(item)"
             title="Edit item"
           >
             <i class="bi bi-pencil"></i>
@@ -138,6 +138,21 @@
       />
     </div>
   </Teleport>
+
+  <!-- Dynamic Edit Modal -->
+  <Teleport to="body">
+    <div v-if="isEditModalVisible">
+      <component
+        :is="editModalComponent"
+        :parent-item="null"
+        :show="isEditModalVisible"
+        :item-type="selectedEditType"
+        :item="editingItem"
+        @updated="handleUpdated"
+        @hidden="handleEditHidden"
+      />
+    </div>
+  </Teleport>
 </template>
 
 <script setup>
@@ -147,6 +162,7 @@ import AssociationGroupDisplay from '../../association/AssociationGroupDisplay.v
 import { renderMarkdown, hasMarkdown } from '../../../utils/markdownRenderer.js';
 import render from '../../../utils/render-md.js';
 import { useDynamicModal } from '../../../composables/useDynamicModal.js';
+import { useDynamicEditModal } from '../../../composables/useDynamicEditModal.js';
 
 const props = defineProps({
   item: {
@@ -166,7 +182,8 @@ const emit = defineEmits([
   'add-exemplar',
   'add-association',
   'edit-association',
-  'delete-association'
+  'delete-association',
+  'update-item'
 ]);
 
 const availableTypes = ['general', 'assessment', 'course', 'credential', 'job', 'organization', 'public_key'];
@@ -175,6 +192,21 @@ const { showModal, selectedType, isModalVisible, handleCreated, modalComponent, 
   props.item,
   (newItem) => {
     emit('add-child', newItem);
+  },
+  availableTypes
+);
+
+const {
+  showEditModal,
+  selectedEditType,
+  isEditModalVisible,
+  editingItem,
+  editModalComponent,
+  handleUpdated,
+  handleEditHidden
+} = useDynamicEditModal(
+  (updatedItem) => {
+    emit('update-item', updatedItem);
   },
   availableTypes
 );

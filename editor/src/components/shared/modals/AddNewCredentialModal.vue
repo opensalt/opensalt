@@ -8,7 +8,7 @@
     <div class="modal-dialog modal-xl" role="document" style="width:99%" @click.stop>
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="addNewCredentialModalLabel">{{ props.item ? 'Edit Credential' : 'Add New Credential' }}</h5>
+          <h5 class="modal-title" id="addNewCredentialModalLabel">{{ isEdit ? 'Edit Credential' : 'Add New Credential' }}</h5>
           <button type="button" class="btn-close" @click="closeModal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -37,9 +37,9 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
-          <button type="button" class="btn btn-primary" @click="createItem" :disabled="saving">
+          <button type="button" class="btn btn-primary" @click="saveItem" :disabled="saving">
             <span v-if="saving" class="spinner-border spinner-border-sm me-2" role="status"></span>
-            {{ props.item ? 'Update' : 'Create' }}
+            {{ isEdit ? 'Update' : 'Create' }}
           </button>
         </div>
       </div>
@@ -48,7 +48,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch } from 'vue';
+import { ref, reactive, watch, computed } from 'vue';
 
 const props = defineProps({
   parentItem: Object,
@@ -57,11 +57,13 @@ const props = defineProps({
   item: Object
 });
 
-const emit = defineEmits(['created', 'hidden']);
+const emit = defineEmits(['created', 'updated', 'hidden']);
 
 const loading = ref(false);
 const error = ref('');
 const saving = ref(false);
+
+const isEdit = computed(() => !!props.item);
 
 const formData = reactive({
   credential: '',
@@ -91,7 +93,7 @@ function loadFormData() {
   loading.value = false;
 }
 
-function createItem() {
+function saveItem() {
   if (!formData.credential.trim()) {
     error.value = 'Credential is required';
     return;
@@ -100,24 +102,34 @@ function createItem() {
   saving.value = true;
   error.value = '';
 
-  // Simulate creating item - in a real application, this would be an API call
+  // Simulate saving item - in a real application, this would be an API call
   setTimeout(() => {
     try {
-      const newItem = {
-        identifier: 'credential_' + Date.now(),
-        credential: formData.credential,
-        _isCredentialForm: formData._isCredentialForm,
-        parentId: props.parentItem?.identifier || null,
-        created: new Date().toISOString(),
-        children: []
-      };
-
-      emit('created', newItem);
+      let savedItem;
+      if (isEdit.value) {
+        savedItem = {
+          ...props.item,
+          credential: formData.credential,
+          _isCredentialForm: formData._isCredentialForm,
+          updated: new Date().toISOString()
+        };
+        emit('updated', savedItem);
+      } else {
+        savedItem = {
+          identifier: 'credential_' + Date.now(),
+          credential: formData.credential,
+          _isCredentialForm: formData._isCredentialForm,
+          parentId: props.parentItem?.identifier || null,
+          created: new Date().toISOString(),
+          children: []
+        };
+        emit('created', savedItem);
+      }
       if (modal.value) {
         modal.value.hide();
       }
     } catch (e) {
-      error.value = 'Failed to create credential: ' + e.message;
+      error.value = 'Failed to save credential: ' + e.message;
     } finally {
       saving.value = false;
     }

@@ -28,6 +28,7 @@
       @add-association="$emit('add-association', $event)"
       @edit-association="$emit('edit-association', $event)"
       @delete-association="$emit('delete-association', $event)"
+      @update-item="$emit('update-item', $event)"
     />
   </div>
 </template>
@@ -53,6 +54,7 @@ const emit = defineEmits([
   'add-association',
   'edit-association',
   'delete-association',
+  'update-item',
   'edit-document',
   'add-root-item',
   'manage-association-groups'

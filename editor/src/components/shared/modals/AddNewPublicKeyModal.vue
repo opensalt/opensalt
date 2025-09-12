@@ -7,7 +7,7 @@
     <div class="modal-dialog" role="document" @click.stop>
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="addNewPublicKeyModalLabel">{{ props.item ? 'Edit Public Key' : 'Add New Public Key' }}</h5>
+          <h5 class="modal-title" id="addNewPublicKeyModalLabel">{{ isEdit ? 'Edit Public Key' : 'Add New Public Key' }}</h5>
           <button type="button" class="btn-close" @click="closeModal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -30,9 +30,9 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
-          <button type="button" class="btn btn-primary" @click="createItem" :disabled="saving">
+          <button type="button" class="btn btn-primary" @click="saveItem" :disabled="saving">
             <span v-if="saving" class="spinner-border spinner-border-sm me-2" role="status"></span>
-            {{ props.item ? 'Update' : 'Create' }}
+            {{ isEdit ? 'Update' : 'Create' }}
           </button>
         </div>
       </div>
@@ -41,7 +41,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch } from 'vue';
+import { ref, reactive, watch, computed } from 'vue';
 
 const props = defineProps({
   parentItem: Object,
@@ -50,11 +50,13 @@ const props = defineProps({
   item: Object
 });
 
-const emit = defineEmits(['created', 'hidden']);
+const emit = defineEmits(['created', 'updated', 'hidden']);
 
 const loading = ref(false);
 const error = ref('');
 const saving = ref(false);
+
+const isEdit = computed(() => !!props.item);
 
 const formData = reactive({
   publicKey: ''
@@ -70,18 +72,16 @@ function loadFormData() {
   loading.value = true;
   error.value = '';
 
-  // Reset form
-  formData.publicKey = '';
-
-  // If editing, populate form with item data
-  if (props.item) {
+  if (isEdit.value) {
     formData.publicKey = props.item.publicKey || '';
+  } else {
+    formData.publicKey = '';
   }
 
   loading.value = false;
 }
 
-function createItem() {
+function saveItem() {
   if (!formData.publicKey.trim()) {
     error.value = 'Public Key is required';
     return;
@@ -90,23 +90,32 @@ function createItem() {
   saving.value = true;
   error.value = '';
 
-  // Simulate creating item - in real app this would be an API call
+  // Simulate saving item - in real app this would be an API call
   setTimeout(() => {
     try {
-      const newItem = {
-        identifier: 'public_key_' + Date.now(),
-        publicKey: formData.publicKey,
-        parentId: props.parentItem?.identifier || null,
-        created: new Date().toISOString(),
-        children: []
-      };
-
-      emit('created', newItem);
+      let savedItem;
+      if (isEdit.value) {
+        savedItem = {
+          ...props.item,
+          publicKey: formData.publicKey,
+          updated: new Date().toISOString()
+        };
+        emit('updated', savedItem);
+      } else {
+        savedItem = {
+          identifier: 'public_key_' + Date.now(),
+          publicKey: formData.publicKey,
+          parentId: props.parentItem?.identifier || null,
+          created: new Date().toISOString(),
+          children: []
+        };
+        emit('created', savedItem);
+      }
       if (modal.value) {
         modal.value.hide();
       }
     } catch (e) {
-      error.value = 'Failed to create public key: ' + e.message;
+      error.value = 'Failed to save public key: ' + e.message;
     } finally {
       saving.value = false;
     }

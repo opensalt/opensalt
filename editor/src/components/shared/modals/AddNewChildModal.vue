@@ -7,7 +7,7 @@
     <div class="modal-dialog modal-xl" role="document" style="width:99%" @click.stop>
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="addNewChildModalLabel">Add New Child Item</h5>
+          <h5 class="modal-title" id="addNewChildModalLabel">{{ isEdit ? 'Edit Child Item' : 'Add New Child Item' }}</h5>
           <button type="button" class="btn-close" @click="closeModal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -79,7 +79,7 @@
           <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
           <button type="button" class="btn btn-primary" @click="saveItem" :disabled="saving">
             <span v-if="saving" class="spinner-border spinner-border-sm me-2" role="status"></span>
-            Add Item
+            {{ isEdit ? 'Update' : 'Add' }} Item
           </button>
         </div>
       </div>
@@ -88,19 +88,22 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch } from 'vue';
+import { ref, reactive, watch, computed } from 'vue';
 import EasyMDE from '../EasyMDE.vue';
 
 const props = defineProps({
   parentItem: Object,
   show: Boolean,
-  itemType: String
+  itemType: String,
+  item: Object
 });
 
-const emit = defineEmits(['created', 'hidden']);
+const emit = defineEmits(['created', 'updated', 'hidden']);
 
 const error = ref('');
 const saving = ref(false);
+
+const isEdit = computed(() => !!props.item);
 
 const formData = reactive({
   humanCodingScheme: '',
@@ -120,53 +123,81 @@ const availableSubjects = ref([
 
 watch(() => props.show, (newVal) => {
   if (newVal) {
-    // Reset form for new child item
+    loadFormData();
+  }
+});
+
+function loadFormData() {
+  if (isEdit.value) {
+    formData.humanCodingScheme = props.item.humanCodingScheme || '';
+    formData.abbreviatedStatement = props.item.abbreviatedStatement || '';
+    formData.fullStatement = props.item.fullStatement || '';
+    formData.itemType = props.item.itemType || 'general';
+    formData.subjects = props.item.subjects || [];
+    formData.notes = props.item.notes || '';
+  } else {
+    // Reset for new
     formData.humanCodingScheme = '';
     formData.abbreviatedStatement = '';
     formData.fullStatement = '';
-    formData.itemType = 'general';
+    formData.itemType = props.itemType || 'general';
     formData.subjects = [];
     formData.notes = '';
   }
-});
+}
 
 function saveItem() {
   saving.value = true;
   error.value = '';
 
-  // Simulate saving - in real app, API call to create item
+  // Simulate saving - in real app, API call to create/update item
   setTimeout(() => {
     try {
-      const newItem = {
-        humanCodingScheme: formData.humanCodingScheme,
-        abbreviatedStatement: formData.abbreviatedStatement,
-        fullStatement: formData.fullStatement,
-        itemType: formData.itemType,
-        subjects: formData.subjects,
-        notes: formData.notes,
-        language: 'en',
-        children: [],
-        associations: []
-      };
+      let savedItem;
+      if (isEdit.value) {
+        savedItem = {
+          ...props.item,
+          humanCodingScheme: formData.humanCodingScheme,
+          abbreviatedStatement: formData.abbreviatedStatement,
+          fullStatement: formData.fullStatement,
+          itemType: formData.itemType,
+          subjects: formData.subjects,
+          notes: formData.notes,
+          updated: new Date().toISOString()
+        };
+        emit('updated', savedItem);
+      } else {
+        savedItem = {
+          humanCodingScheme: formData.humanCodingScheme,
+          abbreviatedStatement: formData.abbreviatedStatement,
+          fullStatement: formData.fullStatement,
+          itemType: formData.itemType,
+          subjects: formData.subjects,
+          notes: formData.notes,
+          language: 'en',
+          children: [],
+          associations: []
+        };
 
-      // Set isChildOf association if parent provided
-      if (props.parentItem && formData.humanCodingScheme) {
-        newItem.associations.push({
-          type: 'isChildOf',
-          originNode: props.parentItem.humanCodingScheme,
-          targetNode: formData.humanCodingScheme,
-          originIdentifier: props.parentItem.humanCodingScheme,
-          targetIdentifier: formData.humanCodingScheme
-        });
+        // Set isChildOf association if parent provided
+        if (props.parentItem && formData.humanCodingScheme) {
+          savedItem.associations.push({
+            type: 'isChildOf',
+            originNode: props.parentItem.humanCodingScheme,
+            targetNode: formData.humanCodingScheme,
+            originIdentifier: props.parentItem.humanCodingScheme,
+            targetIdentifier: formData.humanCodingScheme
+          });
+        }
+
+        savedItem.created = new Date().toISOString();
+        emit('created', savedItem);
       }
-
-      newItem.created = new Date().toISOString();
-      emit('created', newItem);
       if (modal.value) {
         modal.value.hide();
       }
     } catch (e) {
-      error.value = 'Failed to create item: ' + e.message;
+      error.value = 'Failed to save item: ' + e.message;
     } finally {
       saving.value = false;
     }
