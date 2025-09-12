@@ -5,16 +5,21 @@
         <i :class="isExpanded ? 'bi bi-caret-down-fill' : 'bi bi-caret-right-fill'"></i>
       </span>
       <img :src="iconSrc" class="tree-icon" aria-hidden="true" />
-      <span
+      <div
         class="tree-node-label"
         :class="{ 'selected': selectedId === item.identifier }"
         @click.stop.prevent="select"
         @dblclick.stop="dblClick"
+        @mouseenter="onMouseEnter"
+        @mouseleave="onMouseLeave"
         style="cursor:pointer"
       >
-        <span v-if="item.humanCodingScheme" class="coding-scheme" style="font-weight: bold;">{{ item.humanCodingScheme }}: </span>
-        {{ item.abbreviatedStatement || item.fullStatement || item.title || item.identifier }}
-      </span>
+        <span class="label-text">
+          <span v-if="item.humanCodingScheme" class="coding-scheme" style="font-weight: bold;">{{ item.humanCodingScheme }}: </span>
+          {{ item.abbreviatedStatement || item.fullStatement || item.title || item.identifier }}
+        </span>
+        <div v-if="showPopover && fullStatementHtml" class="popover" v-html="fullStatementHtml"></div>
+      </div>
       <slot name="actions" :item="item" />
     </summary>
 
@@ -41,16 +46,21 @@
     <div class="tree-node-content" :style="{ marginLeft: (level * 20) + 'px' }">
       <span class="no-children-spacer" aria-hidden="true"></span>
       <img :src="iconSrc" class="tree-icon" aria-hidden="true" />
-      <span
+      <div
         class="tree-node-label"
         :class="{ 'selected': selectedId === item.identifier }"
         @click="select"
         @dblclick="dblClick"
+        @mouseenter="onMouseEnter"
+        @mouseleave="onMouseLeave"
         style="cursor:pointer"
       >
-        <span v-if="item.humanCodingScheme" class="coding-scheme" style="font-weight: bold;">{{ item.humanCodingScheme }}: </span>
-        {{ item.abbreviatedTitle || item.title || item.identifier }}
-      </span>
+        <span class="label-text">
+          <span v-if="item.humanCodingScheme" class="coding-scheme" style="font-weight: bold;">{{ item.humanCodingScheme }}: </span>
+          {{ item.abbreviatedTitle || item.title || item.identifier }}
+        </span>
+        <div v-if="showPopover && fullStatementHtml" class="popover" v-html="fullStatementHtml"></div>
+      </div>
       <slot name="actions" :item="item" />
     </div>
   </div>
@@ -58,6 +68,7 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue';
+import { renderMarkdown } from '@/utils/markdownRenderer.js';
 
 import docIcon from '@/assets/icons/ph/graph-fill.svg';
 import itemIcon from '@/assets/icons/lucide/target.svg';
@@ -86,6 +97,32 @@ const emit = defineEmits(['select', 'dblclick', 'move']);
 const isExpanded = ref(props.startExpanded); // Start closed by default
 const isFocused = ref(false);
 const hasChildren = computed(() => props.item.children && props.item.children.length > 0);
+
+const showPopover = ref(false);
+const popoverTimeout = ref(null);
+
+const onMouseEnter = () => {
+  if (popoverTimeout.value) {
+    clearTimeout(popoverTimeout.value);
+  }
+  popoverTimeout.value = setTimeout(() => {
+    showPopover.value = true;
+  }, 500);
+};
+
+const onMouseLeave = () => {
+  if (popoverTimeout.value) {
+    clearTimeout(popoverTimeout.value);
+    popoverTimeout.value = null;
+  }
+  showPopover.value = false;
+};
+
+const fullStatementHtml = computed(() => {
+  const text = props.item.fullStatement || props.item.title || '';
+  if (!text) return '';
+  return renderMarkdown(text);
+});
 
 const iconSrc = computed(() => {
   const type = props.item.extensions?.['salt:type'] || 'item';
@@ -177,6 +214,7 @@ function onDrop(e) {
 }
 
 .tree-node-content {
+  position: relative;
   display: flex;
   align-items: center;
   padding: 2px 0;
@@ -184,6 +222,7 @@ function onDrop(e) {
 }
 
 .expand-control {
+  position: relative;
   list-style: none;
   cursor: pointer;
   padding: 2px 0;
@@ -218,11 +257,23 @@ function onDrop(e) {
 }
 
 .tree-node-label {
-  flex: 1;
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
   padding: 2px 6px;
   border-radius: 4px;
   transition: background-color 0.2s;
   user-select: text;
+}
+
+.label-text {
+  flex: 1 1 0;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .tree-node-label:hover {
@@ -242,6 +293,7 @@ function onDrop(e) {
     background: #000;
     color: #fff;
   }
+
 }
 
 /* Reduced motion support */
@@ -257,5 +309,46 @@ function onDrop(e) {
   height: 16px;
   flex-shrink: 0;
   margin-right: 4px;
+}
+
+.popover {
+  position: absolute;
+  z-index: 9999;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px;
+  max-width: 400px;
+  max-height: 300px;
+  overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  top: 100%;
+  left: 0;
+  margin-top: 5px;
+  pointer-events: none;
+}
+
+.popover::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 12px;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid #ddd;
+  pointer-events: none;
+}
+
+.popover::after {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 13px;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid white;
+  pointer-events: none;
 }
 </style>
