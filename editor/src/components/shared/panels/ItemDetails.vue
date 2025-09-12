@@ -25,9 +25,6 @@
             <i class="bi bi-trash"></i>
           </button>
         </div>
-        <div v-else class="text-muted small" title="Document is read-only">
-          <i class="bi bi-lock-fill"></i> Read-only
-        </div>
       </div>
       <div class="card-body">
         <h5 class="card-title">
@@ -73,12 +70,12 @@
           </div>
 
           <!-- Actions -->
-      <div class="card mt-3">
+      <div v-if="!isReadOnly" class="card mt-3">
         <div class="card-header">
           <h6 class="mb-0">Actions</h6>
         </div>
         <div class="card-body">
-          <div class="d-flex gap-2" v-if="!isReadOnly">
+          <div class="d-flex gap-2">
             <div class="btn-group">
               <button type="button" class="btn btn-outline-primary" @click="showModal('general')">
                 <i class="bi bi-plus-circle"></i> Add Child Item
@@ -103,22 +100,16 @@
               <i class="bi bi-link-45deg"></i> Add Exemplar
             </button>
           </div>
-          <div v-else class="text-muted small" title="Document is read-only">
-            <i class="bi bi-lock-fill"></i> No actions available (read-only)
-          </div>
         </div>
       </div>
 
       <!-- Associations -->
-      <div v-if="groupedAssociations.length > 0" class="card mb-3">
+      <div v-if="groupedAssociations.length > 0" class="card mt-3">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h6 class="mb-0">Associations</h6>
           <button v-if="!isReadOnly" type="button" class="btn btn-sm btn-outline-primary" @click="$emit('add-association', item)">
             <i class="bi bi-plus"></i> Add
           </button>
-          <span v-else class="text-muted small" title="Document is read-only">
-            <i class="bi bi-lock-fill"></i>
-          </span>
         </div>
         <div class="card-body">
           <AssociationGroupDisplay
@@ -329,6 +320,7 @@ const isReadOnly = computed(() => props.currentDocument?.isReadOnly || false);
 /* Markdown content styling */
 .markdown-content {
   padding: 0.75rem;
+  padding-bottom: 0;
   background-color: #f8f9fa;
   border-radius: 0.375rem;
   border: 1px solid #dee2e6;

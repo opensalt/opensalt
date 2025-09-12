@@ -43,9 +43,6 @@
         <i class="bi bi-trash"></i>
       </button>
     </div>
-    <div v-else class="text-muted small ms-3" title="Read-only">
-      <i class="bi bi-lock-fill"></i>
-    </div>
   </div>
 </template>
 
