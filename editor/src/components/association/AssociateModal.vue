@@ -25,10 +25,10 @@
                   <div v-else class="text-muted">Origin item</div>
                 </div>
               </div>
-              <div class="col-sm-2 text-center">
-                <i :class="directionIcon" class="fa fa-arrow-right fa-2x" aria-hidden="true"></i><br>
-                <button type="button" class="btn btn-default btn-sm mt-2" @click="switchDirection">
-                  Switch
+              <div class="col-auto d-flex flex-column align-items-center">
+                <i :class="directionIcon" class="bi fs-1 text-muted mb-2"></i>
+                <button type="button" class="btn btn-sm btn-outline-secondary" @click="switchDirection">
+                  ↔ Switch Direction
                 </button>
               </div>
               <div class="col-sm-5">
@@ -58,17 +58,23 @@
                   v-model="formData.type"
                   @change="onTypeChange"
                 >
-                  <optgroup label="Forward Associations">
-                    <option v-for="type in forwardTypes" :key="type.value" :value="type.value">
-                      {{ type.label }}
-                    </option>
-                  </optgroup>
-                  <optgroup label="Reverse Associations">
-                    <option v-for="type in reverseTypes" :key="type.value" :value="type.value">
-                      {{ type.label }}
-                    </option>
-                  </optgroup>
+                  <option v-for="type in forwardTypes" :key="type.value" :value="type.value">
+                    {{ type.label }}
+                  </option>
                 </select>
+                <div v-if="formData.type === 'other'" class="form-group mt-2">
+                  <label for="customType" class="form-label">Custom Association Type</label>
+                  <input
+                    id="customType"
+                    v-model="customType"
+                    type="text"
+                    class="form-control"
+                    placeholder="ext:custom-type"
+                  />
+                  <div v-if="customType && !isValidCustomType" class="text-danger small mt-1">
+                    Invalid format. Must start with "ext:" followed by alphanumeric characters, dots, hyphens, or underscores.
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -108,7 +114,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-primary" @click="createAssociation" :disabled="saving">
+          <button type="button" class="btn btn-primary" @click="createAssociation" :disabled="saving || (formData.type === 'other' && !isValidCustomType)">
             <span v-if="saving" class="spinner-border spinner-border-sm me-2" role="status"></span>
             Associate
           </button>
@@ -134,13 +140,16 @@ const emit = defineEmits(['created', 'hidden']);
 const error = ref('');
 const saving = ref(false);
 const modal = ref(null);
-const isReversed = ref(false);
 
 const formData = reactive({
   type: '',
   annotation: '',
   groupId: 'default'
 });
+
+const customType = ref('');
+
+const isReversed = ref(false);
 
 const forwardTypes = [
   { value: 'isRelatedTo', label: 'Is Related To' },
@@ -152,37 +161,24 @@ const forwardTypes = [
   { value: 'isTranslationOf', label: 'Is Translation Of' },
   { value: 'isChildOf', label: 'Is Child Of' },
   { value: 'replacedBy', label: 'Replaced By' },
-  { value: 'precedes', label: 'Precedes' }
+  { value: 'precedes', label: 'Precedes' },
+  { value: 'other', label: 'Other' }
 ];
 
-const reverseTypes = [
-  { value: 'relatedFrom', label: 'Related From' },
-  { value: 'matchedFrom', label: 'Matched From' },
-  { value: 'hasPart', label: 'Has Part' },
-  { value: 'skillLevelFor', label: 'Skill Level For' },
-  { value: 'peerOf', label: 'Peer Of' },
-  { value: 'exemplarFor', label: 'Exemplar For' },
-  { value: 'translationOf', label: 'Translation Of' },
-  { value: 'isParentOf', label: 'Is Parent Of' },
-  { value: 'replaces', label: 'Replaces' },
-  { value: 'hasPredecessor', label: 'Has Predecessor' }
-];
+const originItem = computed(() => props.originItem);
+const destinationItem = computed(() => props.destinationItem);
 
-const originItem = computed(() => {
-  return isReversed.value ? props.destinationItem : props.originItem;
-});
-
-const destinationItem = computed(() => {
-  return isReversed.value ? props.originItem : props.destinationItem;
-});
-
-const directionIcon = computed(() => {
-  return isReversed.value ? 'fa fa-arrow-left' : 'fa fa-arrow-right';
+const isValidCustomType = computed(() => {
+  if (formData.type !== 'other') return true;
+  const value = customType.value.trim();
+  return value.startsWith('ext:') && /^ext:[a-zA-Z0-9._-]+$/.test(value);
 });
 
 const showGroupSelector = computed(() => {
   return formData.type && !['exemplar', 'isChildOf'].includes(formData.type);
 });
+
+const directionIcon = computed(() => `bi-arrow-${isReversed.value ? 'left' : 'right'}`);
 
 watch(() => props.show, (newVal) => {
   if (newVal) {
@@ -204,16 +200,18 @@ function resetForm() {
   error.value = '';
 }
 
-function switchDirection() {
-  isReversed.value = !isReversed.value;
-  // Reset type when switching direction to avoid confusion
-  formData.type = '';
-}
-
 function onTypeChange() {
   // Auto-select default group for certain association types
   if (['isChildOf', 'exemplar'].includes(formData.type)) {
     formData.groupId = 'default';
+  }
+}
+
+function switchDirection() {
+  isReversed.value = !isReversed.value;
+  const bidirectionalTypes = ['isRelatedTo', 'isPeerOf', 'exactMatchOf', 'isTranslationOf'];
+  if (!bidirectionalTypes.includes(formData.type) && formData.type !== 'other') {
+    formData.type = '';
   }
 }
 
@@ -223,24 +221,30 @@ function createAssociation() {
     return;
   }
 
+  const finalType = formData.type === 'other' ? customType.value.trim() : formData.type;
+
   saving.value = true;
   error.value = '';
 
   // Simulate creating association - in real app this would be an API call
   setTimeout(() => {
     try {
+      const effectiveOrigin = isReversed.value ? props.destinationItem : props.originItem;
+      const effectiveDestination = isReversed.value ? props.originItem : props.destinationItem;
       const association = {
         id: 'assoc_' + Date.now(),
         identifier: 'assoc_' + Date.now(),
         origin: {
-          identifier: originItem.value?.identifier,
-          title: originItem.value?.title
+          identifier: effectiveOrigin?.identifier,
+          title: effectiveOrigin?.title,
+          humanCodingScheme: effectiveOrigin?.humanCodingScheme
         },
         destination: {
-          identifier: destinationItem.value?.identifier,
-          title: destinationItem.value?.title
+          identifier: effectiveDestination?.identifier,
+          title: effectiveDestination?.title,
+          humanCodingScheme: effectiveDestination?.humanCodingScheme
         },
-        type: formData.type,
+        type: finalType,
         annotation: formData.annotation,
         groupId: formData.groupId,
         created: new Date().toISOString()
