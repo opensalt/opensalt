@@ -4,7 +4,7 @@
       <span class="expand-indicator" aria-hidden="true">
         <i :class="isExpanded ? 'bi bi-caret-down-fill' : 'bi bi-caret-right-fill'"></i>
       </span>
-      <i :class="`bi ${iconClass}`"></i>
+      <img :src="iconSrc" class="tree-icon" aria-hidden="true" />
       <span
         class="tree-node-label"
         :class="{ 'selected': selectedId === item.identifier }"
@@ -40,7 +40,7 @@
   <div v-else class="tree-node" role="treeitem" :aria-level="level + 1">
     <div class="tree-node-content" :style="{ marginLeft: (level * 20) + 'px' }">
       <span class="no-children-spacer" aria-hidden="true"></span>
-      <i :class="`bi ${iconClass}`"></i>
+      <img :src="iconSrc" class="tree-icon" aria-hidden="true" />
       <span
         class="tree-node-label"
         :class="{ 'selected': selectedId === item.identifier }"
@@ -59,6 +59,17 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 
+import docIcon from '@/assets/icons/ph/graph-fill.svg';
+import itemIcon from '@/assets/icons/lucide/target.svg';
+import assessmentIcon from '@/assets/icons/iconoir/learning.svg';
+import courseIcon from '@/assets/icons/fluent-mdl2/learning-tools.svg';
+import credentialIcon from '@/assets/icons/ph/certificate.svg';
+import jobIcon from '@/assets/icons/eos-icons/role-binding.svg';
+import organizationIcon from '@/assets/icons/f7/building-columns-fill.svg';
+import identifierIcon from '@/assets/icons/lucide/id-card.svg';
+import publicKeyIcon from '@/assets/icons/lucide/key-round.svg';
+import folderIcon from '@/assets/icons/material-symbols/folder.svg';
+
 const props = defineProps({
   item: Object,
   level: Number,
@@ -76,18 +87,26 @@ const isExpanded = ref(props.startExpanded); // Start closed by default
 const isFocused = ref(false);
 const hasChildren = computed(() => props.item.children && props.item.children.length > 0);
 
-const iconClass = computed(() => {
-  const type = props.item.extensions?.['salt:type'] || props.item.itemType || 'item';
+const iconSrc = computed(() => {
+  const type = props.item.extensions?.['salt:type'] || 'item';
+  if (props.item.creator) {
+      return docIcon;
+  }
+  if (type === 'item' && hasChildren.value) {
+    return folderIcon;
+  }
   const iconMap = {
-    assessment: 'bi-clipboard-check',
-    course: 'bi-book',
-    credential: 'bi-award',
-    job: 'bi-briefcase',
-    organization: 'bi-building',
-    identifier: 'bi-tag',
-    item: 'bi-file-earmark'
+    document: docIcon,
+    assessment: assessmentIcon,
+    course: courseIcon,
+    credential: credentialIcon,
+    job: jobIcon,
+    organization: organizationIcon,
+    identifier: identifierIcon,
+    public_key: publicKeyIcon,
+    item: itemIcon
   };
-  return iconMap[type] || 'bi-file-earmark';
+  return iconMap[type] || itemIcon;
 });
 
 const onToggle = (event) => {
@@ -231,5 +250,12 @@ function onDrop(e) {
   .expand-indicator {
     transition: none;
   }
+}
+
+.tree-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin-right: 4px;
 }
 </style>

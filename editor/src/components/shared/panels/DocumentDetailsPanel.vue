@@ -3,7 +3,10 @@
     <!-- Document Header -->
     <div class="card mb-3">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <h6 class="mb-0">Document Details</h6>
+        <h6 class="mb-0 d-flex align-items-center">
+            <img :src="docIcon" class="me-2 item-icon" aria-hidden="true" />
+            Document Details
+        </h6>
         <div class="btn-group btn-group-sm">
           <button
             type="button"
@@ -151,6 +154,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useDynamicModal } from '../../../composables/useDynamicModal.js';
+import docIcon from '@/assets/icons/ph/graph-fill.svg';
 
 const props = defineProps({
   document: {

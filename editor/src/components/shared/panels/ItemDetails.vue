@@ -3,7 +3,10 @@
     <!-- Item Header -->
     <div class="card mb-3">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <h6 class="mb-0">Item Details</h6>
+        <h6 class="mb-0 d-flex align-items-center">
+          <img :src="itemIconSrc" class="me-2 item-icon" aria-hidden="true" />
+          Item Details
+        </h6>
         <div class="btn-group btn-group-sm">
           <button
             type="button"
@@ -164,6 +167,15 @@ import render from '../../../utils/render-md.js';
 import { useDynamicModal } from '../../../composables/useDynamicModal.js';
 import { useDynamicEditModal } from '../../../composables/useDynamicEditModal.js';
 
+import itemIcon from '@/assets/icons/lucide/target.svg';
+import assessmentIcon from '@/assets/icons/iconoir/learning.svg';
+import courseIcon from '@/assets/icons/fluent-mdl2/learning-tools.svg';
+import credentialIcon from '@/assets/icons/ph/certificate.svg';
+import jobIcon from '@/assets/icons/eos-icons/role-binding.svg';
+import organizationIcon from '@/assets/icons/f7/building-columns-fill.svg';
+import identifierIcon from '@/assets/icons/lucide/id-card.svg';
+import publicKeyIcon from '@/assets/icons/lucide/key-round.svg';
+
 const props = defineProps({
   item: {
     type: Object,
@@ -266,6 +278,22 @@ function getTypeLabel(type) {
   };
   return labels[type] || type;
 }
+
+// Compute icon based on item type
+const itemIconSrc = computed(() => {
+  const type = props.item.extensions?.['salt:type'] || 'item';
+  const iconMap = {
+    assessment: assessmentIcon,
+    course: courseIcon,
+    credential: credentialIcon,
+    job: jobIcon,
+    organization: organizationIcon,
+    identifier: identifierIcon,
+    public_key: publicKeyIcon,
+    item: itemIcon
+  };
+  return iconMap[type] || itemIcon;
+});
 
 function handleDropdownClick(type) {
   if (availableTypes.includes(type)) {
@@ -387,5 +415,11 @@ function handleDropdownClick(type) {
 .markdown-content .katex-display {
   margin: 1rem 0;
   text-align: center;
+}
+
+.item-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
 }
 </style>
