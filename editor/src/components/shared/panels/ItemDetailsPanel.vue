@@ -6,7 +6,7 @@
       :document="currentDocument"
       :association-groups="associationGroups"
       @edit-document="$emit('edit-document')"
-      @add-root-item="$emit('add-root-item')"
+      @add-root-item="$emit('add-root-item', $event)"
       @manage-association-groups="$emit('manage-association-groups')"
     />
 

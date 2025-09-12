@@ -3,7 +3,7 @@
     <div class="modal-dialog modal-xl" role="document" style="width:99%">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="editItemModalLabel">Edit Item</h5>
+          <h5 class="modal-title" id="editItemModalLabel">{{ isNew ? 'Add New Item' : 'Edit Item' }}</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -89,7 +89,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch } from 'vue';
+import { ref, reactive, watch, computed } from 'vue';
 import { Modal } from 'bootstrap';
 import EasyMDE from '../EasyMDE.vue';
 
@@ -98,7 +98,9 @@ const props = defineProps({
   show: Boolean
 });
 
-const emit = defineEmits(['saved', 'hidden']);
+const emit = defineEmits(['created', 'update', 'hidden']);
+
+const isNew = computed(() => !props.item || !props.item.humanCodingScheme);
 
 const loading = ref(false);
 const error = ref('');
@@ -134,8 +136,18 @@ watch(() => props.show, (newVal) => {
 });
 
 watch(() => props.item, (newItem) => {
-  if (newItem) {
+  if (newItem && !isNew.value) {
     loadItemData();
+  } else if (isNew.value) {
+    // Reset form for new item
+    Object.assign(formData, {
+      humanCodingScheme: '',
+      abbreviatedStatement: '',
+      fullStatement: '',
+      itemType: '',
+      subjects: [],
+      notes: ''
+    });
   }
 }, { immediate: true });
 
@@ -162,21 +174,34 @@ function saveItem() {
   saving.value = true;
   error.value = '';
 
-  // Simulate saving - in real app, API call to update item
+  // Simulate saving - in real app, API call to update/create item
   setTimeout(() => {
     try {
-      // Merge updated fields back into original item structure
-      const updatedItem = {
-        ...props.item,
-        humanCodingScheme: formData.humanCodingScheme,
-        abbreviatedStatement: formData.abbreviatedStatement,
-        fullStatement: formData.fullStatement,
-        itemType: formData.itemType,
-        subjects: formData.subjects,
-        notes: formData.notes,
-        updated: new Date().toISOString()
-      };
-      emit('saved', updatedItem);
+      let savedItem;
+      if (isNew.value) {
+        savedItem = {
+          humanCodingScheme: formData.humanCodingScheme,
+          abbreviatedStatement: formData.abbreviatedStatement,
+          fullStatement: formData.fullStatement,
+          itemType: formData.itemType || 'general',
+          subjects: formData.subjects,
+          notes: formData.notes,
+          created: new Date().toISOString()
+        };
+        emit('created', savedItem);
+      } else {
+        savedItem = {
+          ...props.item,
+          humanCodingScheme: formData.humanCodingScheme,
+          abbreviatedStatement: formData.abbreviatedStatement,
+          fullStatement: formData.fullStatement,
+          itemType: formData.itemType,
+          subjects: formData.subjects,
+          notes: formData.notes,
+          updated: new Date().toISOString()
+        };
+        emit('update', savedItem);
+      }
       if (modal.value) {
         modal.value.hide();
       }

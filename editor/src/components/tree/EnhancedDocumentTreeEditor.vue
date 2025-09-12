@@ -48,13 +48,13 @@
           @mode-changed="onRightPanelModeChanged"
           @edit-item="onEditItem"
           @delete-item="onDeleteItem"
-          @add-child="onAddChild"
+          @add-child="handleAddChild"
           @add-exemplar="onAddExemplar"
           @add-association="onAddAssociation"
           @edit-association="onEditAssociation"
           @delete-association="onDeleteAssociation"
           @edit-document="onEditDocument"
-          @add-root-item="onAddRootItem"
+          @add-root-item="handleAddRootItem"
           @manage-association-groups="onManageAssociationGroups"
         />
       </section>
@@ -68,13 +68,6 @@
       @hidden="showEditDocModal = false"
     />
 
-    <AddNewChildModal
-      :parent-item="selectedItem"
-      :item-type="newItemType"
-      :show="showAddChildModal"
-      @created="onChildCreated"
-      @hidden="showAddChildModal = false"
-    />
 
     <AssociateModal
       :origin-item="associationOrigin"
@@ -135,7 +128,6 @@ import SearchFilter from '../shared/common/SearchFilter.vue';
 import AssociationGroupSelector from '../shared/common/AssociationGroupSelector.vue';
 import EditDocModal from '../shared/modals/EditDocModal.vue';
 import EditItemModal from '../shared/modals/EditItemModal.vue';
-import AddNewChildModal from '../shared/modals/AddNewChildModal.vue';
 import AssociateModal from '../association/AssociateModal.vue';
 import EditAssociationModal from '../association/EditAssociationModal.vue';
 import DeleteItemsModal from '../shared/modals/DeleteItemsModal.vue';
@@ -161,7 +153,6 @@ const filteredDoc = computed(() => ({
 // Modal states
 const showEditDocModal = ref(false);
 const showEditItemModal = ref(false);
-const showAddChildModal = ref(false);
 const showAssociateModal = ref(false);
 const showEditAssociationModal = ref(false);
 const showDeleteModal = ref(false);
@@ -169,7 +160,6 @@ const showExemplarModal = ref(false);
 const showAssocGroupModal = ref(false);
 
 // Modal data
-const newItemType = ref('');
 const associationOrigin = ref(null);
 const associationDestination = ref(null);
 const editingAssociation = ref(null);
@@ -271,9 +261,15 @@ function onDeleteItem(item) {
   showDeleteModal.value = true;
 }
 
-function onAddChild(parentItem) {
-  newItemType.value = '';
-  showAddChildModal.value = true;
+async function handleAddChild(newItem, parentItem) {
+  if (newItem && parentItem && parentItem.identifier) {
+    const success = frameworkStore.addItem(newItem, parentItem.identifier);
+    if (success) {
+      console.log('Child item added successfully');
+    } else {
+      console.error('Failed to add child item');
+    }
+  }
 }
 
 function onAddExemplar(item) {
@@ -305,9 +301,6 @@ function onDocSaved(data) {
   console.log('Document saved:', data);
 }
 
-function onChildCreated(child) {
-  console.log('Child created:', child);
-}
 
 function onAssociationCreated(association) {
   console.log('Association created:', association);
@@ -337,9 +330,15 @@ function onEditDocument() {
   showEditDocModal.value = true;
 }
 
-function onAddRootItem() {
-  // Handle adding root item - could open a modal or navigate to item creation
-  console.log('Add root item requested');
+async function handleAddRootItem(newItem) {
+  if (newItem && currentDocument.value) {
+    const success = frameworkStore.addItem(newItem, null);
+    if (success) {
+      console.log('Root item added successfully');
+    } else {
+      console.error('Failed to add root item');
+    }
+  }
 }
 
 function onManageAssociationGroups() {

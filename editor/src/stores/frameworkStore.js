@@ -619,6 +619,52 @@ export const useFrameworkStore = defineStore('framework', () => {
     return false;
   }
 
+  function findItemByIdentifier(items, identifier) {
+    if (!Array.isArray(items)) return null;
+    for (const item of items) {
+      if (item.identifier === identifier) return item;
+      if (item.children) {
+        const found = findItemByIdentifier(item.children, identifier);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
+
+  function getMaxSequence(items) {
+    if (!Array.isArray(items)) return 0;
+    return Math.max(...items.map(item => item.sequenceNumber || 0), 0);
+  }
+
+  function addItem(newItem, parentIdentifier) {
+    if (!currentDocument.value) {
+      console.error('No current document to add item to');
+      return false;
+    }
+
+    let targetArray = currentDocument.value.items;
+    let sequenceNum = getMaxSequence(currentDocument.value.items) + 1;
+
+    if (parentIdentifier) {
+      const parent = findItemByIdentifier(currentDocument.value.items, parentIdentifier);
+      if (!parent) {
+        console.error('Parent item not found:', parentIdentifier);
+        return false;
+      }
+      targetArray = parent.children;
+      sequenceNum = getMaxSequence(parent.children) + 1;
+    }
+
+    newItem.sequenceNumber = sequenceNum;
+    targetArray.push(newItem);
+
+    // Sort the target array by sequenceNumber
+    targetArray.sort((a, b) => (a.sequenceNumber || 0) - (b.sequenceNumber || 0));
+
+    console.log('Item added successfully:', newItem.identifier);
+    return true;
+  }
+
   return {
     // State
     documents,
@@ -651,6 +697,7 @@ export const useFrameworkStore = defineStore('framework', () => {
     setCurrentView,
     selectDocument,
     clearError,
-    updateItem
+    updateItem,
+    addItem
   };
 });

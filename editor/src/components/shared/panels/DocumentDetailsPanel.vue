@@ -107,9 +107,26 @@
       </div>
       <div class="card-body">
         <div class="d-flex gap-2">
-          <button type="button" class="btn btn-outline-primary" @click="$emit('add-root-item')">
-            <i class="bi bi-plus-circle"></i> Add Root Item
-          </button>
+          <div class="btn-group">
+            <button type="button" class="btn btn-outline-primary" @click="showModal('general')">
+              <i class="bi bi-plus-circle"></i> Add Root Item
+            </button>
+            <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+              <span class="visually-hidden">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+              <li v-for="type in availableTypes" :key="type">
+                <a
+                  class="dropdown-item"
+                  @click="showModal(type)"
+                  href="#"
+                  :aria-label="`Add ${getDisplayName(type)}`"
+                >
+                  Add {{ getDisplayName(type) }}
+                </a>
+              </li>
+            </ul>
+          </div>
           <button type="button" class="btn btn-outline-secondary" @click="$emit('manage-association-groups')">
             <i class="bi bi-tags"></i> Manage Groups
           </button>
@@ -117,10 +134,23 @@
       </div>
     </div>
   </div>
+
+  <!-- Dynamic Modal -->
+  <div v-if="isModalVisible">
+    <component
+      :is="modalComponent"
+      :parent-item="null"
+      :show="isModalVisible"
+      :item-type="selectedType"
+      @created="handleCreated"
+      @hidden="handleHidden"
+    />
+  </div>
 </template>
 
 <script setup>
 import { computed } from 'vue';
+import { useDynamicModal } from '../../../composables/useDynamicModal.js';
 
 const props = defineProps({
   document: {
@@ -138,6 +168,27 @@ const emit = defineEmits([
   'add-root-item',
   'manage-association-groups'
 ]);
+
+const availableTypes = ['general', 'assessment', 'course', 'credential', 'job', 'organization', 'public_key'];
+
+const { showModal, selectedType, isModalVisible, handleCreated, modalComponent, handleHidden } = useDynamicModal(
+  null,
+  (newItem) => { emit('add-root-item', newItem); },
+  availableTypes
+);
+
+function getDisplayName(type) {
+  const displayNames = {
+    general: 'General Item',
+    assessment: 'Assessment',
+    course: 'Course',
+    credential: 'Credential',
+    job: 'Job',
+    organization: 'Organization',
+    'public_key': 'Public Key'
+  };
+  return displayNames[type] || type;
+}
 
 function formatDate(dateString) {
   if (!dateString) return '';

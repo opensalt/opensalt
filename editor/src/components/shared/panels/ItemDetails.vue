@@ -66,53 +66,87 @@
           </small>
         </div>
 
-    <!-- Actions -->
-    <div class="card mt-3">
-      <div class="card-header">
-        <h6 class="mb-0">Actions</h6>
-      </div>
-      <div class="card-body">
-        <div class="d-flex gap-2">
-          <button type="button" class="btn btn-outline-primary" @click="$emit('add-child', item)">
-            <i class="bi bi-plus-circle"></i> Add Child Item
-          </button>
-          <button type="button" class="btn btn-outline-secondary" @click="$emit('add-exemplar', item)">
-            <i class="bi bi-link-45deg"></i> Add Exemplar
-          </button>
+      <!-- Actions -->
+      <div class="card mt-3">
+        <div class="card-header">
+          <h6 class="mb-0">Actions</h6>
+        </div>
+        <div class="card-body">
+          <div class="d-flex gap-2">
+            <div class="btn-group">
+              <button type="button" class="btn btn-outline-primary" @click="showModal('general')">
+                <i class="bi bi-plus-circle"></i> Add Child Item
+              </button>
+              <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="visually-hidden">Toggle Dropdown</span>
+              </button>
+              <ul class="dropdown-menu">
+                <li v-for="type in availableTypes" :key="type">
+                  <a
+                    class="dropdown-item"
+                    @click.prevent="handleDropdownClick(type)"
+                    href="#"
+                    :aria-label="`Add ${getTypeLabel(type)}`"
+                  >
+                    Add {{ getTypeLabel(type) }}
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <button type="button" class="btn btn-outline-secondary" @click="$emit('add-exemplar', item)">
+              <i class="bi bi-link-45deg"></i> Add Exemplar
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+
+      <!-- Associations -->
+      <div v-if="groupedAssociations.length > 0" class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h6 class="mb-0">Associations</h6>
+          <button type="button" class="btn btn-sm btn-outline-primary" @click="$emit('add-association', item)">
+            <i class="bi bi-plus"></i> Add
+          </button>
+        </div>
+        <div class="card-body">
+          <AssociationGroupDisplay
+            v-for="group in groupedAssociations"
+            :key="group.type"
+            :association-type="group.type"
+            :associations="group.associations"
+            :association-groups="associationGroups"
+            @edit-association="$emit('edit-association', $event)"
+            @delete-association="$emit('delete-association', $event)"
+          />
+        </div>
+      </div>
       </div>
     </div>
 
-    <!-- Associations -->
-    <div v-if="groupedAssociations.length > 0" class="card mb-3">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h6 class="mb-0">Associations</h6>
-        <button type="button" class="btn btn-sm btn-outline-primary" @click="$emit('add-association', item)">
-          <i class="bi bi-plus"></i> Add
-        </button>
-      </div>
-      <div class="card-body">
-        <AssociationGroupDisplay
-          v-for="group in groupedAssociations"
-          :key="group.type"
-          :association-type="group.type"
-          :associations="group.associations"
-          :association-groups="associationGroups"
-          @edit-association="$emit('edit-association', $event)"
-          @delete-association="$emit('delete-association', $event)"
-        />
-      </div>
-    </div>
   </div>
+
+  <!-- Dynamic Modal -->
+  <Teleport to="body">
+    <div v-if="isModalVisible">
+      <component
+        :is="modalComponent"
+        :parent-item="parentItem"
+        :show="isModalVisible"
+        :item-type="selectedType"
+        @created="handleCreated"
+        @hidden="handleHidden"
+      />
+    </div>
+  </Teleport>
 </template>
 
 <script setup>
 import { computed } from 'vue';
+import { Teleport } from 'vue';
 import AssociationGroupDisplay from '../../association/AssociationGroupDisplay.vue';
 import { renderMarkdown, hasMarkdown } from '../../../utils/markdownRenderer.js';
 import render from '../../../utils/render-md.js';
+import { useDynamicModal } from '../../../composables/useDynamicModal.js';
 
 const props = defineProps({
   item: {
@@ -134,6 +168,16 @@ const emit = defineEmits([
   'edit-association',
   'delete-association'
 ]);
+
+const availableTypes = ['general', 'assessment', 'course', 'credential', 'job', 'organization', 'public_key'];
+
+const { showModal, selectedType, isModalVisible, handleCreated, modalComponent, handleHidden, parentItem } = useDynamicModal(
+  props.item,
+  (newItem) => {
+    emit('add-child', newItem);
+  },
+  availableTypes
+);
 
 function formatDate(dateString) {
   if (!dateString) return '';
@@ -176,6 +220,27 @@ const hasMarkdownContent = computed(() => {
   if (!props.item?.fullStatement) return false;
   return hasMarkdown(props.item.fullStatement);
 });
+
+function getTypeLabel(type) {
+  const labels = {
+    general: 'General Item',
+    assessment: 'Assessment',
+    course: 'Course',
+    credential: 'Credential',
+    job: 'Job',
+    organization: 'Organization',
+    'public_key': 'Public Key'
+  };
+  return labels[type] || type;
+}
+
+function handleDropdownClick(type) {
+  if (availableTypes.includes(type)) {
+    showModal(type);
+  } else {
+    console.warn(`Invalid type: ${type}`);
+  }
+}
 </script>
 
 <style scoped>
