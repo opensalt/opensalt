@@ -27,7 +27,8 @@ export function useDynamicEditModal(onUpdate, availableTypes = ['general', 'asse
       credential: () => import('@/components/shared/modals/AddNewCredentialModal.vue'),
       job: () => import('@/components/shared/modals/AddNewJobModal.vue'),
       organization: () => import('@/components/shared/modals/AddNewOrganizationModal.vue'),
-      public_key: () => import('@/components/shared/modals/AddNewPublicKeyModal.vue')
+      public_key: () => import('@/components/shared/modals/AddNewPublicKeyModal.vue'),
+      identifier: () => import('@/components/shared/modals/AddNewIdentifierModal.vue')
     };
     const loader = typeMap[selectedEditType.value] || typeMap.general;
     return defineAsyncComponent(loader);

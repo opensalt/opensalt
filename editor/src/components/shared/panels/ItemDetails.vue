@@ -186,7 +186,7 @@ const emit = defineEmits([
   'update-item'
 ]);
 
-const availableTypes = ['general', 'assessment', 'course', 'credential', 'job', 'organization', 'public_key'];
+const availableTypes = ['general', 'assessment', 'course', 'credential', 'job', 'organization', 'public_key', 'identifier'];
 
 const { showModal, selectedType, isModalVisible, handleCreated, modalComponent, handleHidden, parentItem } = useDynamicModal(
   props.item,
@@ -261,7 +261,8 @@ function getTypeLabel(type) {
     credential: 'Credential',
     job: 'Job',
     organization: 'Organization',
-    'public_key': 'Public Key'
+    'public_key': 'Public Key',
+    identifier: 'Identifier'
   };
   return labels[type] || type;
 }

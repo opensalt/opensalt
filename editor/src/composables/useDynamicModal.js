@@ -23,7 +23,8 @@ export function useDynamicModal(parent, onCreate, types) {
       credential: () => import('@/components/shared/modals/AddNewCredentialModal.vue'),
       job: () => import('@/components/shared/modals/AddNewJobModal.vue'),
       organization: () => import('@/components/shared/modals/AddNewOrganizationModal.vue'),
-      public_key: () => import('@/components/shared/modals/AddNewPublicKeyModal.vue')
+      public_key: () => import('@/components/shared/modals/AddNewPublicKeyModal.vue'),
+      identifier: () => import('@/components/shared/modals/AddNewIdentifierModal.vue')
     };
     const loader = typeMap[selectedType.value] || typeMap.general;
     return defineAsyncComponent(loader);
