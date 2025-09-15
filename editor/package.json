@@ -23,7 +23,8 @@
     "pinia": "^3.0.3",
     "sanitize-html": "^2.17.0",
     "vue": "^3.4.0",
-    "vue-multiselect": "^3.0.0-beta.2"
+    "vue-multiselect": "^3.0.0-beta.2",
+    "vue-router": "^4.5.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",

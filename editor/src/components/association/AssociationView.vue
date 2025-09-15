@@ -90,14 +90,26 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { useFrameworkStore } from '../../stores/frameworkStore';
 
+const route = useRoute();
 const frameworkStore = useFrameworkStore();
 
 const loading = computed(() => frameworkStore.loading);
 const error = computed(() => frameworkStore.error);
 const currentDocument = computed(() => frameworkStore.currentDocument);
 const associationGroups = computed(() => frameworkStore.associationGroups);
+
+onMounted(() => {
+  const itemId = route.params.itemId;
+  if (itemId && currentDocument.value) {
+    const item = frameworkStore.findItemByIdentifier(currentDocument.value.items, itemId);
+    if (item) {
+      frameworkStore.setCurrentItem(item);
+    }
+  }
+});
 
 const associations = computed(() => {
   if (!currentDocument.value) return [];

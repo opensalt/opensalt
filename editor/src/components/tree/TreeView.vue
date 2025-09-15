@@ -9,7 +9,7 @@
           :key="documentRoot.identifier"
           :item="documentRoot"
           :level="0"
-          :selected-id="selectedId"
+          :selected-id="props.selectedId"
           :parent-items="[documentRoot]"
           :index="0"
           :startExpanded="true"
@@ -27,11 +27,18 @@ import { ref, computed } from 'vue';
 import TreeNode from './TreeNode.vue';
 
 const props = defineProps({
-  doc: Object
+  doc: Object,
+  selectedId: {
+    type: String,
+    default: null
+  },
+  search: {
+    type: String,
+    default: ''
+  }
 });
 
 const emit = defineEmits(['select', 'dblclick']);
-const selectedId = ref(null);
 
 // Create a document root node with items as children
 const documentRoot = computed(() => {
@@ -51,7 +58,6 @@ const documentRoot = computed(() => {
 });
 
 function onSelect(id) {
-  selectedId.value = id;
   emit('select', id);
 }
 function onDblClick(id) {

@@ -66,7 +66,7 @@
 
           <div v-if="item.notes" class="mb-3">
               <strong>Notes:</strong>
-              <p class="mt-1">{{ item.notes }}</p>
+              <p class="mt-1 markdown-content" v-html="renderedNotes"></p>
           </div>
 
           <!-- Actions -->
@@ -268,6 +268,12 @@ const renderedFullStatement = computed(() => {
 const hasMarkdownContent = computed(() => {
   if (!props.item?.fullStatement) return false;
   return hasMarkdown(props.item.fullStatement);
+});
+
+// Render notes as markdown
+const renderedNotes = computed(() => {
+    if (!props.item?.notes) return '';
+    return render.block(props.item.notes);
 });
 
 function getTypeLabel(type) {

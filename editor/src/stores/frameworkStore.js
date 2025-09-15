@@ -26,8 +26,9 @@ export const useFrameworkStore = defineStore('framework', () => {
   const currentDocumentRubrics = ref([]);
   const currentDocumentAssociations = ref([]);
 
-  // View state
-  const currentView = ref('tree'); // 'tree', 'association', 'log'
+    // View state
+    const currentView = ref('tree'); // 'tree', 'association', 'log'
+    const currentItem = ref(null);
 
   // Getters
   const filteredDocuments = computed(() => {
@@ -713,21 +714,25 @@ export const useFrameworkStore = defineStore('framework', () => {
   }
 
   function findItemByIdentifier(items, identifier) {
-    if (!Array.isArray(items)) return null;
-    for (const item of items) {
-      if (item.identifier === identifier) return item;
-      if (item.children) {
-        const found = findItemByIdentifier(item.children, identifier);
-        if (found) return found;
+      if (!Array.isArray(items)) return null;
+      for (const item of items) {
+        if (item.identifier === identifier) return item;
+        if (item.children) {
+          const found = findItemByIdentifier(item.children, identifier);
+          if (found) return found;
+        }
       }
+      return null;
     }
-    return null;
-  }
 
-  function getMaxSequence(items) {
-    if (!Array.isArray(items)) return 0;
-    return Math.max(...items.map(item => item.sequenceNumber || 0), 0);
-  }
+    function setCurrentItem(item) {
+      currentItem.value = item;
+    }
+
+    function getMaxSequence(items) {
+      if (!Array.isArray(items)) return 0;
+      return Math.max(...items.map(item => item.sequenceNumber || 0), 0);
+    }
 
   function addItem(newItem, parentIdentifier) {
     if (!currentDocument.value) {
@@ -772,6 +777,7 @@ export const useFrameworkStore = defineStore('framework', () => {
     currentDocumentRubrics,
     currentDocumentAssociations,
     currentView,
+    currentItem,
 
     // Getters
     filteredDocuments,
@@ -792,6 +798,8 @@ export const useFrameworkStore = defineStore('framework', () => {
     selectDocument,
     clearError,
     updateItem,
-    addItem
+    addItem,
+    setCurrentItem,
+    findItemByIdentifier
   };
 });

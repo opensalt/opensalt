@@ -34,7 +34,7 @@
 
         <!-- Tree View -->
         <div class="mt-3 flex-grow-1 overflow-auto">
-          <TreeView :doc="filteredDoc" @select="onSelect" :search="searchQuery" />
+          <TreeView :doc="filteredDoc" :selected-id="selectedId" @select="onSelect" :search="searchQuery" />
         </div>
       </section>
 
@@ -119,7 +119,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useFrameworkStore } from '../../stores/frameworkStore';
 import TreeView from './TreeView.vue';
 import RightSidePanel from '../shared/panels/RightSidePanel.vue';
@@ -137,14 +138,21 @@ import ViewSwitcher from '../shared/common/ViewSwitcher.vue';
 
 // Use the Pinia store
 const frameworkStore = useFrameworkStore();
+const route = useRoute();
+const router = useRouter();
 
 // Use store state and computed properties
 const doc = computed(() => frameworkStore.currentDocument || { title: '', status: '', items: [] });
 const loading = computed(() => frameworkStore.loading);
 const error = computed(() => frameworkStore.error);
 const searchQuery = computed(() => frameworkStore.searchQuery);
-const selectedId = ref(null);
+const selectedId = ref(route.params.itemId || null);
 const selectedItem = computed(() => findItem(doc.value.items || [], selectedId.value));
+
+// Watch for route changes to update selected item
+watch(() => route.params.itemId, (newItemId) => {
+  selectedId.value = newItemId || null;
+}, { immediate: true });
 const filteredDoc = computed(() => ({
   ...doc.value,
   items: frameworkStore.filteredItems
@@ -213,7 +221,16 @@ onMounted(async () => {
 
 // Event handlers
 function onSelect(id) {
-  selectedId.value = id;
+  const frameworkId = frameworkStore.currentDocument?.id;
+  if (frameworkId) {
+    if (id) {
+      router.push(`/${frameworkId}/${id}`);
+    } else {
+      router.push(`/${frameworkId}`);
+    }
+  } else {
+    selectedId.value = id;
+  }
 }
 
 async function onDocumentChanged({ side, documentId }) {

@@ -17,10 +17,7 @@
       </div>
     </header>
 
-      <!-- Conditional View Rendering -->
-      <TreeViewContainer v-if="currentView === 'tree'" />
-      <AssociationView v-else-if="currentView === 'association'" />
-      <LogView v-else-if="currentView === 'log'" />
+      <router-view />
     </div>
 
     <!-- Toast notifications -->
@@ -49,14 +46,11 @@
 
 <script setup>
 import { ref, provide, computed } from 'vue';
+import { RouterView } from 'vue-router';
 import { useFrameworkStore } from './stores/frameworkStore';
 import ViewSwitcher from './components/shared/common/ViewSwitcher.vue';
-import TreeViewContainer from './components/tree/EnhancedDocumentTreeEditor.vue';
-import AssociationView from './components/association/AssociationView.vue';
-import LogView from './components/log/LogView.vue';
 
 const frameworkStore = useFrameworkStore();
-const currentView = computed(() => frameworkStore.currentView);
 
 const toasts = ref([]);
 let toastId = 0;

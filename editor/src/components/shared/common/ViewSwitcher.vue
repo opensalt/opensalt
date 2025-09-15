@@ -37,14 +37,36 @@
 
 <script setup>
 import { computed } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { useFrameworkStore } from '../../../stores/frameworkStore';
 
+const router = useRouter();
+const route = useRoute();
 const frameworkStore = useFrameworkStore();
 
-const currentView = computed(() => frameworkStore.currentView);
+const currentFrameworkId = computed(() => frameworkStore.currentDocument?.id || '');
+
+const currentView = computed(() => {
+  const path = route.path;
+  if (path.includes('/association')) return 'association';
+  if (path.includes('/log')) return 'log';
+  return 'tree';
+});
 
 function switchView(view) {
-  frameworkStore.setCurrentView(view);
+  if (!currentFrameworkId.value) {
+    console.warn('No framework ID available for navigation');
+    return;
+  }
+  let path;
+  if (view === 'tree') {
+    path = `/${currentFrameworkId.value}`;
+  } else if (view === 'association') {
+    path = `/${currentFrameworkId.value}/association`;
+  } else if (view === 'log') {
+    path = `/${currentFrameworkId.value}/log`;
+  }
+  router.push(path);
 }
 </script>
 
