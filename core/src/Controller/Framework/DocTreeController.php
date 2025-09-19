@@ -74,8 +74,9 @@ class DocTreeController extends AbstractController
         $assocFilterTypes = [];
         $assocTypes = [];
         $inverseAssocTypes = [];
-        foreach (LsAssociation::allTypes() as $type) {
-            $assocFilterTypes[] = $type;
+        $typeChoices = LsAssociation::typeChoiceList();
+        foreach (array_keys($typeChoices) as $type) {
+            $assocFilterTypes[] = $typeChoices[$type];
             $assocTypes[] = $type;
             $inverseAssocTypes[] = LsAssociation::inverseName($type);
             foreach ($assocSubTypes as $subtype) {
@@ -113,6 +114,7 @@ class DocTreeController extends AbstractController
             'assocTypes' => $assocTypes,
             'inverseAssocTypes' => $inverseAssocTypes,
             'assocGroups' => $lsDefAssociationGroupings,
+            'typeChoices' => $typeChoices,
         ];
 
         if ($editorRights) {
@@ -134,8 +136,9 @@ class DocTreeController extends AbstractController
         $assocFilterTypes = [];
         $assocTypes = [];
         $inverseAssocTypes = [];
-        foreach (LsAssociation::allTypes() as $type) {
-            $assocFilterTypes[] = $type;
+        $typeChoices = LsAssociation::typeChoiceList();
+        foreach (array_keys($typeChoices) as $type) {
+            $assocFilterTypes[] = $typeChoices[$type];
             $assocTypes[] = $type;
             $inverseAssocTypes[] = LsAssociation::inverseName($type);
             foreach ($assocSubTypes as $subtype) {

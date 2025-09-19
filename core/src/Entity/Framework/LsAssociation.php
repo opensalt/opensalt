@@ -37,43 +37,66 @@ class LsAssociation implements CaseApiInterface
     use ExtensionTrait;
     use AccessAdditionalFieldTrait;
 
-    final public const string CHILD_OF = 'Is Child Of';
+    final public const string CHILD_OF = 'isChildOf';
 
-    final public const string EXACT_MATCH_OF = 'Exact Match Of';
-    final public const string RELATED_TO = 'Is Related To';
-    final public const string PART_OF = 'Is Part Of';
-    final public const string REPLACED_BY = 'Replaced By';
-    final public const string PRECEDES = 'Precedes';
-    final public const string SKILL_LEVEL = 'Has Skill Level';
-    final public const string IS_PEER_OF = 'Is Peer Of';
-    final public const string IS_TRANSLATION_OF = 'Is Translation Of';
+    final public const string EXACT_MATCH_OF = 'exactMatchOf';
+    final public const string RELATED_TO = 'isRelatedTo';
+    final public const string PART_OF = 'isPartOf';
+    final public const string REPLACED_BY = 'replacedBy';
+    final public const string PRECEDES = 'precedes';
+    final public const string SKILL_LEVEL = 'hasSkillLevel';
+    final public const string IS_PEER_OF = 'isPeerOf';
+    final public const string IS_TRANSLATION_OF = 'isTranslationOf';
 
-    final public const string EXEMPLAR = 'Exemplar';
+    final public const string EXEMPLAR = 'exemplar';
 
-    final public const string INVERSE_CHILD_OF = 'Is Parent Of';
+    final public const string INVERSE_CHILD_OF = 'isParentOf';
 
-    final public const string INVERSE_EXACT_MATCH_OF = 'Matched From';
-    final public const string INVERSE_RELATED_TO = 'Related From';
-    final public const string INVERSE_PART_OF = 'Has Part';
-    final public const string INVERSE_REPLACED_BY = 'Replaces';
-    final public const string INVERSE_PRECEDES = 'Has Predecessor';
-    final public const string INVERSE_SKILL_LEVEL = 'Skill Level For';
-    final public const string INVERSE_IS_PEER_OF = 'Peer Of';
-    final public const string INVERSE_IS_TRANSLATION_OF = 'Translation Of';
+    final public const string INVERSE_EXACT_MATCH_OF = 'matchedFrom';
+    final public const string INVERSE_RELATED_TO = 'relatedFrom';
+    final public const string INVERSE_PART_OF = 'hasPart';
+    final public const string INVERSE_REPLACED_BY = 'replaces';
+    final public const string INVERSE_PRECEDES = 'hasPredecessor';
+    final public const string INVERSE_SKILL_LEVEL = 'skillLevelFor';
+    final public const string INVERSE_IS_PEER_OF = 'peerOf';
+    final public const string INVERSE_IS_TRANSLATION_OF = 'translationOf';
 
-    final public const string INVERSE_EXEMPLAR = 'Exemplar For';
+    final public const string INVERSE_EXEMPLAR = 'exemplarFor';
 
     final public const array BASE_TYPES = [
-        'isChildOf',
-        'isRelatedTo',
-        'exactMatchOf',
-        'isPartOf',
-        'replacedBy',
-        'precedes',
-        'hasSkillLevel',
-        'isPeerOf',
-        'exemplar',
-        'isTranslationOf', // CASE 1.1
+        self::CHILD_OF,
+        self::RELATED_TO,
+        self::EXACT_MATCH_OF,
+        self::PART_OF,
+        self::REPLACED_BY,
+        self::PRECEDES,
+        self::SKILL_LEVEL,
+        self::IS_PEER_OF,
+        self::EXEMPLAR,
+        self::IS_TRANSLATION_OF, // CASE 1.1
+    ];
+
+    final public const array HUMAN_READABLE_TYPES = [
+        self::CHILD_OF => 'Is Child Of',
+        self::EXACT_MATCH_OF => 'Exact Match Of',
+        self::RELATED_TO => 'Is Related To',
+        self::PART_OF => 'Is Part Of',
+        self::REPLACED_BY => 'Replaced By',
+        self::PRECEDES => 'Precedes',
+        self::SKILL_LEVEL => 'Has Skill Level',
+        self::IS_PEER_OF => 'Is Peer Of',
+        self::IS_TRANSLATION_OF => 'Is Translation Of',
+        self::EXEMPLAR => 'Exemplar',
+        self::INVERSE_CHILD_OF => 'Is Parent Of',
+        self::INVERSE_EXACT_MATCH_OF => 'Matched From',
+        self::INVERSE_RELATED_TO => 'Related From',
+        self::INVERSE_PART_OF => 'Has Part',
+        self::INVERSE_REPLACED_BY => 'Replaces',
+        self::INVERSE_PRECEDES => 'Has Predecessor',
+        self::INVERSE_SKILL_LEVEL => 'Skill Level For',
+        self::INVERSE_IS_PEER_OF => 'Peer Of',
+        self::INVERSE_IS_TRANSLATION_OF => 'Translation Of',
+        self::INVERSE_EXEMPLAR => 'Exemplar For',
     ];
 
     #[ORM\Column(name: 'ls_doc_identifier', type: 'string', length: 300, nullable: false)]
@@ -160,14 +183,14 @@ class LsAssociation implements CaseApiInterface
     public static function allTypesForImportFromCSV(): array
     {
         return [
-            'isPartOf' => static::PART_OF,
-            'exemplar' => static::EXEMPLAR,
-            'isPeerOf' => static::IS_PEER_OF,
-            'precedes' => static::PRECEDES,
-            'isRelatedTo' => static::RELATED_TO,
-            'replacedBy' => static::REPLACED_BY,
-            'hasSkillLevel' => static::SKILL_LEVEL,
-            'isTranslationOf' => static::IS_TRANSLATION_OF,
+            self::PART_OF => self::HUMAN_READABLE_TYPES[self::PART_OF],
+            self::EXEMPLAR => self::HUMAN_READABLE_TYPES[self::EXEMPLAR],
+            self::IS_PEER_OF => self::HUMAN_READABLE_TYPES[self::IS_PEER_OF],
+            self::PRECEDES => self::HUMAN_READABLE_TYPES[self::PRECEDES],
+            self::RELATED_TO => self::HUMAN_READABLE_TYPES[self::RELATED_TO],
+            self::REPLACED_BY => self::HUMAN_READABLE_TYPES[self::REPLACED_BY],
+            self::SKILL_LEVEL => self::HUMAN_READABLE_TYPES[self::SKILL_LEVEL],
+            self::IS_TRANSLATION_OF => self::HUMAN_READABLE_TYPES[self::IS_TRANSLATION_OF],
         ];
     }
 
@@ -177,17 +200,16 @@ class LsAssociation implements CaseApiInterface
     public static function allTypes(): array
     {
         return [
-            static::RELATED_TO,
-            static::EXACT_MATCH_OF,
-            static::PART_OF,
-            static::REPLACED_BY,
-            static::PRECEDES,
-            static::SKILL_LEVEL,
-            static::IS_PEER_OF,
-            static::EXEMPLAR,
-            static::IS_TRANSLATION_OF, // CASE 1.1
-
-            static::CHILD_OF,
+            self::RELATED_TO,
+            self::EXACT_MATCH_OF,
+            self::PART_OF,
+            self::REPLACED_BY,
+            self::PRECEDES,
+            self::SKILL_LEVEL,
+            self::IS_PEER_OF,
+            self::EXEMPLAR,
+            self::IS_TRANSLATION_OF, // CASE 1.1
+            self::CHILD_OF,
         ];
     }
 
@@ -197,15 +219,23 @@ class LsAssociation implements CaseApiInterface
     public static function typeChoiceList(): array
     {
         return [
-            static::RELATED_TO => 'Is Related To',
-            static::EXACT_MATCH_OF => 'Exact Match Of',
-            static::PART_OF => 'Is Part Of',
-            static::REPLACED_BY => 'Replaced By',
-            static::PRECEDES => 'Precedes',
-            static::SKILL_LEVEL => 'Has Skill Level',
-            static::IS_PEER_OF => 'Is Peer Of',
-            static::IS_TRANSLATION_OF => 'Is Translation Of', // CASE 1.1
+            self::RELATED_TO => self::HUMAN_READABLE_TYPES[self::RELATED_TO],
+            self::EXACT_MATCH_OF => self::HUMAN_READABLE_TYPES[self::EXACT_MATCH_OF],
+            self::PART_OF => self::HUMAN_READABLE_TYPES[self::PART_OF],
+            self::REPLACED_BY => self::HUMAN_READABLE_TYPES[self::REPLACED_BY],
+            self::PRECEDES => self::HUMAN_READABLE_TYPES[self::PRECEDES],
+            self::SKILL_LEVEL => self::HUMAN_READABLE_TYPES[self::SKILL_LEVEL],
+            self::IS_PEER_OF => self::HUMAN_READABLE_TYPES[self::IS_PEER_OF],
+            self::IS_TRANSLATION_OF => self::HUMAN_READABLE_TYPES[self::IS_TRANSLATION_OF], // CASE 1.1
         ];
+    }
+
+    /**
+     * Get human-readable display name for the association type.
+     */
+    public function getDisplayType(): string
+    {
+        return self::HUMAN_READABLE_TYPES[$this->type] ?? $this->type;
     }
 
     public static function inverseName(string $name): ?string
@@ -213,27 +243,27 @@ class LsAssociation implements CaseApiInterface
         static $inverses = [];
         if (0 === count($inverses)) {
             $inverses = [
-                static::CHILD_OF => static::INVERSE_CHILD_OF,
-                static::EXACT_MATCH_OF => static::INVERSE_EXACT_MATCH_OF,
-                static::RELATED_TO => static::INVERSE_RELATED_TO,
-                static::PART_OF => static::INVERSE_PART_OF,
-                static::REPLACED_BY => static::INVERSE_REPLACED_BY,
-                static::PRECEDES => static::INVERSE_PRECEDES,
-                static::IS_PEER_OF => static::INVERSE_IS_PEER_OF,
-                static::SKILL_LEVEL => static::INVERSE_SKILL_LEVEL,
-                static::EXEMPLAR => static::INVERSE_EXEMPLAR,
-                static::IS_TRANSLATION_OF => static::INVERSE_IS_TRANSLATION_OF,
+                self::CHILD_OF => self::INVERSE_CHILD_OF,
+                self::EXACT_MATCH_OF => self::INVERSE_EXACT_MATCH_OF,
+                self::RELATED_TO => self::INVERSE_RELATED_TO,
+                self::PART_OF => self::INVERSE_PART_OF,
+                self::REPLACED_BY => self::INVERSE_REPLACED_BY,
+                self::PRECEDES => self::INVERSE_PRECEDES,
+                self::IS_PEER_OF => self::INVERSE_IS_PEER_OF,
+                self::SKILL_LEVEL => self::INVERSE_SKILL_LEVEL,
+                self::EXEMPLAR => self::INVERSE_EXEMPLAR,
+                self::IS_TRANSLATION_OF => self::INVERSE_IS_TRANSLATION_OF,
 
-                static::INVERSE_CHILD_OF => static::CHILD_OF,
-                static::INVERSE_EXACT_MATCH_OF => static::EXACT_MATCH_OF,
-                static::INVERSE_RELATED_TO => static::RELATED_TO,
-                static::INVERSE_PART_OF => static::PART_OF,
-                static::INVERSE_REPLACED_BY => static::REPLACED_BY,
-                static::INVERSE_PRECEDES => static::PRECEDES,
-                static::INVERSE_IS_PEER_OF => static::IS_PEER_OF,
-                static::INVERSE_SKILL_LEVEL => static::SKILL_LEVEL,
-                static::INVERSE_EXEMPLAR => static::EXEMPLAR,
-                static::INVERSE_IS_TRANSLATION_OF => static::IS_TRANSLATION_OF,
+                self::INVERSE_CHILD_OF => self::CHILD_OF,
+                self::INVERSE_EXACT_MATCH_OF => self::EXACT_MATCH_OF,
+                self::INVERSE_RELATED_TO => self::RELATED_TO,
+                self::INVERSE_PART_OF => self::PART_OF,
+                self::INVERSE_REPLACED_BY => self::REPLACED_BY,
+                self::INVERSE_PRECEDES => self::PRECEDES,
+                self::INVERSE_IS_PEER_OF => self::IS_PEER_OF,
+                self::INVERSE_SKILL_LEVEL => self::SKILL_LEVEL,
+                self::INVERSE_EXEMPLAR => self::EXEMPLAR,
+                self::INVERSE_IS_TRANSLATION_OF => self::IS_TRANSLATION_OF,
             ];
         }
 
@@ -407,7 +437,7 @@ class LsAssociation implements CaseApiInterface
             return $this;
         }
 
-        if (in_array($type, self::allTypes(), true)) {
+        if (in_array($type, self::BASE_TYPES, true)) {
             $this->type = $type;
 
             return $this;
@@ -443,7 +473,7 @@ class LsAssociation implements CaseApiInterface
             return self::RELATED_TO;
         }
 
-        return lcfirst(str_replace(' ', '', $returnType));
+        return $returnType;
     }
 
     /**
@@ -451,16 +481,13 @@ class LsAssociation implements CaseApiInterface
      */
     public function coerceType(?string $type): ?string
     {
-        $allTypes = self::allTypes();
-        $testNewType = preg_replace('/ +/', '', strtolower($type));
-        foreach ($allTypes as $allowedType) {
-            $testAllowedType = preg_replace('/ +/', '', strtolower($allowedType));
-            if ($testNewType === $testAllowedType) {
-                return $allowedType;
-            }
+        if (array_key_exists($type, self::HUMAN_READABLE_TYPES)) {
+            return array_search($type, self::HUMAN_READABLE_TYPES);
         }
 
-        return null;
+        $normalized = preg_replace('/ +/', '', strtolower($type));
+
+        return array_find(self::BASE_TYPES, fn ($value) => strtolower($value) === $normalized);
     }
 
     public function setOriginLsDoc(?LsDoc $originLsDoc = null): static
