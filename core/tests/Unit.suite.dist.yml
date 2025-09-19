@@ -9,6 +9,7 @@ modules:
         - Doctrine:
             depends: Symfony
             cleanup: true
+        - Asserts
         - Tests\Support\Helper\Unit
         - Tests\Support\Helper\UserManagement
 step_decorators: ~

@@ -40,7 +40,6 @@ class ApiV1ItemControllerTest extends TestCase
 
         $this->controller = new ApiV1ItemController(
             $this->serializer,
-            $this->propertyAccessor,
             $this->itemRepository,
             $this->entityManager,
             $this->objectMapper
