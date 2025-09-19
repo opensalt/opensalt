@@ -46,6 +46,29 @@ class AssociationSubtypeTest extends \Codeception\Test\Unit
         $this->assertInstanceOf(AssociationSubtype::class, $associationSubtype);
     }
 
+    public function testParentTypeValidation()
+    {
+        $associationSubtype = new AssociationSubtype();
+
+        $reflection = new \ReflectionClass($associationSubtype);
+        $property = $reflection->getProperty('parentType');
+        $property->setAccessible(true);
+
+        $validTypes = ['isChildOf', 'exactMatchOf', 'isRelatedTo', 'isPartOf', 'replacedBy', 'precedes', 'hasSkillLevel', 'isPeerOf', 'exemplar', 'isTranslationOf'];
+        $invalidType = 'invalidType';
+
+        foreach ($validTypes as $type) {
+            $property->setValue($associationSubtype, $type);
+            $violations = $this->getContainer()->get('validator')->validate($associationSubtype);
+            $this->assertCount(0, $violations, 'Valid parentType should not have violations');
+        }
+
+        $property->setValue($associationSubtype, $invalidType);
+        $violations = $this->getContainer()->get('validator')->validate($associationSubtype);
+        $this->assertGreaterThan(0, $violations, 'Invalid parentType should have violations');
+        $this->assertStringContainsString('parentType', (string) $violations->get(0)->getPropertyPath());
+    }
+
     public function testGetDirection()
     {
         $associationSubtype = new AssociationSubtype();
@@ -74,16 +97,16 @@ class AssociationSubtypeTest extends \Codeception\Test\Unit
     public function testValidParentTypes()
     {
         $validTypes = [
-            'Is Child Of',
-            'Exact Match Of',
-            'Is Related To',
-            'Is Part Of',
-            'Replaced By',
-            'Precedes',
-            'Has Skill Level',
-            'Is Peer Of',
-            'Exemplar',
-            'Is Translation Of',
+            'isChildOf',
+            'exactMatchOf',
+            'isRelatedTo',
+            'isPartOf',
+            'replacedBy',
+            'precedes',
+            'hasSkillLevel',
+            'isPeerOf',
+            'exemplar',
+            'isTranslationOf',
         ];
 
         foreach ($validTypes as $type) {

@@ -779,7 +779,8 @@ export default function (apx) {
                 continue;
             }
 
-            $associationFormTypeForward.append('<option value="' + curType + '">' + curType + '</option>');
+            let humanText = apx.typeChoices[curType] || curType;
+            $associationFormTypeForward.append('<option value="' + curType + '">' + humanText + '</option>');
         }
 
         let lastForwardType = '';
@@ -811,7 +812,8 @@ export default function (apx) {
             }
 
 
-            $associationFormTypeReverse.append('<option value="' + lastForwardType + '">' + curType + '</option>');
+            let humanText = apx.typeChoices[lastForwardType] || lastForwardType;
+            $associationFormTypeReverse.append('<option value="' + lastForwardType + '">' + humanText + '</option>');
         }
 
         $associationFormType.html($associationFormTypeForward.html());
@@ -1031,7 +1033,8 @@ export default function (apx) {
                 continue;
             }
 
-            $editAssociationFormTypeForward.append('<option value="' + curType + '">' + curType + '</option>');
+            let humanText = apx.typeChoices[curType] || curType;
+            $editAssociationFormTypeForward.append('<option value="' + curType + '">' + humanText + '</option>');
         }
 
         let lastForwardType = '';
@@ -1062,8 +1065,8 @@ export default function (apx) {
                 continue;
             }
 
-
-            $editAssociationFormTypeReverse.append('<option value="' + lastForwardType + '">' + curType + '</option>');
+            let humanText = apx.typeChoices[lastForwardType] || lastForwardType;
+            $editAssociationFormTypeReverse.append('<option value="' + lastForwardType + '">' + humanText + '</option>');
         }
 
         $editAssociationFormType.html($editAssociationFormTypeForward.html());
