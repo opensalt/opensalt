@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Entity\Framework\AdditionalField;
-use App\Entity\Framework\ImportLog;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Entity\Framework\LsDefItemType;
@@ -337,21 +336,7 @@ final class ExcelImport
         }
 
         $allTypes = [];
-        foreach (LsAssociation::allTypes() as $type) {
-            $allTypes[str_replace(' ', '', strtolower($type))] = $type;
-        }
-
-        $associationType = str_replace(' ', '', strtolower($fields['associationType']));
-
-        if (array_key_exists($associationType, $allTypes)) {
-            $association->setType($allTypes[$associationType]);
-        } else {
-            $log = new ImportLog($doc, 'error', sprintf('Invalid Association Type (%s on row %d.', $fields['associationType'], $row));
-
-            $this->entityManager->persist($log);
-
-            return null;
-        }
+        $association->setType($fields['associationType']);
 
         if (isset($fields['associationGroupIdentifier']) && ('' !== $fields['associationGroupIdentifier'])) {
             $associationGrouping = new LsDefAssociationGrouping();
