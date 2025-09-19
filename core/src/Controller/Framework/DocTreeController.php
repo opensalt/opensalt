@@ -74,7 +74,7 @@ class DocTreeController extends AbstractController
         $assocFilterTypes = [];
         $assocTypes = [];
         $inverseAssocTypes = [];
-        $typeChoices = LsAssociation::typeChoiceList();
+        $typeChoices = LsAssociation::allTypesHumanReadable();
         foreach (array_keys($typeChoices) as $type) {
             $assocFilterTypes[] = $typeChoices[$type];
             $assocTypes[] = $type;
