@@ -388,16 +388,16 @@ class LsAssociationTest extends \Codeception\Test\Unit
 
     public function testConstants()
     {
-        $this->assertEquals('Is Child Of', LsAssociation::CHILD_OF);
-        $this->assertEquals('Exact Match Of', LsAssociation::EXACT_MATCH_OF);
-        $this->assertEquals('Is Related To', LsAssociation::RELATED_TO);
-        $this->assertEquals('Is Part Of', LsAssociation::PART_OF);
-        $this->assertEquals('Replaced By', LsAssociation::REPLACED_BY);
-        $this->assertEquals('Precedes', LsAssociation::PRECEDES);
-        $this->assertEquals('Has Skill Level', LsAssociation::SKILL_LEVEL);
-        $this->assertEquals('Is Peer Of', LsAssociation::IS_PEER_OF);
-        $this->assertEquals('Is Translation Of', LsAssociation::IS_TRANSLATION_OF);
-        $this->assertEquals('Exemplar', LsAssociation::EXEMPLAR);
+        $this->assertEquals('isChildOf', LsAssociation::CHILD_OF);
+        $this->assertEquals('exactMatchOf', LsAssociation::EXACT_MATCH_OF);
+        $this->assertEquals('isRelatedTo', LsAssociation::RELATED_TO);
+        $this->assertEquals('isPartOf', LsAssociation::PART_OF);
+        $this->assertEquals('replacedBy', LsAssociation::REPLACED_BY);
+        $this->assertEquals('precedes', LsAssociation::PRECEDES);
+        $this->assertEquals('hasSkillLevel', LsAssociation::SKILL_LEVEL);
+        $this->assertEquals('isPeerOf', LsAssociation::IS_PEER_OF);
+        $this->assertEquals('isTranslationOf', LsAssociation::IS_TRANSLATION_OF);
+        $this->assertEquals('exemplar', LsAssociation::EXEMPLAR);
     }
 
     /**

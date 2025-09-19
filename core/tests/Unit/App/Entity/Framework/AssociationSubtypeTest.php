@@ -51,6 +51,18 @@ class AssociationSubtypeTest extends \Codeception\Test\Unit
         $associationSubtype = new AssociationSubtype();
 
         $reflection = new \ReflectionClass($associationSubtype);
+        $property = $reflection->getProperty('name');
+        $property->setAccessible(true);
+        $property->setValue($associationSubtype, 'name');
+
+        $property = $reflection->getProperty('direction');
+        $property->setAccessible(true);
+        $property->setValue($associationSubtype, AssociationSubtype::DIR_BOTH);
+
+        $property = $reflection->getProperty('description');
+        $property->setAccessible(true);
+        $property->setValue($associationSubtype, 'description');
+
         $property = $reflection->getProperty('parentType');
         $property->setAccessible(true);
 
@@ -59,13 +71,15 @@ class AssociationSubtypeTest extends \Codeception\Test\Unit
 
         foreach ($validTypes as $type) {
             $property->setValue($associationSubtype, $type);
-            $violations = $this->getContainer()->get('validator')->validate($associationSubtype);
-            $this->assertCount(0, $violations, 'Valid parentType should not have violations');
+            /** @var \Symfony\Component\Validator\ConstraintViolationList $violations */
+            $violations = $this->getModule('Symfony')->_getContainer()->get('validator')->validate($associationSubtype);
+            $this->assertCount(0, $violations->getIterator()->getArrayCopy(), 'Valid parentType should not have violations: '.$type);
         }
 
         $property->setValue($associationSubtype, $invalidType);
-        $violations = $this->getContainer()->get('validator')->validate($associationSubtype);
-        $this->assertGreaterThan(0, $violations, 'Invalid parentType should have violations');
+        /** @var \Symfony\Component\Validator\ConstraintViolationList $violations */
+        $violations = $this->getModule('Symfony')->_getContainer()->get('validator')->validate($associationSubtype);
+        $this->assertGreaterThan(0, $violations->count(), 'Invalid parentType should have violations');
         $this->assertStringContainsString('parentType', (string) $violations->get(0)->getPropertyPath());
     }
 
