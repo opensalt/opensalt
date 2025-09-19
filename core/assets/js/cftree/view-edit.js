@@ -692,7 +692,7 @@ export default function (apx) {
             let ajaxData = {
                 exemplarUrl: $("#addExemplarFormUrl").val(),
                 exemplarDescription: $("#addExemplarFormDescription").val(),
-                associationType: "Exemplar",
+                associationType: "exemplar",
                 annotation: $('#addExemplarFormAnnotation').val()
             };
 
@@ -773,7 +773,7 @@ export default function (apx) {
 
             lastType = curType;
 
-            if (curType === "Exemplar" || curType === "Is Child Of") {
+            if (curType === "exemplar" || curType === "isChildOf") {
                 lastType = '';
 
                 continue;
@@ -804,7 +804,7 @@ export default function (apx) {
             lastType = curType;
             lastForwardType = apx.assocTypes[i];
 
-            if (lastForwardType === "Exemplar" || lastForwardType === "Is Child Of") {
+            if (lastForwardType === "exemplar" || lastForwardType === "isChildOf") {
                 lastType = '';
                 lastForwardType = '';
 
@@ -1027,7 +1027,7 @@ export default function (apx) {
             let condensed = condenseType(lastType);
             mappedTypes[condensed] = lastType;
 
-            if (curType === "Exemplar" || curType === "Is Child Of") {
+            if (curType === "exemplar" || curType === "isChildOf") {
                 lastType = '';
 
                 continue;
@@ -1058,7 +1058,7 @@ export default function (apx) {
             lastType = curType;
             lastForwardType = apx.assocTypes[i];
 
-            if (lastForwardType === "Exemplar" || lastForwardType === "Is Child Of") {
+            if (lastForwardType === "exemplar" || lastForwardType === "isChildOf") {
                 lastType = '';
                 lastForwardType = '';
 

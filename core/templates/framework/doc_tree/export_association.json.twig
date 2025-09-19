@@ -20,7 +20,7 @@
 },
 "type": {{ (lsAssociation.type|slice(0,1)|lower~lsAssociation.type|slice(1))|replace({' ': ''}) |json_encode |raw }},
 "dest": {
-{% if lsAssociation.type == 'Exemplar' %}
+{% if lsAssociation.type == constant('App\\Entity\\Framework\\LsAssociation::EXEMPLAR') %}
     "doc": "-",
     "item": {{ lsAssociation.destinationNodeIdentifier |json_encode |raw }},
     "uri": {{ lsAssociation.destinationNodeUri |json_encode | raw }}
