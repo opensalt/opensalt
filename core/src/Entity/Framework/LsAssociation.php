@@ -213,6 +213,22 @@ class LsAssociation implements CaseApiInterface
         ];
     }
 
+    public static function allTypesHumanReadable(): array
+    {
+        return [
+            self::RELATED_TO => self::HUMAN_READABLE_TYPES[self::RELATED_TO],
+            self::EXACT_MATCH_OF => self::HUMAN_READABLE_TYPES[self::EXACT_MATCH_OF],
+            self::PART_OF => self::HUMAN_READABLE_TYPES[self::PART_OF],
+            self::REPLACED_BY => self::HUMAN_READABLE_TYPES[self::REPLACED_BY],
+            self::PRECEDES => self::HUMAN_READABLE_TYPES[self::PRECEDES],
+            self::SKILL_LEVEL => self::HUMAN_READABLE_TYPES[self::SKILL_LEVEL],
+            self::IS_PEER_OF => self::HUMAN_READABLE_TYPES[self::IS_PEER_OF],
+            self::EXEMPLAR => self::HUMAN_READABLE_TYPES[self::EXEMPLAR],
+            self::IS_TRANSLATION_OF => self::HUMAN_READABLE_TYPES[self::IS_TRANSLATION_OF], // CASE 1.1
+            self::CHILD_OF => self::HUMAN_READABLE_TYPES[self::CHILD_OF],
+        ];
+    }
+
     /**
      * Get an array of association types that should show in the choice list.
      */
