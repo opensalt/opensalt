@@ -8,9 +8,6 @@
     "behat/gherkin": {
         "version": "v4.5.1"
     },
-    "behat/transliterator": {
-        "version": "v1.2.0"
-    },
     "brick/math": {
         "version": "0.8.15"
     },
