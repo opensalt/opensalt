@@ -136,35 +136,46 @@ class FrameworkService
         // deal with origin and dest items, which can be specified by id or by identifier
         // if externalDoc is specified for either one, mark this document as "autoLoad": "true" in the doc's externalDocuments
         $itemRepo = $this->itemRepository;
+        $docRepo = $this->docRepository;
 
-        if (!empty($origin['id'])) {
-            $originItem = $itemRepo->findOneBy(['id' => $origin['id']]);
-            if (null === $originItem) {
-                throw new \InvalidArgumentException('origin id is not a valid id');
-            }
+        $originItem = $itemRepo->findOneBy(['identifier' => $origin['identifier']]);
+        if (null === $originItem) {
+            $originItem = $docRepo->findOneBy(['identifier' => $origin['identifier']]);
+        }
+
+        if (null !== $originItem) {
             $association->setOrigin($originItem);
-        } else {
-            if (!empty($origin['externalDoc'])) {
-                $doc->setExternalDocAutoLoad($origin['externalDoc'], 'true');
-                $this->em->persist($doc);
-            }
-            $originItem = $origin['identifier'];
+        }
+
+        if (null === $originItem) {
+            // No identifier provided, treat as string identifier/URI
+            $originItem = $origin['identifier'] ?? $origin['uri'] ?? '';
             $association->setOrigin($origin['uri'], $originItem);
         }
 
-        if (!empty($dest['id'])) {
-            $destItem = $itemRepo->findOneBy(['id' => $dest['id']]);
-            if (null === $destItem) {
-                throw new \InvalidArgumentException('destination id is not a valid id');
-            }
+        if (!empty($origin['externalDoc'])) {
+            $doc->setExternalDocAutoLoad($origin['externalDoc'], 'true');
+            $this->em->persist($doc);
+        }
+
+        $destItem = $itemRepo->findOneBy(['identifier' => $dest['identifier']]);
+        if (null === $destItem) {
+            $destItem = $docRepo->findOneBy(['identifier' => $dest['identifier']]);
+        }
+
+        if (null !== $destItem) {
             $association->setDestination($destItem);
-        } else {
-            if (!empty($dest['externalDoc'])) {
-                $doc->setExternalDocAutoLoad($dest['externalDoc'], 'true');
-                $this->em->persist($doc);
-            }
-            $destItem = $dest['identifier'];
+        }
+
+        if (null === $destItem) {
+            // No identifier provided, treat as string identifier/URI
+            $destItem = $dest['identifier'] ?? $dest['uri'] ?? '';
             $association->setDestination($dest['uri'], $destItem);
+        }
+
+        if (!empty($dest['externalDoc'])) {
+            $doc->setExternalDocAutoLoad($dest['externalDoc'], 'true');
+            $this->em->persist($doc);
         }
 
         // set assocGroup if provided

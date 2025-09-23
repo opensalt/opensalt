@@ -890,24 +890,52 @@ export default function (apx) {
                 }
 
                 let ajaxItemData = function (item) {
-                    if (item.doc.isExternalDoc()) {
+                    // Check if this is a document (documents don't have a doc property)
+                    if (item.nodeType === "document") {
+                        // For documents, check if it's external
+                        if (item.isExternalDoc && typeof item.isExternalDoc === 'function' && item.isExternalDoc()) {
+                            return {
+                                "identifier": item.identifier,
+                                "uri": item.uri,
+                                "externalDoc": item.identifier
+                            };
+                        }
+
+                        if (!empty(item.id)) {
+                            return {
+                                "id": item.id,
+                                "identifier": item.identifier,
+                                "uri": item.uri,
+                            };
+                        }
+
                         return {
                             "identifier": item.identifier,
-                            "uri": item.uri,
-                            "externalDoc": item.doc.doc.identifier
+                            "uri": item.uri
                         };
-                    }
+                    } else {
+                        // For items, use the existing logic
+                        if (item.doc && item.doc.isExternalDoc && typeof item.doc.isExternalDoc === 'function' && item.doc.isExternalDoc()) {
+                            return {
+                                "identifier": item.identifier,
+                                "uri": item.uri,
+                                "externalDoc": item.doc.doc.identifier
+                            };
+                        }
 
-                    if (!empty(item.id)) {
+                        if (!empty(item.id)) {
+                            return {
+                                "id": item.id,
+                                "identifier": item.identifier,
+                                "uri": item.uri,
+                            };
+                        }
+
                         return {
-                            "id": item.id
+                            "identifier": item.identifier,
+                            "uri": item.uri
                         };
                     }
-
-                    return {
-                        "identifier": item.identifier,
-                        "uri": item.uri
-                    };
                 };
 
                 ajaxData.origin = ajaxItemData(originItem);
@@ -946,7 +974,7 @@ export default function (apx) {
                         "id": data.id,
                         "identifier": data.identifier,
                         "origin": {
-                            "doc": this.origin.doc.doc.identifier,
+                            "doc": this.origin.doc?.doc.identifier || this.origin.identifier,
                             "item": this.origin.identifier,
                             "uri": this.origin.uri
                         },
@@ -954,7 +982,7 @@ export default function (apx) {
                         "subtype": subtype,
                         "annotation": this.annotation,
                         "dest": {
-                            "doc": this.dest.doc.doc.identifier,
+                            "doc": this.dest.doc?.doc.identifier || this.dest.identifier,
                             "item": this.dest.identifier,
                             "uri": this.dest.uri
                         },
@@ -1093,8 +1121,21 @@ export default function (apx) {
             let oldId = oldAssocLink.data('association-id');
             let oldAssoc = apx.mainDoc.assocHash[oldIdentifier];
 
-            let originItem = apx.allItemsHash[oldAssoc.origin.item];
-            let destItem = apx.allItemsHash[oldAssoc.dest.item];
+            // Check if origin is a document or item
+            let originItem;
+            if (apx.allDocs[oldAssoc.origin.item] && typeof apx.allDocs[oldAssoc.origin.item] === 'object') {
+                originItem = apx.allDocs[oldAssoc.origin.item].doc;
+            } else {
+                originItem = apx.allItemsHash[oldAssoc.origin.item];
+            }
+
+            // Check if destination is a document or item
+            let destItem;
+            if (apx.allDocs[oldAssoc.dest.item] && typeof apx.allDocs[oldAssoc.dest.item] === 'object') {
+                destItem = apx.allDocs[oldAssoc.dest.item].doc;
+            } else {
+                destItem = apx.allItemsHash[oldAssoc.dest.item];
+            }
 
             $editAssociationModal.data('association-identifier', oldIdentifier);
             $editAssociationModal.data('association-id', oldId);
@@ -1166,8 +1207,22 @@ export default function (apx) {
             // the "destination" refers to the node that's being associated with the origin node -- so this is the draggedNode
             let originIdentifier = $("#editLsAssociationOriginDisplay").data('identifier');
             let destIdentifier = $("#editLsAssociationDestinationDisplay").data('identifier');
-            let originItem = apx.allItemsHash[originIdentifier];
-            let destItem = apx.allItemsHash[destIdentifier];
+
+            // Check if origin is a document or item
+            let originItem;
+            if (apx.allDocs[originIdentifier] && typeof apx.allDocs[originIdentifier] === 'object') {
+                originItem = apx.allDocs[originIdentifier].doc;
+            } else {
+                originItem = apx.allItemsHash[originIdentifier];
+            }
+
+            // Check if destination is a document or item
+            let destItem;
+            if (apx.allDocs[destIdentifier] && typeof apx.allDocs[destIdentifier] === 'object') {
+                destItem = apx.allDocs[destIdentifier].doc;
+            } else {
+                destItem = apx.allItemsHash[destIdentifier];
+            }
 
             // ... that is, unless the user has clicked to switch directions, in which case we switch the items
             if ($("#lsAssociationDirection").hasClass("lsAssociationDirectionSwitched")) {
@@ -1177,24 +1232,52 @@ export default function (apx) {
             }
 
             let ajaxItemData = function (item) {
-                if (item.doc.isExternalDoc()) {
+                // Check if this is a document (documents don't have a doc property)
+                if (item.nodeType === "document") {
+                    // For documents, check if it's external
+                    if (item.isExternalDoc && typeof item.isExternalDoc === 'function' && item.isExternalDoc()) {
+                        return {
+                            "identifier": item.identifier,
+                            "uri": item.uri,
+                            "externalDoc": item.identifier
+                        };
+                    }
+
+                    if (!empty(item.id)) {
+                        return {
+                            "id": item.id,
+                            "identifier": item.identifier,
+                            "uri": item.uri,
+                        };
+                    }
+
                     return {
                         "identifier": item.identifier,
-                        "uri": item.uri,
-                        "externalDoc": item.doc.doc.identifier
+                        "uri": item.uri
                     };
-                }
+                } else {
+                    // For items, use the existing logic
+                    if (item.doc && item.doc.isExternalDoc && typeof item.doc.isExternalDoc === 'function' && item.doc.isExternalDoc()) {
+                        return {
+                            "identifier": item.identifier,
+                            "uri": item.uri,
+                            "externalDoc": item.doc.doc.identifier
+                        };
+                    }
 
-                if (!empty(item.id)) {
+                    if (!empty(item.id)) {
+                        return {
+                            "id": item.id,
+                            "identifier": item.identifier,
+                            "uri": item.uri,
+                        };
+                    }
+
                     return {
-                        "id": item.id
+                        "identifier": item.identifier,
+                        "uri": item.uri
                     };
                 }
-
-                return {
-                    "identifier": item.identifier,
-                    "uri": item.uri
-                };
             };
 
             ajaxData.origin = ajaxItemData(originItem);
@@ -1233,7 +1316,7 @@ export default function (apx) {
                     "id": data.id,
                     "identifier": data.identifier,
                     "origin": {
-                        "doc": this.origin.doc.doc.identifier,
+                        "doc": this.origin.doc?.doc.identifier || this.origin.identifier,
                         "item": this.origin.identifier,
                         "uri": this.origin.uri
                     },
@@ -1241,7 +1324,7 @@ export default function (apx) {
                     "subtype": subtype,
                     "annotation": this.annotation,
                     "dest": {
-                        "doc": this.dest.doc.doc.identifier,
+                        "doc": this.dest.doc?.doc.identifier || this.dest.identifier,
                         "item": this.dest.identifier,
                         "uri": this.dest.uri
                     },
@@ -1450,7 +1533,7 @@ export default function (apx) {
                         }
 
                         // else if different documents, but the other document is on this server...
-                    } else if (!copiedItem.doc.isExternalDoc()) {
+                    } else if (copiedItem.nodeType === "document" ? (copiedItem.isExternalDoc && typeof copiedItem.isExternalDoc === 'function' ? !copiedItem.isExternalDoc() : true) : (copiedItem.doc && copiedItem.doc.isExternalDoc && typeof copiedItem.doc.isExternalDoc === 'function' ? !copiedItem.doc.isExternalDoc() : true)) {
                         // set copyFromId flag so that updateItemAction will copy the item
                         o.copyFromId = copiedItem.id;
 

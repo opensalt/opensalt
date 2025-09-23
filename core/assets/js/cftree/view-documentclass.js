@@ -1422,8 +1422,138 @@ function ApxDocument(initializer, apx) {
             }
             $jq.find("ul.lsItemDetailsMain").html(html);
 
-            // kill any existing associations from the dom
-            $(".lsItemAssociations").html("");
+            /////////////////////////////////////
+            // Show associations
+
+            // first create an array with a combination of the this document's associations from this document,
+            // along with any associations with this document as the origin in mainDoc (if mainDoc != self)
+            let assocs = [];
+            for (let i = 0; i < item.assocs.length; ++i) {
+                assocs.push(item.assocs[i]);
+            }
+            if (self !== apx.mainDoc) {
+                let mdi = apx.mainDoc.itemHash[item.identifier];
+                if (!empty(mdi)) {
+                    for (let i = 0; i < mdi.assocs.length; ++i) {
+                        assocs.push(mdi.assocs[i]);
+                    }
+                }
+            }
+
+            // now if we have any assocs go through them...
+            html = "";
+            if (assocs.length > 0) {
+                // first sort the assocs by type; put isChildOf at the end
+                assocs.sort(function (a, b) {
+                    let aSubtype = '';
+                    let bSubtype = '';
+                    if (!empty(a.subtype)) {
+                        aSubtype = a.subtype;
+                    }
+                    if (!empty(b.subtype)) {
+                        bSubtype = b.subtype;
+                    }
+
+                    if (a.type === b.type && aSubtype === bSubtype && a.inverse === b.inverse) { return 0; }
+                    if (a.type === "isChildOf") { return 1; }
+                    if (b.type === "isChildOf") { return -1; }
+                    if (a.inverse === true && b.inverse !== true) { return 1; }
+                    if (b.inverse === true && a.inverse !== true) { return -1; }
+                    if (a.type < b.type) { return -1; }
+                    if (a.type > b.type) { return 1; }
+                    if (aSubtype < bSubtype) { return -1; }
+                    if (aSubtype > bSubtype) { return 1; }
+                    return 0;
+                });
+
+                // to simplify the list, we only use one association type header for each type
+                let lastType = "";
+                let lastInverse = -1;
+                for (let i = 0; i < assocs.length; ++i) {
+                    let a = assocs[i];
+
+                    if (a.type === 'isChildOf') {
+                        continue;
+                    }
+
+                    let nextType = a.type;
+                    let subtype = '';
+                    if (!empty(a.subtype)) {
+                        nextType += ': ' + a.subtype;
+                        subtype = ': ' + a.subtype;
+                    }
+
+                    if (nextType !== lastType || a.inverse !== lastInverse) {
+                        // close previous type section if we already opened one
+                        if (lastType !== "") {
+                            html += '</div></div></div></section>';
+                        }
+
+                        // open type section
+                        let title = self.getAssociationTypePretty(a) + subtype;
+                        let icon = "";
+                        if (a.type !== "isChildOf") {
+                            icon = '<img class="association-card-icon" src="/static/img/association-icon.png">';
+                        }
+                        html += '<section class="card card-default card-component item-component">'
+                            + '<div class="card-header">' + icon + render.escaped(title) + '</div>'
+                            + '<div class="card-body"><div><div class="list-group">'
+                        ;
+
+                        lastType = nextType;
+                        lastInverse = a.inverse;
+                    }
+
+                    // now the associated item
+
+                    // determine if the origin item is a member of the edited doc or an other doc
+                    let originDoc = "edited";
+                    let removeBtn = $("#associationRemoveBtn").html();  // remove association button (only for editors)
+                    let editBtn = $("#associationEditBtn").html();  // remove association button (only for editors)
+                    if (a.assocDoc !== apx.mainDoc.doc.identifier) {
+                        originDoc = "other";
+                        // if it's another doc, no remove btn
+                        removeBtn = '';
+                        editBtn = '';
+                    }
+                    if ('exemplar' === a.type || 'isChildOf' === a.type) {
+                        editBtn = '';
+                    }
+
+                    // assocGroup if assigned -- either in self or mainDoc
+                    if (!empty(a.groupId)) {
+                        let groupName = "Group " + a.groupId;
+                        if (originDoc === "edited") {
+                            if (!empty(apx.mainDoc.assocGroupIdHash[a.groupId])) {
+                                groupName = self.assocGroupIdHash[a.groupId].title;
+                            }
+
+                        } else {
+                            if (!empty(self.assocGroupIdHash[a.groupId])) {
+                                groupName = self.assocGroupIdHash[a.groupId].title;
+                            }
+                        }
+                        html += '<span class="badge text-bg-dark bg-opacity-75">' + render.escaped(groupName) + '</span>';
+                    }
+
+                    let annotation = '';
+                    if (!empty(a.annotation)) {
+                        annotation = a.annotation;
+                    }
+                    html += '<a data-association-id="' + a.id + '" data-association-identifier="' + a.identifier + '" data-association-item="dest" class="list-group-item lsassociation lsitem clearfix lsassociation-' + originDoc + '-doc">'
+                        + removeBtn
+                        + editBtn
+                        + '<span class="itemDetailsAssociationTitle '+('' !== annotation ? 'annotated' : '')+'" title="'+annotation+'">'
+                        + self.associationDestItemTitle(a).replace(/<a\b[^>]*>/gmi, '').replace(/<\/a>/gmi, '')
+                        + '</span>'
+                        + '</a>'
+                    ;
+                }
+                // close final type section
+                html += '</div></div></div></section>';
+            }
+            // End of code composing associations
+            $(".lsItemAssociations").html(html);
 
             // show documentOptions and hide itemOptions and more info link
             $("#itemOptions").hide();
@@ -1451,6 +1581,41 @@ function ApxDocument(initializer, apx) {
             }
 
             $("#documentOptions").show();
+
+            // enable association links
+            $jq.find("[data-association-identifier]").on('click', function (e) {
+                apx.treeDoc1.openAssociationItem(this, false);
+            });
+
+            // enable edit association button(s)
+            $jq.find('.btn-edit-association').on('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+
+                let $target = $($(e.target).closest('a'));
+                $('#editAssociationModal').modal('show', $target);
+
+                return false;
+            });
+
+            // enable remove association button(s)
+            $jq.find(".btn-remove-association").on('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+
+                // get the assocId from the association link
+                let $target = $(e.target);
+                let $item = $target.parents('.lsassociation');
+                let assocId = $item.attr('data-association-id');
+
+                // call edit.deleteAssociation; on callback, re-show the current item
+                apx.edit.deleteAssociation(assocId, function () {
+                    apx.treeDoc1.showCurrentItem();
+                });
+                return false;
+            });
         }
 
         function showItem() {
