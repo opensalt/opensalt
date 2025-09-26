@@ -2,7 +2,7 @@
 
 cd $(dirname $0)/..
 
-#docker pull node:20
+#docker pull node:22
 
 # Install node modules
-docker run --rm -u $(id -u):$(id -g) -v $(pwd):/app --workdir /app -it node:20 "$@"
+docker run --rm -u $(id -u):$(id -g) -v $(pwd):/app --workdir /app -it node:22 "$@"
