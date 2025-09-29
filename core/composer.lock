@@ -11404,16 +11404,16 @@
         },
         {
             "name": "symfony/object-mapper",
-            "version": "v7.3.3",
+            "version": "v7.3.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/object-mapper.git",
-                "reference": "f7f9833d9fcc8361239c1dae5495aa9e43ece0b5"
+                "reference": "62752b89178d7654bb7ec97d3fa3dbd67e417dbe"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/object-mapper/zipball/f7f9833d9fcc8361239c1dae5495aa9e43ece0b5",
-                "reference": "f7f9833d9fcc8361239c1dae5495aa9e43ece0b5",
+                "url": "https://api.github.com/repos/symfony/object-mapper/zipball/62752b89178d7654bb7ec97d3fa3dbd67e417dbe",
+                "reference": "62752b89178d7654bb7ec97d3fa3dbd67e417dbe",
                 "shasum": ""
             },
             "require": {
@@ -11453,7 +11453,7 @@
             "description": "Provides a way to map an object to another object",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/object-mapper/tree/v7.3.3"
+                "source": "https://github.com/symfony/object-mapper/tree/v7.3.4"
             },
             "funding": [
                 {
@@ -11473,7 +11473,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-08-13T14:03:15+00:00"
+            "time": "2025-09-20T14:49:40+00:00"
         },
         {
             "name": "symfony/options-resolver",
