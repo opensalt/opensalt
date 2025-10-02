@@ -49,10 +49,6 @@ class UriGenerator
             return $id;
         }
 
-        if (null === $frameworkId) {
-            return $this->router->generate('uri_lookup', ['uri' => $id], UrlGeneratorInterface::ABSOLUTE_URL);
-        }
-
-        return $this->router->generate('uri_lookup_framework', ['uri' => $id, 'framework' => $frameworkId], UrlGeneratorInterface::ABSOLUTE_URL);
+        return $this->router->generate('uri_lookup', ['uri' => $id], UrlGeneratorInterface::ABSOLUTE_URL);
     }
 }
