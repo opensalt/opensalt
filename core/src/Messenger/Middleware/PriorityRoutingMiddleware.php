@@ -12,6 +12,7 @@ use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
 
 class PriorityRoutingMiddleware implements MiddlewareInterface
 {
+    #[\Override]
     public function handle(Envelope $envelope, StackInterface $stack): Envelope
     {
         // Check if the message has a PriorityStamp

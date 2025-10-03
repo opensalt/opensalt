@@ -1,0 +1,147 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}
+    {{ obj.abbreviatedStatement ?? obj.fullStatement ?? 'Organization' }}
+{% endblock %}
+
+{% block body %}
+    <div class="organization-page container">
+        {% if is_granted(constant('App\\Security\\Permission::FRAMEWORK_VIEW'), obj.lsDoc) %}
+            <div class="row mb-3">
+                <div class="col-12">
+                    <a class="btn btn-default float-end" href="{{ path('doc_tree_item_view', {'id': obj.id}) }}">Show in tree view</a>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="text-center">
+                    {% set logo = obj.getExtensionProperty('ceterms:image') %}
+                    {% if logo is not empty %}
+                        <img src="{{ logo }}" class="img-fluid organization-logo" alt="Organization Logo"/>
+                    {% else %}
+                        <div class="organization-logo-placeholder">
+                            <i class="fa fa-building fa-5x text-muted"></i>
+                        </div>
+                    {% endif %}
+                </div>
+
+                {% set humanCode = obj.humanCodingScheme %}
+                {% if humanCode is not empty %}
+                    <h2 class="text-center organization-code">
+                        {{ humanCode }}
+                    </h2>
+                {% endif %}
+            </div>
+
+            <div class="col-sm-8">
+                <h1 class="organization-name">
+                    {{ obj.abbreviatedStatement ?? obj.fullStatement }}
+                </h1>
+
+                {% set description = obj.fullStatement %}
+                {% if description is not empty %}
+                    <div class="organization-description">
+                        {{ description |nl2br |markdown_to_html }}
+                    </div>
+                {% endif %}
+
+                <div class="row mt-3">
+                    <div class="col-sm-12">
+                        <p>
+                            <strong>Last Updated:</strong> {{ obj.updatedAt.format('F d, Y') }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% set organizationDetails = [] %}
+
+        {% set orgType = obj.getExtensionProperty('ceterms:agentType') %}
+        {% if orgType is not empty %}
+            {% set organizationDetails = organizationDetails | merge([{
+                'label': 'Organization Type',
+                'value': orgType
+            }]) %}
+        {% endif %}
+
+        {% set legalName = obj.getExtensionProperty('sdo:legalName') %}
+        {% if legalName is not empty %}
+            {% set organizationDetails = organizationDetails | merge([{
+                'label': 'Legal Name',
+                'value': legalName
+            }]) %}
+        {% endif %}
+
+        {% set webpage = obj.getExtensionProperty('ceterms:subjectWebpage') %}
+        {% if webpage is not empty %}
+            {% set organizationDetails = organizationDetails | merge([{
+                'label': 'Website',
+                'value': '<a href="' ~ webpage ~ '" target="_blank" rel="noopener noreferrer">' ~ webpage ~ ' <i class="fa fa-external-link"></i></a>',
+                'isHtml': true
+            }]) %}
+        {% endif %}
+
+        {% set jurisdiction = obj.getExtensionProperty('ceterms:jurisdiction') %}
+        {% if jurisdiction is not empty %}
+            {% set organizationDetails = organizationDetails | merge([{
+                'label': 'Jurisdiction',
+                'value': jurisdiction
+            }]) %}
+        {% endif %}
+
+        {% set ctid = obj.getExtensionProperty('ceterms:ctid') %}
+        {% if ctid is not empty %}
+            {% set organizationDetails = organizationDetails | merge([{
+                'label': 'CTID',
+                'value': ctid
+            }]) %}
+        {% endif %}
+
+        {% set rorId = obj.getExtensionProperty('salt:rorId') %}
+        {% if rorId is not empty %}
+            {% set organizationDetails = organizationDetails | merge([{
+                'label': 'ROR ID',
+                'value': '<a href="https://ror.org/' ~ rorId ~ '" target="_blank" rel="noopener noreferrer">' ~ rorId ~ ' <i class="fa fa-external-link"></i></a>',
+                'isHtml': true
+            }]) %}
+        {% endif %}
+
+        {% if organizationDetails is not empty %}
+            <div class="card card-default mt-4">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">Organization Details</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for detail in organizationDetails %}
+                            <div class="col-sm-6 mb-3">
+                                <div class="organization-detail-item">
+                                    <strong>{{ detail.label }}:</strong>
+                                    {% if detail.isHtml is defined and detail.isHtml %}
+                                        <div class="mt-1">{{ detail.value | raw }}</div>
+                                    {% else %}
+                                        <div class="mt-1">{{ detail.value }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if obj.notes is not empty %}
+            <div class="card card-default mt-4">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">Additional Information</h3>
+                </div>
+                <div class="card-body">
+                    {{ obj.notes |nl2br |markdown_to_html }}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
