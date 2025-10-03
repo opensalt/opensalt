@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\DTO\ItemType;
 
 use App\Entity\Framework\LsItem;
+use App\Entity\Framework\LsItemKind;
 use App\Form\Type\ItemType\PublicKeyType;
 use App\Form\Validator\ValidPublicKey;
 use Jose\Component\Core\JWK;
@@ -14,7 +15,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class PublicKeyDto implements ItemTypeInterface
 {
-    public const int ITEM_TYPE_IDENTIFIER = LsItem::TYPES['public_key'];
+    public const int ITEM_TYPE_IDENTIFIER = LsItemKind::PublicKey->value;
     public const string ITEM_TYPE_FORM = PublicKeyType::class;
     public const string TYPE_KEY = 'salt:kid';
 

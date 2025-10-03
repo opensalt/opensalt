@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\DTO\ItemType;
 
 use App\Entity\Framework\LsItem;
+use App\Entity\Framework\LsItemKind;
 use App\Form\Type\ItemType\OrganizationType;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class OrganizationDto implements ItemTypeInterface
 {
-    public const int ITEM_TYPE_IDENTIFIER = LsItem::TYPES['organization'];
+    public const int ITEM_TYPE_IDENTIFIER = LsItemKind::Organization->value;
     public const string ITEM_TYPE_FORM = OrganizationType::class;
     public const string TYPE_KEY = 'ceterms:agentType'; // value should be embedded as ceterms:targetNode in a ceterms:CredentialAlignmentObject
     public const string WEBPAGE_KEY = 'ceterms:subjectWebpage';

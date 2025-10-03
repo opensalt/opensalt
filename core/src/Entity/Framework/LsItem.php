@@ -4,13 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Framework;
 
-use App\DTO\ItemType\AssessmentDto;
-use App\DTO\ItemType\CourseDto;
-use App\DTO\ItemType\CredentialDto;
-use App\DTO\ItemType\IdentifierDto;
-use App\DTO\ItemType\JobDto;
-use App\DTO\ItemType\OrganizationDto;
-use App\DTO\ItemType\PublicKeyDto;
+use App\DTO\ItemType\ItemTypeInterface;
 use App\Entity\LockableInterface;
 use App\Form\Type\LsItemType;
 use App\Repository\Framework\LsItemRepository;
@@ -21,6 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\HtmlSanitizer\HtmlSanitizerInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Table(name: 'ls_item')]
@@ -42,36 +37,13 @@ use Symfony\Component\Validator\Constraints as Assert;
         nullable: true,
     )),
 ])]
-class LsItem implements CaseApiInterface, LockableInterface
+class LsItem implements CaseApiInterface, LockableInterface, ItemTypeInterface
 {
     use IdentifiableTrait;
     use ChangedAtTrait;
     use ExtraDataTrait;
     use ExtensionTrait;
     use AccessAdditionalFieldTrait;
-
-    public const array TYPES = [
-        'default' => 0,
-        'job' => 1,
-        'course' => 2,
-        'assessment' => 3,
-        'credential' => 4,
-        'organization' => 5,
-        'identifier' => 6,
-        'public_key' => 7,
-    ];
-
-    /** @var array<int, class-string> */
-    public const array DTO = [
-        0 => LsItem::class,
-        1 => JobDto::class,
-        2 => CourseDto::class,
-        3 => AssessmentDto::class,
-        4 => CredentialDto::class,
-        5 => OrganizationDto::class,
-        6 => IdentifierDto::class,
-        7 => PublicKeyDto::class,
-    ];
 
     public const int ITEM_TYPE_IDENTIFIER = 0;
     public const string ITEM_TYPE_FORM = LsItemType::class;
@@ -93,7 +65,7 @@ class LsItem implements CaseApiInterface, LockableInterface
     private LsDoc $lsDoc;
 
     #[ORM\Column(name: 'discriminator', options: ['default' => 0])]
-    #[Assert\Choice(choices: self::TYPES)]
+    #[Assert\Choice(choices: LsItemKind::TYPES)]
     private int $discriminator = 0;
 
     #[ORM\Column(name: 'human_coding_scheme', type: Types::STRING, length: 80, nullable: true)]
@@ -450,12 +422,9 @@ class LsItem implements CaseApiInterface, LockableInterface
 
     public static function objectTypeForDiscriminator(int $discriminator): string
     {
-        $objectType = array_search($discriminator, self::TYPES, true);
-        if (false === $objectType || 'default' === $objectType) {
-            return 'item';
-        }
+        $objectType = LsItemKind::tryFrom($discriminator) ?? LsItemKind::Default;
 
-        return $objectType;
+        return $objectType->objectType();
     }
 
     public function getObjectType(): string
@@ -1106,5 +1075,17 @@ class LsItem implements CaseApiInterface, LockableInterface
         $this->subjects[] = $subject;
 
         return $this;
+    }
+
+    #[\Override]
+    public static function fromItem(LsItem $item): ItemTypeInterface
+    {
+        return $item;
+    }
+
+    #[\Override]
+    public function applyToItem(LsItem $item, HtmlSanitizerInterface $htmlSanitizer): void
+    {
+        // No-op
     }
 }

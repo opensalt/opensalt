@@ -402,20 +402,6 @@ class LsItemTest extends \Codeception\Test\Unit
         $this->assertEquals($lsItem->getAbbreviatedStatement(), $clonedItem->getShortStatement());
     }
 
-    public function testTypesConstant()
-    {
-        $this->assertIsArray(LsItem::TYPES);
-        $this->assertContains(0, LsItem::TYPES);
-        $this->assertContains(1, LsItem::TYPES);
-        $this->assertContains(7, LsItem::TYPES);
-    }
-
-    public function testDtoConstant()
-    {
-        $this->assertIsArray(LsItem::DTO);
-        $this->assertCount(8, LsItem::DTO);
-    }
-
     public function testConstants()
     {
         $this->assertEquals(0, LsItem::ITEM_TYPE_IDENTIFIER);

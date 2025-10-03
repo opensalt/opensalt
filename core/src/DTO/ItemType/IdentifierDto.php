@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\DTO\ItemType;
 
 use App\Entity\Framework\LsItem;
+use App\Entity\Framework\LsItemKind;
 use App\Form\Type\ItemType\IdentifierType;
 use App\Form\Validator\ValidUri;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerInterface;
@@ -12,7 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class IdentifierDto implements ItemTypeInterface
 {
-    public const int ITEM_TYPE_IDENTIFIER = LsItem::TYPES['identifier'];
+    public const int ITEM_TYPE_IDENTIFIER = LsItemKind::Identifier->value;
     public const string ITEM_TYPE_FORM = IdentifierType::class;
     public const string TYPE_KEY = 'salt:idType';
 

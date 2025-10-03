@@ -9,6 +9,7 @@ use App\DTO\CaseJson\Definitions;
 use App\DTO\CaseJson\LinkURI;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use App\Entity\Framework\LsItemKind;
 use App\Repository\Framework\LsItemRepository;
 use App\Service\LoggerTrait;
 use App\Util\EducationLevelSet;
@@ -105,7 +106,7 @@ final class ItemsTransformer
         $item->setStatusEnd($cfItem->statusEndDate);
         $item->setExtensions($cfItem->extensions);
         if (null !== $item->getExtensionProperty(LsItem::TYPE_KEY)) {
-            $item->setDiscriminator(LsItem::TYPES[$item->getExtensionProperty(LsItem::TYPE_KEY)] ?? 0);
+            $item->setDiscriminator(LsItemKind::tryFromName($item->getExtensionProperty(LsItem::TYPE_KEY))->value ?? 0);
         }
 
         $item->setConceptKeywordsArray($cfItem->conceptKeywords);

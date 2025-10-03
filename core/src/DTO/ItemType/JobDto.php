@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\DTO\ItemType;
 
 use App\Entity\Framework\LsItem;
+use App\Entity\Framework\LsItemKind;
 use App\Form\Type\ItemType\JobType;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class JobDto implements ItemTypeInterface
 {
-    public const int ITEM_TYPE_IDENTIFIER = LsItem::TYPES['job'];
+    public const int ITEM_TYPE_IDENTIFIER = LsItemKind::Job->value;
     public const string ITEM_TYPE_FORM = JobType::class;
     public const string WEBPAGE_KEY = 'ceterms:subjectWebpage';
 

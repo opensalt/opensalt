@@ -7,6 +7,7 @@ namespace App\Controller\Api;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use App\Entity\Framework\LsItemKind;
 use App\Repository\Framework\LsDocRepository;
 use App\Security\Permission;
 use App\Service\Api1Uris;
@@ -127,12 +128,12 @@ class UriController extends AbstractController
 
         if ($obj instanceof LsItem) {
             $type = $obj->getItemType()?->getTitle();
-            if ((LsItem::TYPES['credential'] === $obj->getDiscriminator() || str_starts_with($type ?? '', 'Credential - '))
+            if ((LsItemKind::Credential->value === $obj->getDiscriminator() || str_starts_with($type ?? '', 'Credential - '))
                 && in_array($request->getRequestFormat(), ['html', 'jsonld'])) {
                 return $this->uriCredentialView->renderCredentialView($obj, $request, $response);
             }
 
-            if (LsItem::TYPES['organization'] === $obj->getDiscriminator() && 'html' === $request->getRequestFormat()) {
+            if (LsItemKind::Organization->value === $obj->getDiscriminator() && 'html' === $request->getRequestFormat()) {
                 return $this->uriOrganizationView->renderOrganizationView($obj, $request, $response);
             }
         }
