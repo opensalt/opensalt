@@ -1383,6 +1383,7 @@ function ApxDocument(initializer, apx) {
                         // add target=_blank
                         let $val = $('<div>' + val + '</div>');
                         $('a', $val).attr('target', '_blank');
+                        $('a', $val).attr('rel', 'noopener noreferrer');
                         val = $val.html();
                     } else if (key === 'identifier') {
                         val = $('<div>').append(
