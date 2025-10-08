@@ -602,12 +602,7 @@ class LsItem implements CaseApiInterface, LockableInterface, ItemTypeInterface
 
     public function getType(): ?string
     {
-        $itemType = $this->itemType;
-        if (null !== $itemType) {
-            return $itemType->getTitle();
-        }
-
-        return null;
+        return $this->itemType?->getTitle();
     }
 
     /**
@@ -859,7 +854,7 @@ class LsItem implements CaseApiInterface, LockableInterface, ItemTypeInterface
             $code .= ' - ';
         }
 
-        return $pfx . $code . $statement;
+        return $pfx.$code.$statement;
     }
 
     /**
