@@ -1,6 +1,6 @@
 {
   "name": "opensalt",
-  "version": "2.1.0-dev",
+  "version": "4.0.0-dev",
   "description": "A competency framework management system that works with the CASE format",
   "repository": "git@github.com:opensalt/opensalt",
   "license": "MIT",
