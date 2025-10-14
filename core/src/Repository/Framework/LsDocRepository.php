@@ -30,12 +30,8 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
- * LsDocRepository.
- *
- * @method LsDoc|null find(int $id, $lockMode = null, $lockVersion = null)
  * @method LsDoc[]|array findByCreator(string $creator)
  * @method LsDoc|null findOneByIdentifier(string $identifier)
- * @method LsDoc|null findOneBy(array $criteria, array $orderBy = null)
  *
  * @extends ServiceEntityRepository<LsDoc>
  */
@@ -970,7 +966,7 @@ xENDx;
         $query->setParameter('lsDocId', $lsDoc->getId());
 
         return array_map(
-            function (array $rec) {
+            function (array $rec): array {
                 $ret = $rec[0];
                 $ret['originLsItem'] = [
                     'id' => $rec['oi_id'],

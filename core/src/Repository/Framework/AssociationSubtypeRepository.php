@@ -9,11 +9,6 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method AssociationSubtype|null find($id, $lockMode = null, $lockVersion = null)
- * @method AssociationSubtype|null findOneBy(array $criteria, array $orderBy = null)
- * @method AssociationSubtype[] findAll()
- * @method AssociationSubtype[] findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- *
  * @extends ServiceEntityRepository<AssociationSubtype>
  */
 class AssociationSubtypeRepository extends ServiceEntityRepository

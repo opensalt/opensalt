@@ -111,7 +111,6 @@ class IdentifierItemRepository extends ServiceEntityRepository
      */
     public function findIssuerInfo(string $sub): ?array
     {
-        /** @var LsItem $issuer */
         $issuer = $this->findOneBy(['uri' => $sub]);
 
         if (null === $issuer) {

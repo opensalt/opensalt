@@ -10,7 +10,6 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method AccessGroup|null findOneByName(string $orgName)
- * @method AccessGroup[] findAll()
  *
  * @extends ServiceEntityRepository<AccessGroup>
  */

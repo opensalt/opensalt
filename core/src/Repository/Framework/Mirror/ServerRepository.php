@@ -12,7 +12,6 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method Server[] findAll()
  * @method Server|null findOneByUrl(string $url)
  *
  * @extends ServiceEntityRepository<Server>
@@ -37,7 +36,7 @@ class ServerRepository extends ServiceEntityRepository
     public function findAllForList(): array
     {
         $servers = array_map(
-            fn (array $rec) => $rec[0],
+            fn (array $rec): ServerListItem => $rec[0],
             $this->createQueryBuilder('server')
                 ->select(sprintf(
                     'server.id, NEW %s(server.id, server.url)',

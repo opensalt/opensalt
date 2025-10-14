@@ -9,11 +9,6 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method AdditionalField|null find($id, $lockMode = null, $lockVersion = null)
- * @method AdditionalField|null findOneBy(array $criteria, array $orderBy = null)
- * @method AdditionalField[] findAll()
- * @method AdditionalField[] findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
- *
  * @extends ServiceEntityRepository<AdditionalField>
  */
 class AdditionalFieldRepository extends ServiceEntityRepository

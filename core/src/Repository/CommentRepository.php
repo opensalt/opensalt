@@ -15,8 +15,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method Comment[] findByItem(string $itemRef)
- * @method Comment[] findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method list<Comment> findByItem(string $itemRef)
  *
  * @extends ServiceEntityRepository<Comment>
  */
@@ -78,7 +77,7 @@ class CommentRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return Collection<array-key, Comment>
+     * @return Collection<int<0, max>, Comment>
      */
     public function findByTypeItem(string $itemType, int $itemId): Collection
     {
