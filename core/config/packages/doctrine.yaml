@@ -23,11 +23,10 @@ doctrine:
                 # To remove ecotone tables from doctrine migration generation
                 #schema_filter: ~^(?!(cache_items|LearningStandards|std_|map_|grade_level|ecotone|event_streams$|projections$|_[0-9a-f]{40}$))~
                 server_version: 8.4.4
-                use_savepoints: true
                 profiling_collect_backtrace: '%kernel.debug%'
                 default_table_options:
                     charset: utf8mb4
-                    collate: utf8mb4_unicode_ci
+                    collation: utf8mb4_unicode_ci
         types:
             json: App\Doctrine\Types\JsonType
             date: App\Doctrine\Types\DateType
@@ -37,11 +36,7 @@ doctrine:
         #    json: string
         #    uuid: char(36)
     orm:
-        auto_generate_proxy_classes: true
-        #enable_lazy_ghost_objects: true ## Disabled in favour of enable_native_lazy_objects
         enable_native_lazy_objects: true
-        controller_resolver:
-            auto_mapping: false
 
         entity_managers:
             default:
@@ -50,7 +45,6 @@ doctrine:
                 auto_mapping: true
                 #metadata_cache_driver: apc
                 #query_cache_driver: apc
-                report_fields_where_declared: true
                 second_level_cache:
                     enabled: false
                     log_enabled: true
@@ -78,8 +72,6 @@ doctrine:
 when@prod:
     doctrine:
         orm:
-            auto_generate_proxy_classes: false
-            proxy_dir: '%kernel.build_dir%/doctrine/orm/Proxies'
             query_cache_driver:
                 type: pool
                 pool: doctrine.system_cache_pool
