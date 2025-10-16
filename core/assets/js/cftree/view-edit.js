@@ -23,11 +23,11 @@ export default function (apx) {
                 null,
                 function (responseText, textStatus, jqXHR) {
                     $('#ls_doc_licence').select2entity({
-                        //dropdownParent: $('#ls_doc_licence').closest('div')
+                        dropdownParent: $('#ls_doc_licence').closest('div.modal')
                     });
                     let $docSubjects = $('#ls_doc_subjects');
                     $docSubjects.select2entity({
-                        //dropdownParent: $docSubjects.closest('div')
+                        dropdownParent: $docSubjects.closest('div.modal')
                     });
 
                     if ($modal.find('form[name="ls_doc"]').length) {
@@ -80,11 +80,11 @@ export default function (apx) {
                 $modal.find('.modal-body').html(jqXHR.responseText);
 
                 $('#ls_doc_licence').select2entity({
-                    //dropdownParent: $('#ls_doc_licence').closest('div')
+                    dropdownParent: $('#ls_doc_licence').closest('div.modal')
                 });
                 let $docSubjects = $('#ls_doc_subjects');
                 $docSubjects.select2entity({
-                    //dropdownParent: $docSubjects.closest('div')
+                    dropdownParent: $docSubjects.closest('div.modal')
                 });
             });
         });
@@ -188,14 +188,14 @@ export default function (apx) {
                     const itemTypeElement = $('#ls_item_itemType');
                     if (itemTypeElement.length) {
                         itemTypeElement.select2entity({
-                            //dropdownParent: itemTypeElement.closest('div')
+                            dropdownParent: itemTypeElement.closest('div.modal')
                         });
                     }
 
                     const itemSubjectsElement = $('#ls_item_subjects');
                     if (itemSubjectsElement.length) {
                         itemSubjectsElement.select2entity({
-                            //dropdownParent: itemSubjectsElement.closest('div')
+                            dropdownParent: itemSubjectsElement.closest('div.modal')
                         });
                     }
 
@@ -327,7 +327,7 @@ export default function (apx) {
                 const itemTypeElement = $('#ls_item_itemType');
                 if (itemTypeElement.length) {
                     itemTypeElement.select2entity({
-                        //dropdownParent: itemTypeElement.closest('div')
+                        dropdownParent: itemTypeElement.closest('div.modal')
                     });
                 } else {
                     itemType = 'other';
@@ -336,7 +336,7 @@ export default function (apx) {
                 const itemSubjectsElement = $('#ls_item_subjects');
                 if (itemSubjectsElement.length) {
                     itemSubjectsElement.select2entity({
-                        //dropdownParent: itemSubjectsElement.closest('div')
+                        dropdownParent: itemSubjectsElement.closest('div.modal')
                     });
                 } else {
                 }
@@ -413,14 +413,14 @@ export default function (apx) {
                     const itemTypeElement = $('#ls_item_itemType');
                     if (itemTypeElement.length) {
                         itemTypeElement.select2entity({
-                            //dropdownParent: itemTypeElement.closest('div')
+                            dropdownParent: itemTypeElement.closest('div.modal')
                         });
                     }
 
                     const itemSubjectsElement = $('#ls_item_subjects');
                     if (itemSubjectsElement.length) {
                         itemSubjectsElement.select2entity({
-                            //dropdownParent: itemSubjectsElement.closest('div')
+                            dropdownParent: itemSubjectsElement.closest('div.modal')
                         });
                     }
 
@@ -506,7 +506,7 @@ export default function (apx) {
                     numberDisplayed: 20
                 });
                 itemTypeElement.select2entity({
-                    //dropdownParent: itemTypeElement.closest('div')
+                    dropdownParent: itemTypeElement.closest('div.modal')
                 });
 
                 const path = '/cfitem/' + apx.mainDoc.doc.id + '/upload_attachment';
