@@ -32,7 +32,7 @@ class CredentialDefinitionOrganizationType extends AbstractType
                 // 'disabled' => true,
                 'placeholder' => 'None',
                 'help' => 'Select the organization that this credential definition belongs to.',
-                'label' => 'Owning Organization',
+                'label' => 'Owning Group',
                 'class' => AccessGroup::class,
                 'choice_label' => 'name',
             ])

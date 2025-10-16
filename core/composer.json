@@ -209,6 +209,13 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
+        ],
+        "cs-check": [
+            "./tools/ecs/vendor/bin/ecs check --clear-cache --fix src/"
+        ],
+        "test": [
+            "make unit-tests",
+            "make functional-tests"
         ]
     },
     "config": {
