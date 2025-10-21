@@ -55,7 +55,7 @@ Installation
   - 
 
 8. One will also need to create the administrative account and password for the system with the **super-user** role:
-  - To create an organization use `./core/bin/console salt:org:add [organization name]`
+  - To create an access group use `./core/bin/console salt:group:add [group name]`
   - To create a user use `./core/bin/console salt:user:add [username] [--password="secret"] [--role="rolename"]`
 
 
