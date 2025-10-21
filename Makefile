@@ -71,7 +71,7 @@ assets-install:
 	core/bin/console assets:install public --symlink --relative
 .PHONY: assets-install
 
-build: core/vendor encore-build assets-install cache-clear
+build: vendor encore-build assets-install cache-clear
 .PHONY: build
 
 force-vendor:
