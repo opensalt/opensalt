@@ -64,7 +64,7 @@
     "@vitejs/plugin-vue": "^6.0",
     "sass-embedded": "^1.80.3",
     "sass-migrator": "^2.2.0",
-    "unplugin-vue-components": "^29.0.0",
+    "unplugin-vue-components": "^30.0.0",
     "url": "^0.11.4",
     "vite": "^7.0",
     "vite-plugin-symfony": "^8",
