@@ -1868,9 +1868,9 @@ supports-color@^8.1.1:
     has-flag "^4.0.0"
 
 swagger-ui-dist@^5.18.2:
-  version "5.29.5"
-  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-5.29.5.tgz#8271639ef9ae2af5fc8fda0ecfc84573c3f671f7"
-  integrity sha512-2zFnjONgLXlz8gLToRKvXHKJdqXF6UGgCmv65i8T6i/UrjDNyV1fIQ7FauZA40SaivlGKEvW2tw9XDyDhfcXqQ==
+  version "5.30.0"
+  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-5.30.0.tgz#fbd87cc28103fb441b01cbeb1a09b343edce460c"
+  integrity sha512-BoiDSeT9PCtHfDYMgX5UpB/qTQy44UoSFRmzHqvhGfgxzEVPHxIW78a+HMLUIHnSFu3z63wjtbq6L6+Rto20Rw==
   dependencies:
     "@scarf/scarf" "=1.4.0"
 
