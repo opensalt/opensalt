@@ -826,12 +826,12 @@
         "version": "v1.1.2"
     },
     "symfony/stimulus-bundle": {
-        "version": "2.25",
+        "version": "2.31",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
             "version": "2.20",
-            "ref": "3acc494b566816514a6873a89023a35440b6386d"
+            "ref": "c30f782a8910ae9f12e7a1399db607d172d23da6"
         },
         "files": [
             "assets/bootstrap.js",
