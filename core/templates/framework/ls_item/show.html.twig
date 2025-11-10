@@ -39,11 +39,12 @@
             </tr>
             <tr>
                 <th>Concept Keywords</th>
-                <td>{{ lsItem.conceptKeywords }}</td>
+                <td>{{ lsItem.conceptKeywordsString }}</td>
             </tr>
+            {% set firstConcept = lsItem.concepts|first %}
             <tr>
                 <th>Concept Keywords Uri</th>
-                <td>{{ lsItem.conceptKeywordsUri }}</td>
+                <td>{{ firstConcept ? firstConcept.uri : '' }}</td>
             </tr>
             <tr>
                 <th>Notes</th>

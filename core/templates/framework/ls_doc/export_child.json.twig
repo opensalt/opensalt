@@ -1,4 +1,6 @@
 {% block body %}
+    {% set firstConcept = lsItem.concepts|first %}
+    {% set firstConceptUri = firstConcept ? firstConcept.uri : null %}
     {
         "uri": {{ lsItem.uri|local_uri |json_encode |raw }},
         {#"lsDocUri": {{ lsItem.lsDocUri|local_uri |json_encode |raw }},#}
@@ -7,8 +9,8 @@
         "humanCodingScheme": {{ lsItem.humanCodingScheme |json_encode |raw }},
         "listEnumInSource": {{ lsItem.listEnumInSource |json_encode |raw }},
         "abbreviatedStatement": {{ lsItem.abbreviatedStatement |json_encode |raw }},
-        "conceptKeywords": {{ lsItem.conceptKeywords |json_encode |raw }},
-        "conceptKeywordsUri": {{ lsItem.conceptKeywordsUri|local_uri |json_encode |raw }},
+        "conceptKeywords": {{ lsItem.conceptKeywordsString |json_encode |raw }},
+        "conceptKeywordsUri": {{ (firstConceptUri ? firstConceptUri|local_uri : null) |json_encode |raw }},
         "notes": {{ lsItem.notes |json_encode |raw }},
         "language": {{ lsItem.language |json_encode |raw }},
         "educationalAlignment": {{ lsItem.educationalAlignment |json_encode |raw }},

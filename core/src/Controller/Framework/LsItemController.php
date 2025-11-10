@@ -14,6 +14,7 @@ use App\Command\Framework\RemoveChildCommand;
 use App\Command\Framework\UpdateItemCommand;
 use App\DTO\ItemType\ItemTypeInterface;
 use App\Entity\Framework\LsAssociation;
+use App\Entity\Framework\LsDefConcept;
 use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
@@ -324,6 +325,15 @@ class LsItemController extends AbstractController
 
     private function generateItemJsonResponse(LsItem $item, ?LsAssociation $assoc = null): Response
     {
+        $conceptKeywordsUri = null;
+        $concepts = $item->getConcepts();
+        if (!$concepts->isEmpty()) {
+            $firstConcept = $concepts->first();
+            if ($firstConcept instanceof LsDefConcept) {
+                $conceptKeywordsUri = $firstConcept->getUri();
+            }
+        }
+
         $ret = [
             'id' => $item->getId(),
             'identifier' => $item->getIdentifier(),
@@ -334,7 +344,7 @@ class LsItemController extends AbstractController
             'listEnumInSource' => $item->getListEnumInSource(),
             'abbreviatedStatement' => $item->getAbbreviatedStatement(),
             'conceptKeywords' => $item->getConceptKeywordsString(),
-            'conceptKeywordsUri' => $item->getConceptKeywordsUri(),
+            'conceptKeywordsUri' => $conceptKeywordsUri,
             'notes' => $item->getNotes(),
             'language' => $item->getLanguage(),
             'educationalAlignment' => $item->getEducationalAlignment(),

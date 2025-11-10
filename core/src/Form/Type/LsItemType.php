@@ -51,7 +51,9 @@ class LsItemType extends AbstractType
             // ->add('identifier', null, ['attr'=>['placeholder'=>'hhhhhhhh-hhhh-hhhh-hhhh-hhhhhhhhhhhh']])
             ->add('listEnumInSource')
             ->add('abbreviatedStatement')
-            ->add('conceptKeywords')
+            ->add('conceptKeywords', null, [
+                'property_path' => 'conceptKeywordsString',
+            ])
 //            ->add('conceptKeywordsUri')
             ->add('language', LanguageType::class, [
                 'required' => false,
