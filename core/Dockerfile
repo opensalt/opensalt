@@ -56,8 +56,8 @@ RUN set -eux; \
 		pdo_mysql \
 	;
 
-ARG DOCKERIZE_VERSION=v0.8.0
-RUN curl -LsS https://github.com/jwilder/dockerize/releases/download/${DOCKERIZE_VERSION}/dockerize-alpine-linux-amd64-${DOCKERIZE_VERSION}.tar.gz \
+ARG DOCKERIZE_VERSION=v0.9.7
+RUN curl -LsS https://github.com/jwilder/dockerize/releases/download/${DOCKERIZE_VERSION}/dockerize-linux-amd64-${DOCKERIZE_VERSION}.tar.gz \
 	  | tar -C /usr/local/bin -xzvf -
 
 # https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
