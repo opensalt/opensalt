@@ -140,7 +140,7 @@
         "symfony/yaml": "*",
         "symfonycasts/sass-bundle": "^0.8.2",
         "tecnickcom/tcpdf": "^6.2",
-        "tetranz/select2entity-bundle": "dev-symfony-7 as 3.0.0.1",
+        "tetranz/select2entity-bundle": "dev-symfony-7-4 as 3.0.0.1",
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/markdown-extra": "^3.8",
         "twig/string-extra": "^3.1",
