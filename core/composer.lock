@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b493cde10080c0e6cba649328505ac94",
+    "content-hash": "69ef8364e6e1eecf425dd7e5dfa76f3f",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -6241,16 +6241,16 @@
         },
         {
             "name": "phpdocumentor/reflection-docblock",
-            "version": "5.6.4",
+            "version": "5.6.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/ReflectionDocBlock.git",
-                "reference": "90a04bcbf03784066f16038e87e23a0a83cee3c2"
+                "reference": "90614c73d3800e187615e2dd236ad0e2a01bf761"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/ReflectionDocBlock/zipball/90a04bcbf03784066f16038e87e23a0a83cee3c2",
-                "reference": "90a04bcbf03784066f16038e87e23a0a83cee3c2",
+                "url": "https://api.github.com/repos/phpDocumentor/ReflectionDocBlock/zipball/90614c73d3800e187615e2dd236ad0e2a01bf761",
+                "reference": "90614c73d3800e187615e2dd236ad0e2a01bf761",
                 "shasum": ""
             },
             "require": {
@@ -6299,9 +6299,9 @@
             "description": "With this component, a library can provide support for annotations via DocBlocks or otherwise retrieve information that is embedded in a DocBlock.",
             "support": {
                 "issues": "https://github.com/phpDocumentor/ReflectionDocBlock/issues",
-                "source": "https://github.com/phpDocumentor/ReflectionDocBlock/tree/5.6.4"
+                "source": "https://github.com/phpDocumentor/ReflectionDocBlock/tree/5.6.5"
             },
-            "time": "2025-11-17T21:13:10+00:00"
+            "time": "2025-11-27T19:50:05+00:00"
         },
         {
             "name": "phpdocumentor/type-resolver",
@@ -14530,31 +14530,28 @@
         },
         {
             "name": "tetranz/select2entity-bundle",
-            "version": "dev-symfony-7",
+            "version": "dev-symfony-7-4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/opensalt/select2entity-bundle.git",
-                "reference": "d5c7e8d7def53ee0aa4e560c55d9ca8227658703"
+                "reference": "bce6abca7346b58069f901e0087965ad1414e0cf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/opensalt/select2entity-bundle/zipball/d5c7e8d7def53ee0aa4e560c55d9ca8227658703",
-                "reference": "d5c7e8d7def53ee0aa4e560c55d9ca8227658703",
+                "url": "https://api.github.com/repos/opensalt/select2entity-bundle/zipball/bce6abca7346b58069f901e0087965ad1414e0cf",
+                "reference": "bce6abca7346b58069f901e0087965ad1414e0cf",
                 "shasum": ""
             },
             "require": {
-                "doctrine/orm": ">=2.4",
+                "doctrine/orm": ">=3.0",
                 "php": ">=8.2",
-                "symfony/config": "^6.0||^7.0",
-                "symfony/dependency-injection": "^6.0||^7.0",
-                "symfony/form": "^6.0||^7.0",
-                "symfony/http-kernel": "^6.0||^7.0",
-                "symfony/property-access": "^6.0||^7.0",
-                "symfony/routing": "^6.0||^7.0",
-                "twig/twig": ">=2.9"
-            },
-            "require-dev": {
-                "phpstan/phpstan": "^1.10"
+                "symfony/config": ">=6.4.0",
+                "symfony/dependency-injection": ">=6.4.0",
+                "symfony/form": ">=6.4.0",
+                "symfony/http-kernel": ">=6.4.0",
+                "symfony/property-access": ">=6.4.0",
+                "symfony/routing": ">=6.4.0",
+                "twig/twig": ">=3.12.0"
             },
             "type": "symfony-bundle",
             "extra": {
@@ -14582,9 +14579,9 @@
                 "typeahead"
             ],
             "support": {
-                "source": "https://github.com/opensalt/select2entity-bundle/tree/symfony-7"
+                "source": "https://github.com/opensalt/select2entity-bundle/tree/symfony-7-4"
             },
-            "time": "2024-02-23T17:25:28+00:00"
+            "time": "2025-11-27T20:39:06+00:00"
         },
         {
             "name": "twig/extra-bundle",
@@ -20398,7 +20395,7 @@
         },
         {
             "package": "tetranz/select2entity-bundle",
-            "version": "dev-symfony-7",
+            "version": "dev-symfony-7-4",
             "alias": "3.0.0.1",
             "alias_normalized": "3.0.0.1"
         },
