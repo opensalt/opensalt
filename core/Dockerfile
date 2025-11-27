@@ -3,12 +3,12 @@
 # https://docs.docker.com/compose/compose-file/#target
 
 # Version and build of OpenSALT
-ARG VERSION=3.3.1
+ARG VERSION=4.0.0
 ARG BUILD_NUMBER=x
 ARG BUILD_DATE=0
 ARG COMMIT=unknown
 
-ARG PHP_VERSION=8.4
+ARG PHP_VERSION=8.5
 ARG FRANKENPHP_VERSION=1
 ARG NODE_VERSION=22
 
@@ -39,6 +39,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 
 COPY docker/scheduler/supervisord /etc/supervisor/conf.d/
 COPY docker/scheduler/prefix-log /usr/local/bin/
+COPY --from=ghcr.io/php/pie:bin /pie /usr/bin/pie
 
 RUN set -eux; \
 	install-php-extensions \
@@ -54,6 +55,7 @@ RUN set -eux; \
 		pcntl \
 		mysqli \
 		pdo_mysql \
+		pdo_pgsql \
 	;
 
 ARG DOCKERIZE_VERSION=v0.9.7
@@ -65,8 +67,6 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 
 ###> recipes ###
 ###> doctrine/doctrine-bundle ###
-RUN set -eux; \
-	install-php-extensions pdo_pgsql
 ###< doctrine/doctrine-bundle ###
 ###< recipes ###
 
@@ -177,8 +177,8 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
 RUN set -eux; \
-	install-php-extensions \
-		xdebug \
+	pie install \
+		"xdebug/xdebug:^3.5@alpha" \
 	;
 
 COPY --link frankenphp/conf.d/app.dev.ini $PHP_INI_DIR/conf.d/

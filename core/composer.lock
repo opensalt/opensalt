@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "69ef8364e6e1eecf425dd7e5dfa76f3f",
+    "content-hash": "8da8b1b3536bab0732b385aba4f592d9",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -15347,16 +15347,16 @@
         },
         {
             "name": "zircote/swagger-php",
-            "version": "5.7.3",
+            "version": "5.7.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zircote/swagger-php.git",
-                "reference": "4d0d3086d7c876626167d198cec285e98d3629dc"
+                "reference": "dfd637ff3ae344e9db1626ffcfea81b4948da7da"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zircote/swagger-php/zipball/4d0d3086d7c876626167d198cec285e98d3629dc",
-                "reference": "4d0d3086d7c876626167d198cec285e98d3629dc",
+                "url": "https://api.github.com/repos/zircote/swagger-php/zipball/dfd637ff3ae344e9db1626ffcfea81b4948da7da",
+                "reference": "dfd637ff3ae344e9db1626ffcfea81b4948da7da",
                 "shasum": ""
             },
             "require": {
@@ -15366,8 +15366,8 @@
                 "phpstan/phpdoc-parser": "^2.0",
                 "psr/log": "^1.1 || ^2.0 || ^3.0",
                 "symfony/deprecation-contracts": "^2 || ^3",
-                "symfony/finder": "^5.0 || ^6.0 || ^7.0",
-                "symfony/yaml": "^5.4 || ^6.0 || ^7.0"
+                "symfony/finder": "^5.0 || ^6.0 || ^7.0 || ^8.0",
+                "symfony/yaml": "^5.4 || ^6.0 || ^7.0 || ^8.0"
             },
             "conflict": {
                 "symfony/process": ">=6, <6.4.14"
@@ -15429,9 +15429,9 @@
             ],
             "support": {
                 "issues": "https://github.com/zircote/swagger-php/issues",
-                "source": "https://github.com/zircote/swagger-php/tree/5.7.3"
+                "source": "https://github.com/zircote/swagger-php/tree/5.7.4"
             },
-            "time": "2025-11-17T20:56:13+00:00"
+            "time": "2025-11-27T20:10:09+00:00"
         }
     ],
     "packages-dev": [
@@ -19570,21 +19570,21 @@
         },
         {
             "name": "softcreatr/jsonpath",
-            "version": "0.10.0",
+            "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "https://github.com/SoftCreatR/JSONPath.git",
-                "reference": "74f0b330a98135160db947ba7bc65216b64a0c86"
+                "url": "https://github.com/opensalt/JSONPath.git",
+                "reference": "20221eb99bd25bcc7150382fd1f9495254c23759"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/SoftCreatR/JSONPath/zipball/74f0b330a98135160db947ba7bc65216b64a0c86",
-                "reference": "74f0b330a98135160db947ba7bc65216b64a0c86",
+                "url": "https://api.github.com/repos/opensalt/JSONPath/zipball/20221eb99bd25bcc7150382fd1f9495254c23759",
+                "reference": "20221eb99bd25bcc7150382fd1f9495254c23759",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "php": "8.1 - 8.4"
+                "php": "8.1 - 8.5"
             },
             "replace": {
                 "flow/jsonpath": "*"
@@ -19594,13 +19594,29 @@
                 "phpunit/phpunit": "10 - 12",
                 "squizlabs/php_codesniffer": "^3.10"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
                     "Flow\\JSONPath\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "Flow\\JSONPath\\Test\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "phpunit"
+                ],
+                "cs": [
+                    "phpcs"
+                ],
+                "cs-fix": [
+                    "php-cs-fixer fix --config=.php-cs-fixer.dist.php"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -19621,21 +19637,21 @@
             "description": "JSONPath implementation for parsing, searching and flattening arrays",
             "support": {
                 "email": "hello@1-2.dev",
-                "forum": "https://github.com/SoftCreatR/JSONPath/discussions",
                 "issues": "https://github.com/SoftCreatR/JSONPath/issues",
+                "forum": "https://github.com/SoftCreatR/JSONPath/discussions",
                 "source": "https://github.com/SoftCreatR/JSONPath"
             },
             "funding": [
                 {
-                    "url": "https://ecologi.com/softcreatr?r=61212ab3fc69b8eb8a2014f4",
-                    "type": "custom"
+                    "type": "github",
+                    "url": "https://github.com/softcreatr"
                 },
                 {
-                    "url": "https://github.com/softcreatr",
-                    "type": "github"
+                    "type": "custom",
+                    "url": "https://ecologi.com/softcreatr?r=61212ab3fc69b8eb8a2014f4"
                 }
             ],
-            "time": "2025-03-22T00:28:17+00:00"
+            "time": "2025-11-24T22:11:51+00:00"
         },
         {
             "name": "staabm/side-effects-detector",
@@ -20394,6 +20410,12 @@
             "alias_normalized": "1.0.5.2"
         },
         {
+            "package": "softcreatr/jsonpath",
+            "version": "dev-main",
+            "alias": "0.10.1",
+            "alias_normalized": "0.10.1.0"
+        },
+        {
             "package": "tetranz/select2entity-bundle",
             "version": "dev-symfony-7-4",
             "alias": "3.0.0.1",
@@ -20412,6 +20434,7 @@
         "ericmartel/codeception-email-mailtrap": 20,
         "novaway/feature-flag-bundle": 20,
         "roave/security-advisories": 20,
+        "softcreatr/jsonpath": 20,
         "tetranz/select2entity-bundle": 20,
         "wgg/flysystem-doctrine": 20
     },

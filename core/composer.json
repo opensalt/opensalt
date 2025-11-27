@@ -43,6 +43,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/opensalt/NovawayFeatureFlagBundle.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/opensalt/JSONPath.git"
         }
     ],
     "minimum-stability": "dev",
@@ -156,6 +160,7 @@
         "codeception/module-doctrine": "^3.0",
         "codeception/module-phpbrowser": "^3.0",
         "codeception/module-rest": "^3.0",
+        "softcreatr/jsonpath": "dev-main as 0.10.1",
         "codeception/module-sequence": "dev-php-8.4",
         "codeception/module-symfony": "^3.0",
         "codeception/module-webdriver": "^4.0",
