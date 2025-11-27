@@ -235,7 +235,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": true,
-            "require": "7.3.*"
+            "require": "7.4.*"
         }
     }
 }
