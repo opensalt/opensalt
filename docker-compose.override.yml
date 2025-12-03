@@ -11,11 +11,6 @@ services:
     build:
       context: ./core
       target: salt_core_dev
-      args:
-        - BUILD_NUMBER=${BUILD_NUMBER:-x}
-        - BUILD_DATE=${BUILD_DATE:-0}
-        - COMMIT=${COMMIT:-unknown}
-        - VERSION=${VERSION:-3.3.0-dev}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
