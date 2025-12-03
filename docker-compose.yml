@@ -1,47 +1,26 @@
 services:
   scheduler:
-    image: opensalt/opensalt:web-3.x
+    extends: web
     command: ['/usr/bin/supervisord']
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      APP_ENV: "${APP_ENV:-prod}"
-      SERVER_NAME: ${SERVER_NAME:-localhost}, :80
-      DEFAULT_URI: http://web
-      MYSQL_DATABASE:
-      MYSQL_USER:
-      MYSQL_PASSWORD:
-      MYSQL_HOST: "${MYSQL_HOST:-db}"
-      DB_USE_RDS_CERT:
-      MERCURE_URL: ${CADDY_MERCURE_URL:-http://web/.well-known/mercure}
-      MERCURE_PUBLIC_URL: https://${SERVER_NAME:-localhost}/.well-known/mercure
-      MERCURE_JWT_SECRET: ${CADDY_MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
-      MERCURE_PUBLISHER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
-      MERCURE_SUBSCRIBER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET:-!ChangeThisMercureHubJWTSecretKey!}
-      MAILER_DSN:
-      USE_MAIL_FEATURE:
-      MAIL_FEATURE_FROM_EMAIL:
-      ATTACHMENT_URL_PREFIX:
-      AWS_ACCESS_KEY_ID:
-      AWS_SECRET_ACCESS_KEY:
-      AWS_S3_BUCKET:
-      AWS_S3_REGION:
-      AWS_S3_PREFIX:
-      BUCKET_PROVIDER:
-      LOCAL_FILESYSTEM_PATH:
-      CASE_NETWORK_CLIENT_ID:
-      CASE_NETWORK_CLIENT_SECRET:
-      CASE_NETWORK_TOKEN_ENDPOINT:
-      CASE_NETWORK_SCOPE:
-      ISSUER_SIGNING_KEY:
-    restart: unless-stopped
     healthcheck:
       test: ["CMD", "pgrep",  "-af",  "^php.*bin/console.*messenger:consume"]
-
+    build: !reset []
+    networks:
+      external: !reset []
+    volumes: !reset []
+    sysctls: !reset []
+    cap_add: !reset []
+    environment:
+      APP_RUNTIME: !reset null
+      ALLOW_EXTERNAL_DEV_IPS: !reset null
+      ALLOW_LOCAL_DEV: !reset null
+      DEV_COOKIE: !reset null
+      GOOGLE_CAPTCHA_SECRET_KEY: !reset null
+      GOOGLE_CAPTCHA_SITE_KEY: !reset null
+      TRUSTED_PROXIES: !reset null
 
   web:
-    image: opensalt/opensalt:web-3.x
+    image: opensalt/opensalt:web-4.x
     build:
       context: ./core
       target: salt_core_prod
@@ -49,7 +28,7 @@ services:
         - BUILD_NUMBER=${BUILD_NUMBER:-x}
         - BUILD_DATE=${BUILD_DATE:-0}
         - COMMIT=${COMMIT:-unknown}
-        - VERSION=${VERSION:-3.3.0-dev}
+        - VERSION=${VERSION:-4.0.0-dev}
     depends_on:
       db:
         condition: service_healthy
@@ -116,7 +95,7 @@ services:
           - "${COMPOSE_PROJECT_NAME}-salt"
 
   db:
-    image: opensalt/opensalt:db-3.x
+    image: opensalt/opensalt:db-4.x
     build:
       context: ./core/docker/mysql
     cap_add:
