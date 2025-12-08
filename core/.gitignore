@@ -7,6 +7,7 @@
 /tests/*.suite.yml
 /tests/_envs/*.yml
 !/tests/_envs/*.dist.yml
+/bolt.db
 
 /public/bundles/*
 !public/bundles/.gitkeep
