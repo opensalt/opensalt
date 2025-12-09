@@ -7,17 +7,16 @@ namespace App\Controller\Api;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
-use App\Repository\Framework\LsAssociationRepository;
+use App\Entity\Framework\LsItemKind;
 use App\Repository\Framework\LsDocRepository;
-use App\Repository\Framework\LsItemRepository;
 use App\Security\Permission;
 use App\Service\Api1Uris;
 use App\Service\IdentifiableObjectHelper;
 use App\Service\UriGenerator;
+use App\Util\RequestFormat;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\AcceptHeader;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -37,22 +36,21 @@ class UriController extends AbstractController
         private readonly IdentifiableObjectHelper $objectHelper,
         private readonly SerializerInterface $symfonySerializer,
         private readonly NormalizerInterface $normalizer,
-        private readonly UriGenerator $uriGenerator,
         private readonly Api1Uris $api1Uris,
-        private readonly LsAssociationRepository $associationRepository,
-        private readonly LsItemRepository $itemRepository,
         private readonly LsDocRepository $docRepository,
         private readonly AuthorizationCheckerInterface $authorizationChecker,
         private readonly EntityManagerInterface $entityManager,
         private readonly Stopwatch $stopwatch,
         private readonly SerializerInterface $serializer,
+        private readonly UriCredentialView $uriCredentialView,
+        private readonly UriOrganizationView $uriOrganizationView,
     ) {
     }
 
     #[Route(path: '/uri/', name: 'uri_lookup_empty', defaults: ['_format' => 'html'], methods: ['GET'])]
     public function findEmptyUri(Request $request): Response
     {
-        $this->determineRequestFormat($request, null);
+        RequestFormat::determineRequestFormat($request, null);
 
         if (in_array($request->getRequestFormat(), ['json', 'jsonld', 'opensalt'])) {
             return new JsonResponse([
@@ -65,7 +63,6 @@ class UriController extends AbstractController
         return $this->render('uri/no_uri.html.twig', ['uri' => null], new Response('', Response::HTTP_NOT_FOUND));
     }
 
-    #[\Deprecated(message: 'Everything should move to using a framework identifier in the URI, left for credentials "in the wild"', since: '3.4.0')]
     #[Route(path: '/uri/{uri}.{_format}', name: 'uri_lookup', defaults: ['_format' => null], methods: ['GET'])]
     public function findUriSingleIdentifier(Request $request, string $uri, ?string $_format = null): Response
     {
@@ -78,7 +75,7 @@ class UriController extends AbstractController
         if ($request->isXmlHttpRequest()) {
             $_format = 'json';
         }
-        $this->determineRequestFormat($request, $_format);
+        RequestFormat::determineRequestFormat($request, $_format);
 
         $originalUri = $uri;
         $isPackage = false;
@@ -131,9 +128,13 @@ class UriController extends AbstractController
 
         if ($obj instanceof LsItem) {
             $type = $obj->getItemType()?->getTitle();
-            if ((LsItem::TYPES['credential'] === $obj->getDiscriminator() || str_starts_with($type ?? '', 'Credential - '))
+            if ((LsItemKind::Credential->value === $obj->getDiscriminator() || str_starts_with($type ?? '', 'Credential - '))
                 && in_array($request->getRequestFormat(), ['html', 'jsonld'])) {
-                return $this->renderCredentialView($obj, $request, $response);
+                return $this->uriCredentialView->renderCredentialView($obj, $request, $response);
+            }
+
+            if (LsItemKind::Organization->value === $obj->getDiscriminator() && 'html' === $request->getRequestFormat()) {
+                return $this->uriOrganizationView->renderOrganizationView($obj, $request, $response);
             }
         }
 
@@ -176,61 +177,6 @@ class UriController extends AbstractController
         return $response;
     }
 
-    private function determineRequestFormat(Request $request, ?string $_format = null): void
-    {
-        if ($request->headers->has('x-opensalt')) {
-            $request->setRequestFormat('opensalt');
-
-            return;
-        }
-
-        if ('tree' === $_format || 'tree' === $request->query->get('display')) {
-            $request->setRequestFormat('tree');
-
-            return;
-        }
-
-        $allowedFormats = [
-            'application/vnd.opensalt+json' => 'opensalt',
-            'application/json' => 'json',
-            'application/ld+json' => 'jsonld',
-            'text/html' => 'html',
-            'text/csv' => 'csv',
-            'application/x-ndjson' => 'ndjson',
-        ];
-
-        if (in_array($_format, $allowedFormats, true)) {
-            $request->setRequestFormat($_format);
-
-            return;
-        }
-
-        $useFormat = 'json';
-        $quality = 0.0;
-
-        $accept = AcceptHeader::fromString($request->headers->get('Accept'));
-        $contentTypes = $accept->all();
-        foreach ($contentTypes as $contentType) {
-            $tryFormat = $request->getFormat($contentType->getValue());
-            if (in_array($tryFormat, $allowedFormats, true)) {
-                $useFormat = $tryFormat;
-                $quality = $accept->get($contentType->getValue())?->getQuality() ?? 0.0;
-
-                break;
-            }
-        }
-
-        foreach ($allowedFormats as $contentType => $format) {
-            $q = $accept->get($contentType)?->getQuality() ?? 0.0;
-            if ($quality < $q) {
-                $useFormat = $format;
-                $quality = $q;
-            }
-        }
-
-        $request->setRequestFormat($useFormat);
-    }
-
     protected function generateBaseResponse(\DateTimeInterface $lastModified): Response
     {
         return new Response();
@@ -240,7 +186,7 @@ class UriController extends AbstractController
     {
         $this->addLink(
             $request,
-            new Link('canonical', '/uri/' . $originalUri)
+            new Link('canonical', '/uri/'.$originalUri)
         );
         $this->addLink(
             $request,
@@ -299,197 +245,6 @@ xENDx;
         }
 
         throw new NotFoundHttpException(sprintf('Object with identifier "%s" was not found', $uri));
-    }
-
-    private function renderCredentialView(LsItem $obj, Request $request, Response $response): Response
-    {
-        $response->setPublic();
-
-        $credential = $obj->getExtensionProperty('ob3') ?? ($obj->getExtraProperty('extendedItem') ?? [])['ob3'] ?? 'null';
-        if (is_string($credential)) {
-            $credential = json5_decode($credential, true);
-        }
-
-        if (null === $credential) {
-            $credential = [
-                'type' => ['Achievement'],
-                'achievementType' => null,
-                'name' => $obj->getAbbreviatedStatement() ?? $obj->getFullStatement(),
-                'description' => $obj->getFullStatement(),
-                'humanCode' => $obj->getHumanCodingScheme() ?? '',
-                'criteria' => [
-                    'narrative' => '',
-                    'id' => $this->uriGenerator->getUri($obj).'.html',
-                ],
-                'alignment' => [],
-                'image' => [
-                    'id' => '',
-                    'type' => 'Image',
-                ],
-            ];
-        }
-
-        $iri = $this->api1Uris->getUri($obj);
-        $credential = array_merge(['@context' => [], 'id' => $iri], $credential);
-
-        $img = ('' !== ($credential['image']['id'] ?? '')) ? $credential['image']['id'] : '';
-
-        $allAssociations = $this->associationRepository->findAllAssociationsForAsSplitArray($obj->getIdentifier());
-        $associations = $allAssociations['associations'];
-        $criteria = [];
-        $alignments = [];
-        foreach ($associations as $association) {
-            $destination = $association->getDestination();
-
-            if ($destination instanceof LsDoc) {
-                continue;
-            }
-
-            switch ($association->getType()) {
-                case LsAssociation::PRECEDES:
-                    // case LsAssociation::CHILD_OF:
-                    break;
-
-                case LsAssociation::EXEMPLAR:
-                    if (is_string($destination) && (str_ends_with($destination, '.png') || str_ends_with($destination, '.svg'))) {
-                        $img = $destination;
-                    }
-                    break;
-
-                default:
-                    if ($destination instanceof LsItem) {
-                        $alignments[$destination->getIdentifier()] = $destination;
-                    }
-                    break;
-            }
-        }
-
-        $credential['image']['id'] = $img;
-
-        $associations = $allAssociations['inverseAssociations'];
-        foreach ($associations as $association) {
-            $origin = $association->getOrigin();
-            if (is_string($origin)) {
-                $origin = $this->itemRepository->findOneBy(['identifier' => $association->getOriginNodeIdentifier()]);
-            }
-            if (!$origin instanceof LsItem) {
-                continue;
-            }
-
-            switch ($association->getType()) {
-                case LsAssociation::EXEMPLAR:
-                    // case LsAssociation::CHILD_OF:
-                case LsAssociation::EXACT_MATCH_OF:
-                    break;
-
-                case LsAssociation::PRECEDES:
-                    $criteria[$origin->getIdentifier()] = $origin;
-                    break;
-
-                default:
-                    $alignments[$origin->getIdentifier()] = $origin;
-                    break;
-            }
-        }
-
-        // If we have an alignment in the criteria, remove it from the alignments
-        foreach (array_keys($criteria) as $key) {
-            if (array_key_exists($key, $alignments)) {
-                unset($alignments[$key]);
-            }
-        }
-
-        if (null === $credential['achievementType']) {
-            $achievementType = preg_replace('/Credential - /', '', $obj->getItemType()?->getTitle() ?? 'Credential - Achievement');
-            if (!in_array($achievementType, [
-                'Achievement',
-                'ApprenticeshipCertificate',
-                'Assessment',
-                'Assignment',
-                'AssociateDegree',
-                'Award',
-                'Badge',
-                'BachelorDegree',
-                'Certificate',
-                'CertificateOfCompletion',
-                'Certification',
-                'CommunityService',
-                'Competency',
-                'Course',
-                'CoCurricular',
-                'Degree',
-                'Diploma',
-                'DoctoralDegree',
-                'Fieldwork',
-                'GeneralEducationDevelopment',
-                'JourneymanCertificate',
-                'LearningProgram',
-                'License',
-                'Membership',
-                'ProfessionalDoctorate',
-                'QualityAssuranceCredential',
-                'MasterCertificate',
-                'MasterDegree',
-                'MicroCredential',
-                'ResearchDoctorate',
-                'SecondarySchoolDiploma',
-            ], true)) {
-                $achievementType = 'ext:'.$achievementType;
-            }
-
-            $credential['achievementType'] = $achievementType;
-        }
-
-        if ('jsonld' === $request->getRequestFormat()) {
-            $narrative = [];
-            foreach ($criteria as $criterion) {
-                $narrative[] = '- '.($criterion->getAbbreviatedStatement() ?? $criterion->getFullStatement());
-            }
-            if ('' !== ($credential['criteria']['narrative'] ?? '')) {
-                $credential['criteria']['narrative'] .= "\n\n";
-            }
-            $credential['criteria']['narrative'] .= implode("\n", $narrative);
-
-            if ('' === $credential['criteria']['narrative']) {
-                unset($credential['criteria']['narrative']);
-            }
-
-            foreach ($alignments as $alignment) {
-                $credential['alignment'][] = [
-                    'type' => 'Alignment',
-                    // 'targetCode' => $alignment->getIdentifier(),
-                    // 'targetDescription' => $alignment->getFullStatement(),
-                    'targetName' => $alignment->getAbbreviatedStatement() ?? $alignment->getFullStatement(),
-                    // 'targetFramework' => $alignment->getFramework(),
-                    // 'targetType' => $alignment->getItemType()?->getTitle() ?? '',
-                    'targetType' => 'CFItem',
-                    'targetUrl' => $this->uriGenerator->getUri($alignment),
-                ];
-            }
-            if ([] === ($credential['alignment'] ?? 'X')) {
-                unset($credential['alignment']);
-            }
-
-            if ('' === ($credential['humanCode'] ?? 'X')) {
-                unset($credential['humanCode']);
-            }
-
-            if ('' === ($credential['image']['id'] ?? 'X')) {
-                unset($credential['image']);
-            }
-
-            return new JsonResponse($credential, Response::HTTP_OK);
-        }
-
-        return $this->render('uri/credential_view.html.twig', [
-            'obj' => $obj,
-            'img' => $img,
-            'criteria' => $criteria,
-            'alignments' => $alignments,
-            'associationRepo' => $this->associationRepository,
-            'itemRepo' => $this->itemRepository,
-            'credential' => $credential,
-        ], $response);
     }
 
     private function generatePackageResponse(Request $request, Response $originalResponse, mixed $obj, array $context): Response
@@ -627,9 +382,9 @@ xENDx;
         if (in_array($_format, ['ndjson', 'csv'])) {
             return new StreamedResponse(function () use ($obj, $itemCallback, $associationCallback, $conceptCallback, $subjectCallback, $licenseCallback, $itemTypeCallback, $groupCallback, $context): void {
                 $context += [
-                   'json_encode_options' => JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES,
-                   'no_headers' => true,
-                   'csv_end_of_line' => '',
+                    'json_encode_options' => JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES,
+                    'no_headers' => true,
+                    'csv_end_of_line' => '',
                 ];
                 $eol = ('csv' === $context['useFormat']) ? '' : "\n";
                 echo $this->serializer->serialize($obj, $context['useFormat'], $context).$eol;

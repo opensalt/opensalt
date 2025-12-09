@@ -139,7 +139,7 @@ export default function (apx) {
 
             // if we found the document that was requested here...
             if ((initializationKey === "identifier" && identifier === lsDocId)
-                || (initializationKey === "id" && !d.isExternalDoc() && d.doc.id === lsDocId)) {
+                || (initializationKey === "id" && d.nodeType === "document" ? (d.isExternalDoc && typeof d.isExternalDoc === 'function' ? !d.isExternalDoc() : true) : (d.doc && d.doc.isExternalDoc && typeof d.doc.isExternalDoc === 'function' ? !d.doc.isExternalDoc() : true) && d.doc.id === lsDocId)) {
                 // set treeDoc1 or treeDoc2
                 apx["treeDoc" + side] = d;
                 // and call the side's treeDocLoadCallback function
@@ -693,7 +693,7 @@ export default function (apx) {
 
                 click: function () {
                     // if we're in copy mode and treeDoc2 is an external doc, stop the user right here; no copying allowed from external docs at this time
-                    if (apx.rightSideMode === "copyItem" && apx.treeDoc2.isExternalDoc()) {
+                    if (apx.rightSideMode === "copyItem" && apx.treeDoc2 && apx.treeDoc2.isExternalDoc && typeof apx.treeDoc2.isExternalDoc === 'function' && apx.treeDoc2.isExternalDoc()) {
                         alert("You cannot currently copy an item from a document on another server.");
                         return false;
                     }

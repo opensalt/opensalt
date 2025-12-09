@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\DTO\ItemType;
 
 use App\Entity\Framework\LsItem;
+use App\Entity\Framework\LsItemKind;
 use App\Form\Type\ItemType\CredentialType;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 class CredentialDto implements ItemTypeInterface
 {
-    public const int ITEM_TYPE_IDENTIFIER = LsItem::TYPES['credential'];
+    public const int ITEM_TYPE_IDENTIFIER = LsItemKind::Credential->value;
     public const string ITEM_TYPE_FORM = CredentialType::class;
     public const string CREDENTIAL_KEY = 'ob3';
 

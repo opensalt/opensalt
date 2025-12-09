@@ -1,6 +1,8 @@
 # Development environment override
 services:
   scheduler:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ./core:/srv/core:rw
       - ./core/docker/php/conf.d/opcache.ini.dev:/usr/local/etc/php/conf.d/opcache.ini
@@ -9,11 +11,8 @@ services:
     build:
       context: ./core
       target: salt_core_dev
-      args:
-        - BUILD_NUMBER=${BUILD_NUMBER:-x}
-        - BUILD_DATE=${BUILD_DATE:-0}
-        - COMMIT=${COMMIT:-unknown}
-        - VERSION=${VERSION:-3.3.0-dev}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       MERCURE_EXTRA_DIRECTIVES: demo
     #environment:

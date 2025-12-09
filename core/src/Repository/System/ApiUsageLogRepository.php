@@ -8,6 +8,9 @@ use App\Entity\System\ApiUsageLog;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+/**
+ * @extends ServiceEntityRepository<ApiUsageLog>
+ */
 class ApiUsageLogRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -128,6 +131,6 @@ class ApiUsageLogRepository extends ServiceEntityRepository
             ->getQuery()
             ->getArrayResult();
 
-        return array_map(static fn (array $r) => $r['uid'], $rows);
+        return array_map(static fn (array $r): string => $r['uid'], $rows);
     }
 }

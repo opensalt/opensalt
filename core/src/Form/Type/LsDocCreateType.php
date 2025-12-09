@@ -16,7 +16,7 @@ class LsDocCreateType extends AbstractLsDocCreateType
             ->add('ownedBy', ChoiceType::class, [
                 'required' => true,
                 'choices' => [
-                    'My Organization' => 'organization',
+                    'My Group' => 'organization',
                     'Me' => 'user',
                 ],
             ])

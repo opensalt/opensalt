@@ -17,6 +17,7 @@ use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use App\Entity\Framework\LsItemKind;
 use App\Entity\User\User;
 use App\Exception\AlreadyLockedException;
 use App\Form\Command\ChangeLsItemParentCommand;
@@ -373,8 +374,7 @@ class LsItemController extends AbstractController
 
     private function getNewItemForm(?string $itemType, LsItem $lsItem, Request $request): FormInterface
     {
-        $itemTypeIdentifier = LsItem::TYPES[$itemType] ?? 0;
-        $dtoClass = LsItem::DTO[$itemTypeIdentifier];
+        $dtoClass = LsItemKind::tryFromName($itemType)->dto();
 
         $itemDto = match ($dtoClass) {
             LsItem::class => $lsItem,
@@ -401,8 +401,7 @@ class LsItemController extends AbstractController
 
     private function getEditItemForm(LsItem $lsItem, Request $request): FormInterface
     {
-        $itemTypeIdentifier = $lsItem->getDiscriminator();
-        $dtoClass = LsItem::DTO[$itemTypeIdentifier] ?? LsItem::class;
+        $dtoClass = LsItemKind::dtoFromValue($lsItem->getDiscriminator());
 
         $itemDto = match ($dtoClass) {
             LsItem::class => $lsItem,

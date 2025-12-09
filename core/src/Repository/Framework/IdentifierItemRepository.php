@@ -11,6 +11,7 @@ use App\Entity\Framework\FrameworkType;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use App\Entity\Framework\LsItemKind;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\ParameterType;
@@ -52,7 +53,7 @@ class IdentifierItemRepository extends ServiceEntityRepository
         $issuerFrameworks = $this->findIssuerFrameworks();
 
         return $this->findBy([
-            'discriminator' => array_search(IdentifierDto::class, LsItem::DTO, true),
+            'discriminator' => LsItemKind::fromDtoClass(IdentifierDto::class)->value,
             'lsDoc' => $issuerFrameworks,
         ]);
     }
@@ -73,8 +74,8 @@ class IdentifierItemRepository extends ServiceEntityRepository
             ->andWhere('i.lsDoc in (:docs)')
             ->andWhere('a.type = :associationType')
             ->andWhere('d.discriminator = :identifierDiscriminator')
-            ->setParameter('issuerDiscriminator', array_search(OrganizationDto::class, LsItem::DTO, true), ParameterType::INTEGER)
-            ->setParameter('identifierDiscriminator', array_search(IdentifierDto::class, LsItem::DTO, true), ParameterType::INTEGER)
+            ->setParameter('issuerDiscriminator', LsItemKind::fromDtoClass(OrganizationDto::class)->value, ParameterType::INTEGER)
+            ->setParameter('identifierDiscriminator', LsItemKind::fromDtoClass(IdentifierDto::class)->value, ParameterType::INTEGER)
             ->setParameter('docs', $frameworkIds, ArrayParameterType::INTEGER)
             ->setParameter('associationType', LsAssociation::CHILD_OF)
             ->orderBy('i.abbreviatedStatement')
@@ -97,7 +98,7 @@ class IdentifierItemRepository extends ServiceEntityRepository
         $associations = $issuer->getInverseAssociations();
         $identifiers = [];
         foreach ($associations as $association) {
-            if (LsItem::TYPES['identifier'] === $association->getOriginLsItem()?->getDiscriminator()) {
+            if (LsItemKind::Identifier->value === $association->getOriginLsItem()?->getDiscriminator()) {
                 $identifiers[] = IdentifierDto::fromItem($association->getOriginLsItem());
             }
         }
@@ -110,7 +111,6 @@ class IdentifierItemRepository extends ServiceEntityRepository
      */
     public function findIssuerInfo(string $sub): ?array
     {
-        /** @var LsItem $issuer */
         $issuer = $this->findOneBy(['uri' => $sub]);
 
         if (null === $issuer) {
@@ -126,16 +126,16 @@ class IdentifierItemRepository extends ServiceEntityRepository
         $keys = [];
 
         foreach ($assocs as $assoc) {
-            if (LsItem::TYPES['organization'] === $assoc->getOriginLsItem()?->getDiscriminator()) {
+            if (LsItemKind::Organization->value === $assoc->getOriginLsItem()?->getDiscriminator()) {
                 $parent = OrganizationDto::fromItem($assoc->getOriginLsItem());
             }
-            if (LsItem::TYPES['organization'] === $assoc->getDestinationLsItem()?->getDiscriminator()) {
+            if (LsItemKind::Organization->value === $assoc->getDestinationLsItem()?->getDiscriminator()) {
                 $parent = OrganizationDto::fromItem($assoc->getDestinationLsItem());
             }
-            if (LsItem::TYPES['public_key'] === $assoc->getOriginLsItem()?->getDiscriminator()) {
+            if (LsItemKind::PublicKey->value === $assoc->getOriginLsItem()?->getDiscriminator()) {
                 $keys[] = PublicKeyDto::fromItem($assoc->getOriginLsItem());
             }
-            if (LsItem::TYPES['public_key'] === $assoc->getDestinationLsItem()?->getDiscriminator()) {
+            if (LsItemKind::PublicKey->value === $assoc->getDestinationLsItem()?->getDiscriminator()) {
                 $keys[] = PublicKeyDto::fromItem($assoc->getDestinationLsItem());
             }
         }
