@@ -13,8 +13,8 @@
         <div class="modal-body">
           <form @submit.prevent="createItem" name="ls_public_key">
             <div class="row mb-3">
-              <label for="ls_public_key_publicKey" class="col-sm-2 col-form-label">Public Key *</label>
-              <div class="col-sm-10">
+              <label for="ls_public_key_publicKey" class="col-sm-3 col-form-label">Public Key *</label>
+              <div class="col-sm-9">
                 <input
                   type="text"
                   class="form-control"

@@ -50,10 +50,10 @@
         </div>
 
         <div class="row">
-          <div v-if="item.itemType" class="col-sm-6">
+          <div v-if="item.itemType" class="col-sm-12">
             <strong>Item Type:</strong> {{ item.itemType || 'General' }}
           </div>
-          <div v-if="item.language" class="col-sm-6">
+          <div v-if="item.language" class="col-sm-12">
             <strong>Language:</strong> {{ item.language || 'en' }}
           </div>
         </div>
@@ -64,7 +64,7 @@
           </small>
         </div>
 
-          <div v-if="item.notes" class="mb-3">
+          <div v-if="item.notes" class="mt-3">
               <strong>Notes:</strong>
               <p class="mt-1 markdown-content" v-html="renderedNotes"></p>
           </div>
@@ -74,7 +74,7 @@
         <div class="card-header">
           <h6 class="mb-0">Actions</h6>
         </div>
-        <div class="card-body">
+        <div class="card-body mx-auto">
           <div class="d-flex gap-2">
             <div class="btn-group">
               <button type="button" class="btn btn-outline-primary" @click="showModal('general')">

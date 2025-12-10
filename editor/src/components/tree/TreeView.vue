@@ -4,7 +4,7 @@
       <div v-if="!doc">
         <em>No document loaded.</em>
       </div>
-      <div v-else role="tree" aria-label="Document structure tree" class="flex-grow-1 overflow-auto">
+      <div v-else role="tree" aria-label="Document structure tree" class="tree-container">
         <TreeNode
           :key="documentRoot.identifier"
           :item="documentRoot"
@@ -73,6 +73,31 @@ function onMove({ fromIdx, toIdx, parentItems }) {
 <style scoped>
 .tree-view {
   /* Height controlled by flexbox parent */
+}
+
+.tree-container {
+  /* Fixed height constraint to enable proper scrolling */
+  height: calc(100vh - 340px); /* Adjust based on your layout needs */
+  max-height: calc(100vh - 340px);
+  min-height: 200px; /* Minimum height for usability */
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+
+  /* Reset any parent margins/paddings that could cause positioning issues */
+  margin: 0 !important;
+  padding: 0 !important;
+
+  /* Add bottom padding to ensure scrollHeight includes all content */
+  padding-bottom: 120px !important;
+}
+
+/* Ensure tree content starts at the top of the container */
+.tree-container > * {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  position: relative;
+  top: 0;
 }
 
 .tree-view[role="tree"] {

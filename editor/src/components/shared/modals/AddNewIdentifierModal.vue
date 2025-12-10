@@ -13,8 +13,8 @@
         <div class="modal-body">
           <form @submit.prevent="createItem" name="ls_identifier">
             <div class="row mb-3">
-              <label for="ls_identifier_identifier" class="col-sm-2 col-form-label">Identifier *</label>
-              <div class="col-sm-10">
+              <label for="ls_identifier_identifier" class="col-sm-3 col-form-label">Identifier *</label>
+              <div class="col-sm-9">
                 <input
                   type="text"
                   class="form-control"
@@ -27,8 +27,8 @@
               </div>
             </div>
             <div class="row mb-3">
-              <label for="ls_identifier_description" class="col-sm-2 col-form-label">Description</label>
-              <div class="col-sm-10">
+              <label for="ls_identifier_description" class="col-sm-3 col-form-label">Description</label>
+              <div class="col-sm-9">
                 <textarea
                   class="form-control"
                   id="ls_identifier_description"
