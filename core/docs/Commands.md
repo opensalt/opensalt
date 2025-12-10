@@ -1,15 +1,15 @@
-User Mangement Commands
+User Management Commands
 -----------------------
 
 A set of commands can be run from the command line in order to manage
 local users in the system.  If arguments are missing then the command
 will prompt for the values.
 
-- **salt:org:add**
+- **salt:group:add**
 
-  This command will create an organization in the database.
+  This command will create an access group in the database.
 
-  `./core/bin/console salt:org:add [--no-interaction] [<organization name>]`
+  `./core/bin/console salt:group:add [--no-interaction] [<group name>]`
 
 - **salt:user:add**
 
