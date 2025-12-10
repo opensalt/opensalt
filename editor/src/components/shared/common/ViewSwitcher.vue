@@ -1,5 +1,5 @@
 <template>
-  <div class="view-switcher mb-3">
+  <div class="view-switcher d-flex justify-content-center">
     <div class="btn-group" role="group" aria-label="View selection">
       <button
         type="button"
@@ -71,11 +71,6 @@ function switchView(view) {
 </script>
 
 <style scoped>
-.view-switcher {
-  display: flex;
-  justify-content: center;
-}
-
 .btn-group .btn {
   border-radius: 0.375rem !important;
   margin: 0 2px;

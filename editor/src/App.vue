@@ -1,6 +1,6 @@
 <template>
   <div id="editor" style="height: 100%; overflow: hidden;">
-    <nav class="navbar navbar-expand navbar-light bg-light mb-3">
+    <nav class="navbar navbar-expand navbar-light bg-light mb-2">
       <div class="container-fluid">
         <a class="navbar-brand" href="#">
           <i class="bi bi-diagram-3"></i> Document Editor
