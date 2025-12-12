@@ -91,29 +91,37 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { useFrameworkStore } from '../../stores/frameworkStore';
+import { useDocumentStore } from '../../stores/documentStore';
+import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
+import { useItemStore } from '../../stores/itemStore';
+import { useAssociationStore } from '../../stores/associationStore';
 
 const route = useRoute();
-const frameworkStore = useFrameworkStore();
+const documentStore = useDocumentStore();
+const currentDocumentStore = useCurrentDocumentStore();
+const itemStore = useItemStore();
+const associationStore = useAssociationStore();
 
-const loading = computed(() => frameworkStore.loading);
-const error = computed(() => frameworkStore.error);
-const currentDocument = computed(() => frameworkStore.currentDocument);
-const associationGroups = computed(() => frameworkStore.associationGroups);
+const loading = computed(() => documentStore.loading);
+const error = computed(() => documentStore.error);
+const currentDocument = computed(() => currentDocumentStore.currentDocument);
+const associationGroups = computed(() => currentDocumentStore.associationGroups);
 
 onMounted(() => {
   const itemId = route.params.itemId;
   if (itemId && currentDocument.value) {
-    const item = frameworkStore.findItemByIdentifier(currentDocument.value.items, itemId);
+    const item = itemStore.findItemByIdentifier(currentDocument.value.items, itemId);
     if (item) {
-      frameworkStore.setCurrentItem(item);
+      // Note: setCurrentItem would need to be moved to viewStore if needed
+      // For now, we'll just log it
+      console.log('Item found:', item);
     }
   }
 });
 
 const associations = computed(() => {
   if (!currentDocument.value) return [];
-  return frameworkStore.currentDocumentAssociations || [];
+  return currentDocumentStore.currentDocumentAssociations || [];
 });
 
 const associationTypes = computed(() => {

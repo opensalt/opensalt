@@ -47,10 +47,10 @@
 <script setup>
 import { ref, provide, computed } from 'vue';
 import { RouterView } from 'vue-router';
-import { useFrameworkStore } from './stores/frameworkStore';
+import { useCurrentDocumentStore } from './stores/currentDocumentStore';
 import ViewSwitcher from './components/shared/common/ViewSwitcher.vue';
 
-const frameworkStore = useFrameworkStore();
+const currentDocumentStore = useCurrentDocumentStore();
 
 const toasts = ref([]);
 let toastId = 0;
@@ -67,7 +67,7 @@ function removeToast(id) {
 // Provide notification function to child components
 provide('notify', notify);
 
-const doc = computed(() => frameworkStore.currentDocument || { title: '', status: '', items: [] });
+const doc = computed(() => currentDocumentStore.currentDocument || { title: '', status: '', items: [] });
 const docTitle = computed(() => doc.value.title);
 const docStatus = computed(() => doc.value.status || 'Draft');
 </script>

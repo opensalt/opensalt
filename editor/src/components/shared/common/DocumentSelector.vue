@@ -73,7 +73,7 @@
                   v-for="doc in group.documents"
                   :key="doc.id"
                   :value="doc.id"
-                  :selected="doc.id === currentDoc2?.id"
+                  :selected="doc.id === currentDoc1?.id"
                   :style="(doc.id === currentDoc1?.id) ? 'color: blue;' : ''"
                 >
                     {{ doc.id === currentDoc1?.id ? '** Current Document ** - ' : '' }}
@@ -127,7 +127,7 @@
 <script setup>
 import { ref, reactive, watch, computed } from 'vue';
 import { Modal } from 'bootstrap';
-import { useFrameworkStore } from '../../../stores/frameworkStore';
+import { useDocumentStore } from '@/stores/documentStore';
 
 const props = defineProps({
   currentDoc1: Object,
@@ -135,11 +135,37 @@ const props = defineProps({
   availableDocuments: Array
 });
 
-// Use the framework store
-const frameworkStore = useFrameworkStore();
+// Use the document store
+const documentStore = useDocumentStore();
 
 // Get grouped documents
-const groupedDocuments = computed(() => frameworkStore.documentsGroupedByCreator);
+const groupedDocuments = computed(() => {
+  const grouped = new Map();
+
+  // Group documents by creator
+  documentStore.documents.forEach(doc => {
+    const creator = doc.creator || 'Unknown Creator';
+    if (!grouped.has(creator)) {
+      grouped.set(creator, []);
+    }
+    grouped.get(creator).push(doc);
+  });
+
+  // Sort creators alphabetically
+  const sortedCreators = Array.from(grouped.keys()).sort();
+
+  // Sort documents within each creator group alphabetically by title
+  const result = [];
+  sortedCreators.forEach(creator => {
+    const docs = grouped.get(creator).sort((a, b) => a.title.localeCompare(b.title));
+    result.push({
+      creator,
+      documents: docs
+    });
+  });
+
+  return result;
+});
 
 const emit = defineEmits(['document-changed', 'external-document-requested']);
 

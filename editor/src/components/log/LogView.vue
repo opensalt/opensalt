@@ -140,13 +140,15 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { useFrameworkStore } from '../../stores/frameworkStore';
+import { useDocumentStore } from '../../stores/documentStore';
+import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
 
-const frameworkStore = useFrameworkStore();
+const documentStore = useDocumentStore();
+const currentDocumentStore = useCurrentDocumentStore();
 
-const loading = computed(() => frameworkStore.loading);
-const error = computed(() => frameworkStore.error);
-const currentDocument = computed(() => frameworkStore.currentDocument);
+const loading = computed(() => documentStore.loading);
+const error = computed(() => documentStore.error);
+const currentDocument = computed(() => currentDocumentStore.currentDocument);
 
 const logFilter = ref('all');
 

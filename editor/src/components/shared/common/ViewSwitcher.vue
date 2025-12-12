@@ -38,13 +38,13 @@
 <script setup>
 import { computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useFrameworkStore } from '../../../stores/frameworkStore';
+import { useCurrentDocumentStore } from '../../../stores/currentDocumentStore';
 
 const router = useRouter();
 const route = useRoute();
-const frameworkStore = useFrameworkStore();
+const currentDocumentStore = useCurrentDocumentStore();
 
-const currentFrameworkId = computed(() => frameworkStore.currentDocument?.id || '');
+const currentFrameworkId = computed(() => currentDocumentStore.currentDocument?.id || '');
 
 const currentView = computed(() => {
   const path = route.path;

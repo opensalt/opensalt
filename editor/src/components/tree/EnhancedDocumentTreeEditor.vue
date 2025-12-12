@@ -121,7 +121,11 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useFrameworkStore } from '../../stores/frameworkStore';
+import { useDocumentStore } from '../../stores/documentStore';
+import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
+import { useFilterStore } from '../../stores/filterStore';
+import { useItemStore } from '../../stores/itemStore';
+import { useAssociationStore } from '../../stores/associationStore';
 import TreeView from './TreeView.vue';
 import RightSidePanel from '../shared/panels/RightSidePanel.vue';
 import DocumentSelector from '../shared/common/DocumentSelector.vue';
@@ -136,16 +140,20 @@ import ExemplarModal from '../shared/modals/ExemplarModal.vue';
 import AssociationGroupModal from '../association/AssociationGroupModal.vue';
 import ViewSwitcher from '../shared/common/ViewSwitcher.vue';
 
-// Use the Pinia store
-const frameworkStore = useFrameworkStore();
+// Use the Pinia stores
+const documentStore = useDocumentStore();
+const currentDocumentStore = useCurrentDocumentStore();
+const filterStore = useFilterStore();
+const itemStore = useItemStore();
+const associationStore = useAssociationStore();
 const route = useRoute();
 const router = useRouter();
 
 // Use store state and computed properties
-const doc = computed(() => frameworkStore.currentDocument || { title: '', status: '', items: [] });
-const loading = computed(() => frameworkStore.loading);
-const error = computed(() => frameworkStore.error);
-const searchQuery = computed(() => frameworkStore.searchQuery);
+const doc = computed(() => currentDocumentStore.currentDocument || { title: '', status: '', items: [] });
+const loading = computed(() => documentStore.loading);
+const error = computed(() => documentStore.error);
+const searchQuery = computed(() => filterStore.searchQuery);
 const selectedId = ref(route.params.itemId || null);
 const selectedItem = computed(() => findItem(doc.value.items || [], selectedId.value));
 
@@ -155,7 +163,7 @@ watch(() => route.params.itemId, (newItemId) => {
 }, { immediate: true });
 const filteredDoc = computed(() => ({
   ...doc.value,
-  items: frameworkStore.filteredItems
+  items: filterStore.filterItemsRecursively(doc.value.items || [], searchQuery.value, filterStore.selectedFilters, filterStore.selectedAssociationGroup)
 }));
 
 // Modal states
@@ -178,38 +186,67 @@ const deleteType = ref('single');
 const rightPanelMode = ref('itemDetails');
 
 // Use store data
-const availableDocuments = computed(() => frameworkStore.documents);
-const availableSubjects = computed(() => frameworkStore.availableSubjects);
-const associationGroups = computed(() => frameworkStore.associationGroups);
+const availableDocuments = computed(() => documentStore.documents);
+const availableSubjects = computed(() => filterStore.availableSubjects);
+const associationGroups = computed(() => currentDocumentStore.associationGroups);
 const selectedAssociationGroupValue = computed({
-  get: () => frameworkStore.selectedAssociationGroup,
-  set: (value) => frameworkStore.setSelectedAssociationGroup(value)
+  get: () => filterStore.selectedAssociationGroup,
+  set: (value) => filterStore.setSelectedAssociationGroup(value)
 });
 
-const currentDoc = computed(() => frameworkStore.currentDocument);
+const currentDoc = computed(() => currentDocumentStore.currentDocument);
 
 // Initialize data on mount
 onMounted(async () => {
   try {
     console.log('[DEBUG] EnhancedDocumentTreeEditor onMounted - currentDocument state:', {
-      currentDocument: frameworkStore.currentDocument,
-      isNull: frameworkStore.currentDocument === null,
-      isUndefined: frameworkStore.currentDocument === undefined,
-      isEmptyObject: frameworkStore.currentDocument && Object.keys(frameworkStore.currentDocument).length === 0,
-      hasItems: frameworkStore.currentDocument?.items?.length > 0,
-      documentKeys: frameworkStore.currentDocument ? Object.keys(frameworkStore.currentDocument) : []
+      currentDocument: currentDocumentStore.currentDocument,
+      isNull: currentDocumentStore.currentDocument === null,
+      isUndefined: currentDocumentStore.currentDocument === undefined,
+      isEmptyObject: currentDocumentStore.currentDocument && Object.keys(currentDocumentStore.currentDocument).length === 0,
+      hasItems: currentDocumentStore.currentDocument?.items?.length > 0,
+      documentKeys: currentDocumentStore.currentDocument ? Object.keys(currentDocumentStore.currentDocument) : []
     });
 
-    if (!frameworkStore.currentDocument || Object.keys(frameworkStore.currentDocument).length === 0) {
+    if (!currentDocumentStore.currentDocument || Object.keys(currentDocumentStore.currentDocument).length === 0) {
       console.log('[DEBUG] No current document found, fetching documents...');
       // Fetch the list of available documents
-      await frameworkStore.fetchDocuments();
+      await documentStore.fetchDocuments();
 
       // If there are documents available, load the first one as an example
-      if (frameworkStore.documents.length > 0) {
-        const firstDoc = frameworkStore.documents[0];
+      if (documentStore.documents.length > 0) {
+        const firstDoc = documentStore.documents[0];
         console.log('[DEBUG] Loading first document:', firstDoc.id);
-        await frameworkStore.fetchDocument(firstDoc.id);
+        const docData = await documentStore.fetchDocument(firstDoc.id);
+
+        // Transform and set the current document
+        const cfDoc = docData.CFDocument || {};
+        const items = currentDocumentStore.transformCASEItems(docData.CFItems || [], docData.CFAssociations || []);
+
+        currentDocumentStore.selectDocument({
+          id: cfDoc.identifier,
+          uri: cfDoc.uri || '',
+          title: cfDoc.title || 'Untitled',
+          description: cfDoc.description || null,
+          creator: cfDoc.creator || '',
+          subject: cfDoc.subject || null,
+          subjectURI: cfDoc.subjectURI || [],
+          status: cfDoc.adoptionStatus || 'Draft',
+          statusStartDate: cfDoc.statusStartDate || null,
+          statusEndDate: cfDoc.statusEndDate || null,
+          lastModified: cfDoc.lastChangeDateTime || '',
+          language: cfDoc.language || null,
+          version: cfDoc.version || null,
+          officialSourceURL: cfDoc.officialSourceURL || null,
+          publisher: cfDoc.publisher || null,
+          licenseURI: cfDoc.licenseURI || null,
+          notes: cfDoc.notes || null,
+          frameworkType: cfDoc.frameworkType || null,
+          caseVersion: cfDoc.caseVersion || null,
+          extensions: cfDoc.extensions || null,
+          CFPackageURI: cfDoc.CFPackageURI || null,
+          items: items
+        });
       }
     } else {
       console.log('[DEBUG] Current document already exists, skipping fetch');
@@ -221,7 +258,7 @@ onMounted(async () => {
 
 // Event handlers
 function onSelect(id) {
-  const frameworkId = frameworkStore.currentDocument?.id;
+  const frameworkId = currentDocumentStore.currentDocument?.id;
   if (frameworkId) {
     if (id) {
       router.push(`/${frameworkId}/${id}`);
@@ -236,7 +273,36 @@ function onSelect(id) {
 async function onDocumentChanged({ side, documentId }) {
   try {
     if (documentId) {
-      await frameworkStore.fetchDocument(documentId);
+      const docData = await documentStore.fetchDocument(documentId);
+
+      // Transform and set the current document
+      const cfDoc = docData.CFDocument || {};
+      const items = currentDocumentStore.transformCASEItems(docData.CFItems || [], docData.CFAssociations || []);
+
+      currentDocumentStore.selectDocument({
+        id: cfDoc.identifier,
+        uri: cfDoc.uri || '',
+        title: cfDoc.title || 'Untitled',
+        description: cfDoc.description || null,
+        creator: cfDoc.creator || '',
+        subject: cfDoc.subject || null,
+        subjectURI: cfDoc.subjectURI || [],
+        status: cfDoc.adoptionStatus || 'Draft',
+        statusStartDate: cfDoc.statusStartDate || null,
+        statusEndDate: cfDoc.statusEndDate || null,
+        lastModified: cfDoc.lastChangeDateTime || '',
+        language: cfDoc.language || null,
+        version: cfDoc.version || null,
+        officialSourceURL: cfDoc.officialSourceURL || null,
+        publisher: cfDoc.publisher || null,
+        licenseURI: cfDoc.licenseURI || null,
+        notes: cfDoc.notes || null,
+        frameworkType: cfDoc.frameworkType || null,
+        caseVersion: cfDoc.caseVersion || null,
+        extensions: cfDoc.extensions || null,
+        CFPackageURI: cfDoc.CFPackageURI || null,
+        items: items
+      });
     }
   } catch (error) {
     console.error('Error loading document:', error);
@@ -247,7 +313,37 @@ async function onExternalDocumentRequested({ url }) {
   // Handle external document request
   console.log('External document requested:', url);
   try {
-    await frameworkStore.loadExternalDocument(url);
+    const { data, finalUrl } = await documentStore.loadExternalDocument(url);
+
+    // Transform and set the current document
+    const cfDoc = data.CFDocument || {};
+    const items = currentDocumentStore.transformCASEItems(data.CFItems || [], data.CFAssociations || []);
+
+    currentDocumentStore.selectDocument({
+      id: cfDoc.identifier || 'external-' + Date.now(),
+      uri: cfDoc.uri || finalUrl,
+      title: cfDoc.title || 'External Document',
+      description: cfDoc.description || null,
+      creator: cfDoc.creator || '',
+      subject: cfDoc.subject || null,
+      subjectURI: cfDoc.subjectURI || [],
+      status: cfDoc.adoptionStatus || 'Draft',
+      statusStartDate: cfDoc.statusStartDate || null,
+      statusEndDate: cfDoc.statusEndDate || null,
+      lastModified: cfDoc.lastChangeDateTime || new Date().toISOString(),
+      language: cfDoc.language || null,
+      version: cfDoc.version || null,
+      officialSourceURL: cfDoc.officialSourceURL || finalUrl,
+      publisher: cfDoc.publisher || null,
+      licenseURI: cfDoc.licenseURI || null,
+      notes: cfDoc.notes || null,
+      frameworkType: cfDoc.frameworkType || null,
+      caseVersion: cfDoc.caseVersion || null,
+      extensions: cfDoc.extensions || null,
+      CFPackageURI: cfDoc.CFPackageURI || finalUrl,
+      items: items,
+      isReadOnly: true
+    });
   } catch (error) {
     console.error('Error loading external document:', error);
     // The store's error state will be displayed in the template
@@ -255,19 +351,19 @@ async function onExternalDocumentRequested({ url }) {
 }
 
 function onSearch({ query, filters }) {
-  frameworkStore.setSearchQuery(query);
+  filterStore.setSearchQuery(query);
   if (filters) {
-    frameworkStore.setFilters(filters);
+    filterStore.setFilters(filters);
   }
 }
 
 function onFilter(filters) {
-  frameworkStore.setFilters(filters);
+  filterStore.setFilters(filters);
 }
 
 function onClearSearch() {
-  frameworkStore.setSearchQuery('');
-  frameworkStore.clearFilters();
+  filterStore.setSearchQuery('');
+  filterStore.clearFilters();
   selectedAssociationGroupValue.value = 'all';
 }
 
@@ -286,7 +382,7 @@ function onDeleteItem(item) {
 
 async function handleAddChild(newItem, parentItem) {
   if (newItem && parentItem && parentItem.identifier) {
-    const success = frameworkStore.addItem(newItem, parentItem.identifier);
+    const success = itemStore.addItem(currentDoc.value, newItem, parentItem.identifier);
     if (success) {
       console.log('Child item added successfully');
     } else {
@@ -355,7 +451,7 @@ function onEditDocument() {
 
 async function handleAddRootItem(newItem) {
   if (newItem && currentDocument.value) {
-    const success = frameworkStore.addItem(newItem, null);
+    const success = itemStore.addItem(currentDocument.value, newItem, null);
     if (success) {
       console.log('Root item added successfully');
     } else {
@@ -369,7 +465,7 @@ function onManageAssociationGroups() {
 }
 
 function onItemSaved(updatedItem) {
-  frameworkStore.updateItem(updatedItem);
+  itemStore.updateItem(currentDocument.value, updatedItem);
 }
 
 function findItem(items, id) {
