@@ -499,6 +499,36 @@ export const useFrameworkStore = defineStore('framework', () => {
       }
     });
 
+    function compareBySegment(a, b) {
+        const segmentsA = a.split(/[^a-zA-Z0-9]+/).filter(s => s !== '');
+        const segmentsB = b.split(/[^a-zA-Z0-9]+/).filter(s => s !== '');
+        const maxLen = Math.max(segmentsA.length, segmentsB.length);
+
+        for (let i = 0; i < maxLen; i++) {
+            const segA = segmentsA[i] || '';
+            const segB = segmentsB[i] || '';
+            const isNumA = /^\d+$/.test(segA);
+            const isNumB = /^\d+$/.test(segB);
+
+            if (isNumA && isNumB) {
+                // If both segments are numbers then do a numeric comparison
+                const numA = parseInt(segA, 10);
+                const numB = parseInt(segB, 10);
+
+                if (numA !== numB) {
+                    return numA < numB ? -1 : 1;
+                }
+            } else {
+                const cmp = segA.localeCompare(segB);
+                if (cmp !== 0) {
+                    return cmp;
+                }
+            }
+        }
+
+        return 0;
+    };
+
     // Third pass: sort children by sequenceNumber
     items.forEach(item => {
       if (item.children && item.children.length > 0) {
@@ -512,12 +542,14 @@ export const useFrameworkStore = defineStore('framework', () => {
 
           const schemeA = a.humanCodingScheme || '';
           const schemeB = b.humanCodingScheme || '';
-          if (schemeA !== schemeB) {
-            return schemeA.localeCompare(schemeB);
+          const cmp = compareBySegment(schemeA, schemeB);
+          if (cmp !== 0) {
+            return cmp;
           }
 
           const titleA = a.title || '';
           const titleB = b.title || '';
+
           return titleA.localeCompare(titleB);
         });
       }
@@ -537,12 +569,14 @@ export const useFrameworkStore = defineStore('framework', () => {
 
       const schemeA = a.humanCodingScheme || '';
       const schemeB = b.humanCodingScheme || '';
-      if (schemeA !== schemeB) {
-        return schemeA.localeCompare(schemeB);
+      const cmp = compareBySegment(schemeA, schemeB);
+      if (cmp !== 0) {
+        return cmp;
       }
 
       const titleA = a.title || '';
       const titleB = b.title || '';
+
       return titleA.localeCompare(titleB);
     });
 
