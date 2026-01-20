@@ -330,7 +330,7 @@ watch([selectedTypes, selectedGroups, itemsPerPage, searchFilter], () => {
 function getItemTitle(identifier) {
   const item = flatMap.value.get(identifier);
   if (item) {
-    return item.title || item.abbreviatedTitle || 'Untitled';
+    return item.abbreviatedTitle || item.title || 'Untitled';
   }
   return identifier || 'Unknown';
 }
