@@ -98,15 +98,16 @@
                 <tr>
                   <th scope="col" class="ps-4 py-3 border-0 text-muted small text-uppercase font-weight-bold">Origin</th>
                   <th scope="col" class="py-3 border-0 text-muted small text-uppercase font-weight-bold">Type</th>
-                  <th scope="col" class="py-3 border-0 text-muted small text-uppercase font-weight-bold">Annotation</th>
                   <th scope="col" class="py-3 border-0 text-muted small text-uppercase font-weight-bold">Destination</th>
+                  <th scope="col" class="py-3 border-0 text-muted small text-uppercase font-weight-bold">Annotation</th>
+                  <th scope="col" class="py-3 border-0 text-muted small text-uppercase font-weight-bold">Seq</th>
                   <th scope="col" class="py-3 border-0 text-muted small text-uppercase font-weight-bold">Group</th>
                   <th scope="col" class="pe-4 py-3 border-0 text-muted small text-uppercase font-weight-bold text-end">Actions</th>
                 </tr>
               </thead>
               <tbody class="border-0">
                 <tr v-if="filteredAssociations.length === 0">
-                  <td colspan="6" class="text-center py-5 text-muted border-0">
+                  <td colspan="7" class="text-center py-5 text-muted border-0">
                     <div class="py-4">
                       <i class="bi bi-inbox fs-1 d-block mb-3 opacity-25"></i>
                       <p class="mb-0">No associations found matching the current filters.</p>
@@ -127,16 +128,19 @@
                     </span>
                   </td>
                   <td class="py-3">
+                    <div class="item-link d-inline-block text-truncate" style="max-width: 300px;" @click="goToItem(assoc.destinationNodeURI?.identifier)" :title="getItemFullTitle(assoc.destinationNodeURI?.identifier)">
+                      <span v-if="getItemCodingScheme(assoc.destinationNodeURI?.identifier)" class="fw-bold me-1">{{ getItemCodingScheme(assoc.destinationNodeURI?.identifier) }}</span>
+                      {{ getItemTitle(assoc.destinationNodeURI?.identifier) }}
+                    </div>
+                  </td>
+                  <td class="py-3">
                     <div v-if="assoc.notes" class="text-muted small text-truncate" style="max-width: 250px;" :title="assoc.notes">
                       {{ assoc.notes }}
                     </div>
                     <span v-else class="text-secondary opacity-25">&mdash;</span>
                   </td>
-                  <td class="py-3">
-                    <div class="item-link d-inline-block text-truncate" style="max-width: 300px;" @click="goToItem(assoc.destinationNodeURI?.identifier)" :title="getItemFullTitle(assoc.destinationNodeURI?.identifier)">
-                      <span v-if="getItemCodingScheme(assoc.destinationNodeURI?.identifier)" class="fw-bold me-1">{{ getItemCodingScheme(assoc.destinationNodeURI?.identifier) }}</span>
-                      {{ getItemTitle(assoc.destinationNodeURI?.identifier) }}
-                    </div>
+                  <td class="py-3 text-muted small">
+                    {{ assoc.sequenceNumber }}
                   </td>
                   <td class="py-3">
                     <span class="badge bg-light text-secondary border fw-normal px-2 py-1">
@@ -146,7 +150,7 @@
                   <td class="pe-4 py-3 text-end">
                     <div class="btn-group btn-group-sm rounded-pill overflow-hidden shadow-sm border border-light p-1 bg-white">
                       <!-- Edit/Delete will be connected once actions are available -->
-                      <button class="btn btn-link text-secondary p-1 px-2 border-0" @click="editAssoc(assoc)" title="Edit">
+                      <button v-if="assoc.associationType !== 'isChildOf'" class="btn btn-link text-secondary p-1 px-2 border-0" @click="editAssoc(assoc)" title="Edit">
                         <i class="bi bi-pencil-square"></i>
                       </button>
                       <button class="btn btn-link text-danger p-1 px-2 border-0" @click="deleteAssoc(assoc)" title="Delete">
@@ -334,10 +338,23 @@ watch([selectedTypes, selectedGroups, itemsPerPage, searchFilter], () => {
 });
 
 function getItemTitle(identifier) {
+  // Check if it's an item in the current document
   const item = flatMap.value.get(identifier);
   if (item) {
     return item.abbreviatedTitle || item.title || 'Untitled';
   }
+
+  // Check if it's the current document itself
+  if (currentDocument.value?.id === identifier || currentDocument.value?.identifier === identifier) {
+    return currentDocument.value.title || 'Current Document';
+  }
+
+  // Check if it's an associated document
+  const assocDoc = currentDocumentStore.getAssociatedDocument(identifier);
+  if (assocDoc) {
+    return assocDoc.title || 'Associated Document';
+  }
+
   return identifier || 'Unknown';
 }
 
@@ -347,11 +364,24 @@ function getItemCodingScheme(identifier) {
 }
 
 function getItemFullTitle(identifier) {
+  // Check items first
   const item = flatMap.value.get(identifier);
   if (item) {
     const scheme = item.humanCodingScheme ? `${item.humanCodingScheme}: ` : '';
     return `${scheme}${item.title || item.abbreviatedTitle || 'Untitled'}`;
   }
+
+  // Check current document
+  if (currentDocument.value?.id === identifier || currentDocument.value?.identifier === identifier) {
+    return currentDocument.value.title || 'Current Document';
+  }
+
+  // Check associated documents
+  const assocDoc = currentDocumentStore.getAssociatedDocument(identifier);
+  if (assocDoc) {
+    return assocDoc.title || 'Associated Document';
+  }
+
   return identifier || 'Unknown';
 }
 
