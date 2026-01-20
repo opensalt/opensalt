@@ -18,6 +18,24 @@
           <i class="bi bi-filter-right me-2 fs-4"></i> Filters
         </h5>
 
+        <!-- Text Search -->
+        <div class="filter-section mb-4">
+          <label class="form-label fw-bold small text-uppercase text-muted mb-2 letter-spacing-1">Search</label>
+          <div class="input-group input-group-sm shadow-sm border rounded">
+            <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
+            <input
+              v-model="searchFilter"
+              type="text"
+              class="form-control border-0 ps-0"
+              placeholder="Search associations..."
+              aria-label="Search associations"
+            >
+            <button v-if="searchFilter" class="btn btn-link btn-sm text-secondary border-0" @click="searchFilter = ''">
+              <i class="bi bi-x-circle-fill"></i>
+            </button>
+          </div>
+        </div>
+
         <!-- Association Types Filter -->
         <div class="filter-section mb-5">
           <label class="form-label fw-bold small text-uppercase text-muted mb-3 letter-spacing-1">Association Types</label>
@@ -199,6 +217,7 @@ const associationGroups = computed(() => currentDocumentStore.associationGroups)
 
 const selectedTypes = ref([]);
 const selectedGroups = ref(['all']);
+const searchFilter = ref('');
 
 // Pagination state
 const currentPage = ref(1);
@@ -235,11 +254,31 @@ const flatMap = computed(() => {
 });
 
 const filteredAssociations = computed(() => {
+  const query = searchFilter.value.toLowerCase().trim();
+  
   return associations.value.filter(assoc => {
+    // Type match
     const typeMatch = selectedTypes.value.length === 0 || selectedTypes.value.includes(assoc.associationType);
+    
+    // Group match
     const groupId = assoc.groupId || 'default';
     const groupMatch = selectedGroups.value.includes('all') || selectedGroups.value.includes(groupId);
-    return typeMatch && groupMatch;
+    
+    if (!typeMatch || !groupMatch) return false;
+
+    // Text search match
+    if (query) {
+      const originTitle = getItemTitle(assoc.originNodeURI?.identifier).toLowerCase();
+      const destTitle = getItemTitle(assoc.destinationNodeURI?.identifier).toLowerCase();
+      const notes = (assoc.notes || '').toLowerCase();
+      const type = (assoc.associationType || '').toLowerCase();
+      
+      return originTitle.includes(query) ||
+        destTitle.includes(query) ||
+        notes.includes(query);
+    }
+
+    return true;
   });
 });
 
@@ -284,7 +323,7 @@ const displayedPages = computed(() => {
 
 // Watch for filter changes to reset pagination
 import { watch } from 'vue';
-watch([selectedTypes, selectedGroups, itemsPerPage], () => {
+watch([selectedTypes, selectedGroups, itemsPerPage, searchFilter], () => {
   currentPage.value = 1;
 });
 
@@ -304,6 +343,7 @@ function getGroupTitle(groupId) {
 function resetFilters() {
   selectedTypes.value = [];
   selectedGroups.value = ['all'];
+  searchFilter.value = '';
 }
 
 function goToItem(identifier) {
