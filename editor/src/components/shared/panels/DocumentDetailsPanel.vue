@@ -63,6 +63,11 @@
           <strong>Publisher:</strong> {{ document.publisher }}
         </div>
 
+        <div v-if="document.licenseURI" class="mt-2 text-truncate">
+            <strong>License:</strong> 
+            <a :href="document.licenseURI" target="_blank" class="ms-1">{{ document.licenseURI }}</a>
+        </div>
+
         <div v-if="document.officialSourceURL" class="mt-2">
           <strong>Source URL:</strong> <a :href="document.officialSourceURL" target="_blank" class="text-decoration-none">
             {{ document.officialSourceURL }}

@@ -1,6 +1,20 @@
 <template>
   <details v-if="hasChildren" :open="isExpanded" @toggle="onToggle" class="tree-node" role="treeitem" :aria-level="level + 1">
-    <summary class="expand-control" :style="{ marginLeft: (level * 20) + 'px' }" @click="onSummaryClick">
+    <summary
+      class="expand-control"
+      :style="{ marginLeft: (level * 20) + 'px' }"
+      @click="onSummaryClick"
+      draggable="true"
+      @dragstart="onDragStart"
+      @dragover="onDragOver"
+      @dragleave="onDragLeave"
+      @drop="onDrop"
+      :class="{
+        'drop-before': dropPosition === 'before',
+        'drop-after': dropPosition === 'after',
+        'drop-inside': dropPosition === 'inside'
+      }"
+    >
       <span class="expand-indicator" aria-hidden="true">
         <i :class="isExpanded ? 'bi bi-caret-down-fill' : 'bi bi-caret-right-fill'"></i>
       </span>
@@ -23,27 +37,72 @@
       <slot name="actions" :item="item" />
     </summary>
 
-    <TreeNode
-      v-for="(child, cidx) in item.children"
-      :key="child.identifier"
-      :item="child"
-      :level="level + 1"
-      :selected-id="selectedId"
-      :parent-items="item.children"
-      :index="cidx"
-      @select="$emit('select', $event)"
-      @dblclick="$emit('dblclick', $event)"
-      @move="$emit('move', $event)"
-    >
-      <template #actions="slotProps">
-        <slot name="actions" v-bind="slotProps" />
-      </template>
-    </TreeNode>
+    <div v-if="hasChildren" class="children-container">
+      <!-- Drag and Drop temporarily disabled to fix rendering issue -->
+      <div v-for="(child, index) in item.children" :key="child.identifier">
+          <TreeNode
+            :item="child"
+            :level="level + 1"
+            :selected-id="selectedId"
+            :parent-items="item.children"
+            :index="index"
+            @select="$emit('select', $event)"
+            @dblclick="$emit('dblclick', $event)"
+            @move="$emit('move', $event)"
+            @item-change="$emit('item-change', $event)"
+          >
+            <template #actions="slotProps">
+              <slot name="actions" v-bind="slotProps" />
+            </template>
+          </TreeNode>
+      </div>
+      <!--
+      <draggable
+        class="drag-area"
+        tag="div"
+        v-model="item.children"
+        group="salt-tree"
+        @change="onChange"
+        item-key="identifier"
+      >
+        <template #item="{ element, index }">
+          <TreeNode
+            :item="element"
+            :level="level + 1"
+            :selected-id="selectedId"
+            :parent-items="item.children"
+            :index="index"
+            @select="$emit('select', $event)"
+            @dblclick="$emit('dblclick', $event)"
+            @move="$emit('move', $event)"
+            @item-change="$emit('item-change', $event)"
+          >
+            <template #actions="slotProps">
+              <slot name="actions" v-bind="slotProps" />
+            </template>
+          </TreeNode>
+        </template>
+      </draggable>
+      -->
+    </div>
   </details>
 
   <!-- For items without children -->
   <div v-else class="tree-node" role="treeitem" :aria-level="level + 1">
-    <div class="tree-node-content" :style="{ marginLeft: (level * 20) + 'px' }">
+    <div
+      class="tree-node-content"
+      :style="{ marginLeft: (level * 20) + 'px' }"
+      draggable="true"
+      @dragstart="onDragStart"
+      @dragover="onDragOver"
+      @dragleave="onDragLeave"
+      @drop="onDrop"
+      :class="{
+        'drop-before': dropPosition === 'before',
+        'drop-after': dropPosition === 'after',
+        'drop-inside': dropPosition === 'inside'
+      }"
+    >
       <span class="no-children-spacer" aria-hidden="true"></span>
       <img :src="iconSrc" class="tree-icon" aria-hidden="true" />
       <div
@@ -68,6 +127,7 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue';
+import { useCurrentDocumentStore } from '@/stores/currentDocumentStore';
 import { renderMarkdown } from '@/utils/markdownRenderer.js';
 
 import docIcon from '@/assets/icons/ph/graph-fill.svg';
@@ -92,7 +152,7 @@ const props = defineProps({
         default: false
     }
 });
-const emit = defineEmits(['select', 'dblclick', 'move']);
+const emit = defineEmits(['select', 'dblclick', 'move', 'item-change']);
 
 const isExpanded = ref(props.startExpanded); // Start closed by default
 const isFocused = ref(false);
@@ -100,6 +160,10 @@ const hasChildren = computed(() => props.item.children && props.item.children.le
 
 const showPopover = ref(false);
 const popoverTimeout = ref(null);
+
+const onChange = (evt) => {
+    emit('item-change', { event: evt, parent: props.item });
+};
 
 const onMouseEnter = () => {
   if (popoverTimeout.value) {
@@ -188,23 +252,54 @@ const onKeyDown = (event) => {
 };
 
 // Drag-and-drop
-const dragOver = ref(false);
+const currentDocumentStore = useCurrentDocumentStore();
+const dropPosition = ref(null);
+
 function onDragStart(e) {
   e.dataTransfer.effectAllowed = 'move';
-  e.dataTransfer.setData('text/plain', props.index);
+  e.dataTransfer.setData('application/json', JSON.stringify({
+    identifier: props.item.identifier,
+    documentId: props.item.CFDocumentURI?.identifier || props.item.documentId
+  }));
+  currentDocumentStore.setDraggedItem(props.item);
 }
+
 function onDragOver(e) {
   e.preventDefault();
-  dragOver.value = true;
+  const rect = e.currentTarget.getBoundingClientRect();
+  const y = e.clientY - rect.top;
+  const height = rect.height;
+
+  // Sensitivity areas: top 25% = before, bottom 25% = after, middle 50% = inside
+  if (y < height * 0.25) {
+    dropPosition.value = 'before';
+  } else if (y > height * 0.75) {
+    dropPosition.value = 'after';
+  } else {
+    dropPosition.value = 'inside';
+  }
 }
+
 function onDragLeave() {
-  dragOver.value = false;
+  dropPosition.value = null;
 }
+
 function onDrop(e) {
   e.preventDefault();
-  dragOver.value = false;
-  const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
-  emit('move', { fromIdx, toIdx: props.index, parentItems: props.parentItems });
+  const position = dropPosition.value;
+  dropPosition.value = null;
+
+  const draggedItem = currentDocumentStore.draggedItem;
+  if (!draggedItem) return;
+
+  // Don't drop on self
+  if (draggedItem.identifier === props.item.identifier) return;
+
+  emit('move', {
+    draggedItem,
+    targetItem: props.item,
+    position // 'before', 'inside', 'after'
+  });
 }
 </script>
 
@@ -350,5 +445,18 @@ function onDrop(e) {
   border-right: 5px solid transparent;
   border-bottom: 5px solid white;
   pointer-events: none;
+}
+
+.drop-before {
+  border-top: 2px solid #007bff !important;
+}
+
+.drop-after {
+  border-bottom: 2px solid #007bff !important;
+}
+
+.drop-inside {
+  background-color: rgba(0, 123, 255, 0.1) !important;
+  border: 1px dashed #007bff !important;
 }
 </style>

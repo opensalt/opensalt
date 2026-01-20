@@ -16,6 +16,7 @@
           @select="onSelect"
           @dblclick="onDblClick"
           @move="onMove"
+          @item-change="onItemChange"
         />
       </div>
     </div>
@@ -38,7 +39,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['select', 'dblclick']);
+const emit = defineEmits(['select', 'dblclick', 'tree-change']);
 
 // Create a document root node with items as children
 const documentRoot = computed(() => {
@@ -63,10 +64,14 @@ function onSelect(id) {
 function onDblClick(id) {
   emit('dblclick', id);
 }
-function onMove({ fromIdx, toIdx, parentItems }) {
-  if (fromIdx === toIdx) return;
-  const moved = parentItems.splice(fromIdx, 1)[0];
-  parentItems.splice(toIdx, 0, moved);
+function onItemChange(event) {
+  emit('tree-change', event);
+}
+function onMove(event) {
+  emit('tree-change', {
+    type: 'move',
+    ...event
+  });
 }
 </script>
 

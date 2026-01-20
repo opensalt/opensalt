@@ -204,32 +204,18 @@ function saveGroup() {
     return;
   }
 
-  saving.value = true;
-  error.value = '';
+  const groupData = {
+    title: formData.title,
+    description: formData.description
+  };
 
-  // Simulate saving - in real app this would be an API call
-  setTimeout(() => {
-    try {
-      const groupData = {
-        title: formData.title,
-        description: formData.description,
-        id: isEdit.value ? editingGroup.value.id : 'group_' + Date.now(),
-        created: new Date().toISOString()
-      };
+  if (isEdit.value && editingGroup.value) {
+    groupData.id = editingGroup.value.id;
+  }
 
-      if (isEdit.value) {
-        groupData.updated = new Date().toISOString();
-      }
-
-      emit('saved', groupData);
-      mode.value = 'list';
-      resetForm();
-    } catch (e) {
-      error.value = 'Failed to save association group: ' + e.message;
-    } finally {
-      saving.value = false;
-    }
-  }, 1000);
+  emit('saved', groupData);
+  mode.value = 'list';
+  resetForm();
 }
 
 function deleteGroup(group) {

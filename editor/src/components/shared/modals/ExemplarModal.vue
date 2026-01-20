@@ -153,33 +153,18 @@ function addExemplar() {
     return;
   }
 
-  saving.value = true;
-  error.value = '';
+  const exemplarData = {
+      originNodeIdentifier: props.currentItem?.identifier,
+      destinationNodeUri: formData.exemplarUrl,
+      associationType: 'exemplar',
+      annotation: formData.annotation,
+      notes: formData.exemplarDescription
+  };
 
-  // Simulate adding exemplar - in real app this would be an API call
-  setTimeout(() => {
-    try {
-      const exemplar = {
-        id: 'exemplar_' + Date.now(),
-        identifier: 'exemplar_' + Date.now(),
-        originItem: props.currentItem,
-        type: 'exemplar',
-        exemplarUrl: formData.exemplarUrl,
-        exemplarDescription: formData.exemplarDescription,
-        annotation: formData.annotation,
-        created: new Date().toISOString()
-      };
-
-      emit('added', exemplar);
-      if (modal.value) {
-        modal.value.hide();
-      }
-    } catch (e) {
-      error.value = 'Failed to add exemplar: ' + e.message;
-    } finally {
-      saving.value = false;
-    }
-  }, 1000);
+  emit('added', exemplarData);
+  if (modal.value) {
+    modal.value.hide();
+  }
 }
 
 // Handle modal hidden event

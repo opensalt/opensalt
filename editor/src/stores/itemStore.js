@@ -84,10 +84,91 @@ export const useItemStore = defineStore('items', () => {
     return true;
   }
 
+  function removeItemRecursively(items, identifier) {
+    if (!Array.isArray(items)) return null;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].identifier === identifier) {
+        return items.splice(i, 1)[0];
+      }
+      if (items[i].children) {
+        const removed = removeItemRecursively(items[i].children, identifier);
+        if (removed) return removed;
+      }
+    }
+    return null;
+  }
+
+  async function moveItem(currentDocument, { draggedItem, targetItem, position }) {
+    if (!currentDocument || !draggedItem || !targetItem) return false;
+
+    // Remove from current position
+    const itemToMove = removeItemRecursively(currentDocument.items, draggedItem.identifier);
+    if (!itemToMove) {
+      console.warn('Could not find dragged item to move:', draggedItem.identifier);
+      return false;
+    }
+
+    // Find parent of target
+    let targetParentArray = currentDocument.items;
+    let targetParent = null;
+
+    if (targetItem.identifier !== currentDocument.id) {
+      // Find the parent of targetItem
+      const findParent = (items, targetId) => {
+        for (const item of items) {
+          if (item.children && item.children.some(c => c.identifier === targetId)) {
+            return item;
+          }
+          if (item.children) {
+            const found = findParent(item.children, targetId);
+            if (found) return found;
+          }
+        }
+        return null;
+      };
+      targetParent = findParent(currentDocument.items, targetItem.identifier);
+      if (targetParent) {
+        targetParentArray = targetParent.children;
+      }
+    }
+
+    const targetIndex = targetParentArray.findIndex(item => item.identifier === targetItem.identifier);
+
+    if (position === 'before') {
+      targetParentArray.splice(targetIndex, 0, itemToMove);
+    } else if (position === 'after') {
+      targetParentArray.splice(targetIndex + 1, 0, itemToMove);
+    } else if (position === 'inside') {
+      if (!targetItem.children) targetItem.children = [];
+      targetItem.children.push(itemToMove);
+    }
+
+    // Update sequence numbers
+    const updateSequence = (items) => {
+      items.forEach((item, index) => {
+        item.sequenceNumber = (index + 1) * 10; // Use spacing to allow future reorders
+      });
+    };
+
+    if (position === 'inside') {
+      updateSequence(targetItem.children);
+    } else {
+      updateSequence(targetParentArray);
+    }
+
+    console.log('Item moved successfully from', draggedItem.identifier, 'to', targetItem.identifier, position);
+
+    // In a real app, you would also trigger an API call here to persist the change.
+    // For now, it's just local state.
+
+    return true;
+  }
+
   return {
     updateItem,
     addItem,
     findItemByIdentifier,
-    getMaxSequence
+    getMaxSequence,
+    moveItem
   };
 });

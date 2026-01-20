@@ -50,12 +50,35 @@
         </div>
 
         <div class="row">
-          <div v-if="item.itemType" class="col-sm-12">
+          <div v-if="item.itemType" class="col-sm-6">
             <strong>Item Type:</strong> {{ item.itemType || 'General' }}
           </div>
-          <div v-if="item.language" class="col-sm-12">
+          <div v-if="item.language" class="col-sm-6">
             <strong>Language:</strong> {{ item.language || 'en' }}
           </div>
+        </div>
+
+        <div v-if="item.educationLevel && item.educationLevel.length > 0" class="mt-2">
+            <strong>Education Level:</strong>
+            <div class="mt-1">
+                <span v-for="level in item.educationLevel" :key="level" class="badge bg-info text-dark me-1">
+                    {{ level }}
+                </span>
+            </div>
+        </div>
+
+        <div v-if="item.conceptKeywords && item.conceptKeywords.length > 0" class="mt-2">
+            <strong>Keywords:</strong>
+            <div class="mt-1">
+                <span v-for="keyword in item.conceptKeywords" :key="keyword" class="badge bg-secondary me-1">
+                    {{ keyword }}
+                </span>
+            </div>
+        </div>
+
+        <div v-if="item.licenseURI" class="mt-2 text-truncate">
+            <strong>License:</strong> 
+            <a :href="item.licenseURI" target="_blank" class="ms-1">{{ item.licenseURI }}</a>
         </div>
 
         <div v-if="item.lastChanged" class="mt-2">

@@ -34,7 +34,13 @@
 
         <!-- Tree View -->
         <div class="mt-3 flex-grow-1 overflow-auto">
-          <TreeView :doc="filteredDoc" :selected-id="selectedId" @select="onSelect" :search="searchQuery" />
+          <TreeView
+            :doc="filteredDoc"
+            :selected-id="selectedId"
+            @select="onSelect"
+            :search="searchQuery"
+            @tree-change="onTreeChange"
+          />
         </div>
       </section>
 
@@ -199,29 +205,48 @@ const currentDoc = computed(() => currentDocumentStore.currentDocument);
 // Initialize data on mount
 onMounted(async () => {
   try {
-    console.log('[DEBUG] EnhancedDocumentTreeEditor onMounted - currentDocument state:', {
-      currentDocument: currentDocumentStore.currentDocument,
-      isNull: currentDocumentStore.currentDocument === null,
-      isUndefined: currentDocumentStore.currentDocument === undefined,
-      isEmptyObject: currentDocumentStore.currentDocument && Object.keys(currentDocumentStore.currentDocument).length === 0,
-      hasItems: currentDocumentStore.currentDocument?.items?.length > 0,
-      documentKeys: currentDocumentStore.currentDocument ? Object.keys(currentDocumentStore.currentDocument) : []
-    });
-
-    if (!currentDocumentStore.currentDocument || Object.keys(currentDocumentStore.currentDocument).length === 0) {
+    const frameworkId = route.params.frameworkId;
+    
+    if (frameworkId) {
+      console.log('[DEBUG] Loading document from route:', frameworkId);
+      const docData = await documentStore.fetchDocument(frameworkId);
+      const cfDoc = docData.CFDocument || {};
+      const items = currentDocumentStore.transformCASEItems(docData.CFItems || [], docData.CFAssociations || [], cfDoc.identifier);
+      
+      currentDocumentStore.selectDocument({
+        id: cfDoc.identifier,
+        uri: cfDoc.uri || '',
+        title: cfDoc.title || 'Untitled',
+        description: cfDoc.description || null,
+        creator: cfDoc.creator || '',
+        subject: cfDoc.subject || null,
+        subjectURI: cfDoc.subjectURI || [],
+        status: cfDoc.adoptionStatus || 'Draft',
+        statusStartDate: cfDoc.statusStartDate || null,
+        statusEndDate: cfDoc.statusEndDate || null,
+        lastModified: cfDoc.lastChangeDateTime || '',
+        language: cfDoc.language || null,
+        version: cfDoc.version || null,
+        officialSourceURL: cfDoc.officialSourceURL || null,
+        publisher: cfDoc.publisher || null,
+        licenseURI: cfDoc.licenseURI || null,
+        notes: cfDoc.notes || null,
+        frameworkType: cfDoc.frameworkType || null,
+        caseVersion: cfDoc.caseVersion || null,
+        extensions: cfDoc.extensions || null,
+        CFPackageURI: cfDoc.CFPackageURI || null,
+        items: items
+      }, docData.CFAssociationGroupings || []);
+    } else if (!currentDocumentStore.currentDocument || Object.keys(currentDocumentStore.currentDocument).length === 0) {
       console.log('[DEBUG] No current document found, fetching documents...');
-      // Fetch the list of available documents
       await documentStore.fetchDocuments();
 
-      // If there are documents available, load the first one as an example
       if (documentStore.documents.length > 0) {
         const firstDoc = documentStore.documents[0];
         console.log('[DEBUG] Loading first document:', firstDoc.id);
         const docData = await documentStore.fetchDocument(firstDoc.id);
-
-        // Transform and set the current document
         const cfDoc = docData.CFDocument || {};
-        const items = currentDocumentStore.transformCASEItems(docData.CFItems || [], docData.CFAssociations || []);
+        const items = currentDocumentStore.transformCASEItems(docData.CFItems || [], docData.CFAssociations || [], cfDoc.identifier);
 
         currentDocumentStore.selectDocument({
           id: cfDoc.identifier,
@@ -246,7 +271,7 @@ onMounted(async () => {
           extensions: cfDoc.extensions || null,
           CFPackageURI: cfDoc.CFPackageURI || null,
           items: items
-        });
+        }, docData.CFAssociationGroupings || []);
       }
     } else {
       console.log('[DEBUG] Current document already exists, skipping fetch');
@@ -270,6 +295,25 @@ function onSelect(id) {
   }
 }
 
+async function onTreeChange(event) {
+  if (event.type === 'move') {
+    const { draggedItem, targetItem, position } = event;
+    
+    // Check if it's internal or cross-tree
+    const draggedDocId = draggedItem.CFDocumentURI?.identifier || draggedItem.documentId;
+    const targetDocId = currentDoc.value?.id;
+    
+    if (draggedDocId === targetDocId) {
+      // Internal move
+      await itemStore.moveItem(currentDoc.value, { draggedItem, targetItem, position });
+    } else {
+      // Cross-tree move (Copy/Associate)
+      console.log('Cross-tree move requested:', draggedItem.identifier, '->', targetItem.identifier);
+      // TODO: Trigger CrossTreeDropModal
+    }
+  }
+}
+
 async function onDocumentChanged({ side, documentId }) {
   try {
     if (documentId) {
@@ -277,7 +321,7 @@ async function onDocumentChanged({ side, documentId }) {
 
       // Transform and set the current document
       const cfDoc = docData.CFDocument || {};
-      const items = currentDocumentStore.transformCASEItems(docData.CFItems || [], docData.CFAssociations || []);
+      const items = currentDocumentStore.transformCASEItems(docData.CFItems || [], docData.CFAssociations || [], cfDoc.identifier);
 
       currentDocumentStore.selectDocument({
         id: cfDoc.identifier,
@@ -317,10 +361,11 @@ async function onExternalDocumentRequested({ url }) {
 
     // Transform and set the current document
     const cfDoc = data.CFDocument || {};
-    const items = currentDocumentStore.transformCASEItems(data.CFItems || [], data.CFAssociations || []);
+    const externalId = cfDoc.identifier || 'external-' + Date.now();
+    const items = currentDocumentStore.transformCASEItems(data.CFItems || [], data.CFAssociations || [], externalId);
 
     currentDocumentStore.selectDocument({
-      id: cfDoc.identifier || 'external-' + Date.now(),
+      id: externalId,
       uri: cfDoc.uri || finalUrl,
       title: cfDoc.title || 'External Document',
       description: cfDoc.description || null,

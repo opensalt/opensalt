@@ -1,9 +1,10 @@
+
 import underline from 'markdown-it-underline';
 import mk from '@vscode/markdown-it-katex';
 import markdown from 'markdown-it';
-import sanitizeHtml from 'sanitize-html';
+// import sanitizeHtml from 'sanitize-html';
 
-const render = (function() {
+const render = (function () {
     const
         md = markdown('default', {
             html: true,
@@ -31,6 +32,8 @@ const render = (function() {
         });
 
     function sanitizerBlock(dirty) {
+        return dirty;
+        /*
         return sanitizeHtml(dirty, {
             allowedTags: [
                 'ul', 'ol', 'li',
@@ -44,51 +47,64 @@ const render = (function() {
                 'img': ['src', 'alt', 'title']
             }
         });
+        */
     }
 
     function sanitizerInline(dirty) {
+        return dirty;
+        /*
         return sanitizeHtml(dirty, {
             allowedTags: ['img'],
             allowedAttributes: {'img': ['alt', 'title']}
         });
+        */
     }
 
     const render = {
-        block: function(value) {
+        block: function (value) {
             return md.render(sanitizerBlock(value));
         },
 
-        inline: function(value) {
+        inline: function (value) {
             // Remove images and replace with alt text or "[image]"
             let htmlString = mdInline.renderInline(sanitizerInline(value));
-            let parser = new DOMParser();
-            let doc = parser.parseFromString('<div>' + htmlString + '</div>', 'text/html');
-            let div = doc.querySelector('div');
-            let imgs = div.querySelectorAll('img');
-            imgs.forEach(img => {
-                let text = '[' + (img.alt || img.title || 'image') + ']';
-                let textNode = doc.createTextNode(text);
-                img.parentNode.replaceChild(textNode, img);
-            });
-            return div.innerHTML;
+            // Basic DOM parsing to replace images - OK in browser
+            try {
+                let parser = new DOMParser();
+                let doc = parser.parseFromString('<div>' + htmlString + '</div>', 'text/html');
+                let div = doc.querySelector('div');
+                let imgs = div.querySelectorAll('img');
+                imgs.forEach(img => {
+                    let text = '[' + (img.alt || img.title || 'image') + ']';
+                    let textNode = doc.createTextNode(text);
+                    img.parentNode.replaceChild(textNode, img);
+                });
+                return div.innerHTML;
+            } catch (e) {
+                return htmlString;
+            }
         },
 
-        inlineLinked: function(value) {
+        inlineLinked: function (value) {
             // Remove images and replace with alt text or "[image]"
             let htmlString = mdInlineLinked.renderInline(sanitizerInline(value));
-            let parser = new DOMParser();
-            let doc = parser.parseFromString('<div>' + htmlString + '</div>', 'text/html');
-            let div = doc.querySelector('div');
-            let imgs = div.querySelectorAll('img');
-            imgs.forEach(img => {
-                let text = '[' + (img.alt || img.title || 'image') + ']';
-                let textNode = doc.createTextNode(text);
-                img.parentNode.replaceChild(textNode, img);
-            });
-            return div.innerHTML;
+            try {
+                let parser = new DOMParser();
+                let doc = parser.parseFromString('<div>' + htmlString + '</div>', 'text/html');
+                let div = doc.querySelector('div');
+                let imgs = div.querySelectorAll('img');
+                imgs.forEach(img => {
+                    let text = '[' + (img.alt || img.title || 'image') + ']';
+                    let textNode = doc.createTextNode(text);
+                    img.parentNode.replaceChild(textNode, img);
+                });
+                return div.innerHTML;
+            } catch (e) {
+                return htmlString;
+            }
         },
 
-        escaped: function(value) {
+        escaped: function (value) {
             let entityMap = {
                 '&': '&amp;',
                 '<': '&lt;',
@@ -100,7 +116,7 @@ const render = (function() {
                 '=': '&#x3D;'
             };
 
-            return String(value).replace(/[&<>"'`=\/]/g, function(s) {
+            return String(value).replace(/[&<>"'`=\/]/g, function (s) {
                 return entityMap[s];
             });
         }

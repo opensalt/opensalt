@@ -223,43 +223,21 @@ function createAssociation() {
 
   const finalType = formData.type === 'other' ? customType.value.trim() : formData.type;
 
-  saving.value = true;
-  error.value = '';
+  const effectiveOrigin = isReversed.value ? props.destinationItem : props.originItem;
+  const effectiveDestination = isReversed.value ? props.originItem : props.destinationItem;
 
-  // Simulate creating association - in real app this would be an API call
-  setTimeout(() => {
-    try {
-      const effectiveOrigin = isReversed.value ? props.destinationItem : props.originItem;
-      const effectiveDestination = isReversed.value ? props.originItem : props.destinationItem;
-      const association = {
-        id: 'assoc_' + Date.now(),
-        identifier: 'assoc_' + Date.now(),
-        origin: {
-          identifier: effectiveOrigin?.identifier,
-          title: effectiveOrigin?.title,
-          humanCodingScheme: effectiveOrigin?.humanCodingScheme
-        },
-        destination: {
-          identifier: effectiveDestination?.identifier,
-          title: effectiveDestination?.title,
-          humanCodingScheme: effectiveDestination?.humanCodingScheme
-        },
-        type: finalType,
-        annotation: formData.annotation,
-        groupId: formData.groupId,
-        created: new Date().toISOString()
-      };
+  const associationData = {
+    originNodeIdentifier: effectiveOrigin?.identifier,
+    destinationNodeIdentifier: effectiveDestination?.identifier,
+    associationType: finalType,
+    annotation: formData.annotation,
+    associationGroupingIdentifier: formData.groupId !== 'default' ? formData.groupId : null
+  };
 
-      emit('created', association);
-      if (modal.value) {
-        modal.value.hide();
-      }
-    } catch (e) {
-      error.value = 'Failed to create association: ' + e.message;
-    } finally {
-      saving.value = false;
-    }
-  }, 1000);
+  emit('created', associationData);
+  if (modal.value) {
+    modal.value.hide();
+  }
 }
 
 // Handle modal hidden event
