@@ -67,7 +67,7 @@ router.beforeEach(async (to, from, next) => {
         extensions: cfDoc.extensions || null,
         CFPackageURI: cfDoc.CFPackageURI || null,
         items: items
-      });
+      }, docData.CFAssociationGroupings || [], docData.CFAssociations || []);
     } catch (error) {
       console.error('Failed to load framework:', error);
       // Redirect to root or error page

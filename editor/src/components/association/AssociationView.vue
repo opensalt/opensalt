@@ -1,162 +1,336 @@
 <template>
-  <div class="association-view">
-    <div v-if="loading" class="d-flex justify-content-center align-items-center" style="height: 100%;">
+  <div class="association-view h-100 d-flex flex-column bg-light">
+    <div v-if="loading" class="d-flex justify-content-center align-items-center flex-grow-1">
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Loading associations...</span>
       </div>
     </div>
-    <div v-else-if="error" class="alert alert-danger my-4" role="alert">
+    <div v-else-if="error" class="alert alert-danger m-4" role="alert">
       {{ error }}
     </div>
-    <div v-else-if="!currentDocument" class="alert alert-info my-4" role="alert">
+    <div v-else-if="!currentDocument" class="alert alert-info m-4" role="alert">
       Please select a document to view associations.
     </div>
-    <div v-else class="row g-0" style="height: 100%;">
-      <!-- Association Graph Panel -->
-      <section class="col-8 association-graph-panel d-flex flex-column">
-        <div class="p-3 flex-grow-1 d-flex flex-column">
-          <h3 class="mb-3">Association Network</h3>
-          <div class="association-graph-container border rounded p-3 flex-grow-1 overflow-auto">
-            <div v-if="associations.length === 0" class="text-center text-muted">
-              <i class="bi bi-share fs-1 mb-3"></i>
-              <p>No associations found in this document.</p>
-            </div>
-            <div v-else class="association-network">
-              <!-- Simple association visualization -->
-              <div class="association-list">
-                <div v-for="assoc in associations.slice(0, 20)" :key="assoc.identifier" class="association-item mb-3 p-3 border rounded">
-                  <div class="row g-0 align-items-center">
-                    <div class="col-5">
-                      <div class="association-node source-node">
-                        <small class="text-muted">Source</small>
-                        <div class="node-content">{{ getItemTitle(assoc.originNodeURI?.identifier) }}</div>
-                      </div>
-                    </div>
-                    <div class="col-2 text-center">
-                      <div class="association-arrow">
-                        <i class="bi bi-arrow-right fs-4 text-primary"></i>
-                        <div class="association-type badge bg-primary mt-1">{{ assoc.associationType }}</div>
-                      </div>
-                    </div>
-                    <div class="col-5">
-                      <div class="association-node target-node">
-                        <small class="text-muted">Target</small>
-                        <div class="node-content">{{ getItemTitle(assoc.destinationNodeURI?.identifier) }}</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div v-if="associations.length > 20" class="text-center mt-3">
-                <small class="text-muted">Showing first 20 associations of {{ associations.length }} total</small>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+    <div v-else class="d-flex flex-grow-1 overflow-hidden" style="min-height: 0;">
+      <!-- Filters Sidebar -->
+      <aside class="col-md-3 col-lg-2 border-end p-4 bg-white overflow-auto shadow-sm filter-panel flex-shrink-0">
+        <h5 class="mb-4 d-flex align-items-center text-secondary">
+          <i class="bi bi-filter-right me-2 fs-4"></i> Filters
+        </h5>
 
-      <!-- Association Details Panel -->
-      <section class="col-4 association-details-panel d-flex flex-column">
-        <div class="p-3 flex-grow-1 d-flex flex-column">
-          <h4 class="mb-3">Association Statistics</h4>
-          <div class="stats-container flex-grow-1 overflow-auto">
-            <div class="stat-item mb-3">
-              <div class="stat-label">Total Associations</div>
-              <div class="stat-value h3 text-primary">{{ associations.length }}</div>
+        <!-- Association Types Filter -->
+        <div class="filter-section mb-5">
+          <label class="form-label fw-bold small text-uppercase text-muted mb-3 letter-spacing-1">Association Types</label>
+          <div class="form-check mb-2">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="allTypes"
+              :checked="selectedTypes.length === 0"
+              @change="selectedTypes = []"
+            >
+            <label class="form-check-label" for="allTypes">All Types</label>
+          </div>
+          <div v-for="type in availableTypes" :key="type" class="form-check mb-2">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              :id="`type-${type}`"
+              :value="type"
+              v-model="selectedTypes"
+            >
+            <label class="form-check-label" :for="`type-${type}`">{{ type }}</label>
+          </div>
+        </div>
+
+        <!-- Association Groups Filter -->
+        <div class="filter-section">
+          <label class="form-label fw-bold small text-uppercase text-muted mb-3 letter-spacing-1">Association Groups</label>
+          <div v-for="group in associationGroups" :key="group.id" class="form-check mb-2">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              :id="`group-${group.id}`"
+              :value="group.id"
+              v-model="selectedGroups"
+            >
+            <label class="form-check-label" :for="`group-${group.id}`">{{ group.title }}</label>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Association Table Area -->
+      <main class="flex-grow-1 d-flex flex-column overflow-hidden" style="min-height: 0;">
+        <div class="p-4 flex-grow-1 d-flex flex-column overflow-hidden" style="min-height: 0;">
+          <div class="mb-4 d-flex justify-content-between align-items-center flex-shrink-0">
+            <h2 class="h4 mb-0 fw-bold">Associations ({{ filteredAssociations.length }})</h2>
+            <div class="stats-pills d-flex gap-2">
+              <span class="badge rounded-pill bg-white text-dark border px-3 py-2 shadow-sm">
+                {{ availableTypes.length }} Types
+              </span>
+              <span class="badge rounded-pill bg-white text-dark border px-3 py-2 shadow-sm">
+                {{ associationGroups.length - 2 }} Custom Groups
+              </span>
             </div>
-            <div class="stat-item mb-3">
-              <div class="stat-label">Association Types</div>
-              <div class="type-breakdown">
-                <div v-for="[type, count] in associationTypes" :key="type" class="type-item d-flex justify-content-between">
-                  <span>{{ type }}</span>
-                  <span class="badge bg-secondary">{{ count }}</span>
-                </div>
-              </div>
+          </div>
+
+          <div class="table-responsive border rounded-3 bg-white shadow-sm flex-grow-1 overflow-auto association-table-wrapper" style="min-height: 0;">
+            <table class="table table-hover align-middle mb-0 border-0">
+              <thead class="table-light sticky-top shadow-sm z-index-1">
+                <tr>
+                  <th scope="col" class="ps-4 py-3 border-0 text-muted small text-uppercase font-weight-bold">Origin</th>
+                  <th scope="col" class="py-3 border-0 text-muted small text-uppercase font-weight-bold">Type</th>
+                  <th scope="col" class="py-3 border-0 text-muted small text-uppercase font-weight-bold">Annotation</th>
+                  <th scope="col" class="py-3 border-0 text-muted small text-uppercase font-weight-bold">Destination</th>
+                  <th scope="col" class="py-3 border-0 text-muted small text-uppercase font-weight-bold">Group</th>
+                  <th scope="col" class="pe-4 py-3 border-0 text-muted small text-uppercase font-weight-bold text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="border-0">
+                <tr v-if="filteredAssociations.length === 0">
+                  <td colspan="6" class="text-center py-5 text-muted border-0">
+                    <div class="py-4">
+                      <i class="bi bi-inbox fs-1 d-block mb-3 opacity-25"></i>
+                      <p class="mb-0">No associations found matching the current filters.</p>
+                      <button @click="resetFilters" class="btn btn-link btn-sm mt-2">Reset Filters</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr v-for="assoc in paginatedAssociations" :key="assoc.identifier" class="association-row border-bottom transition-all">
+                  <td class="ps-4 py-3">
+                    <div class="item-link d-inline-block text-truncate" style="max-width: 300px;" @click="goToItem(assoc.originNodeURI?.identifier)" :title="getItemTitle(assoc.originNodeURI?.identifier)">
+                      {{ getItemTitle(assoc.originNodeURI?.identifier) }}
+                    </div>
+                  </td>
+                  <td class="py-3">
+                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-3 py-1 fw-medium association-type-badge">
+                      {{ assoc.associationType }}
+                    </span>
+                  </td>
+                  <td class="py-3">
+                    <div v-if="assoc.notes" class="text-muted small text-truncate" style="max-width: 250px;" :title="assoc.notes">
+                      {{ assoc.notes }}
+                    </div>
+                    <span v-else class="text-secondary opacity-25">&mdash;</span>
+                  </td>
+                  <td class="py-3">
+                    <div class="item-link d-inline-block text-truncate" style="max-width: 300px;" @click="goToItem(assoc.destinationNodeURI?.identifier)" :title="getItemTitle(assoc.destinationNodeURI?.identifier)">
+                      {{ getItemTitle(assoc.destinationNodeURI?.identifier) }}
+                    </div>
+                  </td>
+                  <td class="py-3">
+                    <span class="badge bg-light text-secondary border fw-normal px-2 py-1">
+                      {{ getGroupTitle(assoc.groupId) }}
+                    </span>
+                  </td>
+                  <td class="pe-4 py-3 text-end">
+                    <div class="btn-group btn-group-sm rounded-pill overflow-hidden shadow-sm border border-light p-1 bg-white">
+                      <!-- Edit/Delete will be connected once actions are available -->
+                      <button class="btn btn-link text-secondary p-1 px-2 border-0" @click="editAssoc(assoc)" title="Edit">
+                        <i class="bi bi-pencil-square"></i>
+                      </button>
+                      <button class="btn btn-link text-danger p-1 px-2 border-0" @click="deleteAssoc(assoc)" title="Delete">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination Controls -->
+          <div v-if="totalPages > 1" class="d-flex justify-content-between align-items-center mt-3 bg-white p-3 border rounded shadow-sm flex-shrink-0">
+            <div class="text-muted small">
+              Showing {{ startItem + 1 }} to {{ endItem }} of {{ filteredAssociations.length }} associations
             </div>
-            <div class="stat-item mb-3">
-              <div class="stat-label">Items with Associations</div>
-              <div class="stat-value h5">{{ itemsWithAssociations }}</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-label">Association Groups</div>
-              <div class="stat-value h5">{{ associationGroups.length - 2 }}</div> <!-- Subtract 'all' and 'default' -->
+            <nav aria-label="Association pagination">
+              <ul class="pagination pagination-sm mb-0">
+                <li class="page-item" :class="{ disabled: currentPage === 1 }">
+                  <button class="page-link" @click="currentPage--" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                  </button>
+                </li>
+                
+                <li v-for="pageNum in displayedPages" :key="pageNum" class="page-item" :class="{ active: currentPage === pageNum, disabled: pageNum === '...' }">
+                  <button v-if="pageNum !== '...'" class="page-link" @click="currentPage = pageNum">{{ pageNum }}</button>
+                  <span v-else class="page-link border-0">...</span>
+                </li>
+
+                <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+                  <button class="page-link" @click="currentPage++" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                  </button>
+                </li>
+              </ul>
+            </nav>
+            <div class="d-flex align-items-center gap-2">
+              <label class="small text-muted mb-0">Per page:</label>
+              <select v-model="itemsPerPage" class="form-select form-select-sm" style="width: auto;">
+                <option :value="10">10</option>
+                <option :value="25">25</option>
+                <option :value="50">50</option>
+                <option :value="100">100</option>
+              </select>
             </div>
           </div>
         </div>
-      </section>
+      </main>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { useDocumentStore } from '../../stores/documentStore';
 import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
 import { useItemStore } from '../../stores/itemStore';
-import { useAssociationStore } from '../../stores/associationStore';
 
-const route = useRoute();
+const router = useRouter();
 const documentStore = useDocumentStore();
 const currentDocumentStore = useCurrentDocumentStore();
 const itemStore = useItemStore();
-const associationStore = useAssociationStore();
 
 const loading = computed(() => documentStore.loading);
 const error = computed(() => documentStore.error);
 const currentDocument = computed(() => currentDocumentStore.currentDocument);
 const associationGroups = computed(() => currentDocumentStore.associationGroups);
 
-onMounted(() => {
-  const itemId = route.params.itemId;
-  if (itemId && currentDocument.value) {
-    const item = itemStore.findItemByIdentifier(currentDocument.value.items, itemId);
-    if (item) {
-      // Note: setCurrentItem would need to be moved to viewStore if needed
-      // For now, we'll just log it
-      console.log('Item found:', item);
-    }
-  }
-});
+const selectedTypes = ref([]);
+const selectedGroups = ref(['all']);
+
+// Pagination state
+const currentPage = ref(1);
+const itemsPerPage = ref(25);
 
 const associations = computed(() => {
   if (!currentDocument.value) return [];
   return currentDocumentStore.currentDocumentAssociations || [];
 });
 
-const associationTypes = computed(() => {
-  const types = new Map();
+const availableTypes = computed(() => {
+  const types = new Set();
   associations.value.forEach(assoc => {
-    const type = assoc.associationType || 'Unknown';
-    types.set(type, (types.get(type) || 0) + 1);
+    if (assoc.associationType) types.add(assoc.associationType);
   });
-  return Array.from(types.entries()).sort((a, b) => b[1] - a[1]);
+  return Array.from(types).sort();
 });
 
-const itemsWithAssociations = computed(() => {
-  if (!currentDocument.value || !currentDocument.value.items) return 0;
-  return currentDocument.value.items.filter(item =>
-    item.associations && item.associations.length > 0
-  ).length;
+const flatMap = computed(() => {
+  const map = new Map();
+  if (!currentDocument.value || !currentDocument.value.items) return map;
+
+  const flatten = (items) => {
+    items.forEach(item => {
+      map.set(item.identifier, item);
+      if (item.children) {
+        flatten(item.children);
+      }
+    });
+  };
+
+  flatten(currentDocument.value.items);
+  return map;
+});
+
+const filteredAssociations = computed(() => {
+  return associations.value.filter(assoc => {
+    const typeMatch = selectedTypes.value.length === 0 || selectedTypes.value.includes(assoc.associationType);
+    const groupId = assoc.groupId || 'default';
+    const groupMatch = selectedGroups.value.includes('all') || selectedGroups.value.includes(groupId);
+    return typeMatch && groupMatch;
+  });
+});
+
+const totalPages = computed(() => Math.ceil(filteredAssociations.value.length / itemsPerPage.value));
+
+const startItem = computed(() => (currentPage.value - 1) * itemsPerPage.value);
+const endItem = computed(() => Math.min(startItem.value + itemsPerPage.value, filteredAssociations.value.length));
+
+const paginatedAssociations = computed(() => {
+  return filteredAssociations.value.slice(startItem.value, endItem.value);
+});
+
+const displayedPages = computed(() => {
+  const pages = [];
+  const delta = 2; // Number of pages to show before and after current page
+  const left = currentPage.value - delta;
+  const right = currentPage.value + delta + 1;
+  const range = [];
+  const rangeWithDots = [];
+  let l;
+
+  for (let i = 1; i <= totalPages.value; i++) {
+    if (i === 1 || i === totalPages.value || (i >= left && i < right)) {
+      range.push(i);
+    }
+  }
+
+  for (const i of range) {
+    if (l) {
+      if (i - l === 2) {
+        rangeWithDots.push(l + 1);
+      } else if (i - l !== 1) {
+        rangeWithDots.push('...');
+      }
+    }
+    rangeWithDots.push(i);
+    l = i;
+  }
+
+  return rangeWithDots;
+});
+
+// Watch for filter changes to reset pagination
+import { watch } from 'vue';
+watch([selectedTypes, selectedGroups, itemsPerPage], () => {
+  currentPage.value = 1;
 });
 
 function getItemTitle(identifier) {
-  if (!currentDocument.value || !currentDocument.value.items) return identifier || 'Unknown';
+  const item = flatMap.value.get(identifier);
+  if (item) {
+    return item.title || item.abbreviatedTitle || 'Untitled';
+  }
+  return identifier || 'Unknown';
+}
 
-  const findItem = (items) => {
-    for (const item of items) {
-      if (item.identifier === identifier) {
-        return item.title || item.abbreviatedTitle || 'Untitled';
-      }
-      if (item.children && item.children.length > 0) {
-        const found = findItem(item.children);
-        if (found) return found;
-      }
+function getGroupTitle(groupId) {
+  const group = associationGroups.value.find(g => g.id === (groupId || 'default'));
+  return group ? group.title : (groupId || 'Default');
+}
+
+function resetFilters() {
+  selectedTypes.value = [];
+  selectedGroups.value = ['all'];
+}
+
+function goToItem(identifier) {
+  if (!identifier || !currentDocument.value) return;
+  router.push({
+    name: 'TreeView',
+    params: {
+      frameworkId: currentDocument.value.identifier,
+      itemId: identifier
     }
-    return null;
-  };
+  });
+}
 
-  return findItem(currentDocument.value.items) || identifier || 'Unknown';
+function editAssoc(assoc) {
+  console.log('Edit association:', assoc);
+  // Implementation will depend on how modals are triggered in the Vue app
+}
+
+async function deleteAssoc(assoc) {
+  if (confirm('Are you sure you want to delete this association?')) {
+    try {
+      await currentDocumentStore.removeAssociation(assoc.id);
+      // The store should update currentDocumentAssociations automatically if it's reactive
+    } catch (e) {
+      console.error('Failed to delete association', e);
+    }
+  }
 }
 </script>
 
@@ -165,96 +339,57 @@ function getItemTitle(identifier) {
   height: 100%;
 }
 
-.association-graph-container {
-  background-color: #f8f9fa;
-  overflow-y: auto;
-}
-
-.association-network {
-  height: 100%;
-}
-
-.association-list {
-  max-height: 100%;
-}
-
-.association-item {
-  background: white;
-  transition: box-shadow 0.2s ease;
-}
-
-.association-item:hover {
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.association-node {
-  text-align: center;
-  padding: 0.5rem;
-}
-
-.source-node {
-  border-right: 2px solid #dee2e6;
-}
-
-.target-node {
-  border-left: 2px solid #dee2e6;
-}
-
-.node-content {
+.item-link {
+  color: #0d6efd;
+  cursor: pointer;
+  text-decoration: none;
   font-weight: 500;
-  font-size: 0.9em;
-  word-break: break-word;
-  line-height: 1.4;
 }
 
-.association-arrow {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0.5rem 0;
+.item-link:hover {
+  text-decoration: underline;
+  color: #0a58ca;
 }
 
-.association-type {
-  font-size: 0.75em;
-  margin-top: 4px;
-  white-space: nowrap;
+.filter-panel {
+  z-index: 10;
 }
 
-.stats-container {
-  background: white;
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+.letter-spacing-1 {
+  letter-spacing: 0.05rem;
 }
 
-.stat-item {
-  border-bottom: 1px solid #dee2e6;
-  padding-bottom: 0.5rem;
-  margin-bottom: 1rem;
+.transition-all {
+  transition: all 0.2s ease-in-out;
 }
 
-.stat-item:last-child {
-  border-bottom: none;
-  margin-bottom: 0;
+.association-row:hover {
+  background-color: #f8f9fa !important;
 }
 
-.stat-label {
-  font-size: 0.9em;
-  color: #6c757d;
-  margin-bottom: 0.25rem;
+.association-table-wrapper::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
 
-.stat-value {
-  margin: 0;
+.association-table-wrapper::-webkit-scrollbar-track {
+  background: #f1f1f1;
 }
 
-.type-breakdown {
-  max-height: 150px;
-  overflow-y: auto;
+.association-table-wrapper::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
 }
 
-.type-item {
-  font-size: 0.85em;
-  margin-bottom: 0.25rem;
+.association-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #bbb;
+}
+
+.association-type-badge {
+  font-size: 0.75rem;
+}
+
+.z-index-1 {
+  z-index: 1;
 }
 </style>

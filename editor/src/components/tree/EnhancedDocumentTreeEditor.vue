@@ -236,7 +236,7 @@ onMounted(async () => {
         extensions: cfDoc.extensions || null,
         CFPackageURI: cfDoc.CFPackageURI || null,
         items: items
-      }, docData.CFAssociationGroupings || []);
+      }, docData.CFAssociationGroupings || [], docData.CFAssociations || []);
     } else if (!currentDocumentStore.currentDocument || Object.keys(currentDocumentStore.currentDocument).length === 0) {
       console.log('[DEBUG] No current document found, fetching documents...');
       await documentStore.fetchDocuments();
@@ -271,7 +271,7 @@ onMounted(async () => {
           extensions: cfDoc.extensions || null,
           CFPackageURI: cfDoc.CFPackageURI || null,
           items: items
-        }, docData.CFAssociationGroupings || []);
+        }, docData.CFAssociationGroupings || [], docData.CFAssociations || []);
       }
     } else {
       console.log('[DEBUG] Current document already exists, skipping fetch');
@@ -346,7 +346,7 @@ async function onDocumentChanged({ side, documentId }) {
         extensions: cfDoc.extensions || null,
         CFPackageURI: cfDoc.CFPackageURI || null,
         items: items
-      });
+      }, docData.CFAssociationGroupings || [], docData.CFAssociations || []);
     }
   } catch (error) {
     console.error('Error loading document:', error);
@@ -388,7 +388,7 @@ async function onExternalDocumentRequested({ url }) {
       CFPackageURI: cfDoc.CFPackageURI || finalUrl,
       items: items,
       isReadOnly: true
-    });
+    }, data.CFAssociationGroupings || [], data.CFAssociations || []);
   } catch (error) {
     console.error('Error loading external document:', error);
     // The store's error state will be displayed in the template

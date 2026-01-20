@@ -1,23 +1,26 @@
 <template>
-  <div id="editor" style="height: 100%; overflow: hidden;">
-    <nav class="navbar navbar-expand navbar-light bg-light mb-2">
+  <div id="editor" class="d-flex flex-column vh-100 overflow-hidden">
+    <nav class="navbar navbar-expand navbar-light bg-light flex-shrink-0">
       <div class="container-fluid">
         <a class="navbar-brand" href="#">
           <i class="bi bi-diagram-3"></i> Document Editor
         </a>
       </div>
     </nav>
-    <div class="container-fluid" style="height: calc(100% - 76px); overflow: hidden;">
-    <!-- Header row: document name (left), status (right) -->
-    <header class="d-flex align-items-center justify-content-between mb-2 header-section">
-      <h1 class="fs-4 fw-bold mb-0 doc-title">{{ docTitle }}</h1>
-      <ViewSwitcher />
-      <div>
-        <span class="badge bg-warning text-dark fs-5 px-4 py-2 doc-status" :class="{ draft: docStatus === 'Draft', deprecated: docStatus === 'Deprecated' }" role="status" aria-live="polite">{{ docStatus }}</span>
-      </div>
-    </header>
 
-      <router-view />
+    <div class="container-fluid d-flex flex-column flex-grow-1 overflow-hidden" style="min-height: 0;">
+      <!-- Header row: document name (left), status (right) -->
+      <header class="d-flex align-items-center justify-content-between my-2 header-section flex-shrink-0">
+        <h1 class="fs-4 fw-bold mb-0 doc-title">{{ docTitle }}</h1>
+        <ViewSwitcher />
+        <div>
+          <span class="badge bg-warning text-dark fs-5 px-4 py-2 doc-status" :class="{ draft: docStatus === 'Draft', deprecated: docStatus === 'Deprecated' }" role="status" aria-live="polite">{{ docStatus }}</span>
+        </div>
+      </header>
+
+      <div class="flex-grow-1 overflow-hidden d-flex flex-column" style="min-height: 0;">
+        <router-view />
+      </div>
     </div>
 
     <!-- Toast notifications -->

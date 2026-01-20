@@ -40,11 +40,13 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
   });
 
   // Actions
-  function selectDocument(document, associationGroupings = []) {
+  function selectDocument(document, associationGroupings = [], associations = []) {
     currentDocument.value = document;
-    if (associationGroupings) {
-      currentDocumentAssociationGroupings.value = associationGroupings;
-    }
+    currentDocumentAssociationGroupings.value = associationGroupings || [];
+    currentDocumentAssociations.value = (associations || []).map(assoc => ({
+      ...assoc,
+      groupId: assoc.CFAssociationGroupingURI?.identifier || (typeof assoc.CFAssociationGroupingURI === 'string' ? assoc.CFAssociationGroupingURI : null),
+    }));
   }
 
   function clearCurrentDocument() {
