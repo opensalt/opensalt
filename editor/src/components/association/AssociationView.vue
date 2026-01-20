@@ -116,7 +116,8 @@
                 </tr>
                 <tr v-for="assoc in paginatedAssociations" :key="assoc.identifier" class="association-row border-bottom transition-all">
                   <td class="ps-4 py-3">
-                    <div class="item-link d-inline-block text-truncate" style="max-width: 300px;" @click="goToItem(assoc.originNodeURI?.identifier)" :title="getItemTitle(assoc.originNodeURI?.identifier)">
+                    <div class="item-link d-inline-block text-truncate" style="max-width: 300px;" @click="goToItem(assoc.originNodeURI?.identifier)" :title="getItemFullTitle(assoc.originNodeURI?.identifier)">
+                      <span v-if="getItemCodingScheme(assoc.originNodeURI?.identifier)" class="fw-bold me-1">{{ getItemCodingScheme(assoc.originNodeURI?.identifier) }}</span>
                       {{ getItemTitle(assoc.originNodeURI?.identifier) }}
                     </div>
                   </td>
@@ -132,7 +133,8 @@
                     <span v-else class="text-secondary opacity-25">&mdash;</span>
                   </td>
                   <td class="py-3">
-                    <div class="item-link d-inline-block text-truncate" style="max-width: 300px;" @click="goToItem(assoc.destinationNodeURI?.identifier)" :title="getItemTitle(assoc.destinationNodeURI?.identifier)">
+                    <div class="item-link d-inline-block text-truncate" style="max-width: 300px;" @click="goToItem(assoc.destinationNodeURI?.identifier)" :title="getItemFullTitle(assoc.destinationNodeURI?.identifier)">
+                      <span v-if="getItemCodingScheme(assoc.destinationNodeURI?.identifier)" class="fw-bold me-1">{{ getItemCodingScheme(assoc.destinationNodeURI?.identifier) }}</span>
                       {{ getItemTitle(assoc.destinationNodeURI?.identifier) }}
                     </div>
                   </td>
@@ -269,12 +271,16 @@ const filteredAssociations = computed(() => {
     // Text search match
     if (query) {
       const originTitle = getItemTitle(assoc.originNodeURI?.identifier).toLowerCase();
+      const originScheme = getItemCodingScheme(assoc.originNodeURI?.identifier).toLowerCase();
       const destTitle = getItemTitle(assoc.destinationNodeURI?.identifier).toLowerCase();
+      const destScheme = getItemCodingScheme(assoc.destinationNodeURI?.identifier).toLowerCase();
       const notes = (assoc.notes || '').toLowerCase();
       const type = (assoc.associationType || '').toLowerCase();
       
       return originTitle.includes(query) ||
+        originScheme.includes(query) ||
         destTitle.includes(query) ||
+        destScheme.includes(query) ||
         notes.includes(query);
     }
 
@@ -331,6 +337,20 @@ function getItemTitle(identifier) {
   const item = flatMap.value.get(identifier);
   if (item) {
     return item.abbreviatedTitle || item.title || 'Untitled';
+  }
+  return identifier || 'Unknown';
+}
+
+function getItemCodingScheme(identifier) {
+  const item = flatMap.value.get(identifier);
+  return item?.humanCodingScheme || '';
+}
+
+function getItemFullTitle(identifier) {
+  const item = flatMap.value.get(identifier);
+  if (item) {
+    const scheme = item.humanCodingScheme ? `${item.humanCodingScheme}: ` : '';
+    return `${scheme}${item.title || item.abbreviatedTitle || 'Untitled'}`;
   }
   return identifier || 'Unknown';
 }
