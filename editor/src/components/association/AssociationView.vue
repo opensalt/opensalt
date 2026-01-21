@@ -153,7 +153,7 @@
                       <button v-if="assoc.associationType !== 'isChildOf'" class="btn btn-link text-secondary p-1 px-2 border-0" @click="editAssoc(assoc)" title="Edit">
                         <i class="bi bi-pencil-square"></i>
                       </button>
-                      <button class="btn btn-link text-danger p-1 px-2 border-0" @click="deleteAssoc(assoc)" title="Delete">
+                      <button v-if="assoc.associationType !== 'isChildOf'" class="btn btn-link text-danger p-1 px-2 border-0" @click="deleteAssoc(assoc)" title="Delete">
                         <i class="bi bi-trash"></i>
                       </button>
                     </div>
