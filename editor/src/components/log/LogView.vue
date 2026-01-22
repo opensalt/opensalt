@@ -51,10 +51,9 @@
               <thead class="table-light sticky-top shadow-sm z-index-1">
                 <tr>
                   <th scope="col" class="ps-4 py-3 border-0 text-muted small text-uppercase font-weight-bold">Time</th>
-                  <th scope="col" class="py-3 border-0 text-muted small text-uppercase font-weight-bold">Type</th>
+                  <th scope="col" class="py-3 border-0 text-muted small text-uppercase font-weight-bold">Action</th>
                   <th scope="col" class="py-3 border-0 text-muted small text-uppercase font-weight-bold">Activity</th>
                   <th scope="col" class="py-3 border-0 text-muted small text-uppercase font-weight-bold">User</th>
-                  <th scope="col" class="pe-4 py-3 border-0 text-muted small text-uppercase font-weight-bold">Details</th>
                 </tr>
               </thead>
               <tbody class="border-0">
@@ -79,23 +78,13 @@
                   </td>
                   <td class="py-3">
                     <div class="activity-content">
-                      <div class="fw-medium mb-1">{{ log.title }}</div>
-                      <div class="text-muted small text-truncate" style="max-width: 400px;" :title="log.description">
+                      <div class="text-muted small text-truncate" style="max-width: 500px;" :title="log.description">
                         {{ log.description }}
                       </div>
                     </div>
                   </td>
                   <td class="py-3">
                     <span class="text-muted small">{{ log.user || 'Unknown' }}</span>
-                  </td>
-                  <td class="pe-4 py-3">
-                    <div class="details-content">
-                      <small class="text-muted">
-                        <span v-if="log.itemType">Type: {{ log.itemType }}</span>
-                        <span v-if="log.itemType && log.identifier"> • </span>
-                        <span v-if="log.identifier">ID: {{ log.identifier }}</span>
-                      </small>
-                    </div>
                   </td>
                 </tr>
               </tbody>
@@ -482,7 +471,7 @@
   }
 
   .activity-content {
-    max-width: 400px;
+    max-width: 500px;
   }
 
   .details-content {
