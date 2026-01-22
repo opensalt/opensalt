@@ -4,6 +4,7 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 import path from 'path';
 
 export default defineConfig({
+  base: '/editor/',
   plugins: [tsconfigPaths(), vue()],
   resolve: {
     alias: {
@@ -11,6 +12,7 @@ export default defineConfig({
     },
   },
   server: {
-    port: 5173
+    port: 5173,
+    allowedHosts: true
   },
 });

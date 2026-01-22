@@ -15,6 +15,7 @@
         'drop-inside': dropPosition === 'inside'
       }"
     >
+      <input v-if="bulkMode" type="checkbox" :checked="isSelected" @change="onToggleSelection" class="bulk-checkbox" />
       <span class="expand-indicator" aria-hidden="true">
         <i :class="isExpanded ? 'bi bi-caret-down-fill' : 'bi bi-caret-right-fill'"></i>
       </span>
@@ -29,8 +30,9 @@
         style="cursor:pointer"
       >
         <span class="label-text">
-          <span v-if="item.humanCodingScheme" class="coding-scheme" style="font-weight: bold;">{{ item.humanCodingScheme }}: </span>
-          {{ item.abbreviatedStatement || item.fullStatement || item.title || item.identifier }}
+          <span v-if="item.humanCodingScheme" class="coding-scheme" style="color: #6c757d;">{{ item.humanCodingScheme }}: </span>
+          <span v-if="searchQuery && hasMatch" v-html="highlightedTitle"></span>
+          <span v-else>{{ displayTitle }}</span>
         </span>
         <div v-if="showPopover && fullStatementHtml" class="popover" v-html="fullStatementHtml"></div>
       </div>
@@ -46,6 +48,7 @@
             :selected-id="selectedId"
             :parent-items="item.children"
             :index="index"
+            :search-query="searchQuery"
             @select="$emit('select', $event)"
             @dblclick="$emit('dblclick', $event)"
             @move="$emit('move', $event)"
@@ -103,6 +106,7 @@
         'drop-inside': dropPosition === 'inside'
       }"
     >
+      <input v-if="bulkMode" type="checkbox" :checked="isSelected" @change="onToggleSelection" class="bulk-checkbox" />
       <span class="no-children-spacer" aria-hidden="true"></span>
       <img :src="iconSrc" class="tree-icon" aria-hidden="true" />
       <div
@@ -115,8 +119,9 @@
         style="cursor:pointer"
       >
         <span class="label-text">
-          <span v-if="item.humanCodingScheme" class="coding-scheme" style="font-weight: bold;">{{ item.humanCodingScheme }}: </span>
-          {{ item.abbreviatedTitle || item.title || item.identifier }}
+          <span v-if="item.humanCodingScheme" class="coding-scheme" style="color: #6c757d;">{{ item.humanCodingScheme }}: </span>
+          <span v-if="searchQuery && hasMatch" v-html="highlightedTitle"></span>
+          <span v-else>{{ displayTitle }}</span>
         </span>
         <div v-if="showPopover && fullStatementHtml" class="popover" v-html="fullStatementHtml"></div>
       </div>
@@ -126,7 +131,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useCurrentDocumentStore } from '@/stores/currentDocumentStore';
 import { renderMarkdown } from '@/utils/markdownRenderer.js';
 
@@ -147,16 +152,97 @@ const props = defineProps({
   selectedId: String,
   parentItems: Array,
   index: Number,
-    startExpanded: {
-        type: Boolean,
-        default: false
-    }
+  startExpanded: {
+    type: Boolean,
+    default: false
+  },
+  searchQuery: {
+    type: String,
+    default: ''
+  },
+  bulkMode: {
+    type: Boolean,
+    default: false
+  },
+  selectedItems: {
+    type: Array,
+    default: () => []
+  }
 });
 const emit = defineEmits(['select', 'dblclick', 'move', 'item-change']);
 
 const isExpanded = ref(props.startExpanded); // Start closed by default
 const isFocused = ref(false);
 const hasChildren = computed(() => props.item.children && props.item.children.length > 0);
+
+const labelRef1 = ref(null);
+const labelRef2 = ref(null);
+
+// Search/filter computed properties
+const displayTitle = computed(() => {
+  return props.item.abbreviatedStatement || props.item.fullStatement || props.item.title || props.item.identifier;
+});
+
+const searchableText = computed(() => {
+  const parts = [
+    props.item.humanCodingScheme,
+    props.item.abbreviatedStatement,
+    props.item.fullStatement,
+    props.item.title,
+    props.item.identifier
+  ].filter(Boolean);
+  return parts.join(' ').toLowerCase();
+});
+
+const hasMatch = computed(() => {
+  if (!props.searchQuery) return true;
+  return searchableText.value.includes(props.searchQuery.toLowerCase());
+});
+
+const hasMatchingDescendant = computed(() => {
+  if (!props.searchQuery) return false;
+  return checkDescendantsForMatch(props.item.children || [], props.searchQuery.toLowerCase());
+});
+
+const isSelected = computed(() => {
+  return props.selectedItems.includes(props.item.identifier);
+});
+
+function checkDescendantsForMatch(children, query) {
+  for (const child of children) {
+    const childText = [
+      child.humanCodingScheme,
+      child.abbreviatedStatement,
+      child.fullStatement,
+      child.title,
+      child.identifier
+    ].filter(Boolean).join(' ').toLowerCase();
+
+    if (childText.includes(query)) return true;
+    if (child.children && checkDescendantsForMatch(child.children, query)) return true;
+  }
+  return false;
+}
+
+const highlightedTitle = computed(() => {
+  if (!props.searchQuery || !hasMatch.value) return displayTitle.value;
+
+  const query = props.searchQuery;
+  const title = displayTitle.value;
+  const regex = new RegExp(`(${escapeRegExp(query)})`, 'gi');
+  return title.replace(regex, '<mark class="search-highlight">$1</mark>');
+});
+
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// Auto-expand when there are matching descendants
+watch(() => props.searchQuery, (newQuery) => {
+  if (newQuery && hasMatchingDescendant.value) {
+    isExpanded.value = true;
+  }
+});
 
 const showPopover = ref(false);
 const popoverTimeout = ref(null);
@@ -186,6 +272,13 @@ const fullStatementHtml = computed(() => {
   const text = props.item.fullStatement || props.item.title || '';
   if (!text) return '';
   return renderMarkdown(text);
+});
+
+const tooltipTitle = computed(() => {
+  const statement = props.item.fullStatement || props.item.abbreviatedStatement || '';
+  const identifier = props.item.identifier || '';
+  const notes = props.item.notes || '';
+  return `<strong>Statement:</strong> ${statement}<br><strong>Identifier:</strong> ${identifier}<br><strong>Notes:</strong> ${notes}`;
 });
 
 const iconSrc = computed(() => {
@@ -301,6 +394,19 @@ function onDrop(e) {
     position // 'before', 'inside', 'after'
   });
 }
+
+function onToggleSelection() {
+  emit('toggle-selection', { itemId: props.item.identifier });
+}
+
+onMounted(() => {
+  if (labelRef1.value) {
+    new bootstrap.Tooltip(labelRef1.value);
+  }
+  if (labelRef2.value) {
+    new bootstrap.Tooltip(labelRef2.value);
+  }
+});
 </script>
 
 <style scoped>
@@ -458,5 +564,18 @@ function onDrop(e) {
 .drop-inside {
   background-color: rgba(0, 123, 255, 0.1) !important;
   border: 1px dashed #007bff !important;
+}
+
+.search-highlight,
+:deep(.search-highlight) {
+  background-color: #fff3cd;
+  padding: 0 2px;
+  border-radius: 2px;
+  font-weight: 600;
+}
+
+.bulk-checkbox {
+  margin-right: 4px;
+  flex-shrink: 0;
 }
 </style>

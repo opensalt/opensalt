@@ -397,6 +397,26 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     }
   }
 
+  async function copyItem(documentId, sourceItem, targetParentId) {
+    try {
+      // Prepare data for copying
+      const itemData = {
+        copyFromId: sourceItem.id, // The Salt numeric ID
+        addCopyToTitle: 'true',
+        // Common fields that might be useful
+        title: sourceItem.title,
+        fullStatement: sourceItem.fullStatement,
+        // The backend logic for copyFromId should handle the rest
+      };
+
+      const newItem = await createItem(documentId, targetParentId, itemData);
+      return newItem;
+    } catch (e) {
+      console.error("Error copying item:", e);
+      throw e;
+    }
+  }
+
   async function updateItem(documentId, itemId, itemData) {
     try {
       const response = await fetch(`/cftree/item/update/${itemId}`, {
@@ -479,6 +499,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     updateAssociationGroup,
     deleteAssociationGroup,
     draggedItem,
-    setDraggedItem
+    setDraggedItem,
+    copyItem
   };
 });

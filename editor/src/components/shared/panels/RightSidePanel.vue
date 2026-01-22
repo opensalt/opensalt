@@ -1,26 +1,79 @@
 <template>
-  <div class="right-side-panel ms-3">
-    <!-- Item Details Panel -->
-    <ItemDetailsPanel
-      :selected-item="selectedItem"
-      :current-document="currentDocument"
-      :association-groups="associationGroups"
-      @edit-item="$emit('edit-item', $event)"
-      @delete-item="$emit('delete-item', $event)"
-      @add-child="$emit('add-child', $event)"
-      @add-exemplar="$emit('add-exemplar', $event)"
-      @add-association="$emit('add-association', $event)"
-      @edit-association="$emit('edit-association', $event)"
-      @delete-association="$emit('delete-association', $event)"
-      @edit-document="$emit('edit-document')"
-      @add-root-item="$emit('add-root-item')"
-      @manage-association-groups="$emit('manage-association-groups')"
-    />
+  <div class="right-side-panel ms-3 h-100 d-flex flex-column">
+    <!-- Mode Tabs -->
+    <div class="mode-tabs mb-2 flex-shrink-0">
+      <div class="btn-group w-100" role="group" aria-label="Panel mode selection">
+        <button
+          type="button"
+          class="btn btn-sm"
+          :class="{ 'btn-primary': currentMode === 'itemDetails', 'btn-outline-primary': currentMode !== 'itemDetails' }"
+          @click="setMode('itemDetails')"
+        >
+          <i class="bi bi-info-circle me-1"></i>
+          Item Details
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm"
+          :class="{ 'btn-primary': currentMode === 'copyItems', 'btn-outline-primary': currentMode !== 'copyItems' }"
+          @click="setMode('copyItems')"
+        >
+          <i class="bi bi-copy me-1"></i>
+          Copy Items
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm"
+          :class="{ 'btn-primary': currentMode === 'createAssociations', 'btn-outline-primary': currentMode !== 'createAssociations' }"
+          @click="setMode('createAssociations')"
+        >
+          <i class="bi bi-link-45deg me-1"></i>
+          Create Associations
+        </button>
+      </div>
+    </div>
+
+    <!-- Panel Content -->
+    <div class="panel-content flex-grow-1 overflow-hidden">
+      <!-- Item Details Mode -->
+      <ItemDetailsPanel
+        v-if="currentMode === 'itemDetails'"
+        :selected-item="selectedItem"
+        :current-document="currentDocument"
+        :association-groups="associationGroups"
+        @edit-item="$emit('edit-item', $event)"
+        @delete-item="$emit('delete-item', $event)"
+        @add-child="$emit('add-child', $event)"
+        @add-exemplar="$emit('add-exemplar', $event)"
+        @add-association="$emit('add-association', $event)"
+        @edit-association="$emit('edit-association', $event)"
+        @delete-association="$emit('delete-association', $event)"
+        @edit-document="$emit('edit-document')"
+        @add-root-item="$emit('add-root-item')"
+        @manage-association-groups="$emit('manage-association-groups')"
+      />
+
+      <!-- Copy Items or Create Associations Mode -->
+      <SideTreePanel
+        v-else
+        :mode="currentMode"
+        :current-document-id="currentDocument?.id"
+        :available-documents="availableDocuments"
+        :side-document="sideDocument"
+        :loading-side-doc="loadingSideDoc"
+        :side-doc-error="sideDocError"
+        @document-select="$emit('side-document-select', $event)"
+        @external-document-requested="$emit('external-document-requested')"
+        @side-select="$emit('side-select', $event)"
+      />
+    </div>
   </div>
 </template>
 
 <script setup>
+import { ref, watch } from 'vue';
 import ItemDetailsPanel from './ItemDetailsPanel.vue';
+import SideTreePanel from '../../tree/SideTreePanel.vue';
 
 const props = defineProps({
   selectedItem: Object,
@@ -32,11 +85,27 @@ const props = defineProps({
   associationGroups: {
     type: Array,
     default: () => []
+  },
+  availableDocuments: {
+    type: Array,
+    default: () => []
+  },
+  sideDocument: {
+    type: Object,
+    default: null
+  },
+  loadingSideDoc: {
+    type: Boolean,
+    default: false
+  },
+  sideDocError: {
+    type: String,
+    default: ''
   }
 });
 
 const emit = defineEmits([
-  'mode-changed', // deprecated but kept to avoid breaking parent listeners yet
+  'mode-changed',
   'edit-item',
   'delete-item',
   'add-child',
@@ -46,14 +115,41 @@ const emit = defineEmits([
   'delete-association',
   'edit-document',
   'add-root-item',
-  'manage-association-groups'
+  'manage-association-groups',
+  'side-document-select',
+  'external-document-requested',
+  'side-select'
 ]);
+
+const currentMode = ref(props.initialMode);
+
+function setMode(mode) {
+  currentMode.value = mode;
+  emit('mode-changed', mode);
+}
+
+// Sync with prop changes
+watch(() => props.initialMode, (newMode) => {
+  currentMode.value = newMode;
+});
 </script>
 
 <style scoped>
 .right-side-panel {
-  height: 100%;
-  overflow-y: auto;
+  overflow: hidden;
+}
+
+.mode-tabs .btn {
+  font-size: 0.8rem;
+  padding: 0.375rem 0.5rem;
+}
+
+.mode-tabs .btn i {
+  font-size: 0.9em;
+}
+
+.panel-content {
+  min-height: 0;
 }
 
 .btn-group .btn {

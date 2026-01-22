@@ -1,18 +1,22 @@
 <template>
-  <div class="log-view">
-    <div v-if="loading" class="d-flex justify-content-center align-items-center" style="height: 100%;">
+  <div class="log-view h-100 d-flex flex-column bg-light">
+    <div v-if="loading" class="d-flex justify-content-center align-items-center flex-grow-1">
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Loading logs...</span>
       </div>
     </div>
-    <div v-else-if="error" class="alert alert-danger my-4" role="alert">
+    <div v-else-if="isNotLoggedIn" class="alert alert-info m-4" role="alert">
+      <i class="bi bi-info-circle me-2"></i>
+      You must be logged in to view the activity log.
+    </div>
+    <div v-else-if="error" class="alert alert-danger m-4" role="alert">
       {{ error }}
     </div>
-    <div v-else class="row g-0" style="height: 100%;">
+    <div v-else class="d-flex flex-grow-1 overflow-hidden" style="min-height: 0;">
       <!-- Log Entries Panel -->
-      <section class="col-8 log-entries-panel d-flex flex-column">
-        <div class="p-3 flex-grow-1 d-flex flex-column">
-          <div class="d-flex justify-content-between align-items-center mb-3">
+      <section class="col-8 log-entries-panel d-flex flex-column overflow-hidden" style="min-height: 0;">
+        <div class="p-4 flex-grow-1 d-flex flex-column overflow-hidden" style="min-height: 0;">
+          <div class="d-flex justify-content-between align-items-center mb-4 flex-shrink-0">
             <h3 class="mb-0">Activity Log</h3>
             <div class="btn-group" role="group">
               <button
@@ -42,47 +46,103 @@
             </div>
           </div>
 
-          <div class="log-container border rounded p-3 flex-grow-1 overflow-auto">
-            <div v-if="filteredLogs.length === 0" class="text-center text-muted py-5">
-              <i class="bi bi-list-check fs-1 mb-3"></i>
-              <p>No log entries found.</p>
-              <small>Log entries will appear here as you make changes to the document.</small>
-            </div>
-            <div v-else class="log-entries">
-              <div
-                v-for="log in filteredLogs"
-                :key="log.id"
-                class="log-entry mb-3 p-3 border rounded"
-                :class="getLogEntryClass(log.type)"
-              >
-                <div class="d-flex align-items-start">
-                  <div class="log-icon me-3">
-                    <i :class="getLogIcon(log.type)" class="fs-5"></i>
-                  </div>
-                  <div class="log-content flex-grow-1">
-                    <div class="log-header d-flex justify-content-between align-items-start">
-                      <h6 class="log-title mb-1">{{ log.title }}</h6>
-                      <small class="text-muted">{{ formatTimestamp(log.timestamp) }}</small>
+          <div class="table-responsive border rounded-3 bg-white shadow-sm flex-grow-1 overflow-auto log-table-wrapper" style="min-height: 0;">
+            <table class="table table-hover align-middle mb-0 border-0">
+              <thead class="table-light sticky-top shadow-sm z-index-1">
+                <tr>
+                  <th scope="col" class="ps-4 py-3 border-0 text-muted small text-uppercase font-weight-bold">Time</th>
+                  <th scope="col" class="py-3 border-0 text-muted small text-uppercase font-weight-bold">Type</th>
+                  <th scope="col" class="py-3 border-0 text-muted small text-uppercase font-weight-bold">Activity</th>
+                  <th scope="col" class="py-3 border-0 text-muted small text-uppercase font-weight-bold">User</th>
+                  <th scope="col" class="pe-4 py-3 border-0 text-muted small text-uppercase font-weight-bold">Details</th>
+                </tr>
+              </thead>
+              <tbody class="border-0">
+                <tr v-if="paginatedLogs.length === 0">
+                  <td colspan="5" class="text-center py-5 text-muted border-0">
+                    <div class="py-4">
+                      <i class="bi bi-list-check fs-1 d-block mb-3 opacity-25"></i>
+                      <p class="mb-0">No log entries found.</p>
+                      <small>Log entries will appear here as you make changes to the document.</small>
                     </div>
-                    <p class="log-description mb-2">{{ log.description }}</p>
-                    <div class="log-details">
+                  </td>
+                </tr>
+                <tr v-for="log in paginatedLogs" :key="log.id" class="log-row border-bottom transition-all">
+                  <td class="ps-4 py-3">
+                    <small class="text-muted">{{ formatTimestamp(log.timestamp) }}</small>
+                  </td>
+                  <td class="py-3">
+                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-3 py-1 fw-medium">
+                      <i :class="getLogIcon(log.type)" class="me-1"></i>
+                      {{ log.type }}
+                    </span>
+                  </td>
+                  <td class="py-3">
+                    <div class="activity-content">
+                      <div class="fw-medium mb-1">{{ log.title }}</div>
+                      <div class="text-muted small text-truncate" style="max-width: 400px;" :title="log.description">
+                        {{ log.description }}
+                      </div>
+                    </div>
+                  </td>
+                  <td class="py-3">
+                    <span class="text-muted small">{{ log.user || 'Unknown' }}</span>
+                  </td>
+                  <td class="pe-4 py-3">
+                    <div class="details-content">
                       <small class="text-muted">
-                        <span v-if="log.user">User: {{ log.user }} • </span>
-                        <span v-if="log.itemType">Type: {{ log.itemType }} • </span>
+                        <span v-if="log.itemType">Type: {{ log.itemType }}</span>
+                        <span v-if="log.itemType && log.identifier"> • </span>
                         <span v-if="log.identifier">ID: {{ log.identifier }}</span>
                       </small>
                     </div>
-                  </div>
-                </div>
-              </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination Controls -->
+          <div v-if="totalPages > 1" class="d-flex justify-content-between align-items-center mt-3 bg-white p-3 border rounded shadow-sm flex-shrink-0">
+            <div class="text-muted small">
+              Showing {{ startItem + 1 }} to {{ endItem }} of {{ filteredLogs.length }} log entries
+            </div>
+            <nav aria-label="Log pagination">
+              <ul class="pagination pagination-sm mb-0">
+                <li class="page-item" :class="{ disabled: currentPage === 1 }">
+                  <button class="page-link" @click="currentPage--" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                  </button>
+                </li>
+
+                <li v-for="pageNum in displayedPages" :key="pageNum" class="page-item" :class="{ active: currentPage === pageNum, disabled: pageNum === '...' }">
+                  <button v-if="pageNum !== '...'" class="page-link" @click="currentPage = pageNum">{{ pageNum }}</button>
+                  <span v-else class="page-link border-0">...</span>
+                </li>
+
+                <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+                  <button class="page-link" @click="currentPage++" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                  </button>
+                </li>
+              </ul>
+            </nav>
+            <div class="d-flex align-items-center gap-2">
+              <label class="small text-muted mb-0">Per page:</label>
+              <select v-model="pageSize" class="form-select form-select-sm" style="width: auto;">
+                <option :value="10">10</option>
+                <option :value="25">25</option>
+                <option :value="50">50</option>
+                <option :value="100">100</option>
+              </select>
             </div>
           </div>
         </div>
       </section>
 
       <!-- Log Summary Panel -->
-      <section class="col-4 log-summary-panel d-flex flex-column">
-        <div class="p-3 flex-grow-1 d-flex flex-column">
+      <section class="col-4 log-summary-panel d-flex flex-column overflow-hidden border-start" style="min-height: 0;">
+        <div class="p-4 flex-grow-1 d-flex flex-column overflow-hidden" style="min-height: 0;">
           <h4 class="mb-3">Log Summary</h4>
           <div class="summary-container flex-grow-1 overflow-auto">
             <div class="summary-item mb-3">
@@ -138,236 +198,371 @@
   </div>
 </template>
 
-<script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useDocumentStore } from '../../stores/documentStore';
-import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
+  <script setup>
+  import { ref, computed, onMounted, watch } from 'vue';
+  import { useDocumentStore } from '../../stores/documentStore';
+  import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
 
-const documentStore = useDocumentStore();
-const currentDocumentStore = useCurrentDocumentStore();
+  const documentStore = useDocumentStore();
+  const currentDocumentStore = useCurrentDocumentStore();
 
-const loading = computed(() => documentStore.loading);
-const error = computed(() => documentStore.error);
-const currentDocument = computed(() => currentDocumentStore.currentDocument);
+  const loading = ref(false);
+  const error = ref(null);
+  const isNotLoggedIn = ref(false);
+  const currentDocument = computed(() => currentDocumentStore.currentDocument);
 
-const logFilter = ref('all');
+  const logFilter = ref('all');
+  const logs = ref([]);
+  const totalRecords = ref(0);
 
-// Mock log data - in a real app, this would come from an API
-const logs = ref([
-  // Sample log entries - these would be populated from actual document changes
-]);
+  // Pagination state
+  const currentPage = ref(1);
+  const pageSize = ref(25);
 
-const filteredLogs = computed(() => {
-  if (logFilter.value === 'all') return logs.value;
-  return logs.value.filter(log => log.type === logFilter.value);
-});
+  // Retry state
+  const retryCount = ref(0);
+  const maxRetries = 3;
 
-const activityTypes = computed(() => {
-  const types = new Map();
-  logs.value.forEach(log => {
-    types.set(log.type, (types.get(log.type) || 0) + 1);
-  });
-  return Array.from(types.entries()).sort((a, b) => b[1] - a[1]);
-});
-
-function getLogEntryClass(type) {
-  const classes = {
-    create: 'border-success bg-success-subtle',
-    update: 'border-primary bg-primary-subtle',
-    delete: 'border-danger bg-danger-subtle',
-    associate: 'border-info bg-info-subtle'
-  };
-  return classes[type] || 'border-secondary bg-light';
-}
-
-function getLogIcon(type) {
-  const icons = {
-    create: 'bi bi-plus-circle text-success',
-    update: 'bi bi-pencil text-primary',
-    delete: 'bi bi-trash text-danger',
-    associate: 'bi bi-link text-info'
-  };
-  return icons[type] || 'bi bi-circle text-secondary';
-}
-
-function getActivityBadgeClass(type) {
-  const classes = {
-    create: 'bg-success',
-    update: 'bg-primary',
-    delete: 'bg-danger',
-    associate: 'bg-info'
-  };
-  return classes[type] || 'bg-secondary';
-}
-
-function formatTimestamp(timestamp) {
-  if (!timestamp) return 'Unknown';
-  return new Date(timestamp).toLocaleString();
-}
-
-function getMostActiveType() {
-  if (activityTypes.value.length === 0) return 'None';
-  return activityTypes.value[0][0];
-}
-
-function exportLogs(format) {
-  // Mock export functionality
-  const data = filteredLogs.value;
-  const filename = `document-logs-${new Date().toISOString().split('T')[0]}`;
-
-  if (format === 'json') {
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    downloadBlob(blob, `${filename}.json`);
-  } else if (format === 'csv') {
-    const csv = convertToCSV(data);
-    const blob = new Blob([csv], { type: 'text/csv' });
-    downloadBlob(blob, `${filename}.csv`);
-  }
-}
-
-function convertToCSV(data) {
-  if (data.length === 0) return '';
-
-  const headers = ['Timestamp', 'Type', 'Title', 'Description', 'User', 'Item Type', 'Identifier'];
-  const rows = data.map(log => [
-    log.timestamp,
-    log.type,
-    log.title,
-    log.description,
-    log.user || '',
-    log.itemType || '',
-    log.identifier || ''
-  ]);
-
-  return [headers, ...rows].map(row => row.map(field => `"${field}"`).join(',')).join('\n');
-}
-
-function downloadBlob(blob, filename) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
-// Generate some sample log data based on the current document
-onMounted(() => {
-  if (currentDocument.value) {
-    generateSampleLogs();
-  }
-});
-
-function generateSampleLogs() {
-  const sampleLogs = [];
-  const now = new Date();
-
-  // Generate sample logs based on document items
-  if (currentDocument.value?.items) {
-    currentDocument.value.items.slice(0, 5).forEach((item, index) => {
-      sampleLogs.push({
-        id: `log-${index + 1}`,
-        timestamp: new Date(now.getTime() - (index * 3600000)).toISOString(), // 1 hour apart
-        type: ['create', 'update', 'associate'][index % 3],
-        title: `${item.title || 'Item'} ${['created', 'updated', 'associated'][index % 3]}`,
-        description: `Item "${item.title || 'Untitled'}" was ${['created', 'updated', 'associated'][index % 3]} in the document.`,
-        user: 'System',
-        itemType: item.itemType || 'item',
-        identifier: item.identifier
-      });
+  const activityTypes = computed(() => {
+    const types = new Map();
+    logs.value.forEach(log => {
+      types.set(log.type, (types.get(log.type) || 0) + 1);
     });
+    return Array.from(types.entries()).sort((a, b) => b[1] - a[1]);
+  });
+
+  const filteredLogs = computed(() => {
+    if (logFilter.value === 'all') {
+      return logs.value;
+    }
+    return logs.value.filter(log => log.type === logFilter.value);
+  });
+
+  const startItem = computed(() => (currentPage.value - 1) * pageSize.value);
+  const endItem = computed(() => Math.min(startItem.value + pageSize.value, filteredLogs.value.length));
+
+  const paginatedLogs = computed(() => {
+    return filteredLogs.value.slice(startItem.value, endItem.value);
+  });
+
+  const totalPages = computed(() => Math.ceil(filteredLogs.value.length / pageSize.value));
+
+  const displayedPages = computed(() => {
+    const pages = [];
+    const delta = 2; // Number of pages to show before and after current page
+    const left = currentPage.value - delta;
+    const right = currentPage.value + delta + 1;
+    const range = [];
+    const rangeWithDots = [];
+    let l;
+
+    for (let i = 1; i <= totalPages.value; i++) {
+      if (i === 1 || i === totalPages.value || (i >= left && i < right)) {
+        range.push(i);
+      }
+    }
+
+    for (const i of range) {
+      if (l) {
+        if (i - l === 2) {
+          rangeWithDots.push(l + 1);
+        } else if (i - l !== 1) {
+          rangeWithDots.push('...');
+        }
+      }
+      rangeWithDots.push(i);
+      l = i;
+    }
+
+    return rangeWithDots;
+  });
+
+  function getLogIcon(type) {
+    const icons = {
+      create: 'bi bi-plus-circle text-success',
+      update: 'bi bi-pencil text-primary',
+      delete: 'bi bi-trash text-danger',
+      associate: 'bi bi-link text-info'
+    };
+    return icons[type] || 'bi bi-circle text-secondary';
   }
 
-  logs.value = sampleLogs;
-}
-</script>
+  function getLogEntryClass(type) {
+    const classes = {
+      create: 'border-success',
+      update: 'border-primary',
+      delete: 'border-danger',
+      associate: 'border-info'
+    };
+    return classes[type] || 'border-secondary';
+  }
 
-<style scoped>
-.log-view {
-  height: 100%;
-}
+  function getActivityBadgeClass(type) {
+    const classes = {
+      create: 'bg-success',
+      update: 'bg-primary',
+      delete: 'bg-danger',
+      associate: 'bg-info'
+    };
+    return classes[type] || 'bg-secondary';
+  }
 
-.log-container {
-  background-color: #f8f9fa;
-}
+  function formatTimestamp(timestamp) {
+    if (!timestamp) return 'Unknown';
+    return new Date(timestamp).toLocaleString();
+  }
 
-.log-entries {
-  max-height: 100%;
-}
+  function getMostActiveType() {
+    if (activityTypes.value.length === 0) return 'None';
+    return activityTypes.value[0][0];
+  }
 
-.log-entry {
-  transition: box-shadow 0.2s ease;
-}
+  async function fetchLogs() {
+    if (!currentDocument.value?.id) return;
 
-.log-entry:hover {
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
+    loading.value = true;
+    error.value = null;
+    isNotLoggedIn.value = false;
 
-.log-icon {
-  min-width: 40px;
-  text-align: center;
-}
+    try {
+      const response = await fetch(`/cfdoc/identifier/${currentDocument.value.id}/revisions/0/1000`, {
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'Accept': 'application/json'
+        }
+      });
 
-.log-title {
-  margin: 0;
-  font-weight: 600;
-}
+      // Check for redirect (302) or 401 status which indicate not logged in
+      if (response.status === 302 || response.status === 401) {
+        isNotLoggedIn.value = true;
+        logs.value = [];
+        return;
+      }
 
-.log-description {
-  margin: 0;
-  color: #495057;
-}
+      if (!response.ok) {
+        if (response.status === 429) {
+          throw new Error('Too many requests. Please try again later.');
+        } else if (response.status >= 500) {
+          throw new Error('Server error. Please try again later.');
+        } else if (response.status === 403) {
+          throw new Error('Access denied. You may not have permission to view these logs.');
+        } else {
+          throw new Error(`Failed to load logs (HTTP ${response.status}). Please try again.`);
+        }
+      }
 
-.summary-container {
-  background: white;
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  height: 100%;
-  overflow-y: auto;
-}
+      const data = await response.json();
 
-.summary-item {
-  border-bottom: 1px solid #dee2e6;
-  padding-bottom: 0.75rem;
-  margin-bottom: 1rem;
-}
+      if (!data.data || !Array.isArray(data.data)) {
+        throw new Error('Invalid response format from server.');
+      }
 
-.summary-item:last-child {
-  border-bottom: none;
-  margin-bottom: 0;
-}
+      logs.value = data.data.map(row => {
+        // Try to determine type from description
+        let type = 'update'; // default
+        const desc = row.description.toLowerCase();
+        if (desc.includes('created') || desc.includes('added')) {
+          type = 'create';
+        } else if (desc.includes('deleted') || desc.includes('removed')) {
+          type = 'delete';
+        } else if (desc.includes('associated') || desc.includes('linked')) {
+          type = 'associate';
+        }
 
-.summary-label {
-  font-size: 0.9em;
-  color: #6c757d;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-}
+        return {
+          id: row.rev,
+          timestamp: row.changed_at,
+          type: type,
+          title: row.description.substring(0, 50) + (row.description.length > 50 ? '...' : ''),
+          description: row.description,
+          user: row.username || 'Unknown',
+          itemType: 'item',
+          identifier: row.rev
+        };
+      });
 
-.summary-value {
-  margin: 0;
-}
+      // For pagination, we need total count. Since API doesn't provide it, we'll use the actual count
+      // In a real implementation, you'd want the API to return total count
+      totalRecords.value = logs.value.length;
 
-.activity-breakdown {
-  max-height: 120px;
-  overflow-y: auto;
-}
+    } catch (err) {
+      // Check if the error might be due to login redirect
+      if (err.message.includes('Failed to fetch') || err.message.includes('302')) {
+        isNotLoggedIn.value = true;
+        logs.value = [];
+      } else {
+        error.value = err.message;
+        console.error('Failed to fetch logs:', err);
+      }
 
-.activity-item {
-  padding: 0.25rem 0;
-}
+      // Retry logic for network errors (but not for login errors)
+      if (!isNotLoggedIn.value && retryCount.value < maxRetries && (err.message.includes('network') || err.message.includes('fetch'))) {
+        retryCount.value++;
+        console.log(`Retrying... (${retryCount.value}/${maxRetries})`);
+        setTimeout(() => fetchLogs(), 1000 * retryCount.value);
+        return;
+      }
 
-.recent-activity {
-  background-color: #f8f9fa;
-  padding: 0.5rem;
-  border-radius: 4px;
-}
+      retryCount.value = 0; // Reset retry count on final failure
+    } finally {
+      loading.value = false;
+    }
+  }
 
-.export-options {
-  display: flex;
-  gap: 0.5rem;
-}
-</style>
+  function setFilter(filterType) {
+    logFilter.value = filterType;
+    currentPage.value = 1; // Reset to first page when filtering
+  }
+
+  function goToPage(page) {
+    if (page >= 1 && page <= totalPages.value) {
+      currentPage.value = page;
+    }
+  }
+
+  function onPageSizeChange() {
+    currentPage.value = 1; // Reset to first page when page size changes
+  }
+
+  function exportLogs(format) {
+    if (format === 'csv') {
+      // Use the CSV export endpoint
+      const docIdentifier = currentDocument.value?.id;
+      if (docIdentifier) {
+        window.open(`/cfdoc/identifier/${docIdentifier}/revisions/export`, '_blank');
+      }
+    } else {
+      // For JSON, export current filtered data
+      const data = filteredLogs.value;
+      const filename = `document-logs-${new Date().toISOString().split('T')[0]}`;
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      downloadBlob(blob, `${filename}.json`);
+    }
+  }
+
+  function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  // Watch for filter changes to reset pagination
+  watch([logFilter, pageSize], () => {
+    currentPage.value = 1;
+  });
+
+  // Watch for document changes
+  watch(currentDocument, (newDoc) => {
+    if (newDoc?.id) {
+      currentPage.value = 1;
+      fetchLogs();
+    }
+  });
+
+  // Fetch logs when component mounts
+  onMounted(() => {
+    if (currentDocument.value?.id) {
+      fetchLogs();
+    }
+  });
+  </script>
+
+  <style scoped>
+  .log-view {
+    height: 100%;
+  }
+
+  .log-row:hover {
+    background-color: #f8f9fa !important;
+  }
+
+  .activity-content {
+    max-width: 400px;
+  }
+
+  .details-content {
+    max-width: 200px;
+  }
+
+  .summary-container {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    height: 100%;
+    overflow-y: auto;
+  }
+
+  .summary-item {
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .summary-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+
+  .summary-label {
+    font-size: 0.9em;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+
+  .summary-value {
+    margin: 0;
+  }
+
+  .activity-breakdown {
+    max-height: 120px;
+    overflow-y: auto;
+  }
+
+  .activity-item {
+    padding: 0.25rem 0;
+  }
+
+  .recent-activity {
+    background-color: #f8f9fa;
+    padding: 0.5rem;
+    border-radius: 4px;
+  }
+
+  .export-options {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .transition-all {
+    transition: all 0.2s ease-in-out;
+  }
+
+  .log-table-wrapper::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .log-table-wrapper::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  .log-table-wrapper::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+  }
+
+  .log-table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #bbb;
+  }
+
+  .z-index-1 {
+    z-index: 1;
+  }
+  </style>

@@ -77,7 +77,7 @@
         </div>
 
         <div v-if="item.licenseURI" class="mt-2 text-truncate">
-            <strong>License:</strong> 
+            <strong>License:</strong>
             <a :href="item.licenseURI" target="_blank" class="ms-1">{{ item.licenseURI }}</a>
         </div>
 
@@ -183,7 +183,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { Teleport } from 'vue';
 import AssociationGroupDisplay from '../../association/AssociationGroupDisplay.vue';
 import { renderMarkdown, hasMarkdown } from '../../../utils/markdownRenderer.js';
@@ -250,6 +250,21 @@ const {
   },
   availableTypes
 );
+
+// Toggle state for extended info
+const showExtendedInfo = ref(false);
+
+// Load preference from localStorage on mount
+onMounted(() => {
+  const stored = localStorage.getItem('itemDetailsShowExtended');
+  showExtendedInfo.value = stored === 'true';
+});
+
+// Toggle function with persistence
+function toggleExtendedInfo() {
+  showExtendedInfo.value = !showExtendedInfo.value;
+  localStorage.setItem('itemDetailsShowExtended', showExtendedInfo.value.toString());
+}
 
 function formatDate(dateString) {
   if (!dateString) return '';

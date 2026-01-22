@@ -13,10 +13,14 @@
           :parent-items="[documentRoot]"
           :index="0"
           :startExpanded="true"
+          :search-query="props.searchQuery || props.search"
+          :bulk-mode="viewStore.bulkMode"
+          :selected-items="viewStore.selectedItems"
           @select="onSelect"
           @dblclick="onDblClick"
           @move="onMove"
           @item-change="onItemChange"
+          @toggle-selection="onToggleSelection"
         />
       </div>
     </div>
@@ -26,6 +30,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import TreeNode from './TreeNode.vue';
+import { useViewStore } from '../../stores/viewStore';
 
 const props = defineProps({
   doc: Object,
@@ -36,10 +41,16 @@ const props = defineProps({
   search: {
     type: String,
     default: ''
+  },
+  searchQuery: {
+    type: String,
+    default: ''
   }
 });
 
 const emit = defineEmits(['select', 'dblclick', 'tree-change']);
+
+const viewStore = useViewStore();
 
 // Create a document root node with items as children
 const documentRoot = computed(() => {
@@ -72,6 +83,9 @@ function onMove(event) {
     type: 'move',
     ...event
   });
+}
+function onToggleSelection(event) {
+  viewStore.toggleSelection(event.itemId);
 }
 </script>
 

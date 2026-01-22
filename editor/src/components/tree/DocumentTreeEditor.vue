@@ -47,7 +47,7 @@ const search = ref('');
 const selectedId = ref(null);
 const selectedItem = computed(() => findItem(doc.value.items, selectedId.value));
 
-const DATA_URL = 'http://web.salt-default/uri/pb4f319c2-1844-11eb-8a57-0242c0a85003.json';
+const DATA_URL = 'http://web.salt_default/uri/pb4f319c2-1844-11eb-8a57-0242c0a85003.json';
 
 onMounted(async () => {
   loading.value = true;
