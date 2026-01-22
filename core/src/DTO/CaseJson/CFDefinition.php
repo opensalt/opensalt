@@ -6,7 +6,7 @@ namespace App\DTO\CaseJson;
 
 use Nelmio\ApiDocBundle\Attribute\Model;
 use OpenApi\Attributes as OA;
-use Symfony\Component\Serializer\Annotation\SerializedName;
+use Symfony\Component\Serializer\Attribute\SerializedName;
 
 #[OA\Schema()]
 class CFDefinition
