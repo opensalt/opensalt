@@ -20,7 +20,7 @@ export const useDocumentStore = defineStore('documents', () => {
     error.value = null;
 
     try {
-      const baseUrl = 'http://web.salt_default';
+      const baseUrl = '';
       const endpoint = '/api/v1/documents';
       const limit = 1000; // Adjust as needed
       let allDocuments = [];
@@ -114,7 +114,7 @@ export const useDocumentStore = defineStore('documents', () => {
     error.value = null;
 
     try {
-      const response = await fetch(`http://web.salt_default/ims/case/v1p1/CFPackages/${identifier}`);
+      const response = await fetch(`/ims/case/v1p1/CFPackages/${identifier}`);
       if (!response.ok) {
         throw new Error(`Failed to fetch document: ${response.statusText}`);
       }

@@ -64,8 +64,8 @@
         </div>
 
         <div v-if="document.licenseURI" class="mt-2 text-truncate">
-            <strong>License:</strong> 
-            <a :href="document.licenseURI" target="_blank" class="ms-1">{{ document.licenseURI }}</a>
+            <strong>License:</strong>
+            <a :href="document.licenseURI.uri" target="_blank" class="ms-1">{{ document.licenseURI.identifier }}</a>
         </div>
 
         <div v-if="document.officialSourceURL" class="mt-2">

@@ -37,7 +37,7 @@ const props = defineProps({
 });
 
 function identifierUrl(id) {
-  return `https://salt.ward.guru/uri/${id}`;
+  return `/uri/${id}`;
 }
 </script>
 
