@@ -277,6 +277,7 @@ const associationOrigin = ref(null);
 const associationDestination = ref(null);
 const editingAssociation = ref(null);
 const itemsToDelete = ref([]);
+const deleteType = ref('single'); // 'single' or 'bulk'
 // Cross-tree drop state
 const showCrossTreeModal = ref(false);
 const crossTreeSource = ref(null);

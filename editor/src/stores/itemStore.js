@@ -2,6 +2,35 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
 export const useItemStore = defineStore('items', () => {
+  // O(1) item lookup cache
+  const itemLookupMap = ref(new Map());
+
+  // Build lookup map from items array (O(n) once, then O(1) lookups)
+  function buildItemLookupMap(items) {
+    itemLookupMap.value.clear();
+    if (!Array.isArray(items)) return;
+    
+    function traverse(itemList) {
+      for (const item of itemList) {
+        itemLookupMap.value.set(item.identifier, item);
+        if (item.children) {
+          traverse(item.children);
+        }
+      }
+    }
+    traverse(items);
+  }
+
+  // O(1) lookup using the map
+  function getItemByIdentifierFast(identifier) {
+    return itemLookupMap.value.get(identifier) || null;
+  }
+
+  // Invalidate cache when items change
+  function invalidateCache() {
+    itemLookupMap.value.clear();
+  }
+
   // Actions
   function updateItem(currentDocument, updatedItem) {
     if (!currentDocument || !updatedItem || !updatedItem.identifier) {
@@ -12,6 +41,8 @@ export const useItemStore = defineStore('items', () => {
     const updated = updateItemRecursively(currentDocument.items, updatedItem);
     if (updated) {
       console.log('Item updated successfully:', updatedItem.identifier);
+      // Invalidate cache since item was modified
+      invalidateCache();
     } else {
       console.warn('Item not found for update:', updatedItem.identifier);
     }
@@ -76,11 +107,13 @@ export const useItemStore = defineStore('items', () => {
 
     newItem.sequenceNumber = sequenceNum;
     targetArray.push(newItem);
-
+    
     // Sort the target array by sequenceNumber
     targetArray.sort((a, b) => (a.sequenceNumber || 0) - (b.sequenceNumber || 0));
 
     console.log('Item added successfully:', newItem.identifier);
+    // Invalidate cache since items were modified
+    invalidateCache();
     return true;
   }
 
@@ -160,6 +193,9 @@ export const useItemStore = defineStore('items', () => {
 
     // In a real app, you would also trigger an API call here to persist the change.
     // For now, it's just local state.
+    
+    // Invalidate cache since items were moved
+    invalidateCache();
 
     return true;
   }
@@ -168,6 +204,9 @@ export const useItemStore = defineStore('items', () => {
     updateItem,
     addItem,
     findItemByIdentifier,
+    getItemByIdentifierFast,
+    buildItemLookupMap,
+    invalidateCache,
     getMaxSequence,
     moveItem
   };

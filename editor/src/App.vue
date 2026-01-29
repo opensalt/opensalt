@@ -28,7 +28,8 @@
       <div
         v-for="(toast, idx) in toasts"
         :key="toast.id"
-        class="toast align-items-center text-bg-{{ toast.type }} border-0 show mb-2"
+        class="toast align-items-center border-0 show mb-2"
+        :class="`text-bg-${toast.type}`"
         role="alert"
         aria-live="assertive"
         aria-atomic="true"

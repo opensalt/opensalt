@@ -6,6 +6,10 @@ export const useDocumentStore = defineStore('documents', () => {
   const documents = ref([]);
   const loading = ref(false);
   const error = ref(null);
+  
+  // Request deduplication cache
+  const pendingRequests = new Map();
+  const documentCache = new Map(); // Cache fetched documents
 
   // Helper function to get authentication token
   function getAuthToken() {
@@ -110,25 +114,50 @@ export const useDocumentStore = defineStore('documents', () => {
 
   async function fetchDocument(identifier) {
     console.log('[DEBUG] documentStore.fetchDocument called with identifier:', identifier);
+    
+    // Check cache first
+    if (documentCache.has(identifier)) {
+      console.log('[DEBUG] Returning cached document:', identifier);
+      return documentCache.get(identifier);
+    }
+    
+    // Check if request is already pending
+    if (pendingRequests.has(identifier)) {
+      console.log('[DEBUG] Request already pending, waiting for it:', identifier);
+      return pendingRequests.get(identifier);
+    }
+    
     loading.value = true;
     error.value = null;
+    
+    // Create the request promise
+    const requestPromise = (async () => {
+      try {
+        const response = await fetch(`/ims/case/v1p1/CFPackages/${identifier}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch document: ${response.statusText}`);
+        }
 
-    try {
-      const response = await fetch(`/ims/case/v1p1/CFPackages/${identifier}`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch document: ${response.statusText}`);
+        const data = await response.json();
+        
+        // Cache the result
+        documentCache.set(identifier, data);
+        
+        return data;
+      } catch (err) {
+        error.value = err.message;
+        console.error('Error fetching document:', err);
+        throw err;
+      } finally {
+        loading.value = false;
+        pendingRequests.delete(identifier);
       }
-
-      const data = await response.json();
-      return data;
-
-    } catch (err) {
-      error.value = err.message;
-      console.error('Error fetching document:', err);
-      throw err;
-    } finally {
-      loading.value = false;
-    }
+    })();
+    
+    // Store the pending request
+    pendingRequests.set(identifier, requestPromise);
+    
+    return requestPromise;
   }
 
   async function loadExternalDocument(url) {

@@ -162,7 +162,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useDynamicModal } from '../../../composables/useDynamicModal.js';
 import docIcon from '@/assets/icons/ph/graph-fill.svg';
 
@@ -212,6 +212,10 @@ function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString();
 }
 
+// Cached item count to avoid recomputation on every render
+const cachedItemCount = ref(0);
+const cachedAssociationCount = ref(0);
+
 // Recursive function to count all items in the hierarchy
 function countItemsRecursively(items) {
   if (!items || !Array.isArray(items)) return 0;
@@ -226,19 +230,32 @@ function countItemsRecursively(items) {
   return count;
 }
 
-// Document statistics
-const itemCount = computed(() => {
-  return countItemsRecursively(props.document?.items);
-});
-
-const associationCount = computed(() => {
-  if (!props.document?.items) return 0;
-  return props.document.items.reduce((total, item) => {
-    return total + (item.associations?.filter(assoc =>
+// Function to count associations
+function countAssociations(items) {
+  if (!items || !Array.isArray(items)) return 0;
+  return items.reduce((total, item) => {
+    const itemAssociations = (item.associations?.filter(assoc =>
       assoc.type !== 'isChildOf'
     ).length || 0);
+    const childAssociations = item.children ? countAssociations(item.children) : 0;
+    return total + itemAssociations + childAssociations;
   }, 0);
-});
+}
+
+// Watch for changes in document items and update cached counts
+watch(
+  () => props.document?.items,
+  (newItems) => {
+    cachedItemCount.value = countItemsRecursively(newItems);
+    cachedAssociationCount.value = countAssociations(newItems);
+  },
+  { immediate: true, deep: true }
+);
+
+// Document statistics - use cached values
+const itemCount = computed(() => cachedItemCount.value);
+
+const associationCount = computed(() => cachedAssociationCount.value);
 
 const associationGroupCount = computed(() => {
   return props.associationGroups?.length || 0;

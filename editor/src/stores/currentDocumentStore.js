@@ -250,7 +250,8 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     return rootItems;
   }
 
-  // Batch loading state
+  // Batch loading state with LRU cache limit
+  const MAX_CACHE_SIZE = 100;
   const associatedDocuments = ref(new Map());
   const loadingAssociatedDocs = ref(false);
 
@@ -276,6 +277,12 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
               items: items,
               // Store minimal data needed for reference
             });
+            
+            // Simple cache eviction: remove oldest entries when over limit
+            if (associatedDocuments.value.size > MAX_CACHE_SIZE) {
+              const firstKey = associatedDocuments.value.keys().next().value;
+              associatedDocuments.value.delete(firstKey);
+            }
           } catch (err) {
             console.warn(`Failed to load associated document ${id}`, err);
           }

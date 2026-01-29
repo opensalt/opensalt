@@ -1,23 +1,22 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import TreeViewContainer from '../components/tree/EnhancedDocumentTreeEditor.vue';
-import AssociationView from '../components/association/AssociationView.vue';
-import LogView from '../components/log/LogView.vue';
 
+// Lazy-loaded routes for better performance
+// Components are only loaded when the route is accessed
 const routes = [
   {
     path: '/:frameworkId/association/:itemId?',
     name: 'AssociationView',
-    component: AssociationView
+    component: () => import('../components/association/AssociationView.vue')
   },
   {
     path: '/:frameworkId/:itemId?',
     name: 'TreeView',
-    component: TreeViewContainer
+    component: () => import('../components/tree/EnhancedDocumentTreeEditor.vue')
   },
   {
     path: '/:frameworkId/log',
     name: 'LogView',
-    component: LogView
+    component: () => import('../components/log/LogView.vue')
   },
   {
     path: '/',
@@ -27,7 +26,18 @@ const routes = [
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes
+  routes,
+  scrollBehavior(to, from, savedPosition) {
+    // Always scroll to top on navigation
+    return { top: 0 };
+  }
+});
+
+// Navigation guard for route validation
+router.beforeEach((to, from, next) => {
+  // Add any global route guards here
+  // For example: authentication checks, analytics tracking, etc.
+  next();
 });
 
 export default router;
