@@ -27,6 +27,7 @@
         </div>
       </div>
       <div class="card-body">
+        <!-- Item Title -->
         <h5 class="card-title">
           <span v-if="item.humanCodingScheme" class="badge bg-secondary me-2">
             {{ item.humanCodingScheme }}
@@ -34,63 +35,73 @@
           {{ item.abbreviatedStatement || '' }}
         </h5>
 
-        <div v-if="item.fullStatement" class="mb-3">
-          <strong>Full Statement:</strong>
-          <div class="mt-1 markdown-content" v-html="renderedFullStatement"></div>
-          <div v-if="hasMarkdownContent" class="mt-1">
+        <!-- Specialized Item Details -->
+        <component
+          v-if="itemDetailsComponent"
+          :is="itemDetailsComponent"
+          :item="item"
+        />
+
+        <!-- Default Item Details (for items without specialized component) -->
+        <div v-else>
+          <div v-if="item.fullStatement" class="mb-3">
+            <strong>Full Statement:</strong>
+            <div class="mt-1 markdown-content" v-html="renderedFullStatement"></div>
+            <div v-if="hasMarkdownContent" class="mt-1">
+              <small class="text-muted">
+                <i class="bi bi-markdown"></i> Rendered as Markdown
+              </small>
+            </div>
+          </div>
+
+          <div v-if="item.abbreviatedStatement && item.abbreviatedStatement !== item.fullStatement" class="mb-3">
+            <strong>Abbreviated Statement:</strong>
+            <p class="mt-1">{{ item.abbreviatedStatement }}</p>
+          </div>
+
+          <div class="row">
+            <div v-if="item.itemType" class="col-sm-6">
+              <strong>Item Type:</strong> {{ item.itemType || 'General' }}
+            </div>
+            <div v-if="item.language" class="col-sm-6">
+              <strong>Language:</strong> {{ item.language || 'en' }}
+            </div>
+          </div>
+
+          <div v-if="item.educationLevel && item.educationLevel.length > 0" class="mt-2">
+              <strong>Education Level:</strong>
+              <div class="mt-1">
+                  <span v-for="level in item.educationLevel" :key="level" class="badge bg-info text-dark me-1">
+                      {{ level }}
+                  </span>
+              </div>
+          </div>
+
+          <div v-if="item.conceptKeywords && item.conceptKeywords.length > 0" class="mt-2">
+              <strong>Keywords:</strong>
+              <div class="mt-1">
+                  <span v-for="keyword in item.conceptKeywords" :key="keyword" class="badge bg-secondary me-1">
+                      {{ keyword }}
+                  </span>
+              </div>
+          </div>
+
+          <div v-if="item.licenseURI" class="mt-2 text-truncate">
+              <strong>License:</strong>
+              <a :href="item.licenseURI" target="_blank" class="ms-1">{{ item.licenseURI }}</a>
+          </div>
+
+          <div v-if="item.lastChanged" class="mt-2">
             <small class="text-muted">
-              <i class="bi bi-markdown"></i> Rendered as Markdown
+              Last changed: {{ formatDate(item.lastChanged) }}
             </small>
           </div>
-        </div>
 
-        <div v-if="item.abbreviatedStatement && item.abbreviatedStatement !== item.fullStatement" class="mb-3">
-          <strong>Abbreviated Statement:</strong>
-          <p class="mt-1">{{ item.abbreviatedStatement }}</p>
-        </div>
-
-        <div class="row">
-          <div v-if="item.itemType" class="col-sm-6">
-            <strong>Item Type:</strong> {{ item.itemType || 'General' }}
-          </div>
-          <div v-if="item.language" class="col-sm-6">
-            <strong>Language:</strong> {{ item.language || 'en' }}
-          </div>
-        </div>
-
-        <div v-if="item.educationLevel && item.educationLevel.length > 0" class="mt-2">
-            <strong>Education Level:</strong>
-            <div class="mt-1">
-                <span v-for="level in item.educationLevel" :key="level" class="badge bg-info text-dark me-1">
-                    {{ level }}
-                </span>
+            <div v-if="item.notes" class="mt-3">
+                <strong>Notes:</strong>
+                <p class="mt-1 markdown-content" v-html="renderedNotes"></p>
             </div>
         </div>
-
-        <div v-if="item.conceptKeywords && item.conceptKeywords.length > 0" class="mt-2">
-            <strong>Keywords:</strong>
-            <div class="mt-1">
-                <span v-for="keyword in item.conceptKeywords" :key="keyword" class="badge bg-secondary me-1">
-                    {{ keyword }}
-                </span>
-            </div>
-        </div>
-
-        <div v-if="item.licenseURI" class="mt-2 text-truncate">
-            <strong>License:</strong>
-            <a :href="item.licenseURI" target="_blank" class="ms-1">{{ item.licenseURI }}</a>
-        </div>
-
-        <div v-if="item.lastChanged" class="mt-2">
-          <small class="text-muted">
-            Last changed: {{ formatDate(item.lastChanged) }}
-          </small>
-        </div>
-
-          <div v-if="item.notes" class="mt-3">
-              <strong>Notes:</strong>
-              <p class="mt-1 markdown-content" v-html="renderedNotes"></p>
-          </div>
 
           <!-- Actions -->
       <div v-if="!isReadOnly" class="card mt-3">
@@ -190,6 +201,15 @@ import { renderMarkdown, hasMarkdown } from '../../../utils/markdownRenderer.js'
 import render from '../../../utils/render-md.js';
 import { useDynamicModal } from '../../../composables/useDynamicModal.js';
 import { useDynamicEditModal } from '../../../composables/useDynamicEditModal.js';
+
+// Specialized item detail components
+import JobItemDetails from './item-types/JobItemDetails.vue';
+import CourseItemDetails from './item-types/CourseItemDetails.vue';
+import AssessmentItemDetails from './item-types/AssessmentItemDetails.vue';
+import CredentialItemDetails from './item-types/CredentialItemDetails.vue';
+import OrganizationItemDetails from './item-types/OrganizationItemDetails.vue';
+import IdentifierItemDetails from './item-types/IdentifierItemDetails.vue';
+import PublicKeyItemDetails from './item-types/PublicKeyItemDetails.vue';
 
 import itemIcon from '@/assets/icons/lucide/target.svg';
 import assessmentIcon from '@/assets/icons/iconoir/learning.svg';
@@ -342,6 +362,22 @@ const itemIconSrc = computed(() => {
     item: itemIcon
   };
   return iconMap[type] || itemIcon;
+});
+
+// Determine which specialized item details component to use
+const itemDetailsComponent = computed(() => {
+  const type = props.item.extensions?.['salt:type'] || 'default';
+  const componentMap = {
+    job: JobItemDetails,
+    course: CourseItemDetails,
+    assessment: AssessmentItemDetails,
+    credential: CredentialItemDetails,
+    organization: OrganizationItemDetails,
+    identifier: IdentifierItemDetails,
+    public_key: PublicKeyItemDetails,
+    default: null // Default uses the base implementation
+  };
+  return componentMap[type] || null;
 });
 
 function handleDropdownClick(type) {
