@@ -7,7 +7,7 @@
           type="button"
           class="btn btn-sm"
           :class="{ 'btn-primary': mode === 'itemDetails', 'btn-outline-primary': mode !== 'itemDetails' }"
-          @click="$emit('mode-change', 'itemDetails')"
+          @click="$emit('mode-changed', 'itemDetails')"
         >
           <i class="bi bi-info-circle me-1"></i>
           Item Details
@@ -16,7 +16,7 @@
           type="button"
           class="btn btn-sm"
           :class="{ 'btn-primary': mode === 'copyItems', 'btn-outline-primary': mode !== 'copyItems' }"
-          @click="$emit('mode-change', 'copyItems')"
+          @click="$emit('mode-changed', 'copyItems')"
         >
           <i class="bi bi-copy me-1"></i>
           Copy Items
@@ -25,7 +25,7 @@
           type="button"
           class="btn btn-sm"
           :class="{ 'btn-primary': mode === 'createAssociations', 'btn-outline-primary': mode !== 'createAssociations' }"
-          @click="$emit('mode-change', 'createAssociations')"
+          @click="$emit('mode-changed', 'createAssociations')"
         >
           <i class="bi bi-link-45deg me-1"></i>
           Create Associations
@@ -139,7 +139,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits([
-  'mode-change',
+  'mode-changed',
   'document-select',
   'external-document-requested',
   'side-select',
