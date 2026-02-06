@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import { api } from '../services/api.js';
+import { logger } from '../utils/logger.js';
 
 export const useCurrentDocumentStore = defineStore('currentDocument', () => {
   // State
@@ -15,11 +17,12 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
   const currentDocumentAssociations = ref([]);
   const currentDocumentAssociationGroupings = ref([]);
   const draggedItem = ref(null);
-
+  
   // Actions
   function setDraggedItem(item) {
     draggedItem.value = item;
   }
+  
   const associationGroups = computed(() => {
     const defaultGroups = [
       { id: 'all', title: 'All Groups', description: 'Show items from all association groups' },
@@ -38,7 +41,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
 
     return [...defaultGroups, ...packageGroups];
   });
-
+  
   // Actions
   function selectDocument(document, associationGroupings = [], associations = []) {
     currentDocument.value = document;
@@ -48,7 +51,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
       groupId: assoc.CFAssociationGroupingURI?.identifier || (typeof assoc.CFAssociationGroupingURI === 'string' ? assoc.CFAssociationGroupingURI : null),
     }));
   }
-
+  
   function clearCurrentDocument() {
     currentDocument.value = null;
     currentDocumentDefinitions.value = {
@@ -62,7 +65,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     currentDocumentAssociations.value = [];
     currentDocumentAssociationGroupings.value = [];
   }
-
+  
   function transformCASEItems(cfItems, cfAssociations, docId = null) {
     const items = new Map();
     const children = new Map();
@@ -277,14 +280,14 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
               items: items,
               // Store minimal data needed for reference
             });
-            
+
             // Simple cache eviction: remove oldest entries when over limit
             if (associatedDocuments.value.size > MAX_CACHE_SIZE) {
               const firstKey = associatedDocuments.value.keys().next().value;
               associatedDocuments.value.delete(firstKey);
             }
           } catch (err) {
-            console.warn(`Failed to load associated document ${id}`, err);
+            logger.warn(`Failed to load associated document ${id}`, err);
           }
         }));
       }
@@ -299,107 +302,51 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
 
   async function updateItems(documentId, lsItems) {
     try {
-      const response = await fetch(`/doctree/update_items/${documentId}?_format=json`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded', // $.ajax default
-          // 'X-CSRF-Token': ... // might be needed?
-        },
-        body: new URLSearchParams({ lsItems: JSON.stringify(lsItems) }) // jquery sends object, php expects form data often?
-        // Wait, legacy code: data: { "lsItems": lsItems } with $.ajax.
-        // jQuery serializes this as lsItems[itemId][property]=value...
-        // If I use JSON.stringify, the backend might expects json or form fields.
-        // Let's assume standard form encoding for now, but deep object.
-        // Actually, let's use JSON body if the backend supports it, or `qs` or similar if not.
-        // The backend is Symfony.
-        // Let's look at `view-edit.js` again. `data: { "lsItems": lsItems }`.
-        // This suggests standard form post.
-        // I will try sending JSON first, if not I need a serializer.
-        // Actually, let's try to send JSON body with application/json.
-      });
-      // Correction: legacy app sent URL encoded form data?
-      // $.ajax default is application/x-www-form-urlencoded.
-      // Serialization of nested objects in jQuery is: lsItems[key][prop]=val
-      // I'll try to find a simpler way or hoping the backend accepts JSON.
-      // Usually modern Symfony apps accept JSON.
-
-      // Let's try sending JSON.
-      const jsonResponse = await fetch(`/doctree/update_items/${documentId}?_format=json`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({ lsItems: lsItems })
-      });
-
-      if (!jsonResponse.ok) {
-        throw new Error('Failed to update items');
-      }
-      return await jsonResponse.json();
+      // Use API service for consistent error handling
+      const data = await api.post(`/doctree/update_items/${documentId}?_format=json`, { lsItems });
+      return data;
     } catch (e) {
-      console.error("Error updating items:", e);
+      logger.error("Error updating items:", e);
       throw e;
     }
   }
 
   async function addAssociation(documentId, associationData) {
-    // Endpoint: /cftree/association/new/{lsDoc}
     try {
-      const response = await fetch(`/cftree/association/new/${documentId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(associationData)
-      });
-      if (!response.ok) throw new Error('Failed to create association');
-      return await response.json();
+      const data = await api.post(`/cftree/association/new/${documentId}`, associationData);
+      return data;
     } catch (e) {
-      console.error("Error creating association:", e);
+      logger.error("Error creating association:", e);
       throw e;
     }
   }
 
   async function removeAssociation(associationId) {
     try {
-      const response = await fetch(`/cftree/association/${associationId}/remove`, {
-        method: 'POST'
-      });
-      if (!response.ok) throw new Error('Failed to remove association');
+      await api.post(`/cftree/association/${associationId}/remove`);
       return true;
     } catch (e) {
-      console.error("Error removing association:", e);
+      logger.error("Error removing association:", e);
       throw e;
     }
   }
 
   async function deleteItem(itemId) {
     try {
-      const response = await fetch(`/cftree/item/delete/${itemId}`, {
-        method: 'POST'
-      });
-      if (!response.ok) throw new Error('Failed to delete item');
+      await api.post(`/cftree/item/delete/${itemId}`);
       return true;
     } catch (e) {
-      console.error("Error deleting item:", e);
+      logger.error("Error deleting item:", e);
       throw e;
     }
   }
 
   async function createItem(documentId, parentId, itemData) {
     try {
-      // Backend expects 'lsItem' key possibly? Legacy used explicit fields.
-      // Assuming JSON body support for now.
-      const response = await fetch(`/cftree/item/new/${parentId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(itemData)
-      });
-      if (!response.ok) throw new Error('Failed to create item');
-      return await response.json();
+      const data = await api.post(`/cftree/item/new/${parentId}`, itemData);
+      return data;
     } catch (e) {
-      console.error("Error creating item:", e);
+      logger.error("Error creating item:", e);
       throw e;
     }
   }
@@ -419,65 +366,47 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
       const newItem = await createItem(documentId, targetParentId, itemData);
       return newItem;
     } catch (e) {
-      console.error("Error copying item:", e);
+      logger.error("Error copying item:", e);
       throw e;
     }
   }
 
   async function updateItem(documentId, itemId, itemData) {
     try {
-      const response = await fetch(`/cftree/item/update/${itemId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(itemData)
-      });
-      if (!response.ok) throw new Error('Failed to update item');
-      return await response.json();
+      const data = await api.post(`/cftree/item/update/${itemId}`, itemData);
+      return data;
     } catch (e) {
-      console.error("Error updating item:", e);
+      logger.error("Error updating item:", e);
       throw e;
     }
   }
 
   async function createAssociationGroup(documentId, groupData) {
     try {
-      const response = await fetch(`/cftree/association_grouping/new/${documentId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(groupData)
-      });
-      if (!response.ok) throw new Error('Failed to create association group');
-      return await response.json();
+      const data = await api.post(`/cftree/association_grouping/new/${documentId}`, groupData);
+      return data;
     } catch (e) {
-      console.error("Error creating association group", e);
+      logger.error("Error creating association group:", e);
       throw e;
     }
   }
 
   async function updateAssociationGroup(groupId, groupData) {
     try {
-      const response = await fetch(`/cftree/association_grouping/update/${groupId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(groupData)
-      });
-      if (!response.ok) throw new Error('Failed to update association group');
-      return await response.json();
+      const data = await api.post(`/cftree/association_grouping/update/${groupId}`, groupData);
+      return data;
     } catch (e) {
-      console.error("Error updating association group", e);
+      logger.error("Error updating association group:", e);
       throw e;
     }
   }
 
   async function deleteAssociationGroup(groupId) {
     try {
-      const response = await fetch(`/cftree/association_grouping/delete/${groupId}`, {
-        method: 'POST'
-      });
-      if (!response.ok) throw new Error('Failed to delete association group');
+      await api.post(`/cftree/association_grouping/delete/${groupId}`);
       return true;
     } catch (e) {
-      console.error("Error deleting association group", e);
+      logger.error("Error deleting association group:", e);
       throw e;
     }
   }

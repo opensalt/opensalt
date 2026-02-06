@@ -382,7 +382,6 @@ onMounted(async () => {
     const frameworkId = route.params.frameworkId;
 
     if (frameworkId) {
-      console.log('[DEBUG] Loading document from route:', frameworkId);
       const docData = await documentStore.fetchDocument(frameworkId);
       const cfDoc = docData.CFDocument || {};
       const items = currentDocumentStore.transformCASEItems(docData.CFItems || [], docData.CFAssociations || [], cfDoc.identifier);
@@ -412,12 +411,10 @@ onMounted(async () => {
         items: items
       }, docData.CFAssociationGroupings || [], docData.CFAssociations || []);
     } else if (!currentDocumentStore.currentDocument || Object.keys(currentDocumentStore.currentDocument).length === 0) {
-      console.log('[DEBUG] No current document found, fetching documents...');
       await documentStore.fetchDocuments();
 
       if (documentStore.documents.length > 0) {
         const firstDoc = documentStore.documents[0];
-        console.log('[DEBUG] Loading first document:', firstDoc.id);
         const docData = await documentStore.fetchDocument(firstDoc.id);
         const cfDoc = docData.CFDocument || {};
         const items = currentDocumentStore.transformCASEItems(docData.CFItems || [], docData.CFAssociations || [], cfDoc.identifier);
@@ -448,7 +445,6 @@ onMounted(async () => {
         }, docData.CFAssociationGroupings || [], docData.CFAssociations || []);
       }
     } else {
-      console.log('[DEBUG] Current document already exists, skipping fetch');
     }
   } catch (e) {
     console.error('Error initializing data:', e);
@@ -501,7 +497,6 @@ async function onTreeChange(event) {
       await itemStore.moveItem(currentDoc.value, { draggedItem, targetItem, position });
     } else {
       // Cross-tree move (Copy/Associate)
-      console.log('Cross-tree move requested:', draggedItem.identifier, '->', targetItem.identifier);
 
       // Determine action based on current mode
       if (rightPanelMode.value === 'copyItems') {
@@ -550,7 +545,6 @@ async function onCrossTreeCopy() {
     const documentId = currentDoc.value?.id;
     const targetParentId = crossTreeTarget.value.identifier === documentId ? null : crossTreeTarget.value.identifier;
 
-    console.log('Copying item:', crossTreeSource.value.identifier, 'to', crossTreeTarget.value.identifier);
 
     await currentDocumentStore.copyItem(documentId, crossTreeSource.value, targetParentId);
 
@@ -711,7 +705,6 @@ async function handleAddChild(newItem, parentItem) {
   if (newItem && parentItem && parentItem.identifier) {
     const success = itemStore.addItem(currentDoc.value, newItem, parentItem.identifier);
     if (success) {
-      console.log('Child item added successfully');
     } else {
       console.error('Failed to add child item');
     }
@@ -735,7 +728,6 @@ function onEditAssociation(association) {
 
 function onDeleteAssociation(association) {
   // Handle association deletion
-  console.log('Delete association:', association);
 }
 
 function onRightPanelModeChanged(mode) {
@@ -744,32 +736,25 @@ function onRightPanelModeChanged(mode) {
 
 // Placeholder handlers for modal events
 function onDocSaved(data) {
-  console.log('Document saved:', data);
 }
 
 
 function onAssociationCreated(association) {
-  console.log('Association created:', association);
 }
 
 function onAssociationUpdated(association) {
-  console.log('Association updated:', association);
 }
 
 function onItemsDeleted({ items, deleteType }) {
-  console.log('Items deleted:', items, deleteType);
 }
 
 function onExemplarAdded(exemplar) {
-  console.log('Exemplar added:', exemplar);
 }
 
 function onAssocGroupSaved(group) {
-  console.log('Association group saved:', group);
 }
 
 function onAssocGroupDeleted(group) {
-  console.log('Association group deleted:', group);
 }
 
 function onEditDocument() {
@@ -780,7 +765,6 @@ async function handleAddRootItem(newItem) {
   if (newItem && currentDocument.value) {
     const success = itemStore.addItem(currentDocument.value, newItem, null);
     if (success) {
-      console.log('Root item added successfully');
     } else {
       console.error('Failed to add root item');
     }

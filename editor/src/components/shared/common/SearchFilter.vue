@@ -133,7 +133,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, nextTick } from 'vue';
+import { ref, reactive, computed, watch, nextTick, onUnmounted } from 'vue';
 
 const props = defineProps({
   placeholder: {
@@ -187,16 +187,23 @@ const activeFilters = computed(() => {
   return active;
 });
 
-// Methods
-function onSearchInput() {
-  // Debounce search
-  if (searchTimeout.value) {
-    clearTimeout(searchTimeout.value);
-  }
+// Debounce utility function
+function debounce(fn, delay) {
+  let timeoutId = null;
+  return function (...args) {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+    timeoutId = setTimeout(() => fn(...args), delay);
+    return timeoutId;
+  };
+}
 
-  searchTimeout.value = setTimeout(() => {
-    performSearch();
-  }, 300);
+// Methods
+const debouncedPerformSearch = debounce(performSearch, 300);
+
+function onSearchInput() {
+  debouncedPerformSearch();
 }
 
 function performSearch() {
@@ -300,16 +307,17 @@ nextTick(() => {
 });
 
 // Cleanup timeout on unmount
-watch(() => null, () => {
+onUnmounted(() => {
   if (searchTimeout.value) {
     clearTimeout(searchTimeout.value);
+    searchTimeout.value = null;
   }
 });
 </script>
 
 <style scoped>
 .search-filter {
-  margin-bottom: 1rem;
+  margin-bottom:1rem;
 }
 
 .input-group-text {

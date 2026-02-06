@@ -40,7 +40,6 @@
     </summary>
 
     <div v-if="hasChildren" class="children-container">
-      <!-- Drag and Drop temporarily disabled to fix rendering issue -->
       <div v-for="(child, index) in item.children" :key="child.identifier">
           <TreeNode
             :item="child"
@@ -59,34 +58,6 @@
             </template>
           </TreeNode>
       </div>
-      <!--
-      <draggable
-        class="drag-area"
-        tag="div"
-        v-model="item.children"
-        group="salt-tree"
-        @change="onChange"
-        item-key="identifier"
-      >
-        <template #item="{ element, index }">
-          <TreeNode
-            :item="element"
-            :level="level + 1"
-            :selected-id="selectedId"
-            :parent-items="item.children"
-            :index="index"
-            @select="$emit('select', $event)"
-            @dblclick="$emit('dblclick', $event)"
-            @move="$emit('move', $event)"
-            @item-change="$emit('item-change', $event)"
-          >
-            <template #actions="slotProps">
-              <slot name="actions" v-bind="slotProps" />
-            </template>
-          </TreeNode>
-        </template>
-      </draggable>
-      -->
     </div>
   </details>
 
@@ -311,13 +282,13 @@ const onToggle = (event) => {
 };
 
 const onSummaryClick = (event) => {
-  // Only expand/collapse if clicking the caret area, not the text
+  // Only expand/collapse if clicking caret area, not text
   const target = event.target;
   if (target.closest('.expand-indicator') || target.classList.contains('expand-indicator')) {
-    // Let the native details toggle happen
+    // Let native details toggle happen
     return;
   }
-  // If clicking text or other areas, prevent the toggle and select instead
+  // If clicking text or other areas, prevent toggle and select instead
   event.preventDefault();
   select();
 };
@@ -338,7 +309,7 @@ const onKeyDown = (event) => {
     case 'Enter':
     case ' ':
       event.preventDefault();
-      // Always select the item, regardless of whether it has children
+      // Always select item, regardless of whether it has children
       select();
       break;
   }

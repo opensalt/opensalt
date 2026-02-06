@@ -1,8 +1,8 @@
-
+ 
 import MarkdownIt from 'markdown-it';
 import markdownItKatex from '@vscode/markdown-it-katex';
 import markdownItUnderline from 'markdown-it-underline';
-// import sanitizeHtml from 'sanitize-html';
+import sanitizeHtml from 'sanitize-html';
 
 // Configure markdown-it with plugins
 const md = new MarkdownIt({
@@ -48,14 +48,13 @@ export function renderMarkdown(markdownText) {
     // Render markdown to HTML
     const html = md.render(markdownText);
 
-    // Sanitize the HTML
-    // const sanitizedHtml = sanitizeHtml(html, sanitizeOptions);
-    const sanitizedHtml = html; // Bypass sanitization for now
+    // Sanitize HTML to prevent XSS attacks
+    const sanitizedHtml = sanitizeHtml(html, sanitizeOptions);
 
     return sanitizedHtml;
   } catch (error) {
     console.error('Error rendering markdown:', error);
-    // Return the original text if rendering fails
+    // Return original text if rendering fails
     return markdownText;
   }
 }

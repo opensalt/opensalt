@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import { api } from '../services/api.js';
+import { logger } from '../utils/logger.js';
 
 export const useItemStore = defineStore('items', () => {
   // O(1) item lookup cache
@@ -34,17 +36,17 @@ export const useItemStore = defineStore('items', () => {
   // Actions
   function updateItem(currentDocument, updatedItem) {
     if (!currentDocument || !updatedItem || !updatedItem.identifier) {
-      console.warn('Cannot update item: missing document or item identifier');
+      logger.warn('Cannot update item: missing document or item identifier');
       return false;
     }
 
     const updated = updateItemRecursively(currentDocument.items, updatedItem);
     if (updated) {
-      console.log('Item updated successfully:', updatedItem.identifier);
+      logger.debug('Item updated successfully:', updatedItem.identifier);
       // Invalidate cache since item was modified
       invalidateCache();
     } else {
-      console.warn('Item not found for update:', updatedItem.identifier);
+      logger.warn('Item not found for update:', updatedItem.identifier);
     }
     return updated;
   }
@@ -88,7 +90,7 @@ export const useItemStore = defineStore('items', () => {
 
   function addItem(currentDocument, newItem, parentIdentifier) {
     if (!currentDocument) {
-      console.error('No current document to add item to');
+      logger.error('No current document to add item to');
       return false;
     }
 
@@ -98,7 +100,7 @@ export const useItemStore = defineStore('items', () => {
     if (parentIdentifier) {
       const parent = findItemByIdentifier(currentDocument.items, parentIdentifier);
       if (!parent) {
-        console.error('Parent item not found:', parentIdentifier);
+        logger.error('Parent item not found:', parentIdentifier);
         return false;
       }
       targetArray = parent.children;
@@ -111,7 +113,7 @@ export const useItemStore = defineStore('items', () => {
     // Sort the target array by sequenceNumber
     targetArray.sort((a, b) => (a.sequenceNumber || 0) - (b.sequenceNumber || 0));
 
-    console.log('Item added successfully:', newItem.identifier);
+    logger.debug('Item added successfully:', newItem.identifier);
     // Invalidate cache since items were modified
     invalidateCache();
     return true;
@@ -137,7 +139,7 @@ export const useItemStore = defineStore('items', () => {
     // Remove from current position
     const itemToMove = removeItemRecursively(currentDocument.items, draggedItem.identifier);
     if (!itemToMove) {
-      console.warn('Could not find dragged item to move:', draggedItem.identifier);
+      logger.warn('Could not find dragged item to move:', draggedItem.identifier);
       return false;
     }
 
@@ -189,10 +191,17 @@ export const useItemStore = defineStore('items', () => {
       updateSequence(targetParentArray);
     }
 
-    console.log('Item moved successfully from', draggedItem.identifier, 'to', targetItem.identifier, position);
+    logger.debug('Item moved successfully from', draggedItem.identifier, 'to', targetItem.identifier, position);
 
-    // In a real app, you would also trigger an API call here to persist the change.
-    // For now, it's just local state.
+    // Call API to persist the move
+    try {
+      await api.post('/doctree/update_items/' + currentDocument.id + '?_format=json', {
+        lsItems: [itemToMove]
+      });
+    } catch (error) {
+      logger.error('Failed to persist item move:', error);
+      throw error;
+    }
     
     // Invalidate cache since items were moved
     invalidateCache();

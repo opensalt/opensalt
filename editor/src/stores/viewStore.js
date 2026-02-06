@@ -1,12 +1,15 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 export const useViewStore = defineStore('view', () => {
   // State
   const currentView = ref('tree'); // 'tree', 'association', 'log'
   const currentItem = ref(null);
   const bulkMode = ref(false);
-  const selectedItems = ref(new Set());
+  const selectedItemsSet = ref(new Set());
+
+  // Computed property to convert Set to Array for components
+  const selectedItems = computed(() => Array.from(selectedItemsSet.value));
 
   // Actions
   function setCurrentView(view) {
@@ -20,7 +23,7 @@ export const useViewStore = defineStore('view', () => {
   function setBulkMode(enabled) {
     bulkMode.value = enabled;
     if (!enabled) {
-      selectedItems.value.clear();
+      selectedItemsSet.value.clear();
     }
   }
 
@@ -29,15 +32,15 @@ export const useViewStore = defineStore('view', () => {
   }
 
   function selectItem(itemId) {
-    selectedItems.value.add(itemId);
+    selectedItemsSet.value.add(itemId);
   }
 
   function deselectItem(itemId) {
-    selectedItems.value.delete(itemId);
+    selectedItemsSet.value.delete(itemId);
   }
 
   function toggleItemSelection(itemId) {
-    if (selectedItems.value.has(itemId)) {
+    if (selectedItemsSet.value.has(itemId)) {
       deselectItem(itemId);
     } else {
       selectItem(itemId);
@@ -45,11 +48,11 @@ export const useViewStore = defineStore('view', () => {
   }
 
   function clearSelection() {
-    selectedItems.value.clear();
+    selectedItemsSet.value.clear();
   }
 
   function isItemSelected(itemId) {
-    return selectedItems.value.has(itemId);
+    return selectedItemsSet.value.has(itemId);
   }
 
   return {

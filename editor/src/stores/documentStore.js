@@ -1,22 +1,17 @@
 import { defineStore } from 'pinia';
+import { logger } from '../utils/logger.js';
 import { ref } from 'vue';
+import { api } from '../services/api.js';
 
 export const useDocumentStore = defineStore('documents', () => {
   // State
   const documents = ref([]);
   const loading = ref(false);
   const error = ref(null);
-  
+
   // Request deduplication cache
   const pendingRequests = new Map();
   const documentCache = new Map(); // Cache fetched documents
-
-  // Helper function to get authentication token
-  function getAuthToken() {
-    // For now, return a placeholder - replace with actual implementation
-    const token = localStorage.getItem('saltApiToken') || null;
-    return token;
-  }
 
   // Actions
   async function fetchDocuments() {
@@ -24,15 +19,11 @@ export const useDocumentStore = defineStore('documents', () => {
     error.value = null;
 
     try {
-      const baseUrl = '';
       const endpoint = '/api/v1/documents';
       const limit = 1000; // Adjust as needed
       let allDocuments = [];
       let cursor = null;
       let hasNextPage = true;
-
-      // Get authentication token
-      const token = getAuthToken();
 
       while (hasNextPage) {
         const params = new URLSearchParams({
@@ -43,31 +34,8 @@ export const useDocumentStore = defineStore('documents', () => {
           params.append('page[after]', cursor);
         }
 
-        const url = `${baseUrl}${endpoint}?${params.toString()}`;
-
-        const headers = {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        };
-        if (token) {
-            headers.Authorization = `Bearer ${token}`;
-        }
-        const response = await fetch(url, {
-          method: 'GET',
-          headers: headers,
-        });
-
-        if (!response.ok) {
-          if (response.status === 401) {
-            throw new Error('Authentication failed. Please check your token.');
-          } else if (response.status === 403) {
-            throw new Error('Access denied. You do not have permission to view documents.');
-          } else {
-            throw new Error(`Failed to fetch documents: ${response.status} ${response.statusText}`);
-          }
-        }
-
-        const data = await response.json();
+        const url = `${endpoint}?${params.toString()}`;
+        const data = await api.get(url);
 
         if (!data.data || !Array.isArray(data.data)) {
           throw new Error('Invalid response format: expected data array');
@@ -101,7 +69,7 @@ export const useDocumentStore = defineStore('documents', () => {
       documents.value = allDocuments;
 
     } catch (err) {
-      error.value = err.message;
+      error.value = err.message || 'Failed to fetch documents';
       console.error('Error fetching documents:', err);
       // Keep any previously loaded documents if there was an error
       if (documents.value.length === 0) {
@@ -113,39 +81,31 @@ export const useDocumentStore = defineStore('documents', () => {
   }
 
   async function fetchDocument(identifier) {
-    console.log('[DEBUG] documentStore.fetchDocument called with identifier:', identifier);
-    
+
     // Check cache first
     if (documentCache.has(identifier)) {
-      console.log('[DEBUG] Returning cached document:', identifier);
       return documentCache.get(identifier);
     }
-    
+
     // Check if request is already pending
     if (pendingRequests.has(identifier)) {
-      console.log('[DEBUG] Request already pending, waiting for it:', identifier);
       return pendingRequests.get(identifier);
     }
-    
+
     loading.value = true;
     error.value = null;
-    
+
     // Create the request promise
     const requestPromise = (async () => {
       try {
-        const response = await fetch(`/ims/case/v1p1/CFPackages/${identifier}`);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch document: ${response.statusText}`);
-        }
+        const data = await api.get(`/ims/case/v1p1/CFPackages/${identifier}`);
 
-        const data = await response.json();
-        
         // Cache the result
         documentCache.set(identifier, data);
-        
+
         return data;
       } catch (err) {
-        error.value = err.message;
+        error.value = err.message || 'Failed to fetch document';
         console.error('Error fetching document:', err);
         throw err;
       } finally {
@@ -153,15 +113,14 @@ export const useDocumentStore = defineStore('documents', () => {
         pendingRequests.delete(identifier);
       }
     })();
-    
+
     // Store the pending request
     pendingRequests.set(identifier, requestPromise);
-    
+
     return requestPromise;
   }
 
   async function loadExternalDocument(url) {
-    console.log('[DEBUG] documentStore.loadExternalDocument called with url:', url);
     loading.value = true;
     error.value = null;
 
@@ -170,23 +129,14 @@ export const useDocumentStore = defineStore('documents', () => {
 
     try {
       // Initial fetch from provided URL
-      let response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch from initial URL: ${response.status} ${response.statusText}`);
-      }
-
-      data = await response.json();
+      const initialData = await api.get(url);
+      data = initialData;
 
       // Check if response has CFDocument; if not, check for CFPackageURI
       if (!data.CFDocument) {
         if (data.CFPackageURI && data.CFPackageURI.uri) {
-          console.log('[DEBUG] No CFDocument found, fetching from CFPackageURI:', data.CFPackageURI.uri);
           finalUrl = data.CFPackageURI.uri;
-          response = await fetch(finalUrl);
-          if (!response.ok) {
-            throw new Error(`Failed to fetch from CFPackageURI: ${response.status} ${response.statusText}`);
-          }
-          data = await response.json();
+          data = await api.get(finalUrl);
         } else {
           throw new Error('Response does not contain CFDocument or CFPackageURI');
         }
@@ -195,7 +145,7 @@ export const useDocumentStore = defineStore('documents', () => {
       return { data, finalUrl };
 
     } catch (err) {
-      error.value = err.message;
+      error.value = err.message || 'Failed to load external document';
       console.error('Error loading external document:', err);
       throw err;
     } finally {
