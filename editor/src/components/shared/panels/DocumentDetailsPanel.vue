@@ -177,7 +177,9 @@ const props = defineProps({
   }
 });
 
-const isReadOnly = computed(() => props.document?.isReadOnly || false);
+import { useSessionStore } from '../../../stores/sessionStore';
+const sessionStore = useSessionStore();
+const isReadOnly = computed(() => props.document?.isReadOnly || !sessionStore.isAuthenticated);
 
 const emit = defineEmits([
   'edit-document',

@@ -21,7 +21,8 @@
         <i class="bi bi-share me-1"></i>
         Association View
       </button>
-      <button
+        <button
+        v-if="sessionStore.isAuthenticated"
         type="button"
         class="btn btn-sm"
         :class="{ 'btn-primary': currentView === 'log', 'btn-outline-primary': currentView !== 'log' }"
@@ -39,10 +40,12 @@
 import { computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useCurrentDocumentStore } from '../../../stores/currentDocumentStore';
+import { useSessionStore } from '../../../stores/sessionStore';
 
 const router = useRouter();
 const route = useRoute();
 const currentDocumentStore = useCurrentDocumentStore();
+const sessionStore = useSessionStore();
 
 const currentFrameworkId = computed(() => currentDocumentStore.currentDocument?.id || '');
 

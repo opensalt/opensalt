@@ -388,7 +388,9 @@ function handleDropdownClick(type) {
   }
 }
 
-const isReadOnly = computed(() => props.currentDocument?.isReadOnly || false);
+import { useSessionStore } from '../../../stores/sessionStore';
+const sessionStore = useSessionStore();
+const isReadOnly = computed(() => props.currentDocument?.isReadOnly || !sessionStore.isAuthenticated);
 </script>
 
 <style scoped>

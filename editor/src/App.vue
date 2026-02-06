@@ -23,6 +23,8 @@
       </div>
     </div>
 
+    <SessionTimeoutModal />
+
     <!-- Toast notifications -->
     <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100">
       <div
@@ -49,12 +51,19 @@
 </template>
 
 <script setup>
-import { ref, provide, computed } from 'vue';
+import { ref, provide, computed, onMounted } from 'vue';
 import { RouterView } from 'vue-router';
 import { useCurrentDocumentStore } from './stores/currentDocumentStore';
+import { useSessionStore } from './stores/sessionStore';
 import ViewSwitcher from './components/shared/common/ViewSwitcher.vue';
+import SessionTimeoutModal from './components/shared/common/SessionTimeoutModal.vue';
 
 const currentDocumentStore = useCurrentDocumentStore();
+const sessionStore = useSessionStore();
+
+onMounted(() => {
+  sessionStore.init();
+});
 
 const toasts = ref([]);
 let toastId = 0;

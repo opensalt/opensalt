@@ -13,6 +13,7 @@
           Item Details
         </button>
         <button
+          v-if="sessionStore.isAuthenticated"
           type="button"
           class="btn btn-sm"
           :class="{ 'btn-primary': currentMode === 'copyItems', 'btn-outline-primary': currentMode !== 'copyItems' }"
@@ -22,6 +23,7 @@
           Copy Items
         </button>
         <button
+          v-if="sessionStore.isAuthenticated"
           type="button"
           class="btn btn-sm"
           :class="{ 'btn-primary': currentMode === 'createAssociations', 'btn-outline-primary': currentMode !== 'createAssociations' }"
@@ -74,6 +76,9 @@
 import { ref, watch } from 'vue';
 import ItemDetailsPanel from './ItemDetailsPanel.vue';
 import SideTreePanel from '../../tree/SideTreePanel.vue';
+import { useSessionStore } from '../../../stores/sessionStore';
+
+const sessionStore = useSessionStore();
 
 const props = defineProps({
   selectedItem: Object,
@@ -131,6 +136,12 @@ function setMode(mode) {
 // Sync with prop changes
 watch(() => props.initialMode, (newMode) => {
   currentMode.value = newMode;
+});
+
+watch(() => sessionStore.isAuthenticated, (auth) => {
+  if (!auth && currentMode.value !== 'itemDetails') {
+    setMode('itemDetails');
+  }
 });
 </script>
 
