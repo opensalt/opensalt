@@ -9,14 +9,14 @@ const routes = [
     component: () => import('../components/association/AssociationView.vue')
   },
   {
-    path: '/:frameworkId/:itemId?',
-    name: 'TreeView',
-    component: () => import('../components/tree/EnhancedDocumentTreeEditor.vue')
-  },
-  {
     path: '/:frameworkId/log',
     name: 'LogView',
     component: () => import('../components/log/LogView.vue')
+  },
+  {
+    path: '/:frameworkId/:itemId?',
+    name: 'TreeView',
+    component: () => import('../components/tree/EnhancedDocumentTreeEditor.vue')
   },
   {
     path: '/',

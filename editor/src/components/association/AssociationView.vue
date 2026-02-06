@@ -159,6 +159,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useDocumentStore } from '../../stores/documentStore';
 import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
+import { useItemStore } from '../../stores/itemStore';
 import { logger } from '../../utils/logger.js';
 
 const router = useRouter();
