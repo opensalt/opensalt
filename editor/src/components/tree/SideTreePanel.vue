@@ -1,41 +1,14 @@
 <template>
   <div class="side-tree-panel h-100 d-flex flex-column">
     <!-- Document Selector -->
-    <div class="document-selector mb-2">
-      <div class="input-group input-group-sm">
-        <label class="input-group-text" for="side-doc-select">
-          <i class="bi bi-file-earmark-text"></i>
-        </label>
-        <select
-          id="side-doc-select"
-          class="form-select form-select-sm"
-          :value="selectedDocumentId"
-          @change="onDocumentChange"
-        >
-          <option value="">Select a document...</option>
-          <option
-            v-for="doc in availableDocuments"
-            :key="doc.id"
-            :value="doc.id"
-            :disabled="doc.id === currentDocumentId"
-          >
-            {{ doc.title }}{{ doc.id === currentDocumentId ? ' (Current)' : '' }}
-          </option>
-          <optgroup label="External">
-            <option value="__external__">Load external document...</option>
-          </optgroup>
-        </select>
-        <button
-          v-if="selectedDocumentId"
-          class="btn btn-outline-secondary"
-          type="button"
-          @click="onChangeDocument"
-          title="Change document"
-        >
-          <i class="bi bi-x-lg"></i>
-        </button>
-      </div>
-    </div>
+    <DocumentSelector
+      :current-doc="currentDocForSelector"
+      :available-documents="availableDocuments"
+      :label="mode === 'copyItems' ? 'Source Document' : 'Target Document'"
+      side="right"
+      @document-changed="onDocumentChanged"
+      @external-document-requested="onExternalDocumentRequested"
+    />
 
     <!-- Instructions -->
     <div v-if="!selectedDocumentId" class="instructions alert alert-info py-2 mb-2">
@@ -68,7 +41,7 @@
         />
       </div>
       <div v-else class="d-flex justify-content-center align-items-center h-100 text-muted">
-        <span>Select a document above</span>
+        <span>Loading document...</span>
       </div>
     </div>
 
@@ -88,13 +61,18 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import TreeView from './TreeView.vue';
+import DocumentSelector from '../shared/common/DocumentSelector.vue';
 
 const props = defineProps({
   mode: {
     type: String,
     default: 'copyItems'
+  },
+  currentDocument: {
+    type: Object,
+    default: null
   },
   currentDocumentId: {
     type: String,
@@ -127,20 +105,25 @@ const emit = defineEmits([
 const selectedDocumentId = ref('');
 const sideSelectedId = ref(null);
 
-function onDocumentChange(event) {
-  const value = event.target.value;
-  if (value === '__external__') {
-    emit('external-document-requested');
-    event.target.value = selectedDocumentId.value; // Reset select
-  } else {
-    selectedDocumentId.value = value;
-    emit('document-select', value);
+// Track current document for DocumentSelector
+const currentDocForSelector = computed(() => {
+  // If sideDocument is set, it's the current selected document for this panel
+  if (selectedDocumentId.value && props.availableDocuments) {
+    return props.availableDocuments.find(doc => doc.id === selectedDocumentId.value) || props.currentDocument;
+  }
+  return props.currentDocument;
+});
+
+function onDocumentChanged(event) {
+  const { side, documentId } = event;
+  if (documentId) {
+    selectedDocumentId.value = documentId;
+    emit('document-select', documentId);
   }
 }
 
-function onChangeDocument() {
-  selectedDocumentId.value = '';
-  emit('document-select', '');
+function onExternalDocumentRequested(event) {
+  emit('external-document-requested');
 }
 
 function onSideSelect(id) {
@@ -152,6 +135,13 @@ function onSideSelect(id) {
 watch(() => props.sideDocument, () => {
   sideSelectedId.value = null;
 });
+
+// Sync selectedDocumentId with sideDocument
+watch(() => props.sideDocument, (newDoc) => {
+  if (newDoc) {
+    selectedDocumentId.value = newDoc.id;
+  }
+}, { immediate: true });
 </script>
 
 <style scoped>
@@ -174,9 +164,5 @@ watch(() => props.sideDocument, () => {
 
 .drag-instructions {
   font-size: 0.8rem;
-}
-
-.document-selector select {
-  flex: 1;
 }
 </style>
