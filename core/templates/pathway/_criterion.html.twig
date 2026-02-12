@@ -2,7 +2,7 @@
 {% if ((criterion.itemType.title|default(null) starts with 'Credential - ') or (criterion.objectType|default(null) == 'credential')) %}
     {% set associations = associationRepo.findAllAssociationsForAsSplitArray(criterion.identifier).inverseAssociations %}
     {% for association in associations %}
-        {% if association.type == 'Precedes' %}
+        {% if association.type == constant('App\\Entity\\Framework\\LsAssociation::PRECEDES') %}
             {% set criteria = criteria|merge([itemRepo.findOneByIdentifier(association.originNodeIdentifier)])%}
         {% endif %}
     {% endfor %}
