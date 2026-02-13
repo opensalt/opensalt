@@ -35,7 +35,7 @@
 
         <div class="mb-3">
           <label class="form-label">Association Type</label>
-          <select class="form-select" v-model="selectedTypes">
+          <select class="form-select" v-model="selectedType">
             <option value="">All Types</option>
             <option v-for="type in availableTypes" :key="type" :value="type">
               {{ type }}
@@ -45,7 +45,7 @@
 
         <div class="mb-3">
           <label class="form-label">Association Group</label>
-          <select class="form-select" v-model="selectedGroups">
+          <select class="form-select" v-model="selectedGroup">
             <option value="">All Groups</option>
             <option v-for="group in associationGroups" :key="group.id" :value="group.id">
               {{ group.title }}
@@ -69,8 +69,8 @@
 
         <div v-else class="associations-grid">
           <div
-            v-for="assoc in filteredAssociations"
-            :key="assoc.id"
+            v-for="assoc in paginatedAssociations"
+            :key="assoc.id || assoc.identifier"
             class="association-card card mb-3"
           >
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -97,28 +97,28 @@
                 </ul>
               </div>
             </div>
-          </div>
-          <div class="card-body">
-            <div class="mb-2">
-              <strong>Origin:</strong>
-              <p>{{ assoc.originNodeURI?.identifier || assoc.originNodeIdentifier || 'N/A' }}</p>
-            </div>
-            <div class="mb-2">
-              <strong>Destination:</strong>
-              <p>{{ assoc.destinationNodeURI?.identifier || assoc.destinationNodeIdentifier || 'N/A' }}</p>
-            </div>
-            <div v-if="assoc.sequenceNumber !== undefined">
-              <strong>Sequence:</strong>
-              <span>{{ assoc.sequenceNumber }}</span>
-            </div>
-            <div v-if="assoc.lastChangeDateTime" class="text-muted small mt-2">
-              Last modified: {{ formatDate(assoc.lastChangeDateTime) }}
+            <div class="card-body">
+              <div class="mb-2">
+                <strong>Origin:</strong>
+                <p>{{ getItemTitle(assoc, 'origin') }}</p>
+              </div>
+              <div class="mb-2">
+                <strong>Destination:</strong>
+                <p>{{ getItemTitle(assoc, 'dest') }}</p>
+              </div>
+              <div v-if="assoc.sequenceNumber !== undefined">
+                <strong>Sequence:</strong>
+                <span>{{ assoc.sequenceNumber }}</span>
+              </div>
+              <div v-if="assoc.lastChangeDateTime" class="text-muted small mt-2">
+                Last modified: {{ formatDate(assoc.lastChangeDateTime) }}
+              </div>
             </div>
           </div>
         </div>
 
         <!-- Pagination -->
-        <div v-if="paginatedAssociations.length > 0" class="mt-4">
+        <div v-if="totalPages > 1" class="mt-4">
           <nav aria-label="Association pagination">
             <ul class="pagination justify-content-center">
               <li :class="{ disabled: currentPage === 1 }">
@@ -172,8 +172,8 @@ const error = computed(() => documentStore.error);
 const currentDocument = computed(() => currentDocumentStore.currentDocument);
 const associationGroups = computed(() => currentDocumentStore.associationGroups);
 
-const selectedTypes = ref([]);
-const selectedGroups = ref(['all']);
+const selectedType = ref('');
+const selectedGroup = ref('');
 const searchFilter = ref('');
 const currentPage = ref(1);
 const itemsPerPage = ref(25);
@@ -187,36 +187,37 @@ const availableTypes = computed(() => {
 });
 
 const associations = computed(() => {
-  if (!currentDocument.value) return [];
-  return currentDocument.value.associations || [];
+  return currentDocumentStore.currentDocumentAssociations || [];
 });
 
 const filteredAssociations = computed(() => {
   return associations.value.filter(assoc => {
     // Filter by type
-    if (selectedTypes.value.length > 0 && !selectedTypes.value.includes(assoc.associationType)) {
+    if (selectedType.value && assoc.associationType !== selectedType.value) {
       return false;
     }
     // Filter by group
-    if (selectedGroups.value[0] !== 'all') {
-      const assocGroupId = assoc.CFAssociationGroupingURI?.identifier || 
-                         (typeof assoc.CFAssociationGroupingURI === 'string' ? assoc.CFAssociationGroupingURI : null);
-      if (assocGroupId !== selectedGroups.value[0]) {
+    if (selectedGroup.value) {
+      const assocGroupId = assoc.groupId ||
+                           assoc.CFAssociationGroupingURI?.identifier ||
+                           (typeof assoc.CFAssociationGroupingURI === 'string' ? assoc.CFAssociationGroupingURI : null);
+      if (assocGroupId !== selectedGroup.value) {
         return false;
       }
     }
     // Filter by search
     if (searchFilter.value) {
       const search = searchFilter.value.toLowerCase();
-      const origin = assoc.originNodeURI?.identifier || assoc.originNodeIdentifier || '';
-      const destination = assoc.destinationNodeURI?.identifier || assoc.destinationNodeIdentifier || '';
-      return origin.toLowerCase().includes(search) || destination.toLowerCase().includes(search);
+      const originTitle = getItemTitle(assoc, 'origin').toLowerCase();
+      const destTitle = getItemTitle(assoc, 'dest').toLowerCase();
+      const assocType = (assoc.associationType || '').toLowerCase();
+      return originTitle.includes(search) || destTitle.includes(search) || assocType.includes(search);
     }
     return true;
   });
 });
 
-const totalPages = computed(() => Math.ceil(filteredAssociations.value.length / itemsPerPage.value));
+const totalPages = computed(() => Math.max(1, Math.ceil(filteredAssociations.value.length / itemsPerPage.value)));
 
 const paginatedAssociations = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value;
@@ -224,12 +225,42 @@ const paginatedAssociations = computed(() => {
   return filteredAssociations.value.slice(start, end);
 });
 
+/**
+ * Get a human-readable title for the origin or destination of an association.
+ * Mirrors the logic from the old jQuery avGetItemCell function.
+ */
+function getItemTitle(assoc, key) {
+  const nodeURI = key === 'origin' ? assoc.originNodeURI : assoc.destinationNodeURI;
+  const nodeIdentifier = key === 'origin' ? assoc.originNodeIdentifier : assoc.destinationNodeIdentifier;
+
+  if (!nodeURI && !nodeIdentifier) return 'N/A';
+
+  const identifier = nodeURI?.identifier || nodeIdentifier;
+  const title = nodeURI?.title || '';
+
+  // If we have an abbreviatedTitle or title from the URI, use that
+  if (title) return title;
+
+  // Try to find the item in the current document's items
+  if (identifier && currentDocument.value?.items) {
+    const item = currentDocument.value.items.find(
+      i => i.id === identifier || i.identifier === identifier
+    );
+    if (item) {
+      return item.abbreviatedStatement || item.humanCodingScheme || item.fullStatement || identifier;
+    }
+  }
+
+  // Fall back to the URI or identifier
+  return nodeURI?.uri || identifier || 'N/A';
+}
+
 function goToItem(identifier) {
   if (!identifier || !currentDocument.value) return;
   router.push({
     name: 'TreeView',
     params: {
-      frameworkId: currentDocument.value.identifier,
+      frameworkId: currentDocument.value.id || currentDocument.value.identifier,
       itemId: identifier
     }
   });
@@ -247,21 +278,20 @@ async function deleteAssoc(assoc) {
   try {
     await currentDocumentStore.removeAssociation(assoc.id);
     logger.debug('Association deleted successfully:', assoc.id);
-    // The store should update currentDocumentAssociations automatically if it's reactive
   } catch (e) {
     console.error('Failed to delete association', e);
   }
 }
 
 function clearFilters() {
-  selectedTypes.value = [];
-  selectedGroups.value = ['all'];
+  selectedType.value = '';
+  selectedGroup.value = '';
   searchFilter.value = '';
   currentPage.value = 1;
 }
 
 function formatDate(dateString) {
-  if (!DateString) return 'N/A';
+  if (!dateString) return 'N/A';
   return new Date(dateString).toLocaleDateString();
 }
 
@@ -279,7 +309,7 @@ onMounted(() => {
 
 <style scoped>
 .association-view {
-  min-height: 100vh;
+  min-height: 0;
 }
 
 .association-card {
