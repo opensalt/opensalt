@@ -100,7 +100,7 @@ RUN set -eux; \
 FROM node:${NODE_VERSION} AS salt_core_js_build
 
 WORKDIR /srv/core
-RUN mkdir ./node_modules ; chown node:node node_modules
+RUN chown node:node .
 
 USER node
 
