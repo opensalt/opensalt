@@ -10,7 +10,7 @@ ARG COMMIT=unknown
 
 ARG PHP_VERSION=8.5
 ARG FRANKENPHP_VERSION=1
-ARG NODE_VERSION=22
+ARG NODE_VERSION=24
 
 # https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
 #========================================================================
@@ -70,9 +70,9 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 ###< doctrine/doctrine-bundle ###
 ###< recipes ###
 
-COPY --link frankenphp/conf.d/app.ini $PHP_INI_DIR/conf.d/
-COPY --link --chmod=755 frankenphp/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
-COPY --link frankenphp/Caddyfile /etc/caddy/Caddyfile
+COPY frankenphp/conf.d/app.ini $PHP_INI_DIR/conf.d/
+COPY --chmod=755 frankenphp/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
+COPY frankenphp/Caddyfile /etc/caddy/Caddyfile
 
 ENTRYPOINT ["docker-entrypoint"]
 
@@ -91,7 +91,7 @@ WORKDIR /srv/core
 FROM salt_core_php AS salt_core_vendors
 
 # prevent the reinstallation of vendors at every changes in the source code
-COPY --link composer.json composer.lock symfony.lock ./
+COPY composer.json composer.lock symfony.lock ./
 RUN set -eux; \
 	composer install --no-interaction --prefer-dist --no-autoloader --no-scripts --no-progress; \
 	composer clear-cache
@@ -99,15 +99,19 @@ RUN set -eux; \
 #=======================================================================
 FROM node:${NODE_VERSION} AS salt_core_js_build
 
-USER node
 WORKDIR /srv/core
+RUN chown -R node:node /srv/core ; \
+	mkdir ./node_modules ; \
+	chown -R node:node node_modules
 
-COPY --link package.json yarn.lock ./
-COPY --link --from=salt_core_vendors /srv/core/vendor/symfony/ux-vue/assets ./vendor/symfony/ux-vue/assets/
+USER node
+
+COPY package.json yarn.lock ./
+COPY --from=salt_core_vendors /srv/core/vendor/symfony/ux-vue/assets ./vendor/symfony/ux-vue/assets/
 RUN yarn install --non-interactive
 
-COPY --link vite.config.js ./
-COPY --link assets ./assets/
+COPY vite.config.js ./
+COPY assets ./assets/
 
 RUN mkdir -p public/build \
   && yarn build
@@ -160,7 +164,7 @@ LABEL org.opencontainers.title="OpenSALT PHP Application" \
       org.opencontainers.source="https://github.com/opensalt/opensalt" \
       org.opencontainers.version=${VERSION}.${BUILD_NUMBER}+${BUILD_DATE}.${COMMIT}
 
-COPY --link --from=salt_code_layer /srv/core/ ./
+COPY --from=salt_code_layer /srv/core/ ./
 
 VOLUME /srv/core/var
 VOLUME /srv/core/public/attachments
@@ -181,7 +185,7 @@ RUN set -eux; \
 		"xdebug/xdebug:^3.5@alpha" \
 	;
 
-COPY --link frankenphp/conf.d/app.dev.ini $PHP_INI_DIR/conf.d/
+COPY frankenphp/conf.d/app.dev.ini $PHP_INI_DIR/conf.d/
 
 CMD [ "frankenphp", "run", "--config", "/etc/caddy/Caddyfile", "--watch" ]
 
@@ -192,7 +196,7 @@ FROM salt_core_app AS salt_core_consumer
 ENV APP_ENV=prod
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
-COPY --link frankenphp/conf.d/app.prod.ini $PHP_INI_DIR/conf.d/
+COPY frankenphp/conf.d/app.prod.ini $PHP_INI_DIR/conf.d/
 
 RUN rm -Rf frankenphp/
 
@@ -207,8 +211,8 @@ ENV APP_ENV=prod
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
-COPY --link frankenphp/conf.d/app.prod.ini $PHP_INI_DIR/conf.d/
-#COPY --link frankenphp/worker.Caddyfile /etc/caddy/worker.Caddyfile
+COPY frankenphp/conf.d/app.prod.ini $PHP_INI_DIR/conf.d/
+#COPY frankenphp/worker.Caddyfile /etc/caddy/worker.Caddyfile
 
 RUN rm -Rf frankenphp/
 
