@@ -10,7 +10,7 @@ ARG COMMIT=unknown
 
 ARG PHP_VERSION=8.4
 ARG FRANKENPHP_VERSION=1
-ARG NODE_VERSION=22
+ARG NODE_VERSION=24
 
 # https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
 #========================================================================
@@ -99,8 +99,10 @@ RUN set -eux; \
 #=======================================================================
 FROM node:${NODE_VERSION} AS salt_core_js_build
 
-USER node
 WORKDIR /srv/core
+RUN mkdir ./node_modules ; chown node:node node_modules
+
+USER node
 
 COPY --link package.json yarn.lock ./
 COPY --link --from=salt_core_vendors /srv/core/vendor/symfony/ux-vue/assets ./vendor/symfony/ux-vue/assets/
