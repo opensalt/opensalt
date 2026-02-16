@@ -57,7 +57,6 @@ class ItemDto
     #[Groups(['view'])]
     #[Assert\NotNull(message: 'The document reference is required', groups: ['view'])]
     #[Assert\NotBlank(message: 'The document reference is required', groups: ['view'])]
-    #[Map('lsDoc.uri')]
     public ?LinkURI $CFDocumentURI = null;
 
     #[Groups(['create', 'update', 'view'])]
