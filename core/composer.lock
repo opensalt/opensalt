@@ -11343,28 +11343,28 @@
         },
         {
             "name": "symfony/object-mapper",
-            "version": "v7.4.5",
+            "version": "v8.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/object-mapper.git",
-                "reference": "d9c54613577e321468924f8210739f9d0197a8f4"
+                "reference": "d8388ce275fa61a7a0cba0e88301f5b91686e640"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/object-mapper/zipball/d9c54613577e321468924f8210739f9d0197a8f4",
-                "reference": "d9c54613577e321468924f8210739f9d0197a8f4",
+                "url": "https://api.github.com/repos/symfony/object-mapper/zipball/d8388ce275fa61a7a0cba0e88301f5b91686e640",
+                "reference": "d8388ce275fa61a7a0cba0e88301f5b91686e640",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.2",
+                "php": ">=8.4",
                 "psr/container": "^2.0"
             },
             "conflict": {
                 "symfony/property-access": "<7.2"
             },
             "require-dev": {
-                "symfony/property-access": "^7.2|^8.0",
-                "symfony/var-exporter": "^7.2|^8.0"
+                "symfony/property-access": "^7.4|^8.0",
+                "symfony/var-exporter": "^7.4|^8.0"
             },
             "type": "library",
             "autoload": {
@@ -11392,7 +11392,7 @@
             "description": "Provides a way to map an object to another object",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/object-mapper/tree/v7.4.5"
+                "source": "https://github.com/symfony/object-mapper/tree/v8.0.5"
             },
             "funding": [
                 {
@@ -11412,7 +11412,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-01-26T15:18:30+00:00"
+            "time": "2026-01-26T16:01:04+00:00"
         },
         {
             "name": "symfony/options-resolver",
@@ -20494,5 +20494,5 @@
         "ext-random": "*"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }
