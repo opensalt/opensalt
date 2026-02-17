@@ -154,7 +154,7 @@
         "codeception/codeception": "^5.0",
         "codeception/module-asserts": "^3.0",
         "codeception/module-doctrine": "^3.0",
-        "codeception/module-phpbrowser": "^3.0",
+        "codeception/module-phpbrowser": "^4.0",
         "codeception/module-rest": "^3.0",
         "codeception/module-sequence": "dev-php-8.4",
         "codeception/module-symfony": "^3.0",
