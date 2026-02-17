@@ -146,6 +146,13 @@
         </div>
       </div>
     </div>
+
+    <!-- Comments -->
+    <CommentModule
+      v-if="document?.id"
+      item-type="document"
+      :item-id="document.id"
+    />
   </div>
 
   <!-- Dynamic Modal -->
@@ -164,6 +171,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import { useDynamicModal } from '../../../composables/useDynamicModal.js';
+import CommentModule from '../CommentModule.vue';
 import docIcon from '@/assets/icons/ph/graph-fill.svg';
 
 const props = defineProps({

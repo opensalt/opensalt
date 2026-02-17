@@ -36,7 +36,7 @@
     </div>
 
     <!-- Panel Content -->
-    <div class="panel-content flex-grow-1 overflow-hidden">
+    <div class="panel-content flex-grow-1 overflow-y-auto">
       <!-- Item Details Mode -->
       <ItemDetailsPanel
         v-if="currentMode === 'itemDetails'"
@@ -147,6 +147,7 @@ watch(() => sessionStore.isAuthenticated, (auth) => {
 
 <style scoped>
 .right-side-panel {
+  height: 100%;
   overflow: hidden;
 }
 

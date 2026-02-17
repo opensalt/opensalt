@@ -95,10 +95,8 @@ function onToggleSelection(event) {
 }
 
 .tree-container {
-  /* Fixed height constraint to enable proper scrolling */
-  height: calc(100vh - 340px); /* Adjust based on your layout needs */
-  max-height: calc(100vh - 340px);
-  min-height: 200px; /* Minimum height for usability */
+  /* Height controlled by flex parent */
+  height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
   position: relative;
@@ -106,9 +104,6 @@ function onToggleSelection(event) {
   /* Reset any parent margins/paddings that could cause positioning issues */
   margin: 0 !important;
   padding: 0 !important;
-
-  /* Add bottom padding to ensure scrollHeight includes all content */
-  padding-bottom: 120px !important;
 }
 
 /* Ensure tree content starts at the top of the container */

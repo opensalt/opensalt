@@ -63,5 +63,8 @@ const emit = defineEmits([
 </script>
 
 <style scoped>
-/* ItemDetailsPanel specific styles can be added here if needed */
+.item-details-panel {
+  flex: 1;
+  min-height: 0;
+}
 </style>

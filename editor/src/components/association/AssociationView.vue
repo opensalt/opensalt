@@ -75,7 +75,7 @@
           >
             <div class="card-header d-flex justify-content-between align-items-center">
               <span class="badge bg-primary">{{ assoc.associationType }}</span>
-              <div class="dropdown">
+              <div class="dropdown" v-if="assoc.associationType !== 'isChildOf'">
                 <button
                   type="button"
                   class="btn btn-sm btn-outline-secondary dropdown-toggle"
@@ -105,10 +105,6 @@
               <div class="mb-2">
                 <strong>Destination:</strong>
                 <p>{{ getItemTitle(assoc, 'dest') }}</p>
-              </div>
-              <div v-if="assoc.sequenceNumber !== undefined">
-                <strong>Sequence:</strong>
-                <span>{{ assoc.sequenceNumber }}</span>
               </div>
               <div v-if="assoc.lastChangeDateTime" class="text-muted small mt-2">
                 Last modified: {{ formatDate(assoc.lastChangeDateTime) }}

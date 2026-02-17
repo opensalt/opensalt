@@ -159,6 +159,13 @@
         </div>
       </div>
       </div>
+
+      <!-- Comments -->
+      <CommentModule
+        v-if="item?.id"
+        item-type="item"
+        :item-id="item.id"
+      />
     </div>
 
   </div>
@@ -197,6 +204,7 @@
 import { computed, ref, onMounted } from 'vue';
 import { Teleport } from 'vue';
 import AssociationGroupDisplay from '../../association/AssociationGroupDisplay.vue';
+import CommentModule from '../CommentModule.vue';
 import { renderMarkdown, hasMarkdown } from '../../../utils/markdownRenderer.js';
 import render from '../../../utils/render-md.js';
 import { useDynamicModal } from '../../../composables/useDynamicModal.js';
@@ -394,8 +402,13 @@ const isReadOnly = computed(() => props.currentDocument?.isReadOnly || !sessionS
 </script>
 
 <style scoped>
+.item-details {
+  min-height: 0;
+  overflow-y: auto;
+}
+
 .associations-list {
-  max-height: 300px;
+  min-height: 0;
   overflow-y: auto;
 }
 

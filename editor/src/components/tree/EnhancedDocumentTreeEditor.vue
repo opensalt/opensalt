@@ -1,14 +1,14 @@
 <template>
-  <div>
+  <div class="h-100 d-flex flex-column">
     <div v-if="loading" class="d-flex justify-content-center align-items-center" style="height: 100%;" role="status" aria-live="polite">
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Loading document...</span>
       </div>
     </div>
     <div v-else-if="error" class="alert alert-danger my-4" role="alert" aria-live="assertive">{{ error }}</div>
-    <main v-else class="row g-0" style="height: 100%;">
+    <main v-else class="row g-0" style="height: 100%; min-height: 0;">
       <!-- Tree panel -->
-      <section class="col-5 tree-panel d-flex flex-column">
+      <section class="col-5 tree-panel d-flex flex-column h-100 overflow-hidden">
         <!-- Document Selector -->
         <DocumentSelector
           :current-doc1="currentDoc"
@@ -79,7 +79,7 @@
         </div>
 
         <!-- Tree View -->
-        <div class="mt-3 flex-grow-1 overflow-auto">
+        <div class="mt-3 flex-grow-1 overflow-auto mb-3">
           <TreeView
             :doc="filteredDoc"
             :selected-id="selectedId"
@@ -92,7 +92,7 @@
       </section>
 
       <!-- Details/info panel -->
-      <section class="col-7 details-panel d-flex flex-column">
+      <section class="col-7 details-panel d-flex flex-column h-100 overflow-hidden">
         <RightSidePanel
           v-if="rightPanelMode === 'itemDetails'"
           :current-document="currentDoc"
@@ -837,4 +837,7 @@ const docStatus = computed(() => doc.value.status || 'Draft');
 
 <style scoped>
 /* Component-specific styles can be added here */
+.details-panel {
+  min-height: 0;
+}
 </style>
