@@ -32,12 +32,20 @@ services:
     volumes:
       - ./core:/srv/core:rw
       - ./core/docker/php/conf.d/opcache.ini.dev:/usr/local/etc/php/conf.d/opcache.ini
+      - ./core/frankenphp/Caddyfile.dev:/etc/caddy/Caddyfile
       - ./core/var:/srv/core/var:rw
     healthcheck:
       start_period: 10m # For data migration
       interval: 30s
       timeout: 3s
       retries: 5
+
+
+  editor:
+    image: node:24
+    volumes:
+      - ./editor:/editor
+    command: ['/editor/run_dev.sh']
 
   db:
     volumes:

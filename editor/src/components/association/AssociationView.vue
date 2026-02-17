@@ -151,6 +151,16 @@
         </div>
       </main>
     </div>
+
+    <!-- Edit Association Modal -->
+    <EditAssociationModal
+      v-if="editingAssociation"
+      :association="editingAssociation"
+      :available-groups="associationGroups"
+      :show="showEditAssociationModal"
+      @updated="handleAssociationUpdated"
+      @hidden="handleModalHidden"
+    />
   </div>
 </template>
 
@@ -161,11 +171,16 @@ import { useDocumentStore } from '../../stores/documentStore';
 import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
 import { useItemStore } from '../../stores/itemStore';
 import { logger } from '../../utils/logger.js';
+import EditAssociationModal from './EditAssociationModal.vue';
 
 const router = useRouter();
 const documentStore = useDocumentStore();
 const currentDocumentStore = useCurrentDocumentStore();
 const itemStore = useItemStore();
+
+// Modal state
+const showEditAssociationModal = ref(false);
+const editingAssociation = ref(null);
 
 const loading = computed(() => documentStore.loading);
 const error = computed(() => documentStore.error);
@@ -268,16 +283,45 @@ function goToItem(identifier) {
 
 function editAssoc(assoc) {
   logger.debug('Edit association:', assoc);
-  // Implementation will depend on how modals are triggered in the Vue app
+  editingAssociation.value = assoc;
+  showEditAssociationModal.value = true;
+}
+
+function handleAssociationUpdated(updatedAssoc) {
+  logger.debug('Association updated:', updatedAssoc);
+  // Update the association in the current document's associations list
+  const index = currentDocumentStore.currentDocumentAssociations.findIndex(
+    a => (a.id || a.identifier) === (updatedAssoc.id || updatedAssoc.identifier)
+  );
+  if (index !== -1) {
+    currentDocumentStore.currentDocumentAssociations[index] = {
+      ...currentDocumentStore.currentDocumentAssociations[index],
+      ...updatedAssoc
+    };
+  }
+  // Close the modal
+  showEditAssociationModal.value = false;
+  editingAssociation.value = null;
+}
+
+function handleModalHidden() {
+  showEditAssociationModal.value = false;
+  editingAssociation.value = null;
 }
 
 async function deleteAssoc(assoc) {
   if (!confirm('Are you sure you want to delete this association?')) {
     return;
   }
+  // Use the correct ID property - associations can have either id or identifier
+  const associationId = assoc.id || assoc.identifier;
+  if (!associationId) {
+    console.error('Association has no id or identifier:', assoc);
+    return;
+  }
   try {
-    await currentDocumentStore.removeAssociation(assoc.id);
-    logger.debug('Association deleted successfully:', assoc.id);
+    await currentDocumentStore.removeAssociation(associationId);
+    logger.debug('Association deleted successfully:', associationId);
   } catch (e) {
     console.error('Failed to delete association', e);
   }

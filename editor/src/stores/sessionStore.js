@@ -34,14 +34,18 @@ export const useSessionStore = defineStore('session', () => {
             const time = json.remainingTime;
             remainingTime.value = time;
 
-            if (time > 0) {
-                // Valid session exists
+            // Use the isAuthenticated flag from the backend response
+            // This properly distinguishes between authenticated users and anonymous sessions
+            const authenticated = json.isAuthenticated === true;
+
+            if (time > 0 && authenticated) {
+                // Valid authenticated session exists
                 if (!isAuthenticated.value) {
                     isAuthenticated.value = true;
                 }
                 handleRemainingTime(time);
             } else {
-                // Session expired or invalid according to server
+                // Session expired, invalid, or anonymous (not authenticated)
                 handleExpired();
             }
 
