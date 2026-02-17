@@ -36,6 +36,11 @@ class Session
 
     public function getData(): string
     {
+        /** @phpstan-ignore-next-line */
+        if (is_resource($this->data)) {
+            $this->data = stream_get_contents($this->data);
+        }
+
         return $this->data;
     }
 
