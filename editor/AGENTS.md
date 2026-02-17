@@ -10,9 +10,33 @@
   - `npm install` - install dependencies
   - `npm run build` — build application
 - **Testing & quality (do in this order):**
-  1. 
+  1. `npm run test` — run all tests with Vitest
+  2. `npm run test:watch` — run tests in watch mode
+  3. `npm run test:coverage` — run tests with coverage report
+  4. `npm run lint` — run ESLint
 - **Typical PR workflow:** create branch `feature/<scope>-<short-desc>`, commit in small diffs, open PR linked to an issue, include migration notes, test results, and a brief change log (see §6).
 - **Guardrails:** do **not** commit secrets, DB data, or container volumes; prefer minimal diffs; never bypass CI failures; ask for human review for schema or API changes (see §7).
+
+---
+
+## 3) Tests
+
+- **Framework:** Vitest with Vue Test Utils
+- **Test structure:**
+  - `tests/services/` — API service tests
+  - `tests/stores/` — Pinia store tests (documentStore, itemStore, associationStore)
+  - `tests/components/` — Vue component tests
+- **Run tests:**
+  - `npm run test` — run all tests
+  - `npm run test:watch` — interactive watch mode
+  - `npm run test:coverage` — generate coverage report
+- **Writing tests:**
+  - Mirror patterns from `core/tests/` (PHP tests)
+  - Use `@vue/test-utils` for component mounting
+  - Mock API calls with `vi.mock('@/services/api.js')`
+  - Use `setActivePinia(createPinia())` for store tests
+
+> **Agent rule:** Add/adjust tests for any logic you change. Run tests before committing.
 
 ---
 
