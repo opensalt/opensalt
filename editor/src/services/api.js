@@ -71,10 +71,13 @@ class ApiService {
   async request(endpoint, options = {}) {
     const token = this.getAuthToken();
     const headers = {
-      ...this.defaultHeaders,
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers
     };
+
+    // Remove Content-Type from default headers for FormData requests
+    // The browser will set the correct Content-Type with boundary for multipart/form-data
+    const { 'Content-Type': removed, ...rest } = this.defaultHeaders;
 
     const url = `${this.baseUrl}${endpoint}`;
     const requestOptions = {

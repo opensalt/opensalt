@@ -162,6 +162,9 @@ const replyContent = ref('');
 const isEditing = ref(false);
 const editContent = ref('');
 
+// Flag to track if we're submitting a reply
+const isSubmittingReply = ref(false);
+
 // Computed
 const avatarInitials = computed(() => {
     const name = props.comment.fullname || 'Unknown';
@@ -236,12 +239,16 @@ function cancelReply() {
     replyContent.value = '';
 }
 
-function submitReply() {
+async function submitReply() {
     if (!replyContent.value.trim()) return;
 
-    emit('reply', props.comment.id);
-    // The parent will handle the actual reply submission
-    // We just emit the event and reset the form
+    // Emit reply event with both comment ID and content
+    emit('reply', {
+        parentCommentId: props.comment.id,
+        content: replyContent.value.trim()
+    });
+
+    // Reset the form after emitting
     showReplyForm.value = false;
     replyContent.value = '';
 }

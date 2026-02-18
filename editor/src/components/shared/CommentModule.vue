@@ -203,7 +203,7 @@ const props = defineProps({
     },
     enableAttachments: {
         type: Boolean,
-        default: true
+        default: false
     }
 });
 
@@ -287,10 +287,34 @@ async function submitComment() {
     }
 }
 
-function handleReply(commentId) {
-    replyToComment.value = commentId;
-    // Scroll to input
-    document.querySelector('.comment-input-section')?.scrollIntoView({ behavior: 'smooth' });
+async function handleReply(replyData) {
+    // replyData can be either a comment ID (for old behavior) or an object with parentCommentId and content
+    if (typeof replyData === 'number' || typeof replyData === 'string') {
+        // Legacy behavior: just set which comment we're replying to
+        replyToComment.value = replyData;
+        // Scroll to input
+        document.querySelector('.comment-input-section')?.scrollIntoView({ behavior: 'smooth' });
+    } else if (replyData && typeof replyData === 'object') {
+        // New behavior: replyData contains both parentCommentId and content
+        replyToComment.value = replyData.parentCommentId;
+
+        // Submit the reply immediately
+        const commentData = {
+            content: replyData.content,
+            parent: replyData.parentCommentId
+        };
+
+        const result = await commentStore.addComment(commentData, selectedFile.value);
+
+        if (result) {
+            newCommentContent.value = '';
+            selectedFile.value = null;
+            replyToComment.value = null;
+            if (fileInput.value) {
+                fileInput.value.value = '';
+            }
+        }
+    }
 }
 
 function handleEdit(comment) {

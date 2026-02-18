@@ -102,8 +102,7 @@ export const useCommentStore = defineStore('comments', () => {
                 if (commentData.parent) {
                     formData.append('parent', commentData.parent);
                 }
-                formData.append('itemIdentifier', currentItem.value.identifier);
-                formData.append('itemType', currentItem.value.type);
+                formData.append('file', file);
 
                 const endpoint = currentItem.value.type === 'document'
                     ? `/comments/document/${currentItem.value.identifier}`
@@ -118,9 +117,7 @@ export const useCommentStore = defineStore('comments', () => {
 
                 newComment = await api.post(endpoint, {
                     content: commentData.content,
-                    parent: commentData.parent || null,
-                    itemIdentifier: currentItem.value.identifier,
-                    itemType: currentItem.value.type
+                    parent: commentData.parent || null
                 });
             }
 
