@@ -28,6 +28,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\Requirement\Requirement;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -45,15 +46,17 @@ class CommentsController extends AbstractController
     }
 
     #[Route(path: '/comments/document/{id<\d+>}', name: 'create_doc_comment', methods: ['POST'])]
+    #[Route(path: '/comments/document/{identifier}', name: 'create_doc_comment_identifier', requirements: ['identifier' => Requirement::UID_RFC4122], methods: ['POST'])]
     #[IsGranted(Permission::COMMENT_ADD)]
-    public function newDocComment(Request $request, LsDoc $doc, #[CurrentUser] User $user, BucketService $bucket): JsonResponse
+    public function newDocComment(Request $request, #[MapEntity()] LsDoc $doc, #[CurrentUser] User $user, BucketService $bucket): JsonResponse
     {
         return $this->addComment($request, 'document', $doc, $user, $bucket);
     }
 
     #[Route(path: '/comments/item/{id<\d+>}', name: 'create_item_comment', methods: ['POST'])]
+    #[Route(path: '/comments/item/{identifier}', name: 'create_item_comment_identifier', requirements: ['identifier' => Requirement::UID_RFC4122], methods: ['POST'])]
     #[IsGranted(Permission::COMMENT_ADD)]
-    public function newItemComment(Request $request, LsItem $item, #[CurrentUser] User $user, BucketService $bucket): JsonResponse
+    public function newItemComment(Request $request, #[MapEntity()] LsItem $item, #[CurrentUser] User $user, BucketService $bucket): JsonResponse
     {
         return $this->addComment($request, 'item', $item, $user, $bucket);
     }
@@ -61,9 +64,9 @@ class CommentsController extends AbstractController
     /**
      * @param Collection<array-key,Comment> $comments
      */
-    #[Route(path: '/comments/{itemType<document|item>}/{itemId<\d+>}', name: 'get_comments', methods: ['GET'])]
+    #[Route(path: '/comments/{itemType<document|item>}/{itemId}', name: 'get_comments', methods: ['GET'])]
     #[IsGranted(Permission::COMMENT_VIEW)]
-    public function list(#[MapEntity(class: Comment::class, expr: 'repository.findByTypeItem(itemType, itemId)')] Collection $comments, #[CurrentUser] ?User $user): JsonResponse
+    public function list(#[MapEntity(class: Comment::class, expr: 'repository.findByTypeId(itemType, itemId)')] Collection $comments, #[CurrentUser] ?User $user): JsonResponse
     {
         if ($user instanceof User) {
             foreach ($comments as $comment) {
@@ -120,7 +123,7 @@ class CommentsController extends AbstractController
 
     #[Route(path: '/salt/case/export_comment/{itemType}/{itemId}/comment.csv', name: 'export_comment_file')]
     #[IsGranted(Permission::COMMENT_VIEW)]
-    public function exportComment(string $itemType, int $itemId): Response
+    public function exportComment(string $itemType, string $itemId): Response
     {
         $response = new StreamedResponse();
         $response->setCallback(function () use ($itemType, $itemId): void {
@@ -219,11 +222,11 @@ class CommentsController extends AbstractController
         }
 
         try {
-            $parentId = $request->request->getInt('parent');
+            $parentId = $request->getPayload()->getInt('parent');
         } catch (\Throwable) {
             $parentId = null;
         }
-        $content = $request->request->getString('content');
+        $content = $request->getPayload()->getString('content');
         $fileUrl = null;
         $fileMimeType = null;
 

@@ -158,14 +158,14 @@
           />
         </div>
       </div>
-      </div>
 
       <!-- Comments -->
       <CommentModule
-        v-if="item?.id"
+        v-if="item?.identifier"
         item-type="item"
-        :item-id="item.id"
+        :item-identifier="item.identifier"
       />
+      </div>
     </div>
 
   </div>

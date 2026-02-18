@@ -2,9 +2,9 @@
     <div class="comment-module">
         <!-- Header -->
         <div class="comment-header">
-            <h4 class="comment-title">
-                <i class="fas fa-comments"></i>
-                Comments
+             <h4 class="comment-title">
+                 <i class="bi bi-chat-dots"></i>
+                 Comments
                 <span v-if="commentStore.comments.length > 0" class="comment-count">
                     ({{ commentStore.comments.length }})
                 </span>
@@ -15,13 +15,13 @@
                 @click="exportComments"
                 title="Export comments as CSV"
             >
-                <i class="fas fa-download"></i> Export
+                 <i class="bi bi-download"></i> Export
             </button>
         </div>
 
         <!-- Loading State -->
         <div v-if="commentStore.loading" class="comment-loading">
-            <i class="fas fa-spinner fa-spin"></i> Loading comments...
+             <i class="bi bi-arrow-repeat bi-spin"></i> Loading comments...
         </div>
 
         <!-- Error State -->
@@ -41,7 +41,7 @@
                 ></textarea>
                 <div class="comment-input-actions">
                     <label v-if="enableAttachments" class="attachment-btn" title="Attach file">
-                        <i class="fas fa-paperclip"></i>
+                         <i class="bi bi-paperclip"></i>
                         <input
                             type="file"
                             ref="fileInput"
@@ -59,7 +59,7 @@
                         @click="submitComment"
                         :disabled="!canSubmit"
                     >
-                        <i class="fas fa-paper-plane"></i> Post
+                         <i class="bi bi-send"></i> Post
                     </button>
                 </div>
             </div>
@@ -85,7 +85,7 @@
                 />
             </template>
             <div v-else-if="!commentStore.loading" class="no-comments">
-                <i class="fas fa-comment-slash"></i>
+                 <i class="bi bi-chat-square-text"></i>
                 <p>No comments yet. Be the first to comment!</p>
             </div>
         </div>
@@ -138,9 +138,10 @@
         <!-- Delete Confirmation Modal -->
         <div
             class="modal fade"
+            :class="{ show: showDeleteModal, 'd-block': showDeleteModal }"
             id="deleteCommentModal"
             tabindex="-1"
-            ref="deleteModal"
+            v-if="showDeleteModal"
         >
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -149,13 +150,13 @@
                         <button
                             type="button"
                             class="btn-close"
-                            data-bs-dismiss="modal"
+                            @click="cancelDelete"
                         ></button>
                     </div>
                     <div class="modal-body">
                         <p>Are you sure you want to delete this comment?</p>
                         <p v-if="hasRepliesToDelete" class="text-warning">
-                            <i class="fas fa-exclamation-triangle"></i>
+                            <i class="bi bi-exclamation-triangle"></i>
                             This will also delete all replies.
                         </p>
                     </div>
@@ -163,7 +164,7 @@
                         <button
                             type="button"
                             class="btn btn-secondary"
-                            data-bs-dismiss="modal"
+                            @click="cancelDelete"
                         >
                             Cancel
                         </button>
@@ -178,6 +179,9 @@
                 </div>
             </div>
         </div>
+
+        <!-- Modal Backdrop -->
+        <div v-if="showDeleteModal" class="modal-backdrop fade show" @click="cancelDelete"></div>
     </div>
 </template>
 
@@ -193,8 +197,8 @@ const props = defineProps({
         required: true,
         validator: (value) => ['item', 'document'].includes(value)
     },
-    itemId: {
-        type: [Number, String],
+    itemIdentifier: {
+        type: String,
         required: true
     },
     enableAttachments: {
@@ -217,13 +221,14 @@ const editContent = ref('');
 const editingCommentId = ref(null);
 const deletingCommentId = ref(null);
 const replyToComment = ref(null);
+const showDeleteModal = ref(false);
 
 // Bootstrap modal instances
 let editModalInstance = null;
 let deleteModalInstance = null;
 
 // Computed
-const isLoggedIn = computed(() => sessionStore.isLoggedIn);
+const isLoggedIn = computed(() => sessionStore.isAuthenticated);
 const currentUserId = computed(() => sessionStore.user?.id);
 
 const canSubmit = computed(() => {
@@ -238,10 +243,10 @@ const hasRepliesToDelete = computed(() => {
 
 // Watch for item changes
 watch(
-    () => [props.itemType, props.itemId],
-    ([newType, newId]) => {
-        if (newType && newId) {
-            commentStore.fetchComments(newType, newId);
+    () => [props.itemType, props.itemIdentifier],
+    ([newType, newIdentifier]) => {
+        if (newType && newIdentifier) {
+            commentStore.fetchComments(newType, newIdentifier);
         }
     },
     { immediate: true }
@@ -293,10 +298,12 @@ function handleEdit(comment) {
     editContent.value = comment.content;
 
     nextTick(() => {
-        if (editModal.value && !editModalInstance) {
-            editModalInstance = new bootstrap.Modal(editModal.value);
+        if (editModal.value && typeof bootstrap !== 'undefined') {
+            if (!editModalInstance) {
+                editModalInstance = new bootstrap.Modal(editModal.value);
+            }
+            editModalInstance?.show();
         }
-        editModalInstance?.show();
     });
 }
 
@@ -314,13 +321,7 @@ async function saveEdit() {
 
 function handleDelete(commentId) {
     deletingCommentId.value = commentId;
-
-    nextTick(() => {
-        if (deleteModal.value && !deleteModalInstance) {
-            deleteModalInstance = new bootstrap.Modal(deleteModal.value);
-        }
-        deleteModalInstance?.show();
-    });
+    showDeleteModal.value = true;
 }
 
 async function confirmDelete() {
@@ -329,9 +330,14 @@ async function confirmDelete() {
     const success = await commentStore.deleteComment(deletingCommentId.value);
 
     if (success) {
-        deleteModalInstance?.hide();
+        showDeleteModal.value = false;
         deletingCommentId.value = null;
     }
+}
+
+function cancelDelete() {
+    showDeleteModal.value = false;
+    deletingCommentId.value = null;
 }
 
 async function handleUpvote(commentId) {

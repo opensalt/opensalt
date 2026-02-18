@@ -149,9 +149,9 @@
 
     <!-- Comments -->
     <CommentModule
-      v-if="document?.id"
+      v-if="document?.identifier"
       item-type="document"
-      :item-id="document.id"
+      :item-identifier="document.identifier"
     />
   </div>
 

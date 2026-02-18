@@ -55,7 +55,7 @@ class ApiService {
       503: 'Service temporarily unavailable. Please try again later.'
     };
 
-    const message = errorMessages[response.status] || 
+    const message = errorMessages[response.status] ||
       `Request failed: ${response.statusText} (${response.status})`;
 
     return new ApiError(message, response.status, response);
@@ -201,7 +201,7 @@ class ApiService {
    */
   async upload(endpoint, formData, options = {}) {
     const token = this.getAuthToken();
-    
+
     // Don't set Content-Type for FormData - let browser set it with boundary
     const headers = {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),

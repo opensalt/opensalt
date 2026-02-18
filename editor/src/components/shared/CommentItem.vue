@@ -50,7 +50,7 @@
                     :disabled="!isLoggedIn"
                     :title="comment.user_has_upvoted ? 'Remove upvote' : 'Upvote'"
                 >
-                    <i class="fas fa-thumbs-up"></i>
+                     <i class="bi bi-hand-thumbs-up"></i>
                     <span v-if="comment.upvote_count > 0" class="upvote-count">
                         {{ comment.upvote_count }}
                     </span>
@@ -64,7 +64,7 @@
                     :disabled="!isLoggedIn"
                     title="Reply"
                 >
-                    <i class="fas fa-reply"></i> Reply
+                     <i class="bi bi-reply"></i> Reply
                 </button>
 
                 <!-- Edit (only for comment author) -->
@@ -74,7 +74,7 @@
                     @click="startEdit"
                     title="Edit"
                 >
-                    <i class="fas fa-edit"></i> Edit
+                     <i class="bi bi-pencil"></i> Edit
                 </button>
 
                 <!-- Delete (only for comment author) -->
@@ -84,7 +84,7 @@
                     @click="$emit('delete', comment.id)"
                     title="Delete"
                 >
-                    <i class="fas fa-trash"></i> Delete
+                    <i class="bi bi-trash"></i> Delete
                 </button>
             </div>
 
@@ -205,15 +205,15 @@ const isAuthor = computed(() => {
 const fileIcon = computed(() => {
     const mimeType = props.comment.file_mime_type || '';
     if (mimeType.startsWith('image/')) {
-        return 'fas fa-image';
+        return 'bi bi-file-earmark-image';
     } else if (mimeType.includes('pdf')) {
-        return 'fas fa-file-pdf';
+        return 'bi bi-file-earmark-pdf';
     } else if (mimeType.includes('word') || mimeType.includes('document')) {
-        return 'fas fa-file-word';
+        return 'bi bi-file-earmark-word';
     } else if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) {
-        return 'fas fa-file-excel';
+        return 'bi bi-file-earmark-excel';
     } else {
-        return 'fas fa-file';
+        return 'bi bi-file-earmark';
     }
 });
 

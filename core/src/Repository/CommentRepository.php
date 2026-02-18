@@ -79,8 +79,26 @@ class CommentRepository extends ServiceEntityRepository
     /**
      * @return Collection<int<0, max>, Comment>
      */
-    public function findByTypeItem(string $itemType, int $itemId): Collection
+    public function findByTypeId(string $itemType, string $itemId): Collection
     {
-        return new ArrayCollection($this->findBy([$itemType => $itemId]));
+        // Try to find by identifier first, then by ID if it's numeric
+        $entity = null;
+        if ($itemType === 'document') {
+            $entity = $this->getEntityManager()->getRepository(LsDoc::class)->findOneBy(['identifier' => $itemId]);
+            if (null === $entity && is_numeric($itemId)) {
+                $entity = $this->getEntityManager()->getRepository(LsDoc::class)->find((int)$itemId);
+            }
+        } elseif ($itemType === 'item') {
+            $entity = $this->getEntityManager()->getRepository(LsItem::class)->findOneBy(['identifier' => $itemId]);
+            if (null === $entity && is_numeric($itemId)) {
+                $entity = $this->getEntityManager()->getRepository(LsItem::class)->find((int)$itemId);
+            }
+        }
+
+        if (null !== $entity) {
+            return new ArrayCollection($this->findBy([$itemType => $entity->getId()]));
+        }
+
+        return new ArrayCollection();
     }
 }

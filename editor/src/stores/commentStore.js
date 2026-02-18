@@ -11,7 +11,7 @@ export const useCommentStore = defineStore('comments', () => {
     const comments = ref([]);
     const loading = ref(false);
     const error = ref(null);
-    const currentItem = ref(null); // { id, type: 'item' | 'document' }
+    const currentItem = ref(null); // { identifier, type: 'item' | 'document' }
 
     // Computed
     const hasComments = computed(() => comments.value.length > 0);
@@ -52,20 +52,20 @@ export const useCommentStore = defineStore('comments', () => {
     /**
      * Fetch comments for an item or document
      * @param {string} itemType - 'item' or 'document'
-     * @param {number} itemId - Item or document ID
+     * @param {string} itemIdentifier - Item or document identifier
      */
-    async function fetchComments(itemType, itemId) {
-        if (!itemType || !itemId) {
-            console.warn('fetchComments: Missing itemType or itemId');
+    async function fetchComments(itemType, itemIdentifier) {
+        if (!itemType || !itemIdentifier) {
+            console.warn('fetchComments: Missing itemType or itemIdentifier');
             return;
         }
 
         loading.value = true;
         error.value = null;
-        currentItem.value = { id: itemId, type: itemType };
+        currentItem.value = { identifier: itemIdentifier, type: itemType };
 
         try {
-            const response = await api.get(`/comments/${itemType}/${itemId}`);
+            const response = await api.get(`/comments/${itemType}/${itemIdentifier}`);
             comments.value = Array.isArray(response) ? response : [];
         } catch (err) {
             console.error('Failed to fetch comments:', err);
@@ -102,24 +102,24 @@ export const useCommentStore = defineStore('comments', () => {
                 if (commentData.parent) {
                     formData.append('parent', commentData.parent);
                 }
-                formData.append('itemId', currentItem.value.id);
+                formData.append('itemIdentifier', currentItem.value.identifier);
                 formData.append('itemType', currentItem.value.type);
 
                 const endpoint = currentItem.value.type === 'document'
-                    ? `/comments/document/${currentItem.value.id}`
-                    : `/comments/item/${currentItem.value.id}`;
+                    ? `/comments/document/${currentItem.value.identifier}`
+                    : `/comments/item/${currentItem.value.identifier}`;
 
                 newComment = await api.upload(endpoint, formData);
             } else {
                 // Use JSON for text-only comments
                 const endpoint = currentItem.value.type === 'document'
-                    ? `/comments/document/${currentItem.value.id}`
-                    : `/comments/item/${currentItem.value.id}`;
+                    ? `/comments/document/${currentItem.value.identifier}`
+                    : `/comments/item/${currentItem.value.identifier}`;
 
                 newComment = await api.post(endpoint, {
                     content: commentData.content,
                     parent: commentData.parent || null,
-                    itemId: currentItem.value.id,
+                    itemIdentifier: currentItem.value.identifier,
                     itemType: currentItem.value.type
                 });
             }
@@ -247,7 +247,7 @@ export const useCommentStore = defineStore('comments', () => {
         if (!currentItem.value) {
             return null;
         }
-        return `/salt/case/export_comment/${currentItem.value.type}/${currentItem.value.id}/comment.csv`;
+        return `/salt/case/export_comment/${currentItem.value.type}/${currentItem.value.identifier}/comment.csv`;
     }
 
     /**
