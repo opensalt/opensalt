@@ -15,8 +15,8 @@ app.use(pinia);
 app.use(router);
 
 // Initialize router guards after Pinia is set up
-import { useDocumentStore } from './stores/documentStore.js';
-import { useCurrentDocumentStore } from './stores/currentDocumentStore.js';
+import { useDocumentStore } from './stores/documentStore.ts';
+import { useCurrentDocumentStore } from './stores/currentDocumentStore.ts';
 
 router.beforeEach(async (to, from, next) => {
   const documentStore = useDocumentStore();

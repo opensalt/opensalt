@@ -1,15 +1,17 @@
 <template>
-  <div class="association-item d-flex justify-content-between align-items-center p-3 border-bottom">
+  <div class="association-item d-flex justify-content-between align-items-center p-2 border-bottom">
     <div class="association-info flex-grow-1">
+      <!--
       <div class="d-flex align-items-center mb-2">
         <span class="badge bg-primary me-2">{{ associationType }}</span>
         <span v-if="groupTitle" class="badge bg-secondary">{{ groupTitle }}</span>
       </div>
+        -->
 
       <div class="association-details">
         <div class="mb-1">
-          <strong>Destination:</strong>
-          <span class="ms-2">{{ destinationTitle }}</span>
+          <strong>{{ nodeLabel }}</strong>
+          <span class="ms-2">{{ nodeTitle }}</span>
         </div>
 
         <div v-if="notes" class="mb-1">
@@ -58,21 +60,46 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
+  direction: {
+    type: String,
+    default: 'normal'
+  },
   isReadOnly: {
     type: Boolean,
     default: false
+  },
+  itemIdentifier: {
+    type: String,
+    required: true
   }
 });
 
 const emit = defineEmits(['edit', 'delete']);
 
+// Determine if association is reversed (item is destination, not origin)
+const isReversed = computed(() => {
+    return props.direction === 'reversed';
+});
+
 const associationType = computed(() => {
   return props.association.associationType || props.association.type || 'Unknown';
 });
 
-const destinationTitle = computed(() => {
-  const dest = props.association.destinationNodeURI || props.association.destination;
-  return dest?.title || dest?.identifier || 'Unknown';
+// Get the appropriate node title based on direction
+const nodeTitle = computed(() => {
+  if (isReversed.value) {
+    // Show origin when reversed
+    const origin = props.association.originNodeURI || props.association.origin;
+    return origin?.title || origin?.identifier || 'Unknown';
+  } else {
+    // Show destination when normal
+    const dest = props.association.destinationNodeURI || props.association.destination;
+    return dest?.title || dest?.identifier || 'Unknown';
+  }
+});
+
+const nodeLabel = computed(() => {
+  return isReversed.value ? 'Origin:' : 'Destination:';
 });
 
 const notes = computed(() => {

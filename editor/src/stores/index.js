@@ -1,10 +1,10 @@
 // Export all Pinia stores for easy import
-export { useDocumentStore } from './documentStore';
-export { useCurrentDocumentStore } from './currentDocumentStore';
+export { useDocumentStore } from './documentStore.ts';
+export { useCurrentDocumentStore } from './currentDocumentStore.ts';
 export { useFilterStore } from './filterStore';
 export { useViewStore } from './viewStore';
 export { useItemStore } from './itemStore';
 export { useAssociationStore } from './associationStore';
 
 // Export for backward compatibility with existing imports
-export { useDocumentStore as useFrameworkStore } from './documentStore';
+export { useDocumentStore as useFrameworkStore } from './documentStore.ts';

@@ -148,10 +148,12 @@
         <div class="card-body">
           <AssociationGroupDisplay
             v-for="group in groupedAssociations"
-            :key="group.type"
+            :key="`${group.type}-${group.direction}`"
             :association-type="group.type"
             :associations="group.associations"
             :association-groups="associationGroups"
+            :direction="group.direction"
+            :item-identifier="item.identifier"
             :is-read-only="isReadOnly"
             @edit-association="!isReadOnly ? $emit('edit-association', $event) : null"
             @delete-association="!isReadOnly ? $emit('delete-association', $event) : null"
@@ -299,7 +301,7 @@ function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString();
 }
 
-// Group associations by type (excluding isChildOf)
+// Group associations by type and direction (excluding isChildOf)
 const groupedAssociations = computed(() => {
   if (!props.item?.associations) return [];
 
@@ -307,21 +309,34 @@ const groupedAssociations = computed(() => {
     assoc.associationType !== 'isChildOf' && assoc.type !== 'isChildOf'
   );
 
-  // Group by association type
+  // Group by association type and direction (normal vs reversed)
   const groups = {};
   filtered.forEach(assoc => {
     const type = assoc.associationType || assoc.type || 'unknown';
-    if (!groups[type]) {
-      groups[type] = [];
+
+    // Determine if association is reversed (item is destination, not origin)
+    const destId = (assoc.destinationNodeURI || assoc.destination)?.identifier;
+    const isReversed = destId === props.item.identifier;
+    const direction = isReversed ? 'reversed' : 'normal';
+
+    const groupKey = `${type}-${direction}`;
+    if (!groups[groupKey]) {
+      groups[groupKey] = {
+        type,
+        direction,
+        associations: []
+      };
     }
-    groups[type].push(assoc);
+    groups[groupKey].associations.push(assoc);
   });
 
   // Convert to array format for template
-  return Object.keys(groups).map(type => ({
-    type,
-    associations: groups[type]
-  })).sort((a, b) => a.type.localeCompare(b.type));
+  return Object.values(groups).sort((a, b) => {
+    // Sort by type first, then by direction (normal before reversed)
+    const typeCompare = a.type.localeCompare(b.type);
+    if (typeCompare !== 0) return typeCompare;
+    return a.direction.localeCompare(b.direction);
+  });
 });
 
 // Render fullStatement as markdown

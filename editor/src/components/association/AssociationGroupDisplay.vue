@@ -1,9 +1,11 @@
 <template>
   <div class="association-group mb-3">
-    <div class="association-group-header d-flex justify-content-between align-items-center mb-2">
+    <div class="association-group-header d-flex justify-content-between align-items-center mb-0">
       <h6 class="mb-0 text-capitalize">
         <i :class="getAssociationIcon(associationType)" class="me-2"></i>
         {{ formatAssociationType(associationType) }}
+        <span v-if="associationType.match(/^ext:/i)" class="badge bg-warning ms-2" title="This is an extended association type">Extended</span>
+        <span v-if="direction === 'reversed'" class="badge bg-warning ms-2" title="Reversed (item is destination)">Reversed</span>
         <span class="badge bg-secondary ms-2">{{ associations.length }}</span>
       </h6>
     </div>
@@ -14,6 +16,8 @@
         :key="assoc.identifier || assoc.id"
         :association="assoc"
         :association-groups="associationGroups"
+        :direction="direction"
+        :item-identifier="itemIdentifier"
         :is-read-only="isReadOnly"
         @edit="!isReadOnly ? $emit('edit-association', $event) : null"
         @delete="!isReadOnly ? $emit('delete-association', $event) : null"
@@ -38,6 +42,14 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
+  direction: {
+    type: String,
+    default: 'normal'
+  },
+  itemIdentifier: {
+    type: String,
+    default: null
+  },
   isReadOnly: {
     type: Boolean,
     default: false
@@ -51,6 +63,10 @@ const emit = defineEmits([
 
 function formatAssociationType(type) {
   if (!type) return 'Unknown';
+
+  if (type.match(/^ext:/)) {
+    type = type.replace(/^ext:/, '');
+  }
 
   // Convert camelCase to readable format
   return type
