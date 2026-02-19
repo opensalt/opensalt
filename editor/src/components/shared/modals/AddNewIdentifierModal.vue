@@ -11,9 +11,17 @@
           <button type="button" class="btn-close" @click="closeModal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <form @submit.prevent="createItem" name="ls_identifier">
+          <div v-if="loading" class="d-flex justify-content-center align-items-center p-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading form...</span>
+            </div>
+          </div>
+          <div v-else-if="error" class="alert alert-danger" role="alert">
+            {{ error }}
+          </div>
+          <form v-else @submit.prevent="createItem" name="ls_identifier">
             <div class="row mb-3">
-              <label for="ls_identifier_identifier" class="col-sm-3 col-form-label">Identifier *</label>
+              <label for="ls_identifier_identifier" class="col-sm-3 col-form-label required-label">Identifier</label>
               <div class="col-sm-9">
                 <input
                   type="text"
@@ -21,13 +29,15 @@
                   id="ls_identifier_identifier"
                   name="ls_identifier[identifier]"
                   v-model="formData.identifier"
-                  placeholder="Enter the identifier (unique URI)"
-                  :required="true"
+                  placeholder="Enter identifier (unique URI)"
+                  spellcheck="false"
+                  required
                 >
+                <small class="text-muted">The identifier for the parent object. It should be a unique URI.</small>
               </div>
             </div>
             <div class="row mb-3">
-              <label for="ls_identifier_description" class="col-sm-3 col-form-label">Description</label>
+              <label for="ls_identifier_description" class="col-sm-3 col-form-label required-label">Description</label>
               <div class="col-sm-9">
                 <textarea
                   class="form-control"
@@ -35,8 +45,23 @@
                   name="ls_identifier[description]"
                   v-model="formData.description"
                   rows="3"
-                  placeholder="Enter the description"
+                  placeholder="Enter description"
+                  required
                 ></textarea>
+                <small class="text-muted">Description of the identifier.</small>
+              </div>
+            </div>
+            <div class="row mb-3" v-if="false">
+              <label for="ls_identifier_type" class="col-sm-3 col-form-label">Type</label>
+              <div class="col-sm-9">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="ls_identifier_type"
+                  name="ls_identifier[type]"
+                  v-model="formData.type"
+                  placeholder="Enter identifier type"
+                >
               </div>
             </div>
           </form>
@@ -73,7 +98,8 @@ const isEdit = computed(() => !!props.item);
 
 const formData = reactive({
   identifier: '',
-  description: ''
+  description: '',
+  type: ''
 });
 
 watch(() => props.show, (newVal) => {
@@ -82,16 +108,29 @@ watch(() => props.show, (newVal) => {
   }
 });
 
+watch(() => props.item, (newItem) => {
+  if (newItem) {
+    loadFormData();
+  }
+}, { immediate: true });
+
 function loadFormData() {
   loading.value = true;
   error.value = '';
 
   if (isEdit.value) {
-    formData.identifier = props.item.identifier || '';
-    formData.description = props.item.description || '';
+    // Map CASE properties to form fields
+    // abbreviatedStatement maps to identifier
+    formData.identifier = props.item.abbreviatedStatement || '';
+    // fullStatement maps to description
+    formData.description = props.item.fullStatement || '';
+    // salt:idType is stored in extensions
+    formData.type = props.item.extensions?.['salt:idType'] || '';
   } else {
+    // Reset for new
     formData.identifier = '';
     formData.description = '';
+    formData.type = '';
   }
 
   loading.value = false;
@@ -103,6 +142,11 @@ function saveItem() {
     return;
   }
 
+  if (!formData.description.trim()) {
+    error.value = 'Description is required';
+    return;
+  }
+
   saving.value = true;
   error.value = '';
 
@@ -111,27 +155,33 @@ function saveItem() {
     try {
       let savedItem;
       if (isEdit.value) {
+        // Map form fields back to CASE structure
         savedItem = {
           ...props.item,
-          identifier: formData.identifier,
-          description: formData.description,
+          abbreviatedStatement: formData.identifier,
+          uri: formData.identifier,
+          fullStatement: formData.description,
+          extensions: {
+            ...(props.item?.extensions || {})
+            // , 'salt:idType': formData.type
+          },
           updated: new Date().toISOString()
         };
         emit('updated', savedItem);
       } else {
         savedItem = {
           identifier: 'identifier_' + Date.now(),
-          itemType: 'Identifier',
-          identifier: formData.identifier,
-          description: formData.description,
+          abbreviatedStatement: formData.identifier,
+          uri: formData.identifier,
+          fullStatement: formData.description,
+          extensions: {
+            // 'salt:idType': formData.type
+          },
           parentId: props.parentItem?.identifier || null,
           created: new Date().toISOString(),
           children: []
         };
         emit('created', savedItem);
-      }
-      if (modal.value) {
-        modal.value.hide();
       }
     } catch (e) {
       error.value = 'Failed to save identifier: ' + e.message;
@@ -148,11 +198,16 @@ function closeModal() {
 
 <style scoped>
 .modal-dialog {
-  max-width: 500px;
+  max-width: 95vw;
 }
 
 .form-control:focus {
   border-color: #86b7fe;
   box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.required-label::before {
+  content: "*";
+  color: red;
 }
 </style>

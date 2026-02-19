@@ -127,6 +127,12 @@ watch(() => props.show, (newVal) => {
   }
 });
 
+watch(() => props.item, (newItem) => {
+  if (newItem) {
+    loadFormData();
+  }
+}, { immediate: true });
+
 function loadFormData() {
   if (isEdit.value) {
     formData.humanCodingScheme = props.item.humanCodingScheme || '';
@@ -192,9 +198,6 @@ function saveItem() {
 
         savedItem.created = new Date().toISOString();
         emit('created', savedItem);
-      }
-      if (modal.value) {
-        modal.value.hide();
       }
     } catch (e) {
       error.value = 'Failed to save item: ' + e.message;

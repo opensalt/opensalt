@@ -100,7 +100,7 @@ const props = defineProps({
 
 const emit = defineEmits(['created', 'update', 'hidden']);
 
-const isNew = computed(() => !props.item || !props.item.humanCodingScheme);
+const isNew = computed(() => !props.item);
 
 const loading = ref(false);
 const error = ref('');

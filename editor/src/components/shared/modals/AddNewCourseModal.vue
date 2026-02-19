@@ -22,7 +22,7 @@
           </div>
           <form v-else @submit.prevent="createItem" name="course_item">
             <div class="row mb-3">
-              <label for="course_item_name" class="col-sm-2 col-form-label">Name *</label>
+              <label for="course_item_name" class="col-sm-2 col-form-label required-label">Name</label>
               <div class="col-sm-10">
                 <input
                   type="text"
@@ -30,14 +30,15 @@
                   id="course_item_name"
                   name="course_item[name]"
                   v-model="formData.name"
-                  :required="true"
+                  required
                   placeholder="Enter the name of the course"
                 >
+                <small class="text-muted">Name or title of the course.</small>
               </div>
             </div>
 
             <div class="row mb-3">
-              <label for="course_item_description" class="col-sm-2 col-form-label">Description</label>
+              <label for="course_item_description" class="col-sm-2 col-form-label required-label">Description</label>
               <div class="col-sm-10">
                 <textarea
                   class="form-control"
@@ -45,8 +46,10 @@
                   name="course_item[description]"
                   rows="3"
                   v-model="formData.description"
+                  required
                   placeholder="Enter a description of the course"
                 ></textarea>
+                <small class="text-muted">Description of this course.</small>
               </div>
             </div>
 
@@ -61,6 +64,7 @@
                   v-model="formData.codedNotation"
                   placeholder="Identifier for the course, e.g., ENG101"
                 >
+                <small class="text-muted">Identifier for this course, eg. ENG101</small>
               </div>
             </div>
 
@@ -72,8 +76,8 @@
                   <option value="en">English</option>
                   <option value="es">Spanish</option>
                   <option value="fr">French</option>
-                  <option value="de">German</option>
                 </select>
+                <small class="text-muted">Language used to teach this course</small>
               </div>
             </div>
 
@@ -86,6 +90,7 @@
                   <option value="online">Online</option>
                   <option value="hybrid">Hybrid</option>
                 </select>
+                <small class="text-muted">The method of delivering this course</small>
               </div>
             </div>
 
@@ -99,8 +104,8 @@
                   name="course_item[webpage]"
                   v-model="formData.webpage"
                   placeholder="https://example.com"
-                  default_protocol="https"
                 >
+                <small class="text-muted">Webpage that describes this course.</small>
               </div>
             </div>
           </form>
@@ -150,6 +155,12 @@ watch(() => props.show, (newVal) => {
   }
 });
 
+watch(() => props.item, (newItem) => {
+  if (newItem) {
+    loadFormData();
+  }
+}, { immediate: true });
+
 watch(() => props.itemType, (newType) => {
   if (newType && !isEdit.value) {
     formData.itemType = newType;
@@ -161,12 +172,19 @@ function loadFormData() {
   error.value = '';
 
   if (isEdit.value) {
-    formData.name = props.item.name || '';
-    formData.description = props.item.description || '';
-    formData.codedNotation = props.item.codedNotation || '';
-    formData.inLanguage = props.item.inLanguage || '';
-    formData.deliveryType = props.item.deliveryType || '';
-    formData.webpage = props.item.webpage || '';
+    // Map CASE properties to form fields
+    // abbreviatedStatement maps to name
+    formData.name = props.item.abbreviatedStatement || '';
+    // fullStatement maps to description
+    formData.description = props.item.fullStatement || '';
+    // humanCodingScheme maps to codedNotation
+    formData.codedNotation = props.item.humanCodingScheme || '';
+    // language maps to inLanguage
+    formData.inLanguage = props.item.language || '';
+    // ceterms:deliveryType is stored in extensions
+    formData.deliveryType = props.item.extensions?.['ceterms:deliveryType'] || '';
+    // ceterms:subjectWebpage is stored in extensions
+    formData.webpage = props.item.extensions?.['ceterms:subjectWebpage'] || '';
   } else {
     // Reset for new
     formData.name = '';
@@ -186,6 +204,11 @@ function saveItem() {
     return;
   }
 
+  if (!formData.description.trim()) {
+    error.value = 'Description is required';
+    return;
+  }
+
   saving.value = true;
   error.value = '';
 
@@ -194,24 +217,37 @@ function saveItem() {
     try {
       let savedItem;
       if (isEdit.value) {
+        // Map form fields back to CASE structure
         savedItem = {
           ...props.item,
-          ...formData,
+          abbreviatedStatement: formData.name,
+          fullStatement: formData.description,
+          humanCodingScheme: formData.codedNotation,
+          language: formData.inLanguage,
+          extensions: {
+            ...(props.item?.extensions || {}),
+            'ceterms:deliveryType': formData.deliveryType,
+            'ceterms:subjectWebpage': formData.webpage
+          },
           updated: new Date().toISOString()
         };
         emit('updated', savedItem);
       } else {
         savedItem = {
           identifier: 'item_' + Date.now(),
-          ...formData,
+          abbreviatedStatement: formData.name,
+          fullStatement: formData.description,
+          humanCodingScheme: formData.codedNotation,
+          language: formData.inLanguage,
+          extensions: {
+            'ceterms:deliveryType': formData.deliveryType,
+            'ceterms:subjectWebpage': formData.webpage
+          },
           parentId: props.parentItem?.identifier || null,
           created: new Date().toISOString(),
           children: []
         };
         emit('created', savedItem);
-      }
-      if (modal.value) {
-        modal.value.hide();
       }
     } catch (e) {
       error.value = 'Failed to save item: ' + e.message;
@@ -240,5 +276,10 @@ function closeModal() {
 textarea.form-control {
   resize: vertical;
   min-height: 80px;
+}
+
+.required-label::before {
+  content: "*";
+  color: red;
 }
 </style>

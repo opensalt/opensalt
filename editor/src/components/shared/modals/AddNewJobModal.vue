@@ -22,7 +22,7 @@
           </div>
           <form v-else @submit.prevent="createItem" name="job_item">
             <div class="row mb-3">
-              <label for="job_item_title" class="col-sm-2 col-form-label">Title *</label>
+              <label for="job_item_title" class="col-sm-2 col-form-label required-label">Title</label>
               <div class="col-sm-10">
                 <input
                   type="text"
@@ -37,7 +37,7 @@
             </div>
 
             <div class="row mb-3">
-              <label for="job_item_description" class="col-sm-2 col-form-label">Description</label>
+              <label for="job_item_description" class="col-sm-2 col-form-label required-label">Description</label>
               <div class="col-sm-10">
                 <textarea
                   class="form-control"
@@ -46,6 +46,7 @@
                   rows="4"
                   v-model="formData.description"
                   placeholder="Enter a description of the job"
+                  required
                 ></textarea>
               </div>
             </div>
@@ -75,6 +76,7 @@
                   v-model="formData.keywords"
                   placeholder="Enter keywords separated by commas"
                 >
+                <small class="text-muted">Separate keywords with a comma (,)</small>
               </div>
             </div>
 
@@ -89,6 +91,7 @@
                   v-model="formData.webpage"
                   placeholder="Enter webpage URL"
                 >
+                <small class="text-muted">Webpage that describes this job</small>
               </div>
             </div>
           </form>
@@ -137,6 +140,12 @@ watch(() => props.show, (newVal) => {
   }
 });
 
+watch(() => props.item, (newItem) => {
+  if (newItem) {
+    loadFormData();
+  }
+}, { immediate: true });
+
 watch(() => props.itemType, (newType) => {
   if (newType && !isEdit.value) {
     formData.itemType = newType;
@@ -148,11 +157,19 @@ function loadFormData() {
   error.value = '';
 
   if (isEdit.value) {
-    formData.title = props.item.title || '';
-    formData.description = props.item.description || '';
-    formData.codedNotation = props.item.codedNotation || '';
-    formData.keywords = props.item.keywords || '';
-    formData.webpage = props.item.webpage || '';
+    // Map CASE item properties to form fields
+    // fullStatement is the main text field in CASE, maps to title in the form
+    formData.title = props.item.abbreviatedStatement || '';
+    // fullStatement maps to description
+    formData.description = props.item.fullStatement || '';
+    // humanCodingScheme maps to codedNotation
+    formData.codedNotation = props.item.humanCodingScheme || '';
+    // conceptKeywords is an array in CASE, join as comma-separated string
+    formData.keywords = Array.isArray(props.item.conceptKeywords)
+      ? props.item.conceptKeywords.join(', ')
+      : (props.item.conceptKeywords || '');
+    // webpage is stored in extensions object under 'ceterms:subjectWebpage'
+    formData.webpage = props.item.extensions?.['ceterms:subjectWebpage'] || '';
   } else {
     // Reset for new
     formData.title = '';
@@ -171,6 +188,11 @@ function saveItem() {
     return;
   }
 
+  if (!formData.description.trim()) {
+    error.value = 'Description is required';
+    return;
+  }
+
   saving.value = true;
   error.value = '';
 
@@ -181,22 +203,32 @@ function saveItem() {
       if (isEdit.value) {
         savedItem = {
           ...props.item,
-          ...formData,
+          fullStatement: formData.title,
+          notes: formData.description,
+          humanCodingScheme: formData.codedNotation,
+          conceptKeywords: formData.keywords ? formData.keywords.split(',').map(k => k.trim()) : [],
+          extensions: {
+            ...(props.item.extensions || {}),
+            'ceterms:subjectWebpage': formData.webpage
+          },
           updated: new Date().toISOString()
         };
         emit('updated', savedItem);
       } else {
         savedItem = {
           identifier: 'item_' + Date.now(),
-          ...formData,
+          fullStatement: formData.title,
+          notes: formData.description,
+          humanCodingScheme: formData.codedNotation,
+          conceptKeywords: formData.keywords ? formData.keywords.split(',').map(k => k.trim()) : [],
+          extensions: {
+            'ceterms:subjectWebpage': formData.webpage
+          },
           parentId: props.parentItem?.identifier || null,
           created: new Date().toISOString(),
           children: []
         };
         emit('created', savedItem);
-      }
-      if (modal.value) {
-        modal.value.hide();
       }
     } catch (e) {
       error.value = 'Failed to save item: ' + e.message;
@@ -225,5 +257,10 @@ function closeModal() {
 textarea.form-control {
   resize: vertical;
   min-height: 80px;
+}
+
+.required-label::before {
+  content: "*";
+  color: red;
 }
 </style>

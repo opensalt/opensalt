@@ -193,11 +193,15 @@
       @associate="onCrossTreeAssociate"
     />
 
-    <EditItemModal
-      :item="selectedItem"
-      :show="showEditItemModal"
-      @saved="onItemSaved"
-      @hidden="showEditItemModal = false"
+    <!-- Dynamic type-specific edit modal -->
+    <component
+      :is="editModalComponent"
+      v-if="isEditModalVisible"
+      :item="editingItem"
+      :show="true"
+      @updated="handleUpdated"
+      @created="handleUpdated"
+      @hidden="handleEditHidden"
     />
 
     <LoadExternalDocumentModal
@@ -223,7 +227,7 @@ import DocumentSelector from '../shared/common/DocumentSelector.vue';
 import SearchFilter from '../shared/common/SearchFilter.vue';
 import AssociationGroupSelector from '../shared/common/AssociationGroupSelector.vue';
 import EditDocModal from '../shared/modals/EditDocModal.vue';
-import EditItemModal from '../shared/modals/EditItemModal.vue';
+import { useDynamicEditModal } from '../../composables/useDynamicEditModal.js';
 import AssociateModal from '../association/AssociateModal.vue';
 import EditAssociationModal from '../association/EditAssociationModal.vue';
 import DeleteItemsModal from '../shared/modals/DeleteItemsModal.vue';
@@ -253,6 +257,23 @@ const searchQuery = computed(() => filterStore.searchQuery);
 const selectedId = ref(route.params.itemId || null);
 const selectedItem = computed(() => findItem(doc.value.items || [], selectedId.value));
 
+// Initialize useDynamicEditModal composable for type-specific edit modals
+const availableTypes = ['general', 'assessment', 'course', 'credential', 'job', 'organization', 'public_key', 'identifier'];
+const {
+  showEditModal,
+  selectedEditType,
+  isEditModalVisible,
+  editingItem,
+  editModalComponent,
+  handleUpdated,
+  handleEditHidden
+} = useDynamicEditModal(
+  (updatedItem) => {
+    itemStore.updateItem(currentDoc.value, updatedItem);
+  },
+  availableTypes
+);
+
 // Watch for route changes to update selected item
 watch(() => route.params.itemId, (newItemId) => {
   selectedId.value = newItemId || null;
@@ -264,7 +285,6 @@ const filteredDoc = computed(() => ({
 
 // Modal states
 const showEditDocModal = ref(false);
-const showEditItemModal = ref(false);
 const showAssociateModal = ref(false);
 const showEditAssociationModal = ref(false);
 const showDeleteModal = ref(false);
@@ -476,8 +496,8 @@ function onDblClick(id) {
     // Open edit document modal
     showEditDocModal.value = true;
   } else {
-    // Open edit item modal
-    showEditItemModal.value = true;
+    // Open type-specific edit modal for the selected item
+    showEditModal(selectedItem.value);
   }
 }
 
@@ -692,7 +712,7 @@ function onClearSearch() {
 
 // Modal event handlers
 function onEditItem(item) {
-  showEditItemModal.value = true;
+  showEditModal(item);
 }
 
 function onDeleteItem(item) {
@@ -773,10 +793,6 @@ async function handleAddRootItem(newItem) {
 
 function onManageAssociationGroups() {
   showAssocGroupModal.value = true;
-}
-
-function onItemSaved(updatedItem) {
-  itemStore.updateItem(currentDocument.value, updatedItem);
 }
 
 function handleBulkDelete() {

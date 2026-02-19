@@ -22,54 +22,98 @@
           </div>
           <form v-else @submit.prevent="createItem" name="assessment_form">
             <div class="row mb-3">
-              <label for="assessment_name" class="col-sm-2 col-form-label">Name *</label>
+              <label for="assessment_name" class="col-sm-2 col-form-label required-label">Name</label>
               <div class="col-sm-10">
-                <input type="text" class="form-control" id="assessment_name" name="assessment[name]" v-model="formData.name" :required="true" placeholder="Enter the name of the assessment">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="assessment_name"
+                  name="assessment[name]"
+                  v-model="formData.name"
+                  placeholder="Enter the name of the assessment"
+                  required
+                >
               </div>
             </div>
 
             <div class="row mb-3">
-              <label for="assessment_description" class="col-sm-2 col-form-label">Description</label>
+              <label for="assessment_description" class="col-sm-2 col-form-label required-label">Description</label>
               <div class="col-sm-10">
-                <textarea class="form-control" id="assessment_description" name="assessment[description]" rows="3" v-model="formData.description" placeholder="Enter a description"></textarea>
+                <textarea
+                  class="form-control"
+                  id="assessment_description"
+                  name="assessment[description]"
+                  rows="4"
+                  v-model="formData.description"
+                  placeholder="Enter a description"
+                  required
+                ></textarea>
               </div>
             </div>
 
             <div class="row mb-3">
               <label for="assessment_deliveryType" class="col-sm-2 col-form-label">Delivery Type</label>
               <div class="col-sm-10">
-                <select class="form-select" id="assessment_deliveryType" name="assessment[deliveryType]" v-model="formData.deliveryType">
+                <select
+                  class="form-select"
+                  id="assessment_deliveryType"
+                  name="assessment[deliveryType]"
+                  v-model="formData.deliveryType"
+                >
                   <option value="">Select Delivery Type</option>
+                  <option value="in-person">In Person</option>
                   <option value="online">Online</option>
-                  <option value="offline">Offline</option>
-                  <option value="blended">Blended</option>
+                  <option value="hybrid">Hybrid</option>
                 </select>
+                <small class="text-muted">The method of delivering this course</small>
               </div>
             </div>
 
             <div class="row mb-3">
               <label for="assessment_inLanguage" class="col-sm-2 col-form-label">Language</label>
               <div class="col-sm-10">
-                <select class="form-select" id="assessment_inLanguage" name="assessment[inLanguage]" v-model="formData.inLanguage">
+                <select
+                  class="form-select"
+                  id="assessment_inLanguage"
+                  name="assessment[inLanguage]"
+                  v-model="formData.inLanguage"
+                >
+                  <option value="">Select Language</option>
                   <option value="en">English</option>
                   <option value="es">Spanish</option>
                   <option value="fr">French</option>
-                  <option value="de">German</option>
                 </select>
+                <small class="text-muted">Language used to teach this course</small>
               </div>
             </div>
 
             <div class="row mb-3">
               <label for="assessment_keywords" class="col-sm-2 col-form-label">Keywords</label>
               <div class="col-sm-10">
-                <input type="text" class="form-control" id="assessment_keywords" name="assessment[keywords]" v-model="formData.keywords" placeholder="Comma-separated keywords">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="assessment_keywords"
+                  name="assessment[keywords]"
+                  v-model="formData.keywords"
+                  placeholder="Enter keywords separated by commas"
+                >
+                <small class="text-muted">Separate keywords with a comma (,)</small>
               </div>
             </div>
 
             <div class="row mb-3">
               <label for="assessment_webpage" class="col-sm-2 col-form-label">Webpage</label>
               <div class="col-sm-10">
-                <input type="url" class="form-control" id="assessment_webpage" name="assessment[webpage]" v-model="formData.webpage" placeholder="https://example.com">
+                <input
+                  type="url"
+                  class="form-control"
+                  id="assessment_webpage"
+                  name="assessment[webpage]"
+                  v-model="formData.webpage"
+                  placeholder="Enter webpage URL"
+                >
+                <small class="text-muted">Webpage that describes this job</small>
               </div>
             </div>
           </form>
@@ -108,7 +152,7 @@ const formData = reactive({
   name: '',
   description: '',
   deliveryType: '',
-  inLanguage: 'en',
+  inLanguage: '',
   keywords: '',
   webpage: ''
 });
@@ -118,6 +162,12 @@ watch(() => props.show, (newVal) => {
     loadFormData();
   }
 });
+
+watch(() => props.item, (newItem) => {
+  if (newItem) {
+    loadFormData();
+  }
+}, { immediate: true });
 
 watch(() => props.itemType, (newType) => {
   if (newType && !isEdit.value) {
@@ -129,21 +179,26 @@ function loadFormData() {
   loading.value = true;
   error.value = '';
 
-  // Reset form
-  formData.name = '';
-  formData.description = '';
-  formData.deliveryType = '';
-  formData.inLanguage = 'en';
-  formData.keywords = '';
-  formData.webpage = '';
-
-  if (props.item) {
-    formData.name = props.item.name || '';
-    formData.description = props.item.description || '';
-    formData.deliveryType = props.item.deliveryType || '';
-    formData.inLanguage = props.item.inLanguage || 'en';
-    formData.keywords = props.item.keywords || '';
-    formData.webpage = props.item.webpage || '';
+  if (isEdit.value) {
+    // Map CASE properties to form fields
+    formData.name = props.item.abbreviatedStatement || '';
+    formData.description = props.item.fullStatement || '';
+    formData.deliveryType = props.item.extensions?.['ceterms:deliveryType'] || '';
+    formData.inLanguage = props.item.language || '';
+    // Handle keywords array
+    formData.keywords = Array.isArray(props.item.conceptKeywords)
+      ? props.item.conceptKeywords.join(', ')
+      : (props.item.conceptKeywords || '');
+    // Handle extensions
+    formData.webpage = props.item.extensions?.['ceterms:subjectWebpage'] || '';
+  } else {
+    // Reset for new
+    formData.name = '';
+    formData.description = '';
+    formData.deliveryType = '';
+    formData.inLanguage = '';
+    formData.keywords = '';
+    formData.webpage = '';
   }
 
   loading.value = false;
@@ -155,6 +210,11 @@ function saveItem() {
     return;
   }
 
+  if (!formData.description.trim()) {
+    error.value = 'Description is required';
+    return;
+  }
+
   saving.value = true;
   error.value = '';
 
@@ -163,24 +223,37 @@ function saveItem() {
     try {
       let savedItem;
       if (isEdit.value) {
+        // Map form fields back to CASE structure
         savedItem = {
           ...props.item,
-          ...formData,
+          abbreviatedStatement: formData.name,
+          fullStatement: formData.description,
+          language: formData.inLanguage,
+          conceptKeywords: formData.keywords.split(',').map(k => k.trim()).filter(k => k),
+          extensions: {
+            ...props.item?.extensions,
+            'ceterms:deliveryType': formData.deliveryType,
+            'ceterms:subjectWebpage': formData.webpage
+          },
           updated: new Date().toISOString()
         };
         emit('updated', savedItem);
       } else {
         savedItem = {
           identifier: 'assessment_' + Date.now(),
-          ...formData,
+          abbreviatedStatement: formData.name,
+          fullStatement: formData.description,
+          language: formData.inLanguage,
+          conceptKeywords: formData.keywords.split(',').map(k => k.trim()).filter(k => k),
+          extensions: {
+            'ceterms:deliveryType': formData.deliveryType,
+            'ceterms:subjectWebpage': formData.webpage
+          },
           parentId: props.parentItem?.identifier || null,
           created: new Date().toISOString(),
           children: []
         };
         emit('created', savedItem);
-      }
-      if (modal.value) {
-        modal.value.hide();
       }
     } catch (e) {
       error.value = 'Failed to save assessment: ' + e.message;
@@ -209,5 +282,10 @@ function closeModal() {
 textarea.form-control {
   resize: vertical;
   min-height: 80px;
+}
+
+.required-label::before {
+  content: "*";
+  color: red;
 }
 </style>

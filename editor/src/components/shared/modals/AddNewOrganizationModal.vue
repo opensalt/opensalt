@@ -22,7 +22,7 @@
           </div>
           <form v-else @submit.prevent="createItem" name="org_form">
             <div class="row mb-3">
-              <label for="org_name" class="col-sm-2 col-form-label">Name *</label>
+              <label for="org_name" class="col-sm-2 col-form-label required-label">Name</label>
               <div class="col-sm-10">
                 <input
                   type="text"
@@ -33,11 +33,12 @@
                   required
                   placeholder="Enter organization name"
                 >
+                <small class="text-muted">Name or title of the organization.</small>
               </div>
             </div>
 
             <div class="row mb-3">
-              <label for="org_description" class="col-sm-2 col-form-label">Description</label>
+              <label for="org_description" class="col-sm-2 col-form-label required-label">Description</label>
               <div class="col-sm-10">
                 <textarea
                   class="form-control"
@@ -46,35 +47,61 @@
                   rows="3"
                   v-model="formData.description"
                   placeholder="Enter description"
+                  required
                 ></textarea>
+                <small class="text-muted">Description of the organization.</small>
               </div>
             </div>
 
             <div class="row mb-3">
-              <label for="org_type" class="col-sm-2 col-form-label">Type</label>
+              <label for="org_type" class="col-sm-2 col-form-label">Organization Type</label>
+              <div class="col-sm-10">
+                <select
+                  class="form-select"
+                  id="org_type"
+                  name="org[type]"
+                  v-model="formData.type"
+                >
+                  <option value="">Select Organization Type</option>
+                  <option value="orgType:AssessmentBody">Assessment Body</option>
+                  <option value="orgType:Business">Business</option>
+                  <option value="orgType:BusinessAssociation">Business Association</option>
+                  <option value="orgType:CertificationBody">Certification Body</option>
+                  <option value="orgType:Collaborative">Collaborative</option>
+                  <option value="orgType:CoordinatingBody">Coordinating Body</option>
+                  <option value="orgType:FourYear">Four-Year College</option>
+                  <option value="orgType:Government">Government Agency</option>
+                  <option value="orgType:HighSchool">High School</option>
+                  <option value="orgType:LaborUnion">Labor Union</option>
+                  <option value="orgType:Magnet">Magnet/Competitive Admissions School</option>
+                  <option value="orgType:Military">Military</option>
+                  <option value="orgType:NonTraditional">Alternative/Non-Traditional School</option>
+                  <option value="orgType:Postsecondary">Postsecondary Educational Institution</option>
+                  <option value="orgType:PrimarilyOnline">Primarily Online</option>
+                  <option value="orgType:ProfessionalAssociation">Professional Association</option>
+                  <option value="orgType:QualityAssurance">Quality Assurance Body</option>
+                  <option value="orgType:SecondarySchool">Secondary School</option>
+                  <option value="orgType:Technical">Career and Technical School</option>
+                  <option value="orgType:TrainingProvider">Education and Training Provider</option>
+                  <option value="orgType:TwoYear">Two-Year College</option>
+                  <option value="orgType:Vendor">Vendor</option>
+                </select>
+                <small class="text-muted">The type of organization.</small>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <label for="org_logo" class="col-sm-2 col-form-label">Logo URI</label>
               <div class="col-sm-10">
                 <input
                   type="text"
                   class="form-control"
-                  id="org_type"
-                  name="org[type]"
-                  v-model="formData.type"
-                  placeholder="e.g., Educational Institution"
-                >
-              </div>
-            </div>
-
-            <div class="row mb-3">
-              <label for="org_logo" class="col-sm-2 col-form-label">Logo</label>
-              <div class="col-sm-10">
-                <input
-                  type="file"
-                  class="form-control"
                   id="org_logo"
                   name="org[logo]"
-                  @change="handleFileUpload($event)"
-                  placeholder="Upload logo"
+                  v-model="formData.logo"
+                  placeholder="Enter logo URL"
                 >
+                <small class="text-muted">The organization's logo.</small>
               </div>
             </div>
 
@@ -89,6 +116,7 @@
                   v-model="formData.legalName"
                   placeholder="Enter legal name"
                 >
+                <small class="text-muted">The organization's legal name.</small>
               </div>
             </div>
 
@@ -103,6 +131,7 @@
                   v-model="formData.ctid"
                   placeholder="Enter CTID"
                 >
+                <small class="text-muted">The organization's CTID.</small>
               </div>
             </div>
 
@@ -117,6 +146,7 @@
                   v-model="formData.webpage"
                   placeholder="Enter webpage URL"
                 >
+                <small class="text-muted">Webpage that describes this organization.</small>
               </div>
             </div>
 
@@ -131,6 +161,7 @@
                   v-model="formData.jurisdiction"
                   placeholder="e.g., Province, Country"
                 >
+                <small class="text-muted">Geographic or political region of the organization.</small>
               </div>
             </div>
           </form>
@@ -182,6 +213,12 @@ watch(() => props.show, (newVal) => {
   }
 });
 
+watch(() => props.item, (newItem) => {
+  if (newItem) {
+    loadFormData();
+  }
+}, { immediate: true });
+
 watch(() => props.itemType, (newType) => {
   if (newType && !isEdit.value) {
     formData.type = newType;
@@ -193,14 +230,23 @@ function loadFormData() {
   error.value = '';
 
   if (isEdit.value) {
-    formData.name = props.item.name || '';
-    formData.description = props.item.description || '';
-    formData.type = props.item.type || '';
-    formData.logo = props.item.logo || '';
-    formData.legalName = props.item.legalName || '';
-    formData.ctid = props.item.ctid || '';
-    formData.webpage = props.item.webpage || '';
-    formData.jurisdiction = props.item.jurisdiction || '';
+    // Map CASE properties to form fields
+    // abbreviatedStatement maps to name
+    formData.name = props.item.abbreviatedStatement || '';
+    // fullStatement maps to description
+    formData.description = props.item.fullStatement || '';
+    // ceterms:agentType maps to type
+    formData.type = props.item.extensions?.['ceterms:agentType'] || '';
+    // ceterms:image maps to logo
+    formData.logo = props.item.extensions?.['ceterms:image'] || '';
+    // sdo:legalName maps to legalName
+    formData.legalName = props.item.extensions?.['sdo:legalName'] || '';
+    // ceterms:ctid maps to ctid
+    formData.ctid = props.item.extensions?.['ceterms:ctid'] || '';
+    // ceterms:subjectWebpage maps to webpage
+    formData.webpage = props.item.extensions?.['ceterms:subjectWebpage'] || '';
+    // ceterms:jurisdiction maps to jurisdiction
+    formData.jurisdiction = props.item.extensions?.['ceterms:jurisdiction'] || '';
   } else {
     // Reset for new
     formData.name = '';
@@ -222,6 +268,11 @@ function saveItem() {
     return;
   }
 
+  if (!formData.description.trim()) {
+    error.value = 'Description is required';
+    return;
+  }
+
   saving.value = true;
   error.value = '';
 
@@ -230,24 +281,41 @@ function saveItem() {
     try {
       let savedItem;
       if (isEdit.value) {
+        // Map form fields back to CASE structure
         savedItem = {
           ...props.item,
-          ...formData,
+          abbreviatedStatement: formData.name,
+          fullStatement: formData.description,
+          extensions: {
+            ...(props.item?.extensions || {}),
+            'ceterms:agentType': formData.type,
+            'ceterms:image': formData.logo,
+            'sdo:legalName': formData.legalName,
+            'ceterms:ctid': formData.ctid,
+            'ceterms:subjectWebpage': formData.webpage,
+            'ceterms:jurisdiction': formData.jurisdiction
+          },
           updated: new Date().toISOString()
         };
         emit('updated', savedItem);
       } else {
         savedItem = {
           identifier: 'org_' + Date.now(),
-          ...formData,
+          abbreviatedStatement: formData.name,
+          fullStatement: formData.description,
+          extensions: {
+            'ceterms:agentType': formData.type,
+            'ceterms:image': formData.logo,
+            'sdo:legalName': formData.legalName,
+            'ceterms:ctid': formData.ctid,
+            'ceterms:subjectWebpage': formData.webpage,
+            'ceterms:jurisdiction': formData.jurisdiction
+          },
           parentId: props.parentItem?.identifier || null,
           created: new Date().toISOString(),
           children: []
         };
         emit('created', savedItem);
-      }
-      if (modal.value) {
-        modal.value.hide();
       }
     } catch (e) {
       error.value = 'Failed to save organization: ' + e.message;
@@ -276,5 +344,10 @@ function closeModal() {
 textarea.form-control {
   resize: vertical;
   min-height: 80px;
+}
+
+.required-label::before {
+  content: "*";
+  color: red;
 }
 </style>
