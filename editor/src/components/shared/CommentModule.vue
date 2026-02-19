@@ -1,7 +1,7 @@
 <template>
-    <div class="comment-module">
+    <div class="comment-module p-3">
         <!-- Header -->
-        <div class="comment-header">
+        <div class="comment-header mb-3 pb-2">
              <h4 class="comment-title">
                  <i class="bi bi-chat-dots"></i>
                  Comments
@@ -84,7 +84,7 @@
                     @upvote="handleUpvote"
                 />
             </template>
-            <div v-else-if="!commentStore.loading" class="no-comments">
+            <div v-else-if="!commentStore.loading" class="no-comments m-3">
                  <i class="bi bi-chat-square-text"></i>
                 <p>No comments yet. Be the first to comment!</p>
             </div>
@@ -394,7 +394,6 @@ onMounted(() => {
 <style lang="scss" scoped>
 .comment-module {
     margin-top: 20px;
-    padding: 15px;
     background: #f8f9fa;
     border: 1px solid #e9ecef;
     border-radius: 8px;
@@ -404,8 +403,6 @@ onMounted(() => {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
     border-bottom: 1px solid #dee2e6;
 }
 
@@ -433,7 +430,6 @@ onMounted(() => {
 .comment-loading,
 .no-comments {
     text-align: center;
-    padding: 30px;
     color: #6c757d;
 
     i {

@@ -1,5 +1,5 @@
 <template>
-  <div class="association-item d-flex justify-content-between align-items-center p-2 border-bottom">
+  <div class="association-item d-flex justify-content-between align-items-center p-2 border rounded">
     <div class="association-info flex-grow-1">
       <!--
       <div class="d-flex align-items-center mb-2">
@@ -10,8 +10,8 @@
 
       <div class="association-details">
         <div class="mb-1">
-          <strong>{{ nodeLabel }}</strong>
-          <span class="ms-2">{{ nodeTitle }}</span>
+          <strong v-if="false">{{ nodeLabel }}</strong>
+          <span class="ms-2" v-html="nodeTitle"></span>
         </div>
 
         <div v-if="notes" class="mb-1">
@@ -19,7 +19,7 @@
           <span class="ms-2 text-muted">{{ notes }}</span>
         </div>
 
-        <div v-if="lastChangeDateTime" class="mb-1">
+        <div v-if="lastChangeDateTime && false" class="mb-1">
           <small class="text-muted">
             <strong>Last changed:</strong> {{ formatDate(lastChangeDateTime) }}
           </small>
@@ -50,6 +50,8 @@
 
 <script setup>
 import { computed } from 'vue';
+import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
+import render from '../../utils/render-md';
 
 const props = defineProps({
   association: {
@@ -75,6 +77,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['edit', 'delete']);
+const currentDocumentStore = useCurrentDocumentStore();
 
 // Determine if association is reversed (item is destination, not origin)
 const isReversed = computed(() => {
@@ -85,17 +88,52 @@ const associationType = computed(() => {
   return props.association.associationType || props.association.type || 'Unknown';
 });
 
-// Get the appropriate node title based on direction
-const nodeTitle = computed(() => {
+// Get the appropriate node identifier based on direction
+const nodeIdentifier = computed(() => {
   if (isReversed.value) {
     // Show origin when reversed
     const origin = props.association.originNodeURI || props.association.origin;
-    return origin?.title || origin?.identifier || 'Unknown';
-  } else {
-    // Show destination when normal
-    const dest = props.association.destinationNodeURI || props.association.destination;
-    return dest?.title || dest?.identifier || 'Unknown';
+    return origin?.identifier;
   }
+
+  // Show destination when normal
+  const dest = props.association.destinationNodeURI || props.association.destination;
+  return dest?.identifier;
+});
+
+// Get the appropriate node display (human coding scheme and abbreviated statement) based on direction
+const nodeTitle = computed(() => {
+  const identifier = nodeIdentifier.value;
+  if (!identifier) return 'Unknown';
+
+  // Try to find the item in current document's items
+  const items = currentDocumentStore.currentDocument?.items;
+  if (items) {
+    const item = items.find(i => i.identifier === identifier || i.id === identifier);
+    if (item) {
+      // Display human coding scheme and abbreviated statement instead of title
+      const parts = [];
+      if (item.humanCodingScheme) {
+        parts.push('<strong>' + render.escaped(item.humanCodingScheme) + '</strong>');
+      }
+      if (item.abbreviatedStatement) {
+        parts.push(render.escaped(item.abbreviatedStatement));
+      }
+      // Fall back to fullStatement if neither is available
+      if (parts.length === 0) {
+        return render.inline(item.fullStatement) || item.identifier;
+      }
+      return parts.join(' ');
+    }
+  }
+
+  // Fall back to title from nodeURI or identifier
+  if (isReversed.value) {
+    const origin = props.association.originNodeURI || props.association.origin;
+    return render.escaped(origin?.title || origin?.identifier || 'Unknown');
+  }
+  const dest = props.association.destinationNodeURI || props.association.destination;
+  return render.escaped(dest?.title || dest?.identifier || 'Unknown');
 });
 
 const nodeLabel = computed(() => {
