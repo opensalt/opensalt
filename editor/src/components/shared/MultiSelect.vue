@@ -11,7 +11,7 @@
             :key="value"
             class="multiselect__selected-value"
           >
-            {{ value }}
+            {{ getSelectedLabel(value) }}
           </span>
           <span v-if="selectedItems.length > showCount" class="multiselect__more">
             +{{ selectedItems.length - showCount }} more
@@ -35,7 +35,7 @@
         </div>
 
         <div class="multiselect__actions">
-          <button type="button" class="multiselect__action" @click="selectAll">
+          <button v-if="showSelectAll" type="button" class="multiselect__action" @click="selectAll">
             Select All
           </button>
           <button type="button" class="multiselect__action" @click="selectNone">
@@ -96,6 +96,10 @@ const props = defineProps({
   searchable: {
     type: Boolean,
     default: true
+  },
+  showSelectAll: {
+    type: Boolean,
+    default: true
   }
 })
 
@@ -120,7 +124,10 @@ const getOptionValue = (option) => {
 
 const getOptionLabel = (option) => {
   if (typeof option === 'object') {
-    return option[props.optionLabel] || option.label || option
+    // Try the specified label property first, then common fallbacks
+    if (option[props.optionLabel]) return option[props.optionLabel]
+    // Try common label properties as fallbacks
+    return option.label || option.text || option.title || option.name || String(option)
   }
   return option
 }
@@ -131,6 +138,11 @@ const isSelected = (option) => {
 }
 
 const getSelectedLabel = (value) => {
+  // If value is an object, try to get its label directly
+  if (typeof value === 'object' && value !== null) {
+    return getOptionLabel(value)
+  }
+  // Otherwise find the matching option
   const option = props.options.find(opt => getOptionValue(opt) === value)
   return option ? getOptionLabel(option) : value
 }
@@ -183,16 +195,27 @@ const handleClickOutside = (event) => {
   }
 }
 
+// Also handle mousedown events to catch clicks that might be prevented
+const handleMouseDownOutside = (event) => {
+  const target = event.target
+  const multiselect = target.closest('.multiselect')
+  if (!multiselect) {
+    isOpen.value = false
+  }
+}
+
 watch(() => props.options, () => {
   filteredOptions.value = props.options
 }, { immediate: true })
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
+  document.addEventListener('mousedown', handleMouseDownOutside)
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
+  document.removeEventListener('mousedown', handleMouseDownOutside)
 })
 </script>
 
