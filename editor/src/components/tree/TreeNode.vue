@@ -104,7 +104,6 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
 import { useCurrentDocumentStore } from '@/stores/currentDocumentStore';
-import { renderMarkdown } from '@/utils/markdownRenderer.js';
 
 import docIcon from '@/assets/icons/ph/graph-fill.svg';
 import itemIcon from '@/assets/icons/lucide/target.svg';
@@ -116,6 +115,23 @@ import organizationIcon from '@/assets/icons/f7/building-columns-fill.svg';
 import identifierIcon from '@/assets/icons/lucide/id-card.svg';
 import publicKeyIcon from '@/assets/icons/lucide/key-round.svg';
 import folderIcon from '@/assets/icons/material-symbols/folder.svg';
+
+// Lazy-loaded markdown renderer with caching
+let markdownRendererPromise = null;
+let cachedRenderMarkdown = null;
+
+async function getMarkdownRenderer() {
+  if (cachedRenderMarkdown) {
+    return cachedRenderMarkdown;
+  }
+  if (!markdownRendererPromise) {
+    markdownRendererPromise = import('@/utils/markdownRenderer.js').then(module => {
+      cachedRenderMarkdown = module.renderMarkdown;
+      return cachedRenderMarkdown;
+    });
+  }
+  return markdownRendererPromise;
+}
 
 const props = defineProps({
   item: Object,
@@ -217,6 +233,7 @@ watch(() => props.searchQuery, (newQuery) => {
 
 const showPopover = ref(false);
 const popoverTimeout = ref(null);
+const fullStatementHtml = ref('');
 
 const onChange = (evt) => {
     emit('item-change', { event: evt, parent: props.item });
@@ -226,8 +243,14 @@ const onMouseEnter = () => {
   if (popoverTimeout.value) {
     clearTimeout(popoverTimeout.value);
   }
-  popoverTimeout.value = setTimeout(() => {
+  popoverTimeout.value = setTimeout(async () => {
     showPopover.value = true;
+    // Lazy load markdown renderer when popover is shown
+    const text = props.item.fullStatement || props.item.title || '';
+    if (text) {
+      const renderMarkdown = await getMarkdownRenderer();
+      fullStatementHtml.value = renderMarkdown(text);
+    }
   }, 500);
 };
 
@@ -238,12 +261,6 @@ const onMouseLeave = () => {
   }
   showPopover.value = false;
 };
-
-const fullStatementHtml = computed(() => {
-  const text = props.item.fullStatement || props.item.title || '';
-  if (!text) return '';
-  return renderMarkdown(text);
-});
 
 const tooltipTitle = computed(() => {
   const statement = props.item.fullStatement || props.item.abbreviatedStatement || '';

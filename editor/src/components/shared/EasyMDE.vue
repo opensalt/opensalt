@@ -63,7 +63,8 @@ watch(() => props.modelValue, (newValue) => {
 
 onMounted(async () => {
   if (textareaRef.value) {
-    easyMDEInstance = mde(textareaRef.value)
+    // mde() is async to support lazy loading of the markdown renderer
+    easyMDEInstance = await mde(textareaRef.value)
 
     // Set initial value
     if (props.modelValue) {

@@ -360,11 +360,10 @@ async function fetchItemTypes() {
   }
 }
 
-watch(() => props.show, (newVal) => {
+watch(() => props.show, async (newVal) => {
   if (newVal) {
+    await Promise.all([fetchItemTypes(), fetchSubjects()]);
     loadFormData();
-    fetchItemTypes();
-    fetchSubjects();
   }
 }, { immediate: true });
 
@@ -389,8 +388,19 @@ function loadFormData() {
     formData.educationalAlignment = Array.isArray(props.item.educationLevel)
       ? props.item.educationLevel
       : (props.item.educationLevel ? [props.item.educationLevel] : []);
-    formData.itemType = props.item.itemType || '';
-    formData.subjects = props.item.subjects || [];
+    // Find the matching option by text property and use its id
+    const matchingType = availableItemTypes.value.find(
+      opt => opt.text === props.item.itemType
+    );
+    formData.itemType = matchingType ? matchingType.id : '';
+    // Read from subjectURI and match by title to get IDs
+    console.log('Available subjects:', availableSubjects.value);
+    console.log('Item subjects:', props.item.subjectURI);
+    const subjectIds = (props.item.subjectURI || []).map(uri => {
+      const match = availableSubjects.value.find(opt => opt.title === uri.title);
+      return match ? match.id : null;
+    }).filter(Boolean);
+    formData.subjects = subjectIds;
     formData.licence = props.item.licence || '';
     formData.notes = props.item.notes || '';
   } else {

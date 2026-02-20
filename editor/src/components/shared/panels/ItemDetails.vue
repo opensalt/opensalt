@@ -207,10 +207,41 @@ import { computed, ref, onMounted } from 'vue';
 import { Teleport } from 'vue';
 import AssociationGroupDisplay from '../../association/AssociationGroupDisplay.vue';
 import CommentModule from '../CommentModule.vue';
-import { renderMarkdown, hasMarkdown } from '../../../utils/markdownRenderer.js';
-import render from '../../../utils/render-md.js';
 import { useDynamicModal } from '../../../composables/useDynamicModal.js';
 import { useDynamicEditModal } from '../../../composables/useDynamicEditModal.js';
+
+// Lazy-loaded markdown renderer with caching
+let markdownRendererPromise = null;
+let cachedRender = null;
+let cachedHasMarkdown = null;
+
+async function getMarkdownRenderer() {
+  if (cachedRender && cachedHasMarkdown) {
+    return { render: cachedRender, hasMarkdown: cachedHasMarkdown };
+  }
+  if (!markdownRendererPromise) {
+    markdownRendererPromise = Promise.all([
+      import('../../../utils/render-md.js'),
+      import('../../../utils/markdownRenderer.js')
+    ]).then(([renderModule, mdRendererModule]) => {
+      cachedRender = renderModule.default;
+      cachedHasMarkdown = mdRendererModule.hasMarkdown;
+      return { render: cachedRender, hasMarkdown: cachedHasMarkdown };
+    });
+  }
+  return markdownRendererPromise;
+}
+
+// Refs to store loaded renderer functions
+const render = ref(null);
+const hasMarkdown = ref(null);
+
+// Load renderer on mount
+onMounted(async () => {
+  const renderer = await getMarkdownRenderer();
+  render.value = renderer.render;
+  hasMarkdown.value = renderer.hasMarkdown;
+});
 
 // Specialized item detail components
 import JobItemDetails from './item-types/JobItemDetails.vue';
@@ -342,19 +373,19 @@ const groupedAssociations = computed(() => {
 // Render fullStatement as markdown
 const renderedFullStatement = computed(() => {
   if (!props.item?.fullStatement) return '';
-  return render.block(props.item.fullStatement);
+  return render.value ? render.value.block(props.item.fullStatement) : props.item.fullStatement;
 });
 
 // Check if fullStatement contains markdown
 const hasMarkdownContent = computed(() => {
   if (!props.item?.fullStatement) return false;
-  return hasMarkdown(props.item.fullStatement);
+  return hasMarkdown.value ? hasMarkdown.value(props.item.fullStatement) : false;
 });
 
 // Render notes as markdown
 const renderedNotes = computed(() => {
     if (!props.item?.notes) return '';
-    return render.block(props.item.notes);
+    return render.value ? render.value.block(props.item.notes) : props.item.notes;
 });
 
 function getTypeLabel(type) {

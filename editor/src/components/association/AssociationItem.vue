@@ -49,9 +49,33 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
-import render from '../../utils/render-md';
+
+// Lazy-loaded markdown renderer with caching
+let markdownRendererPromise = null;
+let cachedRender = null;
+
+async function getMarkdownRenderer() {
+  if (cachedRender) {
+    return cachedRender;
+  }
+  if (!markdownRendererPromise) {
+    markdownRendererPromise = import('../../utils/render-md.js').then(renderModule => {
+      cachedRender = renderModule.default;
+      return cachedRender;
+    });
+  }
+  return markdownRendererPromise;
+}
+
+// Ref to store loaded renderer functions
+const render = ref(null);
+
+// Load renderer on mount
+onMounted(async () => {
+  render.value = await getMarkdownRenderer();
+});
 
 const props = defineProps({
   association: {
@@ -114,14 +138,14 @@ const nodeTitle = computed(() => {
       // Display human coding scheme and abbreviated statement instead of title
       const parts = [];
       if (item.humanCodingScheme) {
-        parts.push('<strong>' + render.escaped(item.humanCodingScheme) + '</strong>');
+        parts.push('<strong>' + (render.value ? render.value.escaped(item.humanCodingScheme) : item.humanCodingScheme) + '</strong>');
       }
       if (item.abbreviatedStatement) {
-        parts.push(render.escaped(item.abbreviatedStatement));
+        parts.push(render.value ? render.value.escaped(item.abbreviatedStatement) : item.abbreviatedStatement);
       }
       // Fall back to fullStatement if neither is available
       if (parts.length === 0) {
-        return render.inline(item.fullStatement) || item.identifier;
+        return (render.value ? render.value.inline(item.fullStatement) : item.fullStatement) || item.identifier;
       }
       return parts.join(' ');
     }
@@ -130,10 +154,10 @@ const nodeTitle = computed(() => {
   // Fall back to title from nodeURI or identifier
   if (isReversed.value) {
     const origin = props.association.originNodeURI || props.association.origin;
-    return render.escaped(origin?.title || origin?.identifier || 'Unknown');
+    return render.value ? render.value.escaped(origin?.title || origin?.identifier || 'Unknown') : (origin?.title || origin?.identifier || 'Unknown');
   }
   const dest = props.association.destinationNodeURI || props.association.destination;
-  return render.escaped(dest?.title || dest?.identifier || 'Unknown');
+  return render.value ? render.value.escaped(dest?.title || dest?.identifier || 'Unknown') : (dest?.title || dest?.identifier || 'Unknown');
 });
 
 const nodeLabel = computed(() => {

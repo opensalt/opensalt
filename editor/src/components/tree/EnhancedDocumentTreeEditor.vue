@@ -213,7 +213,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, defineAsyncComponent } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useDocumentStore } from '../../stores/documentStore';
 import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
@@ -226,18 +226,20 @@ import RightSidePanel from '../shared/panels/RightSidePanel.vue';
 import DocumentSelector from '../shared/common/DocumentSelector.vue';
 import SearchFilter from '../shared/common/SearchFilter.vue';
 import AssociationGroupSelector from '../shared/common/AssociationGroupSelector.vue';
-import EditDocModal from '../shared/modals/EditDocModal.vue';
 import { useDynamicEditModal } from '../../composables/useDynamicEditModal.js';
-import AssociateModal from '../association/AssociateModal.vue';
-import EditAssociationModal from '../association/EditAssociationModal.vue';
-import DeleteItemsModal from '../shared/modals/DeleteItemsModal.vue';
-import ExemplarModal from '../shared/modals/ExemplarModal.vue';
-import AssociationGroupModal from '../association/AssociationGroupModal.vue';
 import ViewSwitcher from '../shared/common/ViewSwitcher.vue';
 import TreeFilter from './TreeFilter.vue';
-import CrossTreeDropModal from './CrossTreeDropModal.vue';
-import LoadExternalDocumentModal from '../shared/modals/LoadExternalDocumentModal.vue';
 import SideBySideTreePanel from './SideBySideTreePanel.vue';
+
+// Lazy-loaded modal components
+const EditDocModal = defineAsyncComponent(() => import('../shared/modals/EditDocModal.vue'));
+const AssociateModal = defineAsyncComponent(() => import('../association/AssociateModal.vue'));
+const EditAssociationModal = defineAsyncComponent(() => import('../association/EditAssociationModal.vue'));
+const DeleteItemsModal = defineAsyncComponent(() => import('../shared/modals/DeleteItemsModal.vue'));
+const ExemplarModal = defineAsyncComponent(() => import('../shared/modals/ExemplarModal.vue'));
+const AssociationGroupModal = defineAsyncComponent(() => import('../association/AssociationGroupModal.vue'));
+const CrossTreeDropModal = defineAsyncComponent(() => import('./CrossTreeDropModal.vue'));
+const LoadExternalDocumentModal = defineAsyncComponent(() => import('../shared/modals/LoadExternalDocumentModal.vue'));
 
 // Use the Pinia stores
 const documentStore = useDocumentStore();
