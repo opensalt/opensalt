@@ -40,44 +40,6 @@
           :association-groups="associationGroups"
         />
 
-        <!-- Bulk Actions Toggle -->
-        <div class="d-flex align-items-center mb-2 gap-2">
-          <button
-            class="btn btn-sm"
-            :class="viewStore.bulkMode ? 'btn-warning' : 'btn-outline-secondary'"
-            @click="viewStore.toggleBulkMode()"
-          >
-            <i class="bi" :class="viewStore.bulkMode ? 'bi-check-square' : 'bi-square'"></i>
-            {{ viewStore.bulkMode ? 'Exit Bulk Mode' : 'Bulk Select' }}
-          </button>
-
-          <!-- Bulk Actions Dropdown -->
-          <div v-if="viewStore.bulkMode" class="dropdown">
-            <button
-              class="btn btn-sm btn-outline-primary dropdown-toggle"
-              type="button"
-              id="bulkActionsDropdown"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-              :disabled="viewStore.selectedItems.size === 0"
-            >
-              Bulk Actions ({{ viewStore.selectedItems.size }})
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="bulkActionsDropdown">
-              <li>
-                <button class="dropdown-item" @click="handleBulkDelete">
-                  <i class="bi bi-trash me-2"></i>Delete Selected
-                </button>
-              </li>
-              <li>
-                <button class="dropdown-item" @click="handleMakeItemsParents">
-                  <i class="bi bi-arrow-up-circle me-2"></i>Make Items Parents
-                </button>
-              </li>
-            </ul>
-          </div>
-        </div>
-
         <!-- Tree View -->
         <div class="mt-3 flex-grow-1 overflow-auto mb-3">
           <TreeView
@@ -795,47 +757,6 @@ async function handleAddRootItem(newItem) {
 
 function onManageAssociationGroups() {
   showAssocGroupModal.value = true;
-}
-
-function handleBulkDelete() {
-  const selectedItems = Array.from(viewStore.selectedItems);
-  if (selectedItems.length === 0) return;
-
-  // Set up the delete modal for multiple items
-  itemsToDelete.value = selectedItems.map(id => findItem(doc.value.items || [], id)).filter(Boolean);
-  deleteType.value = 'bulk';
-  showDeleteModal.value = true;
-}
-
-function handleMakeItemsParents() {
-  const selectedItems = Array.from(viewStore.selectedItems);
-  if (selectedItems.length === 0) return;
-
-  // For each selected item, if it doesn't have children, add a dummy child to make it a parent
-  selectedItems.forEach(itemId => {
-    const item = findItem(doc.value.items || [], itemId);
-    if (item && (!item.children || item.children.length === 0)) {
-      // Add a dummy child to make it a parent
-      if (!item.children) item.children = [];
-      const newChild = {
-        identifier: `${itemId}-child-${Date.now()}`,
-        title: 'New Child Item',
-        abbreviatedStatement: 'New child item',
-        fullStatement: 'This is a new child item created to make the parent a parent node.',
-        itemType: 'item',
-        lastChanged: new Date().toISOString(),
-        children: []
-      };
-      item.children.push(newChild);
-    }
-  });
-
-  // Clear selection and exit bulk mode
-  viewStore.clearSelection();
-  viewStore.setBulkMode(false);
-
-  // Emit tree change to refresh the view
-  emit('tree-change', { type: 'bulk-parent-creation', items: selectedItems });
 }
 
 function findItem(items, id) {

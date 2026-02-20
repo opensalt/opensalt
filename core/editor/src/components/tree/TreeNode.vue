@@ -15,7 +15,6 @@
         'drop-inside': dropPosition === 'inside'
       }"
     >
-      <input v-if="bulkMode" type="checkbox" :checked="isSelected" @change="onToggleSelection" class="bulk-checkbox" />
       <span class="expand-indicator" aria-hidden="true">
         <i :class="isExpanded ? 'bi bi-caret-down-fill' : 'bi bi-caret-right-fill'"></i>
       </span>
@@ -77,7 +76,6 @@
         'drop-inside': dropPosition === 'inside'
       }"
     >
-      <input v-if="bulkMode" type="checkbox" :checked="isSelected" @change="onToggleSelection" class="bulk-checkbox" />
       <span class="no-children-spacer" aria-hidden="true"></span>
       <img :src="iconSrc" class="tree-icon" aria-hidden="true" />
       <div
@@ -146,14 +144,6 @@ const props = defineProps({
   searchQuery: {
     type: String,
     default: ''
-  },
-  bulkMode: {
-    type: Boolean,
-    default: false
-  },
-  selectedItems: {
-    type: Array,
-    default: () => []
   }
 });
 const emit = defineEmits(['select', 'dblclick', 'move', 'item-change']);
@@ -189,10 +179,6 @@ const hasMatch = computed(() => {
 const hasMatchingDescendant = computed(() => {
   if (!props.searchQuery) return false;
   return checkDescendantsForMatch(props.item.children || [], props.searchQuery.toLowerCase());
-});
-
-const isSelected = computed(() => {
-  return props.selectedItems.includes(props.item.identifier);
 });
 
 function checkDescendantsForMatch(children, query) {
@@ -383,10 +369,6 @@ function onDrop(e) {
   });
 }
 
-function onToggleSelection() {
-  emit('toggle-selection', { itemId: props.item.identifier });
-}
-
 onMounted(() => {
   if (labelRef1.value) {
     new bootstrap.Tooltip(labelRef1.value);
@@ -560,10 +542,5 @@ onMounted(() => {
   padding: 0 2px;
   border-radius: 2px;
   font-weight: 600;
-}
-
-.bulk-checkbox {
-  margin-right: 4px;
-  flex-shrink: 0;
 }
 </style>
