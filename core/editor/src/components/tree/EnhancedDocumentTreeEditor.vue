@@ -48,6 +48,7 @@
             @select="onSelect"
             @dblclick="onDblClick"
             :search-query="treeSearchQuery"
+            :matching-item-ids="matchingItemIds"
             @tree-change="onTreeChange"
           />
         </div>
@@ -301,6 +302,36 @@ function countMatches(items, query) {
   }
   return count;
 }
+
+// Pre-compute matching item IDs for visibility filtering
+const matchingItemIds = computed(() => {
+  if (!treeSearchQuery.value) return new Set();
+
+  const query = treeSearchQuery.value.toLowerCase();
+  const matches = new Set();
+
+  function findMatches(items) {
+    for (const item of items) {
+      const searchableText = [
+        item.humanCodingScheme,
+        item.abbreviatedStatement,
+        item.fullStatement,
+        item.title,
+        item.identifier
+      ].filter(Boolean).join(' ').toLowerCase();
+
+      if (searchableText.includes(query)) {
+        matches.add(item.identifier);
+      }
+      if (item.children) {
+        findMatches(item.children);
+      }
+    }
+  }
+
+  findMatches(doc.value.items || []);
+  return matches;
+});
 
 function onClearTreeFilter() {
   treeSearchQuery.value = '';

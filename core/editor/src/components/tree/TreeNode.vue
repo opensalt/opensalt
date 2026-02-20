@@ -1,5 +1,5 @@
 <template>
-  <details v-if="hasChildren" :open="isExpanded" @toggle="onToggle" class="tree-node" role="treeitem" :aria-level="level + 1">
+  <details v-if="hasChildren" :open="isExpanded" @toggle="onToggle" class="tree-node" :class="{ 'tree-node--hidden': !isVisible }" role="treeitem" :aria-level="level + 1" :aria-hidden="!isVisible">
     <summary
       class="expand-control"
       :style="{ marginLeft: (level * 20) + 'px' }"
@@ -12,7 +12,8 @@
       :class="{
         'drop-before': dropPosition === 'before',
         'drop-after': dropPosition === 'after',
-        'drop-inside': dropPosition === 'inside'
+        'drop-inside': dropPosition === 'inside',
+        'tree-node--ancestor-match': isAncestorOnlyMatch
       }"
     >
       <span class="expand-indicator" aria-hidden="true">
@@ -47,6 +48,7 @@
             :parent-items="item.children"
             :index="index"
             :search-query="searchQuery"
+            :matching-item-ids="matchingItemIds"
             @select="$emit('select', $event)"
             @dblclick="$emit('dblclick', $event)"
             @move="$emit('move', $event)"
@@ -61,7 +63,7 @@
   </details>
 
   <!-- For items without children -->
-  <div v-else class="tree-node" role="treeitem" :aria-level="level + 1">
+  <div v-else class="tree-node" :class="{ 'tree-node--hidden': !isVisible }" role="treeitem" :aria-level="level + 1" :aria-hidden="!isVisible">
     <div
       class="tree-node-content"
       :style="{ marginLeft: (level * 20) + 'px' }"
@@ -73,7 +75,8 @@
       :class="{
         'drop-before': dropPosition === 'before',
         'drop-after': dropPosition === 'after',
-        'drop-inside': dropPosition === 'inside'
+        'drop-inside': dropPosition === 'inside',
+        'tree-node--ancestor-match': isAncestorOnlyMatch
       }"
     >
       <span class="no-children-spacer" aria-hidden="true"></span>
@@ -144,6 +147,10 @@ const props = defineProps({
   searchQuery: {
     type: String,
     default: ''
+  },
+  matchingItemIds: {
+    type: Set,
+    default: () => new Set()
   }
 });
 const emit = defineEmits(['select', 'dblclick', 'move', 'item-change']);
@@ -196,6 +203,30 @@ function checkDescendantsForMatch(children, query) {
   }
   return false;
 }
+
+// Visibility for search filtering
+const isVisible = computed(() => {
+  // No search = all visible
+  if (!props.searchQuery) return true;
+
+  // Item matches = visible
+  if (props.matchingItemIds.has(props.item.identifier)) return true;
+
+  // Has matching descendant = visible (ancestor path)
+  if (hasMatchingDescendant.value) return true;
+
+  return false;
+});
+
+// Determine if this item is an ancestor-only match (visible but doesn't match itself)
+const isAncestorOnlyMatch = computed(() => {
+  // If no search, not an ancestor match
+  if (!props.searchQuery) return false;
+  // If this item matches directly, it's not ancestor-only
+  if (hasMatch.value) return false;
+  // If this item is visible and has matching descendants, it's an ancestor-only match
+  return isVisible.value && hasMatchingDescendant.value;
+});
 
 const highlightedTitle = computed(() => {
   if (!props.searchQuery || !hasMatch.value) return displayTitle.value;
@@ -542,5 +573,22 @@ onMounted(() => {
   padding: 0 2px;
   border-radius: 2px;
   font-weight: 600;
+}
+
+/* Hidden items during search */
+.tree-node--hidden {
+  display: none !important;
+}
+
+/* Ensure hidden items are not accessible */
+.tree-node--hidden[aria-hidden="true"] {
+  visibility: hidden;
+  position: absolute;
+  left: -9999px;
+}
+
+/* Ancestor-only match styling - items visible only due to matching descendants */
+.tree-node--ancestor-match {
+  opacity: 0.5;
 }
 </style>

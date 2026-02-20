@@ -14,6 +14,7 @@
           :index="0"
           :startExpanded="true"
           :search-query="props.searchQuery || props.search"
+          :matching-item-ids="props.matchingItemIds"
           @select="onSelect"
           @dblclick="onDblClick"
           @move="onMove"
@@ -41,6 +42,10 @@ const props = defineProps({
   searchQuery: {
     type: String,
     default: ''
+  },
+  matchingItemIds: {
+    type: Set,
+    default: () => new Set()
   }
 });
 
