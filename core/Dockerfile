@@ -3,12 +3,12 @@
 # https://docs.docker.com/compose/compose-file/#target
 
 # Version and build of OpenSALT
-ARG VERSION=3.3.1
+ARG VERSION=3.3.2
 ARG BUILD_NUMBER=x
 ARG BUILD_DATE=0
 ARG COMMIT=unknown
 
-ARG PHP_VERSION=8.4
+ARG PHP_VERSION=8.5
 ARG FRANKENPHP_VERSION=1
 ARG NODE_VERSION=24
 
