@@ -182,7 +182,7 @@ RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
 RUN set -eux; \
 	pie install \
-		"xdebug/xdebug:^3.5@alpha" \
+		"xdebug/xdebug:^3.5" \
 	;
 
 COPY frankenphp/conf.d/app.dev.ini $PHP_INI_DIR/conf.d/
