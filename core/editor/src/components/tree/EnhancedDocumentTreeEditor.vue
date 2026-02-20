@@ -431,7 +431,7 @@ onMounted(async () => {
         extensions: cfDoc.extensions || null,
         CFPackageURI: cfDoc.CFPackageURI || null,
         items: items
-      }, docData.CFAssociationGroupings || [], docData.CFAssociations || []);
+      }, docData.CFAssociationGroupings || [], docData.CFAssociations || [], docData.CFDefinitions || null);
     } else if (!currentDocumentStore.currentDocument || Object.keys(currentDocumentStore.currentDocument).length === 0) {
       await documentStore.fetchDocuments();
 
@@ -464,7 +464,7 @@ onMounted(async () => {
           extensions: cfDoc.extensions || null,
           CFPackageURI: cfDoc.CFPackageURI || null,
           items: items
-        }, docData.CFAssociationGroupings || [], docData.CFAssociations || []);
+        }, docData.CFAssociationGroupings || [], docData.CFAssociations || [], docData.CFDefinitions || null);
       }
     } else {
     }
@@ -634,7 +634,7 @@ async function onDocumentChanged({ side, documentId }) {
         extensions: cfDoc.extensions || null,
         CFPackageURI: cfDoc.CFPackageURI || null,
         items: items
-      }, docData.CFAssociationGroupings || [], docData.CFAssociations || []);
+      }, docData.CFAssociationGroupings || [], docData.CFAssociations || [], docData.CFDefinitions || null);
     }
   } catch (error) {
     console.error('Error loading document:', error);

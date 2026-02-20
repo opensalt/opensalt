@@ -168,9 +168,9 @@
 
 <script setup>
 import { ref, reactive, watch, computed } from 'vue';
-import EasyMDE from '../EasyMDE.vue';
-import MultiSelect from '../MultiSelect.vue';
-import SingleSelect from '../SingleSelect.vue';
+import EasyMDE from '../../EasyMDE.vue';
+import MultiSelect from '../../MultiSelect.vue';
+import SingleSelect from '../../SingleSelect.vue';
 
 const props = defineProps({
   parentItem: Object,

@@ -147,9 +147,18 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
   function selectDocument(
     document: CFDocument | null,
     associationGroupings: CFAssociationGrouping[] = [],
-    associations: CaseAssociation[] = []
+    associations: CaseAssociation[] = [],
+    definitions: CFDefinitions | null = null
   ) {
     currentDocument.value = document;
+    currentDocumentDefinitions.value = definitions || {
+      CFAssociationGroupings: [],
+      CFConcepts: [],
+      CFSubjects: [],
+      CFLicenses: [],
+      CFItemTypes: [],
+      extensions: undefined
+    };
     currentDocumentAssociationGroupings.value = associationGroupings.map(group => ({
       ...group,
       id: group.identifier

@@ -87,8 +87,7 @@
           </div>
 
           <div v-if="item.licenseURI" class="mt-2 text-truncate">
-              <strong>License:</strong>
-              <a :href="item.licenseURI" target="_blank" class="ms-1">{{ item.licenseURI }}</a>
+              <strong>License:</strong> <span class="ms-1">{{ licenseName }}</span>
           </div>
 
           <div v-if="item.lastChanged" class="mt-2">
@@ -443,8 +442,32 @@ function handleDropdownClick(type) {
 }
 
 import { useSessionStore } from '../../../stores/sessionStore';
+import { useCurrentDocumentStore } from '../../../stores/currentDocumentStore';
+
 const sessionStore = useSessionStore();
 const isReadOnly = computed(() => props.currentDocument?.isReadOnly || !sessionStore.isAuthenticated);
+
+// Get license name from definitions
+const currentDocumentStore = useCurrentDocumentStore();
+const licenseName = computed(() => {
+  if (!props.item?.licenseURI?.identifier) {
+    return null;
+  }
+
+  const licenseId = props.item.licenseURI.identifier;
+  const licenses = currentDocumentStore.currentDocumentDefinitions?.CFLicenses || [];
+
+  // Find license by identifier in definitions
+  const licenseDef = licenses.find(lic => lic.identifier === licenseId);
+
+  // Return license title if found, otherwise fall back to the URI
+  if (licenseDef?.title) {
+    return licenseDef.title;
+  }
+
+  // Fallback to the license URI or identifier
+  return props.item.licenseURI.uri || props.item.licenseURI.identifier;
+});
 </script>
 
 <style scoped>

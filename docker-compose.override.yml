@@ -45,7 +45,7 @@ services:
     image: node:24
     user: node:node
     volumes:
-      - ./editor:/editor
+      - ./core/editor:/editor
     command: ['/editor/run_dev.sh']
 
   db:

@@ -64,8 +64,7 @@
         </div>
 
         <div v-if="document.licenseURI" class="mt-2 text-truncate">
-            <strong>License:</strong>
-            <a :href="document.licenseURI.uri" target="_blank" class="ms-1">{{ document.licenseURI.identifier }}</a>
+            <strong>License:</strong> <span class="ms-1">{{ licenseName }}</span>
         </div>
 
         <div v-if="document.officialSourceURL" class="mt-2">
@@ -186,8 +185,32 @@ const props = defineProps({
 });
 
 import { useSessionStore } from '../../../stores/sessionStore';
+import { useCurrentDocumentStore } from '../../../stores/currentDocumentStore';
+
 const sessionStore = useSessionStore();
 const isReadOnly = computed(() => props.document?.isReadOnly || !sessionStore.isAuthenticated);
+
+// Get license name from definitions
+const currentDocumentStore = useCurrentDocumentStore();
+const licenseName = computed(() => {
+  if (!props.document?.licenseURI?.identifier) {
+    return null;
+  }
+
+  const licenseId = props.document.licenseURI.identifier;
+  const licenses = currentDocumentStore.currentDocumentDefinitions?.CFLicenses || [];
+
+  // Find license by identifier in definitions
+  const licenseDef = licenses.find(lic => lic.identifier === licenseId);
+
+  // Return license title if found, otherwise fall back to the URI
+  if (licenseDef?.title) {
+    return licenseDef.title;
+  }
+
+  // Fallback to the license URI or identifier
+  return props.document.licenseURI.uri || props.document.licenseURI.identifier;
+});
 
 const emit = defineEmits([
   'edit-document',
