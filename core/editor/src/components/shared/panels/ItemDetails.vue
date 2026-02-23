@@ -155,7 +155,7 @@
             :item-identifier="item.identifier"
             :is-read-only="isReadOnly"
             @edit-association="!isReadOnly ? $emit('edit-association', $event) : null"
-            @delete-association="!isReadOnly ? $emit('delete-association', $event) : null"
+            @delete-association="handleDeleteAssociationRequest"
           />
         </div>
       </div>
@@ -199,13 +199,22 @@
       />
     </div>
   </Teleport>
+
+  <!-- Delete Association Modal -->
+  <DeleteAssociationModal
+    v-model:show="showDeleteModal"
+    :association="associationToDelete"
+    @confirmed="handleDeleteConfirmed"
+    @hidden="handleDeleteModalHidden"
+  />
 </template>
 
 <script setup>
+/* global localStorage, console */
 import { computed, ref, onMounted } from 'vue';
-import { Teleport } from 'vue';
 import AssociationGroupDisplay from '../../association/AssociationGroupDisplay.vue';
 import CommentModule from '../CommentModule.vue';
+import DeleteAssociationModal from '@/components/association/DeleteAssociationModal.vue';
 import { useDynamicModal } from '../../../composables/useDynamicModal.js';
 import { useDynamicEditModal } from '../../../composables/useDynamicEditModal.js';
 
@@ -314,16 +323,30 @@ const {
 // Toggle state for extended info
 const showExtendedInfo = ref(false);
 
+// Delete association modal state
+const showDeleteModal = ref(false);
+const associationToDelete = ref(null);
+
 // Load preference from localStorage on mount
 onMounted(() => {
   const stored = localStorage.getItem('itemDetailsShowExtended');
   showExtendedInfo.value = stored === 'true';
 });
 
-// Toggle function with persistence
-function toggleExtendedInfo() {
-  showExtendedInfo.value = !showExtendedInfo.value;
-  localStorage.setItem('itemDetailsShowExtended', showExtendedInfo.value.toString());
+// Delete association modal handlers
+function handleDeleteAssociationRequest(association) {
+  if (isReadOnly.value) return;
+  associationToDelete.value = association;
+  showDeleteModal.value = true;
+}
+
+function handleDeleteConfirmed(association) {
+  emit('delete-association', association);
+  showDeleteModal.value = false;
+}
+
+function handleDeleteModalHidden() {
+  associationToDelete.value = null;
 }
 
 function formatDate(dateString) {

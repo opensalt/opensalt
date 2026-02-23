@@ -122,6 +122,7 @@
       :association="editingAssociation"
       :available-groups="associationGroups"
       :show="showEditAssociationModal"
+      :selected-item-identifier="selectedId"
       @updated="onAssociationUpdated"
       @hidden="showEditAssociationModal = false"
     />

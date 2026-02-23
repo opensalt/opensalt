@@ -15,34 +15,59 @@
           <div class="container-fluid mb-4">
             <div class="row vcenter">
               <div class="col-sm-5">
-                <div class="ls-association-item-display border p-3 rounded" id="editLsAssociationOriginDisplay">
-                  <div v-if="originItemData">
-                    <strong>{{ originItemDisplayText }}</strong>
-                    <div v-if="originItemData.humanCodingScheme" class="text-muted small">
-                      {{ originItemData.humanCodingScheme }}
+                <div
+                  class="ls-association-item-display border p-3 rounded"
+                  id="editLsAssociationOriginDisplay"
+                  :class="{ 'selected-item-highlight': isLeftSideSelected }"
+                >
+                  <div v-if="leftSideItemData">
+                    <strong>{{ leftSideDisplayText }}</strong>
+                    <div v-if="leftSideItemData.humanCodingScheme" class="text-muted small">
+                      {{ leftSideItemData.humanCodingScheme }}
                     </div>
                   </div>
                   <div v-else class="text-muted">
-                    {{ originFallbackText }}
+                    {{ leftSideFallbackText }}
                   </div>
                 </div>
               </div>
               <div class="col-auto d-flex flex-column align-items-center">
-                <i :class="directionIcon" class="bi fs-1 text-muted mb-2"></i>
-                <button type="button" class="btn btn-sm btn-outline-secondary" @click="switchDirection">
-                  ↔ Switch Direction
+                <!-- Direction button with item names on each side -->
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary direction-switch-btn"
+                  @click="switchDirection"
+                  :title="isReversed ? 'Click to reverse direction' : 'Click to reverse direction'"
+                  aria-label="Switch association direction"
+                >
+                  <span class="direction-side direction-left">
+                    <span class="direction-label">From:</span>
+                    <span class="direction-item-name">{{ leftSideShortText }}</span>
+                  </span>
+                  <span class="direction-arrow">
+                    <i :class="directionIcon" class="bi fs-5"></i>
+                  </span>
+                  <span class="direction-side direction-right">
+                    <span class="direction-label">To:</span>
+                    <span class="direction-item-name">{{ rightSideShortText }}</span>
+                  </span>
                 </button>
+                <small class="text-muted mt-2">Click to switch direction</small>
               </div>
               <div class="col-sm-5">
-                <div class="ls-association-item-display border p-3 rounded" id="editLsAssociationDestinationDisplay">
-                  <div v-if="destinationItemData">
-                    <strong>{{ destinationItemDisplayText }}</strong>
-                    <div v-if="destinationItemData.humanCodingScheme" class="text-muted small">
-                      {{ destinationItemData.humanCodingScheme }}
+                <div
+                  class="ls-association-item-display border p-3 rounded"
+                  id="editLsAssociationDestinationDisplay"
+                  :class="{ 'selected-item-highlight': isRightSideSelected }"
+                >
+                  <div v-if="rightSideItemData">
+                    <strong>{{ rightSideDisplayText }}</strong>
+                    <div v-if="rightSideItemData.humanCodingScheme" class="text-muted small">
+                      {{ rightSideItemData.humanCodingScheme }}
                     </div>
                   </div>
                   <div v-else class="text-muted">
-                    {{ destinationFallbackText }}
+                    {{ rightSideFallbackText }}
                   </div>
                 </div>
               </div>
@@ -129,14 +154,18 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch } from 'vue';
+import { ref, reactive, computed, watch, nextTick } from 'vue';
 import { Modal } from 'bootstrap';
 import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
 
 const props = defineProps({
   association: Object,
   availableGroups: Array,
-  show: Boolean
+  show: Boolean,
+  selectedItemIdentifier: {
+    type: String,
+    default: null
+  }
 });
 
 const emit = defineEmits(['updated', 'hidden']);
@@ -278,19 +307,157 @@ const showGroupSelector = computed(() => {
   return formData.type && !['exemplar', 'isChildOf'].includes(formData.type);
 });
 
-const directionIcon = computed(() => `bi-arrow-${isReversed.value ? 'left' : 'right'}`);
+const directionIcon = 'bi-arrow-right';
 
-watch(() => props.show, (newVal) => {
+// Computed properties for left/right side items based on direction
+const leftSideItemData = computed(() => {
+  return isReversed.value ? destinationItemData.value : originItemData.value;
+});
+
+const rightSideItemData = computed(() => {
+  return isReversed.value ? originItemData.value : destinationItemData.value;
+});
+
+// Display text for left side item
+const leftSideDisplayText = computed(() => {
+  const item = leftSideItemData.value;
+  if (!item) return 'Unknown item';
+
+  if (item.abbreviatedStatement) {
+    return item.abbreviatedStatement;
+  }
+
+  if (item.fullStatement) {
+    return item.fullStatement.length > 100
+      ? item.fullStatement.substring(0, 100) + '...'
+      : item.fullStatement;
+  }
+
+  return item.title || item.identifier || 'Unknown item';
+});
+
+// Display text for right side item
+const rightSideDisplayText = computed(() => {
+  const item = rightSideItemData.value;
+  if (!item) return 'Unknown item';
+
+  if (item.abbreviatedStatement) {
+    return item.abbreviatedStatement;
+  }
+
+  if (item.fullStatement) {
+    return item.fullStatement.length > 100
+      ? item.fullStatement.substring(0, 100) + '...'
+      : item.fullStatement;
+  }
+
+  return item.title || item.identifier || 'Unknown item';
+});
+
+// Short text for direction button (truncated for display)
+const leftSideShortText = computed(() => {
+  const item = leftSideItemData.value;
+  if (!item) return leftSideFallbackText.value;
+
+  // Prefer humanCodingScheme for short display, then abbreviatedStatement
+  if (item.humanCodingScheme) {
+    return item.humanCodingScheme;
+  }
+
+  if (item.abbreviatedStatement) {
+    return item.abbreviatedStatement.length > 30
+      ? item.abbreviatedStatement.substring(0, 30) + '...'
+      : item.abbreviatedStatement;
+  }
+
+  if (item.fullStatement) {
+    return item.fullStatement.length > 30
+      ? item.fullStatement.substring(0, 30) + '...'
+      : item.fullStatement;
+  }
+
+  return item.title || item.identifier || 'Unknown';
+});
+
+const rightSideShortText = computed(() => {
+  const item = rightSideItemData.value;
+  if (!item) return rightSideFallbackText.value;
+
+  if (item.humanCodingScheme) {
+    return item.humanCodingScheme;
+  }
+
+  if (item.abbreviatedStatement) {
+    return item.abbreviatedStatement.length > 30
+      ? item.abbreviatedStatement.substring(0, 30) + '...'
+      : item.abbreviatedStatement;
+  }
+
+  if (item.fullStatement) {
+    return item.fullStatement.length > 30
+      ? item.fullStatement.substring(0, 30) + '...'
+      : item.fullStatement;
+  }
+
+  return item.title || item.identifier || 'Unknown';
+});
+
+// Fallback text for left/right sides
+const leftSideFallbackText = computed(() => {
+  if (isReversed.value) {
+    return destinationFallbackText.value;
+  }
+  return originFallbackText.value;
+});
+
+const rightSideFallbackText = computed(() => {
+  if (isReversed.value) {
+    return originFallbackText.value;
+  }
+  return destinationFallbackText.value;
+});
+
+// Check if origin or destination is the selected item (for reference)
+const isOriginSelected = computed(() => {
+  if (!props.selectedItemIdentifier || !originIdentifier.value) return false;
+  return props.selectedItemIdentifier === originIdentifier.value;
+});
+
+const isDestinationSelected = computed(() => {
+  if (!props.selectedItemIdentifier || !destinationIdentifier.value) return false;
+  return props.selectedItemIdentifier === destinationIdentifier.value;
+});
+
+// Check if the item currently displayed on each side is selected
+// These follow the item, not the position
+const isLeftSideSelected = computed(() => {
+  if (!props.selectedItemIdentifier) return false;
+  const leftIdentifier = leftSideItemData.value?.identifier;
+  return leftIdentifier && props.selectedItemIdentifier === leftIdentifier;
+});
+
+const isRightSideSelected = computed(() => {
+  if (!props.selectedItemIdentifier) return false;
+  const rightIdentifier = rightSideItemData.value?.identifier;
+  return rightIdentifier && props.selectedItemIdentifier === rightIdentifier;
+});
+
+watch(() => props.show, async (newVal) => {
   if (newVal && props.association) {
     loadAssociationData();
-    if (!modal.value) {
-      modal.value = new Modal(document.getElementById('editAssociationModal'));
+    // Wait for DOM to be ready before accessing the modal element
+    await nextTick();
+    const modalEl = document.getElementById('editAssociationModal');
+    if (!modal.value && modalEl) {
+      modal.value = new Modal(modalEl);
     }
-    modal.value.show();
+    if (modal.value) {
+      modal.value.show();
+    }
   } else if (modal.value) {
     modal.value.hide();
   }
-});
+}, { immediate: true });
 
 watch(() => props.association, (newAssoc) => {
   if (newAssoc) {
@@ -405,5 +572,78 @@ document.addEventListener('hidden.bs.modal', (event) => {
 .form-select:focus {
   border-color: #86b7fe;
   box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Direction switch button styling */
+.direction-switch-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 2px solid #dee2e6;
+  transition: all 0.2s ease;
+  min-width: 280px;
+  justify-content: space-between;
+}
+
+.direction-switch-btn:hover {
+  background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+  border-color: #0d6efd;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.direction-switch-btn:focus {
+  outline: none;
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.direction-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  flex: 1;
+}
+
+.direction-right {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.direction-label {
+  font-size: 0.7rem;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.125rem;
+}
+
+.direction-item-name {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #212529;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.direction-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0d6efd;
+  flex-shrink: 0;
+}
+
+/* Selected item highlight styling */
+.selected-item-highlight {
+  border: 2px solid #0d6efd !important;
+  background-color: #e7f1ff !important;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
 }
 </style>

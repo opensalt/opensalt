@@ -34,13 +34,24 @@
         </div>
 
         <div class="mb-3">
-          <label class="form-label">Association Type</label>
-          <select class="form-select" v-model="selectedType">
-            <option value="">All Types</option>
-            <option v-for="type in availableTypes" :key="type" :value="type">
-              {{ type }}
-            </option>
-          </select>
+          <label class="form-label">Association Types</label>
+          <div v-if="allAssociationTypes.length === 0" class="text-muted small">
+            No association types available. Load a document to see available types.
+          </div>
+          <div v-else class="type-checkboxes">
+            <div v-for="type in allAssociationTypes" :key="type" class="form-check">
+              <input
+                type="checkbox"
+                :id="'type-' + type"
+                :value="type"
+                v-model="selectedTypes"
+                class="form-check-input"
+              >
+              <label :for="'type-' + type" class="form-check-label">
+                {{ type }}
+              </label>
+            </div>
+          </div>
         </div>
 
         <div class="mb-3">
@@ -75,26 +86,23 @@
           >
             <div class="card-header d-flex justify-content-between align-items-center">
               <span class="badge bg-primary">{{ assoc.associationType }}</span>
-              <div class="dropdown" v-if="assoc.associationType !== 'isChildOf'">
+              <div class="btn-group btn-group-sm" v-if="assoc.associationType !== 'isChildOf'">
                 <button
                   type="button"
-                  class="btn btn-sm btn-outline-secondary dropdown-toggle"
-                  data-bs-toggle="dropdown"
+                  class="btn btn-outline-primary"
+                  @click="editAssoc(assoc)"
+                  title="Edit association"
                 >
-                  <i class="bi bi-three-dots"></i>
+                  <i class="bi bi-pencil"></i>
                 </button>
-                <ul class="dropdown-menu">
-                  <li>
-                    <button class="dropdown-item" @click="editAssoc(assoc)">
-                      <i class="bi bi-pencil me-2"></i>Edit
-                    </button>
-                  </li>
-                  <li>
-                    <button class="dropdown-item text-danger" @click="deleteAssoc(assoc)">
-                      <i class="bi bi-trash me-2"></i>Delete
-                    </button>
-                  </li>
-                </ul>
+                <button
+                  type="button"
+                  class="btn btn-outline-danger"
+                  @click="deleteAssoc(assoc)"
+                  title="Delete association"
+                >
+                  <i class="bi bi-trash"></i>
+                </button>
               </div>
             </div>
             <div class="card-body">
@@ -154,57 +162,141 @@
       :association="editingAssociation"
       :available-groups="associationGroups"
       :show="showEditAssociationModal"
+      :selected-item-identifier="selectedItemIdentifier"
       @updated="handleAssociationUpdated"
       @hidden="handleModalHidden"
+    />
+
+    <!-- Delete Association Modal -->
+    <DeleteAssociationModal
+      v-model:show="showDeleteModal"
+      :association="associationToDelete"
+      @confirmed="handleDeleteConfirmed"
+      @hidden="handleDeleteModalHidden"
     />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+/* global console */
+import { ref, computed, onMounted, watch } from 'vue';
 import { useDocumentStore } from '../../stores/documentStore';
 import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
-import { useItemStore } from '../../stores/itemStore';
 import { logger } from '../../utils/logger.js';
 import EditAssociationModal from './EditAssociationModal.vue';
+import DeleteAssociationModal from './DeleteAssociationModal.vue';
 
-const router = useRouter();
 const documentStore = useDocumentStore();
 const currentDocumentStore = useCurrentDocumentStore();
-const itemStore = useItemStore();
 
 // Modal state
 const showEditAssociationModal = ref(false);
 const editingAssociation = ref(null);
+const selectedItemIdentifier = ref(null);
+
+// Delete association modal state
+const showDeleteModal = ref(false);
+const associationToDelete = ref(null);
 
 const loading = computed(() => documentStore.loading);
 const error = computed(() => documentStore.error);
 const currentDocument = computed(() => currentDocumentStore.currentDocument);
 const associationGroups = computed(() => currentDocumentStore.associationGroups);
 
-const selectedType = ref('');
+const associations = computed(() => {
+  return currentDocumentStore.currentDocumentAssociations || [];
+});
+
+// Dynamically derive association types from actual data
+const allAssociationTypes = computed(() => {
+  if (associations.value.length === 0) {
+    return [];
+  }
+
+  // Extract unique association types from all associations
+  const typeSet = new Set();
+  associations.value.forEach(assoc => {
+    if (assoc.associationType) {
+      typeSet.add(assoc.associationType);
+    }
+  });
+
+  // Sort types: standard CASE types first (in a defined order), then ext:* types alphabetically
+  const standardOrder = [
+    'isChildOf',
+    'isPeerOf',
+    'isPartOf',
+    'exactMatchOf',
+    'precedes',
+    'relatesTo',
+    'hasSkillLevel',
+    'isSkillLevelOf'
+  ];
+
+  const types = Array.from(typeSet);
+
+  // Separate standard types and extension types
+  const standardTypes = [];
+  const extensionTypes = [];
+
+  types.forEach(type => {
+    if (type.startsWith('ext:')) {
+      extensionTypes.push(type);
+    } else {
+      standardTypes.push(type);
+    }
+  });
+
+  // Sort standard types according to the defined order
+  standardTypes.sort((a, b) => {
+    const indexA = standardOrder.indexOf(a);
+    const indexB = standardOrder.indexOf(b);
+    // If both are in the standard order, sort by that order
+    if (indexA !== -1 && indexB !== -1) {
+      return indexA - indexB;
+    }
+    // If only one is in the standard order, it comes first
+    if (indexA !== -1) return -1;
+    if (indexB !== -1) return 1;
+    // Otherwise, sort alphabetically
+    return a.localeCompare(b);
+  });
+
+  // Sort extension types alphabetically
+  extensionTypes.sort((a, b) => a.localeCompare(b));
+
+  // Return standard types first, then extension types
+  return [...standardTypes, ...extensionTypes];
+});
+
+// Track if we've initialized the selected types
+const hasInitializedTypes = ref(false);
+
+// Selected types for filtering - initialize empty, will be set by watcher
+const selectedTypes = ref([]);
 const selectedGroup = ref('');
 const searchFilter = ref('');
 const currentPage = ref(1);
 const itemsPerPage = ref(25);
 
-const availableTypes = computed(() => {
-  const types = new Set();
-  associations.value.forEach(assoc => {
-    if (assoc.associationType) types.add(assoc.associationType);
-  });
-  return Array.from(types);
-});
-
-const associations = computed(() => {
-  return currentDocumentStore.currentDocumentAssociations || [];
-});
+// Initialize selected types when association types become available
+// Default: all types except isChildOf
+watch(
+  allAssociationTypes,
+  (newTypes) => {
+    // Only initialize once when types first become available
+    if (newTypes.length > 0 && !hasInitializedTypes.value) {
+      selectedTypes.value = newTypes.filter(type => type !== 'isChildOf');
+      hasInitializedTypes.value = true;
+    }
+  },
+  { immediate: true }
+);
 
 const filteredAssociations = computed(() => {
   return associations.value.filter(assoc => {
-    // Filter by type
-    if (selectedType.value && assoc.associationType !== selectedType.value) {
+    // Filter by type - only show if type is in selected types array
+    if (selectedTypes.value.length > 0 && !selectedTypes.value.includes(assoc.associationType)) {
       return false;
     }
     // Filter by group
@@ -266,17 +358,6 @@ function getItemTitle(assoc, key) {
   return nodeURI?.uri || identifier || 'N/A';
 }
 
-function goToItem(identifier) {
-  if (!identifier || !currentDocument.value) return;
-  router.push({
-    name: 'TreeView',
-    params: {
-      frameworkId: currentDocument.value.id || currentDocument.value.identifier,
-      itemId: identifier
-    }
-  });
-}
-
 function editAssoc(assoc) {
   logger.debug('Edit association:', assoc);
   editingAssociation.value = assoc;
@@ -305,10 +386,12 @@ function handleModalHidden() {
   editingAssociation.value = null;
 }
 
-async function deleteAssoc(assoc) {
-  if (!confirm('Are you sure you want to delete this association?')) {
-    return;
-  }
+function deleteAssoc(assoc) {
+  associationToDelete.value = assoc;
+  showDeleteModal.value = true;
+}
+
+async function handleDeleteConfirmed(assoc) {
   // Use the correct ID property - associations can have either id or identifier
   const associationId = assoc.id || assoc.identifier;
   if (!associationId) {
@@ -318,13 +401,19 @@ async function deleteAssoc(assoc) {
   try {
     await currentDocumentStore.removeAssociation(associationId);
     logger.debug('Association deleted successfully:', associationId);
+    showDeleteModal.value = false;
   } catch (e) {
     console.error('Failed to delete association', e);
   }
 }
 
+function handleDeleteModalHidden() {
+  associationToDelete.value = null;
+}
+
 function clearFilters() {
-  selectedType.value = '';
+  // Reset to default: all types except isChildOf
+  selectedTypes.value = allAssociationTypes.value.filter(type => type !== 'isChildOf');
   selectedGroup.value = '';
   searchFilter.value = '';
   currentPage.value = 1;
@@ -350,6 +439,22 @@ onMounted(() => {
 <style scoped>
 .association-view {
   min-height: 0;
+}
+
+.type-checkboxes {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+}
+
+.type-checkboxes .form-check {
+  margin-bottom: 0.25rem;
+}
+
+.type-checkboxes .form-check:last-child {
+  margin-bottom: 0;
 }
 
 .association-card {
