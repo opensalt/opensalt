@@ -16,13 +16,15 @@
             <div class="row vcenter">
               <div class="col-sm-5">
                 <div class="ls-association-item-display border p-3 rounded" id="editLsAssociationOriginDisplay">
-                  <div v-if="originItem">
-                    <strong>{{ originItem.title }}</strong>
-                    <div v-if="originItem.humanCodingScheme" class="text-muted small">
-                      {{ originItem.humanCodingScheme }}
+                  <div v-if="originItemData">
+                    <strong>{{ originItemDisplayText }}</strong>
+                    <div v-if="originItemData.humanCodingScheme" class="text-muted small">
+                      {{ originItemData.humanCodingScheme }}
                     </div>
                   </div>
-                  <div v-else class="text-muted">Origin item</div>
+                  <div v-else class="text-muted">
+                    {{ originFallbackText }}
+                  </div>
                 </div>
               </div>
               <div class="col-auto d-flex flex-column align-items-center">
@@ -33,13 +35,15 @@
               </div>
               <div class="col-sm-5">
                 <div class="ls-association-item-display border p-3 rounded" id="editLsAssociationDestinationDisplay">
-                  <div v-if="destinationItem">
-                    <strong>{{ destinationItem.title }}</strong>
-                    <div v-if="destinationItem.humanCodingScheme" class="text-muted small">
-                      {{ destinationItem.humanCodingScheme }}
+                  <div v-if="destinationItemData">
+                    <strong>{{ destinationItemDisplayText }}</strong>
+                    <div v-if="destinationItemData.humanCodingScheme" class="text-muted small">
+                      {{ destinationItemData.humanCodingScheme }}
                     </div>
                   </div>
-                  <div v-else class="text-muted">Destination item</div>
+                  <div v-else class="text-muted">
+                    {{ destinationFallbackText }}
+                  </div>
                 </div>
               </div>
             </div>
@@ -127,6 +131,7 @@
 <script setup>
 import { ref, reactive, computed, watch } from 'vue';
 import { Modal } from 'bootstrap';
+import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
 
 const props = defineProps({
   association: Object,
@@ -135,6 +140,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['updated', 'hidden']);
+
+const currentDocumentStore = useCurrentDocumentStore();
 
 const error = ref('');
 const saving = ref(false);
@@ -164,8 +171,102 @@ const forwardTypes = [
   { value: 'other', label: 'Other' }
 ];
 
-const originItem = computed(() => props.association?.origin || null);
-const destinationItem = computed(() => props.association?.destination || null);
+// Get the origin node identifier
+const originIdentifier = computed(() => {
+  return props.association?.originNodeURI?.identifier ||
+         props.association?.origin?.identifier;
+});
+
+// Get the destination node identifier
+const destinationIdentifier = computed(() => {
+  return props.association?.destinationNodeURI?.identifier ||
+         props.association?.destination?.identifier;
+});
+
+// Helper function to find item recursively
+function findItemById(items, identifier) {
+  for (const item of items) {
+    if (item.identifier === identifier) return item;
+    if (item.children) {
+      const found = findItemById(item.children, identifier);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+// Look up the full origin item from document items
+const originItemData = computed(() => {
+  const identifier = originIdentifier.value;
+  if (!identifier) return null;
+
+  const items = currentDocumentStore.currentDocument?.items || [];
+  return findItemById(items, identifier);
+});
+
+// Look up the full destination item from document items
+const destinationItemData = computed(() => {
+  const identifier = destinationIdentifier.value;
+  if (!identifier) return null;
+
+  const items = currentDocumentStore.currentDocument?.items || [];
+  return findItemById(items, identifier);
+});
+
+// Display text for origin item - prefer abbreviatedStatement
+const originItemDisplayText = computed(() => {
+  const item = originItemData.value;
+  if (!item) return 'Unknown item';
+
+  // Prefer abbreviatedStatement, fall back to shortened fullStatement
+  if (item.abbreviatedStatement) {
+    return item.abbreviatedStatement;
+  }
+
+  if (item.fullStatement) {
+    // Truncate to ~100 characters if no abbreviatedStatement
+    return item.fullStatement.length > 100
+      ? item.fullStatement.substring(0, 100) + '...'
+      : item.fullStatement;
+  }
+
+  return item.title || item.identifier || 'Unknown item';
+});
+
+// Display text for destination item - prefer abbreviatedStatement
+const destinationItemDisplayText = computed(() => {
+  const item = destinationItemData.value;
+  if (!item) return 'Unknown item';
+
+  if (item.abbreviatedStatement) {
+    return item.abbreviatedStatement;
+  }
+
+  if (item.fullStatement) {
+    return item.fullStatement.length > 100
+      ? item.fullStatement.substring(0, 100) + '...'
+      : item.fullStatement;
+  }
+
+  return item.title || item.identifier || 'Unknown item';
+});
+
+// Fallback text when item not found in document
+const originFallbackText = computed(() => {
+  return props.association?.originNodeURI?.title ||
+         props.association?.origin?.title ||
+         'Origin item';
+});
+
+const destinationFallbackText = computed(() => {
+  return props.association?.destinationNodeURI?.title ||
+         props.association?.destination?.title ||
+         'Destination item';
+});
+
+// Legacy computed properties for backward compatibility
+const originItem = computed(() => originItemData.value || props.association?.origin || null);
+const destinationItem = computed(() => destinationItemData.value || props.association?.destination || null);
 
 const isValidCustomType = computed(() => {
   if (formData.type !== 'other') return true;
@@ -200,15 +301,23 @@ watch(() => props.association, (newAssoc) => {
 function loadAssociationData() {
   if (!props.association) return;
 
-  const assocType = props.association.type || '';
+  // Use associationType instead of type
+  const assocType = props.association.associationType || props.association.type || '';
   if (assocType.startsWith('ext:')) {
     formData.type = 'other';
     customType.value = assocType;
   } else {
     formData.type = assocType;
   }
-  formData.annotation = props.association.annotation || '';
-  formData.groupId = props.association.groupId || 'default';
+
+  // Use notes instead of annotation
+  formData.annotation = props.association.notes || props.association.annotation || '';
+
+  // Handle group ID from CFAssociationGroupingURI
+  formData.groupId = props.association.CFAssociationGroupingURI?.identifier ||
+                     props.association.groupId ||
+                     'default';
+
   isReversed.value = false;
   error.value = '';
 }
@@ -222,10 +331,7 @@ function onTypeChange() {
 
 function switchDirection() {
   isReversed.value = !isReversed.value;
-  const bidirectionalTypes = ['isRelatedTo', 'isPeerOf', 'exactMatchOf', 'isTranslationOf'];
-  if (!bidirectionalTypes.includes(formData.type) && formData.type !== 'other') {
-    formData.type = '';
-  }
+  // Association type is preserved when switching direction
 }
 
 function updateAssociation() {
@@ -242,14 +348,20 @@ function updateAssociation() {
   // Simulate updating association - in real app this would be an API call
   setTimeout(() => {
     try {
-      const effectiveOrigin = isReversed.value ? props.association.destination : props.association.origin;
-      const effectiveDestination = isReversed.value ? props.association.origin : props.association.destination;
+      // Determine effective origin/destination based on direction switch
+      const effectiveOriginNodeURI = isReversed.value
+        ? props.association.destinationNodeURI || props.association.destination
+        : props.association.originNodeURI || props.association.origin;
+      const effectiveDestinationNodeURI = isReversed.value
+        ? props.association.originNodeURI || props.association.origin
+        : props.association.destinationNodeURI || props.association.destination;
+
       const updatedAssociation = {
         ...props.association,
-        origin: effectiveOrigin,
-        destination: effectiveDestination,
-        type: finalType,
-        annotation: formData.annotation,
+        originNodeURI: effectiveOriginNodeURI,
+        destinationNodeURI: effectiveDestinationNodeURI,
+        associationType: finalType,
+        notes: formData.annotation,
         groupId: formData.groupId,
         updated: new Date().toISOString()
       };
