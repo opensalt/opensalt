@@ -39,6 +39,10 @@
 import { ref, computed, onMounted } from 'vue';
 import TreeView from './TreeView.vue';
 import InfoPanel from '../shared/panels/InfoPanel.vue';
+import { useAnnouncer } from '../../composables/useAnnouncer.js';
+
+// Initialize screen reader announcer
+const announcer = useAnnouncer();
 
 const doc = ref({ title: '', status: '', items: [] });
 const loading = ref(true);
@@ -189,6 +193,15 @@ onMounted(async () => {
 function onSelect(id) {
   selectedId.value = id;
 }
+
+function onTreeFocus(itemId) {
+  // Handle tree focus events for accessibility
+  const item = findItem(doc.value.items || [], itemId);
+  if (item) {
+    announcer.announceNavigation(item);
+  }
+}
+
 function findItem(items, id) {
   for (const item of items) {
     if (item.identifier === id) return item;

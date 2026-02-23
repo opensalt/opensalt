@@ -147,12 +147,12 @@ export const useDocumentStore = defineStore('documents', () => {
     return requestPromise;
   }
 
-  async function loadExternalDocument(url: string): Promise<{data: CFPackage, finalUrl: string}> {
+  async function loadExternalDocument(url: string): Promise<{ data: CFPackage, finalUrl: string }> {
     loading.value = true;
     error.value = null;
 
     let data: CFPackage | null = null;
-    let finalUrl: string = url;
+    let finalUrl = url;
 
     // Type guard to validate CFPackage response
     function isCFPackage(response: unknown): response is CFPackage {
@@ -172,6 +172,18 @@ export const useDocumentStore = defineStore('documents', () => {
       );
     }
 
+    // Type guard to check if response has CFPackageURI
+    function hasCFPackageURI(response: unknown): response is { CFPackageURI: { uri: string } } {
+      return (
+        typeof response === 'object' &&
+        response !== null &&
+        'CFPackageURI' in response &&
+        typeof (response as any).CFPackageURI === 'object' &&
+        (response as any).CFPackageURI !== null &&
+        typeof (response as any).CFPackageURI.uri === 'string'
+      );
+    }
+
     try {
       // Initial fetch from provided URL
       const initialResponse = await api.get(url);
@@ -179,6 +191,15 @@ export const useDocumentStore = defineStore('documents', () => {
       if (isCFPackage(initialResponse)) {
         // Response is already a CFPackage
         data = initialResponse as CFPackage;
+      } else if (hasCFPackageURI(initialResponse)) {
+        // Response only has CFPackageURI, follow redirect
+        finalUrl = initialResponse.CFPackageURI.uri;
+        const finalResponse = await api.get(finalUrl);
+        if (isCFPackage(finalResponse)) {
+          data = finalResponse as CFPackage;
+        } else {
+          throw new Error('Response does not contain CFDocument');
+        }
       } else if (isApiPackageResponse(initialResponse)) {
         // Response has CFDocument and possibly CFPackageURI
         const apiResponse = initialResponse as ApiPackageResponse;

@@ -1,14 +1,15 @@
 <template>
-  <details v-if="hasChildren" :open="isExpanded" @toggle="onToggle" class="tree-node" role="treeitem" :aria-level="level + 1">
-    <summary class="expand-control" :style="{ marginLeft: (level * 20) + 'px' }" @click="onSummaryClick">
+  <details v-if="hasChildren" :open="isExpanded" @toggle="onToggle" class="tree-node" role="treeitem" :aria-level="level + 1" :aria-expanded="isExpanded" :aria-selected="selectedId === item.identifier" :aria-grabbed="isKeyboardDragging" :tabindex="isFocused ? '0' : '-1'" :data-tree-node-id="item.identifier" @keydown="handleKeyDown">
+    <summary class="expand-control" :style="{ marginLeft: (level * 20) + 'px' }" @click="onSummaryClick" :tabindex="isFocused ? '0' : '-1'">
       <span class="expand-indicator" aria-hidden="true">
         <i :class="isExpanded ? 'bi bi-caret-down-fill' : 'bi bi-caret-right-fill'"></i>
       </span>
       <span
         class="tree-node-label"
-        :class="{ 'selected': selectedId === item.identifier, 'drag-over': dragOver }"
+        :class="{ 'selected': selectedId === item.identifier, 'drag-over': dragOver, 'keyboard-dragging': isKeyboardDragging }"
         @click.stop.prevent="select"
         @dblclick.stop="dblClick"
+        @focus="onFocus"
         style="cursor:pointer"
         draggable="true"
         @dragstart="onDragStart"
@@ -16,6 +17,8 @@
         @dragleave="onDragLeave"
         @drop="onDrop"
         @dragend="onDragEnd"
+        role="button"
+        :aria-pressed="isKeyboardDragging"
       >
         <span v-if="item.humanCodingScheme" class="coding-scheme" style="font-weight: bold;">{{ item.humanCodingScheme }}: </span>
         {{ item.abbreviatedTitle || item.title || item.identifier }}
@@ -45,14 +48,15 @@
   </details>
 
   <!-- For items without children -->
-  <div v-else class="tree-node" role="treeitem" :aria-level="level + 1">
+  <div v-else class="tree-node" role="treeitem" :aria-level="level + 1" :aria-selected="selectedId === item.identifier" :aria-grabbed="isKeyboardDragging" :tabindex="isFocused ? '0' : '-1'" :data-tree-node-id="item.identifier" @keydown="handleKeyDown">
     <div class="tree-node-content" :style="{ marginLeft: (level * 20) + 'px' }">
       <span class="no-children-spacer" aria-hidden="true"></span>
       <span
         class="tree-node-label"
-        :class="{ 'selected': selectedId === item.identifier, 'drag-over': dragOver }"
+        :class="{ 'selected': selectedId === item.identifier, 'drag-over': dragOver, 'keyboard-dragging': isKeyboardDragging }"
         @click="select"
         @dblclick="dblClick"
+        @focus="onFocus"
         style="cursor:pointer"
         draggable="true"
         @dragstart="onDragStart"
@@ -60,6 +64,8 @@
         @dragleave="onDragLeave"
         @drop="onDrop"
         @dragend="onDragEnd"
+        role="button"
+        :aria-pressed="isKeyboardDragging"
       >
         <span v-if="item.humanCodingScheme" class="coding-scheme" style="font-weight: bold;">{{ item.humanCodingScheme }}: </span>
         {{ item.abbreviatedTitle || item.title || item.identifier }}
@@ -70,7 +76,8 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, inject } from 'vue';
+import { useAnnouncer } from '../../composables/useAnnouncer.js';
 
 const props = defineProps({
   item: Object,
@@ -84,15 +91,52 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['select', 'dblclick', 'move', 'dragstart', 'drop']);
+const emit = defineEmits(['select', 'dblclick', 'move', 'dragstart', 'drop', 'focus']);
 
-const isExpanded = ref(false);
 const dragOver = ref(false);
 const hasChildren = computed(() => props.item.children && props.item.children.length > 0);
 
+// Initialize announcer directly (creates its own announcer element if needed)
+const announcer = useAnnouncer();
+
+// Inject navigation context with focus state management (same pattern as TreeNode.vue)
+const navigation = inject('treeNavigation', {
+  focusedItemId: ref(null),
+  isItemExpanded: () => false,
+  expandItem: () => {},
+  collapseItem: () => {},
+  toggleExpanded: () => {}
+});
+
+// Use centralized expanded state from navigation context (consistent with TreeNode.vue)
+const isExpanded = computed({
+  get: () => navigation.isItemExpanded(props.item.identifier),
+  set: (value) => {
+    if (value) {
+      navigation.expandItem(props.item.identifier);
+    } else {
+      navigation.collapseItem(props.item.identifier);
+    }
+  }
+});
+
+// Compute isFocused based on injected navigation context
+const isFocused = computed(() => {
+  return navigation.focusedItemId?.value === props.item.identifier;
+});
+
+// Keyboard drag state
+const isKeyboardDragging = ref(false);
+const keyboardDragPosition = ref(0); // 0 = original position, >0 = offset
+
 const onToggle = (event) => {
   if (hasChildren.value) {
-    isExpanded.value = event.target.open;
+    const newState = event.target.open;
+    if (newState) {
+      navigation.expandItem(props.item.identifier);
+    } else {
+      navigation.collapseItem(props.item.identifier);
+    }
   }
 };
 
@@ -105,8 +149,102 @@ const onSummaryClick = (event) => {
   select();
 };
 
-const select = () => { emit('select', props.item.identifier); };
+const select = () => { emit('select', props.item.identifier); emit('focus', props.item.identifier); };
 const dblClick = () => { emit('dblclick', props.item.identifier); };
+
+const onFocus = () => {
+  emit('focus', props.item.identifier);
+};
+
+// Keyboard handlers for drag operations
+const handleKeyDown = (event) => {
+  if (!isFocused.value) return;
+
+  switch (event.key) {
+    case ' ':
+    case 'Space':
+      event.preventDefault();
+      if (isKeyboardDragging.value) {
+        // Drop the item when already dragging
+        isKeyboardDragging.value = false;
+        emit('move', {
+          fromIdx: keyboardDragPosition.value,
+          toIdx: props.index,
+          parentItems: props.parentItems,
+          draggedItem: props.item
+        });
+        if (announcer) {
+          announcer.announceDrag(props.item, 'drop');
+        }
+      } else {
+        // Start keyboard drag mode
+        isKeyboardDragging.value = true;
+        keyboardDragPosition.value = props.index;
+        if (announcer) {
+          announcer.announceDrag(props.item, 'start');
+        }
+      }
+      break;
+    case 'ArrowUp':
+    case 'ArrowDown':
+      // Move dragged item up/down
+      if (isKeyboardDragging.value) {
+        event.preventDefault();
+        const direction = event.key === 'ArrowUp' ? -1 : 1;
+        emit('move', {
+          fromIdx: keyboardDragPosition.value,
+          toIdx: props.index + direction,
+          parentItems: props.parentItems,
+          draggedItem: props.item
+        });
+        keyboardDragPosition.value = props.index + direction;
+      }
+      break;
+    case 'ArrowLeft':
+    case 'ArrowRight':
+      // Left/Right arrows could be used for nesting changes in the future
+      // For now, just prevent default during drag to avoid confusion
+      if (isKeyboardDragging.value) {
+        event.preventDefault();
+        // Announce that horizontal movement is not supported
+        if (announcer) {
+          announcer.announce('Use up and down arrows to move the item', 'polite');
+        }
+      }
+      break;
+    case 'Enter':
+      // Select or drop the item
+      if (isKeyboardDragging.value) {
+        event.preventDefault();
+        isKeyboardDragging.value = false;
+        emit('move', {
+          fromIdx: keyboardDragPosition.value,
+          toIdx: props.index,
+          parentItems: props.parentItems,
+          draggedItem: props.item
+        });
+        if (announcer) {
+          announcer.announceDrag(props.item, 'drop');
+        }
+      } else {
+        // Normal select when not dragging
+        event.preventDefault();
+        select();
+      }
+      break;
+    case 'Escape':
+      // Cancel drag
+      if (isKeyboardDragging.value) {
+        event.preventDefault();
+        isKeyboardDragging.value = false;
+        keyboardDragPosition.value = 0;
+        if (announcer) {
+          announcer.announceDrag(props.item, 'cancel');
+        }
+      }
+      break;
+  }
+};
 
 // Enhanced drag-and-drop functionality
 function onDragStart(e) {
@@ -305,6 +443,12 @@ function getDropPosition(e) {
   opacity: 0.5;
 }
 
+.tree-node-label.keyboard-dragging {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+  background-color: rgba(0, 123, 255, 0.1);
+}
+
 /* High contrast mode support */
 @media (prefers-contrast: high) {
   .tree-node-label.selected {
@@ -314,6 +458,10 @@ function getDropPosition(e) {
   .tree-node-label.drag-over {
     background: #000;
     border-color: #fff;
+  }
+  .tree-node-label.keyboard-dragging {
+    outline: 3px solid #000;
+    background-color: rgba(0, 0, 0, 0.3);
   }
 }
 

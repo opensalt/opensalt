@@ -8,7 +8,8 @@
     <div v-else-if="error" class="alert alert-danger my-4" role="alert" aria-live="assertive">{{ error }}</div>
     <main v-else class="row g-0" style="height: 100%; min-height: 0;">
       <!-- Tree panel -->
-      <section class="col-5 tree-panel d-flex flex-column h-100 overflow-hidden">
+      <section class="col-5 tree-panel d-flex flex-column h-100 overflow-hidden" aria-labelledby="tree-heading">
+        <h2 id="tree-heading" class="visually-hidden">Document Tree</h2>
         <!-- Document Selector -->
         <DocumentSelector
           :current-doc1="currentDoc"
@@ -50,6 +51,7 @@
             :search-query="treeSearchQuery"
             :matching-item-ids="matchingItemIds"
             @tree-change="onTreeChange"
+            @focus="onTreeFocus"
           />
         </div>
       </section>
@@ -176,7 +178,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, defineAsyncComponent } from 'vue';
+import { ref, computed, onMounted, watch, defineAsyncComponent, provide } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useDocumentStore } from '../../stores/documentStore';
 import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
@@ -193,6 +195,81 @@ import { useDynamicEditModal } from '../../composables/useDynamicEditModal.js';
 import ViewSwitcher from '../shared/common/ViewSwitcher.vue';
 import TreeFilter from './TreeFilter.vue';
 import SideBySideTreePanel from './SideBySideTreePanel.vue';
+import { useTreeNavigation } from '../../composables/useTreeNavigation.js';
+import { useAnnouncer } from '../../composables/useAnnouncer.js';
+
+// Use the Pinia stores (must be initialized before computed properties that use them)
+const documentStore = useDocumentStore();
+const currentDocumentStore = useCurrentDocumentStore();
+const filterStore = useFilterStore();
+const itemStore = useItemStore();
+const associationStore = useAssociationStore();
+const viewStore = useViewStore();
+const route = useRoute();
+const router = useRouter();
+
+// Initialize screen reader announcer
+const announcer = useAnnouncer();
+
+// Use store state and computed properties (must be declared before use in other composables)
+const doc = computed(() => currentDocumentStore.currentDocument || { title: '', status: '', items: [] });
+const loading = computed(() => documentStore.loading);
+const error = computed(() => documentStore.error);
+const searchQuery = computed(() => filterStore.searchQuery);
+const selectedId = ref(route.params.itemId || null);
+const selectedItem = computed(() => findItem(doc.value.items || [], selectedId.value));
+
+// filteredDoc must be declared before treeItems since treeItems depends on it
+const filteredDoc = computed(() => ({
+  ...doc.value,
+  items: filterStore.filterItemsRecursively(doc.value.items || [], searchQuery.value, filterStore.selectedFilters, filterStore.selectedAssociationGroup)
+}));
+
+// Initialize tree navigation (depends on doc and selectedId declared above)
+// Create a tree that includes the document root as the first item
+// IMPORTANT: Use filteredDoc since that's what TreeView renders
+const treeItems = computed(() => {
+  if (!filteredDoc.value) return [];
+
+  // Create a document root node that wraps all items
+  const rootItem = {
+    identifier: filteredDoc.value.id || 'document-root',
+    title: filteredDoc.value.title || 'Document Root',
+    abbreviatedStatement: filteredDoc.value.title || 'Document Root',
+    humanCodingScheme: '',
+    children: filteredDoc.value.items || [],
+    itemType: 'document',
+    isDocumentRoot: true
+  };
+
+  return [rootItem];
+});
+
+const {
+  focusedItemId,
+  setFocus,
+  handleKeyDown: navigationHandleKeyDown,
+  isItemExpanded,
+  expandItem,
+  collapseItem,
+  toggleExpanded,
+  initializeFocus
+} = useTreeNavigation({
+  items: treeItems,
+  selectedId,
+  onSelect: (id) => onSelect(id)
+});
+
+// Provide navigation context to child components (TreeNode, TreeView)
+provide('treeNavigation', {
+  focusedItemId,
+  setFocus,
+  handleKeyDown: navigationHandleKeyDown,
+  isItemExpanded,
+  expandItem,
+  collapseItem,
+  toggleExpanded
+});
 
 // Lazy-loaded modal components
 const EditDocModal = defineAsyncComponent(() => import('../shared/modals/EditDocModal.vue'));
@@ -203,24 +280,6 @@ const ExemplarModal = defineAsyncComponent(() => import('../shared/modals/Exempl
 const AssociationGroupModal = defineAsyncComponent(() => import('../association/AssociationGroupModal.vue'));
 const CrossTreeDropModal = defineAsyncComponent(() => import('./CrossTreeDropModal.vue'));
 const LoadExternalDocumentModal = defineAsyncComponent(() => import('../shared/modals/LoadExternalDocumentModal.vue'));
-
-// Use the Pinia stores
-const documentStore = useDocumentStore();
-const currentDocumentStore = useCurrentDocumentStore();
-const filterStore = useFilterStore();
-const itemStore = useItemStore();
-const associationStore = useAssociationStore();
-const viewStore = useViewStore();
-const route = useRoute();
-const router = useRouter();
-
-// Use store state and computed properties
-const doc = computed(() => currentDocumentStore.currentDocument || { title: '', status: '', items: [] });
-const loading = computed(() => documentStore.loading);
-const error = computed(() => documentStore.error);
-const searchQuery = computed(() => filterStore.searchQuery);
-const selectedId = ref(route.params.itemId || null);
-const selectedItem = computed(() => findItem(doc.value.items || [], selectedId.value));
 
 // Initialize useDynamicEditModal composable for type-specific edit modals
 const availableTypes = ['general', 'assessment', 'course', 'credential', 'job', 'organization', 'public_key', 'identifier'];
@@ -243,10 +302,16 @@ const {
 watch(() => route.params.itemId, (newItemId) => {
   selectedId.value = newItemId || null;
 }, { immediate: true });
-const filteredDoc = computed(() => ({
-  ...doc.value,
-  items: filterStore.filterItemsRecursively(doc.value.items || [], searchQuery.value, filterStore.selectedFilters, filterStore.selectedAssociationGroup)
-}));
+
+// Initialize focus and expand document root when document loads
+watch(() => doc.value?.id, (newDocId) => {
+  if (newDocId) {
+    // Expand the document root by default
+    expandItem(newDocId);
+    // Initialize focus on the document root
+    initializeFocus();
+  }
+}, { immediate: true });
 
 // Modal states
 const showEditDocModal = ref(false);
@@ -777,8 +842,8 @@ function onEditDocument() {
 }
 
 async function handleAddRootItem(newItem) {
-  if (newItem && currentDocument.value) {
-    const success = itemStore.addItem(currentDocument.value, newItem, null);
+  if (newItem && currentDoc.value) {
+    const success = itemStore.addItem(currentDoc.value, newItem, null);
     if (success) {
     } else {
       console.error('Failed to add root item');
@@ -788,6 +853,15 @@ async function handleAddRootItem(newItem) {
 
 function onManageAssociationGroups() {
   showAssocGroupModal.value = true;
+}
+
+function onTreeFocus(itemId) {
+  // Handle tree focus events for accessibility
+  // Announce navigation to screen reader
+  const item = findItem(filteredDoc.value.items || [], itemId);
+  if (item) {
+    announcer.announceNavigation(item);
+  }
 }
 
 function findItem(items, id) {

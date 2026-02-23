@@ -4,7 +4,17 @@
       <div v-if="!doc">
         <em>No document loaded.</em>
       </div>
-      <div v-else role="tree" aria-label="Document structure tree" class="tree-container">
+      <div
+        v-else
+        role="tree"
+        :aria-label="treeLabel"
+        :aria-multiselectable="false"
+        :aria-setsize="totalItems"
+        tabindex="-1"
+        ref="treeContainer"
+        @keydown="handleTreeKeyDown"
+        class="tree-container"
+      >
         <TreeNode
           :key="documentRoot.identifier"
           :item="documentRoot"
@@ -19,6 +29,7 @@
           @dblclick="onDblClick"
           @move="onMove"
           @item-change="onItemChange"
+          @focus="handleFocus"
         />
       </div>
     </div>
@@ -49,7 +60,9 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['select', 'dblclick', 'tree-change']);
+const emit = defineEmits(['select', 'dblclick', 'tree-change', 'focus']);
+
+const treeContainer = ref(null);
 
 // Create a document root node with items as children
 const documentRoot = computed(() => {
@@ -68,6 +81,27 @@ const documentRoot = computed(() => {
   };
 });
 
+// Compute ARIA attributes
+const treeLabel = computed(() =>
+  props.doc ? `Document structure tree: ${props.doc.title || 'Document'}` : 'Document structure tree'
+);
+
+// Count total items in tree (for aria-setsize)
+const totalItems = computed(() => {
+  if (!props.doc) return 0;
+  let count = 0;
+  function countItems(items) {
+    items.forEach(item => {
+      count++;
+      if (item.children && item.children.length > 0) {
+        countItems(item.children);
+      }
+    });
+  }
+  countItems(props.doc.items || []);
+  return count;
+});
+
 function onSelect(id) {
   emit('select', id);
 }
@@ -82,6 +116,15 @@ function onMove(event) {
     type: 'move',
     ...event
   });
+}
+function handleFocus(itemId) {
+  emit('focus', itemId);
+}
+
+// Handle keyboard events at tree level
+function handleTreeKeyDown(event) {
+  // Navigation is handled by TreeNode components via the injected context
+  // This handler can be used for tree-level shortcuts if needed
 }
 </script>
 
@@ -124,6 +167,13 @@ function onMove(event) {
 @media (prefers-contrast: high) {
   .tree-view[role="tree"]:focus {
     outline: 3px solid #000;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .tree-view[role="tree"]:focus {
+    transition: none;
   }
 }
 

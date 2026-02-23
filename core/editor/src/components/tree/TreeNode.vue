@@ -1,5 +1,5 @@
 <template>
-  <details v-if="hasChildren" :open="isExpanded" @toggle="onToggle" class="tree-node" :class="{ 'tree-node--hidden': !isVisible }" role="treeitem" :aria-level="level + 1" :aria-hidden="!isVisible">
+  <details v-if="hasChildren" :open="isExpanded" @toggle="onToggle" class="tree-node" :class="{ 'tree-node--hidden': !isVisible }" role="treeitem" :aria-level="level + 1" :aria-expanded="isExpanded" :aria-selected="selectedId === item.identifier" :aria-setsize="siblingCount" :aria-posinset="siblingPosition" :aria-hidden="!isVisible" :tabindex="isFocused ? '0' : '-1'" :data-tree-node-id="item.identifier" @keydown="handleKeyDown">
     <summary
       class="expand-control"
       :style="{ marginLeft: (level * 20) + 'px' }"
@@ -9,6 +9,7 @@
       @dragover="onDragOver"
       @dragleave="onDragLeave"
       @drop="onDrop"
+      tabindex="-1"
       :class="{
         'drop-before': dropPosition === 'before',
         'drop-after': dropPosition === 'after',
@@ -22,24 +23,26 @@
       <img :src="iconSrc" class="tree-icon" aria-hidden="true" />
       <div
         class="tree-node-label"
-        :class="{ 'selected': selectedId === item.identifier }"
+        :class="{ 'selected': selectedId === item.identifier, 'focused': isFocused }"
         @click.stop.prevent="select"
         @dblclick.stop="dblClick"
         @mouseenter="onMouseEnter"
         @mouseleave="onMouseLeave"
         style="cursor:pointer"
+        role="button"
+        :aria-expanded="isExpanded"
       >
         <span class="label-text">
           <span v-if="item.humanCodingScheme" class="coding-scheme" style="color: #6c757d;">{{ item.humanCodingScheme }}: </span>
           <span v-if="searchQuery && hasMatch" v-html="highlightedTitle"></span>
           <span v-else>{{ displayTitle }}</span>
         </span>
-        <div v-if="showPopover && fullStatementHtml" class="popover" v-html="fullStatementHtml"></div>
+        <div v-if="showPopover && fullStatementHtml" class="popover" v-html="fullStatementHtml" role="tooltip"></div>
       </div>
       <slot name="actions" :item="item" />
     </summary>
 
-    <div v-if="hasChildren" class="children-container">
+    <div v-if="hasChildren" class="children-container" role="group">
       <div v-for="(child, index) in item.children" :key="child.identifier">
           <TreeNode
             :item="child"
@@ -53,6 +56,7 @@
             @dblclick="$emit('dblclick', $event)"
             @move="$emit('move', $event)"
             @item-change="$emit('item-change', $event)"
+            @focus="$emit('focus', $event)"
           >
             <template #actions="slotProps">
               <slot name="actions" v-bind="slotProps" />
@@ -63,7 +67,7 @@
   </details>
 
   <!-- For items without children -->
-  <div v-else class="tree-node" :class="{ 'tree-node--hidden': !isVisible }" role="treeitem" :aria-level="level + 1" :aria-hidden="!isVisible">
+  <div v-else class="tree-node" :class="{ 'tree-node--hidden': !isVisible }" role="treeitem" :aria-level="level + 1" :aria-selected="selectedId === item.identifier" :aria-setsize="siblingCount" :aria-posinset="siblingPosition" :aria-hidden="!isVisible" :tabindex="isFocused ? '0' : '-1'" :data-tree-node-id="item.identifier" @keydown="handleKeyDown">
     <div
       class="tree-node-content"
       :style="{ marginLeft: (level * 20) + 'px' }"
@@ -72,6 +76,7 @@
       @dragover="onDragOver"
       @dragleave="onDragLeave"
       @drop="onDrop"
+      :tabindex="isFocused ? '0' : '-1'"
       :class="{
         'drop-before': dropPosition === 'before',
         'drop-after': dropPosition === 'after',
@@ -83,19 +88,20 @@
       <img :src="iconSrc" class="tree-icon" aria-hidden="true" />
       <div
         class="tree-node-label"
-        :class="{ 'selected': selectedId === item.identifier }"
+        :class="{ 'selected': selectedId === item.identifier, 'focused': isFocused }"
         @click="select"
         @dblclick="dblClick"
         @mouseenter="onMouseEnter"
         @mouseleave="onMouseLeave"
         style="cursor:pointer"
+        role="button"
       >
         <span class="label-text">
           <span v-if="item.humanCodingScheme" class="coding-scheme" style="color: #6c757d;">{{ item.humanCodingScheme }}: </span>
           <span v-if="searchQuery && hasMatch" v-html="highlightedTitle"></span>
           <span v-else>{{ displayTitle }}</span>
         </span>
-        <div v-if="showPopover && fullStatementHtml" class="popover" v-html="fullStatementHtml"></div>
+        <div v-if="showPopover && fullStatementHtml" class="popover" v-html="fullStatementHtml" role="tooltip"></div>
       </div>
       <slot name="actions" :item="item" />
     </div>
@@ -103,8 +109,9 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted, inject } from 'vue';
 import { useCurrentDocumentStore } from '@/stores/currentDocumentStore';
+import sanitizeHtml from 'sanitize-html';
 
 import docIcon from '@/assets/icons/ph/graph-fill.svg';
 import itemIcon from '@/assets/icons/lucide/target.svg';
@@ -153,11 +160,42 @@ const props = defineProps({
     default: () => new Set()
   }
 });
-const emit = defineEmits(['select', 'dblclick', 'move', 'item-change']);
+const emit = defineEmits(['select', 'dblclick', 'move', 'item-change', 'focus']);
 
-const isExpanded = ref(props.startExpanded); // Start closed by default
-const isFocused = ref(false);
 const hasChildren = computed(() => props.item.children && props.item.children.length > 0);
+
+// Computed properties for ARIA attributes
+const siblingCount = computed(() => props.parentItems?.length || 1);
+const siblingPosition = computed(() => (props.index ?? 0) + 1);
+
+// Inject navigation context with expanded state management
+const navigation = inject('treeNavigation', {
+  focusedItemId: ref(null),
+  isItemExpanded: () => false,
+  expandItem: () => {},
+  collapseItem: () => {},
+  toggleExpanded: () => {}
+});
+
+// Use centralized expanded state from navigation context
+const isExpanded = computed({
+  get: () => navigation.isItemExpanded(props.item.identifier),
+  set: (value) => {
+    if (value) {
+      navigation.expandItem(props.item.identifier);
+    } else {
+      navigation.collapseItem(props.item.identifier);
+    }
+  }
+});
+
+// Compute isFocused based on injected navigation context
+// This replaces the prop-based approach to ensure focus state is synchronized
+// across all tree nodes via the navigation composable
+const isFocused = computed(() => {
+  // Use the injected focusedItemId from navigation context
+  return navigation.focusedItemId?.value === props.item.identifier;
+});
 
 const labelRef1 = ref(null);
 const labelRef2 = ref(null);
@@ -231,10 +269,18 @@ const isAncestorOnlyMatch = computed(() => {
 const highlightedTitle = computed(() => {
   if (!props.searchQuery || !hasMatch.value) return displayTitle.value;
 
-  const query = props.searchQuery;
-  const title = displayTitle.value;
-  const regex = new RegExp(`(${escapeRegExp(query)})`, 'gi');
-  return title.replace(regex, '<mark class="search-highlight">$1</mark>');
+  // Sanitize both the title and query to prevent XSS attacks
+  const sanitizedTitle = sanitizeHtml(displayTitle.value, {
+    allowedTags: [],
+    allowedAttributes: {}
+  });
+  // Also sanitize the query to prevent any potential injection through search input
+  const sanitizedQuery = sanitizeHtml(props.searchQuery, {
+    allowedTags: [],
+    allowedAttributes: {}
+  });
+  const regex = new RegExp(`(${escapeRegExp(sanitizedQuery)})`, 'gi');
+  return sanitizedTitle.replace(regex, '<mark class="search-highlight">$1</mark>');
 });
 
 function escapeRegExp(string) {
@@ -244,7 +290,7 @@ function escapeRegExp(string) {
 // Auto-expand when there are matching descendants
 watch(() => props.searchQuery, (newQuery) => {
   if (newQuery && hasMatchingDescendant.value) {
-    isExpanded.value = true;
+    navigation.expandItem(props.item.identifier);
   }
 });
 
@@ -266,7 +312,20 @@ const onMouseEnter = () => {
     const text = props.item.fullStatement || props.item.title || '';
     if (text) {
       const renderMarkdown = await getMarkdownRenderer();
-      fullStatementHtml.value = renderMarkdown(text);
+      const rawHtml = renderMarkdown(text);
+      // Sanitize the rendered markdown to prevent XSS attacks
+      fullStatementHtml.value = sanitizeHtml(rawHtml, {
+        allowedTags: ['p', 'br', 'strong', 'em', 'ul', 'ol', 'li', 'code', 'pre', 'a', 'span', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'hr', 'table', 'thead', 'tbody', 'tr', 'th', 'td'],
+        allowedAttributes: {
+          'a': ['href', 'title', 'target', 'rel'],
+          'span': ['class'],
+          'div': ['class'],
+          'code': ['class']
+        },
+        transformTags: {
+          'a': sanitizeHtml.simpleTransform('a', { target: '_blank', rel: 'noopener noreferrer' })
+        }
+      });
     }
   }, 500);
 };
@@ -309,9 +368,14 @@ const iconSrc = computed(() => {
 });
 
 const onToggle = (event) => {
-  // Only handle expansion/collapse
+  // Only handle expansion/collapse - use centralized state
   if (hasChildren.value) {
-    isExpanded.value = event.target.open;
+    const newState = event.target.open;
+    if (newState) {
+      navigation.expandItem(props.item.identifier);
+    } else {
+      navigation.collapseItem(props.item.identifier);
+    }
   }
 };
 
@@ -330,22 +394,19 @@ const onSummaryClick = (event) => {
 const select = () => { emit('select', props.item.identifier); };
 const dblClick = () => { emit('dblclick', props.item.identifier); };
 
-const onFocus = () => {
-  isFocused.value = true;
-};
-
-const onBlur = () => {
-  isFocused.value = false;
-};
-
-const onKeyDown = (event) => {
-  switch (event.key) {
-    case 'Enter':
-    case ' ':
-      event.preventDefault();
-      // Always select item, regardless of whether it has children
-      select();
-      break;
+// Handle keyboard events - use navigation context if available
+const handleKeyDown = (event) => {
+  // Stop propagation to prevent ancestor tree nodes from handling this event twice
+  event.stopPropagation();
+  
+  // First, let the navigation context handle navigation keys if available
+  if (navigation?.handleKeyDown) {
+    // Check if it's a navigation key
+    const navigationKeys = ['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'PageDown', 'PageUp', '*', 'Enter', ' '];
+    if (navigationKeys.includes(event.key)) {
+      navigation.handleKeyDown(event, props.item);
+      return;
+    }
   }
 };
 
@@ -401,11 +462,22 @@ function onDrop(e) {
 }
 
 onMounted(() => {
-  if (labelRef1.value) {
-    new bootstrap.Tooltip(labelRef1.value);
+  // Only initialize Bootstrap tooltips if Bootstrap is available
+  if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+    if (labelRef1.value) {
+      new bootstrap.Tooltip(labelRef1.value);
+    }
+    if (labelRef2.value) {
+      new bootstrap.Tooltip(labelRef2.value);
+    }
   }
-  if (labelRef2.value) {
-    new bootstrap.Tooltip(labelRef2.value);
+});
+
+// Clean up any pending timeouts on unmount
+onUnmounted(() => {
+  if (popoverTimeout.value) {
+    clearTimeout(popoverTimeout.value);
+    popoverTimeout.value = null;
   }
 });
 </script>

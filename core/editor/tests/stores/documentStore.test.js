@@ -15,7 +15,7 @@ describe('DocumentStore', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     documentStore = useDocumentStore();
-    vi.clearAllMocks();
+    vi.resetAllMocks();
   });
 
   afterEach(() => {
@@ -64,13 +64,13 @@ describe('DocumentStore', () => {
 
       expect(documentStore.documents).toHaveLength(1);
       expect(documentStore.documents[0]).toEqual({
-        id: 'doc-1',
+        identifier: 'doc-1',
         title: 'Test Document',
         description: 'Test Description',
         creator: 'Test Creator',
-        subject: 'Math',
-        status: 'Draft',
-        lastModified: '2024-01-01T00:00:00Z',
+        subject: ['Math'],
+        adoptionStatus: 'Draft',
+        lastChangeDateTime: '2024-01-01T00:00:00Z',
         language: 'en',
         version: '1.0'
       });
@@ -121,7 +121,7 @@ describe('DocumentStore', () => {
       expect(documentStore.error).toBe('Invalid response format: expected data array');
     });
 
-    it('transforms subject array to string', async () => {
+    it('retains subject as array', async () => {
       const mockDocuments = {
         data: [
           {
@@ -138,7 +138,7 @@ describe('DocumentStore', () => {
 
       await documentStore.fetchDocuments();
 
-      expect(documentStore.documents[0].subject).toBe('Math, Science');
+      expect(documentStore.documents[0].subject).toEqual(['Math', 'Science']);
     });
 
     it('handles missing optional fields with defaults', async () => {
@@ -154,15 +154,7 @@ describe('DocumentStore', () => {
       await documentStore.fetchDocuments();
 
       expect(documentStore.documents[0]).toEqual({
-        id: 'doc-1',
-        title: 'Untitled Document',
-        description: '',
-        creator: '',
-        subject: '',
-        status: '',
-        lastModified: '',
-        language: '',
-        version: ''
+        identifier: 'doc-1'
       });
     });
 
@@ -280,6 +272,7 @@ describe('DocumentStore', () => {
 
       expect(result.data).toEqual(finalResponse);
       expect(result.finalUrl).toBe('https://redirect.com/package');
+      expect(api.get).toHaveBeenCalledTimes(2);
     });
 
     it('throws error when response has neither CFDocument nor CFPackageURI', async () => {
@@ -296,18 +289,19 @@ describe('DocumentStore', () => {
       await expect(
         documentStore.loadExternalDocument('https://external.com/package')
       ).rejects.toThrow('Network error');
+      expect(documentStore.error).toBe('Network error');
     });
-  });
 
-  describe('clearError', () => {
-    it('clears error state', async () => {
-      api.get.mockRejectedValueOnce(new Error('Test error'));
-      await documentStore.fetchDocuments().catch(() => {});
+    describe('clearError', () => {
+      it('clears error state', async () => {
+        api.get.mockRejectedValueOnce(new Error('Test error'));
+        await documentStore.fetchDocuments().catch(() => { });
 
-      expect(documentStore.error).toBe('Test error');
+        expect(documentStore.error).toBe('Test error');
 
-      documentStore.clearError();
-      expect(documentStore.error).toBeNull();
+        documentStore.clearError();
+        expect(documentStore.error).toBeNull();
+      });
     });
   });
 });
