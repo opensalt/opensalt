@@ -72,87 +72,54 @@
       </aside>
 
       <!-- Main Content -->
-      <main class="col-md-9 col-lg-10 p-4 overflow-auto">
+      <main class="col-md-9 col-lg-10 p-4 d-flex flex-column" style="min-height: 0;">
         <div v-if="filteredAssociations.length === 0" class="text-center py-5 text-muted">
           <i class="bi bi-inbox fs-1 mb-3"></i>
           <p>No associations found matching your filters.</p>
         </div>
 
-        <div v-else class="associations-grid">
-          <div
-            v-for="assoc in paginatedAssociations"
-            :key="assoc.id || assoc.identifier"
-            class="association-card card mb-3"
-          >
-            <div class="card-header d-flex justify-content-between align-items-center">
-              <span class="badge bg-primary">{{ assoc.associationType }}</span>
-              <div class="btn-group btn-group-sm" v-if="assoc.associationType !== 'isChildOf'">
-                <button
-                  type="button"
-                  class="btn btn-outline-primary"
-                  @click="editAssoc(assoc)"
-                  title="Edit association"
-                >
-                  <i class="bi bi-pencil"></i>
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-outline-danger"
-                  @click="deleteAssoc(assoc)"
-                  title="Delete association"
-                >
-                  <i class="bi bi-trash"></i>
-                </button>
-              </div>
-            </div>
-            <div class="card-body">
-              <div class="mb-2">
-                <strong>Origin:</strong>
-                <p>{{ getItemTitle(assoc, 'origin') }}</p>
-              </div>
-              <div class="mb-2">
-                <strong>Destination:</strong>
-                <p>{{ getItemTitle(assoc, 'dest') }}</p>
-              </div>
-              <div v-if="assoc.lastChangeDateTime" class="text-muted small mt-2">
-                Last modified: {{ formatDate(assoc.lastChangeDateTime) }}
-              </div>
-            </div>
-          </div>
-        </div>
+        <template v-else>
+          <AssociationTableView
+            :associations="paginatedAssociations"
+            :association-groups="associationGroups"
+            :is-read-only="false"
+            @edit-association="editAssoc"
+            @delete-association="deleteAssoc"
+          />
 
-        <!-- Pagination -->
-        <div v-if="totalPages > 1" class="mt-4">
-          <nav aria-label="Association pagination">
-            <ul class="pagination justify-content-center">
-              <li :class="{ disabled: currentPage === 1 }">
-                <button class="page-link" @click="goToPage(1)" :disabled="currentPage === 1">
-                  &laquo; First
-                </button>
-              </li>
-              <li :class="{ disabled: currentPage === 1 }">
-                <button class="page-link" @click="goToPage(currentPage - 1)" :disabled="currentPage === 1">
-                  &lsaquo; Previous
-                </button>
-              </li>
-              <li v-for="page in totalPages" :key="page">
-                <button class="page-link" :class="{ active: page === currentPage }" @click="goToPage(page)">
-                  {{ page }}
-                </button>
-              </li>
-              <li :class="{ disabled: currentPage === totalPages }">
-                <button class="page-link" @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages">
-                  Next &rsaquo;
-                </button>
-              </li>
-              <li :class="{ disabled: currentPage === totalPages }">
-                <button class="page-link" @click="goToPage(totalPages)" :disabled="currentPage === totalPages">
-                  Last &raquo;
-                </button>
-              </li>
-            </ul>
-          </nav>
-        </div>
+          <!-- Pagination -->
+          <div v-if="totalPages > 1" class="mt-4 flex-shrink-0">
+            <nav aria-label="Association pagination">
+              <ul class="pagination justify-content-center">
+                <li :class="{ disabled: currentPage === 1 }">
+                  <button class="page-link" @click="goToPage(1)" :disabled="currentPage === 1">
+                    &laquo; First
+                  </button>
+                </li>
+                <li :class="{ disabled: currentPage === 1 }">
+                  <button class="page-link" @click="goToPage(currentPage - 1)" :disabled="currentPage === 1">
+                    &lsaquo; Previous
+                  </button>
+                </li>
+                <li v-for="page in totalPages" :key="page">
+                  <button class="page-link" :class="{ active: page === currentPage }" @click="goToPage(page)">
+                    {{ page }}
+                  </button>
+                </li>
+                <li :class="{ disabled: currentPage === totalPages }">
+                  <button class="page-link" @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages">
+                    Next &rsaquo;
+                  </button>
+                </li>
+                <li :class="{ disabled: currentPage === totalPages }">
+                  <button class="page-link" @click="goToPage(totalPages)" :disabled="currentPage === totalPages">
+                    Last &raquo;
+                  </button>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </template>
       </main>
     </div>
 
@@ -183,6 +150,7 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useDocumentStore } from '../../stores/documentStore';
 import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
 import { logger } from '../../utils/logger.js';
+import AssociationTableView from './AssociationTableView.vue';
 import EditAssociationModal from './EditAssociationModal.vue';
 import DeleteAssociationModal from './DeleteAssociationModal.vue';
 
@@ -291,6 +259,14 @@ watch(
     }
   },
   { immediate: true }
+);
+
+// Reset to first page when association type filters change
+watch(
+  selectedTypes,
+  () => {
+    currentPage.value = 1;
+  }
 );
 
 const filteredAssociations = computed(() => {

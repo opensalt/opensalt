@@ -15,7 +15,7 @@
         </div>
 
         <div v-if="notes" class="mb-1">
-          <strong>Notes:</strong>
+          <strong>Annotation:</strong>
           <span class="ms-2 text-muted">{{ notes }}</span>
         </div>
 
