@@ -219,6 +219,7 @@ const error = computed(() => documentStore.error);
 const searchQuery = computed(() => filterStore.searchQuery);
 const selectedId = ref(route.params.itemId || null);
 const selectedItem = computed(() => findItem(doc.value.items || [], selectedId.value));
+const currentDoc = computed(() => currentDocumentStore.currentDocument);
 
 // filteredDoc must be declared before treeItems since treeItems depends on it
 const filteredDoc = computed(() => ({
@@ -302,6 +303,10 @@ const {
 // Watch for route changes to update selected item
 watch(() => route.params.itemId, (newItemId) => {
   selectedId.value = newItemId || null;
+  // Store the selected item with document context for view switching
+  if (newItemId && currentDoc.value?.id) {
+    viewStore.setLastSelectedItem(currentDoc.value.id, newItemId);
+  }
 }, { immediate: true });
 
 // Initialize focus and expand document root when document loads
@@ -455,8 +460,6 @@ const selectedAssociationGroupValue = computed({
   set: (value) => filterStore.setSelectedAssociationGroup(value)
 });
 
-const currentDoc = computed(() => currentDocumentStore.currentDocument);
-
 // Initialize data on mount
 onMounted(async () => {
   try {
@@ -538,6 +541,8 @@ function onSelect(id) {
   if (frameworkId) {
     if (id) {
       router.push(`/${frameworkId}/${id}`);
+      // Store the selected item with document context for view switching
+      viewStore.setLastSelectedItem(frameworkId, id);
     } else {
       router.push(`/${frameworkId}`);
     }

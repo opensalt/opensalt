@@ -41,11 +41,13 @@ import { computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useCurrentDocumentStore } from '../../../stores/currentDocumentStore';
 import { useSessionStore } from '../../../stores/sessionStore';
+import { useViewStore } from '../../../stores/viewStore';
 
 const router = useRouter();
 const route = useRoute();
 const currentDocumentStore = useCurrentDocumentStore();
 const sessionStore = useSessionStore();
+const viewStore = useViewStore();
 
 const currentFrameworkId = computed(() => currentDocumentStore.currentDocument?.id || '');
 
@@ -63,7 +65,13 @@ function switchView(view) {
   }
   let path;
   if (view === 'tree') {
-    path = `/${currentFrameworkId.value}`;
+    // Get the last selected item for this specific document
+    const lastItemId = viewStore.getLastItemIdForDocument(currentFrameworkId.value);
+    if (lastItemId) {
+      path = `/${currentFrameworkId.value}/${lastItemId}`;
+    } else {
+      path = `/${currentFrameworkId.value}`;
+    }
   } else if (view === 'association') {
     path = `/${currentFrameworkId.value}/association`;
   } else if (view === 'log') {
