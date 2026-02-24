@@ -64,27 +64,33 @@
         </div>
 
         <!-- Side Tree -->
-        <div v-if="selectedDocumentId && sideDocument" class="side-tree flex-grow-1 overflow-auto border rounded p-2">
-          <div v-if="loadingSideDoc" class="d-flex justify-content-center align-items-center h-100">
-            <div class="spinner-border spinner-border-sm text-primary" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
+        <!-- Show spinner when loading, regardless of sideDocument state -->
+        <div v-if="selectedDocumentId && loadingSideDoc" class="side-tree flex-grow-1 d-flex justify-content-center align-items-center border rounded p-2">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading document...</span>
           </div>
-          <div v-else-if="sideDocError" class="alert alert-danger py-2">
+        </div>
+        <!-- Show error if there's an error -->
+        <div v-else-if="selectedDocumentId && sideDocError" class="side-tree flex-grow-1 d-flex align-items-center justify-content-center border rounded p-2">
+          <div class="alert alert-danger py-2 w-100">
             {{ sideDocError }}
           </div>
+        </div>
+        <!-- Show tree when document is loaded AND the ID matches the selected document -->
+        <!-- This prevents showing stale content when re-selecting a different document -->
+        <div v-else-if="selectedDocumentId && sideDocument && sideDocument.id === selectedDocumentId" class="side-tree flex-grow-1 overflow-auto border rounded p-2">
           <TreeView
-            v-else
             :doc="sideDocument"
             :selected-id="sideSelectedId"
             @select="onSideSelect"
             @tree-change="$emit('tree-change', $event)"
           />
         </div>
-        <div v-else-if="selectedDocumentId && !sideDocument && !loadingSideDoc" class="side-tree flex-grow-1 d-flex align-items-center justify-content-center border rounded">
+        <!-- Show placeholder when no document is selected -->
+        <div v-else-if="selectedDocumentId && !sideDocument" class="side-tree flex-grow-1 d-flex align-items-center justify-content-center border rounded">
           <div class="text-muted text-center">
             <i class="bi bi-file-earmark-text fs-1 d-block mb-2"></i>
-            <span>Loading document...</span>
+            <span>Select a document to view</span>
           </div>
         </div>
 
@@ -138,6 +144,15 @@ const props = defineProps({
   }
 });
 
+// Debug: Log prop changes
+watch(() => props.loadingSideDoc, (newVal) => {
+  console.log('[SideBySideTreePanel] loadingSideDoc changed to:', newVal);
+});
+
+watch(() => props.sideDocument, (newVal) => {
+  console.log('[SideBySideTreePanel] sideDocument changed to:', newVal?.id || null);
+}, { immediate: true });
+
 const emit = defineEmits([
   'mode-changed',
   'document-select',
@@ -155,15 +170,17 @@ const sideSelectedId = ref(null);
 const currentDocForSelector = computed(() => {
   // If sideDocument is set, it's the current selected document for this panel
   if (selectedDocumentId.value && props.availableDocuments) {
-    return props.availableDocuments.find(doc => doc.id === selectedDocumentId.value) || props.currentDocument;
+    return props.availableDocuments.find(doc => doc.identifier === selectedDocumentId.value) || props.currentDocument;
   }
   return props.currentDocument;
 });
 
 function onDocumentChanged(event) {
   const { side, documentId } = event;
+  console.log('[SideBySideTreePanel] onDocumentChanged called with documentId:', documentId);
   if (documentId) {
     selectedDocumentId.value = documentId;
+    console.log('[SideBySideTreePanel] Emitting document-select event');
     emit('document-select', documentId);
   }
 }

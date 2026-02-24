@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { logger } from '../utils/logger.js';
-import { ref, Ref } from 'vue';
+import { ref, Ref, nextTick } from 'vue';
 import { api } from '../services/api.js';
 import type {
   CFDocument,
@@ -30,6 +30,10 @@ export const useDocumentStore = defineStore('documents', () => {
   const documents = ref<CFDocument[]>([]);
   const loading = ref<boolean>(false);
   const error = ref<string | null>(null);
+
+  // Side document loading state (for panel-specific loading in Copy Items / Create Associations modes)
+  const loadingSideDocument = ref<boolean>(false);
+  const sideDocError = ref<string | null>(null);
 
   // Request deduplication cache
   const pendingRequests = new Map<UUID, Promise<CFPackage>>();
@@ -137,6 +141,84 @@ export const useDocumentStore = defineStore('documents', () => {
         throw err;
       } finally {
         loading.value = false;
+        pendingRequests.delete(identifier);
+      }
+    })();
+
+    // Store the pending request
+    pendingRequests.set(identifier, requestPromise);
+
+    return requestPromise;
+  }
+
+  /**
+   * Fetch a document for the side panel (Copy Items / Create Associations modes)
+   * This uses a separate loading state so the main page doesn't show a spinner
+   */
+  async function fetchSideDocument(identifier: UUID): Promise<CFPackage> {
+    console.log('[fetchSideDocument] Called for identifier:', identifier);
+
+    // Set loading state FIRST to ensure UI shows spinner immediately
+    loadingSideDocument.value = true;
+    sideDocError.value = null;
+    console.log('[fetchSideDocument] Set loadingSideDocument = true');
+
+    // Wait for Vue to process the loading state change before checking cache
+    // This ensures the spinner is shown even for cached documents
+    await nextTick();
+    console.log('[fetchSideDocument] After nextTick, loadingSideDocument =', loadingSideDocument.value);
+
+    // Check if request is already pending - return the existing promise
+    // The pending request will manage the loading state
+    if (pendingRequests.has(identifier)) {
+      console.log('[fetchSideDocument] Request already pending, returning existing promise');
+      return pendingRequests.get(identifier)!;
+    }
+
+    // Check cache after Vue has processed the loading state
+    // The spinner is now visible, but we DON'T reset loading state here
+    // The caller is responsible for resetting loadingSideDocument after
+    // all post-fetch processing (transformCASEItems, etc.) is complete
+    if (documentCache.has(identifier)) {
+      console.log('[fetchSideDocument] Cache hit! Returning cached document');
+      const cachedDoc = documentCache.get(identifier)!;
+      return cachedDoc;
+    }
+
+    // Type guard to validate CFPackage response
+    function isCFPackage(response: unknown): response is CFPackage {
+      return (
+        typeof response === 'object' &&
+        response !== null &&
+        'CFDocument' in response
+      );
+    }
+
+    // Create request promise
+    const requestPromise = (async (): Promise<CFPackage> => {
+      try {
+        const responseData = await api.get(`/ims/case/v1p1/CFPackages/${identifier}`);
+
+        // Validate response structure before type assertion
+        if (!isCFPackage(responseData)) {
+          throw new Error('Invalid response format: expected CFPackage structure');
+        }
+
+        // Safe to assert type after validation
+        const data: CFPackage = responseData as CFPackage;
+
+        // Cache result
+        documentCache.set(identifier, data);
+
+        return data;
+      } catch (err) {
+        sideDocError.value = (err as Error).message || 'Failed to fetch side document';
+        console.error('Error fetching side document:', err);
+        throw err;
+      } finally {
+        // Note: loadingSideDocument is NOT reset here because the caller
+        // (onSideDocumentSelect) is responsible for resetting it after
+        // all post-fetch processing is complete
         pendingRequests.delete(identifier);
       }
     })();
@@ -320,14 +402,32 @@ export const useDocumentStore = defineStore('documents', () => {
     error.value = null;
   }
 
+  function clearSideDocError(): void {
+    sideDocError.value = null;
+  }
+
+  /**
+   * Reset the side document loading state
+   * This should be called from components after all processing is complete
+   */
+  function resetLoadingSideDocument(): void {
+    console.log('[resetLoadingSideDocument] Setting loadingSideDocument = false');
+    loadingSideDocument.value = false;
+  }
+
   return {
     documents,
     loading,
     error,
     documentCache,
+    loadingSideDocument,
+    sideDocError,
     fetchDocuments,
     fetchDocument,
+    fetchSideDocument,
     loadExternalDocument,
-    clearError
+    clearError,
+    clearSideDocError,
+    resetLoadingSideDocument
   };
 });

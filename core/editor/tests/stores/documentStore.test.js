@@ -304,4 +304,141 @@ describe('DocumentStore', () => {
       });
     });
   });
+
+  describe('fetchSideDocument', () => {
+    it('has loadingSideDocument initially set to false', () => {
+      expect(documentStore.loadingSideDocument).toBe(false);
+    });
+
+    it('has sideDocError initially set to null', () => {
+      expect(documentStore.sideDocError).toBeNull();
+    });
+
+    it('fetches side document without affecting global loading state', async () => {
+      const mockDocument = {
+        CFDocument: {
+          identifier: 'side-doc-1',
+          title: 'Side Document'
+        },
+        CFItems: []
+      };
+
+      api.get.mockResolvedValueOnce(mockDocument);
+
+      const result = await documentStore.fetchSideDocument('side-doc-1');
+
+      expect(result).toEqual(mockDocument);
+      expect(documentStore.loadingSideDocument).toBe(false);
+      expect(documentStore.loading).toBe(false); // Global loading should not be affected
+      expect(api.get).toHaveBeenCalledWith('/ims/case/v1p1/CFPackages/side-doc-1');
+    });
+
+    it('sets loadingSideDocument during fetch', async () => {
+      let resolvePromise;
+      api.get.mockImplementationOnce(() => new Promise(resolve => {
+        resolvePromise = resolve;
+      }));
+
+      const fetchPromise = documentStore.fetchSideDocument('side-doc-1');
+
+      // During fetch, loadingSideDocument should be true
+      expect(documentStore.loadingSideDocument).toBe(true);
+      expect(documentStore.loading).toBe(false); // Global loading should remain false
+
+      resolvePromise({
+        CFDocument: { identifier: 'side-doc-1', title: 'Test' },
+        CFItems: []
+      });
+      await fetchPromise;
+
+      expect(documentStore.loadingSideDocument).toBe(false);
+    });
+
+    it('caches fetched side documents', async () => {
+      const mockDocument = {
+        CFDocument: { identifier: 'side-doc-1', title: 'Test' }
+      };
+
+      api.get.mockResolvedValueOnce(mockDocument);
+
+      await documentStore.fetchSideDocument('side-doc-1');
+      await documentStore.fetchSideDocument('side-doc-1');
+
+      expect(api.get).toHaveBeenCalledTimes(1);
+    });
+
+    it('deduplicates concurrent side document requests', async () => {
+      const mockDocument = {
+        CFDocument: { identifier: 'side-doc-1', title: 'Test' }
+      };
+
+      api.get.mockResolvedValueOnce(mockDocument);
+
+      const [result1, result2] = await Promise.all([
+        documentStore.fetchSideDocument('side-doc-1'),
+        documentStore.fetchSideDocument('side-doc-1')
+      ]);
+
+      expect(result1).toEqual(mockDocument);
+      expect(result2).toEqual(mockDocument);
+      expect(api.get).toHaveBeenCalledTimes(1);
+    });
+
+    it('handles side document fetch error', async () => {
+      const errorMessage = 'Side document not found';
+      api.get.mockRejectedValueOnce(new Error(errorMessage));
+
+      await expect(documentStore.fetchSideDocument('non-existent')).rejects.toThrow(errorMessage);
+      expect(documentStore.sideDocError).toBe(errorMessage);
+      expect(documentStore.loadingSideDocument).toBe(false);
+    });
+
+    it('sets sideDocError on fetch failure', async () => {
+      api.get.mockRejectedValueOnce(new Error('Failed to load side document'));
+
+      await expect(documentStore.fetchSideDocument('bad-id')).rejects.toThrow();
+
+      expect(documentStore.sideDocError).toBe('Failed to load side document');
+    });
+
+    it('does not affect global error state on side document failure', async () => {
+      api.get.mockRejectedValueOnce(new Error('Side doc error'));
+
+      await expect(documentStore.fetchSideDocument('bad-id')).rejects.toThrow();
+
+      expect(documentStore.sideDocError).toBe('Side doc error');
+      expect(documentStore.error).toBeNull(); // Global error should not be affected
+    });
+  });
+
+  describe('clearSideDocError', () => {
+    it('clears side document error state', async () => {
+      api.get.mockRejectedValueOnce(new Error('Side doc test error'));
+      await documentStore.fetchSideDocument('test-id').catch(() => { });
+
+      expect(documentStore.sideDocError).toBe('Side doc test error');
+
+      documentStore.clearSideDocError();
+      expect(documentStore.sideDocError).toBeNull();
+    });
+
+    it('does not affect global error state', async () => {
+      // Set global error
+      api.get.mockRejectedValueOnce(new Error('Global error'));
+      await documentStore.fetchDocuments().catch(() => { });
+
+      // Set side doc error
+      api.get.mockRejectedValueOnce(new Error('Side error'));
+      await documentStore.fetchSideDocument('test-id').catch(() => { });
+
+      expect(documentStore.error).toBe('Global error');
+      expect(documentStore.sideDocError).toBe('Side error');
+
+      // Clear only side doc error
+      documentStore.clearSideDocError();
+
+      expect(documentStore.sideDocError).toBeNull();
+      expect(documentStore.error).toBe('Global error'); // Global error should remain
+    });
+  });
 });

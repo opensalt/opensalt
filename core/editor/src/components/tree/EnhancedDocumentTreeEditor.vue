@@ -1,18 +1,19 @@
 <template>
   <div class="h-100 d-flex flex-column">
-    <div v-if="loading" class="d-flex justify-content-center align-items-center" style="height: 100%;" role="status" aria-live="polite">
+    <!-- Page-wide spinner only shows during initial page load (no document loaded yet) -->
+    <div v-if="loading && !currentDoc" class="d-flex justify-content-center align-items-center" style="height: 100%;" role="status" aria-live="polite">
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Loading document...</span>
       </div>
     </div>
-    <div v-else-if="error" class="alert alert-danger my-4" role="alert" aria-live="assertive">{{ error }}</div>
+    <div v-else-if="error && !currentDoc" class="alert alert-danger my-4" role="alert" aria-live="assertive">{{ error }}</div>
     <main v-else class="row g-0" style="height: 100%; min-height: 0;">
       <!-- Tree panel -->
       <section class="col-5 tree-panel d-flex flex-column h-100 overflow-hidden" aria-labelledby="tree-heading">
         <h2 id="tree-heading" class="visually-hidden">Document Tree</h2>
         <!-- Document Selector -->
         <DocumentSelector
-          :current-doc1="currentDoc"
+          :current-doc="currentDoc"
           :available-documents="availableDocuments"
           @document-changed="onDocumentChanged"
           @external-document-requested="onExternalDocumentRequested"
@@ -86,7 +87,7 @@
         <SideBySideTreePanel
           v-else
           :mode="rightPanelMode"
-          :current-document-id="currentDoc?.id"
+          :current-document="currentDoc"
           :available-documents="availableDocuments"
           :side-document="sideDocument"
           :loading-side-doc="loadingSideDoc"
@@ -183,7 +184,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, defineAsyncComponent, provide } from 'vue';
+import { ref, computed, onMounted, watch, defineAsyncComponent, provide, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useDocumentStore } from '../../stores/documentStore';
 import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
@@ -419,22 +420,31 @@ function onClearTreeFilter() {
 
 // Side document state (for Copy Items / Create Associations modes)
 const sideDocument = ref(null);
-const loadingSideDoc = ref(false);
-const sideDocError = ref('');
+// Use computed from store for panel-specific loading state
+const loadingSideDoc = computed(() => documentStore.loadingSideDocument);
+const sideDocError = computed(() => documentStore.sideDocError);
 const sideSelectedId = ref(null);
 
 async function onSideDocumentSelect(documentId) {
+  console.log('[onSideDocumentSelect] Called with documentId:', documentId);
+
   if (!documentId) {
     sideDocument.value = null;
-    sideDocError.value = '';
+    documentStore.clearSideDocError();
     return;
   }
 
-  loadingSideDoc.value = true;
-  sideDocError.value = '';
+  // Clear any previous error and document IMMEDIATELY
+  // This ensures the spinner shows instead of stale content
+  documentStore.clearSideDocError();
+  sideDocument.value = null;
+  console.log('[onSideDocumentSelect] Cleared sideDocument, about to fetch');
 
   try {
-    const docData = await documentStore.fetchDocument(documentId);
+    // Use fetchSideDocument which sets loading state
+    // Note: loadingSideDocument is set to true at the start of fetchSideDocument
+    // and we reset it here after all processing is complete
+    const docData = await documentStore.fetchSideDocument(documentId);
     const cfDoc = docData.CFDocument || {};
     const items = currentDocumentStore.transformCASEItems(
       docData.CFItems || [],
@@ -447,12 +457,26 @@ async function onSideDocumentSelect(documentId) {
       title: cfDoc.title || 'Untitled',
       items: items
     };
+
+    // CRITICAL: Wait for the browser to paint the tree before resetting loading state.
+    // For large documents, the tree rendering takes significant time after nextTick() completes.
+    // We use requestAnimationFrame to wait for the browser to actually paint the tree.
+    // Double requestAnimationFrame ensures we're synchronized with the browser's paint cycle:
+    // - First rAF schedules callback before next repaint
+    // - Second rAF ensures we're after the paint has completed
+    await nextTick(); // Wait for Vue's virtual DOM to update
+    await new Promise(resolve => requestAnimationFrame(resolve)); // Wait for next frame
+    await new Promise(resolve => requestAnimationFrame(resolve)); // Wait for paint to complete
+    // Additional small delay to ensure tree is fully rendered and visible
+    await new Promise(resolve => setTimeout(resolve, 50));
+    console.log('[onSideDocumentSelect] Tree should now be visible, sideDocument set to:', sideDocument.value?.id);
   } catch (error) {
     console.error('Error loading side document:', error);
-    sideDocError.value = 'Failed to load document';
     sideDocument.value = null;
   } finally {
-    loadingSideDoc.value = false;
+    // Reset loading state after tree is fully rendered and visible
+    console.log('[onSideDocumentSelect] Finally block - resetting loading state');
+    documentStore.resetLoadingSideDocument();
   }
 }
 
@@ -725,14 +749,8 @@ async function onExternalDocumentUrlLoaded(url) {
 
   if (!url) return;
 
-  // Assume if this was opened, it was likely for the side panel given current UI hooks.
-  // Unless we add a way to load external doc as MAIN.
-  // For now, let's load it into the side panel if the side panel requested it.
-  // But wait, the main view has no "Load External" button yet?
-  // documentStore can load it.
-
-  loadingSideDoc.value = true;
-  sideDocError.value = '';
+  // Clear any previous error
+  documentStore.clearSideDocError();
 
   try {
     const { data, finalUrl } = await documentStore.loadExternalDocument(url);
@@ -759,10 +777,7 @@ async function onExternalDocumentUrlLoaded(url) {
 
   } catch (error) {
     console.error('Error loading external document:', error);
-    sideDocError.value = `Failed to load document: ${error.message}`;
     sideDocument.value = null;
-  } finally {
-    loadingSideDoc.value = false;
   }
 }
 
