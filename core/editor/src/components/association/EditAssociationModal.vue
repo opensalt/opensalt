@@ -3,7 +3,7 @@
     <div class="modal-dialog modal-xl" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="editAssociationModalLabel">Edit Association</h5>
+          <h5 class="modal-title" id="editAssociationModalLabel">{{ modalTitle }}</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -116,13 +116,18 @@
                 <select
                   id="editAssociationFormType"
                   class="form-select"
+                  :class="{ 'locked-field': isTypeDropdownDisabled }"
                   v-model="formData.type"
                   @change="onTypeChange"
+                  :disabled="isTypeDropdownDisabled"
                 >
                   <option v-for="type in forwardTypes" :key="type.value" :value="type.value">
                     {{ type.label }}
                   </option>
                 </select>
+                <div v-if="isTypeDropdownDisabled" class="form-text text-muted">
+                  <i class="bi bi-lock me-1"></i>Type is locked when adding an exemplar
+                </div>
                 <div v-if="formData.type === 'other'" class="form-group mt-2">
                   <label for="customType" class="form-label">Custom Association Type</label>
                   <input
@@ -140,21 +145,59 @@
             </div>
 
             <div class="row mb-3">
-              <label for="editAssociationFormAnnotation" class="col-sm-3 col-form-label text-end">
-                Annotation
+               <label for="editAssociationFormAnnotation" class="col-sm-3 col-form-label text-end">
+                 Annotation
+               </label>
+               <div class="col-sm-9">
+                 <textarea
+                   id="editAssociationFormAnnotation"
+                   class="form-control"
+                   rows="3"
+                   v-model="formData.annotation"
+                   placeholder="Optional annotation or description for this association"
+                 ></textarea>
+               </div>
+             </div>
+
+            <!-- Exemplar-specific fields -->
+            <div v-if="isExemplarType" class="row mb-3">
+              <label for="editAssociationFormExemplarUrl" class="col-sm-3 col-form-label required text-end">
+                Exemplar URL *
+              </label>
+              <div class="col-sm-9">
+                <input
+                  type="url"
+                  id="editAssociationFormExemplarUrl"
+                  class="form-control"
+                  v-model="formData.exemplarUrl"
+                  placeholder="https://example.com/resource"
+                  :required="isExemplarType"
+                >
+                <div v-if="exemplarUrlError" class="text-danger small mt-1">
+                  {{ exemplarUrlError }}
+                </div>
+                <div class="form-text">
+                  Enter the URL of the exemplar resource
+                </div>
+              </div>
+            </div>
+
+            <div v-if="isExemplarType" class="row mb-3">
+              <label for="editAssociationFormExemplarDescription" class="col-sm-3 col-form-label text-end">
+                Description
               </label>
               <div class="col-sm-9">
                 <textarea
-                  id="editAssociationFormAnnotation"
+                  id="editAssociationFormExemplarDescription"
                   class="form-control"
                   rows="3"
-                  v-model="formData.annotation"
-                  placeholder="Optional annotation or description for this association"
+                  v-model="formData.exemplarDescription"
+                  placeholder="Optional description of the exemplar"
                 ></textarea>
               </div>
             </div>
 
-            <div v-if="showGroupSelector" class="row mb-3" id="editAssociationFormGroupHolderOuter">
+             <div v-if="showGroupSelector" class="row mb-3" id="editAssociationFormGroupHolderOuter">
               <label for="editAssociationFormGroup" class="col-sm-3 col-form-label required text-end">
                 Association Group
               </label>
@@ -175,9 +218,9 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-primary" @click="updateAssociation" :disabled="saving || (formData.type === 'other' && !isValidCustomType)">
+          <button type="button" class="btn btn-primary" @click="saveAssociation" :disabled="saving || !isFormValid">
             <span v-if="saving" class="spinner-border spinner-border-sm me-2" role="status"></span>
-            Save Changes
+            {{ saveButtonText }}
           </button>
         </div>
       </div>
@@ -197,10 +240,24 @@ const props = defineProps({
   selectedItemIdentifier: {
     type: String,
     default: null
+  },
+  // New props for add mode
+  mode: {
+    type: String,
+    default: 'edit',
+    validator: (value) => ['add', 'edit'].includes(value)
+  },
+  currentItem: {
+    type: Object,
+    default: null
+  },
+  initialType: {
+    type: String,
+    default: ''
   }
 });
 
-const emit = defineEmits(['updated', 'hidden']);
+const emit = defineEmits(['updated', 'hidden', 'created']);
 
 const error = ref('');
 const saving = ref(false);
@@ -209,10 +266,14 @@ const modal = ref(null);
 const formData = reactive({
   type: '',
   annotation: '',
-  groupId: 'default'
+  groupId: 'default',
+  // Exemplar-specific fields
+  exemplarUrl: '',
+  exemplarDescription: ''
 });
 
 const customType = ref('');
+const exemplarUrlError = ref('');
 
 const isReversed = ref(false);
 
@@ -230,6 +291,32 @@ const forwardTypes = [
   { value: 'other', label: 'Other' }
 ];
 
+// Mode detection computed properties - MUST be defined before effectiveAssociation
+// because effectiveAssociation references isAddMode
+const isAddMode = computed(() => props.mode === 'add');
+const isEditMode = computed(() => props.mode === 'edit');
+
+// Disable type dropdown when adding an exemplar (no way to set destination for other types)
+const isTypeDropdownDisabled = computed(() => {
+  return isAddMode.value && props.initialType === 'exemplar';
+});
+
+// Create a synthetic association for add mode so the composable can extract origin data
+const effectiveAssociation = computed(() => {
+  if (isAddMode.value && props.currentItem) {
+    // In add mode, create a synthetic association with the currentItem as origin
+    return {
+      originNodeURI: {
+        identifier: props.currentItem.identifier,
+        uri: props.currentItem.uri || props.currentItem.identifier,
+        title: props.currentItem.title || props.currentItem.fullStatement || props.currentItem.abbreviatedStatement
+      },
+      associationType: props.initialType || formData.type
+    };
+  }
+  return props.association;
+});
+
 // Use cross-framework item composables for origin and destination
 // Origin item (direction = 'reversed' shows origin as the target)
 const {
@@ -240,7 +327,7 @@ const {
   targetTypeInfo: originTargetTypeInfo,
   fetchError: originFetchError
 } = useCrossFrameworkItem({
-  association: toRef(props, 'association'),
+  association: effectiveAssociation,
   direction: 'reversed' // Get origin item
 });
 
@@ -253,20 +340,20 @@ const {
   targetTypeInfo: destinationTargetTypeInfo,
   fetchError: destinationFetchError
 } = useCrossFrameworkItem({
-  association: toRef(props, 'association'),
+  association: effectiveAssociation,
   direction: 'normal' // Get destination item
 });
 
 // Get the origin node identifier
 const originIdentifier = computed(() => {
-  return props.association?.originNodeURI?.identifier ||
-         props.association?.origin?.identifier;
+  return effectiveAssociation.value?.originNodeURI?.identifier ||
+         effectiveAssociation.value?.origin?.identifier;
 });
 
 // Get the destination node identifier
 const destinationIdentifier = computed(() => {
-  return props.association?.destinationNodeURI?.identifier ||
-         props.association?.destination?.identifier;
+  return effectiveAssociation.value?.destinationNodeURI?.identifier ||
+         effectiveAssociation.value?.destination?.identifier;
 });
 
 // Display text for origin item - prefer abbreviatedStatement
@@ -309,14 +396,22 @@ const destinationItemDisplayText = computed(() => {
 
 // Fallback text when item not found in document
 const originFallbackText = computed(() => {
-  return props.association?.originNodeURI?.title ||
-         props.association?.origin?.title ||
+  return effectiveAssociation.value?.originNodeURI?.title ||
+         effectiveAssociation.value?.origin?.title ||
          'Origin item';
 });
 
 const destinationFallbackText = computed(() => {
-  return props.association?.destinationNodeURI?.title ||
-         props.association?.destination?.title ||
+  // For exemplar associations, show the URL as the destination
+  if (effectiveAssociation.value?.associationType === 'exemplar') {
+    const url = effectiveAssociation.value?.destinationNodeURI?.uri ||
+                effectiveAssociation.value?.destination?.uri;
+    if (url) {
+      return url;
+    }
+  }
+  return effectiveAssociation.value?.destinationNodeURI?.title ||
+         effectiveAssociation.value?.destination?.title ||
          'Destination item';
 });
 
@@ -332,6 +427,48 @@ const isValidCustomType = computed(() => {
 
 const showGroupSelector = computed(() => {
   return formData.type && !['exemplar', 'isChildOf'].includes(formData.type);
+});
+
+// Exemplar type detection (mode detection moved before effectiveAssociation)
+const isExemplarType = computed(() => formData.type === 'exemplar');
+
+// Modal title based on mode
+const modalTitle = computed(() => {
+  if (isAddMode.value) {
+    return isExemplarType.value ? 'Add Exemplar' : 'Add Association';
+  }
+  return 'Edit Association';
+});
+
+// Save button text based on mode
+const saveButtonText = computed(() => {
+  if (isAddMode.value) {
+    return isExemplarType.value ? 'Add Exemplar' : 'Create Association';
+  }
+  return 'Save Changes';
+});
+
+// Form validation
+const isFormValid = computed(() => {
+  // Check custom type validity
+  if (formData.type === 'other' && !isValidCustomType.value) {
+    return false;
+  }
+
+  // Check exemplar URL validity
+  if (isExemplarType.value) {
+    if (!formData.exemplarUrl.trim()) {
+      return false;
+    }
+    if (!validateUrl(formData.exemplarUrl)) {
+      return false;
+    }
+    if (formData.exemplarUrl.length > 300) {
+      return false;
+    }
+  }
+
+  return true;
 });
 
 const directionIcon = 'bi-arrow-right';
@@ -477,6 +614,10 @@ const rightSideFallbackText = computed(() => {
   if (isReversed.value) {
     return originFallbackText.value;
   }
+  // For add mode with exemplar type, show a placeholder
+  if (isAddMode.value && isExemplarType.value) {
+    return 'Enter exemplar URL below';
+  }
   return destinationFallbackText.value;
 });
 
@@ -506,7 +647,7 @@ const isRightSideSelected = computed(() => {
 });
 
 watch(() => props.show, async (newVal) => {
-  if (newVal && props.association) {
+  if (newVal) {
     loadAssociationData();
     // Wait for DOM to be ready before accessing the modal element
     await nextTick();
@@ -523,16 +664,43 @@ watch(() => props.show, async (newVal) => {
 }, { immediate: true });
 
 watch(() => props.association, (newAssoc) => {
-  if (newAssoc) {
+  if (newAssoc && isEditMode.value) {
     loadAssociationData();
   }
 }, { immediate: true });
 
+watch(() => props.initialType, (newType) => {
+  if (isAddMode.value && newType) {
+    formData.type = newType;
+  }
+}, { immediate: true });
+
 function loadAssociationData() {
-  if (!props.association) return;
+  // Reset form data
+  formData.type = '';
+  formData.annotation = '';
+  formData.groupId = 'default';
+  formData.exemplarUrl = '';
+  formData.exemplarDescription = '';
+  customType.value = '';
+  exemplarUrlError.value = '';
+  isReversed.value = false;
+  error.value = '';
+
+  if (isAddMode.value) {
+    // Add mode: set initial type if provided
+    if (props.initialType) {
+      formData.type = props.initialType;
+    }
+    return;
+  }
+
+  // Edit mode: load from existing association
+  const assoc = effectiveAssociation.value;
+  if (!assoc) return;
 
   // Use associationType instead of type
-  const assocType = props.association.associationType || props.association.type || '';
+  const assocType = assoc.associationType || assoc.type || '';
   if (assocType.startsWith('ext:')) {
     formData.type = 'other';
     customType.value = assocType;
@@ -541,15 +709,32 @@ function loadAssociationData() {
   }
 
   // Use notes instead of annotation
-  formData.annotation = props.association.notes || props.association.annotation || '';
+  formData.annotation = assoc.notes || assoc.annotation || '';
 
   // Handle group ID from CFAssociationGroupingURI
-  formData.groupId = props.association.CFAssociationGroupingURI?.identifier ||
-                     props.association.groupId ||
+  formData.groupId = assoc.CFAssociationGroupingURI?.identifier ||
+                     assoc.groupId ||
                      'default';
 
-  isReversed.value = false;
-  error.value = '';
+  // Load exemplar-specific fields
+  if (formData.type === 'exemplar') {
+    // For exemplar, the destination is the URL
+    formData.exemplarUrl = assoc.destinationNodeURI?.uri ||
+                           assoc.destination?.uri ||
+                           '';
+    // Description is stored in notes for exemplars
+    formData.exemplarDescription = assoc.notes || '';
+  }
+}
+
+// URL validation function
+function validateUrl(url) {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function onTypeChange() {
@@ -564,48 +749,110 @@ function switchDirection() {
   // Association type is preserved when switching direction
 }
 
-function updateAssociation() {
+function saveAssociation() {
+  // Validate form
   if (!formData.type) {
     error.value = 'Please select an association type';
     return;
+  }
+
+  // Validate exemplar URL
+  if (isExemplarType.value) {
+    if (!formData.exemplarUrl.trim()) {
+      exemplarUrlError.value = 'URL is required';
+      return;
+    }
+    if (!validateUrl(formData.exemplarUrl)) {
+      exemplarUrlError.value = 'Please enter a valid URL';
+      return;
+    }
+    if (formData.exemplarUrl.length > 300) {
+      exemplarUrlError.value = 'URL must be 300 characters or less';
+      return;
+    }
   }
 
   const finalType = formData.type === 'other' ? customType.value.trim() : formData.type;
 
   saving.value = true;
   error.value = '';
+  exemplarUrlError.value = '';
 
-  // Simulate updating association - in real app this would be an API call
+  // Simulate API call - in real app this would be an API call
   setTimeout(() => {
     try {
-      // Determine effective origin/destination based on direction switch
-      const effectiveOriginNodeURI = isReversed.value
-        ? props.association.destinationNodeURI || props.association.destination
-        : props.association.originNodeURI || props.association.origin;
-      const effectiveDestinationNodeURI = isReversed.value
-        ? props.association.originNodeURI || props.association.origin
-        : props.association.destinationNodeURI || props.association.destination;
-
-      const updatedAssociation = {
-        ...props.association,
-        originNodeURI: effectiveOriginNodeURI,
-        destinationNodeURI: effectiveDestinationNodeURI,
-        associationType: finalType,
-        notes: formData.annotation,
-        groupId: formData.groupId,
-        updated: new Date().toISOString()
-      };
-
-      emit('updated', updatedAssociation);
+      if (isAddMode.value) {
+        // Create new association
+        const newAssociation = createAssociationData(finalType);
+        emit('created', newAssociation);
+      } else {
+        // Update existing association
+        const updatedAssociation = updateAssociationData(finalType);
+        emit('updated', updatedAssociation);
+      }
       if (modal.value) {
         modal.value.hide();
       }
     } catch (e) {
-      error.value = 'Failed to update association: ' + e.message;
+      error.value = `Failed to ${isAddMode.value ? 'create' : 'update'} association: ${e.message}`;
     } finally {
       saving.value = false;
     }
   }, 1000);
+}
+
+function createAssociationData(finalType) {
+  if (isExemplarType.value) {
+    // Exemplar association
+    return {
+      originNodeIdentifier: props.currentItem?.identifier,
+      destinationNodeUri: formData.exemplarUrl,
+      associationType: 'exemplar',
+      annotation: formData.annotation,
+      notes: formData.exemplarDescription
+    };
+  }
+
+  // Standard association
+  return {
+    originNodeIdentifier: props.currentItem?.identifier,
+    associationType: finalType,
+    annotation: formData.annotation,
+    groupId: formData.groupId
+  };
+}
+
+function updateAssociationData(finalType) {
+  const assoc = effectiveAssociation.value;
+
+  // Determine effective origin/destination based on direction switch
+  const effectiveOriginNodeURI = isReversed.value
+    ? assoc.destinationNodeURI || assoc.destination
+    : assoc.originNodeURI || assoc.origin;
+  const effectiveDestinationNodeURI = isReversed.value
+    ? assoc.originNodeURI || assoc.origin
+    : assoc.destinationNodeURI || assoc.destination;
+
+  const baseAssociation = {
+    ...assoc,
+    originNodeURI: effectiveOriginNodeURI,
+    destinationNodeURI: effectiveDestinationNodeURI,
+    associationType: finalType,
+    notes: formData.annotation,
+    groupId: formData.groupId,
+    updated: new Date().toISOString()
+  };
+
+  // Add exemplar-specific fields
+  if (isExemplarType.value) {
+    baseAssociation.destinationNodeURI = {
+      uri: formData.exemplarUrl,
+      title: formData.exemplarDescription || formData.exemplarUrl
+    };
+    baseAssociation.notes = formData.exemplarDescription;
+  }
+
+  return baseAssociation;
 }
 
 // Handle modal hidden event with proper lifecycle management
@@ -749,6 +996,13 @@ onUnmounted(() => {
 
 .error-badge i {
   font-size: 0.85em;
+}
+
+/* Locked field styling for disabled dropdown */
+.locked-field {
+  background-color: #e9ecef;
+  opacity: 0.65;
+  cursor: not-allowed;
 }
 
 .gap-2 {

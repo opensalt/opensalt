@@ -123,8 +123,12 @@
       :available-groups="associationGroups"
       :show="showEditAssociationModal"
       :selected-item-identifier="selectedId"
+      :mode="addingAssociation ? 'add' : 'edit'"
+      :current-item="addingAssociationOrigin"
+      :initial-type="addingAssociationType"
       @updated="onAssociationUpdated"
-      @hidden="showEditAssociationModal = false"
+      @created="onAssociationCreated"
+      @hidden="onEditAssociationModalHidden"
     />
 
     <DeleteItemsModal
@@ -334,6 +338,11 @@ const associationDestination = ref(null);
 const editingAssociation = ref(null);
 const itemsToDelete = ref([]);
 const deleteType = ref('single'); // 'single' or 'bulk'
+
+// Add mode state for EditAssociationModal
+const addingAssociation = ref(false);
+const addingAssociationType = ref('');
+const addingAssociationOrigin = ref(null);
 // Cross-tree drop state
 const showCrossTreeModal = ref(false);
 const crossTreeSource = ref(null);
@@ -798,7 +807,11 @@ async function handleAddChild(newItem, parentItem) {
 }
 
 function onAddExemplar(item) {
-  showExemplarModal.value = true;
+  // Use the dual-mode EditAssociationModal for adding exemplars
+  addingAssociation.value = true;
+  addingAssociationType.value = 'exemplar';
+  addingAssociationOrigin.value = item || selectedItem.value;
+  showEditAssociationModal.value = true;
 }
 
 function onAddAssociation(item) {
@@ -808,6 +821,10 @@ function onAddAssociation(item) {
 }
 
 function onEditAssociation(association) {
+  // Reset add mode state when editing
+  addingAssociation.value = false;
+  addingAssociationType.value = '';
+  addingAssociationOrigin.value = null;
   editingAssociation.value = association;
   showEditAssociationModal.value = true;
 }
@@ -826,9 +843,30 @@ function onDocSaved(data) {
 
 
 function onAssociationCreated(association) {
+  // Handle the created association from add mode
+  // Reset add mode state
+  addingAssociation.value = false;
+  addingAssociationType.value = '';
+  addingAssociationOrigin.value = null;
+
+  // TODO: Call the association store to persist the new association
+  console.log('Association created:', association);
 }
 
 function onAssociationUpdated(association) {
+  // Reset add mode state
+  addingAssociation.value = false;
+  addingAssociationType.value = '';
+  addingAssociationOrigin.value = null;
+}
+
+function onEditAssociationModalHidden() {
+  // Reset modal state
+  showEditAssociationModal.value = false;
+  addingAssociation.value = false;
+  addingAssociationType.value = '';
+  addingAssociationOrigin.value = null;
+  editingAssociation.value = null;
 }
 
 function onItemsDeleted({ items, deleteType }) {
