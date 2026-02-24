@@ -20,11 +20,27 @@
                   id="editLsAssociationOriginDisplay"
                   :class="{ 'selected-item-highlight': isLeftSideSelected }"
                 >
-                  <div v-if="leftSideItemData">
-                    <strong>{{ leftSideDisplayText }}</strong>
-                    <div v-if="leftSideItemData.humanCodingScheme" class="text-muted small">
-                      {{ leftSideItemData.humanCodingScheme }}
+                  <div v-if="leftSideItemData" class="d-flex align-items-start flex-wrap gap-2">
+                    <div class="flex-grow-1">
+                      <strong>{{ leftSideDisplayText }}</strong>
+                      <div v-if="leftSideItemData.humanCodingScheme" class="text-muted small">
+                        {{ leftSideItemData.humanCodingScheme }}
+                      </div>
                     </div>
+                    <!-- Loading spinner for cross-framework CASE items -->
+                    <span v-if="leftSideIsLoading && leftSideTargetTypeInfo.isCase" class="spinner-border spinner-border-sm text-secondary" role="status" aria-label="Loading"></span>
+                    <!-- Framework badge for cross-framework CASE items -->
+                    <span v-if="leftSideFrameworkTitle && !leftSideIsLoading && leftSideTargetTypeInfo.isCase" class="badge bg-info text-dark framework-badge">
+                      <i class="bi bi-box-arrow-up-right me-1"></i>{{ leftSideFrameworkTitle }}
+                    </span>
+                    <!-- Non-CASE item indicator -->
+                    <span v-if="!leftSideTargetTypeInfo.isCase && leftSideItemData" class="badge bg-secondary external-uri-badge">
+                      <i class="bi bi-link-45deg me-1"></i>External URI
+                    </span>
+                    <!-- Error indicator for failed fetches -->
+                    <span v-if="leftSideFetchError && leftSideTargetTypeInfo.isCase" class="badge bg-warning text-dark error-badge" :title="leftSideFetchError.message">
+                      <i class="bi bi-exclamation-triangle me-1"></i>{{ leftSideFetchError.type === 'permission' ? 'No access' : leftSideFetchError.type === 'not_found' ? 'Not found' : 'Load error' }}
+                    </span>
                   </div>
                   <div v-else class="text-muted">
                     {{ leftSideFallbackText }}
@@ -60,11 +76,27 @@
                   id="editLsAssociationDestinationDisplay"
                   :class="{ 'selected-item-highlight': isRightSideSelected }"
                 >
-                  <div v-if="rightSideItemData">
-                    <strong>{{ rightSideDisplayText }}</strong>
-                    <div v-if="rightSideItemData.humanCodingScheme" class="text-muted small">
-                      {{ rightSideItemData.humanCodingScheme }}
+                  <div v-if="rightSideItemData" class="d-flex align-items-start flex-wrap gap-2">
+                    <div class="flex-grow-1">
+                      <strong>{{ rightSideDisplayText }}</strong>
+                      <div v-if="rightSideItemData.humanCodingScheme" class="text-muted small">
+                        {{ rightSideItemData.humanCodingScheme }}
+                      </div>
                     </div>
+                    <!-- Loading spinner for cross-framework CASE items -->
+                    <span v-if="rightSideIsLoading && rightSideTargetTypeInfo.isCase" class="spinner-border spinner-border-sm text-secondary" role="status" aria-label="Loading"></span>
+                    <!-- Framework badge for cross-framework CASE items -->
+                    <span v-if="rightSideFrameworkTitle && !rightSideIsLoading && rightSideTargetTypeInfo.isCase" class="badge bg-info text-dark framework-badge">
+                      <i class="bi bi-box-arrow-up-right me-1"></i>{{ rightSideFrameworkTitle }}
+                    </span>
+                    <!-- Non-CASE item indicator -->
+                    <span v-if="!rightSideTargetTypeInfo.isCase && rightSideItemData" class="badge bg-secondary external-uri-badge">
+                      <i class="bi bi-link-45deg me-1"></i>External URI
+                    </span>
+                    <!-- Error indicator for failed fetches -->
+                    <span v-if="rightSideFetchError && rightSideTargetTypeInfo.isCase" class="badge bg-warning text-dark error-badge" :title="rightSideFetchError.message">
+                      <i class="bi bi-exclamation-triangle me-1"></i>{{ rightSideFetchError.type === 'permission' ? 'No access' : rightSideFetchError.type === 'not_found' ? 'Not found' : 'Load error' }}
+                    </span>
                   </div>
                   <div v-else class="text-muted">
                     {{ rightSideFallbackText }}
@@ -154,9 +186,9 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, nextTick } from 'vue';
+import { ref, reactive, computed, watch, nextTick, toRef, onMounted, onUnmounted } from 'vue';
 import { Modal } from 'bootstrap';
-import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
+import { useCrossFrameworkItem } from '../../composables/useCrossFrameworkItem';
 
 const props = defineProps({
   association: Object,
@@ -169,8 +201,6 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['updated', 'hidden']);
-
-const currentDocumentStore = useCurrentDocumentStore();
 
 const error = ref('');
 const saving = ref(false);
@@ -200,6 +230,33 @@ const forwardTypes = [
   { value: 'other', label: 'Other' }
 ];
 
+// Use cross-framework item composables for origin and destination
+// Origin item (direction = 'reversed' shows origin as the target)
+const {
+  itemData: originItemData,
+  itemTitle: originItemTitle,
+  frameworkTitle: originFrameworkTitle,
+  isLoading: originIsLoading,
+  targetTypeInfo: originTargetTypeInfo,
+  fetchError: originFetchError
+} = useCrossFrameworkItem({
+  association: toRef(props, 'association'),
+  direction: 'reversed' // Get origin item
+});
+
+// Destination item (direction = 'normal' shows destination as the target)
+const {
+  itemData: destinationItemData,
+  itemTitle: destinationItemTitle,
+  frameworkTitle: destinationFrameworkTitle,
+  isLoading: destinationIsLoading,
+  targetTypeInfo: destinationTargetTypeInfo,
+  fetchError: destinationFetchError
+} = useCrossFrameworkItem({
+  association: toRef(props, 'association'),
+  direction: 'normal' // Get destination item
+});
+
 // Get the origin node identifier
 const originIdentifier = computed(() => {
   return props.association?.originNodeURI?.identifier ||
@@ -212,40 +269,10 @@ const destinationIdentifier = computed(() => {
          props.association?.destination?.identifier;
 });
 
-// Helper function to find item recursively
-function findItemById(items, identifier) {
-  for (const item of items) {
-    if (item.identifier === identifier) return item;
-    if (item.children) {
-      const found = findItemById(item.children, identifier);
-      if (found) return found;
-    }
-  }
-  return null;
-}
-
-// Look up the full origin item from document items
-const originItemData = computed(() => {
-  const identifier = originIdentifier.value;
-  if (!identifier) return null;
-
-  const items = currentDocumentStore.currentDocument?.items || [];
-  return findItemById(items, identifier);
-});
-
-// Look up the full destination item from document items
-const destinationItemData = computed(() => {
-  const identifier = destinationIdentifier.value;
-  if (!identifier) return null;
-
-  const items = currentDocumentStore.currentDocument?.items || [];
-  return findItemById(items, identifier);
-});
-
 // Display text for origin item - prefer abbreviatedStatement
 const originItemDisplayText = computed(() => {
   const item = originItemData.value;
-  if (!item) return 'Unknown item';
+  if (!item) return originItemTitle.value || 'Unknown item';
 
   // Prefer abbreviatedStatement, fall back to shortened fullStatement
   if (item.abbreviatedStatement) {
@@ -265,7 +292,7 @@ const originItemDisplayText = computed(() => {
 // Display text for destination item - prefer abbreviatedStatement
 const destinationItemDisplayText = computed(() => {
   const item = destinationItemData.value;
-  if (!item) return 'Unknown item';
+  if (!item) return destinationItemTitle.value || 'Unknown item';
 
   if (item.abbreviatedStatement) {
     return item.abbreviatedStatement;
@@ -318,10 +345,46 @@ const rightSideItemData = computed(() => {
   return isReversed.value ? originItemData.value : destinationItemData.value;
 });
 
+// Loading states for left/right sides
+const leftSideIsLoading = computed(() => {
+  return isReversed.value ? destinationIsLoading.value : originIsLoading.value;
+});
+
+const rightSideIsLoading = computed(() => {
+  return isReversed.value ? originIsLoading.value : destinationIsLoading.value;
+});
+
+// Framework titles for left/right sides
+const leftSideFrameworkTitle = computed(() => {
+  return isReversed.value ? destinationFrameworkTitle.value : originFrameworkTitle.value;
+});
+
+const rightSideFrameworkTitle = computed(() => {
+  return isReversed.value ? originFrameworkTitle.value : destinationFrameworkTitle.value;
+});
+
+// Target type info for left/right sides
+const leftSideTargetTypeInfo = computed(() => {
+  return isReversed.value ? destinationTargetTypeInfo.value : originTargetTypeInfo.value;
+});
+
+const rightSideTargetTypeInfo = computed(() => {
+  return isReversed.value ? originTargetTypeInfo.value : destinationTargetTypeInfo.value;
+});
+
+// Fetch errors for left/right sides
+const leftSideFetchError = computed(() => {
+  return isReversed.value ? destinationFetchError.value : originFetchError.value;
+});
+
+const rightSideFetchError = computed(() => {
+  return isReversed.value ? originFetchError.value : destinationFetchError.value;
+});
+
 // Display text for left side item
 const leftSideDisplayText = computed(() => {
   const item = leftSideItemData.value;
-  if (!item) return 'Unknown item';
+  if (!item) return leftSideFallbackText.value;
 
   if (item.abbreviatedStatement) {
     return item.abbreviatedStatement;
@@ -339,7 +402,7 @@ const leftSideDisplayText = computed(() => {
 // Display text for right side item
 const rightSideDisplayText = computed(() => {
   const item = rightSideItemData.value;
-  if (!item) return 'Unknown item';
+  if (!item) return rightSideFallbackText.value;
 
   if (item.abbreviatedStatement) {
     return item.abbreviatedStatement;
@@ -545,10 +608,21 @@ function updateAssociation() {
   }, 1000);
 }
 
-// Handle modal hidden event
-document.addEventListener('hidden.bs.modal', (event) => {
-  if (event.target.id === 'editAssociationModal') {
-    emit('hidden');
+// Handle modal hidden event with proper lifecycle management
+let modalHiddenHandler = null;
+
+onMounted(() => {
+  modalHiddenHandler = (event) => {
+    if (event.target.id === 'editAssociationModal') {
+      emit('hidden');
+    }
+  };
+  document.addEventListener('hidden.bs.modal', modalHiddenHandler);
+});
+
+onUnmounted(() => {
+  if (modalHiddenHandler) {
+    document.removeEventListener('hidden.bs.modal', modalHiddenHandler);
   }
 });
 </script>
@@ -645,5 +719,39 @@ document.addEventListener('hidden.bs.modal', (event) => {
   border: 2px solid #0d6efd !important;
   background-color: #e7f1ff !important;
   box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+}
+
+.framework-badge {
+  font-size: 0.7em;
+  font-weight: 500;
+  vertical-align: middle;
+}
+
+.framework-badge i {
+  font-size: 0.85em;
+}
+
+.external-uri-badge {
+  font-size: 0.7em;
+  font-weight: 500;
+  vertical-align: middle;
+}
+
+.external-uri-badge i {
+  font-size: 0.85em;
+}
+
+.error-badge {
+  font-size: 0.7em;
+  font-weight: 500;
+  vertical-align: middle;
+}
+
+.error-badge i {
+  font-size: 0.85em;
+}
+
+.gap-2 {
+  gap: 0.5rem;
 }
 </style>

@@ -147,6 +147,88 @@ export const useDocumentStore = defineStore('documents', () => {
     return requestPromise;
   }
 
+  /**
+   * Extract UUID from a CASE URI
+   * The UUID is typically the last segment of the URI path
+   */
+  function extractUuidFromUri(uri: string): string | null {
+    if (!uri) return null;
+
+    try {
+      // Try to parse as URL
+      const url = new URL(uri);
+      // Get the last segment of the pathname
+      const segments = url.pathname.split('/').filter(Boolean);
+      const lastSegment = segments[segments.length - 1];
+
+      // Check if it looks like a UUID (basic check for hex characters and dashes)
+      if (lastSegment && /^[0-9a-fA-F-]{36}$/.test(lastSegment)) {
+        return lastSegment;
+      }
+
+      // Also check if the second-to-last segment might be an identifier type
+      // (e.g., /CFDocuments/uuid or /CFPackages/uuid)
+      if (segments.length >= 2) {
+        const possibleUuid = segments[segments.length - 1];
+        if (/^[0-9a-fA-F-]{36}$/.test(possibleUuid)) {
+          return possibleUuid;
+        }
+      }
+
+      return null;
+    } catch {
+      // If URL parsing fails, try regex extraction
+      const uuidMatch = uri.match(/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/);
+      return uuidMatch ? uuidMatch[1] : null;
+    }
+  }
+
+  /**
+   * Try to fetch a document from local server first, then fall back to external URL
+   */
+  async function fetchDocumentWithFallback(url: string): Promise<unknown> {
+    const uuid = extractUuidFromUri(url);
+
+    // If we have a UUID, try local server first
+    if (uuid) {
+      try {
+        const localUrl = `/ims/case/v1p1/CFDocuments/${uuid}`;
+        const localResponse = await api.get(localUrl);
+        logger.debug(`Local fetch succeeded for document ${uuid}`);
+        return localResponse;
+      } catch (localError) {
+        // Local fetch failed, continue to try original URL
+        logger.debug(`Local fetch failed for document ${uuid}, trying original URL:`, localError);
+      }
+    }
+
+    // Fall back to the original URL
+    return api.get(url);
+  }
+
+  /**
+   * Try to fetch a package from local server first, then fall back to external URL
+   */
+  async function fetchPackageWithFallback(url: string): Promise<unknown> {
+    const uuid = extractUuidFromUri(url);
+
+    // If we have a UUID, try local server first
+    if (uuid) {
+      try {
+        const localUrl = `/ims/case/v1p1/CFPackages/${uuid}`;
+        const localResponse = await api.get(localUrl);
+        logger.debug(`Local fetch succeeded for package ${uuid}`);
+        return localResponse;
+      } catch (localError) {
+        // Local fetch failed, continue to try original URL
+        logger.debug(`Local fetch failed for package ${uuid}, trying original URL:`, localError);
+      }
+    }
+
+    // Fall back to the original URL
+    return api.get(url);
+  }
+
   async function loadExternalDocument(url: string): Promise<{ data: CFPackage, finalUrl: string }> {
     loading.value = true;
     error.value = null;
@@ -185,16 +267,16 @@ export const useDocumentStore = defineStore('documents', () => {
     }
 
     try {
-      // Initial fetch from provided URL
-      const initialResponse = await api.get(url);
+      // Try local server first, then fall back to provided URL
+      const initialResponse = await fetchDocumentWithFallback(url);
 
       if (isCFPackage(initialResponse)) {
         // Response is already a CFPackage
         data = initialResponse as CFPackage;
       } else if (hasCFPackageURI(initialResponse)) {
-        // Response only has CFPackageURI, follow redirect
+        // Response only has CFPackageURI, follow redirect with fallback
         finalUrl = initialResponse.CFPackageURI.uri;
-        const finalResponse = await api.get(finalUrl);
+        const finalResponse = await fetchPackageWithFallback(finalUrl);
         if (isCFPackage(finalResponse)) {
           data = finalResponse as CFPackage;
         } else {
@@ -209,7 +291,7 @@ export const useDocumentStore = defineStore('documents', () => {
         if (!data.CFDocument) {
           if (apiResponse.CFPackageURI && apiResponse.CFPackageURI.uri) {
             finalUrl = apiResponse.CFPackageURI.uri;
-            const finalResponse = await api.get(finalUrl);
+            const finalResponse = await fetchPackageWithFallback(finalUrl);
             if (isCFPackage(finalResponse)) {
               data = finalResponse as CFPackage;
             } else {
@@ -242,6 +324,7 @@ export const useDocumentStore = defineStore('documents', () => {
     documents,
     loading,
     error,
+    documentCache,
     fetchDocuments,
     fetchDocument,
     loadExternalDocument,

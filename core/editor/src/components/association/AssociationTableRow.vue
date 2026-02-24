@@ -4,15 +4,33 @@
     <!-- Origin Column -->
     <td class="py-3">
       <div class="item-display">
-        <span v-if="originDisplay.humanCodingScheme" class="item-human-coding-scheme">
-          {{ originDisplay.humanCodingScheme }}
-        </span>
-        <span v-if="originDisplay.statement" class="item-statement">
-          {{ originDisplay.truncatedStatement }}
-        </span>
-        <span v-if="!originDisplay.humanCodingScheme && !originDisplay.statement" class="text-muted">
-          Unknown
-        </span>
+        <template v-if="originDisplay.isLoading">
+          <span class="text-muted uri-display">{{ originDisplay.truncatedStatement }}</span>
+          <span class="spinner-border spinner-border-sm text-secondary ms-2" role="status" aria-label="Loading item information">
+            <span class="visually-hidden">Loading...</span>
+          </span>
+        </template>
+        <template v-else>
+          <div class="d-flex align-items-center flex-wrap gap-1">
+            <span v-if="originDisplay.humanCodingScheme" class="item-human-coding-scheme">
+              {{ originDisplay.humanCodingScheme }}
+            </span>
+            <span v-if="originDisplay.statement" class="item-statement">
+              {{ originDisplay.truncatedStatement }}
+            </span>
+            <span v-if="!originDisplay.humanCodingScheme && !originDisplay.statement" class="text-muted">
+              Unknown
+            </span>
+            <!-- Framework badge for cross-framework CASE items -->
+            <span v-if="originFrameworkTitle && !isOriginLoading && originTargetTypeInfo.isCase" class="badge bg-info text-dark framework-badge" :title="`From: ${originFrameworkTitle}`">
+              <i class="bi bi-box-arrow-up-right me-1"></i>{{ originFrameworkTitle }}
+            </span>
+            <!-- Non-CASE item indicator -->
+            <span v-if="!originTargetTypeInfo.isCase && isOriginCrossFramework" class="badge bg-secondary external-uri-badge" title="External URI">
+              <i class="bi bi-link-45deg me-1"></i>External
+            </span>
+          </div>
+        </template>
       </div>
     </td>
 
@@ -34,15 +52,33 @@
     <!-- Destination Column -->
     <td class="py-3">
       <div class="item-display">
-        <span v-if="destinationDisplay.humanCodingScheme" class="item-human-coding-scheme">
-          {{ destinationDisplay.humanCodingScheme }}
-        </span>
-        <span v-if="destinationDisplay.statement" class="item-statement">
-          {{ destinationDisplay.truncatedStatement }}
-        </span>
-        <span v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement" class="text-muted">
-          Unknown
-        </span>
+        <template v-if="destinationDisplay.isLoading">
+          <span class="text-muted uri-display">{{ destinationDisplay.truncatedStatement }}</span>
+          <span class="spinner-border spinner-border-sm text-secondary ms-2" role="status" aria-label="Loading item information">
+            <span class="visually-hidden">Loading...</span>
+          </span>
+        </template>
+        <template v-else>
+          <div class="d-flex align-items-center flex-wrap gap-1">
+            <span v-if="destinationDisplay.humanCodingScheme" class="item-human-coding-scheme">
+              {{ destinationDisplay.humanCodingScheme }}
+            </span>
+            <span v-if="destinationDisplay.statement" class="item-statement">
+              {{ destinationDisplay.truncatedStatement }}
+            </span>
+            <span v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement" class="text-muted">
+              Unknown
+            </span>
+            <!-- Framework badge for cross-framework CASE items -->
+            <span v-if="destinationFrameworkTitle && !isDestinationLoading && destinationTargetTypeInfo.isCase" class="badge bg-info text-dark framework-badge" :title="`From: ${destinationFrameworkTitle}`">
+              <i class="bi bi-box-arrow-up-right me-1"></i>{{ destinationFrameworkTitle }}
+            </span>
+            <!-- Non-CASE item indicator -->
+            <span v-if="!destinationTargetTypeInfo.isCase && isDestinationCrossFramework" class="badge bg-secondary external-uri-badge" title="External URI">
+              <i class="bi bi-link-45deg me-1"></i>External
+            </span>
+          </div>
+        </template>
       </div>
     </td>
 
@@ -84,8 +120,9 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, toRef } from 'vue';
 import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
+import { useCrossFrameworkItem } from '../../composables/useCrossFrameworkItem';
 
 // Lazy-loaded markdown renderer with caching
 let markdownRendererPromise = null;
@@ -135,11 +172,33 @@ const emit = defineEmits(['edit', 'delete']);
 
 const currentDocumentStore = useCurrentDocumentStore();
 
-// Helper function to find item by identifier
-function findItemById(items, identifier) {
-  if (!items || !identifier) return null;
-  return items.find(i => i.identifier === identifier || i.id === identifier);
-}
+// Use cross-framework item composable for origin (reversed direction)
+const {
+  itemData: originItemData,
+  itemTitle: originTitle,
+  isLoading: isOriginLoading,
+  targetTypeInfo: originTargetTypeInfo,
+  nodeURI: originNodeURI,
+  frameworkTitle: originFrameworkTitle,
+  isCrossFramework: isOriginCrossFramework
+} = useCrossFrameworkItem({
+  association: toRef(props, 'association'),
+  direction: 'reversed'
+});
+
+// Use cross-framework item composable for destination (normal direction)
+const {
+  itemData: destinationItemData,
+  itemTitle: destinationTitle,
+  isLoading: isDestinationLoading,
+  targetTypeInfo: destinationTargetTypeInfo,
+  nodeURI: destinationNodeURI,
+  frameworkTitle: destinationFrameworkTitle,
+  isCrossFramework: isDestinationCrossFramework
+} = useCrossFrameworkItem({
+  association: toRef(props, 'association'),
+  direction: 'normal'
+});
 
 // Helper function to truncate text
 function truncateText(text, maxLength = 50) {
@@ -150,53 +209,79 @@ function truncateText(text, maxLength = 50) {
 
 // Origin item display
 const originDisplay = computed(() => {
-  const identifier = props.association.originNodeURI?.identifier ||
-                     props.association.origin?.identifier;
-  const items = currentDocumentStore.currentDocument?.items;
-  const item = findItemById(items, identifier);
+  const item = originItemData.value;
+  const title = originTitle.value;
+  const isLoading = isOriginLoading.value;
+  const nodeUri = originNodeURI.value;
 
+  // If loading, show URI
+  if (isLoading && originTargetTypeInfo.value.isCase) {
+    return {
+      humanCodingScheme: '',
+      statement: nodeUri?.uri || 'Loading...',
+      truncatedStatement: nodeUri?.uri || 'Loading...',
+      identifier: nodeUri?.identifier,
+      isLoading: true
+    };
+  }
+
+  // If we have item data, use it
   if (item) {
     return {
       humanCodingScheme: item.humanCodingScheme || '',
       statement: item.abbreviatedStatement || item.fullStatement || '',
       truncatedStatement: truncateText(item.abbreviatedStatement || item.fullStatement || ''),
-      identifier: identifier
+      identifier: item.identifier,
+      isLoading: false
     };
   }
 
-  // Fall back to title from nodeURI
-  const origin = props.association.originNodeURI || props.association.origin;
+  // Fall back to title (which includes URI for exemplars)
   return {
     humanCodingScheme: '',
-    statement: origin?.title || '',
-    truncatedStatement: truncateText(origin?.title || ''),
-    identifier: identifier
+    statement: title || '',
+    truncatedStatement: truncateText(title || ''),
+    identifier: nodeUri?.identifier,
+    isLoading: false
   };
 });
 
 // Destination item display
 const destinationDisplay = computed(() => {
-  const identifier = props.association.destinationNodeURI?.identifier ||
-                     props.association.destination?.identifier;
-  const items = currentDocumentStore.currentDocument?.items;
-  const item = findItemById(items, identifier);
+  const item = destinationItemData.value;
+  const title = destinationTitle.value;
+  const isLoading = isDestinationLoading.value;
+  const nodeUri = destinationNodeURI.value;
 
+  // If loading, show URI
+  if (isLoading && destinationTargetTypeInfo.value.isCase) {
+    return {
+      humanCodingScheme: '',
+      statement: nodeUri?.uri || 'Loading...',
+      truncatedStatement: nodeUri?.uri || 'Loading...',
+      identifier: nodeUri?.identifier,
+      isLoading: true
+    };
+  }
+
+  // If we have item data, use it
   if (item) {
     return {
       humanCodingScheme: item.humanCodingScheme || '',
       statement: item.abbreviatedStatement || item.fullStatement || '',
       truncatedStatement: truncateText(item.abbreviatedStatement || item.fullStatement || ''),
-      identifier: identifier
+      identifier: item.identifier,
+      isLoading: false
     };
   }
 
-  // Fall back to title from nodeURI
-  const dest = props.association.destinationNodeURI || props.association.destination;
+  // Fall back to title (which includes URI for exemplars)
   return {
     humanCodingScheme: '',
-    statement: dest?.title || '',
-    truncatedStatement: truncateText(dest?.title || ''),
-    identifier: identifier
+    statement: title || '',
+    truncatedStatement: truncateText(title || ''),
+    identifier: nodeUri?.identifier,
+    isLoading: false
   };
 });
 
@@ -312,5 +397,35 @@ function getAssociationIcon(type) {
 .btn-group-sm .btn {
   padding: 0.25rem 0.5rem;
   font-size: 0.75rem;
+}
+
+.uri-display {
+  font-family: monospace;
+  font-size: 0.85em;
+  word-break: break-all;
+}
+
+.framework-badge {
+  font-size: 0.7em;
+  font-weight: 500;
+  vertical-align: middle;
+}
+
+.framework-badge i {
+  font-size: 0.85em;
+}
+
+.external-uri-badge {
+  font-size: 0.7em;
+  font-weight: 500;
+  vertical-align: middle;
+}
+
+.external-uri-badge i {
+  font-size: 0.85em;
+}
+
+.gap-1 {
+  gap: 0.25rem;
 }
 </style>
