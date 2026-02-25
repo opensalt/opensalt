@@ -176,12 +176,10 @@ export const useDocumentStore = defineStore('documents', () => {
     }
 
     // Check cache after Vue has processed the loading state
-    // The spinner is now visible, but we DON'T reset loading state here
-    // The caller is responsible for resetting loadingSideDocument after
-    // all post-fetch processing (transformCASEItems, etc.) is complete
     if (documentCache.has(identifier)) {
       console.log('[fetchSideDocument] Cache hit! Returning cached document');
       const cachedDoc = documentCache.get(identifier)!;
+      loadingSideDocument.value = false;
       return cachedDoc;
     }
 
@@ -216,9 +214,7 @@ export const useDocumentStore = defineStore('documents', () => {
         console.error('Error fetching side document:', err);
         throw err;
       } finally {
-        // Note: loadingSideDocument is NOT reset here because the caller
-        // (onSideDocumentSelect) is responsible for resetting it after
-        // all post-fetch processing is complete
+        loadingSideDocument.value = false;
         pendingRequests.delete(identifier);
       }
     })();

@@ -341,14 +341,19 @@ describe('DocumentStore', () => {
 
       const fetchPromise = documentStore.fetchSideDocument('side-doc-1');
 
+      // Wait for nextTick to ensure the async function moves past the initial await
+      await new Promise(resolve => setTimeout(resolve, 0));
+
       // During fetch, loadingSideDocument should be true
       expect(documentStore.loadingSideDocument).toBe(true);
       expect(documentStore.loading).toBe(false); // Global loading should remain false
 
+      // Resolve the API call
       resolvePromise({
         CFDocument: { identifier: 'side-doc-1', title: 'Test' },
         CFItems: []
       });
+
       await fetchPromise;
 
       expect(documentStore.loadingSideDocument).toBe(false);
