@@ -8,54 +8,31 @@
     </div>
     <div v-else-if="error && !currentDoc" class="alert alert-danger my-4" role="alert" aria-live="assertive">{{ error }}</div>
     <main v-else class="row g-0" style="height: 100%; min-height: 0;">
-      <!-- Tree panel -->
-      <section class="col-5 tree-panel d-flex flex-column h-100 overflow-hidden" aria-labelledby="tree-heading">
-        <h2 id="tree-heading" class="visually-hidden">Document Tree</h2>
-        <!-- Document Selector -->
-        <DocumentSelector
-          :current-doc="currentDoc"
-          :available-documents="availableDocuments"
-          @document-changed="onDocumentChanged"
-          @external-document-requested="onExternalDocumentRequested"
-        />
-
-        <!-- Tree Filter -->
-        <TreeFilter
-          v-model="treeSearchQuery"
-          :match-count="matchCount"
-          @clear="onClearTreeFilter"
-          class="mx-2"
-        />
-
-        <!-- Search and Filter (legacy, hidden) -->
-        <SearchFilter
-          v-if="false"
-          :available-subjects="availableSubjects"
-          @search="onSearch"
-          @filter="onFilter"
-          @clear="onClearSearch"
-        />
-
-        <!-- Association Group Selector -->
-        <AssociationGroupSelector
-          v-model="selectedAssociationGroupValue"
-          :association-groups="associationGroups"
-        />
-
-        <!-- Tree View -->
-        <div class="mt-3 flex-grow-1 overflow-auto mb-3">
-          <TreeView
-            :doc="filteredDoc"
-            :selected-id="selectedId"
-            @select="onSelect"
-            @dblclick="onDblClick"
-            :search-query="treeSearchQuery"
-            :matching-item-ids="matchingItemIds"
-            @tree-change="onTreeChange"
-            @focus="onTreeFocus"
-          />
-        </div>
-      </section>
+      <!-- Tree panel (extracted to TreePanelSection component) -->
+      <TreePanelSection
+        class="col-5"
+        :current-doc="currentDoc"
+        :filtered-doc="filteredDoc"
+        :available-documents="availableDocuments"
+        :selected-id="selectedId"
+        :tree-search-query="treeSearchQuery"
+        :match-count="matchCount"
+        :matching-item-ids="matchingItemIds"
+        :association-groups="associationGroups"
+        :selected-association-group="selectedAssociationGroupValue"
+        :available-subjects="availableSubjects"
+        @document-changed="onDocumentChanged"
+        @external-document-requested="onExternalDocumentRequested"
+        @select="onSelect"
+        @dblclick="onDblClick"
+        @tree-change="onTreeChange"
+        @focus="onTreeFocus"
+        @update:tree-search-query="treeSearchQuery = $event"
+        @update:selected-association-group="selectedAssociationGroupValue = $event"
+        @search="onSearch"
+        @filter="onFilter"
+        @clear-search="onClearSearch"
+      />
 
       <!-- Details/info panel -->
       <section class="col-7 details-panel d-flex flex-column h-100 overflow-hidden">
@@ -101,115 +78,83 @@
       </section>
     </main>
 
-    <!-- Modals -->
-    <EditDocModal
-      :document="currentDoc"
-      :show="showEditDocModal"
-      @saved="onDocSaved"
-      @hidden="showEditDocModal = false"
-    />
-
-
-    <AssociateModal
-      :origin-item="associationOrigin"
-      :destination-item="associationDestination"
-      :available-groups="associationGroups"
-      :show="showAssociateModal"
-      @created="onAssociationCreated"
-      @hidden="showAssociateModal = false"
-    />
-
-    <EditAssociationModal
-      :association="editingAssociation"
-      :available-groups="associationGroups"
-      :show="showEditAssociationModal"
-      :selected-item-identifier="selectedId"
-      :mode="addingAssociation ? 'add' : 'edit'"
-      :current-item="addingAssociationOrigin"
-      :initial-type="addingAssociationType"
-      @updated="onAssociationUpdated"
-      @created="onAssociationCreated"
-      @hidden="onEditAssociationModalHidden"
-    />
-
-    <DeleteItemsModal
-      :items="itemsToDelete"
-      :delete-type="deleteType"
-      :show="showDeleteModal"
-      @confirmed="onItemsDeleted"
-      @hidden="showDeleteModal = false"
-    />
-
-    <ExemplarModal
-      :current-item="selectedItem"
-      :show="showExemplarModal"
-      @added="onExemplarAdded"
-      @hidden="showExemplarModal = false"
-    />
-
-    <AssociationGroupModal
-      :show="showAssocGroupModal"
+    <!-- Modals (managed by ModalManager component) -->
+    <ModalManager
+      :current-doc="currentDoc"
+      :selected-item="selectedItem"
+      :selected-id="selectedId"
       :association-groups="associationGroups"
-      @saved="onAssocGroupSaved"
-      @deleted="onAssocGroupDeleted"
-      @hidden="showAssocGroupModal = false"
-    />
-
-    <CrossTreeDropModal
-      :show="showCrossTreeModal"
-      :source-item="crossTreeSource"
-      :target-item="crossTreeTarget"
-      @close="onCrossTreeClose"
-      @copy="onCrossTreeCopy"
-      @associate="onCrossTreeAssociate"
-    />
-
-    <!-- Dynamic type-specific edit modal -->
-    <component
-      :is="editModalComponent"
-      v-if="isEditModalVisible"
-      :item="editingItem"
-      :show="true"
-      @updated="handleUpdated"
-      @created="handleUpdated"
-      @hidden="handleEditHidden"
-    />
-
-    <LoadExternalDocumentModal
-      :show="showLoadExternalModal"
-      @load="onExternalDocumentUrlLoaded"
-      @hidden="showLoadExternalModal = false"
+      :show-edit-doc-modal="showEditDocModal"
+      :show-associate-modal="showAssociateModal"
+      :show-edit-association-modal="showEditAssociationModal"
+      :show-delete-modal="showDeleteModal"
+      :show-exemplar-modal="showExemplarModal"
+      :show-assoc-group-modal="showAssocGroupModal"
+      :show-cross-tree-modal="showCrossTreeModal"
+      :show-load-external-modal="showLoadExternalModal"
+      :association-origin="associationOrigin"
+      :association-destination="associationDestination"
+      :editing-association="editingAssociation"
+      :items-to-delete="itemsToDelete"
+      :delete-type="deleteType"
+      :adding-association="addingAssociation"
+      :adding-association-type="addingAssociationType"
+      :adding-association-origin="addingAssociationOrigin"
+      :cross-tree-source="crossTreeSource"
+      :cross-tree-target="crossTreeTarget"
+      :is-edit-modal-visible="isEditModalVisible"
+      :editing-item="editingItem"
+      :edit-modal-component="editModalComponent"
+      @doc-saved="onDocSaved"
+      @association-created="onAssociationCreated"
+      @association-updated="onAssociationUpdated"
+      @items-deleted="onItemsDeleted"
+      @exemplar-added="onExemplarAdded"
+      @assoc-group-saved="onAssocGroupSaved"
+      @assoc-group-deleted="onAssocGroupDeleted"
+      @cross-tree-close="onCrossTreeClose"
+      @cross-tree-copy="onCrossTreeCopy"
+      @cross-tree-associate="onCrossTreeAssociate"
+      @external-document-load="onExternalDocumentUrlLoaded"
+      @edit-doc-modal-hidden="showEditDocModal = false"
+      @associate-modal-hidden="showAssociateModal = false"
+      @edit-association-modal-hidden="onEditAssociationModalHidden"
+      @delete-modal-hidden="showDeleteModal = false"
+      @exemplar-modal-hidden="showExemplarModal = false"
+      @assoc-group-modal-hidden="showAssocGroupModal = false"
+      @load-external-modal-hidden="showLoadExternalModal = false"
+      @dynamic-edit-updated="handleUpdated"
+      @dynamic-edit-hidden="handleEditHidden"
     />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, defineAsyncComponent, provide, nextTick } from 'vue';
+import { ref, computed, onMounted, watch, provide } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useDocumentStore } from '../../stores/documentStore';
 import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
 import { useFilterStore } from '../../stores/filterStore';
 import { useItemStore } from '../../stores/itemStore';
-import { useAssociationStore } from '../../stores/associationStore';
 import { useViewStore } from '../../stores/viewStore';
-import TreeView from './TreeView.vue';
-import RightSidePanel from '../shared/panels/RightSidePanel.vue';
-import DocumentSelector from '../shared/common/DocumentSelector.vue';
-import SearchFilter from '../shared/common/SearchFilter.vue';
-import AssociationGroupSelector from '../shared/common/AssociationGroupSelector.vue';
-import { useDynamicEditModal } from '../../composables/useDynamicEditModal.js';
-import ViewSwitcher from '../shared/common/ViewSwitcher.vue';
-import TreeFilter from './TreeFilter.vue';
-import SideBySideTreePanel from './SideBySideTreePanel.vue';
 import { useTreeNavigation } from '../../composables/useTreeNavigation.js';
 import { useAnnouncer } from '../../composables/useAnnouncer.js';
+import { useDynamicEditModal } from '../../composables/useDynamicEditModal.js';
+import { useModalState } from '../../composables/useModalState.js';
+import { useSideDocument } from '../../composables/useSideDocument.js';
+import { useCrossTreeOperations } from '../../composables/useCrossTreeOperations.js';
 
-// Use the Pinia stores (must be initialized before computed properties that use them)
+// Components
+import TreePanelSection from './TreePanelSection.vue';
+import ModalManager from './ModalManager.vue';
+import RightSidePanel from '../shared/panels/RightSidePanel.vue';
+import SideBySideTreePanel from './SideBySideTreePanel.vue';
+
+// Initialize stores (must be initialized before computed properties that use them)
 const documentStore = useDocumentStore();
 const currentDocumentStore = useCurrentDocumentStore();
 const filterStore = useFilterStore();
 const itemStore = useItemStore();
-const associationStore = useAssociationStore();
 const viewStore = useViewStore();
 const route = useRoute();
 const router = useRouter();
@@ -278,21 +223,10 @@ provide('treeNavigation', {
   toggleExpanded
 });
 
-// Lazy-loaded modal components
-const EditDocModal = defineAsyncComponent(() => import('../shared/modals/EditDocModal.vue'));
-const AssociateModal = defineAsyncComponent(() => import('../association/AssociateModal.vue'));
-const EditAssociationModal = defineAsyncComponent(() => import('../association/EditAssociationModal.vue'));
-const DeleteItemsModal = defineAsyncComponent(() => import('../shared/modals/DeleteItemsModal.vue'));
-const ExemplarModal = defineAsyncComponent(() => import('../shared/modals/ExemplarModal.vue'));
-const AssociationGroupModal = defineAsyncComponent(() => import('../association/AssociationGroupModal.vue'));
-const CrossTreeDropModal = defineAsyncComponent(() => import('./CrossTreeDropModal.vue'));
-const LoadExternalDocumentModal = defineAsyncComponent(() => import('../shared/modals/LoadExternalDocumentModal.vue'));
-
 // Initialize useDynamicEditModal composable for type-specific edit modals
 const availableTypes = ['general', 'assessment', 'course', 'credential', 'job', 'organization', 'public_key', 'identifier'];
 const {
   showEditModal,
-  selectedEditType,
   isEditModalVisible,
   editingItem,
   editModalComponent,
@@ -305,50 +239,41 @@ const {
   availableTypes
 );
 
-// Watch for route changes to update selected item
-watch(() => route.params.itemId, (newItemId) => {
-  selectedId.value = newItemId || null;
-  // Store the selected item with document context for view switching
-  if (newItemId && currentDoc.value?.id) {
-    viewStore.setLastSelectedItem(currentDoc.value.id, newItemId);
-  }
-}, { immediate: true });
+// Use composables for modal state and side document management
+const modalState = useModalState();
+const {
+  showEditDocModal,
+  showAssociateModal,
+  showEditAssociationModal,
+  showDeleteModal,
+  showExemplarModal,
+  showAssocGroupModal,
+  showLoadExternalModal,
+  showCrossTreeModal,
+  associationOrigin,
+  associationDestination,
+  editingAssociation,
+  itemsToDelete,
+  deleteType,
+  addingAssociation,
+  addingAssociationType,
+  addingAssociationOrigin,
+  crossTreeSource,
+  crossTreeTarget,
+  closeEditAssociationModal,
+  openCrossTreeModal,
+  closeCrossTreeModal
+} = modalState;
 
-// Initialize focus and expand document root when document loads
-watch(() => doc.value?.id, (newDocId) => {
-  if (newDocId) {
-    // Expand the document root by default
-    expandItem(newDocId);
-    // Initialize focus on the document root
-    initializeFocus();
-  }
-}, { immediate: true });
-
-// Modal states
-const showEditDocModal = ref(false);
-const showAssociateModal = ref(false);
-const showEditAssociationModal = ref(false);
-const showDeleteModal = ref(false);
-const showExemplarModal = ref(false);
-const showAssocGroupModal = ref(false);
-const showLoadExternalModal = ref(false);
-
-// Modal data
-const associationOrigin = ref(null);
-const associationDestination = ref(null);
-const editingAssociation = ref(null);
-const itemsToDelete = ref([]);
-const deleteType = ref('single'); // 'single' or 'bulk'
-
-// Add mode state for EditAssociationModal
-const addingAssociation = ref(false);
-const addingAssociationType = ref('');
-const addingAssociationOrigin = ref(null);
-// Cross-tree drop state
-const showCrossTreeModal = ref(false);
-const crossTreeSource = ref(null);
-const crossTreeTarget = ref(null);
-const crossTreePosition = ref(null);
+// Use side document composable
+const {
+  sideDocument,
+  sideSelectedId,
+  loadingSideDoc,
+  sideDocError,
+  onSideDocumentSelect,
+  onSideSelect
+} = useSideDocument();
 
 // Panel modes
 const rightPanelMode = ref('itemDetails');
@@ -414,76 +339,6 @@ const matchingItemIds = computed(() => {
   return matches;
 });
 
-function onClearTreeFilter() {
-  treeSearchQuery.value = '';
-}
-
-// Side document state (for Copy Items / Create Associations modes)
-const sideDocument = ref(null);
-// Use computed from store for panel-specific loading state
-const loadingSideDoc = computed(() => documentStore.loadingSideDocument);
-const sideDocError = computed(() => documentStore.sideDocError);
-const sideSelectedId = ref(null);
-
-async function onSideDocumentSelect(documentId) {
-  console.log('[onSideDocumentSelect] Called with documentId:', documentId);
-
-  if (!documentId) {
-    sideDocument.value = null;
-    documentStore.clearSideDocError();
-    return;
-  }
-
-  // Clear any previous error and document IMMEDIATELY
-  // This ensures the spinner shows instead of stale content
-  documentStore.clearSideDocError();
-  sideDocument.value = null;
-  console.log('[onSideDocumentSelect] Cleared sideDocument, about to fetch');
-
-  try {
-    // Use fetchSideDocument which sets loading state
-    // Note: loadingSideDocument is set to true at the start of fetchSideDocument
-    // and we reset it here after all processing is complete
-    const docData = await documentStore.fetchSideDocument(documentId);
-    const cfDoc = docData.CFDocument || {};
-    const items = currentDocumentStore.transformCASEItems(
-      docData.CFItems || [],
-      docData.CFAssociations || [],
-      cfDoc.identifier
-    );
-
-    sideDocument.value = {
-      id: cfDoc.identifier,
-      title: cfDoc.title || 'Untitled',
-      items: items
-    };
-
-    // CRITICAL: Wait for the browser to paint the tree before resetting loading state.
-    // For large documents, the tree rendering takes significant time after nextTick() completes.
-    // We use requestAnimationFrame to wait for the browser to actually paint the tree.
-    // Double requestAnimationFrame ensures we're synchronized with the browser's paint cycle:
-    // - First rAF schedules callback before next repaint
-    // - Second rAF ensures we're after the paint has completed
-    await nextTick(); // Wait for Vue's virtual DOM to update
-    await new Promise(resolve => requestAnimationFrame(resolve)); // Wait for next frame
-    await new Promise(resolve => requestAnimationFrame(resolve)); // Wait for paint to complete
-    // Additional small delay to ensure tree is fully rendered and visible
-    await new Promise(resolve => setTimeout(resolve, 50));
-    console.log('[onSideDocumentSelect] Tree should now be visible, sideDocument set to:', sideDocument.value?.id);
-  } catch (error) {
-    console.error('Error loading side document:', error);
-    sideDocument.value = null;
-  } finally {
-    // Reset loading state after tree is fully rendered and visible
-    console.log('[onSideDocumentSelect] Finally block - resetting loading state');
-    documentStore.resetLoadingSideDocument();
-  }
-}
-
-function onSideSelect(id) {
-  sideSelectedId.value = id;
-}
-
 // Use store data
 const availableDocuments = computed(() => documentStore.documents);
 const availableSubjects = computed(() => filterStore.availableSubjects);
@@ -492,6 +347,25 @@ const selectedAssociationGroupValue = computed({
   get: () => filterStore.selectedAssociationGroup,
   set: (value) => filterStore.setSelectedAssociationGroup(value)
 });
+
+// Watch for route changes to update selected item
+watch(() => route.params.itemId, (newItemId) => {
+  selectedId.value = newItemId || null;
+  // Store the selected item with document context for view switching
+  if (newItemId && currentDoc.value?.id) {
+    viewStore.setLastSelectedItem(currentDoc.value.id, newItemId);
+  }
+}, { immediate: true });
+
+// Initialize focus and expand document root when document loads
+watch(() => doc.value?.id, (newDocId) => {
+  if (newDocId) {
+    // Expand the document root by default
+    expandItem(newDocId);
+    // Initialize focus on the document root
+    initializeFocus();
+  }
+}, { immediate: true });
 
 // Initialize data on mount
 onMounted(async () => {
@@ -561,7 +435,6 @@ onMounted(async () => {
           items: items
         }, docData.CFAssociationGroupings || [], docData.CFAssociations || [], docData.CFDefinitions || null);
       }
-    } else {
     }
   } catch (e) {
     console.error('Error initializing data:', e);
@@ -616,47 +489,23 @@ async function onTreeChange(event) {
       await itemStore.moveItem(currentDoc.value, { draggedItem, targetItem, position });
     } else {
       // Cross-tree move (Copy/Associate)
-
       // Determine action based on current mode
       if (rightPanelMode.value === 'copyItems') {
-        // Direct copy or prompt?
-        // jQuery logic: prompt if needed, or just copy.
-        // Let's use the modal for now to confirm action or differentiate if ambiguous
-        crossTreeSource.value = draggedItem;
-        crossTreeTarget.value = targetItem;
-        crossTreePosition.value = position;
-        showCrossTreeModal.value = true;
+        openCrossTreeModal(draggedItem, targetItem, position);
       } else if (rightPanelMode.value === 'createAssociations') {
         // Prepare association modal directly
-        associationOrigin.value = draggedItem; // The dragged item is the origin (from side tree) -> wait, depends on direction.
-        // Usually dragging FROM side tree TO main tree.
-        // If draggedItem is external, it's the origin.
-        // If targetItem is local, it's the destination.
-        // Or vice versa?
-        // jQuery: "Create Associations" tab implies we are creating associations FROM the side tree TO the main tree?
-        // Let's assume dragged item = origin, target item = destination for now.
         associationOrigin.value = draggedItem;
         associationDestination.value = targetItem;
         showAssociateModal.value = true;
       } else {
-        // Default behavior (Item Details mode) - maybe prompt?
-        crossTreeSource.value = draggedItem;
-        crossTreeTarget.value = targetItem;
-        crossTreePosition.value = position;
-        showCrossTreeModal.value = true;
+        // Default behavior (Item Details mode) - prompt?
+        openCrossTreeModal(draggedItem, targetItem, position);
       }
     }
   }
 }
 
 // Cross-tree handlers
-function onCrossTreeClose() {
-  showCrossTreeModal.value = false;
-  crossTreeSource.value = null;
-  crossTreeTarget.value = null;
-  crossTreePosition.value = null;
-}
-
 async function onCrossTreeCopy() {
   if (!crossTreeSource.value || !crossTreeTarget.value) return;
 
@@ -664,11 +513,9 @@ async function onCrossTreeCopy() {
     const documentId = currentDoc.value?.id;
     const targetParentId = crossTreeTarget.value.identifier === documentId ? null : crossTreeTarget.value.identifier;
 
-
     await currentDocumentStore.copyItem(documentId, crossTreeSource.value, targetParentId);
 
     // Refresh the document to show the new item
-    // In a more optimized version, we would add the item locally, but re-fetch is safer for now
     if (documentId) {
       const docData = await documentStore.fetchDocument(documentId);
       const items = currentDocumentStore.transformCASEItems(
@@ -680,11 +527,14 @@ async function onCrossTreeCopy() {
       currentDocumentStore.currentDocument.items = items;
     }
 
-    onCrossTreeClose();
+    closeCrossTreeModal();
   } catch (error) {
     console.error('Failed to copy item:', error);
-    // TODO: Show error toast
   }
+}
+
+function onCrossTreeClose() {
+  closeCrossTreeModal();
 }
 
 function onCrossTreeAssociate() {
@@ -696,10 +546,10 @@ function onCrossTreeAssociate() {
   associationDestination.value = crossTreeSource.value;
 
   showAssociateModal.value = true;
-  onCrossTreeClose();
+  closeCrossTreeModal();
 }
 
-async function onDocumentChanged({ side, documentId }) {
+async function onDocumentChanged({ documentId }) {
   try {
     if (documentId) {
       const docData = await documentStore.fetchDocument(documentId);
@@ -738,9 +588,7 @@ async function onDocumentChanged({ side, documentId }) {
   }
 }
 
-async function onExternalDocumentRequested() {
-  // If arguments passed (from document selector), it's empty or event object
-  // If called from SidePanel, it expects us to show modal
+function onExternalDocumentRequested() {
   showLoadExternalModal.value = true;
 }
 
@@ -768,13 +616,6 @@ async function onExternalDocumentUrlLoaded(url) {
       description: cfDoc.description || null,
       items: items
     };
-
-    // Also add to available documents list so it stays in the dropdown?
-    // documentStore.documents usually comes from server.
-    // We might want to add a temporary entry to availableDocuments computed?
-    // But availableDocuments is read-only from store.
-    // For now, just setting sideDocument is enough for display.
-
   } catch (error) {
     console.error('Error loading external document:', error);
     sideDocument.value = null;
@@ -797,8 +638,6 @@ function onClearSearch() {
   filterStore.clearFilters();
   selectedAssociationGroupValue.value = 'all';
 }
-
-
 
 // Modal event handlers
 function onEditItem(item) {
@@ -856,7 +695,6 @@ function onRightPanelModeChanged(mode) {
 function onDocSaved(data) {
 }
 
-
 function onAssociationCreated(association) {
   // Handle the created association from add mode
   // Reset add mode state
@@ -876,12 +714,7 @@ function onAssociationUpdated(association) {
 }
 
 function onEditAssociationModalHidden() {
-  // Reset modal state
-  showEditAssociationModal.value = false;
-  addingAssociation.value = false;
-  addingAssociationType.value = '';
-  addingAssociationOrigin.value = null;
-  editingAssociation.value = null;
+  closeEditAssociationModal();
 }
 
 function onItemsDeleted({ items, deleteType }) {

@@ -1,0 +1,351 @@
+import { ref, reactive, computed, toValue } from 'vue';
+
+/**
+ * Association types available for selection
+ */
+export const ASSOCIATION_TYPES = [
+  { value: 'isRelatedTo', label: 'Is Related To' },
+  { value: 'exactMatchOf', label: 'Exact Match Of' },
+  { value: 'isPartOf', label: 'Is Part Of' },
+  { value: 'hasSkillLevel', label: 'Has Skill Level' },
+  { value: 'isPeerOf', label: 'Is Peer Of' },
+  { value: 'exemplar', label: 'Exemplar' },
+  { value: 'isTranslationOf', label: 'Is Translation Of' },
+  { value: 'isChildOf', label: 'Is Child Of' },
+  { value: 'replacedBy', label: 'Replaced By' },
+  { value: 'precedes', label: 'Precedes' },
+  { value: 'other', label: 'Other' }
+];
+
+/**
+ * Composable for managing association form state and validation
+ *
+ * This composable handles:
+ * 1. Form data state management
+ * 2. Form validation
+ * 3. Custom type validation
+ * 4. Exemplar-specific validation
+ * 5. Association data creation/update
+ *
+ * @param {Object} options - Configuration options
+ * @param {import('vue').Ref<string>|string} options.mode - 'add' or 'edit'
+ * @param {import('vue').Ref<string>|string} options.initialType - Initial association type for add mode
+ * @param {import('vue').Ref<Object>|Object} options.association - The association being edited
+ * @param {import('vue').Ref<Object>|Object} options.currentItem - The current item (for add mode)
+ * @param {import('vue').Ref<boolean>|boolean} options.isReversed - Whether direction is reversed
+ * @returns {Object} - Composable return values
+ */
+export function useAssociationForm(options) {
+  const {
+    mode,
+    initialType,
+    association,
+    currentItem,
+    isReversed
+  } = options;
+
+  // Form state
+  const formData = reactive({
+    type: '',
+    annotation: '',
+    groupId: 'default',
+    // Exemplar-specific fields
+    exemplarUrl: '',
+    exemplarDescription: ''
+  });
+
+  const customType = ref('');
+  const exemplarUrlError = ref('');
+
+  // Mode detection
+  const isAddMode = computed(() => toValue(mode) === 'add');
+  const isEditMode = computed(() => toValue(mode) === 'edit');
+
+  // Disable type dropdown when adding an exemplar (no way to set destination for other types)
+  const isTypeDropdownDisabled = computed(() => {
+    return isAddMode.value && toValue(initialType) === 'exemplar';
+  });
+
+  // Custom type validation
+  const isValidCustomType = computed(() => {
+    if (formData.type !== 'other') return true;
+    const value = customType.value.trim();
+    return value.startsWith('ext:') && /^ext:[a-zA-Z0-9._-]+$/.test(value);
+  });
+
+  // Exemplar type detection
+  const isExemplarType = computed(() => formData.type === 'exemplar');
+
+  // Show group selector for non-exemplar, non-isChildOf types
+  const showGroupSelector = computed(() => {
+    return formData.type && !['exemplar', 'isChildOf'].includes(formData.type);
+  });
+
+  // Modal title based on mode
+  const modalTitle = computed(() => {
+    if (isAddMode.value) {
+      return isExemplarType.value ? 'Add Exemplar' : 'Add Association';
+    }
+    return 'Edit Association';
+  });
+
+  // Save button text based on mode
+  const saveButtonText = computed(() => {
+    if (isAddMode.value) {
+      return isExemplarType.value ? 'Add Exemplar' : 'Create Association';
+    }
+    return 'Save Changes';
+  });
+
+  // Form validation
+  const isFormValid = computed(() => {
+    // Check custom type validity
+    if (formData.type === 'other' && !isValidCustomType.value) {
+      return false;
+    }
+
+    // Check exemplar URL validity
+    if (isExemplarType.value) {
+      if (!formData.exemplarUrl.trim()) {
+        return false;
+      }
+      if (!validateUrl(formData.exemplarUrl)) {
+        return false;
+      }
+      if (formData.exemplarUrl.length > 300) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+
+  /**
+   * Validate a URL string
+   * @param {string} url - The URL to validate
+   * @returns {boolean} - Whether the URL is valid
+   */
+  function validateUrl(url) {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Load association data into the form (for edit mode)
+   */
+  function loadAssociationData() {
+    // Reset form data
+    formData.type = '';
+    formData.annotation = '';
+    formData.groupId = 'default';
+    formData.exemplarUrl = '';
+    formData.exemplarDescription = '';
+    customType.value = '';
+    exemplarUrlError.value = '';
+
+    if (isAddMode.value) {
+      // Add mode: set initial type if provided
+      if (toValue(initialType)) {
+        formData.type = toValue(initialType);
+      }
+      return;
+    }
+
+    // Edit mode: load from existing association
+    const assoc = toValue(association);
+    if (!assoc) return;
+
+    // Use associationType instead of type
+    const assocType = assoc.associationType || assoc.type || '';
+    if (assocType.startsWith('ext:')) {
+      formData.type = 'other';
+      customType.value = assocType;
+    } else {
+      formData.type = assocType;
+    }
+
+    // Use notes instead of annotation
+    formData.annotation = assoc.notes || assoc.annotation || '';
+
+    // Handle group ID from CFAssociationGroupingURI
+    formData.groupId = assoc.CFAssociationGroupingURI?.identifier ||
+                       assoc.groupId ||
+                       'default';
+
+    // Load exemplar-specific fields
+    if (formData.type === 'exemplar') {
+      // For exemplar, the destination is the URL
+      formData.exemplarUrl = assoc.destinationNodeURI?.uri ||
+                             assoc.destination?.uri ||
+                             '';
+      // Description is stored in notes for exemplars
+      formData.exemplarDescription = assoc.notes || '';
+    }
+  }
+
+  /**
+   * Handle type change event
+   */
+  function onTypeChange() {
+    // Auto-select default group for certain association types
+    if (['isChildOf', 'exemplar'].includes(formData.type)) {
+      formData.groupId = 'default';
+    }
+  }
+
+  /**
+   * Validate exemplar URL and set error message
+   * @returns {boolean} - Whether the URL is valid
+   */
+  function validateExemplarUrl() {
+    if (!isExemplarType.value) {
+      exemplarUrlError.value = '';
+      return true;
+    }
+
+    if (!formData.exemplarUrl.trim()) {
+      exemplarUrlError.value = 'URL is required';
+      return false;
+    }
+
+    if (!validateUrl(formData.exemplarUrl)) {
+      exemplarUrlError.value = 'Please enter a valid URL';
+      return false;
+    }
+
+    if (formData.exemplarUrl.length > 300) {
+      exemplarUrlError.value = 'URL must be 300 characters or less';
+      return false;
+    }
+
+    exemplarUrlError.value = '';
+    return true;
+  }
+
+  /**
+   * Create association data for new associations (add mode)
+   * @param {string} finalType - The final association type
+   * @returns {Object} - The association data
+   */
+  function createAssociationData(finalType) {
+    const item = toValue(currentItem);
+
+    if (isExemplarType.value) {
+      // Exemplar association
+      return {
+        originNodeIdentifier: item?.identifier,
+        destinationNodeUri: formData.exemplarUrl,
+        associationType: 'exemplar',
+        annotation: formData.annotation,
+        notes: formData.exemplarDescription
+      };
+    }
+
+    // Standard association
+    return {
+      originNodeIdentifier: item?.identifier,
+      associationType: finalType,
+      annotation: formData.annotation,
+      groupId: formData.groupId
+    };
+  }
+
+  /**
+   * Update association data for existing associations (edit mode)
+   * @param {string} finalType - The final association type
+   * @returns {Object} - The updated association data
+   */
+  function updateAssociationData(finalType) {
+    const assoc = toValue(association);
+    const reversed = toValue(isReversed);
+
+    // Determine effective origin/destination based on direction switch
+    const effectiveOriginNodeURI = reversed
+      ? assoc.destinationNodeURI || assoc.destination
+      : assoc.originNodeURI || assoc.origin;
+    const effectiveDestinationNodeURI = reversed
+      ? assoc.originNodeURI || assoc.origin
+      : assoc.destinationNodeURI || assoc.destination;
+
+    const baseAssociation = {
+      ...assoc,
+      originNodeURI: effectiveOriginNodeURI,
+      destinationNodeURI: effectiveDestinationNodeURI,
+      associationType: finalType,
+      notes: formData.annotation,
+      groupId: formData.groupId,
+      updated: new Date().toISOString()
+    };
+
+    // Add exemplar-specific fields
+    if (isExemplarType.value) {
+      baseAssociation.destinationNodeURI = {
+        uri: formData.exemplarUrl,
+        title: formData.exemplarDescription || formData.exemplarUrl
+      };
+      baseAssociation.notes = formData.exemplarDescription;
+    }
+
+    return baseAssociation;
+  }
+
+  /**
+   * Get the final type (handling custom types)
+   * @returns {string} - The final association type
+   */
+  function getFinalType() {
+    return formData.type === 'other' ? customType.value.trim() : formData.type;
+  }
+
+  /**
+   * Reset the form to initial state
+   */
+  function resetForm() {
+    formData.type = '';
+    formData.annotation = '';
+    formData.groupId = 'default';
+    formData.exemplarUrl = '';
+    formData.exemplarDescription = '';
+    customType.value = '';
+    exemplarUrlError.value = '';
+  }
+
+  return {
+    // Form state
+    formData,
+    customType,
+    exemplarUrlError,
+
+    // Mode
+    isAddMode,
+    isEditMode,
+
+    // Computed
+    isTypeDropdownDisabled,
+    isValidCustomType,
+    isExemplarType,
+    showGroupSelector,
+    modalTitle,
+    saveButtonText,
+    isFormValid,
+
+    // Association types
+    associationTypes: ASSOCIATION_TYPES,
+
+    // Methods
+    validateUrl,
+    loadAssociationData,
+    onTypeChange,
+    validateExemplarUrl,
+    createAssociationData,
+    updateAssociationData,
+    getFinalType,
+    resetForm
+  };
+}
+
+export default useAssociationForm;

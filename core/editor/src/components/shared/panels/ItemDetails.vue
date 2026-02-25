@@ -29,7 +29,7 @@
       <div class="card-body">
         <!-- Item Title -->
         <h5 class="card-title">
-          <span v-if="item.humanCodingScheme" class="badge bg-secondary me-2">
+          <span v-if="item.humanCodingScheme" class="badge bg-secondary me-1">
             {{ item.humanCodingScheme }}
           </span>
           {{ item.abbreviatedStatement || '' }}
@@ -47,19 +47,13 @@
           <div v-if="item.fullStatement" class="mb-3">
             <strong>Full Statement:</strong>
             <div class="mt-1 markdown-content" v-html="renderedFullStatement"></div>
-            <div v-if="hasMarkdownContent" class="mt-1">
-              <small class="text-muted">
-                <i class="bi bi-markdown"></i> Rendered as Markdown
-              </small>
-            </div>
           </div>
 
-          <div v-if="item.abbreviatedStatement && item.abbreviatedStatement !== item.fullStatement" class="mb-3">
-            <strong>Abbreviated Statement:</strong>
-            <p class="mt-1">{{ item.abbreviatedStatement }}</p>
+          <div class="mt-2">
+              <strong>Identifier:</strong> <span class="ms-1">{{ item.identifier }}</span>
           </div>
 
-          <div class="row">
+          <div class="row mt-2">
             <div v-if="item.itemType" class="col-sm-6">
               <strong>Item Type:</strong> {{ item.itemType || 'General' }}
             </div>
@@ -70,24 +64,29 @@
 
           <div v-if="item.educationLevel && item.educationLevel.length > 0" class="mt-2">
               <strong>Education Level:</strong>
-              <div class="mt-1">
+              <span class="ms-1">
                   <span v-for="level in item.educationLevel" :key="level" class="badge bg-info text-dark me-1">
                       {{ level }}
                   </span>
-              </div>
+              </span>
           </div>
 
           <div v-if="item.conceptKeywords && item.conceptKeywords.length > 0" class="mt-2">
               <strong>Keywords:</strong>
-              <div class="mt-1">
+              <span class="ms-1">
                   <span v-for="keyword in item.conceptKeywords" :key="keyword" class="badge bg-secondary me-1">
                       {{ keyword }}
                   </span>
-              </div>
+              </span>
           </div>
 
           <div v-if="item.licenseURI" class="mt-2 text-truncate">
               <strong>License:</strong> <span class="ms-1">{{ licenseName }}</span>
+          </div>
+
+          <div v-if="item.notes" class="mt-3">
+              <strong>Notes:</strong>
+              <p class="mt-1 markdown-content" v-html="renderedNotes"></p>
           </div>
 
           <div v-if="item.lastChanged" class="mt-2">
@@ -95,11 +94,6 @@
               Last changed: {{ formatDate(item.lastChanged) }}
             </small>
           </div>
-
-            <div v-if="item.notes" class="mt-3">
-                <strong>Notes:</strong>
-                <p class="mt-1 markdown-content" v-html="renderedNotes"></p>
-            </div>
         </div>
 
           <!-- Actions -->
