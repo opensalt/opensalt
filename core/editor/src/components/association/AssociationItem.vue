@@ -36,7 +36,7 @@
           </span>
         </div>
 
-        <div v-if="notes" class="mb-1">
+        <div v-if="notes" class="mb-1 ms-2">
           <strong>Annotation:</strong>
           <span class="ms-2 text-muted">{{ notes }}</span>
         </div>
