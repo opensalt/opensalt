@@ -1131,4 +1131,54 @@ xENDx;
 
         return new DocumentListResponseDto($documents, $paginationData);
     }
+
+    /**
+     * Find related documents for a given document with permission filtering.
+     *
+     * @return LsDoc[]
+     */
+    public function findRelatedDocuments(LsDoc $lsDoc, ?User $user = null): array
+    {
+        $qb = $this->createQueryBuilder('d')
+            ->distinct()
+            ->select('d')
+            ->leftJoin('d.mirroredFramework', 'm');
+
+        // Apply user/organization filtering with extended access control
+        if (null !== $user) {
+            if (!$this->security->isGranted(Permission::FRAMEWORK_EDIT_ALL)) {
+                $isEditor = $this->security->isGranted('ROLE_EDITOR');
+                $qb->leftJoin('d.docAcls', 'acls', 'WITH', 'acls.user = :user')
+                    ->orWhere('(m.visible IS NULL OR m.visible = 1) AND (d.adoptionStatus != :privateDraft)')
+                    ->orWhere('(m.visible IS NOT NULL AND 1 = :isEditor)')
+                    ->orWhere('(d.org = :org OR d.user = :user OR acls.access = 1) AND (acls.access IS NULL OR acls.access != 0)')
+                    ->setParameter('isEditor', $isEditor ? 1 : 0)
+                    ->setParameter('user', $user)
+                    ->setParameter('org', $user->getOrg())
+                    ->setParameter('privateDraft', LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT);
+            }
+        }
+        if (null === $user) {
+            $qb->andWhere('m.visible IS NULL OR m.visible = 1')
+                ->andWhere('d.adoptionStatus != :privateDraft')
+                ->setParameter('privateDraft', LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT);
+        }
+
+        // Find documents associated with the given document
+        $associatedDocIds = array_keys($this->findAssociatedDocs($lsDoc));
+
+        // Filter to only include associated documents
+        if (!empty($associatedDocIds)) {
+            $qb->andWhere('d.identifier IN (:associatedDocIds)')
+                ->setParameter('associatedDocIds', $associatedDocIds);
+        } else {
+            return [];
+        }
+
+        $qb->orderBy('d.creator', 'ASC')
+            ->addOrderBy('d.title', 'ASC')
+            ->addOrderBy('d.adoptionStatus', 'ASC');
+
+        return $qb->getQuery()->getResult() ?? [];
+    }
 }
