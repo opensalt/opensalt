@@ -3,6 +3,8 @@ import { useCurrentDocumentStore } from '../stores/currentDocumentStore';
 import { useDocumentStore } from '../stores/documentStore';
 import { logger } from '../utils/logger.js';
 
+/* global URL, fetch */
+
 /**
  * Cross-framework item cache for storing fetched items
  * Key: item identifier (UUID)
@@ -430,7 +432,8 @@ export function useCrossFrameworkItem(options) {
             currentDocumentStore.associatedDocuments.set(docId, {
               id: docId,
               title: docTitle,
-              items: items
+              items: items,
+              cfAssociations: packageData.CFAssociations || []
             });
           }
         } catch (docError) {
@@ -443,7 +446,7 @@ export function useCrossFrameworkItem(options) {
       logger.warn(`Failed to load external item ${identifier}:`, error);
       fetchError.value = {
         type: error.status === 403 ? 'permission' :
-              error.status === 404 ? 'not_found' : 'network',
+          error.status === 404 ? 'not_found' : 'network',
         message: error.message,
         status: error.status
       };

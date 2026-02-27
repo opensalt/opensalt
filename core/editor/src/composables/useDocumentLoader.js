@@ -1,24 +1,28 @@
 /**
  * useDocumentLoader Composable
  *
- * Handles document fetching and initialization logic for the EnhancedDocumentTreeEditor.
- * Extracts the document loading, transformation, and management concerns.
+ * Handles document fetching and initialization logic for EnhancedDocumentTreeEditor.
+ * Extracts document loading, transformation, and management concerns.
  */
-import { ref, computed, onMounted } from 'vue';
+import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useDocumentStore } from '../stores/documentStore';
 import { useCurrentDocumentStore } from '../stores/currentDocumentStore';
+import { useRelatedFrameworksQueue } from './useRelatedFrameworksQueue';
+
+/* global console */
+
+// Log when this composable is instantiated
+console.log('[useDocumentLoader] Composable instantiated');
 
 /**
  * @param {Object} options - Configuration options
- * @param {import('vue').Ref} options.currentDoc - Reference to the current document
- * @param {import('vue').Ref} options.sideDocument - Reference to the side document
+ * @param {import('vue').Ref} options.sideDocument - Reference to side document
  * @param {Function} options.onDocumentLoaded - Callback when a document is loaded
  * @returns {Object} Document loader state and methods
  */
 export function useDocumentLoader(options = {}) {
   const {
-    currentDoc,
     sideDocument,
     onDocumentLoaded
   } = options;
@@ -26,6 +30,7 @@ export function useDocumentLoader(options = {}) {
   const route = useRoute();
   const documentStore = useDocumentStore();
   const currentDocumentStore = useCurrentDocumentStore();
+  const relatedFrameworksQueue = useRelatedFrameworksQueue();
 
   // Loading and error states
   const loading = computed(() => documentStore.loading);
@@ -35,7 +40,7 @@ export function useDocumentLoader(options = {}) {
   const availableDocuments = computed(() => documentStore.documents);
 
   /**
-   * Transform CASE document data into the format expected by the application
+   * Transform CASE document data into format expected by application
    * @param {Object} docData - The raw document data from the API
    * @returns {Object} The transformed document object
    */
@@ -81,6 +86,8 @@ export function useDocumentLoader(options = {}) {
   async function loadDocument(documentId) {
     if (!documentId) return null;
 
+    console.log('[useDocumentLoader] loadDocument called with documentId:', documentId);
+
     const docData = await documentStore.fetchDocument(documentId);
     const transformedDoc = transformDocumentData(docData);
 
@@ -95,6 +102,15 @@ export function useDocumentLoader(options = {}) {
       onDocumentLoaded(transformedDoc, docData);
     }
 
+    console.log('[useDocumentLoader] About to call fetchAndQueueRelatedDocuments for:', documentId);
+    // Fetch related documents and add to queue
+    await relatedFrameworksQueue.fetchAndQueueRelatedDocuments(documentId);
+    console.log('[useDocumentLoader] fetchAndQueueRelatedDocuments completed');
+
+    // Start queue processing
+    relatedFrameworksQueue.startQueue();
+    console.log('[useDocumentLoader] Queue started');
+
     return transformedDoc;
   }
 
@@ -102,6 +118,7 @@ export function useDocumentLoader(options = {}) {
    * Handle document change event from DocumentSelector
    * @param {Object} params - Event parameters
    * @param {string} params.documentId - The new document ID
+   * @returns {Promise<void>}
    */
   async function onDocumentChanged({ documentId }) {
     try {
@@ -123,7 +140,7 @@ export function useDocumentLoader(options = {}) {
 
   /**
    * Handle loading an external document from URL
-   * @param {string} url - The URL of the external document
+   * @param {string} url - The URL of external document
    * @returns {Promise<Object|null>} The loaded side document or null on error
    */
   async function onExternalDocumentUrlLoaded(url) {
@@ -135,7 +152,7 @@ export function useDocumentLoader(options = {}) {
     try {
       const { data, finalUrl } = await documentStore.loadExternalDocument(url);
 
-      // Transform and set the side document
+      // Transform and set side document
       const cfDoc = data.CFDocument || {};
       // Use a unique ID for external docs if identifier is missing or clashes
       const externalId = cfDoc.identifier || 'external-' + Date.now();
@@ -168,7 +185,7 @@ export function useDocumentLoader(options = {}) {
   }
 
   /**
-   * Initialize the document based on route or load default
+   * Initialize document based on route or load default
    * Should be called in onMounted
    */
   async function initializeDocument() {

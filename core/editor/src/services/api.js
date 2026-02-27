@@ -1,3 +1,5 @@
+/* global localStorage, fetch, console */
+
 /**
  * Centralized API Service
  * Provides a unified interface for all API calls with consistent error handling
@@ -66,7 +68,7 @@ class ApiService {
    * @param {string} endpoint - The API endpoint
    * @param {Object} options - Fetch options (method, headers, body, etc.)
    * @returns {Promise<Object>} - Parsed JSON response
-   * @throws {ApiError} - If the request fails
+   * @throws {ApiError} - If   request fails
    */
   async request(endpoint, options = {}) {
     const token = this.getAuthToken();
@@ -74,10 +76,6 @@ class ApiService {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers
     };
-
-    // Remove Content-Type from default headers for FormData requests
-    // The browser will set the correct Content-Type with boundary for multipart/form-data
-    const { 'Content-Type': removed, ...rest } = this.defaultHeaders;
 
     const url = `${this.baseUrl}${endpoint}`;
     const requestOptions = {
@@ -220,6 +218,20 @@ class ApiService {
       headers,
       body: formData
     });
+  }
+
+  /**
+   * Fetch related documents for a given document identifier
+   * @param {string} identifier - The document identifier
+   * @returns {Promise<Array>} - Array of related DocumentDto objects
+   * @throws {ApiError} - If   request fails
+   */
+  async getRelatedDocuments(identifier) {
+    const endpoint = `/ims/case/v1p1/CFDocuments/${identifier}/related`;
+    console.log('[api.getRelatedDocuments] Calling endpoint:', endpoint);
+    const result = await this.get(endpoint);
+    console.log('[api.getRelatedDocuments] Response:', result);
+    return result;
   }
 }
 

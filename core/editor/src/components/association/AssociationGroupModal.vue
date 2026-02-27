@@ -34,7 +34,7 @@
                   <td>—</td>
                   <td></td>
                 </tr>
-                <tr v-for="group in associationGroups" :key="group.id" :data-assocgroupid="group.id">
+                <tr v-for="group in editableAssociationGroups" :key="group.id" :data-assocgroupid="group.id">
                   <td>{{ group.title }}</td>
                   <td>{{ group.description || '—' }}</td>
                   <td>
@@ -157,6 +157,12 @@ const modalTitle = computed(() => {
     case 'edit': return 'Edit Association Group';
     default: return 'Manage Association Groups';
   }
+});
+
+const editableAssociationGroups = computed(() => {
+  return props.associationGroups.filter(group =>
+    group.id !== 'all' && group.id !== 'default'
+  );
 });
 
 watch(() => props.show, (newVal) => {

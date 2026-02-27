@@ -1,7 +1,9 @@
 import { defineStore } from 'pinia';
-import { ref, computed, type Ref, type ComputedRef } from 'vue';
+import { ref, computed, type Ref, type ComputedRef, watch } from 'vue';
 import { api } from '../services/api.js';
 import { logger } from '../utils/logger.js';
+import { useRelatedFrameworksQueue } from '../composables/useRelatedFrameworksQueue.js';
+import { useDocumentStore } from './documentStore';
 import type {
   CFDocument,
   CFDefinitions,
@@ -99,6 +101,7 @@ export interface AssociatedDocument {
   id: UUID;
   title: string;
   items: EditorItemNode[];
+  cfAssociations: CaseAssociation[];
 }
 
 /**
@@ -109,6 +112,13 @@ export interface DocumentStore {
 }
 
 export const useCurrentDocumentStore = defineStore('currentDocument', () => {
+  // Initialize queuing system for related frameworks
+  // Type as any since it's a JavaScript composable
+  const queue: any = useRelatedFrameworksQueue();
+
+  // Access document store for cached frameworks
+  const documentStore = useDocumentStore();
+
   // State
   const currentDocument = ref<CFDocument | null>(null);
   const currentDocumentDefinitions = ref<CFDefinitions | null>({
@@ -122,6 +132,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
   const currentDocumentAssociations = ref<EditorAssociation[]>([]);
   const currentDocumentAssociationGroupings = ref<EditorAssociationGrouping[]>([]);
   const draggedItem = ref<EditorItemNode | null>(null);
+  const currentItem = ref<EditorItemNode | null>(null);
 
   // Actions
   function setDraggedItem(item: EditorItemNode | null) {
@@ -283,19 +294,19 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
       // Handle parent-child relationships
       if (assoc.associationType === 'isChildOf') {
         if (originId && destinationId && items.has(originId) && items.has(destinationId)) {
-            const child = items.get(originId)!;
-            const parent = items.get(destinationId)!;
+          const child = items.get(originId)!;
+          const parent = items.get(destinationId)!;
 
-            child.sequenceNumber = assoc.sequenceNumber || 0;
-            // Store the association ID for reordering
-            child.childOfAssocId = 0; // Will be set by backend
-            parent.children.push(child);
-            children.set(originId, destinationId);
+          child.sequenceNumber = assoc.sequenceNumber || 0;
+          // Store the association ID for reordering
+          child.childOfAssocId = 0; // Will be set by backend
+          parent.children.push(child);
+          children.set(originId, destinationId);
         }
 
         if (originId && destinationId && items.has(originId) && (destinationId === docId)) {
-            const child = items.get(originId)!;
-            child.sequenceNumber = assoc.sequenceNumber || 0;
+          const child = items.get(originId)!;
+          child.sequenceNumber = assoc.sequenceNumber || 0;
         }
       }
     });
@@ -431,7 +442,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
               id: cfDoc.identifier,
               title: cfDoc.title,
               items: items,
-              // Store minimal data needed for reference
+              cfAssociations: docData.CFAssociations || [],
             });
 
             // Simple cache eviction: remove oldest entries when over limit
@@ -566,6 +577,95 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     }
   }
 
+  /**
+   * Get associations for a specific item by identifier
+   * @param {UUID} itemIdentifier - The item identifier
+   * @returns {EditorAssociation[]} - Array of associations for the item
+   */
+  function getAssociationsForItem(itemIdentifier: UUID): EditorAssociation[] {
+    if (!itemIdentifier) return [];
+
+    // Find all associations where this item is either origin or destination
+    return currentDocumentAssociations.value.filter(assoc => {
+      const originId = assoc.originNodeURI?.identifier;
+      const destId = assoc.destinationNodeURI?.identifier;
+      return originId === itemIdentifier || destId === itemIdentifier;
+    });
+  }
+
+  /**
+   * Identify frameworks associated with the currently selected item
+   * Scans all cached frameworks for associations referencing this item
+   * @returns {UUID[]} - Array of document identifiers
+   */
+  function identifyAssociatedFrameworks(): UUID[] {
+    const item = currentItem.value;
+    if (!item) return [];
+
+    const identifiers = new Set<UUID>();
+
+    // Scan all cached frameworks for associations that reference the current item
+    documentStore.documentCache.forEach((cachedDoc, docId) => {
+      // Skip the current document
+      if (docId === currentDocument.value?.identifier) return;
+
+      const hasRelevantAssociation = cachedDoc.CFAssociations?.some(assoc => {
+        const originId = assoc.originNodeURI?.identifier;
+        const destId = assoc.destinationNodeURI?.identifier;
+        return originId === item.identifier || destId === item.identifier;
+      });
+
+      if (hasRelevantAssociation) {
+        identifiers.add(docId);
+      }
+    });
+
+    return Array.from(identifiers);
+  }
+
+  /**
+   * Set HIGH priority for frameworks associated with the currently selected item
+   * This ensures that frameworks shown in the Item Details panel are prioritized
+   */
+  function setHighPriorityForAssociatedFrameworks() {
+    const associatedIds = identifyAssociatedFrameworks();
+
+    if (associatedIds.length === 0) {
+      logger.debug('No associated frameworks found for current item');
+      return;
+    }
+
+    // Set HIGH priority for each associated framework in the queue
+    // Type assertion to ensure queue has the expected method
+    if (typeof queue.updateItemPriority === 'function') {
+      associatedIds.forEach(identifier => {
+        queue.updateItemPriority(identifier, 'HIGH');
+      });
+    }
+
+    logger.debug(`Set HIGH priority for ${associatedIds.length} associated frameworks:`, associatedIds);
+  }
+
+  /**
+   * Set the currently selected item and trigger priority updates
+   * @param {EditorItemNode | null} item - The selected item or null
+   */
+  function setSelectedItem(item: EditorItemNode | null) {
+    currentItem.value = item;
+
+    // When an item is selected, set HIGH priority for its associated frameworks
+    if (item) {
+      setHighPriorityForAssociatedFrameworks();
+    }
+  }
+
+  // Watch for changes to current item and trigger priority updates
+  watch(currentItem, (newItem) => {
+    if (newItem) {
+      setHighPriorityForAssociatedFrameworks();
+    }
+  });
+
   return {
     currentDocument,
     currentDocumentDefinitions,
@@ -591,7 +691,10 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     deleteAssociationGroup,
     draggedItem,
     setDraggedItem,
-    copyItem
+    copyItem,
+    currentItem,
+    setSelectedItem,
+    identifyAssociatedFrameworks
   };
 });
 

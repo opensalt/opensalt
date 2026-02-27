@@ -4,9 +4,9 @@
       <h6 class="mb-0 text-capitalize">
         <i :class="getAssociationIcon(associationType)" class="me-2"></i>
         {{ formatAssociationType(associationType) }}
-        <span v-if="associationType.match(/^ext:/i)" class="badge bg-warning ms-2" title="This is an extended association type">Extended</span>
-        <span v-if="direction === 'reversed'" class="badge bg-warning ms-2" title="Reversed (item is destination)">Reversed</span>
-        <span class="badge bg-secondary ms-2">{{ associations.length }}</span>
+        <span v-if="associationType.match(/^ext:/i)" class="badge bg-warning text-dark ms-2" title="This is an extended association type">Extended</span>
+        <span v-if="direction === 'reversed'" class="badge bg-warning text-dark ms-2" title="Reversed (item is destination)">Reversed</span>
+        <span class="badge ms-2 count-badge">{{ associations.length }}</span>
       </h6>
     </div>
 
@@ -125,5 +125,11 @@ function getAssociationIcon(type) {
 
 .association-group-items:deep(.association-item:last-child) {
   margin-bottom: 0;
+}
+
+/* WCAG 2.1 AA compliant count badge */
+.count-badge {
+  background-color: #495057;
+  color: #ffffff;
 }
 </style>

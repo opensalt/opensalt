@@ -411,6 +411,15 @@ export const useDocumentStore = defineStore('documents', () => {
     loadingSideDocument.value = false;
   }
 
+  /**
+   * Check if a document is cached
+   * @param {UUID} identifier - Document identifier
+   * @returns {boolean} - True if document is cached
+   */
+  function isDocumentCached(identifier: UUID): boolean {
+    return documentCache.has(identifier);
+  }
+
   return {
     documents,
     loading,
@@ -424,6 +433,7 @@ export const useDocumentStore = defineStore('documents', () => {
     loadExternalDocument,
     clearError,
     clearSideDocError,
-    resetLoadingSideDocument
+    resetLoadingSideDocument,
+    isDocumentCached
   };
 });

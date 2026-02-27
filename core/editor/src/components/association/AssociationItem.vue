@@ -1,5 +1,5 @@
 <template>
-  <div class="association-item d-flex justify-content-between align-items-center p-2 border rounded">
+  <div class="association-item d-flex justify-content-between align-items-center p-2 border rounded" :class="{ 'cross-framework-assoc': isCrossFrameworkAssoc }">
     <div class="association-info flex-grow-1">
       <!--
       <div class="d-flex align-items-center mb-2">
@@ -23,16 +23,25 @@
             <span class="ms-2" v-html="displayTitle"></span>
           </template>
           <!-- Framework badge for cross-framework CASE items -->
-          <span v-if="frameworkTitle && !isLoading && targetTypeInfo.isCase" class="badge bg-info text-dark ms-2 framework-badge">
+          <span v-if="frameworkTitle && !isLoading && targetTypeInfo.isCase" class="badge framework-badge ms-2">
             <i class="bi bi-box-arrow-up-right me-1"></i>{{ frameworkTitle }}
           </span>
+          <!-- Source framework badge for associations from other frameworks -->
+          <span v-if="sourceFrameworkTitle" class="badge source-framework-badge ms-2" :title="'Association defined in: ' + sourceFrameworkTitle">
+            <i class="bi bi-folder2-open me-1"></i>Source: {{ sourceFrameworkTitle }}
+          </span>
           <!-- Non-CASE item indicator -->
-          <span v-if="!targetTypeInfo.isCase && isCrossFramework" class="badge bg-secondary ms-2 external-uri-badge">
+          <span v-if="!targetTypeInfo.isCase && isCrossFramework" class="badge external-uri-badge ms-2">
             <i class="bi bi-link-45deg me-1"></i>External URI
           </span>
           <!-- Error indicator for failed fetches -->
-          <span v-if="fetchError && targetTypeInfo.isCase" class="badge bg-warning text-dark ms-2 error-badge" :title="fetchError.message">
+          <span v-if="fetchError && targetTypeInfo.isCase" class="badge error-badge ms-2" :title="fetchError.message">
             <i class="bi bi-exclamation-triangle me-1"></i>{{ fetchError.type === 'permission' ? 'No access' : fetchError.type === 'not_found' ? 'Not found' : 'Load error' }}
+          </span>
+          <!-- Loading indicator for queued frameworks -->
+          <span v-if="isDocumentQueued && !frameworkTitle && !isLoading && targetTypeInfo.isCase" class="badge loading-badge ms-2" title="Framework queued for loading">
+            <i class="bi bi-arrow-repeat me-1" role="status" aria-hidden="true"></i>
+            Queued
           </span>
         </div>
 
@@ -71,9 +80,10 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted, toRef } from 'vue';
-import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
+import { computed, ref, onMounted, toRef, watch } from 'vue';
 import { useCrossFrameworkItem } from '../../composables/useCrossFrameworkItem';
+import { useRelatedFrameworksQueue } from '../../composables/useRelatedFrameworksQueue.js';
+import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
 
 // Lazy-loaded markdown renderer with caching
 let markdownRendererPromise = null;
@@ -124,7 +134,26 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['edit', 'delete']);
+
+// Use the related frameworks queue composable
+const { getQueueStatus } = useRelatedFrameworksQueue();
+
+// Access current document store for resolving source framework titles
 const currentDocumentStore = useCurrentDocumentStore();
+
+// Check if this association comes from a different framework (has CFDocumentURI set by mergedAssociations)
+const isCrossFrameworkAssoc = computed(() => {
+  return !!props.association.CFDocumentURI;
+});
+
+// Resolve the source framework title from the associatedDocuments cache
+const sourceFrameworkTitle = computed(() => {
+  const frameworkId = props.association.CFDocumentURI;
+  if (!frameworkId) return null;
+
+  const doc = currentDocumentStore.associatedDocuments.get(frameworkId);
+  return doc?.title || null;
+});
 
 // Use the cross-framework item composable
 const {
@@ -144,23 +173,6 @@ const {
 // Determine if association is reversed (item is destination, not origin)
 const isReversed = computed(() => {
     return props.direction === 'reversed';
-});
-
-const associationType = computed(() => {
-  return props.association.associationType || props.association.type || 'Unknown';
-});
-
-// Get the appropriate node identifier based on direction
-const nodeIdentifier = computed(() => {
-  if (isReversed.value) {
-    // Show origin when reversed
-    const origin = props.association.originNodeURI || props.association.origin;
-    return origin?.identifier;
-  }
-
-  // Show destination when normal
-  const dest = props.association.destinationNodeURI || props.association.destination;
-  return dest?.identifier;
 });
 
 // Display title with markdown rendering support
@@ -195,10 +207,10 @@ const nodeLabel = computed(() => {
   return isReversed.value ? 'Origin:' : 'Destination:';
 });
 
-// Get the URI string for display during loading
+// Get URI string for display during loading
 const nodeUriString = computed(() => {
   const uri = nodeURI.value?.uri;
-  return uri || itemIdentifier.value || 'Loading...';
+  return uri || props.itemIdentifier || 'Loading...';
 });
 
 const notes = computed(() => {
@@ -209,18 +221,31 @@ const lastChangeDateTime = computed(() => {
   return props.association.lastChangeDateTime || '';
 });
 
-const groupTitle = computed(() => {
-  if (!props.association.CFAssociationGroupingURI) return '';
+// Get queue status for the document
+const queueFetchStatus = computed(() => {
+  const uri = nodeURI.value?.uri;
+  if (!uri) return 'not_queued';
+  return getQueueStatus(uri);
+});
 
-  const groupId = props.association.CFAssociationGroupingURI.identifier;
-  const group = props.associationGroups.find(g => g.id === groupId);
-  return group?.title || '';
+// Check if document is queued
+const isDocumentQueued = computed(() => {
+  return queueFetchStatus.value === 'queued';
 });
 
 function formatDate(dateString) {
   if (!dateString) return '';
   return new Date(dateString).toLocaleDateString();
 }
+
+// Watch for changes in fetch status to trigger re-renders when pre-fetched documents become available
+watch(
+  () => [queueFetchStatus.value, frameworkTitle.value],
+  () => {
+    // When fetch status changes, component should re-render
+    // This ensures framework badges show immediately when pre-fetched documents are loaded
+  }
+);
 </script>
 
 <style scoped>
@@ -230,6 +255,16 @@ function formatDate(dateString) {
 
 .association-item:hover {
   background-color: #f8f9fa;
+}
+
+/* Cross-framework association background */
+.cross-framework-assoc {
+  background-color: #e8f0fe;
+  border-color: #a8c7fa !important;
+}
+
+.cross-framework-assoc:hover {
+  background-color: #d3e3fd;
 }
 
 .association-info {
@@ -249,13 +284,28 @@ function formatDate(dateString) {
   font-size: 0.75rem;
 }
 
+/* WCAG 2.1 AA compliant badge colors (4.5:1+ contrast ratio) */
 .framework-badge {
   font-size: 0.7em;
   font-weight: 500;
   vertical-align: middle;
+  background-color: #0c63e4;
+  color: #ffffff;
 }
 
 .framework-badge i {
+  font-size: 0.85em;
+}
+
+.source-framework-badge {
+  font-size: 0.7em;
+  font-weight: 500;
+  vertical-align: middle;
+  background-color: #1a5276;
+  color: #ffffff;
+}
+
+.source-framework-badge i {
   font-size: 0.85em;
 }
 
@@ -263,6 +313,8 @@ function formatDate(dateString) {
   font-size: 0.7em;
   font-weight: 500;
   vertical-align: middle;
+  background-color: #495057;
+  color: #ffffff;
 }
 
 .external-uri-badge i {
@@ -273,9 +325,23 @@ function formatDate(dateString) {
   font-size: 0.7em;
   font-weight: 500;
   vertical-align: middle;
+  background-color: #856404;
+  color: #ffffff;
 }
 
 .error-badge i {
+  font-size: 0.85em;
+}
+
+.loading-badge {
+  font-size: 0.7em;
+  font-weight: 500;
+  vertical-align: middle;
+  background-color: #495057;
+  color: #ffffff;
+}
+
+.loading-badge i {
   font-size: 0.85em;
 }
 

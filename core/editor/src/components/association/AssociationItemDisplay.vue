@@ -22,21 +22,21 @@
         <!-- Framework badge for cross-framework CASE items -->
         <span
           v-if="frameworkTitle && !isLoading && targetTypeInfo.isCase"
-          class="badge bg-info text-dark framework-badge"
+          class="badge framework-badge"
         >
           <i class="bi bi-box-arrow-up-right me-1"></i>{{ frameworkTitle }}
         </span>
         <!-- Non-CASE item indicator -->
         <span
           v-if="!targetTypeInfo.isCase && itemData"
-          class="badge bg-secondary external-uri-badge"
+          class="badge external-uri-badge"
         >
           <i class="bi bi-link-45deg me-1"></i>External URI
         </span>
         <!-- Error indicator for failed fetches -->
         <span
           v-if="fetchError && targetTypeInfo.isCase"
-          class="badge bg-warning text-dark error-badge"
+          class="badge error-badge"
           :title="fetchError.message"
         >
           <i class="bi bi-exclamation-triangle me-1"></i>
@@ -161,10 +161,13 @@ const errorLabel = computed(() => {
   box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
 }
 
+/* WCAG 2.1 AA compliant badge colors (4.5:1+ contrast ratio) */
 .framework-badge {
   font-size: 0.7em;
   font-weight: 500;
   vertical-align: middle;
+  background-color: #0c63e4;
+  color: #ffffff;
 }
 
 .framework-badge i {
@@ -175,6 +178,8 @@ const errorLabel = computed(() => {
   font-size: 0.7em;
   font-weight: 500;
   vertical-align: middle;
+  background-color: #495057;
+  color: #ffffff;
 }
 
 .external-uri-badge i {
@@ -185,6 +190,8 @@ const errorLabel = computed(() => {
   font-size: 0.7em;
   font-weight: 500;
   vertical-align: middle;
+  background-color: #856404;
+  color: #ffffff;
 }
 
 .error-badge i {

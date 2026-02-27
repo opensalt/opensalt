@@ -131,7 +131,7 @@
       </div>
 
       <!-- Associations -->
-      <div v-if="groupedAssociations.length > 0" class="card mt-3">
+      <div v-if="mergedAssociations.length > 0" class="card mt-3">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h6 class="mb-0">Associations</h6>
           <button v-if="!isReadOnly" type="button" class="btn btn-sm btn-outline-primary" @click="$emit('add-association', item)">
@@ -140,7 +140,7 @@
         </div>
         <div class="card-body">
           <AssociationGroupDisplay
-            v-for="group in groupedAssociations"
+            v-for="group in mergedAssociations"
             :key="`${group.type}-${group.direction}`"
             :association-type="group.type"
             :associations="group.associations"
@@ -205,12 +205,13 @@
 
 <script setup>
 /* global localStorage, console */
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 import AssociationGroupDisplay from '../../association/AssociationGroupDisplay.vue';
 import CommentModule from '../CommentModule.vue';
 import DeleteAssociationModal from '@/components/association/DeleteAssociationModal.vue';
 import { useDynamicModal } from '../../../composables/useDynamicModal.js';
 import { useDynamicEditModal } from '../../../composables/useDynamicEditModal.js';
+import { useCurrentDocumentStore } from '../../../stores/currentDocumentStore';
 
 // Lazy-loaded markdown renderer with caching
 let markdownRendererPromise = null;
@@ -289,6 +290,18 @@ const emit = defineEmits([
   'update-item'
 ]);
 
+// Watch for item changes to update store and trigger priority queue updates
+const currentDocumentStore = useCurrentDocumentStore();
+watch(
+  () => props.item,
+  (newItem) => {
+    if (newItem?.identifier) {
+      currentDocumentStore.setSelectedItem(newItem);
+    }
+  },
+  { immediate: true }
+);
+
 const availableTypes = ['general', 'assessment', 'course', 'credential', 'job', 'organization', 'public_key', 'identifier'];
 
 const { showModal, selectedType, isModalVisible, handleCreated, modalComponent, handleHidden, parentItem } = useDynamicModal(
@@ -314,12 +327,10 @@ const {
   availableTypes
 );
 
-// Toggle state for extended info
-const showExtendedInfo = ref(false);
-
 // Delete association modal state
 const showDeleteModal = ref(false);
 const associationToDelete = ref(null);
+const showExtendedInfo = ref(false);
 
 // Load preference from localStorage on mount
 onMounted(() => {
@@ -348,42 +359,72 @@ function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString();
 }
 
-// Group associations by type and direction (excluding isChildOf)
-const groupedAssociations = computed(() => {
-  if (!props.item?.associations) return [];
+// Merge cross-framework associations from cached frameworks
+const mergedAssociations = computed(() => {
+  if (!props.item?.identifier) return [];
 
-  const filtered = props.item.associations.filter(assoc =>
-    assoc.associationType !== 'isChildOf' && assoc.type !== 'isChildOf'
-  );
+  // Get current item's associations
+  const currentAssociations = props.item.associations || [];
 
-  // Group by association type and direction (normal vs reversed)
-  const groups = {};
-  filtered.forEach(assoc => {
-    const type = assoc.associationType || assoc.type || 'unknown';
+  // Collect cross-framework associations from the reactive associatedDocuments map
+  const crossFrameworkAssociations = [];
+  const seenIds = new Set(currentAssociations.map(a => a.identifier));
 
-    // Determine if association is reversed (item is destination, not origin)
-    const destId = (assoc.destinationNodeURI || assoc.destination)?.identifier;
-    const isReversed = destId === props.item.identifier;
-    const direction = isReversed ? 'reversed' : 'normal';
+  // Iterate over all reactive associatedDocuments (populated by the queue as frameworks load)
+  for (const [frameworkId, associatedDoc] of currentDocumentStore.associatedDocuments) {
+    const associations = associatedDoc.cfAssociations || [];
+    for (const assoc of associations) {
+      const originId = assoc.originNodeURI?.identifier;
+      const destId = assoc.destinationNodeURI?.identifier;
 
-    const groupKey = `${type}-${direction}`;
-    if (!groups[groupKey]) {
-      groups[groupKey] = {
-        type,
-        direction,
+      // Check if this association involves current item and isn't a duplicate
+      if ((originId === props.item.identifier || destId === props.item.identifier) &&
+          !seenIds.has(assoc.identifier)) {
+        seenIds.add(assoc.identifier);
+        crossFrameworkAssociations.push({
+          ...assoc,
+          CFDocumentURI: frameworkId
+        });
+      }
+    }
+  }
+
+  // Merge current and cross-framework associations
+  const allAssociations = [...currentAssociations, ...crossFrameworkAssociations];
+
+  // Group associations by type and determine direction
+  const groupedAssociations = {};
+
+  allAssociations.forEach(assoc => {
+    const associationType = assoc.associationType || assoc.type || assoc.association?.type || 'unknown';
+    
+    // Determine direction based on origin/destination
+    const originId = assoc.originNodeURI?.identifier;
+    const destId = assoc.destinationNodeURI?.identifier;
+    let direction = 'normal';
+    
+    if (destId === props.item.identifier) {
+      direction = 'reversed';
+    }
+
+    // Create group key
+    const groupKey = `${associationType}-${direction}`;
+
+    // Initialize group if not exists
+    if (!groupedAssociations[groupKey]) {
+      groupedAssociations[groupKey] = {
+        type: associationType,
+        direction: direction,
         associations: []
       };
     }
-    groups[groupKey].associations.push(assoc);
+
+    // Add association to group
+    groupedAssociations[groupKey].associations.push(assoc);
   });
 
-  // Convert to array format for template
-  return Object.values(groups).sort((a, b) => {
-    // Sort by type first, then by direction (normal before reversed)
-    const typeCompare = a.type.localeCompare(b.type);
-    if (typeCompare !== 0) return typeCompare;
-    return a.direction.localeCompare(b.direction);
-  });
+  // Convert to array and return
+  return Object.values(groupedAssociations);
 });
 
 // Render fullStatement as markdown
@@ -392,11 +433,7 @@ const renderedFullStatement = computed(() => {
   return render.value ? render.value.block(props.item.fullStatement) : props.item.fullStatement;
 });
 
-// Check if fullStatement contains markdown
-const hasMarkdownContent = computed(() => {
-  if (!props.item?.fullStatement) return false;
-  return hasMarkdown.value ? hasMarkdown.value(props.item.fullStatement) : false;
-});
+
 
 // Render notes as markdown
 const renderedNotes = computed(() => {
@@ -445,7 +482,7 @@ const itemDetailsComponent = computed(() => {
     organization: OrganizationItemDetails,
     identifier: IdentifierItemDetails,
     public_key: PublicKeyItemDetails,
-    default: null // Default uses the base implementation
+    default: null // Default uses base implementation
   };
   return componentMap[type] || null;
 });
@@ -459,13 +496,11 @@ function handleDropdownClick(type) {
 }
 
 import { useSessionStore } from '../../../stores/sessionStore';
-import { useCurrentDocumentStore } from '../../../stores/currentDocumentStore';
 
 const sessionStore = useSessionStore();
 const isReadOnly = computed(() => props.currentDocument?.isReadOnly || !sessionStore.isAuthenticated);
 
 // Get license name from definitions
-const currentDocumentStore = useCurrentDocumentStore();
 const licenseName = computed(() => {
   if (!props.item?.licenseURI?.identifier) {
     return null;
@@ -477,12 +512,12 @@ const licenseName = computed(() => {
   // Find license by identifier in definitions
   const licenseDef = licenses.find(lic => lic.identifier === licenseId);
 
-  // Return license title if found, otherwise fall back to the URI
+  // Return license title if found, otherwise fall back to URI
   if (licenseDef?.title) {
     return licenseDef.title;
   }
 
-  // Fallback to the license URI or identifier
+  // Fallback to license URI or identifier
   return props.item.licenseURI.uri || props.item.licenseURI.identifier;
 });
 </script>
@@ -521,10 +556,6 @@ const licenseName = computed(() => {
   color: #495057;
 }
 
-.markdown-content h1 { font-size: 1.25rem; }
-.markdown-content h2 { font-size: 1.125rem; }
-.markdown-content h3 { font-size: 1rem; }
-
 .markdown-content p {
   margin-bottom: 0.75rem;
 }
@@ -561,12 +592,6 @@ const licenseName = computed(() => {
   border-radius: 0.375rem;
   overflow-x: auto;
   margin: 0.75rem 0;
-}
-
-.markdown-content pre code {
-  background-color: transparent;
-  padding: 0;
-  border-radius: 0;
 }
 
 .markdown-content table {

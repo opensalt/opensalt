@@ -21,7 +21,7 @@
         :association-groups="associationGroups"
         :selected-association-group="selectedAssociationGroupValue"
         :available-subjects="availableSubjects"
-        @document-changed="onDocumentChanged"
+        @document-changed="documentLoaderOnDocumentChanged"
         @external-document-requested="onExternalDocumentRequested"
         @select="onSelect"
         @dblclick="onDblClick"
@@ -142,7 +142,9 @@ import { useAnnouncer } from '../../composables/useAnnouncer.js';
 import { useDynamicEditModal } from '../../composables/useDynamicEditModal.js';
 import { useModalState } from '../../composables/useModalState.js';
 import { useSideDocument } from '../../composables/useSideDocument.js';
-import { useCrossTreeOperations } from '../../composables/useCrossTreeOperations.js';
+
+import { useDocumentLoader } from '../../composables/useDocumentLoader.js';
+import { logger } from '../../utils/logger.js';
 
 // Components
 import TreePanelSection from './TreePanelSection.vue';
@@ -268,12 +270,24 @@ const {
 // Use side document composable
 const {
   sideDocument,
-  sideSelectedId,
   loadingSideDoc,
   sideDocError,
   onSideDocumentSelect,
   onSideSelect
 } = useSideDocument();
+
+// Initialize document loader composable
+const {
+  onDocumentChanged: documentLoaderOnDocumentChanged,
+  onExternalDocumentRequested: documentLoaderOnExternalDocumentRequested,
+  onExternalDocumentUrlLoaded: documentLoaderOnExternalDocumentUrlLoaded,
+  initializeDocument
+} = useDocumentLoader({
+  sideDocument,
+  onDocumentLoaded: () => {
+    // Optional callback when document is loaded
+  }
+});
 
 // Panel modes
 const rightPanelMode = ref('itemDetails');
@@ -281,7 +295,7 @@ const rightPanelMode = ref('itemDetails');
 // Tree filter state
 const treeSearchQuery = ref('');
 
-// Count matching items for the match count badge
+// Count matching items for match count badge
 const matchCount = computed(() => {
   if (!treeSearchQuery.value) return null;
   const query = treeSearchQuery.value.toLowerCase();
@@ -369,76 +383,7 @@ watch(() => doc.value?.id, (newDocId) => {
 
 // Initialize data on mount
 onMounted(async () => {
-  try {
-    const frameworkId = route.params.frameworkId;
-
-    if (frameworkId) {
-      const docData = await documentStore.fetchDocument(frameworkId);
-      const cfDoc = docData.CFDocument || {};
-      const items = currentDocumentStore.transformCASEItems(docData.CFItems || [], docData.CFAssociations || [], cfDoc.identifier);
-
-      currentDocumentStore.selectDocument({
-        id: cfDoc.identifier,
-        uri: cfDoc.uri || '',
-        title: cfDoc.title || 'Untitled',
-        description: cfDoc.description || null,
-        creator: cfDoc.creator || '',
-        subject: cfDoc.subject || null,
-        subjectURI: cfDoc.subjectURI || [],
-        status: cfDoc.adoptionStatus || 'Draft',
-        statusStartDate: cfDoc.statusStartDate || null,
-        statusEndDate: cfDoc.statusEndDate || null,
-        lastModified: cfDoc.lastChangeDateTime || '',
-        language: cfDoc.language || null,
-        version: cfDoc.version || null,
-        officialSourceURL: cfDoc.officialSourceURL || null,
-        publisher: cfDoc.publisher || null,
-        licenseURI: cfDoc.licenseURI || null,
-        notes: cfDoc.notes || null,
-        frameworkType: cfDoc.frameworkType || null,
-        caseVersion: cfDoc.caseVersion || null,
-        extensions: cfDoc.extensions || null,
-        CFPackageURI: cfDoc.CFPackageURI || null,
-        items: items
-      }, docData.CFAssociationGroupings || [], docData.CFAssociations || [], docData.CFDefinitions || null);
-    } else if (!currentDocumentStore.currentDocument || Object.keys(currentDocumentStore.currentDocument).length === 0) {
-      await documentStore.fetchDocuments();
-
-      if (documentStore.documents.length > 0) {
-        const firstDoc = documentStore.documents[0];
-        const docData = await documentStore.fetchDocument(firstDoc.id);
-        const cfDoc = docData.CFDocument || {};
-        const items = currentDocumentStore.transformCASEItems(docData.CFItems || [], docData.CFAssociations || [], cfDoc.identifier);
-
-        currentDocumentStore.selectDocument({
-          id: cfDoc.identifier,
-          uri: cfDoc.uri || '',
-          title: cfDoc.title || 'Untitled',
-          description: cfDoc.description || null,
-          creator: cfDoc.creator || '',
-          subject: cfDoc.subject || null,
-          subjectURI: cfDoc.subjectURI || [],
-          status: cfDoc.adoptionStatus || 'Draft',
-          statusStartDate: cfDoc.statusStartDate || null,
-          statusEndDate: cfDoc.statusEndDate || null,
-          lastModified: cfDoc.lastChangeDateTime || '',
-          language: cfDoc.language || null,
-          version: cfDoc.version || null,
-          officialSourceURL: cfDoc.officialSourceURL || null,
-          publisher: cfDoc.publisher || null,
-          licenseURI: cfDoc.licenseURI || null,
-          notes: cfDoc.notes || null,
-          frameworkType: cfDoc.frameworkType || null,
-          caseVersion: cfDoc.caseVersion || null,
-          extensions: cfDoc.extensions || null,
-          CFPackageURI: cfDoc.CFPackageURI || null,
-          items: items
-        }, docData.CFAssociationGroupings || [], docData.CFAssociations || [], docData.CFDefinitions || null);
-      }
-    }
-  } catch (e) {
-    console.error('Error initializing data:', e);
-  }
+  await initializeDocument();
 });
 
 // Event handlers
@@ -461,7 +406,7 @@ function onDblClick(id) {
   // First select the item
   onSelect(id);
 
-  // Determine if this is the document node or an item
+  // Determine if this is a document node or an item
   const isDocumentNode = id === currentDoc.value?.id;
 
   if (isDocumentNode) {
@@ -529,7 +474,7 @@ async function onCrossTreeCopy() {
 
     closeCrossTreeModal();
   } catch (error) {
-    console.error('Failed to copy item:', error);
+    logger.error('Failed to copy item:', error);
   }
 }
 
@@ -540,8 +485,8 @@ function onCrossTreeClose() {
 function onCrossTreeAssociate() {
   if (!crossTreeSource.value || !crossTreeTarget.value) return;
 
-  // We want to create the association IN the current document (target), pointing TO the side item (source)
-  // So the Main Tree Item is the Origin, and Side Tree Item is the Destination
+  // We want to create an association IN the current document (target), pointing TO the side item (source)
+  // So Main Tree Item is the Origin, and Side Tree Item is the Destination
   associationOrigin.value = crossTreeTarget.value;
   associationDestination.value = crossTreeSource.value;
 
@@ -549,76 +494,19 @@ function onCrossTreeAssociate() {
   closeCrossTreeModal();
 }
 
-async function onDocumentChanged({ documentId }) {
-  try {
-    if (documentId) {
-      const docData = await documentStore.fetchDocument(documentId);
-
-      // Transform and set the current document
-      const cfDoc = docData.CFDocument || {};
-      const items = currentDocumentStore.transformCASEItems(docData.CFItems || [], docData.CFAssociations || [], cfDoc.identifier);
-
-      currentDocumentStore.selectDocument({
-        id: cfDoc.identifier,
-        uri: cfDoc.uri || '',
-        title: cfDoc.title || 'Untitled',
-        description: cfDoc.description || null,
-        creator: cfDoc.creator || '',
-        subject: cfDoc.subject || null,
-        subjectURI: cfDoc.subjectURI || [],
-        status: cfDoc.adoptionStatus || 'Draft',
-        statusStartDate: cfDoc.statusStartDate || null,
-        statusEndDate: cfDoc.statusEndDate || null,
-        lastModified: cfDoc.lastChangeDateTime || '',
-        language: cfDoc.language || null,
-        version: cfDoc.version || null,
-        officialSourceURL: cfDoc.officialSourceURL || null,
-        publisher: cfDoc.publisher || null,
-        licenseURI: cfDoc.licenseURI || null,
-        notes: cfDoc.notes || null,
-        frameworkType: cfDoc.frameworkType || null,
-        caseVersion: cfDoc.caseVersion || null,
-        extensions: cfDoc.extensions || null,
-        CFPackageURI: cfDoc.CFPackageURI || null,
-        items: items
-      }, docData.CFAssociationGroupings || [], docData.CFAssociations || [], docData.CFDefinitions || null);
-    }
-  } catch (error) {
-    console.error('Error loading document:', error);
-  }
-}
-
 function onExternalDocumentRequested() {
-  showLoadExternalModal.value = true;
+  const shouldShowModal = documentLoaderOnExternalDocumentRequested();
+  if (shouldShowModal) {
+    showLoadExternalModal.value = true;
+  }
 }
 
 async function onExternalDocumentUrlLoaded(url) {
   showLoadExternalModal.value = false;
 
-  if (!url) return;
-
-  // Clear any previous error
-  documentStore.clearSideDocError();
-
-  try {
-    const { data, finalUrl } = await documentStore.loadExternalDocument(url);
-
-    // Transform and set the side document
-    const cfDoc = data.CFDocument || {};
-    // Use a unique ID for external docs if identifier is missing or clashes
-    const externalId = cfDoc.identifier || 'external-' + Date.now();
-    const items = currentDocumentStore.transformCASEItems(data.CFItems || [], data.CFAssociations || [], externalId);
-
-    sideDocument.value = {
-      id: externalId,
-      uri: cfDoc.uri || finalUrl,
-      title: cfDoc.title || 'External Document',
-      description: cfDoc.description || null,
-      items: items
-    };
-  } catch (error) {
-    console.error('Error loading external document:', error);
-    sideDocument.value = null;
+  const result = await documentLoaderOnExternalDocumentUrlLoaded(url);
+  if (result && sideDocument) {
+    sideDocument.value = result;
   }
 }
 
@@ -653,9 +541,8 @@ function onDeleteItem(item) {
 async function handleAddChild(newItem, parentItem) {
   if (newItem && parentItem && parentItem.identifier) {
     const success = itemStore.addItem(currentDoc.value, newItem, parentItem.identifier);
-    if (success) {
-    } else {
-      console.error('Failed to add child item');
+    if (!success) {
+      logger.error('Failed to add child item');
     }
   }
 }
@@ -683,7 +570,7 @@ function onEditAssociation(association) {
   showEditAssociationModal.value = true;
 }
 
-function onDeleteAssociation(association) {
+function onDeleteAssociation() {
   // Handle association deletion
 }
 
@@ -692,7 +579,7 @@ function onRightPanelModeChanged(mode) {
 }
 
 // Placeholder handlers for modal events
-function onDocSaved(data) {
+function onDocSaved() {
 }
 
 function onAssociationCreated(association) {
@@ -702,11 +589,11 @@ function onAssociationCreated(association) {
   addingAssociationType.value = '';
   addingAssociationOrigin.value = null;
 
-  // TODO: Call the association store to persist the new association
-  console.log('Association created:', association);
+  // TODO: Call association store to persist new association
+  logger.debug('Association created:', association);
 }
 
-function onAssociationUpdated(association) {
+function onAssociationUpdated() {
   // Reset add mode state
   addingAssociation.value = false;
   addingAssociationType.value = '';
@@ -717,16 +604,22 @@ function onEditAssociationModalHidden() {
   closeEditAssociationModal();
 }
 
-function onItemsDeleted({ items, deleteType }) {
+function onExemplarAdded() {
 }
 
-function onExemplarAdded(exemplar) {
+function onItemsDeleted() {
+  // Handle items deleted from the document
+  // The document should be refreshed to reflect the changes
+  logger.debug('Items deleted');
 }
 
-function onAssocGroupSaved(group) {
+function onAssocGroupSaved() {
+  // Handle association group saved
+  // The document should be refreshed to reflect the changes
+  logger.debug('Association group saved');
 }
 
-function onAssocGroupDeleted(group) {
+function onAssocGroupDeleted() {
 }
 
 function onEditDocument() {
@@ -736,9 +629,8 @@ function onEditDocument() {
 async function handleAddRootItem(newItem) {
   if (newItem && currentDoc.value) {
     const success = itemStore.addItem(currentDoc.value, newItem, null);
-    if (success) {
-    } else {
-      console.error('Failed to add root item');
+    if (!success) {
+      logger.error('Failed to add root item');
     }
   }
 }
@@ -767,8 +659,7 @@ function findItem(items, id) {
   return null;
 }
 
-const docTitle = computed(() => doc.value.title);
-const docStatus = computed(() => doc.value.status || 'Draft');
+
 </script>
 
 <style scoped>
