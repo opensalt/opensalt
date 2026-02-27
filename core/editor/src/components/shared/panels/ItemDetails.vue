@@ -1,5 +1,23 @@
 <template>
   <div class="item-details">
+    <!-- Cross-Framework Indicator -->
+    <div v-if="isCrossFrameworkItem" class="alert alert-info mb-2" role="alert">
+      <i class="bi bi-box-arrow-up-right me-2"></i>
+      <strong>External Framework Item</strong>
+      <!-- Loading state -->
+      <span v-if="isLoadingCrossFramework" class="text-muted">
+        <span class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></span>
+        Loading...
+      </span>
+      <!-- Framework name from composable -->
+      <span v-else-if="externalFrameworkTitle" class="text-muted"> - from {{ externalFrameworkTitle }}</span>
+      <!-- Error state -->
+      <span v-else-if="crossFrameworkFetchError" class="text-warning ms-2">
+        <i class="bi bi-exclamation-triangle"></i>
+        {{ crossFrameworkFetchError.type === 'permission' ? 'No access' : 'Load error' }}
+      </span>
+    </div>
+
     <!-- Item Header -->
     <div class="card mb-3">
       <div class="card-header d-flex justify-content-between align-items-center">
@@ -7,7 +25,7 @@
           <img :src="itemIconSrc" class="me-2 item-icon" aria-hidden="true" />
           Item Details
         </h6>
-        <div class="btn-group btn-group-sm" v-if="!isReadOnly">
+        <div class="btn-group btn-group-sm" v-if="!isReadOnly && !isCrossFrameworkItem">
           <button
             type="button"
             class="btn btn-outline-primary"
@@ -96,7 +114,7 @@
           </div>
         </div>
 
-          <!-- Actions -->
+          <!-- Actions - Available for all items (including cross-framework) -->
       <div v-if="!isReadOnly" class="card mt-3">
         <div class="card-header">
           <h6 class="mb-0">Actions</h6>
@@ -131,7 +149,7 @@
       </div>
 
       <!-- Associations -->
-      <div v-if="mergedAssociations.length > 0" class="card mt-3">
+      <div v-if="mergedAssociations.length > 0 || !isCrossFrameworkItem" class="card mt-3">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h6 class="mb-0">Associations</h6>
           <button v-if="!isReadOnly" type="button" class="btn btn-sm btn-outline-primary" @click="$emit('add-association', item)">
@@ -148,7 +166,7 @@
             :direction="group.direction"
             :item-identifier="item.identifier"
             :is-read-only="isReadOnly"
-            @edit-association="!isReadOnly ? $emit('edit-association', $event) : null"
+            @edit-association="!isReadOnly && !isCrossFrameworkItem ? $emit('edit-association', $event) : null"
             @delete-association="handleDeleteAssociationRequest"
           />
         </div>
@@ -212,6 +230,7 @@ import DeleteAssociationModal from '@/components/association/DeleteAssociationMo
 import { useDynamicModal } from '../../../composables/useDynamicModal.js';
 import { useDynamicEditModal } from '../../../composables/useDynamicEditModal.js';
 import { useCurrentDocumentStore } from '../../../stores/currentDocumentStore';
+import { useCrossFrameworkItem } from '../../../composables/useCrossFrameworkItem';
 
 // Lazy-loaded markdown renderer with caching
 let markdownRendererPromise = null;
@@ -341,6 +360,17 @@ onMounted(() => {
 // Delete association modal handlers
 function handleDeleteAssociationRequest(association) {
   if (isReadOnly.value) return;
+
+  // For cross-framework items, only allow deletion of isChildOf associations
+  // that link the item to the current framework
+  if (isCrossFrameworkItem.value) {
+    const associationType = association.associationType || association.type;
+    const isChildOfAssoc = associationType === 'isChildOf';
+
+    // Only allow deletion if this is an isChildOf association
+    if (!isChildOfAssoc) return;
+  }
+
   associationToDelete.value = association;
   showDeleteModal.value = true;
 }
@@ -389,21 +419,49 @@ const mergedAssociations = computed(() => {
     }
   }
 
-  // Merge current and cross-framework associations, filtering out isChildOf (tree structure)
+  // Merge current and cross-framework associations
+  // For cross-framework items, include isChildOf associations so they can be deleted
   const allAssociations = [...currentAssociations, ...crossFrameworkAssociations]
-    .filter(a => (a.associationType || a.type) !== 'isChildOf');
+    .filter(a => {
+      const assocType = a.associationType || a.type;
+      // Show isChildOf if item is cross-framework or if parent (destination) is external
+      if (assocType === 'isChildOf') {
+        if (isCrossFrameworkItem.value) return true;
+        
+        const destId = a.destinationNodeURI?.identifier;
+        if (destId && currentDocumentStore.currentDocument?.items) {
+          let foundLocally = false;
+          const searchItems = (items) => {
+            if (foundLocally) return;
+            for (const i of items) {
+              if (i.identifier === destId) {
+                if (!i.isCrossFramework) {
+                  foundLocally = true;
+                }
+                return;
+              }
+              if (i.children) searchItems(i.children);
+            }
+          };
+          searchItems(currentDocumentStore.currentDocument.items);
+          if (!foundLocally) return true;
+        }
+        return false;
+      }
+      return true;
+    });
 
   // Group associations by type and determine direction
   const groupedAssociations = {};
 
   allAssociations.forEach(assoc => {
     const associationType = assoc.associationType || assoc.type || assoc.association?.type || 'unknown';
-    
+
     // Determine direction based on origin/destination
     const originId = assoc.originNodeURI?.identifier;
     const destId = assoc.destinationNodeURI?.identifier;
     let direction = 'normal';
-    
+
     if (destId === props.item.identifier) {
       direction = 'reversed';
     }
@@ -500,6 +558,83 @@ import { useSessionStore } from '../../../stores/sessionStore';
 
 const sessionStore = useSessionStore();
 const isReadOnly = computed(() => props.currentDocument?.isReadOnly || !sessionStore.isAuthenticated);
+
+// Detect if this is a cross-framework item
+const isCrossFrameworkItem = computed(() => props.item?.isCrossFramework === true);
+
+// Setup cross-framework item loading for external items
+// Structure matches what useCrossFrameworkItem expects (like AssociationItem.vue)
+const crossFrameworkData = computed(() => {
+  if (!isCrossFrameworkItem.value || !props.item?.crossFrameworkUri) {
+    return null;
+  }
+  return {
+    destinationNodeURI: {
+      uri: props.item.crossFrameworkUri,
+      identifier: props.item.identifier,
+      title: props.item.title || props.item.abbreviatedStatement || props.item.fullStatement
+    },
+    associationType: 'isChildOf'
+  };
+});
+
+// Use the composable for cross-framework items (like AssociationItem.vue)
+const {
+  itemData: crossFrameworkItemData,
+  itemTitle: crossFrameworkItemTitle,
+  isLoading: isLoadingCrossFramework,
+  frameworkTitle: crossFrameworkFrameworkTitle,
+  fetchError: crossFrameworkFetchError
+} = useCrossFrameworkItem({
+  association: crossFrameworkData,
+  direction: 'normal'
+});
+
+// Watch for fetched data and merge into the local item object
+watch(crossFrameworkItemData, (newData) => {
+  if (newData && isCrossFrameworkItem.value) {
+    // Merge fetched data into the item to enable proper display
+    const mergedData = {
+      fullStatement: newData.fullStatement || newData.CFItemFullStatement,
+      abbreviatedStatement: newData.abbreviatedStatement || newData.CFItemAbbreviatedStatement,
+      humanCodingScheme: newData.humanCodingScheme || newData.CFItemHumanCodingScheme,
+      itemType: newData.itemType || newData.CFItemType,
+      notes: newData.notes || newData.CFItemNotes,
+      language: newData.language || newData.CFItemLanguage,
+      educationLevel: newData.educationLevel || newData.CFItemEducationLevel,
+      conceptKeywords: newData.conceptKeywords || newData.CFItemConceptKeywords,
+      licenseURI: newData.licenseURI || newData.CFItemLicenseURI,
+      lastChanged: newData.lastChanged || newData.CFItemLastChangeDateTime,
+      extensions: newData.extensions || newData.CFItemExtensions
+    };
+
+    // Only assign defined values to avoid overwriting with undefined
+    Object.keys(mergedData).forEach(key => {
+      if (mergedData[key] !== undefined) {
+        props.item[key] = mergedData[key];
+      }
+    });
+
+    // Also update the title display property if available
+    if (newData.title && !props.item.title) {
+      props.item.title = newData.title;
+    }
+  }
+}, { immediate: true });
+
+// Get external framework title for cross-framework items
+// Uses the framework title from the composable if available
+const externalFrameworkTitle = computed(() => {
+  if (!isCrossFrameworkItem.value) {
+    return null;
+  }
+  // First check the composable's framework title
+  if (crossFrameworkFrameworkTitle.value) {
+    return crossFrameworkFrameworkTitle.value;
+  }
+  // Fall back to any previously stored title
+  return props.item?.externalFrameworkTitle || null;
+});
 
 // Get license name from definitions
 const licenseName = computed(() => {

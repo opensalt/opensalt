@@ -74,6 +74,12 @@ export interface EditorItemNode extends CFItemNode {
   associations?: EditorAssociation[];
   /** Child of association ID for reordering */
   childOfAssocId?: number;
+  /** Flag indicating this is a cross-framework item (not in current document) */
+  isCrossFramework?: boolean;
+  /** Loading state for cross-framework items being fetched */
+  loading?: boolean;
+  /** URI of the cross-framework item for lazy loading */
+  crossFrameworkUri?: string;
 }
 
 /**
@@ -307,6 +313,104 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
         if (originId && destinationId && items.has(originId) && (destinationId === docId)) {
           const child = items.get(originId)!;
           child.sequenceNumber = assoc.sequenceNumber || 0;
+        }
+
+        // Handle cross-framework parents: destination (parent) not in current document but origin (child) is
+        if (originId && destinationId && items.has(originId) && !items.has(destinationId)) {
+          let parent = items.get(destinationId);
+          if (!parent) {
+            const destUri = assoc.destinationNodeURI;
+            parent = {
+              id: 0,
+              identifier: destinationId,
+              uri: destUri?.uri || '',
+              title: destUri?.title || 'Loading...',
+              fullStatement: destUri?.title || 'Loading...',
+              abbreviatedTitle: destUri?.title || 'Loading...',
+              abbreviatedStatement: undefined,
+              alternativeLabel: '',
+              humanCodingScheme: undefined,
+              listEnumeration: undefined,
+              lastChanged: '',
+              lastChangeDateTime: '',
+              itemType: undefined,
+              CFItemTypeURI: undefined,
+              conceptKeywords: [],
+              conceptKeywordsURI: undefined,
+              notes: undefined,
+              language: undefined,
+              educationLevel: [],
+              licenseURI: undefined,
+              statusStartDate: undefined,
+              statusEndDate: undefined,
+              subject: [],
+              subjectURI: [],
+              extensions: undefined,
+              CFDocumentURI: assoc.CFDocumentURI,
+              documentId: null,
+              children: [],
+              sequenceNumber: 0,
+              expanded: false,
+              selected: false,
+              loading: true,
+              isCrossFramework: true,
+              crossFrameworkUri: destUri?.uri
+            };
+            items.set(destinationId, parent);
+          }
+          const child = items.get(originId)!;
+          child.sequenceNumber = assoc.sequenceNumber || 0;
+          child.childOfAssocId = 0;
+          parent.children.push(child);
+          children.set(originId, destinationId);
+        }
+
+        // Handle cross-framework children: origin (child) not in current document but destination (parent) is
+        if (originId && destinationId && !items.has(originId) && items.has(destinationId)) {
+          const parent = items.get(destinationId)!;
+          const originUri = assoc.originNodeURI;
+
+          // Create a placeholder child item for the cross-framework reference
+          const placeholderChild: EditorItemNode = {
+            id: 0,
+            identifier: originId,
+            uri: originUri?.uri || '',
+            title: originUri?.title || 'Loading...',
+            fullStatement: originUri?.title || 'Loading...',
+            abbreviatedTitle: originUri?.title || 'Loading...',
+            abbreviatedStatement: undefined,
+            alternativeLabel: '',
+            humanCodingScheme: undefined,
+            listEnumeration: undefined,
+            lastChanged: '',
+            lastChangeDateTime: '',
+            itemType: undefined,
+            CFItemTypeURI: undefined,
+            conceptKeywords: [],
+            conceptKeywordsURI: undefined,
+            notes: undefined,
+            language: undefined,
+            educationLevel: [],
+            licenseURI: undefined,
+            statusStartDate: undefined,
+            statusEndDate: undefined,
+            subject: [],
+            subjectURI: [],
+            extensions: undefined,
+            CFDocumentURI: undefined,
+            documentId: null,
+            children: [],
+            sequenceNumber: assoc.sequenceNumber || 0,
+            expanded: false,
+            selected: false,
+            // Cross-framework specific flags
+            isCrossFramework: true,
+            loading: true,
+            crossFrameworkUri: originUri?.uri
+          };
+
+          parent.children.push(placeholderChild);
+          // Note: We don't add to children map since this is a cross-framework reference
         }
       }
     });

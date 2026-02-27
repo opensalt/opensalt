@@ -314,7 +314,11 @@ export function useCrossFrameworkItem(options) {
     const items = currentDocumentStore.currentDocument?.items;
     if (!items) return null;
 
-    return findItemById(items, identifier);
+    const found = findItemById(items, identifier);
+    if (found && found.isCrossFramework) {
+      return null;
+    }
+    return found;
   });
 
   // Check if this is a cross-framework reference
@@ -367,15 +371,14 @@ export function useCrossFrameworkItem(options) {
     if (item) {
       // Build display text from item data
       const parts = [];
-      if (item.humanCodingScheme) {
-        parts.push(item.humanCodingScheme);
-      }
-      if (item.abbreviatedStatement) {
-        parts.push(item.abbreviatedStatement);
-      } else if (item.fullStatement) {
+      const abbr = item.abbreviatedStatement || item.CFItemAbbreviatedStatement;
+      const full = item.fullStatement || item.CFItemFullStatement;
+
+      if (abbr) {
+        parts.push(abbr);
+      } else if (full) {
         // Truncate long statements
-        const statement = item.fullStatement;
-        parts.push(statement.length > 100 ? statement.substring(0, 100) + '...' : statement);
+        parts.push(full.length > 100 ? full.substring(0, 100) + '...' : full);
       }
 
       if (parts.length > 0) {
@@ -449,22 +452,38 @@ export function useCrossFrameworkItem(options) {
 
     try {
       // Fetch the item directly by URI
-      const itemData = await fetchItemByUri(uri);
+      let itemData = null;
+      let docId = null;
+      let docTitle = null;
 
-      // Extract document info from CFDocumentURI
-      const documentUri = itemData.CFDocumentURI;
-      let docTitle = documentUri?.title || null;
-      let docId = documentUri?.identifier || null;
+      try {
+        itemData = await fetchItemByUri(uri);
+        // Extract document info from CFDocumentURI
+        const documentUri = itemData?.CFDocumentURI;
+        docTitle = documentUri?.title || null;
+        docId = documentUri?.identifier || null;
+      } catch (err) {
+        console.warn(`Failed to fetch external item details directly:`, err);
+        // We will try falling back to full framework fetch if we know the CFDocumentURI
+      }
 
-      // Cache the item
-      crossFrameworkItemCache.set(identifier, {
-        item: itemData,
-        documentId: docId,
-        documentTitle: docTitle,
-        fetchedAt: new Date()
-      });
+      // If item data didn't have doc ID but association did, use association's
+      if (!docId && associationCFDocumentURI.value) {
+        docId = associationCFDocumentURI.value.identifier;
+        docTitle = associationCFDocumentURI.value.title || docTitle;
+      }
 
-      externalItemData.value = itemData;
+      if (itemData) {
+        // Cache the item
+        crossFrameworkItemCache.set(identifier, {
+          item: itemData,
+          documentId: docId,
+          documentTitle: docTitle,
+          fetchedAt: new Date()
+        });
+
+        externalItemData.value = itemData;
+      }
 
       // If we have document info, fetch and cache the document
       if (docId) {
@@ -478,29 +497,45 @@ export function useCrossFrameworkItem(options) {
             const items = currentDocumentStore.transformCASEItems(
               packageData.CFItems || [],
               packageData.CFAssociations || [],
-              docId
+              packageData.CFDocument.identifier,
+              false
             );
-
-            currentDocumentStore.associatedDocuments.set(docId, {
-              id: docId,
-              title: docTitle,
-              items: items,
-              cfAssociations: packageData.CFAssociations || []
+            currentDocumentStore.associatedDocuments.set(packageData.CFDocument.identifier, {
+              ...packageData.CFDocument,
+              items: items.items
             });
+
+            // If we didn't get item data directly, try to extract it from the newly fetched document
+            if (!itemData) {
+              const found = findItemById(items.items, identifier);
+              if (found) {
+                itemData = found;
+                crossFrameworkItemCache.set(identifier, {
+                  item: itemData,
+                  documentId: docId,
+                  documentTitle: docTitle,
+                  fetchedAt: new Date()
+                });
+                externalItemData.value = itemData;
+              }
+            }
           }
-        } catch (docError) {
-          // Document fetch failed, but we still have the item
-          logger.warn(`Failed to fetch document ${docId}:`, docError);
-          externalFrameworkTitle.value = docTitle;
+        } catch (docErr) {
+          console.error(`Failed to fetch associated document:`, docErr);
         }
       }
+
+      if (!itemData) {
+        fetchError.value = "Failed to load item details";
+      }
+
     } catch (error) {
-      logger.warn(`Failed to load external item ${identifier}:`, error);
+      console.warn(`Unexpected error in loadExternalItem:`, error);
       fetchError.value = {
-        type: error.status === 403 ? 'permission' :
-          error.status === 404 ? 'not_found' : 'network',
-        message: error.message,
-        status: error.status
+        type: error?.status === 403 ? 'permission' :
+          error?.status === 404 ? 'not_found' : 'network',
+        message: error?.message || "Failed to load item details",
+        status: error?.status
       };
     } finally {
       isLoading.value = false;

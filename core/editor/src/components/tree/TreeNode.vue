@@ -23,7 +23,7 @@
       <img :src="iconSrc" class="tree-icon" aria-hidden="true" />
       <div
         class="tree-node-label"
-        :class="{ 'selected': selectedId === item.identifier, 'focused': isFocused }"
+        :class="{ 'selected': selectedId === item.identifier, 'focused': isFocused, 'cross-framework': isCrossFrameworkItem }"
         @click.stop.prevent="select"
         @dblclick.stop="dblClick"
         @mouseenter="onMouseEnter"
@@ -33,7 +33,18 @@
         :aria-expanded="isExpanded"
       >
         <span class="label-text">
-          <span v-if="item.humanCodingScheme" class="coding-scheme" style="color: #6c757d;">{{ item.humanCodingScheme }}: </span>
+          <!-- Loading spinner for cross-framework items -->
+          <span v-if="isCrossFrameworkItem && isLoadingCrossFramework" class="loading-spinner" aria-hidden="true">
+            <i class="bi bi-arrow-repeat spin"></i>
+          </span>
+          <!-- External link icon for cross-framework items -->
+          <span v-else-if="isCrossFrameworkItem" class="cross-framework-badge" aria-hidden="true" title="External framework item">
+            <i class="bi bi-box-arrow-up-right"></i>
+          </span>
+          <span v-if="isCrossFrameworkItem && item.externalFrameworkTitle" class="badge bg-primary text-white me-2 ms-1">
+            <i class="bi bi-box-arrow-up-right me-1"></i>{{ item.externalFrameworkTitle }}
+          </span>
+          <span v-if="displayHumanCodingScheme" class="coding-scheme" style="color: #6c757d;">{{ displayHumanCodingScheme }}: </span>
           <span v-if="searchQuery && hasMatch" v-html="highlightedTitle"></span>
           <span v-else>{{ displayTitle }}</span>
         </span>
@@ -88,7 +99,7 @@
       <img :src="iconSrc" class="tree-icon" aria-hidden="true" />
       <div
         class="tree-node-label"
-        :class="{ 'selected': selectedId === item.identifier, 'focused': isFocused }"
+        :class="{ 'selected': selectedId === item.identifier, 'focused': isFocused, 'cross-framework': isCrossFrameworkItem }"
         @click="select"
         @dblclick="dblClick"
         @mouseenter="onMouseEnter"
@@ -97,7 +108,18 @@
         role="button"
       >
         <span class="label-text">
-          <span v-if="item.humanCodingScheme" class="coding-scheme" style="color: #6c757d;">{{ item.humanCodingScheme }}: </span>
+          <!-- Loading spinner for cross-framework items -->
+          <span v-if="isCrossFrameworkItem && isLoadingCrossFramework" class="loading-spinner" aria-hidden="true">
+            <i class="bi bi-arrow-repeat spin"></i>
+          </span>
+          <!-- External link icon for cross-framework items -->
+          <span v-else-if="isCrossFrameworkItem" class="cross-framework-badge" aria-hidden="true" title="External framework item">
+            <i class="bi bi-box-arrow-up-right"></i>
+          </span>
+          <span v-if="isCrossFrameworkItem && item.externalFrameworkTitle" class="badge bg-primary text-white me-2 ms-1">
+            <i class="bi bi-box-arrow-up-right me-1"></i>{{ item.externalFrameworkTitle }}
+          </span>
+          <span v-if="displayHumanCodingScheme" class="coding-scheme" style="color: #6c757d;">{{ displayHumanCodingScheme }}: </span>
           <span v-if="searchQuery && hasMatch" v-html="highlightedTitle"></span>
           <span v-else>{{ displayTitle }}</span>
         </span>
@@ -109,8 +131,9 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted, inject } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted, inject, toValue, nextTick } from 'vue';
 import { useCurrentDocumentStore } from '@/stores/currentDocumentStore';
+import { useCrossFrameworkItem } from '@/composables/useCrossFrameworkItem';
 import sanitizeHtml from 'sanitize-html';
 
 import docIcon from '@/assets/icons/ph/graph-fill.svg';
@@ -162,6 +185,86 @@ const props = defineProps({
 });
 const emit = defineEmits(['select', 'dblclick', 'move', 'item-change', 'focus']);
 
+// Check if this is a cross-framework item
+const isCrossFrameworkItem = computed(() => props.item.isCrossFramework === true);
+
+// Setup cross-framework item loading for placeholder items
+// Structure matches what useCrossFrameworkItem expects (like AssociationItem.vue)
+// The composable expects destinationNodeURI when direction is 'normal'
+const crossFrameworkData = computed(() => {
+  if (!isCrossFrameworkItem.value || !props.item.crossFrameworkUri) {
+    return null;
+  }
+  return {
+    destinationNodeURI: {
+      uri: props.item.crossFrameworkUri,
+      identifier: props.item.identifier,
+      title: props.item.title || props.item.abbreviatedStatement || props.item.fullStatement
+    },
+    associationType: 'isChildOf'
+  };
+});
+
+// Use the composable only for cross-framework items (like AssociationItem.vue)
+const {
+  itemData,
+  itemTitle,
+  isLoading: isLoadingCrossFramework,
+  frameworkTitle,
+  fetchError,
+  loadExternalItem
+} = useCrossFrameworkItem({
+  association: crossFrameworkData,
+  direction: 'normal'
+});
+
+// Watch for fetched data and merge into the local item object
+// This ensures all computed properties (iconSrc, humanCodingScheme, etc.) work correctly
+watch(itemData, (newData) => {
+  if (newData && isCrossFrameworkItem.value) {
+    // Merge fetched data into the item to enable proper display
+    const mergedData = {
+      fullStatement: newData.fullStatement || newData.CFItemFullStatement,
+      abbreviatedStatement: newData.abbreviatedStatement || newData.CFItemAbbreviatedStatement,
+      humanCodingScheme: newData.humanCodingScheme || newData.CFItemHumanCodingScheme,
+      itemType: newData.itemType || newData.CFItemType,
+      notes: newData.notes || newData.CFItemNotes,
+      language: newData.language || newData.CFItemLanguage,
+      educationLevel: newData.educationLevel || newData.CFItemEducationLevel,
+      conceptKeywords: newData.conceptKeywords || newData.CFItemConceptKeywords,
+      licenseURI: newData.licenseURI || newData.CFItemLicenseURI,
+      lastChanged: newData.lastChanged || newData.CFItemLastChangeDateTime,
+      extensions: newData.extensions || newData.CFItemExtensions
+    };
+
+    // Only assign defined values to avoid overwriting with undefined
+    Object.keys(mergedData).forEach(key => {
+      if (mergedData[key] !== undefined) {
+        props.item[key] = mergedData[key];
+      }
+    });
+
+    // Also update the title display property if available
+    const newTitle = newData.title || newData.fullStatement || newData.CFItemFullStatement;
+    if (newTitle && (props.item.title === 'Loading...' || !props.item.title)) {
+      props.item.title = newTitle;
+    }
+
+    // Store the framework title on the item for reference
+    if (frameworkTitle.value && !props.item.externalFrameworkTitle) {
+      props.item.externalFrameworkTitle = frameworkTitle.value;
+    }
+  }
+}, { immediate: true });
+
+// Eagerly load the external item data if it's a cross-framework item
+watch(isCrossFrameworkItem, (isCross) => {
+  if (isCross) {
+    loadExternalItem();
+  }
+}, { immediate: true });
+
+
 const hasChildren = computed(() => props.item.children && props.item.children.length > 0);
 
 // Computed properties for ARIA attributes
@@ -200,8 +303,20 @@ const isFocused = computed(() => {
 const labelRef1 = ref(null);
 const labelRef2 = ref(null);
 
+const displayHumanCodingScheme = computed(() => {
+  if (isCrossFrameworkItem.value && itemData.value) {
+    const scheme = itemData.value.humanCodingScheme || itemData.value.CFItemHumanCodingScheme;
+    if (scheme) return scheme;
+  }
+  return props.item.humanCodingScheme;
+});
+
 // Search/filter computed properties
 const displayTitle = computed(() => {
+  // For cross-framework items, use the loaded title if available
+  if (isCrossFrameworkItem.value && itemTitle.value && itemTitle.value !== 'Unknown') {
+    return itemTitle.value;
+  }
   return props.item.abbreviatedStatement || props.item.fullStatement || props.item.title || props.item.identifier;
 });
 
@@ -398,7 +513,7 @@ const dblClick = () => { emit('dblclick', props.item.identifier); };
 const handleKeyDown = (event) => {
   // Stop propagation to prevent ancestor tree nodes from handling this event twice
   event.stopPropagation();
-  
+
   // First, let the navigation context handle navigation keys if available
   if (navigation?.handleKeyDown) {
     // Check if it's a navigation key
@@ -415,6 +530,11 @@ const currentDocumentStore = useCurrentDocumentStore();
 const dropPosition = ref(null);
 
 function onDragStart(e) {
+  // Disable drag for cross-framework items
+  if (isCrossFrameworkItem.value) {
+    e.preventDefault();
+    return;
+  }
   e.dataTransfer.effectAllowed = 'move';
   e.dataTransfer.setData('application/json', JSON.stringify({
     identifier: props.item.identifier,
@@ -662,5 +782,45 @@ onUnmounted(() => {
 /* Ancestor-only match styling - items visible only due to matching descendants */
 .tree-node--ancestor-match {
   opacity: 0.5;
+}
+
+/* Cross-framework item styling */
+.tree-node-label.cross-framework {
+  font-style: italic;
+}
+
+.tree-node-label.cross-framework:hover {
+  background-color: rgba(59, 130, 246, 0.15); /* Slightly darker on hover */
+}
+
+.tree-node-label.cross-framework.selected {
+  background-color: rgba(59, 130, 246, 0.2); /* Darker blue when selected */
+  border-left-color: #2563eb; /* Darker blue border when selected */
+}
+
+/* Loading spinner for cross-framework items */
+.loading-spinner {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 4px;
+  color: #6c757d;
+}
+
+.loading-spinner .spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Cross-framework badge */
+.cross-framework-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 4px;
+  color: #0d6efd;
+  font-size: 0.875em;
 }
 </style>
