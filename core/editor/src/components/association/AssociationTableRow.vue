@@ -1,38 +1,43 @@
 <template>
-  <!-- Main row -->
-  <tr class="association-row">
-    <!-- Origin Column -->
-    <td class="py-3">
-      <div class="item-display">
-        <template v-if="originDisplay.isLoading">
-          <span class="text-muted uri-display">{{ originDisplay.truncatedStatement }}</span>
-          <span class="spinner-border spinner-border-sm text-secondary ms-2" role="status" aria-label="Loading item information">
-            <span class="visually-hidden">Loading...</span>
-          </span>
-        </template>
-        <template v-else>
-          <div class="d-flex align-items-center flex-wrap gap-1">
-            <span v-if="originDisplay.humanCodingScheme" class="item-human-coding-scheme">
-              {{ originDisplay.humanCodingScheme }}
+  <tbody class="association-tbody" :class="{ 'cross-framework-tbody': !!association.CFDocumentURI }">
+    <!-- Main row -->
+    <tr class="association-row">
+      <!-- Origin Column -->
+      <td class="py-3">
+        <div class="item-display">
+          <template v-if="originDisplay.isLoading">
+            <span class="text-muted uri-display">{{ originDisplay.truncatedStatement }}</span>
+            <span class="spinner-border spinner-border-sm text-secondary ms-2" role="status" aria-label="Loading item information">
+              <span class="visually-hidden">Loading...</span>
             </span>
-            <span v-if="originDisplay.statement" class="item-statement">
-              {{ originDisplay.truncatedStatement }}
-            </span>
-            <span v-if="!originDisplay.humanCodingScheme && !originDisplay.statement" class="text-muted">
-              Unknown
-            </span>
-            <!-- Framework badge for cross-framework CASE items -->
-            <span v-if="originFrameworkTitle && !isOriginLoading && originTargetTypeInfo.isCase" class="badge bg-info text-dark framework-badge" :title="`From: ${originFrameworkTitle}`">
-              <i class="bi bi-box-arrow-up-right me-1"></i>{{ originFrameworkTitle }}
-            </span>
-            <!-- Non-CASE item indicator -->
-            <span v-if="!originTargetTypeInfo.isCase && isOriginCrossFramework" class="badge bg-secondary external-uri-badge" title="External URI">
-              <i class="bi bi-link-45deg me-1"></i>External
-            </span>
-          </div>
-        </template>
-      </div>
-    </td>
+          </template>
+          <template v-else>
+            <div class="d-flex align-items-center flex-wrap gap-1">
+              <span v-if="originDisplay.humanCodingScheme" class="item-human-coding-scheme">
+                {{ originDisplay.humanCodingScheme }}
+              </span>
+              <span v-if="originDisplay.statement" class="item-statement">
+                {{ originDisplay.truncatedStatement }}
+              </span>
+              <span v-if="!originDisplay.humanCodingScheme && !originDisplay.statement" class="text-muted">
+                Unknown
+              </span>
+              <!-- Framework badge for cross-framework CASE items -->
+              <span v-if="originFrameworkTitle && !isOriginLoading && originTargetTypeInfo.isCase" class="badge framework-badge" :title="`From: ${originFrameworkTitle}`">
+                <i class="bi bi-box-arrow-up-right me-1"></i>{{ originFrameworkTitle }}
+              </span>
+              <!-- Non-CASE item indicator -->
+              <span v-if="!originTargetTypeInfo.isCase && isOriginCrossFramework" class="badge external-uri-badge" title="External URI">
+                <i class="bi bi-link-45deg me-1"></i>External
+              </span>
+            </div>
+            <!-- Source framework tag moved to Origin column -->
+            <div v-if="sourceFrameworkTitle" class="mt-2 text-muted small border-top pt-1 border-opacity-25" style="max-width: 250px;">
+              <i class="bi bi-folder2-open me-1"></i>Source: {{ sourceFrameworkTitle }}
+            </div>
+          </template>
+        </div>
+      </td>
 
     <!-- Association Type Column -->
     <td class="py-3">
@@ -41,7 +46,7 @@
         <span class="text-capitalize">{{ typeDisplay.formatted }}</span>
         <span
           v-if="isExtendedType"
-          class="badge bg-warning ms-2"
+          class="badge bg-warning text-dark ms-2"
           title="This is an extended association type"
         >
           Extended
@@ -70,11 +75,11 @@
               Unknown
             </span>
             <!-- Framework badge for cross-framework CASE items -->
-            <span v-if="destinationFrameworkTitle && !isDestinationLoading && destinationTargetTypeInfo.isCase" class="badge bg-info text-dark framework-badge" :title="`From: ${destinationFrameworkTitle}`">
+            <span v-if="destinationFrameworkTitle && !isDestinationLoading && destinationTargetTypeInfo.isCase" class="badge framework-badge" :title="`From: ${destinationFrameworkTitle}`">
               <i class="bi bi-box-arrow-up-right me-1"></i>{{ destinationFrameworkTitle }}
             </span>
             <!-- Non-CASE item indicator -->
-            <span v-if="!destinationTargetTypeInfo.isCase && isDestinationCrossFramework" class="badge bg-secondary external-uri-badge" title="External URI">
+            <span v-if="!destinationTargetTypeInfo.isCase && isDestinationCrossFramework" class="badge external-uri-badge" title="External URI">
               <i class="bi bi-link-45deg me-1"></i>External
             </span>
           </div>
@@ -84,7 +89,7 @@
 
     <!-- Actions Column -->
     <td class="py-3 text-end">
-      <div v-if="!isReadOnly && association.associationType !== 'isChildOf' && association.type !== 'isChildOf'" class="btn-group btn-group-sm" role="group">
+      <div v-if="!isReadOnly && !association.CFDocumentURI && association.associationType !== 'isChildOf' && association.type !== 'isChildOf'" class="btn-group btn-group-sm" role="group">
         <button
           type="button"
           class="btn btn-outline-primary"
@@ -107,16 +112,16 @@
     </td>
   </tr>
 
-  <!-- Annotation Row (if notes exist) -->
-  <tr v-if="hasAnnotation" class="annotation-row">
-    <td colspan="4" class="py-2 px-3">
-      <div class="annotation-content">
-        <i class="bi bi-sticky me-2 text-muted" aria-hidden="true"></i>
-        <strong class="text-muted small">Annotation:</strong>
-        <span class="ms-2 text-muted small">{{ annotation }}</span>
-      </div>
-    </td>
-  </tr>
+    <tr v-if="hasAnnotation" class="annotation-row">
+      <td colspan="4" class="py-2 px-3">
+        <div class="annotation-content">
+          <i class="bi bi-sticky me-2 text-muted" aria-hidden="true"></i>
+          <strong class="text-muted small">Annotation:</strong>
+          <span class="ms-2 text-muted small">{{ annotation }}</span>
+        </div>
+      </td>
+    </tr>
+  </tbody>
 </template>
 
 <script setup>
@@ -147,6 +152,15 @@ const render = ref(null);
 // Load renderer on mount
 onMounted(async () => {
   render.value = await getMarkdownRenderer();
+});
+
+// Resolve the source framework title from the associatedDocuments cache
+const sourceFrameworkTitle = computed(() => {
+  const frameworkId = props.association.CFDocumentURI;
+  if (!frameworkId) return null;
+
+  const doc = currentDocumentStore.associatedDocuments.get(frameworkId);
+  return doc?.title || null;
 });
 
 const props = defineProps({
@@ -341,11 +355,12 @@ function getAssociationIcon(type) {
 </script>
 
 <style scoped>
-.association-row {
-  transition: background-color 0.2s ease;
+.association-tbody > tr > td {
+  transition: background-color 0.15s ease-in-out;
 }
 
-.association-row:hover {
+/* Grouped hover effect: target all tds in both rows uniformly */
+.association-tbody:hover > tr > td {
   background-color: #f8f9fa;
 }
 
@@ -373,18 +388,12 @@ function getAssociationIcon(type) {
   font-size: 0.875rem;
 }
 
-.annotation-row {
-  background-color: #f8f9fa;
-  border-top: none !important;
-}
-
-/* Remove top border from annotation row cell */
 .annotation-row td {
   border-top: none !important;
 }
 
 /* Remove bottom border from main row when followed by annotation row */
-.association-row:has(+ .annotation-row) td {
+.association-tbody:has(.annotation-row) .association-row td {
   border-bottom: none !important;
 }
 
@@ -409,6 +418,8 @@ function getAssociationIcon(type) {
   font-size: 0.7em;
   font-weight: 500;
   vertical-align: middle;
+  background-color: #0c63e4;
+  color: #ffffff;
 }
 
 .framework-badge i {
@@ -419,10 +430,27 @@ function getAssociationIcon(type) {
   font-size: 0.7em;
   font-weight: 500;
   vertical-align: middle;
+  background-color: #495057;
+  color: #ffffff;
 }
 
 .external-uri-badge i {
   font-size: 0.85em;
+}
+
+/* Cross-framework row highlighting using Bootstrap CSS variables */
+.cross-framework-tbody {
+  --bs-table-bg: #f8f9fa;
+}
+
+.cross-framework-tbody > tr > td:first-child {
+  border-left: 3px solid #6c757d;
+}
+
+/* Cross-framework grouped hover effect overriding the standard hover */
+.cross-framework-tbody:hover > tr > td {
+  --bs-table-bg: #e9ecef;
+  background-color: #e9ecef !important;
 }
 
 .gap-1 {

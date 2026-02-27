@@ -58,7 +58,7 @@
       </div>
     </div>
 
-    <div class="association-actions btn-group btn-group-sm ms-3" v-if="!isReadOnly">
+    <div class="association-actions btn-group btn-group-sm ms-3" v-if="!isReadOnly && !isCrossFrameworkAssoc">
       <button
         type="button"
         class="btn btn-outline-primary"

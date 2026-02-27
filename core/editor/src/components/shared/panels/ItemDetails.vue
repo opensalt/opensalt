@@ -389,8 +389,9 @@ const mergedAssociations = computed(() => {
     }
   }
 
-  // Merge current and cross-framework associations
-  const allAssociations = [...currentAssociations, ...crossFrameworkAssociations];
+  // Merge current and cross-framework associations, filtering out isChildOf (tree structure)
+  const allAssociations = [...currentAssociations, ...crossFrameworkAssociations]
+    .filter(a => (a.associationType || a.type) !== 'isChildOf');
 
   // Group associations by type and determine direction
   const groupedAssociations = {};

@@ -71,8 +71,31 @@ export function determineTargetType(targetType, associationType) {
 export function findInCachedFrameworks(identifier, currentDocumentStore, documentStore) {
   if (!identifier) return null;
 
+  // Check if identifier matches the current document itself (by identifier, id, or uri)
+  const isCurrentDoc = currentDocumentStore.currentDocument &&
+    (currentDocumentStore.currentDocument.identifier === identifier ||
+      currentDocumentStore.currentDocument.id === identifier ||
+      currentDocumentStore.currentDocument.uri === identifier);
+
+  if (isCurrentDoc) {
+    const title = currentDocumentStore.currentDocument.title || identifier;
+    return {
+      item: { identifier, title, fullStatement: title },
+      documentTitle: title,
+      documentId: currentDocumentStore.currentDocument.id || identifier
+    };
+  }
+
   // Check associatedDocuments cache
   for (const [docId, doc] of currentDocumentStore.associatedDocuments) {
+    // Check if identifier matches the document itself
+    if (doc.id === identifier || doc.identifier === identifier || doc.uri === identifier) {
+      return {
+        item: { identifier, title: doc.title, fullStatement: doc.title },
+        documentTitle: doc.title,
+        documentId: docId
+      };
+    }
     const found = findItemById(doc.items, identifier);
     if (found) {
       return {
@@ -85,6 +108,20 @@ export function findInCachedFrameworks(identifier, currentDocumentStore, documen
 
   // Check documentCache
   for (const [docId, pkg] of documentStore.documentCache) {
+    // Check if identifier matches this document
+    const isDocMatch = pkg?.CFDocument &&
+      (pkg.CFDocument.identifier === identifier ||
+        pkg.CFDocument.id === identifier ||
+        pkg.CFDocument.uri === identifier);
+
+    if (isDocMatch) {
+      const title = pkg.CFDocument.title || identifier;
+      return {
+        item: { identifier, title, fullStatement: title },
+        documentTitle: title,
+        documentId: docId
+      };
+    }
     if (pkg && pkg.CFItems) {
       const item = pkg.CFItems.find(i => i.identifier === identifier);
       if (item) {
@@ -254,10 +291,25 @@ export function useCrossFrameworkItem(options) {
     return determineTargetType(targetType, associationType);
   });
 
-  // Try to find the item in the current document first
   const itemInCurrentDocument = computed(() => {
     const identifier = itemIdentifier.value;
     if (!identifier) return null;
+
+    // Check if it's the document itself (by identifier, id, or uri)
+    const isCurrentDoc = currentDocumentStore.currentDocument &&
+      (currentDocumentStore.currentDocument.identifier === identifier ||
+        currentDocumentStore.currentDocument.id === identifier ||
+        currentDocumentStore.currentDocument.uri === identifier);
+
+    if (isCurrentDoc) {
+      const title = currentDocumentStore.currentDocument.title || identifier;
+      return {
+        identifier,
+        title,
+        fullStatement: title,
+        humanCodingScheme: ''
+      };
+    }
 
     const items = currentDocumentStore.currentDocument?.items;
     if (!items) return null;

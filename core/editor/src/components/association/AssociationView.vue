@@ -172,7 +172,37 @@ const currentDocument = computed(() => currentDocumentStore.currentDocument);
 const associationGroups = computed(() => currentDocumentStore.associationGroups);
 
 const associations = computed(() => {
-  return currentDocumentStore.currentDocumentAssociations || [];
+  const current = currentDocumentStore.currentDocumentAssociations || [];
+  const seenIds = new Set(current.map(a => a.identifier));
+  const crossFramework = [];
+
+  // Collect all item identifiers in the current document (including document itself)
+  const currentDocId = currentDocumentStore.currentDocument?.identifier;
+  const currentItemIds = new Set();
+  if (currentDocumentStore.currentDocument?.items) {
+    (function collectIds(items) {
+      for (const item of items) {
+        currentItemIds.add(item.identifier);
+        if (item.children) collectIds(item.children);
+      }
+    })(currentDocumentStore.currentDocument.items);
+  }
+  if (currentDocId) currentItemIds.add(currentDocId);
+
+  // Scan all associated documents for associations referencing current document items
+  for (const [frameworkId, doc] of currentDocumentStore.associatedDocuments) {
+    for (const assoc of (doc.cfAssociations || [])) {
+      const originId = assoc.originNodeURI?.identifier;
+      const destId = assoc.destinationNodeURI?.identifier;
+      if ((currentItemIds.has(originId) || currentItemIds.has(destId)) &&
+          !seenIds.has(assoc.identifier)) {
+        seenIds.add(assoc.identifier);
+        crossFramework.push({ ...assoc, CFDocumentURI: frameworkId });
+      }
+    }
+  }
+
+  return [...current, ...crossFramework];
 });
 
 // Dynamically derive association types from actual data
