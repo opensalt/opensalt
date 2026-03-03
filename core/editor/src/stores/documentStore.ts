@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { logger } from '../utils/logger.js';
 import { ref, Ref, nextTick } from 'vue';
 import { api } from '../services/api.js';
+import { frameworkCacheService } from '../services/frameworkCacheService.js';
 import type {
   CFDocument,
   CFPackage,
@@ -38,6 +39,25 @@ export const useDocumentStore = defineStore('documents', () => {
   // Request deduplication cache
   const pendingRequests = new Map<UUID, Promise<CFPackage>>();
   const documentCache = new Map<UUID, CFPackage>(); // Cache fetched documents
+
+  // Documents metadata from /api/v1/documents endpoint (includes lastChangeDateTime)
+  const documentsMetadata = new Map<UUID, string>(); // identifier -> lastChangeDateTime
+
+  /**
+   * Store documents metadata from /api/v1/documents endpoint
+   * This allows us to use pre-loaded metadata for cache validation
+   * instead of making individual metadata API calls
+   * @param {CFDocument[]} documentsArray - Array of documents from /api/v1/documents
+   */
+  function setDocumentsMetadata(documentsArray: CFDocument[]): void {
+    documentsMetadata.clear();
+    for (const doc of documentsArray) {
+      if (doc.identifier && doc.lastChangeDateTime) {
+        documentsMetadata.set(doc.identifier, doc.lastChangeDateTime);
+      }
+    }
+    logger.debug('Stored metadata for', documentsMetadata.size, 'documents');
+  }
 
   // Actions
   async function fetchDocuments(): Promise<void> {
@@ -82,6 +102,9 @@ export const useDocumentStore = defineStore('documents', () => {
 
       documents.value = allDocuments;
 
+      // Store document metadata for cache validation
+      setDocumentsMetadata(allDocuments);
+
     } catch (err) {
       error.value = (err as Error).message || 'Failed to fetch documents';
       console.error('Error fetching documents:', err);
@@ -96,8 +119,9 @@ export const useDocumentStore = defineStore('documents', () => {
 
   async function fetchDocument(identifier: UUID): Promise<CFPackage> {
 
-    // Check cache first
+    // Phase 1: Check memory cache first
     if (documentCache.has(identifier)) {
+      logger.debug('Memory cache hit for document:', identifier);
       return documentCache.get(identifier)!;
     }
 
@@ -121,6 +145,32 @@ export const useDocumentStore = defineStore('documents', () => {
     // Create request promise
     const requestPromise = (async (): Promise<CFPackage> => {
       try {
+        // Phase 2: Check persistent cache via IndexedDB
+        // Use pre-loaded metadata from /api/v1/documents to get server's lastChangeDateTime
+        // This avoids making an extra API call for metadata
+        const serverLastChangeDateTime = documentsMetadata.get(identifier);
+
+        if (!serverLastChangeDateTime) {
+          logger.debug('Document metadata not found in pre-loaded list, fetching full document:', identifier);
+        }
+
+        // Check if we have a valid cached version in IndexedDB
+        const cachedFramework = await frameworkCacheService.getValidFramework(
+          identifier,
+          serverLastChangeDateTime || ''
+        ) as CFPackage | null;
+
+        if (cachedFramework) {
+          logger.debug('IndexedDB cache hit for document:', identifier);
+          // Store in memory cache for faster access next time
+          documentCache.set(identifier, cachedFramework);
+          loading.value = false;
+          return cachedFramework;
+        }
+
+        logger.debug('Cache miss for document, fetching from API:', identifier);
+
+        // Phase 3: Fetch full document from API
         const responseData = await api.get(`/ims/case/v1p1/CFPackages/${identifier}`);
 
         // Validate response structure before type assertion
@@ -131,8 +181,16 @@ export const useDocumentStore = defineStore('documents', () => {
         // Safe to assert type after validation
         const data: CFPackage = responseData as CFPackage;
 
-        // Cache result
+        // Cache result in memory
         documentCache.set(identifier, data);
+
+        // Cache result in IndexedDB for persistence
+        try {
+          await frameworkCacheService.setFramework(identifier, data);
+        } catch (cacheErr) {
+          // Log but don't fail if IndexedDB caching fails
+          logger.warn('Failed to cache framework in IndexedDB:', cacheErr);
+        }
 
         return data;
       } catch (err) {
@@ -412,6 +470,22 @@ export const useDocumentStore = defineStore('documents', () => {
   }
 
   /**
+   * Fetch document metadata from the API
+   * This is a lightweight call that returns just the document info including lastChangeDateTime
+   * @param {UUID} identifier - Document UUID
+   * @returns {Promise<CFDocument|null>} - The document metadata or null on error
+   */
+  async function fetchDocumentMetadata(identifier: UUID): Promise<CFDocument | null> {
+    try {
+      const metadata = await api.get(`/ims/case/v1p1/CFDocuments/${identifier}`) as CFDocument;
+      return metadata;
+    } catch (err) {
+      logger.warn('Failed to fetch document metadata:', err);
+      return null;
+    }
+  }
+
+  /**
    * Check if a document is cached
    * @param {UUID} identifier - Document identifier
    * @returns {boolean} - True if document is cached
@@ -429,11 +503,13 @@ export const useDocumentStore = defineStore('documents', () => {
     sideDocError,
     fetchDocuments,
     fetchDocument,
+    fetchDocumentMetadata,
     fetchSideDocument,
     loadExternalDocument,
     clearError,
     clearSideDocError,
     resetLoadingSideDocument,
-    isDocumentCached
+    isDocumentCached,
+    setDocumentsMetadata
   };
 });
