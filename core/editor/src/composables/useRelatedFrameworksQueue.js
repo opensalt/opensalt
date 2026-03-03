@@ -2,7 +2,7 @@
  * useRelatedFrameworksQueue Composable
  *
  * Manages the queuing system for fetching related frameworks.
- * Implements priority-based queuing, batch processing, retry logic,
+ * Implements priority-based queuing, worker pool concurrency, retry logic,
  * and fair scheduling to prevent queue starvation.
  */
 import { ref, computed } from 'vue';
@@ -14,11 +14,11 @@ import { api } from '../services/api.js';
 import { logger } from '../utils/logger.js';
 
 // Constants from design document
-const BATCH_SIZE = 3;
-const BATCH_DELAY_MS = 500;
+const MAX_CONCURRENT_REQUESTS = 3;
 const MAX_RETRIES = 3;
 const RETRY_DELAYS = [1000, 2000, 4000]; // Exponential backoff: 1s, 2s, 4s
 const FAIR_SCHEDULING_RATIO = { high: 2, normal: 1 }; // Process 2 high, then 1 normal
+const RESET_RATIO_AFTER = 3; // Reset ratio counters after processing 3 items (2 high + 1 normal)
 
 // Priority levels
 const PRIORITY = {
@@ -61,7 +61,14 @@ export function useRelatedFrameworksQueue() {
   const queue = ref([]);
   const isRunning = ref(false);
   const isPaused = ref(false);
-  const isProcessing = ref(false);
+  const activeRequestCount = ref(0);
+
+  // Backward compatibility: isProcessing is true when any requests are active
+  const isProcessing = computed(() => activeRequestCount.value > 0);
+
+  // Fair scheduling state (instance-specific to avoid sharing between queue instances)
+  let highPriorityProcessed = 0;
+  let normalPriorityProcessed = 0;
 
   // Queue item cache to prevent duplication
   const queueItemCache = new Map();
@@ -188,62 +195,60 @@ export function useRelatedFrameworksQueue() {
   }
 
   /**
-   * Get next batch of items to process
-   * Implements fair scheduling: 2 high priority, 1 normal
-   * @returns {Array} - Array of queue items to process
+   * Get next item to process using fair scheduling
+   * Implements fair scheduling: maintains 2:1 ratio of high:normal priority
+   * @returns {Object|null} - Queue item to process or null if none available
    */
-  function getNextBatch() {
+  function getNextItem() {
     if (queue.value.length === 0) {
-      return [];
+      return null;
     }
 
-    const batch = [];
+    // Get only pending items
+    const pendingItems = queue.value.filter(item => item.fetchStatus === FETCH_STATUS.PENDING);
 
-    // Sort queue by priority (HIGH first) and then by retry count
-    const sortedQueue = [...queue.value].sort((a, b) => {
-      // Sort by priority first
-      const priorityOrder = { [PRIORITY.HIGH]: 0, [PRIORITY.NORMAL]: 1 };
-      if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
-        return priorityOrder[a.priority] - priorityOrder[b.priority];
-      }
-      // Then by retry count (fewer retries first)
-      return a.retryCount - b.retryCount;
-    });
-
-    // Count processed items in current batch for fair scheduling
-    let highProcessed = 0;
-    let normalProcessed = 0;
-
-    // Select items for batch with fair scheduling
-    for (const item of sortedQueue) {
-      if (item.fetchStatus !== FETCH_STATUS.PENDING) {
-        continue;
-      }
-
-      // Check fair scheduling ratio
-      if (item.priority === PRIORITY.HIGH && highProcessed >= FAIR_SCHEDULING_RATIO.high) {
-        continue;
-      }
-      if (item.priority === PRIORITY.NORMAL && normalProcessed >= FAIR_SCHEDULING_RATIO.normal) {
-        continue;
-      }
-
-      batch.push(item);
-      item.fetchStatus = FETCH_STATUS.LOADING;
-
-      // Track processed count
-      if (item.priority === PRIORITY.HIGH) {
-        highProcessed++;
-      } else {
-        normalProcessed++;
-      }
-
-      if (batch.length >= BATCH_SIZE) {
-        break;
-      }
+    if (pendingItems.length === 0) {
+      return null;
     }
 
-    return batch;
+    // Sort by retry count (fewer retries first) to prioritize fresh items
+    pendingItems.sort((a, b) => a.retryCount - b.retryCount);
+
+    // Separate by priority
+    const highPriorityItems = pendingItems.filter(item => item.priority === PRIORITY.HIGH);
+    const normalPriorityItems = pendingItems.filter(item => item.priority === PRIORITY.NORMAL);
+
+    // Determine which priority to select based on fair scheduling ratio
+    // We want 2 high priority for every 1 normal priority
+    const totalProcessed = highPriorityProcessed + normalPriorityProcessed;
+
+    if (totalProcessed >= RESET_RATIO_AFTER) {
+      // Reset counters after completing a full cycle
+      highPriorityProcessed = 0;
+      normalPriorityProcessed = 0;
+    }
+
+    let selectedItem = null;
+
+    // Fair scheduling: prefer high priority until we've processed 2, then take 1 normal
+    if (highPriorityProcessed < FAIR_SCHEDULING_RATIO.high && highPriorityItems.length > 0) {
+      selectedItem = highPriorityItems[0];
+      highPriorityProcessed++;
+    } else if (normalPriorityItems.length > 0) {
+      selectedItem = normalPriorityItems[0];
+      normalPriorityProcessed++;
+    } else if (highPriorityItems.length > 0) {
+      // No normal priority items available, take high priority
+      selectedItem = highPriorityItems[0];
+      highPriorityProcessed++;
+    }
+
+    if (selectedItem) {
+      // Mark as loading immediately to prevent duplicate selection
+      selectedItem.fetchStatus = FETCH_STATUS.LOADING;
+    }
+
+    return selectedItem;
   }
 
   /**
@@ -254,11 +259,14 @@ export function useRelatedFrameworksQueue() {
   async function fetchDocument(item) {
     const { identifier, retryCount } = item;
 
+    // Note: activeRequestCount is incremented by processQueue before calling this function
+    // to ensure atomic slot reservation and prevent race conditions
+
     try {
       updateFetchStatus(identifier, FETCH_STATUS.LOADING);
       item.lastAttempt = new Date();
 
-      logger.debug(`Fetching document ${identifier} (attempt ${retryCount + 1}/${MAX_RETRIES})`);
+      logger.debug(`Fetching document ${identifier} (attempt ${retryCount + 1}/${MAX_RETRIES}), active requests: ${activeRequestCount.value}`);
 
       // Fetch document using documentStore
       await documentStore.fetchDocument(identifier);
@@ -295,7 +303,7 @@ export function useRelatedFrameworksQueue() {
         const delay = RETRY_DELAYS[retryCount];
         logger.debug(`Scheduling retry for ${identifier} in ${delay}ms`);
 
-        // Schedule retry
+        // Schedule retry - retry will be picked up by processQueue when slot is available
         setTimeout(() => {
           if (isRunning.value && !isPaused.value) {
             processQueue();
@@ -307,64 +315,63 @@ export function useRelatedFrameworksQueue() {
         updateFetchStatus(identifier, FETCH_STATUS.ERROR);
         logger.error(`Max retries reached for document ${identifier}`);
       }
-    }
-  }
-
-  /**
-   * Process a batch of items
-   * @param {Array} batch - Batch of items to process
-   * @returns {Promise<void>}
-   */
-  async function processBatch(batch) {
-    if (batch.length === 0) {
-      return;
-    }
-
-    isProcessing.value = true;
-
-    try {
-      // Process items in parallel within the batch
-      await Promise.all(batch.map(item => fetchDocument(item)));
     } finally {
-      isProcessing.value = false;
+      // Decrement active request count and trigger next processing
+      activeRequestCount.value--;
+      logger.debug(`Document ${identifier} fetch completed, active requests: ${activeRequestCount.value}`);
+
+      // Trigger processing of next item if queue is still running and has items
+      if (isRunning.value && !isPaused.value) {
+        // Use setTimeout to avoid deep recursion and allow other tasks to run
+        setTimeout(() => {
+          processQueue();
+        }, 0);
+      }
     }
   }
 
   /**
-   * Process the queue
-   * @returns {Promise<void>}
+   * Process the queue using worker pool pattern
+   * Continuously fills up to MAX_CONCURRENT_REQUESTS slots
+   * @returns {void}
    */
-  async function processQueue() {
-    if (!isRunning.value || isPaused.value || isProcessing.value) {
+  function processQueue() {
+    if (!isRunning.value || isPaused.value) {
       return;
     }
 
-    // Get next batch
-    const batch = getNextBatch();
+    // Fill available slots up to MAX_CONCURRENT_REQUESTS
+    while (activeRequestCount.value < MAX_CONCURRENT_REQUESTS) {
+      // Get next item using fair scheduling
+      const item = getNextItem();
 
-    if (batch.length === 0) {
-      // No pending items, check if all are completed or errored
-      const allProcessed = queue.value.every(
-        item => item.fetchStatus === FETCH_STATUS.COMPLETED || item.fetchStatus === FETCH_STATUS.ERROR
-      );
-
-      if (allProcessed && queue.value.length > 0) {
-        // All items processed, stop queue
-        isRunning.value = false;
-        logger.debug('Queue processing completed');
+      if (!item) {
+        // No more pending items available
+        break;
       }
 
-      return;
+      // Reserve slot before launching async operation to prevent race condition
+      activeRequestCount.value++;
+
+      // Start fetching (fetchDocument handles its own async execution)
+      // We don't await here - let it run concurrently
+      fetchDocument(item).catch(() => {
+        // Ensure decrement and next processing on synchronous errors
+        // (async errors are handled in fetchDocument's finally block)
+      });
     }
 
-    // Process the batch
-    await processBatch(batch);
+    // Check if all items are processed
+    const hasPendingItems = queue.value.some(item => item.fetchStatus === FETCH_STATUS.PENDING);
+    const hasLoadingItems = queue.value.some(item => item.fetchStatus === FETCH_STATUS.LOADING);
 
-    // Schedule next batch after delay
-    if (isRunning.value && !isPaused.value) {
-      setTimeout(() => {
-        processQueue();
-      }, BATCH_DELAY_MS);
+    if (!hasPendingItems && !hasLoadingItems && queue.value.length > 0) {
+      // All items processed, stop queue
+      isRunning.value = false;
+      // Reset fair scheduling counters
+      highPriorityProcessed = 0;
+      normalPriorityProcessed = 0;
+      logger.debug('Queue processing completed');
     }
   }
 
@@ -426,7 +433,11 @@ export function useRelatedFrameworksQueue() {
     fetchStatusMap.clear();
     isRunning.value = false;
     isPaused.value = false;
-    isProcessing.value = false;
+    activeRequestCount.value = 0;
+
+    // Reset fair scheduling counters
+    highPriorityProcessed = 0;
+    normalPriorityProcessed = 0;
 
     logger.debug('Queue cleared');
   }
@@ -521,6 +532,7 @@ export function useRelatedFrameworksQueue() {
     isRunning,
     isPaused,
     isProcessing,
+    activeRequestCount,
     queueStats,
 
     // Methods
