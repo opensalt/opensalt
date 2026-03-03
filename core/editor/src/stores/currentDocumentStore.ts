@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref, computed, type Ref, type ComputedRef, watch } from 'vue';
+import { ref, computed, type Ref, type ComputedRef, nextTick } from 'vue';
 import { api } from '../services/api.js';
 import { logger } from '../utils/logger.js';
 import { useRelatedFrameworksQueue } from '../composables/useRelatedFrameworksQueue.js';
@@ -529,6 +529,10 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
   const associatedDocuments = ref<Map<UUID, AssociatedDocument>>(new Map());
   const loadingAssociatedDocs = ref<boolean>(false);
 
+  // Association index for O(1) lookups of documents containing associations for an item
+  // Maps itemIdentifier -> Set of documentIdentifiers that have associations for this item
+  const associationIndex = ref<Map<string, Set<string>>>(new Map());
+
   async function fetchAssociatedDocuments(documentStore: DocumentStore, identifiers: UUID[]) {
     if (loadingAssociatedDocs.value) return;
     loadingAssociatedDocs.value = true;
@@ -552,10 +556,14 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
               cfAssociations: docData.CFAssociations || [],
             });
 
+            // Update the association index for O(1) lookups
+            addToAssociationIndex(id, docData);
+
             // Simple cache eviction: remove oldest entries when over limit
             if (associatedDocuments.value.size > MAX_CACHE_SIZE) {
               const firstKey = associatedDocuments.value.keys().next().value;
               if (firstKey) {
+                removeFromAssociationIndex(firstKey);
                 associatedDocuments.value.delete(firstKey);
               }
             }
@@ -571,6 +579,78 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
 
   function getAssociatedDocument(id: UUID): AssociatedDocument | undefined {
     return associatedDocuments.value.get(id);
+  }
+
+  /**
+   * Add a document's associations to the index
+   * @param {UUID} docId - The document identifier
+   * @param {CFPackage} doc - The document package containing associations
+   */
+  function addToAssociationIndex(docId: UUID, doc: CFPackage): void {
+    const associations = doc.CFAssociations || [];
+
+    associations.forEach(assoc => {
+      const originId = assoc.originNodeURI?.identifier;
+      const destId = assoc.destinationNodeURI?.identifier;
+
+      // Index both origin and destination items
+      if (originId) {
+        if (!associationIndex.value.has(originId)) {
+          associationIndex.value.set(originId, new Set());
+        }
+        associationIndex.value.get(originId)!.add(docId);
+      }
+
+      if (destId) {
+        if (!associationIndex.value.has(destId)) {
+          associationIndex.value.set(destId, new Set());
+        }
+        associationIndex.value.get(destId)!.add(docId);
+      }
+    });
+  }
+
+  /**
+   * Remove a document from the association index
+   * @param {UUID} docId - The document identifier to remove
+   */
+  function removeFromAssociationIndex(docId: UUID): void {
+    associationIndex.value.forEach((docIds, itemId) => {
+      docIds.delete(docId);
+      // Clean up empty sets to prevent memory leaks
+      if (docIds.size === 0) {
+        associationIndex.value.delete(itemId);
+      }
+    });
+  }
+
+  /**
+   * Build the association index from the local associated documents cache
+   * This should be called when the store is initialized or when the cache is significantly modified
+   */
+  function buildAssociationIndex(): void {
+    // Clear existing index
+    associationIndex.value.clear();
+
+    // Build index from local associated documents cache
+    // Uses associatedDocuments instead of documentStore.documentCache to avoid
+    // circular dependency issues and ensure consistency with local state
+    associatedDocuments.value.forEach((doc, docId) => {
+      // Convert AssociatedDocument to CFPackage format for addToAssociationIndex
+      const cfPackage: CFPackage = {
+        CFDocument: doc as unknown as CFDocument,
+        CFItems: doc.items as unknown as CFItem[],
+        CFAssociations: doc.cfAssociations,
+        CFDefinitions: undefined,
+        CFRubrics: undefined
+      };
+      addToAssociationIndex(docId, cfPackage);
+    });
+
+    logger.debug('Built association index from associated documents cache', {
+      documentCount: associatedDocuments.value.size,
+      indexedItemCount: associationIndex.value.size
+    });
   }
 
   async function updateItems(documentId: number, lsItems: Record<string, unknown>) {
@@ -702,37 +782,32 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
 
   /**
    * Identify frameworks associated with the currently selected item
-   * Scans all cached frameworks for associations referencing this item
+   * Uses the pre-built association index for O(1) lookups
    * @returns {UUID[]} - Array of document identifiers
    */
   function identifyAssociatedFrameworks(): UUID[] {
     const item = currentItem.value;
     if (!item) return [];
 
-    const identifiers = new Set<UUID>();
+    // Use the association index for O(1) lookup instead of scanning all documents
+    const docIds = associationIndex.value.get(item.identifier);
+    if (!docIds) return [];
 
-    // Scan all cached frameworks for associations that reference the current item
-    documentStore.documentCache.forEach((cachedDoc, docId) => {
-      // Skip the current document
-      if (docId === currentDocument.value?.identifier) return;
-
-      const hasRelevantAssociation = cachedDoc.CFAssociations?.some(assoc => {
-        const originId = assoc.originNodeURI?.identifier;
-        const destId = assoc.destinationNodeURI?.identifier;
-        return originId === item.identifier || destId === item.identifier;
-      });
-
-      if (hasRelevantAssociation) {
-        identifiers.add(docId);
+    // Filter out the current document and convert to array
+    const identifiers: UUID[] = [];
+    docIds.forEach(docId => {
+      if (docId !== currentDocument.value?.identifier) {
+        identifiers.push(docId as UUID);
       }
     });
 
-    return Array.from(identifiers);
+    return identifiers;
   }
 
   /**
    * Set HIGH priority for frameworks associated with the currently selected item
    * This ensures that frameworks shown in the Item Details panel are prioritized
+   * Uses nextTick to defer queue updates and avoid blocking the main thread
    */
   function setHighPriorityForAssociatedFrameworks() {
     const associatedIds = identifyAssociatedFrameworks();
@@ -742,15 +817,18 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
       return;
     }
 
-    // Set HIGH priority for each associated framework in the queue
-    // Type assertion to ensure queue has the expected method
-    if (typeof queue.updateItemPriority === 'function') {
-      associatedIds.forEach(identifier => {
-        queue.updateItemPriority(identifier, 'HIGH');
-      });
-    }
+    // Defer only the queue updates to next tick to avoid blocking the main thread
+    nextTick(() => {
+      // Set HIGH priority for each associated framework in the queue
+      // Type assertion to ensure queue has the expected method
+      if (typeof queue.updateItemPriority === 'function') {
+        associatedIds.forEach(identifier => {
+          queue.updateItemPriority(identifier, 'HIGH');
+        });
+      }
 
-    logger.debug(`Set HIGH priority for ${associatedIds.length} associated frameworks:`, associatedIds);
+      logger.debug(`Set HIGH priority for ${associatedIds.length} associated frameworks:`, associatedIds);
+    });
   }
 
   /**
@@ -766,12 +844,9 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     }
   }
 
-  // Watch for changes to current item and trigger priority updates
-  watch(currentItem, (newItem) => {
-    if (newItem) {
-      setHighPriorityForAssociatedFrameworks();
-    }
-  });
+  // Note: Priority updates are handled by setSelectedItem, which calls
+  // setHighPriorityForAssociatedFrameworks(). We don't need a separate watcher
+  // since that would cause duplicate calls.
 
   return {
     currentDocument,
@@ -801,7 +876,12 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     copyItem,
     currentItem,
     setSelectedItem,
-    identifyAssociatedFrameworks
+    identifyAssociatedFrameworks,
+    // Association index for O(1) lookups
+    associationIndex,
+    buildAssociationIndex,
+    addToAssociationIndex,
+    removeFromAssociationIndex
   };
 });
 

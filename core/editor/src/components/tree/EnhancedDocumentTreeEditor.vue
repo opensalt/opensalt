@@ -130,7 +130,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, provide } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch, provide, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useDocumentStore } from '../../stores/documentStore';
 import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
@@ -151,6 +151,10 @@ import TreePanelSection from './TreePanelSection.vue';
 import ModalManager from './ModalManager.vue';
 import RightSidePanel from '../shared/panels/RightSidePanel.vue';
 import SideBySideTreePanel from './SideBySideTreePanel.vue';
+
+// Track scroll timeout for cleanup (using refs for per-instance isolation)
+const scrollTimeoutId = ref(null);
+const docChangeTimeoutId = ref(null);
 
 // Initialize stores (must be initialized before computed properties that use them)
 const documentStore = useDocumentStore();
@@ -371,20 +375,100 @@ watch(() => route.params.itemId, (newItemId) => {
   }
 }, { immediate: true });
 
-// Initialize focus and expand document root when document loads
-watch(() => doc.value?.id, (newDocId) => {
+// Initialize data on mount
+onMounted(async () => {
+  await initializeDocument();
+
+  // After document loads, scroll to selected item if one exists
+  if (selectedId.value) {
+    scrollToSelectedItem();
+  }
+});
+
+/**
+ * Find the path to an item in the tree (list of ancestor identifiers)
+ * @param {Array} items - Tree items to search
+ * @param {String} targetId - ID of the item to find
+ * @param {Array} path - Current path (used recursively)
+ * @returns {Array|null} - Array of identifiers leading to the target, or null if not found
+ */
+function findItemPath(items, targetId, path = []) {
+  for (const item of items) {
+    if (item.identifier === targetId) {
+      return [...path, item.identifier];
+    }
+    if (item.children && item.children.length > 0) {
+      const childPath = findItemPath(item.children, targetId, [...path, item.identifier]);
+      if (childPath) {
+        return childPath;
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * Scroll the selected item into view
+ * Expands parent nodes and smoothly scrolls to the selected item
+ */
+async function scrollToSelectedItem() {
+  if (!selectedId.value || !doc.value?.items) return;
+
+  // Find the path to the selected item
+  const path = findItemPath(doc.value.items, selectedId.value);
+
+  if (!path || path.length === 0) return;
+
+  // Expand all parent nodes (all items in the path except the selected item itself)
+  // The tree root is handled separately, so we only expand intermediate parents
+  for (let i = 0; i < path.length - 1; i++) {
+    expandItem(path[i]);
+  }
+
+  // Wait for DOM to update after expanding parents
+  await nextTick();
+
+  // Clear any existing scroll timeout to prevent memory leaks
+  if (scrollTimeoutId.value) clearTimeout(scrollTimeoutId.value);
+
+  // Find the selected element and scroll it into view
+  // Use a small delay to ensure the DOM is fully rendered
+  scrollTimeoutId.value = setTimeout(() => {
+    const selectedElement = document.querySelector(`[data-tree-node-id="${selectedId.value}"]`);
+    if (selectedElement) {
+      selectedElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'nearest'
+      });
+
+      // Also set focus to the selected item for accessibility
+      setFocus(selectedId.value);
+    }
+    scrollTimeoutId.value = null;
+  }, 100);
+}
+
+// Watch for document changes to handle initialization and scrolling
+watch(() => doc.value?.id, (newDocId, oldDocId) => {
   if (newDocId) {
     // Expand the document root by default
     expandItem(newDocId);
     // Initialize focus on the document root
     initializeFocus();
+
+    // Handle scrolling when document is loaded and we have a selected item
+    if (newDocId !== oldDocId && selectedId.value) {
+      // Clear any existing timeout to prevent memory leaks on rapid changes
+      if (docChangeTimeoutId.value) clearTimeout(docChangeTimeoutId.value);
+      // Delay slightly to ensure tree is rendered
+      docChangeTimeoutId.value = setTimeout(() => {
+        scrollToSelectedItem();
+        docChangeTimeoutId.value = null;
+      }, 200);
+    }
   }
 }, { immediate: true });
-
-// Initialize data on mount
-onMounted(async () => {
-  await initializeDocument();
-});
 
 // Event handlers
 function onSelect(id) {
@@ -659,6 +743,11 @@ function findItem(items, id) {
   return null;
 }
 
+// Cleanup on component unmount
+onUnmounted(() => {
+  if (scrollTimeoutId.value) clearTimeout(scrollTimeoutId.value);
+  if (docChangeTimeoutId.value) clearTimeout(docChangeTimeoutId.value);
+});
 
 </script>
 

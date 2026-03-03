@@ -47,69 +47,69 @@
       <div class="card-body">
         <!-- Item Title -->
         <h5 class="card-title">
-          <span v-if="item.humanCodingScheme" class="badge bg-secondary me-1">
-            {{ item.humanCodingScheme }}
+          <span v-if="displayItem.humanCodingScheme" class="badge bg-secondary me-1">
+            {{ displayItem.humanCodingScheme }}
           </span>
-          {{ item.abbreviatedStatement || '' }}
+          {{ displayItem.abbreviatedStatement || '' }}
         </h5>
 
         <!-- Specialized Item Details -->
         <component
           v-if="itemDetailsComponent"
           :is="itemDetailsComponent"
-          :item="item"
+          :item="displayItem"
         />
 
         <!-- Default Item Details (for items without specialized component) -->
         <div v-else>
-          <div v-if="item.fullStatement" class="mb-3">
+          <div v-if="displayItem.fullStatement" class="mb-3">
             <strong>Full Statement:</strong>
             <div class="mt-1 markdown-content" v-html="renderedFullStatement"></div>
           </div>
 
           <div class="mt-2">
-              <strong>Identifier:</strong> <span class="ms-1">{{ item.identifier }}</span>
+              <strong>Identifier:</strong> <span class="ms-1">{{ displayItem.identifier }}</span>
           </div>
 
           <div class="row mt-2">
-            <div v-if="item.itemType" class="col-sm-6">
-              <strong>Item Type:</strong> {{ item.itemType || 'General' }}
+            <div v-if="displayItem.itemType" class="col-sm-6">
+              <strong>Item Type:</strong> {{ displayItem.itemType || 'General' }}
             </div>
-            <div v-if="item.language" class="col-sm-6">
-              <strong>Language:</strong> {{ item.language || 'en' }}
+            <div v-if="displayItem.language" class="col-sm-6">
+              <strong>Language:</strong> {{ displayItem.language || 'en' }}
             </div>
           </div>
 
-          <div v-if="item.educationLevel && item.educationLevel.length > 0" class="mt-2">
+          <div v-if="displayItem.educationLevel && displayItem.educationLevel.length > 0" class="mt-2">
               <strong>Education Level:</strong>
               <span class="ms-1">
-                  <span v-for="level in item.educationLevel" :key="level" class="badge bg-info text-dark me-1">
+                  <span v-for="level in displayItem.educationLevel" :key="level" class="badge bg-info text-dark me-1">
                       {{ level }}
                   </span>
               </span>
           </div>
 
-          <div v-if="item.conceptKeywords && item.conceptKeywords.length > 0" class="mt-2">
+          <div v-if="displayItem.conceptKeywords && displayItem.conceptKeywords.length > 0" class="mt-2">
               <strong>Keywords:</strong>
               <span class="ms-1">
-                  <span v-for="keyword in item.conceptKeywords" :key="keyword" class="badge bg-secondary me-1">
+                  <span v-for="keyword in displayItem.conceptKeywords" :key="keyword" class="badge bg-secondary me-1">
                       {{ keyword }}
                   </span>
               </span>
           </div>
 
-          <div v-if="item.licenseURI" class="mt-2 text-truncate">
+          <div v-if="displayItem.licenseURI" class="mt-2 text-truncate">
               <strong>License:</strong> <span class="ms-1">{{ licenseName }}</span>
           </div>
 
-          <div v-if="item.notes" class="mt-3">
+          <div v-if="displayItem.notes" class="mt-3">
               <strong>Notes:</strong>
               <p class="mt-1 markdown-content" v-html="renderedNotes"></p>
           </div>
 
-          <div v-if="item.lastChanged" class="mt-2">
+          <div v-if="displayItem.lastChanged" class="mt-2">
             <small class="text-muted">
-              Last changed: {{ formatDate(item.lastChanged) }}
+              Last changed: {{ formatDate(displayItem.lastChanged) }}
             </small>
           </div>
         </div>
@@ -149,14 +149,23 @@
       </div>
 
       <!-- Associations -->
-      <div v-if="mergedAssociations.length > 0 || !isCrossFrameworkItem" class="card mt-3">
+      <div v-if="mergedAssociations.length > 0 || !isCrossFrameworkItem || isProcessingAssociations" class="card mt-3">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <h6 class="mb-0">Associations</h6>
+          <h6 class="mb-0">
+            Associations
+            <span v-if="isProcessingAssociations" class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></span>
+          </h6>
           <button v-if="!isReadOnly" type="button" class="btn btn-sm btn-outline-primary" @click="$emit('add-association', item)">
             <i class="bi bi-plus"></i> Add
           </button>
         </div>
         <div class="card-body">
+          <!-- Loading state for associations -->
+          <div v-if="isProcessingAssociations && mergedAssociations.length === 0" class="text-center py-3">
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            <span class="text-muted">Loading associations...</span>
+          </div>
+
           <AssociationGroupDisplay
             v-for="group in mergedAssociations"
             :key="`${group.type}-${group.direction}`"
@@ -222,8 +231,8 @@
 </template>
 
 <script setup>
-/* global localStorage, console */
-import { computed, ref, onMounted, watch } from 'vue';
+/* global localStorage, console, requestIdleCallback, setTimeout */
+import { computed, ref, shallowRef, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import AssociationGroupDisplay from '../../association/AssociationGroupDisplay.vue';
 import CommentModule from '../CommentModule.vue';
 import DeleteAssociationModal from '@/components/association/DeleteAssociationModal.vue';
@@ -309,17 +318,8 @@ const emit = defineEmits([
   'update-item'
 ]);
 
-// Watch for item changes to update store and trigger priority queue updates
+// Access the store for association data and priority queue updates
 const currentDocumentStore = useCurrentDocumentStore();
-watch(
-  () => props.item,
-  (newItem) => {
-    if (newItem?.identifier) {
-      currentDocumentStore.setSelectedItem(newItem);
-    }
-  },
-  { immediate: true }
-);
 
 const availableTypes = ['general', 'assessment', 'course', 'credential', 'job', 'organization', 'public_key', 'identifier'];
 
@@ -351,10 +351,295 @@ const showDeleteModal = ref(false);
 const associationToDelete = ref(null);
 const showExtendedInfo = ref(false);
 
+// Performance optimization: Cache for merged associations
+// Using Map for O(1) lookup by item identifier
+const mergedAssociationsCache = shallowRef(new Map());
+const isProcessingAssociations = ref(false);
+const lastProcessedItemId = ref(null);
+const lastAssociatedDocumentsSize = ref(0);
+
+// Cache size limit to prevent unbounded memory growth
+const MAX_CACHE_SIZE = 50;
+
+// Version counter for race condition prevention
+const processingVersion = ref(0);
+
+// Helper to build an item index for O(1) lookup instead of tree traversal
+// This avoids the expensive recursive searchItems function
+function buildItemIndex(items, index = new Map()) {
+  if (!items || !Array.isArray(items)) return index;
+
+  for (const item of items) {
+    if (item?.identifier) {
+      index.set(item.identifier, item);
+    }
+    if (item?.children?.length) {
+      buildItemIndex(item.children, index);
+    }
+  }
+  return index;
+}
+
+// Async processing function to avoid blocking the UI
+// Uses requestIdleCallback when available, falls back to setTimeout
+// @param {string} itemIdentifier - The item identifier to process
+// @param {number} version - The processing version for race condition prevention
+// @param {boolean} background - If true, process in background without showing loading state
+// @param {boolean} force - If true, bypass the cache check and force re-processing
+async function processAssociationsAsync(itemIdentifier, version, background = false, force = false) {
+  if (!itemIdentifier) return Promise.resolve();
+
+  // Check if already cached (unless force is true)
+  if (!force && mergedAssociationsCache.value.has(itemIdentifier)) {
+    return Promise.resolve();
+  }
+
+  // Only show loading state for non-background updates
+  if (!background) {
+    isProcessingAssociations.value = true;
+  }
+
+  // Use nextTick to allow UI to update before processing
+  await nextTick();
+
+  // Schedule heavy processing during idle time
+  // Use requestIdleCallback with a robust fallback for Safari < 16.5
+  const scheduleTask = typeof requestIdleCallback !== 'undefined'
+    ? (cb) => {
+        try {
+          return requestIdleCallback(cb, { timeout: 100 });
+        } catch (e) {
+          return setTimeout(cb, 0);
+        }
+      }
+    : (cb) => setTimeout(cb, 0);
+
+  return new Promise((resolve) => {
+    scheduleTask(() => {
+      // Check if this is still the latest request (race condition prevention)
+      if (version !== processingVersion.value) {
+        resolve();
+        return;
+      }
+
+      try {
+        const result = computeMergedAssociations(itemIdentifier);
+
+        // Create a new Map to trigger Vue reactivity (shallowRef requires replacing .value)
+        const newCache = new Map(mergedAssociationsCache.value);
+
+        // Enforce cache size limit with LRU eviction
+        if (newCache.size >= MAX_CACHE_SIZE) {
+          const firstKey = newCache.keys().next().value;
+          newCache.delete(firstKey);
+        }
+
+        newCache.set(itemIdentifier, result);
+        mergedAssociationsCache.value = newCache;
+      } catch (error) {
+        console.error('Error processing associations:', error);
+        // Create a new Map to trigger Vue reactivity (shallowRef requires replacing .value)
+        const errorCache = new Map(mergedAssociationsCache.value);
+        errorCache.set(itemIdentifier, []);
+        mergedAssociationsCache.value = errorCache;
+      } finally {
+        // Only clear loading state if this is still the latest request
+        if (version === processingVersion.value) {
+          isProcessingAssociations.value = false;
+        }
+        resolve();
+      }
+    });
+  });
+}
+
+// Clear cache when associated documents change
+function clearAssociationsCache() {
+  // Create new Map to trigger reactivity
+  mergedAssociationsCache.value = new Map();
+  lastProcessedItemId.value = null;
+}
+
+// The actual computation logic (extracted from the original computed property)
+function computeMergedAssociations(itemIdentifier) {
+  if (!itemIdentifier) return [];
+
+  // Get current item's associations
+  const currentAssociations = props.item.associations || [];
+
+  // Collect cross-framework associations from the reactive associatedDocuments map
+  const crossFrameworkAssociations = [];
+  const seenIds = new Set(currentAssociations.map(a => a.identifier));
+
+  // Iterate over all reactive associatedDocuments (populated by the queue as frameworks load)
+  for (const [frameworkId, associatedDoc] of currentDocumentStore.associatedDocuments) {
+    const associations = associatedDoc.cfAssociations || [];
+    for (const assoc of associations) {
+      const originId = assoc.originNodeURI?.identifier;
+      const destId = assoc.destinationNodeURI?.identifier;
+
+      // Check if this association involves current item and isn't a duplicate
+      if ((originId === itemIdentifier || destId === itemIdentifier) &&
+          !seenIds.has(assoc.identifier)) {
+        seenIds.add(assoc.identifier);
+        crossFrameworkAssociations.push({
+          ...assoc,
+          CFDocumentURI: frameworkId
+        });
+      }
+    }
+  }
+
+  // Build item index once for O(1) lookup instead of recursive tree traversal
+  const items = currentDocumentStore.currentDocument?.items;
+  const itemIndex = buildItemIndex(items);
+
+  // Merge current and cross-framework associations
+  // For cross-framework items, include isChildOf associations so they can be deleted
+  const allAssociations = [...currentAssociations, ...crossFrameworkAssociations]
+    .filter(a => {
+      const assocType = a.associationType || a.type;
+      // Show isChildOf if item is cross-framework or if parent (destination) is external
+      if (assocType === 'isChildOf') {
+        if (isCrossFrameworkItem.value) return true;
+
+        const destId = a.destinationNodeURI?.identifier;
+        if (destId) {
+          const destItem = itemIndex.get(destId);
+          // If destination is not found locally or is marked as cross-framework, show it
+          if (!destItem || destItem.isCrossFramework) {
+            return true;
+          }
+        }
+        return false;
+      }
+      return true;
+    });
+
+  // Group associations by type and determine direction
+  const groupedAssociations = {};
+
+  allAssociations.forEach(assoc => {
+    const associationType = assoc.associationType || assoc.type || assoc.association?.type || 'unknown';
+
+    // Determine direction based on origin/destination
+    const destId = assoc.destinationNodeURI?.identifier;
+    let direction = 'normal';
+
+    if (destId === itemIdentifier) {
+      direction = 'reversed';
+    }
+
+    // Create group key
+    const groupKey = `${associationType}-${direction}`;
+
+    // Initialize group if not exists
+    if (!groupedAssociations[groupKey]) {
+      groupedAssociations[groupKey] = {
+        type: associationType,
+        direction: direction,
+        associations: []
+      };
+    }
+
+    // Add association to group
+    groupedAssociations[groupKey].associations.push(assoc);
+  });
+
+  // Convert to array and return
+  return Object.values(groupedAssociations);
+}
+
+// Track processed items to prevent duplicate processing
+const processingItemId = ref(null);
+
+// Watch for item changes to trigger async processing
+// This consolidates store updates and association processing in a single watcher
+watch(
+  () => props.item?.identifier,
+  async (newItemId, oldItemId) => {
+    if (newItemId && newItemId !== oldItemId) {
+      // Update store selection first
+      currentDocumentStore.setSelectedItem(props.item);
+
+      // Clear cache if associated documents have changed significantly
+      const currentDocsSize = currentDocumentStore.associatedDocuments?.size || 0;
+      if (currentDocsSize !== lastAssociatedDocumentsSize.value) {
+        clearAssociationsCache();
+        lastAssociatedDocumentsSize.value = currentDocsSize;
+      }
+
+      // Prevent duplicate processing of the same item
+      if (processingItemId.value === newItemId) {
+        return;
+      }
+
+      // Increment version counter for race condition prevention
+      const version = ++processingVersion.value;
+
+      // Process associations asynchronously with version check
+      processingItemId.value = newItemId;
+      lastProcessedItemId.value = newItemId;
+      await processAssociationsAsync(newItemId, version);
+      processingItemId.value = null;
+    }
+  },
+  { immediate: true }
+);
+
+// Watch for changes in the current item's associations (e.g., after add/delete)
+watch(
+  () => props.item?.associations?.length,
+  () => {
+    if (props.item?.identifier) {
+      // Clear the cache for this item to force re-computation
+      // Create new Map to trigger reactivity
+      const newCache = new Map(mergedAssociationsCache.value);
+      newCache.delete(props.item.identifier);
+      mergedAssociationsCache.value = newCache;
+      // Re-process if this is the current item
+      if (lastProcessedItemId.value === props.item.identifier) {
+        const version = ++processingVersion.value;
+        processAssociationsAsync(props.item.identifier, version);
+      }
+    }
+  }
+);
+
+// Watch for changes in associated documents
+// When new documents are added, we process them in the background WITHOUT
+// clearing the cache. This ensures the UI keeps showing existing associations
+// while new ones are being computed, avoiding the "Loading associations..." flash.
+watch(
+  () => currentDocumentStore.associatedDocuments?.size,
+  (newSize, oldSize) => {
+    // Only re-process if documents were added (not removed)
+    if (newSize > oldSize && lastProcessedItemId.value) {
+      // IMPORTANT: Do NOT clear the cache here. Instead, keep showing the
+      // cached associations while we compute the new ones in the background.
+      // This prevents the "Loading associations..." message from appearing.
+      // The cache will be atomically updated when processAssociationsAsync completes.
+
+      const version = ++processingVersion.value;
+      // Pass background=true to avoid showing loading state during incremental updates
+      // Pass force=true to bypass the cache check and re-process with new documents
+      processAssociationsAsync(lastProcessedItemId.value, version, true, true);
+    }
+  }
+);
+
 // Load preference from localStorage on mount
 onMounted(() => {
   const stored = localStorage.getItem('itemDetailsShowExtended');
   showExtendedInfo.value = stored === 'true';
+});
+
+// Cleanup on unmount to prevent stale processing state
+onUnmounted(() => {
+  // Increment version to invalidate any in-flight processing
+  processingVersion.value++;
+  isProcessingAssociations.value = false;
+  processingItemId.value = null;
 });
 
 // Delete association modal handlers
@@ -389,115 +674,35 @@ function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString();
 }
 
-// Merge cross-framework associations from cached frameworks
+// Optimized mergedAssociations using cache
+// The heavy computation is done asynchronously in processAssociationsAsync
 const mergedAssociations = computed(() => {
   if (!props.item?.identifier) return [];
 
-  // Get current item's associations
-  const currentAssociations = props.item.associations || [];
+  const itemId = props.item.identifier;
 
-  // Collect cross-framework associations from the reactive associatedDocuments map
-  const crossFrameworkAssociations = [];
-  const seenIds = new Set(currentAssociations.map(a => a.identifier));
-
-  // Iterate over all reactive associatedDocuments (populated by the queue as frameworks load)
-  for (const [frameworkId, associatedDoc] of currentDocumentStore.associatedDocuments) {
-    const associations = associatedDoc.cfAssociations || [];
-    for (const assoc of associations) {
-      const originId = assoc.originNodeURI?.identifier;
-      const destId = assoc.destinationNodeURI?.identifier;
-
-      // Check if this association involves current item and isn't a duplicate
-      if ((originId === props.item.identifier || destId === props.item.identifier) &&
-          !seenIds.has(assoc.identifier)) {
-        seenIds.add(assoc.identifier);
-        crossFrameworkAssociations.push({
-          ...assoc,
-          CFDocumentURI: frameworkId
-        });
-      }
-    }
+  // Return cached result if available
+  if (mergedAssociationsCache.value.has(itemId)) {
+    return mergedAssociationsCache.value.get(itemId);
   }
 
-  // Merge current and cross-framework associations
-  // For cross-framework items, include isChildOf associations so they can be deleted
-  const allAssociations = [...currentAssociations, ...crossFrameworkAssociations]
-    .filter(a => {
-      const assocType = a.associationType || a.type;
-      // Show isChildOf if item is cross-framework or if parent (destination) is external
-      if (assocType === 'isChildOf') {
-        if (isCrossFrameworkItem.value) return true;
-        
-        const destId = a.destinationNodeURI?.identifier;
-        if (destId && currentDocumentStore.currentDocument?.items) {
-          let foundLocally = false;
-          const searchItems = (items) => {
-            if (foundLocally) return;
-            for (const i of items) {
-              if (i.identifier === destId) {
-                if (!i.isCrossFramework) {
-                  foundLocally = true;
-                }
-                return;
-              }
-              if (i.children) searchItems(i.children);
-            }
-          };
-          searchItems(currentDocumentStore.currentDocument.items);
-          if (!foundLocally) return true;
-        }
-        return false;
-      }
-      return true;
-    });
-
-  // Group associations by type and determine direction
-  const groupedAssociations = {};
-
-  allAssociations.forEach(assoc => {
-    const associationType = assoc.associationType || assoc.type || assoc.association?.type || 'unknown';
-
-    // Determine direction based on origin/destination
-    const originId = assoc.originNodeURI?.identifier;
-    const destId = assoc.destinationNodeURI?.identifier;
-    let direction = 'normal';
-
-    if (destId === props.item.identifier) {
-      direction = 'reversed';
-    }
-
-    // Create group key
-    const groupKey = `${associationType}-${direction}`;
-
-    // Initialize group if not exists
-    if (!groupedAssociations[groupKey]) {
-      groupedAssociations[groupKey] = {
-        type: associationType,
-        direction: direction,
-        associations: []
-      };
-    }
-
-    // Add association to group
-    groupedAssociations[groupKey].associations.push(assoc);
-  });
-
-  // Convert to array and return
-  return Object.values(groupedAssociations);
+  // Return empty array while processing (loading state will be shown)
+  // Async processing is triggered by the watcher on props.item?.identifier
+  return [];
 });
 
 // Render fullStatement as markdown
 const renderedFullStatement = computed(() => {
-  if (!props.item?.fullStatement) return '';
-  return render.value ? render.value.block(props.item.fullStatement) : props.item.fullStatement;
+  if (!displayItem.value?.fullStatement) return '';
+  return render.value ? render.value.block(displayItem.value.fullStatement) : displayItem.value.fullStatement;
 });
 
 
 
 // Render notes as markdown
 const renderedNotes = computed(() => {
-    if (!props.item?.notes) return '';
-    return render.value ? render.value.block(props.item.notes) : props.item.notes;
+    if (!displayItem.value?.notes) return '';
+    return render.value ? render.value.block(displayItem.value.notes) : displayItem.value.notes;
 });
 
 function getTypeLabel(type) {
@@ -516,7 +721,7 @@ function getTypeLabel(type) {
 
 // Compute icon based on item type
 const itemIconSrc = computed(() => {
-  const type = props.item.extensions?.['salt:type'] || 'item';
+  const type = displayItem.value.extensions?.['salt:type'] || 'item';
   const iconMap = {
     assessment: assessmentIcon,
     course: courseIcon,
@@ -532,7 +737,7 @@ const itemIconSrc = computed(() => {
 
 // Determine which specialized item details component to use
 const itemDetailsComponent = computed(() => {
-  const type = props.item.extensions?.['salt:type'] || 'default';
+  const type = displayItem.value.extensions?.['salt:type'] || 'default';
   const componentMap = {
     job: JobItemDetails,
     course: CourseItemDetails,
@@ -560,19 +765,20 @@ const sessionStore = useSessionStore();
 const isReadOnly = computed(() => props.currentDocument?.isReadOnly || !sessionStore.isAuthenticated);
 
 // Detect if this is a cross-framework item
+// Use props.item directly to avoid circular dependency with displayItem
 const isCrossFrameworkItem = computed(() => props.item?.isCrossFramework === true);
 
 // Setup cross-framework item loading for external items
 // Structure matches what useCrossFrameworkItem expects (like AssociationItem.vue)
 const crossFrameworkData = computed(() => {
-  if (!isCrossFrameworkItem.value || !props.item?.crossFrameworkUri) {
+  if (!isCrossFrameworkItem.value || !displayItem.value?.crossFrameworkUri) {
     return null;
   }
   return {
     destinationNodeURI: {
-      uri: props.item.crossFrameworkUri,
-      identifier: props.item.identifier,
-      title: props.item.title || props.item.abbreviatedStatement || props.item.fullStatement
+      uri: displayItem.value.crossFrameworkUri,
+      identifier: displayItem.value.identifier,
+      title: displayItem.value.title || displayItem.value.abbreviatedStatement || displayItem.value.fullStatement
     },
     associationType: 'isChildOf'
   };
@@ -581,7 +787,6 @@ const crossFrameworkData = computed(() => {
 // Use the composable for cross-framework items (like AssociationItem.vue)
 const {
   itemData: crossFrameworkItemData,
-  itemTitle: crossFrameworkItemTitle,
   isLoading: isLoadingCrossFramework,
   frameworkTitle: crossFrameworkFrameworkTitle,
   fetchError: crossFrameworkFetchError
@@ -590,10 +795,20 @@ const {
   direction: 'normal'
 });
 
+// Local reactive state for cross-framework item data to avoid prop mutation
+const localCrossFrameworkData = ref({});
+
+// Computed property that merges props.item with localCrossFrameworkData
+// This ensures fetched cross-framework data is displayed in the template
+const displayItem = computed(() => ({
+  ...props.item,
+  ...localCrossFrameworkData.value
+}));
+
 // Watch for fetched data and merge into the local item object
 watch(crossFrameworkItemData, (newData) => {
   if (newData && isCrossFrameworkItem.value) {
-    // Merge fetched data into the item to enable proper display
+    // Merge fetched data into local state to enable proper display
     const mergedData = {
       fullStatement: newData.fullStatement || newData.CFItemFullStatement,
       abbreviatedStatement: newData.abbreviatedStatement || newData.CFItemAbbreviatedStatement,
@@ -608,16 +823,24 @@ watch(crossFrameworkItemData, (newData) => {
       extensions: newData.extensions || newData.CFItemExtensions
     };
 
-    // Only assign defined values to avoid overwriting with undefined
+    // Only assign defined values to local state
+    let hasChanges = false;
     Object.keys(mergedData).forEach(key => {
-      if (mergedData[key] !== undefined) {
-        props.item[key] = mergedData[key];
+      if (mergedData[key] !== undefined && mergedData[key] !== props.item[key]) {
+        localCrossFrameworkData.value[key] = mergedData[key];
+        hasChanges = true;
       }
     });
 
     // Also update the title display property if available
-    if (newData.title && !props.item.title) {
-      props.item.title = newData.title;
+    if (newData.title && !localCrossFrameworkData.value.title && newData.title !== props.item.title) {
+      localCrossFrameworkData.value.title = newData.title;
+      hasChanges = true;
+    }
+
+    // Emit event to parent only when data actually changes
+    if (hasChanges) {
+      emit('update-item', { ...props.item, ...localCrossFrameworkData.value });
     }
   }
 }, { immediate: true });
@@ -633,16 +856,16 @@ const externalFrameworkTitle = computed(() => {
     return crossFrameworkFrameworkTitle.value;
   }
   // Fall back to any previously stored title
-  return props.item?.externalFrameworkTitle || null;
+  return displayItem.value?.externalFrameworkTitle || null;
 });
 
 // Get license name from definitions
 const licenseName = computed(() => {
-  if (!props.item?.licenseURI?.identifier) {
+  if (!displayItem.value?.licenseURI?.identifier) {
     return null;
   }
 
-  const licenseId = props.item.licenseURI.identifier;
+  const licenseId = displayItem.value.licenseURI.identifier;
   const licenses = currentDocumentStore.currentDocumentDefinitions?.CFLicenses || [];
 
   // Find license by identifier in definitions
@@ -654,7 +877,7 @@ const licenseName = computed(() => {
   }
 
   // Fallback to license URI or identifier
-  return props.item.licenseURI.uri || props.item.licenseURI.identifier;
+  return displayItem.value.licenseURI.uri || displayItem.value.licenseURI.identifier;
 });
 </script>
 
