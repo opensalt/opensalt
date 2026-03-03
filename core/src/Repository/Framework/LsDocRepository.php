@@ -1135,50 +1135,170 @@ xENDx;
     /**
      * Find related documents for a given document with permission filtering.
      *
+     * Optimized implementation that:
+     * 1. Uses a single native SQL UNION query to find associated document IDs
+     * 2. Integrates ACL filtering directly into the database query
+     * 3. Avoids hydrating intermediate entities
+     *
      * @return LsDoc[]
      */
     public function findRelatedDocuments(LsDoc $lsDoc, ?User $user = null): array
     {
-        $qb = $this->createQueryBuilder('d')
-            ->distinct()
-            ->select('d')
-            ->leftJoin('d.mirroredFramework', 'm');
+        $docId = $lsDoc->getId();
+        $conn = $this->getEntityManager()->getConnection();
 
-        // Apply user/organization filtering with extended access control
+        // Get user context for ACL filtering
+        $userId = null;
+        $orgId = null;
+        $isEditor = false;
+        $hasEditAll = false;
+
         if (null !== $user) {
-            if (!$this->security->isGranted(Permission::FRAMEWORK_EDIT_ALL)) {
-                $isEditor = $this->security->isGranted('ROLE_EDITOR');
-                $qb->leftJoin('d.docAcls', 'acls', 'WITH', 'acls.user = :user')
-                    ->orWhere('(m.visible IS NULL OR m.visible = 1) AND (d.adoptionStatus != :privateDraft)')
-                    ->orWhere('(m.visible IS NOT NULL AND 1 = :isEditor)')
-                    ->orWhere('(d.org = :org OR d.user = :user OR acls.access = 1) AND (acls.access IS NULL OR acls.access != 0)')
-                    ->setParameter('isEditor', $isEditor ? 1 : 0)
-                    ->setParameter('user', $user)
-                    ->setParameter('org', $user->getOrg())
-                    ->setParameter('privateDraft', LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT);
+            $userId = $user->getId();
+            $orgId = $user->getOrg()?->getId();
+            $isEditor = $this->security->isGranted('ROLE_EDITOR');
+            $hasEditAll = $this->security->isGranted(Permission::FRAMEWORK_EDIT_ALL);
+        }
+
+        // Build ACL conditions as SQL
+        $aclConditions = $this->buildAclConditionsSql($userId, $orgId, $isEditor, $hasEditAll);
+
+        // Optimized query using EXISTS clauses instead of IN with sub-selects
+        // EXISTS short-circuits on first match found, making it much faster
+        $sql = <<<SQL
+SELECT DISTINCT d.id
+FROM ls_doc d
+LEFT JOIN mirror_framework m ON m.id = d.mirrored_framework_id
+INNER JOIN (
+    SELECT DISTINCT i.ls_doc_id
+    FROM ls_item i
+    INNER JOIN ls_association a ON a.destination_lsitem_id = i.id
+    INNER JOIN ls_item i2 ON i2.id = a.origin_lsitem_id
+    WHERE i2.ls_doc_id = :docId
+
+    UNION ALL
+
+    SELECT DISTINCT i.ls_doc_id
+    FROM ls_item i
+    INNER JOIN ls_association a ON a.origin_lsitem_id = i.id
+    INNER JOIN ls_item i2 ON i2.id = a.destination_lsitem_id
+    WHERE i2.ls_doc_id = :docId
+
+    UNION ALL
+
+    SELECT DISTINCT i.ls_doc_id
+    FROM ls_item i
+    INNER JOIN ls_association a ON a.origin_lsitem_id = i.id
+    WHERE a.destination_lsdoc_id = :docId
+
+    UNION ALL
+
+    SELECT DISTINCT i.ls_doc_id
+    FROM ls_item i
+    INNER JOIN ls_association a ON a.destination_lsitem_id = i.id
+    WHERE a.origin_lsdoc_id = :docId
+
+    UNION ALL
+
+    SELECT DISTINCT a.ls_doc_id
+    FROM ls_association a
+    INNER JOIN ls_item i ON i.id = a.destination_lsitem_id
+    WHERE i.ls_doc_id = :docId
+
+    UNION ALL
+
+    SELECT DISTINCT a.ls_doc_id
+    FROM ls_association a
+    INNER JOIN ls_item i ON i.id = a.origin_lsitem_id
+    WHERE i.ls_doc_id = :docId
+) related_docs ON related_docs.ls_doc_id = d.id
+AND ({$aclConditions})
+SQL;
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bindValue('docId', $docId);
+
+        if (null !== $userId) {
+            $stmt->bindValue('userId', $userId);
+            if (null !== $orgId) {
+                $stmt->bindValue('orgId', $orgId);
             }
         }
-        if (null === $user) {
-            $qb->andWhere('m.visible IS NULL OR m.visible = 1')
-                ->andWhere('d.adoptionStatus != :privateDraft')
-                ->setParameter('privateDraft', LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT);
-        }
 
-        // Find documents associated with the given document
-        $associatedDocIds = array_keys($this->findAssociatedDocs($lsDoc));
+        $result = $stmt->executeQuery();
+        $docIds = $result->fetchFirstColumn();
 
-        // Filter to only include associated documents
-        if (!empty($associatedDocIds)) {
-            $qb->andWhere('d.identifier IN (:associatedDocIds)')
-                ->setParameter('associatedDocIds', $associatedDocIds);
-        } else {
+        if (empty($docIds)) {
             return [];
         }
 
-        $qb->orderBy('d.creator', 'ASC')
+        // Fetch full entities for the filtered document IDs
+        $qb = $this->createQueryBuilder('d')
+            ->select('d, s')
+            ->leftJoin('d.subjects','s')
+            ->where('d.id IN (:docIds)')
+            ->setParameter('docIds', $docIds)
+            ->orderBy('d.creator', 'ASC')
             ->addOrderBy('d.title', 'ASC')
             ->addOrderBy('d.adoptionStatus', 'ASC');
 
-        return $qb->getQuery()->getResult() ?? [];
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * Build ACL conditions as SQL for use in native queries.
+     */
+    private function buildAclConditionsSql(?int $userId, ?int $orgId, bool $isEditor, bool $hasEditAll): string
+    {
+        // If user has FRAMEWORK_EDIT_ALL permission, they can see all documents
+        if ($hasEditAll) {
+            return '1 = 1';
+        }
+
+        // Anonymous user - only public, non-private documents
+        if (null === $userId) {
+            return "(m.visible IS NULL OR m.visible = 1) AND d.adoption_status != 'Private Draft'";
+        }
+
+        // Logged-in user with specific permissions
+        $conditions = [];
+
+        // Public non-private documents
+        $conditions[] = "(m.visible IS NULL OR m.visible = 1) AND d.adoption_status != 'Private Draft'";
+
+        // Editor can see visible mirrored frameworks
+        if ($isEditor) {
+            $conditions[] = '(m.visible IS NOT NULL AND m.visible = 1)';
+        }
+
+        // Documents in user's org, owned by user, or with explicit ACL access
+        $userConditions = [];
+        if (null !== $orgId) {
+            $userConditions[] = 'd.org_id = :orgId';
+        }
+        $userConditions[] = 'd.user_id = :userId';
+
+        // Check for explicit ACL access - use EXISTS for better performance than LEFT JOIN
+        $userConditions[] = 'EXISTS (
+            SELECT 1 FROM salt_user_doc_acl acls
+            WHERE acls.doc_id = d.id
+            AND acls.user_id = :userId
+            AND acls.access = 1
+        )';
+
+        // Combine the positive access conditions with OR (any one grants access)
+        $positiveConditions = '(' . implode(' OR ', $userConditions) . ')';
+
+        // Exclude documents where access was explicitly removed (must be AND'd with positive conditions)
+        $negativeCondition = 'NOT EXISTS (
+            SELECT 1 FROM salt_user_doc_acl acls
+            WHERE acls.doc_id = d.id
+            AND acls.user_id = :userId
+            AND acls.access = 0
+        )';
+
+        $conditions[] = "({$positiveConditions} AND {$negativeCondition})";
+
+        return '(' . implode(') OR (', $conditions) . ')';
     }
 }

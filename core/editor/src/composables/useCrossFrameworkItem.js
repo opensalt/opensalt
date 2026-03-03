@@ -497,8 +497,7 @@ export function useCrossFrameworkItem(options) {
             const items = currentDocumentStore.transformCASEItems(
               packageData.CFItems || [],
               packageData.CFAssociations || [],
-              packageData.CFDocument.identifier,
-              false
+              packageData.CFDocument.identifier
             );
             currentDocumentStore.associatedDocuments.set(packageData.CFDocument.identifier, {
               ...packageData.CFDocument,

@@ -310,13 +310,16 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
           children.set(originId, destinationId);
         }
 
-        if (originId && destinationId && items.has(originId) && (destinationId === docId)) {
+        // Infer docId from association if not provided
+        const effectiveDocId = docId || assoc.CFDocumentURI?.identifier;
+
+        if (originId && destinationId && items.has(originId) && (destinationId === effectiveDocId)) {
           const child = items.get(originId)!;
           child.sequenceNumber = assoc.sequenceNumber || 0;
         }
 
         // Handle cross-framework parents: destination (parent) not in current document but origin (child) is
-        if (originId && destinationId && items.has(originId) && !items.has(destinationId)) {
+        if (originId && destinationId && items.has(originId) && !items.has(destinationId) && destinationId !== effectiveDocId) {
           let parent = items.get(destinationId);
           if (!parent) {
             const destUri = assoc.destinationNodeURI;
@@ -540,7 +543,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
           try {
             const docData = await documentStore.fetchDocument(id);
             const cfDoc: CFPckgDocument = docData.CFDocument || {} as CFPckgDocument;
-            const items = transformCASEItems(docData.CFItems || [], docData.CFAssociations || []);
+            const items = transformCASEItems(docData.CFItems || [], docData.CFAssociations || [], cfDoc.identifier);
 
             associatedDocuments.value.set(id, {
               id: cfDoc.identifier,

@@ -42,7 +42,7 @@ router.beforeEach(async (to, from, next) => {
       const docData = await documentStore.fetchDocument(frameworkId);
       // Transform and set the current document
       const cfDoc = docData.CFDocument || {};
-      const items = currentDocumentStore.transformCASEItems(docData.CFItems || [], docData.CFAssociations || []);
+      const items = currentDocumentStore.transformCASEItems(docData.CFItems || [], docData.CFAssociations || [], cfDoc.identifier);
 
       currentDocumentStore.selectDocument({
         id: cfDoc.identifier,
