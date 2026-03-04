@@ -36,6 +36,10 @@ export const useDocumentStore = defineStore('documents', () => {
   const loadingSideDocument = ref<boolean>(false);
   const sideDocError = ref<string | null>(null);
 
+  // NEW: Viewed document loading state (for dual framework edit/view separation)
+  const loadingViewedDocument = ref<boolean>(false);
+  const viewedDocError = ref<string | null>(null);
+
   // Request deduplication cache
   const pendingRequests = new Map<UUID, Promise<CFPackage>>();
   const documentCache = new Map<UUID, CFPackage>(); // Cache fetched documents
@@ -284,6 +288,90 @@ export const useDocumentStore = defineStore('documents', () => {
   }
 
   /**
+   * NEW: Fetch a document for viewing (dual framework edit/view separation)
+   * Similar to fetchDocument but uses separate loading state for viewed documents
+   * Uses the existing caching mechanism and IndexedDB persistence
+   */
+  async function fetchViewedDocument(identifier: UUID): Promise<CFPackage> {
+    // Check memory cache first
+    if (documentCache.has(identifier)) {
+      logger.debug('Memory cache hit for viewed document:', identifier);
+      return documentCache.get(identifier)!;
+    }
+
+    // Check if request is already pending
+    if (pendingRequests.has(identifier)) {
+      return pendingRequests.get(identifier)!;
+    }
+
+    loadingViewedDocument.value = true;
+    viewedDocError.value = null;
+
+    // Type guard to validate CFPackage response
+    function isCFPackage(response: unknown): response is CFPackage {
+      return (
+        typeof response === 'object' &&
+        response !== null &&
+        'CFDocument' in response
+      );
+    }
+
+    // Create request promise
+    const requestPromise = (async (): Promise<CFPackage> => {
+      try {
+        // Check persistent cache via IndexedDB
+        const serverLastChangeDateTime = documentsMetadata.get(identifier);
+
+        const cachedFramework = await frameworkCacheService.getValidFramework(
+          identifier,
+          serverLastChangeDateTime || ''
+        ) as CFPackage | null;
+
+        if (cachedFramework) {
+          logger.debug('IndexedDB cache hit for viewed document:', identifier);
+          documentCache.set(identifier, cachedFramework);
+          return cachedFramework;
+        }
+
+        logger.debug('Cache miss for viewed document, fetching from API:', identifier);
+
+        // Fetch from API
+        const responseData = await api.get(`/ims/case/v1p1/CFPackages/${identifier}`);
+
+        if (!isCFPackage(responseData)) {
+          throw new Error('Invalid response format: expected CFPackage structure');
+        }
+
+        const data: CFPackage = responseData as CFPackage;
+
+        // Cache result
+        documentCache.set(identifier, data);
+
+        // Cache in IndexedDB for persistence
+        try {
+          await frameworkCacheService.setFramework(identifier, data);
+        } catch (cacheErr) {
+          logger.warn('Failed to cache viewed framework in IndexedDB:', cacheErr);
+        }
+
+        return data;
+      } catch (err) {
+        viewedDocError.value = (err as Error).message || 'Failed to fetch viewed document';
+        logger.error('Error fetching viewed document:', err);
+        throw err;
+      } finally {
+        loadingViewedDocument.value = false;
+        pendingRequests.delete(identifier);
+      }
+    })();
+
+    // Store the pending request
+    pendingRequests.set(identifier, requestPromise);
+
+    return requestPromise;
+  }
+
+  /**
    * Extract UUID from a CASE URI
    * The UUID is typically the last segment of the URI path
    */
@@ -461,6 +549,13 @@ export const useDocumentStore = defineStore('documents', () => {
   }
 
   /**
+   * NEW: Clear the viewed document error
+   */
+  function clearViewedDocError(): void {
+    viewedDocError.value = null;
+  }
+
+  /**
    * Reset the side document loading state
    * This should be called from components after all processing is complete
    */
@@ -510,6 +605,11 @@ export const useDocumentStore = defineStore('documents', () => {
     clearSideDocError,
     resetLoadingSideDocument,
     isDocumentCached,
-    setDocumentsMetadata
+    setDocumentsMetadata,
+    // NEW: Viewed document state and actions (dual framework edit/view separation)
+    loadingViewedDocument,
+    viewedDocError,
+    fetchViewedDocument,
+    clearViewedDocError
   };
 });

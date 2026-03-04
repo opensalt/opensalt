@@ -1,10 +1,12 @@
 <template>
   <div class="item-details-panel">
     <!-- Document Details (when no item selected) -->
+    <!-- Show viewed document details when viewing a different framework, otherwise show current document -->
     <DocumentDetailsPanel
-      v-if="!selectedItem && currentDocument"
-      :document="currentDocument"
+      v-if="!selectedItem && displayDocument"
+      :document="displayDocument"
       :association-groups="associationGroups"
+      :is-viewing-different-framework="isViewingDifferentFramework"
       @edit-document="$emit('edit-document')"
       @add-root-item="$emit('add-root-item', $event)"
       @manage-association-groups="$emit('manage-association-groups')"
@@ -35,12 +37,21 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import DocumentDetailsPanel from './DocumentDetailsPanel.vue';
 import ItemDetails from './ItemDetails.vue';
 
 const props = defineProps({
   selectedItem: Object,
   currentDocument: Object,
+  viewedDocument: {
+    type: Object,
+    default: null
+  },
+  isViewingDifferentFramework: {
+    type: Boolean,
+    default: false
+  },
   associationGroups: {
     type: Array,
     default: () => []
@@ -60,6 +71,18 @@ const emit = defineEmits([
   'add-root-item',
   'manage-association-groups'
 ]);
+
+/**
+ * Computed property to determine which document to display in the details panel.
+ * When viewing a different framework and no item is selected, show the viewed document.
+ * Otherwise, show the current (edited) document.
+ */
+const displayDocument = computed(() => {
+  if (props.isViewingDifferentFramework && props.viewedDocument) {
+    return props.viewedDocument;
+  }
+  return props.currentDocument;
+});
 </script>
 
 <style scoped>

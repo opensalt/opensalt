@@ -9,7 +9,9 @@
     <DocumentSelector
       :current-doc="currentDoc"
       :available-documents="availableDocuments"
-      @document-changed="onDocumentChanged"
+      :viewed-doc="viewedDoc"
+      :is-viewing-different-framework="isViewingDifferentFramework"
+      @viewed-document-changed="onViewedDocumentChanged"
       @external-document-requested="onExternalDocumentRequested"
     />
 
@@ -39,10 +41,12 @@
     <!-- Tree View -->
     <div class="mt-3 flex-grow-1 overflow-auto mb-3">
       <TreeView
-        :doc="filteredDoc"
+        :doc="displayedDoc"
         :selected-id="selectedId"
         :search-query="treeSearchQuery"
         :matching-item-ids="matchingItemIds"
+        :is-view-mode="isViewingDifferentFramework"
+        :is-viewing-different-framework="isViewingDifferentFramework"
         @select="onSelect"
         @dblclick="onDblClick"
         @tree-change="onTreeChange"
@@ -140,12 +144,30 @@ const props = defineProps({
   availableSubjects: {
     type: Array,
     default: () => []
+  },
+
+  // NEW: Props for dual framework edit/view separation
+  /**
+   * The viewed document (when viewing a different framework than editing)
+   */
+  viewedDoc: {
+    type: Object,
+    default: null
+  },
+
+  /**
+   * Whether we are viewing a different framework than the one being edited
+   */
+  isViewingDifferentFramework: {
+    type: Boolean,
+    default: false
   }
 });
 
 // Emits
+// NEW: Changed 'document-changed' to 'viewed-document-changed' for dual framework edit/view separation
 const emit = defineEmits([
-  'document-changed',
+  'viewed-document-changed',
   'external-document-requested',
   'select',
   'dblclick',
@@ -164,14 +186,24 @@ const treeSearchQueryModel = computed({
   set: (value) => emit('update:treeSearchQuery', value)
 });
 
+// NEW: Compute the document to display based on view mode
+// When viewing a different framework, use viewed document; otherwise use filtered document
+const displayedDoc = computed(() => {
+  if (props.isViewingDifferentFramework && props.viewedDoc) {
+    return props.viewedDoc;
+  }
+  return props.filteredDoc;
+});
+
 const selectedAssociationGroupModel = computed({
   get: () => props.selectedAssociationGroup,
   set: (value) => emit('update:selectedAssociationGroup', value)
 });
 
 // Event handlers
-function onDocumentChanged(event) {
-  emit('document-changed', event);
+// NEW: Changed to emit 'viewed-document-changed' for dual framework edit/view separation
+function onViewedDocumentChanged(event) {
+  emit('viewed-document-changed', event);
 }
 
 function onExternalDocumentRequested() {

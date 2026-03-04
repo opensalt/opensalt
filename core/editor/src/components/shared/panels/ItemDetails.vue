@@ -18,14 +18,29 @@
       </span>
     </div>
 
+    <!-- Read-Only Indicator for Viewed Framework Items -->
+    <div v-else-if="isItemFromViewedFramework" class="alert alert-secondary mb-2" role="alert">
+      <i class="bi bi-eye me-2" aria-hidden="true"></i>
+      <strong>Viewing Item</strong>
+      <span class="text-muted"> from {{ viewedDocument?.title || 'external framework' }}</span>
+      <span class="d-block mt-1 small text-muted">
+        <i class="bi bi-lock me-1" aria-hidden="true"></i>
+        This item is read-only. Edits cannot be made to viewed framework items.
+      </span>
+    </div>
+
     <!-- Item Header -->
     <div class="card mb-3">
       <div class="card-header d-flex justify-content-between align-items-center">
         <h6 class="mb-0 d-flex align-items-center">
           <img :src="itemIconSrc" class="me-2 item-icon" aria-hidden="true" />
           Item Details
+          <!-- Read-only badge for viewed framework items -->
+          <span v-if="isItemFromViewedFramework" class="badge bg-secondary ms-2" aria-label="Read-only item">
+            <i class="bi bi-lock" aria-hidden="true"></i> Read-only
+          </span>
         </h6>
-        <div class="btn-group btn-group-sm" v-if="!isReadOnly && !isCrossFrameworkItem">
+        <div class="btn-group btn-group-sm" v-if="canEditItem">
           <button
             type="button"
             class="btn btn-outline-primary"
@@ -114,8 +129,8 @@
           </div>
         </div>
 
-          <!-- Actions - Available for all items (including cross-framework) -->
-      <div v-if="!isReadOnly" class="card mt-3">
+          <!-- Actions - Only available for editable items (not read-only or viewed framework items) -->
+      <div v-if="canEditItem" class="card mt-3">
         <div class="card-header">
           <h6 class="mb-0">Actions</h6>
         </div>
@@ -148,6 +163,19 @@
         </div>
       </div>
 
+      <!-- Actions Note for Viewed Framework Items -->
+      <div v-else-if="isItemFromViewedFramework && !isReadOnly" class="card mt-3">
+        <div class="card-header">
+          <h6 class="mb-0">Actions</h6>
+        </div>
+        <div class="card-body">
+          <p class="text-muted mb-0">
+            <i class="bi bi-info-circle me-2" aria-hidden="true"></i>
+            Actions are not available for viewed framework items. Switch to the edited framework to add child items or exemplars.
+          </p>
+        </div>
+      </div>
+
       <!-- Associations -->
       <div v-if="mergedAssociations.length > 0 || !isCrossFrameworkItem || isProcessingAssociations" class="card mt-3">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -158,6 +186,14 @@
           <button v-if="!isReadOnly" type="button" class="btn btn-sm btn-outline-primary" @click="$emit('add-association', item)">
             <i class="bi bi-plus"></i> Add
           </button>
+        </div>
+        <!-- Association context note when viewing different framework -->
+        <div v-if="isViewingDifferentFramework && !isReadOnly" class="card-header bg-light border-top-0 pt-0 pb-2">
+          <small class="text-muted">
+            <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
+            Associations created from this item will be saved in
+            <strong>{{ currentDocument?.title || 'the edited framework' }}</strong>
+          </small>
         </div>
         <div class="card-body">
           <!-- Loading state for associations -->
@@ -174,8 +210,8 @@
             :association-groups="associationGroups"
             :direction="group.direction"
             :item-identifier="item.identifier"
-            :is-read-only="isReadOnly"
-            @edit-association="!isReadOnly && !isCrossFrameworkItem ? $emit('edit-association', $event) : null"
+            :is-read-only="isReadOnly || !canEditItem"
+            @edit-association="canEditItem ? $emit('edit-association', $event) : null"
             @delete-association="handleDeleteAssociationRequest"
           />
         </div>
@@ -499,19 +535,24 @@ function computeMergedAssociations(itemIdentifier) {
   const allAssociations = [...currentAssociations, ...crossFrameworkAssociations]
     .filter(a => {
       const assocType = a.associationType || a.type;
-      // Show isChildOf if item is cross-framework or if parent (destination) is external
+      // Filter out isChildOf associations - only show cross-framework isChildOf
       if (assocType === 'isChildOf') {
-        if (isCrossFrameworkItem.value) return true;
+        // Only show isChildOf associations that have a CFDocumentURI (cross-framework)
+        // and belong to a different framework than the one being displayed
+        const assocFrameworkId = a.CFDocumentURI?.identifier || a.CFDocumentURI;
 
-        const destId = a.destinationNodeURI?.identifier;
-        if (destId) {
-          const destItem = itemIndex.get(destId);
-          // If destination is not found locally or is marked as cross-framework, show it
-          if (!destItem || destItem.isCrossFramework) {
-            return true;
-          }
+        // If no CFDocumentURI, this is an internal association - always hide it
+        if (!assocFrameworkId) {
+          return false;
         }
-        return false;
+
+        // Get the ID of the framework currently being displayed in the tree
+        const displayedFrameworkId = isViewingDifferentFramework.value
+          ? viewedDocument?.value?.identifier
+          : currentDocument?.value?.identifier;
+
+        // Show only if the association belongs to a different framework than displayed
+        return assocFrameworkId !== displayedFrameworkId;
       }
       return true;
     });
@@ -644,7 +685,8 @@ onUnmounted(() => {
 
 // Delete association modal handlers
 function handleDeleteAssociationRequest(association) {
-  if (isReadOnly.value) return;
+  // Check if item is editable (not read-only and belongs to edited framework)
+  if (!canEditItem.value) return;
 
   // For cross-framework items, only allow deletion of isChildOf associations
   // that link the item to the current framework
@@ -763,6 +805,33 @@ import { useSessionStore } from '../../../stores/sessionStore';
 
 const sessionStore = useSessionStore();
 const isReadOnly = computed(() => props.currentDocument?.isReadOnly || !sessionStore.isAuthenticated);
+
+// Access the store for isItemEditable helper and viewed document state
+const { isItemEditable, viewedDocument, currentDocument } = currentDocumentStore;
+
+// Computed property to check if the current item can be edited
+// Item can be edited if it belongs to the edited framework (not a viewed/cross-framework item)
+const canEditItem = computed(() => {
+  if (isReadOnly.value) return false;
+  if (!props.item) return false;
+  // Safeguard: ensure isItemEditable is available before calling
+  if (typeof isItemEditable !== 'function') return false;
+  return isItemEditable(props.item);
+});
+
+// Computed property to check if viewing a different framework than editing
+const isViewingDifferentFramework = computed(() => {
+  // Safeguard: ensure refs are available before accessing .value
+  if (!viewedDocument?.value || !currentDocument?.value) return false;
+  return viewedDocument.value.identifier !== currentDocument.value.identifier;
+});
+
+// Computed property to check if the current item is from the viewed framework
+const isItemFromViewedFramework = computed(() => {
+  if (!isViewingDifferentFramework.value) return false;
+  const itemDocId = props.item?.documentId || props.item?.CFDocumentURI?.identifier;
+  return itemDocId === viewedDocument?.value?.identifier;
+});
 
 // Detect if this is a cross-framework item
 // Use props.item directly to avoid circular dependency with displayItem

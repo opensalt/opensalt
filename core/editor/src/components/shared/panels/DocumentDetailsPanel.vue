@@ -181,6 +181,10 @@ const props = defineProps({
   associationGroups: {
     type: Array,
     default: () => []
+  },
+  isViewingDifferentFramework: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -188,7 +192,7 @@ import { useSessionStore } from '../../../stores/sessionStore';
 import { useCurrentDocumentStore } from '../../../stores/currentDocumentStore';
 
 const sessionStore = useSessionStore();
-const isReadOnly = computed(() => props.document?.isReadOnly || !sessionStore.isAuthenticated);
+const isReadOnly = computed(() => props.isViewingDifferentFramework || props.document?.isReadOnly || !sessionStore.isAuthenticated);
 
 // Get license name from definitions
 const currentDocumentStore = useCurrentDocumentStore();

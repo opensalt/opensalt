@@ -1,5 +1,23 @@
 <template>
   <div class="h-100 d-flex flex-column">
+    <!-- NEW: Dual Framework Header -->
+    <header v-if="currentDoc" class="dual-framework-header p-2 border-bottom bg-light">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div class="edited-framework">
+          <span class="badge bg-primary">
+            <i class="bi bi-pencil-square me-1"></i>Editing
+          </span>
+          <span class="ms-2 fw-bold">{{ currentDoc.title || 'Untitled' }}</span>
+        </div>
+        <div v-if="isViewingDifferentFramework" class="viewed-framework">
+          <span class="badge bg-secondary">
+            <i class="bi bi-eye me-1"></i>Viewing
+          </span>
+          <span class="ms-2 text-muted">{{ viewedDoc?.title || 'Untitled' }}</span>
+        </div>
+      </div>
+    </header>
+
     <!-- Page-wide spinner only shows during initial page load (no document loaded yet) -->
     <div v-if="loading && !currentDoc" class="d-flex justify-content-center align-items-center" style="height: 100%;" role="status" aria-live="polite">
       <div class="spinner-border text-primary" role="status">
@@ -7,10 +25,10 @@
       </div>
     </div>
     <div v-else-if="error && !currentDoc" class="alert alert-danger my-4" role="alert" aria-live="assertive">{{ error }}</div>
-    <main v-else class="row g-0" style="height: 100%; min-height: 0;">
+    <main v-else class="row g-0 flex-grow-1" style="min-height: 0;">
       <!-- Tree panel (extracted to TreePanelSection component) -->
       <TreePanelSection
-        class="col-5"
+        :class="['col-5', { 'viewing-different-framework': isViewingDifferentFramework }]"
         :current-doc="currentDoc"
         :filtered-doc="filteredDoc"
         :available-documents="availableDocuments"
@@ -21,7 +39,9 @@
         :association-groups="associationGroups"
         :selected-association-group="selectedAssociationGroupValue"
         :available-subjects="availableSubjects"
-        @document-changed="documentLoaderOnDocumentChanged"
+        :viewed-doc="viewedDoc"
+        :is-viewing-different-framework="isViewingDifferentFramework"
+        @viewed-document-changed="onViewedDocumentChanged"
         @external-document-requested="onExternalDocumentRequested"
         @select="onSelect"
         @dblclick="onDblClick"
@@ -39,6 +59,8 @@
         <RightSidePanel
           v-if="rightPanelMode === 'itemDetails'"
           :current-document="currentDoc"
+          :viewed-document="viewedDoc"
+          :is-viewing-different-framework="isViewingDifferentFramework"
           :association-groups="associationGroups"
           :selected-item="selectedItem"
           :initial-mode="rightPanelMode"
@@ -174,8 +196,44 @@ const loading = computed(() => documentStore.loading);
 const error = computed(() => documentStore.error);
 const searchQuery = computed(() => filterStore.searchQuery);
 const selectedId = ref(route.params.itemId || null);
-const selectedItem = computed(() => findItem(doc.value.items || [], selectedId.value));
+
+// Enhanced selectedItem computed that searches both edited and viewed documents
+const selectedItem = computed(() => {
+  const id = selectedId.value;
+  if (!id) return null;
+
+  // First try to find in edited document
+  const editedDocItem = findItem(doc.value.items || [], id);
+  if (editedDocItem) {
+    return editedDocItem;
+  }
+
+  // If viewing different framework, also search in viewed document items
+  if (isViewingDifferentFramework.value && viewedDoc.value?.items) {
+    const viewedDocItem = findItem(viewedDoc.value.items, id);
+    if (viewedDocItem) {
+      return viewedDocItem;
+    }
+  }
+
+  return null;
+});
+
 const currentDoc = computed(() => currentDocumentStore.currentDocument);
+
+// NEW: Viewed document state for dual framework edit/view separation
+// Combine viewed document metadata with its items for tree display
+const viewedDoc = computed(() => {
+  const doc = currentDocumentStore.viewedDocument;
+  if (!doc) return null;
+  // Return document with items from viewedDocumentItems
+  return {
+    ...doc,
+    id: doc.identifier,
+    items: currentDocumentStore.viewedDocumentItems || []
+  };
+});
+const isViewingDifferentFramework = computed(() => currentDocumentStore.isViewingDifferentFramework);
 
 // filteredDoc must be declared before treeItems since treeItems depends on it
 const filteredDoc = computed(() => ({
@@ -300,10 +358,15 @@ const rightPanelMode = ref('itemDetails');
 const treeSearchQuery = ref('');
 
 // Count matching items for match count badge
+// Uses viewed document items when in view mode, edited document items otherwise
 const matchCount = computed(() => {
   if (!treeSearchQuery.value) return null;
   const query = treeSearchQuery.value.toLowerCase();
-  return countMatches(doc.value.items || [], query);
+  // Use viewed document items when in view mode, otherwise use edited document items
+  const itemsToSearch = isViewingDifferentFramework.value
+    ? (currentDocumentStore.viewedDocumentItems || [])
+    : (doc.value.items || []);
+  return countMatches(itemsToSearch, query);
 });
 
 function countMatches(items, query) {
@@ -328,6 +391,7 @@ function countMatches(items, query) {
 }
 
 // Pre-compute matching item IDs for visibility filtering
+// Uses viewed document items when in view mode, edited document items otherwise
 const matchingItemIds = computed(() => {
   if (!treeSearchQuery.value) return new Set();
 
@@ -353,7 +417,12 @@ const matchingItemIds = computed(() => {
     }
   }
 
-  findMatches(doc.value.items || []);
+  // Use viewed document items when in view mode, otherwise use edited document items
+  const itemsToSearch = isViewingDifferentFramework.value
+    ? (currentDocumentStore.viewedDocumentItems || [])
+    : (doc.value.items || []);
+
+  findMatches(itemsToSearch);
   return matches;
 });
 
@@ -470,6 +539,17 @@ watch(() => doc.value?.id, (newDocId, oldDocId) => {
   }
 }, { immediate: true });
 
+// Watch for viewed document changes to expand the root only
+watch(() => viewedDoc.value?.id, (newViewedDocId, oldViewedDocId) => {
+  if (newViewedDocId && newViewedDocId !== oldViewedDocId) {
+    // Expand only the viewed document root by default
+    // The root-level items (children) will remain collapsed
+    expandItem(newViewedDocId);
+
+    logger.debug('Expanded viewed document root:', newViewedDocId);
+  }
+}, { immediate: false });
+
 // Event handlers
 function onSelect(id) {
   const frameworkId = currentDocumentStore.currentDocument?.id;
@@ -576,6 +656,45 @@ function onCrossTreeAssociate() {
 
   showAssociateModal.value = true;
   closeCrossTreeModal();
+}
+
+// NEW: Handle viewed document changes for dual framework edit/view separation
+async function onViewedDocumentChanged({ documentId }) {
+  // If selecting the edited framework, clear viewed framework
+  if (documentId === currentDoc.value?.identifier) {
+    currentDocumentStore.clearViewedDocument();
+    return;
+  }
+
+  try {
+    // Fetch the viewed document
+    const docData = await documentStore.fetchViewedDocument(documentId);
+    const cfDoc = docData.CFDocument || {};
+
+    // Transform items for the viewed document
+    const items = currentDocumentStore.transformCASEItems(
+      docData.CFItems || [],
+      docData.CFAssociations || [],
+      cfDoc.identifier
+    );
+
+    // Set the viewed document in the store
+    currentDocumentStore.setViewedDocument(
+      {
+        id: cfDoc.identifier,
+        identifier: cfDoc.identifier,
+        title: cfDoc.title || 'Untitled',
+        ...cfDoc
+      },
+      items
+    );
+
+    logger.debug('Viewed document loaded:', cfDoc.title);
+  } catch (error) {
+    logger.error('Error loading viewed document:', error);
+    // Clear viewed document on error
+    currentDocumentStore.clearViewedDocument();
+  }
 }
 
 function onExternalDocumentRequested() {
@@ -755,5 +874,28 @@ onUnmounted(() => {
 /* Component-specific styles can be added here */
 .details-panel {
   min-height: 0;
+}
+
+/* NEW: Dual framework header styles for edit/view separation */
+.dual-framework-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  flex-shrink: 0;
+}
+
+.dual-framework-header .edited-framework {
+  display: flex;
+  align-items: center;
+}
+
+.dual-framework-header .viewed-framework {
+  display: flex;
+  align-items: center;
+}
+
+/* Visual distinction for tree panel when viewing different framework */
+:deep(.viewing-different-framework) {
+  background-color: #f8f9fa;
+  border-right: 3px solid #adb5bd;
 }
 </style>

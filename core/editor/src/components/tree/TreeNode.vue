@@ -1,10 +1,10 @@
 <template>
-  <details v-if="hasChildren" :open="isExpanded" @toggle="onToggle" class="tree-node" :class="{ 'tree-node--hidden': !isVisible }" role="treeitem" :aria-level="level + 1" :aria-expanded="isExpanded" :aria-selected="selectedId === item.identifier" :aria-setsize="siblingCount" :aria-posinset="siblingPosition" :aria-hidden="!isVisible" :tabindex="isFocused ? '0' : '-1'" :data-tree-node-id="item.identifier" @keydown="handleKeyDown">
+  <details v-if="hasChildren" :open="isExpanded" @toggle="onToggle" class="tree-node" :class="{ 'tree-node--hidden': !isVisible, 'view-mode': isViewMode }" role="treeitem" :aria-level="level + 1" :aria-expanded="isExpanded" :aria-selected="selectedId === item.identifier" :aria-setsize="siblingCount" :aria-posinset="siblingPosition" :aria-hidden="!isVisible" :tabindex="isFocused ? '0' : '-1'" :data-tree-node-id="item.identifier" @keydown="handleKeyDown" :aria-readonly="isViewMode">
     <summary
       class="expand-control"
       :style="{ marginLeft: (level * 20) + 'px' }"
       @click="onSummaryClick"
-      draggable="true"
+      :draggable="!isViewMode && !isCrossFrameworkItem"
       @dragstart="onDragStart"
       @dragover="onDragOver"
       @dragleave="onDragLeave"
@@ -14,7 +14,8 @@
         'drop-before': dropPosition === 'before',
         'drop-after': dropPosition === 'after',
         'drop-inside': dropPosition === 'inside',
-        'tree-node--ancestor-match': isAncestorOnlyMatch
+        'tree-node--ancestor-match': isAncestorOnlyMatch,
+        'view-mode': isViewMode
       }"
     >
       <span class="expand-indicator" aria-hidden="true">
@@ -63,6 +64,7 @@
             :index="index"
             :search-query="searchQuery"
             :matching-item-ids="matchingItemIds"
+            :is-view-mode="isViewMode"
             @select="$emit('select', $event)"
             @dblclick="$emit('dblclick', $event)"
             @move="$emit('move', $event)"
@@ -78,11 +80,11 @@
   </details>
 
   <!-- For items without children -->
-  <div v-else class="tree-node" :class="{ 'tree-node--hidden': !isVisible }" role="treeitem" :aria-level="level + 1" :aria-selected="selectedId === item.identifier" :aria-setsize="siblingCount" :aria-posinset="siblingPosition" :aria-hidden="!isVisible" :tabindex="isFocused ? '0' : '-1'" :data-tree-node-id="item.identifier" @keydown="handleKeyDown">
+  <div v-else class="tree-node" :class="{ 'tree-node--hidden': !isVisible, 'view-mode': isViewMode }" role="treeitem" :aria-level="level + 1" :aria-selected="selectedId === item.identifier" :aria-setsize="siblingCount" :aria-posinset="siblingPosition" :aria-hidden="!isVisible" :tabindex="isFocused ? '0' : '-1'" :data-tree-node-id="item.identifier" @keydown="handleKeyDown" :aria-readonly="isViewMode">
     <div
       class="tree-node-content"
       :style="{ marginLeft: (level * 20) + 'px' }"
-      draggable="true"
+      :draggable="!isViewMode && !isCrossFrameworkItem"
       @dragstart="onDragStart"
       @dragover="onDragOver"
       @dragleave="onDragLeave"
@@ -92,7 +94,8 @@
         'drop-before': dropPosition === 'before',
         'drop-after': dropPosition === 'after',
         'drop-inside': dropPosition === 'inside',
-        'tree-node--ancestor-match': isAncestorOnlyMatch
+        'tree-node--ancestor-match': isAncestorOnlyMatch,
+        'view-mode': isViewMode
       }"
     >
       <span class="no-children-spacer" aria-hidden="true"></span>
@@ -182,6 +185,10 @@ const props = defineProps({
   matchingItemIds: {
     type: Set,
     default: () => new Set()
+  },
+  isViewMode: {
+    type: Boolean,
+    default: false
   }
 });
 const emit = defineEmits(['select', 'dblclick', 'move', 'item-change', 'focus']);
@@ -558,8 +565,8 @@ const currentDocumentStore = useCurrentDocumentStore();
 const dropPosition = ref(null);
 
 function onDragStart(e) {
-  // Disable drag for cross-framework items
-  if (isCrossFrameworkItem.value) {
+  // Disable drag in view mode or for cross-framework items
+  if (props.isViewMode || isCrossFrameworkItem.value) {
     e.preventDefault();
     return;
   }
@@ -850,5 +857,49 @@ onUnmounted(() => {
   margin-right: 4px;
   color: #0d6efd;
   font-size: 0.875em;
+}
+
+/* View mode styling - applied when viewing a different framework */
+.tree-node.view-mode .expand-control,
+.tree-node.view-mode .tree-node-content {
+  background-color: #f8f9fa;
+}
+
+.tree-node.view-mode .tree-node-label {
+  background-color: transparent;
+}
+
+.tree-node.view-mode .tree-node-label:hover {
+  background-color: #e9ecef;
+}
+
+.tree-node.view-mode .tree-node-label.selected {
+  background-color: #dee2e6;
+  border-left-color: #6c757d;
+}
+
+/* Disable pointer cursor in view mode */
+.view-mode .tree-node-content,
+.view-mode .expand-control {
+  cursor: default;
+}
+
+/* High contrast mode support for view mode */
+@media (prefers-contrast: high) {
+  .tree-node.view-mode .expand-control,
+  .tree-node.view-mode .tree-node-content {
+  }
+
+  .tree-node.view-mode .tree-node-label.selected {
+    background-color: #000;
+    color: #fff;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .tree-node.view-mode .tree-node-label {
+    transition: none;
+  }
 }
 </style>

@@ -2,6 +2,14 @@
   <div class="document-selector card mb-3">
     <div class="card-header d-flex justify-content-between align-items-center">
       <h6 class="mb-0">{{ label }}</h6>
+      <!-- Visual indicator when viewing a different framework -->
+      <span
+        v-if="isViewingDifferentFramework"
+        class="badge bg-warning text-dark"
+        title="You are viewing a different framework than the one being edited"
+      >
+        <i class="bi bi-eye me-1"></i>Viewing
+      </span>
       <button
         type="button"
         class="btn btn-sm btn-outline-primary"
@@ -16,6 +24,7 @@
         class="form-select"
         v-model="selectedDoc"
         @change="onDocumentChange"
+        :class="{ 'viewing-different-framework': isViewingDifferentFramework }"
       >
         <option value="">Select a document...</option>
         <optgroup
@@ -38,6 +47,11 @@
           <option value="external">Load external document...</option>
         </optgroup>
       </select>
+      <!-- Viewing indicator text -->
+      <div v-if="isViewingDifferentFramework && viewedDoc" class="mt-2 small text-muted">
+        <i class="bi bi-info-circle me-1"></i>
+        Viewing: <strong>{{ viewedDoc.title || 'Untitled' }}</strong>
+      </div>
     </div>
 
     <!-- External Document Modal (Global check needed or move to parent?) -->
@@ -59,6 +73,15 @@ const props = defineProps({
   side: {
     type: String, // 'left' or 'right'
     default: 'left'
+  },
+  // NEW: Props for dual framework edit/view separation
+  viewedDoc: {
+    type: Object,
+    default: null
+  },
+  isViewingDifferentFramework: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -94,7 +117,8 @@ const groupedDocuments = computed(() => {
   return result;
 });
 
-const emit = defineEmits(['document-changed', 'external-document-requested']);
+// NEW: Changed from 'document-changed' to 'viewed-document-changed' for dual framework edit/view separation
+const emit = defineEmits(['viewed-document-changed', 'external-document-requested']);
 
 const selectedDoc = ref('');
 
@@ -104,44 +128,26 @@ watch(() => props.currentDoc, (newDoc) => {
   }
 }, { immediate: true });
 
+// NEW: Watch for viewed document changes to update selection
+watch(() => props.viewedDoc, (newViewedDoc) => {
+  if (newViewedDoc && newViewedDoc.identifier) {
+    selectedDoc.value = newViewedDoc.identifier;
+  }
+});
+
 function onDocumentChange() {
   const selectedValue = selectedDoc.value;
 
   if (selectedValue === 'external') {
-    // We emit an event to request external document loading UI
-    // The modal should probably be managed by the parent or a global modal manager
-    // But for parity with previous code, we can just emit the request signal for now
-    // and let the parent handle the "how" (e.g. showing a modal)
-    // OR we re-implement the modal here.
-    // Since the previous implementation had the modal *inside* the component,
-    // let's assume the parent `EnhancedDocumentTreeEditor` will handle the modal
-    // if we just bubble up a specific "request-external" event that *it* can listen to
-    // or we implement a simple prompt here?
-    // The previous implementation had a specific External Document Modal.
-    // Let's rely on the parent or a separate method.
-    // Actually, looking at `EnhancedDocumentTreeEditor`, it had handlers for `onExternalDocumentRequested`.
-    // Let's emit a simplified event.
-
-    // For now, let's just trigger the parent to show the modal or handle it.
-    // But wait, the modal was INSIDE this component before.
-    // If I remove it, I break functionality unless I move it to parent.
-    // Let's ask the user for a URL via a simple prompt for now to save complexity,
-    // or better, emit an event saying "I want to load external" and let parent handle it.
-    // Parent `EnhancedDocumentTreeEditor` DOES NOT have the modal markup.
-    // I should put the modal back or move it to parent.
-    // Given the constraints, I will emit an event and assume I'll add the modal to the parent later
-    // or simply use a JS prompt for MVP speed if that's acceptable?
-    // No, "Align UI/UX" means I should probably keep the nice modal.
-    // I'll leave the modal triggering to the parent by emitting a special event
-    // that tells the parent to "show external load modal".
-
-    // Actually, I'll allow the `value="external"` to trigger a specialized emit.
+    // Emit event to request external document loading UI
     emit('external-document-requested', { side: props.side });
 
     // Reset selection
     selectedDoc.value = props.currentDoc?.identifier || '';
   } else if (selectedValue) {
-    emit('document-changed', {
+    // NEW: Emit 'viewed-document-changed' instead of 'document-changed'
+    // This supports the dual framework edit/view separation feature
+    emit('viewed-document-changed', {
       side: props.side,
       documentId: selectedValue
     });

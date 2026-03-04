@@ -140,6 +140,10 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
   const draggedItem = ref<EditorItemNode | null>(null);
   const currentItem = ref<EditorItemNode | null>(null);
 
+  // NEW: Viewed framework state (for dual framework edit/view separation)
+  const viewedDocument = ref<CFDocument | null>(null);
+  const viewedDocumentItems = ref<EditorItemNode[]>([]);
+
   // Actions
   function setDraggedItem(item: EditorItemNode | null) {
     draggedItem.value = item;
@@ -158,6 +162,12 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     }));
 
     return [...defaultGroups, ...packageGroups];
+  });
+
+  // NEW: Computed property to check if viewing a different framework than editing
+  const isViewingDifferentFramework = computed(() => {
+    return viewedDocument.value !== null &&
+           viewedDocument.value.identifier !== currentDocument.value?.identifier;
   });
 
   // Actions
@@ -184,6 +194,11 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
       ...assoc,
       groupId: assoc.CFAssociationGroupingURI?.identifier || (typeof assoc.CFAssociationGroupingURI === 'string' ? assoc.CFAssociationGroupingURI : null),
     }));
+
+    // NEW: If viewed document matches the new current document, clear it to avoid duplication
+    if (viewedDocument.value?.identifier === document?.identifier) {
+      clearViewedDocument();
+    }
   }
 
   function clearCurrentDocument() {
@@ -199,6 +214,28 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     currentDocumentRubrics.value = [];
     currentDocumentAssociations.value = [];
     currentDocumentAssociationGroupings.value = [];
+    // Also clear viewed document when clearing current document
+    clearViewedDocument();
+  }
+
+  // NEW: Helper function to check if an item can be edited
+  // Item can only be edited if it belongs to the edited framework (currentDocument)
+  function isItemEditable(item: EditorItemNode): boolean {
+    // Item must belong to the edited framework
+    const itemDocId = item.documentId || item.CFDocumentURI?.identifier;
+    return itemDocId === currentDocument.value?.identifier;
+  }
+
+  // NEW: Set the viewed document (for dual framework edit/view separation)
+  function setViewedDocument(document: CFDocument | null, items: EditorItemNode[] = []) {
+    viewedDocument.value = document;
+    viewedDocumentItems.value = items;
+  }
+
+  // NEW: Clear the viewed document
+  function clearViewedDocument() {
+    viewedDocument.value = null;
+    viewedDocumentItems.value = [];
   }
 
   function transformCASEItems(
@@ -881,7 +918,14 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     associationIndex,
     buildAssociationIndex,
     addToAssociationIndex,
-    removeFromAssociationIndex
+    removeFromAssociationIndex,
+    // NEW: Viewed document state and actions (dual framework edit/view separation)
+    viewedDocument,
+    viewedDocumentItems,
+    isViewingDifferentFramework,
+    setViewedDocument,
+    clearViewedDocument,
+    isItemEditable
   };
 });
 

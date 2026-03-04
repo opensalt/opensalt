@@ -1,5 +1,8 @@
 <template>
-  <div class="tree-view card h-100">
+  <div
+    class="tree-view card h-100"
+    :class="{ 'viewing-different-framework': isViewingDifferentFramework }"
+  >
     <div class="card-body d-flex flex-column h-100">
       <div v-if="!doc">
         <em>No document loaded.</em>
@@ -14,6 +17,7 @@
         ref="treeContainer"
         @keydown="handleTreeKeyDown"
         class="tree-container"
+        :class="{ 'view-mode': isViewMode }"
       >
         <TreeNode
           :key="documentRoot.identifier"
@@ -25,6 +29,7 @@
           :startExpanded="true"
           :search-query="props.searchQuery || props.search"
           :matching-item-ids="props.matchingItemIds"
+          :is-view-mode="isViewMode"
           @select="onSelect"
           @dblclick="onDblClick"
           @move="onMove"
@@ -57,6 +62,14 @@ const props = defineProps({
   matchingItemIds: {
     type: Set,
     default: () => new Set()
+  },
+  isViewMode: {
+    type: Boolean,
+    default: false
+  },
+  isViewingDifferentFramework: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -181,5 +194,39 @@ function handleTreeKeyDown(event) {
   background: #e3f2fd;
   border-radius: 4px;
   padding: 2px 6px;
+}
+
+/* View mode styling for the tree container */
+.tree-container.view-mode {
+  background-color: #f8f9fa;
+}
+
+/* Visual distinction when viewing a different framework */
+.tree-view.viewing-different-framework {
+  border: 2px solid #adb5bd;
+  background-color: #f8f9fa;
+}
+
+.tree-view.viewing-different-framework .card-body {
+  background-color: #f8f9fa;
+}
+
+/* High contrast mode support for view mode */
+@media (prefers-contrast: high) {
+  .tree-view.viewing-different-framework {
+    border: 3px solid #000;
+  }
+
+  .tree-container.view-mode {
+    background-color: #fff;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .tree-view.viewing-different-framework,
+  .tree-container.view-mode {
+    transition: none;
+  }
 }
 </style>

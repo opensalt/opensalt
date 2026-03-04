@@ -502,3 +502,239 @@ $font-size-base: 0.875rem;
   width: 3rem;
   text-align: center;
 }
+
+// ============================================================================
+// Dual Framework Edit/View Separation Styles
+// ============================================================================
+
+// Viewing mode styles - applied when viewing different framework
+.viewing-different-framework {
+  background: linear-gradient(to right, #f8f9fa 0%, #ffffff 100%);
+  border-right: 4px solid #6c757d;
+}
+
+// Tree panel header in viewing mode
+.viewing-different-framework .tree-panel-header {
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+// ============================================================================
+// View Mode Tree Node Styles
+// ============================================================================
+
+// View mode tree nodes - applied when viewing a different framework
+.tree-node.view-mode {
+  .tree-node-label {
+    background-color: #f0f4f8;
+
+    &:hover {
+      background-color: #e2e8f0;
+    }
+
+    &.selected {
+      background-color: #d1dce8;
+      border-left-color: #495057;
+    }
+  }
+}
+
+// View mode indicator (eye icon)
+.view-mode-indicator {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 0.25rem;
+  color: #6c757d;
+  font-size: 0.875em;
+  cursor: help;
+}
+
+// ============================================================================
+// Dual Framework Header Styles
+// ============================================================================
+
+.dual-framework-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+
+  .edited-framework {
+    display: flex;
+    align-items: center;
+  }
+
+  .viewed-framework {
+    display: flex;
+    align-items: center;
+    color: #6c757d;
+  }
+}
+
+// ============================================================================
+// Cross-Framework Association Styles
+// ============================================================================
+
+// Cross-framework association badge
+.cross-framework-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.75rem;
+  color: #0d6efd;
+
+  i {
+    margin-right: 0.25rem;
+  }
+}
+
+// Cross-framework association item styling
+.association-item.cross-framework-assoc {
+  background-color: #e8f0fe;
+  border-color: #a8c7fa !important;
+
+  &:hover {
+    background-color: #d3e3fd;
+  }
+}
+
+// Source framework badge for associations
+.source-framework-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.7em;
+  font-weight: 500;
+  vertical-align: middle;
+  background-color: #1a5276;
+  color: #ffffff;
+
+  i {
+    font-size: 0.85em;
+    margin-right: 0.25rem;
+  }
+}
+
+// Framework badge for cross-framework items
+.framework-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.7em;
+  font-weight: 500;
+  vertical-align: middle;
+  background-color: #0c63e4;
+  color: #ffffff;
+
+  i {
+    font-size: 0.85em;
+    margin-right: 0.25rem;
+  }
+}
+
+// ============================================================================
+// Accessibility: High Contrast Mode Support
+// ============================================================================
+
+@media (prefers-contrast: high) {
+  // High contrast for viewing different framework
+  .viewing-different-framework {
+    border-right: 6px solid #000000;
+    background: #ffffff;
+  }
+
+  // High contrast for view mode tree nodes
+  .tree-node.view-mode {
+    .tree-node-label {
+      border-left: 4px solid #000000;
+
+      &.selected {
+        background-color: #000000;
+        color: #ffffff;
+        border-left-color: #000000;
+      }
+    }
+  }
+
+  // High contrast for dual framework header
+  .dual-framework-header {
+    border-bottom: 2px solid #000000;
+  }
+
+  // High contrast for cross-framework associations
+  .association-item.cross-framework-assoc {
+    border: 2px solid #000000 !important;
+    background-color: #ffffff;
+  }
+
+  // High contrast for view mode indicator
+  .view-mode-indicator {
+    color: #000000;
+  }
+}
+
+// ============================================================================
+// Accessibility: Reduced Motion Support
+// ============================================================================
+
+@media (prefers-reduced-motion: reduce) {
+  // Disable transitions in view mode
+  .tree-node.view-mode {
+    .tree-node-label {
+      transition: none;
+    }
+  }
+
+  // Disable transitions for association items
+  .association-item.cross-framework-assoc {
+    transition: none;
+  }
+
+  // Disable transitions for viewing different framework
+  .viewing-different-framework {
+    transition: none;
+  }
+
+  // Disable transitions for view mode indicator
+  .view-mode-indicator {
+    transition: none;
+  }
+}
+
+// ============================================================================
+// Cross-Framework Item Styles (Tree)
+// ============================================================================
+
+// Cross-framework item in tree
+.tree-node-label.cross-framework {
+  font-style: italic;
+  border-left: 3px solid #0d6efd;
+
+  &:hover {
+    background-color: rgba(59, 130, 246, 0.15);
+  }
+
+  &.selected {
+    background-color: rgba(59, 130, 246, 0.2);
+    border-left-color: #2563eb;
+  }
+}
+
+// Loading spinner for cross-framework items
+.loading-spinner {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 0.25rem;
+  color: #6c757d;
+
+  .spin {
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+// Reduced motion for spinner
+@media (prefers-reduced-motion: reduce) {
+  .loading-spinner .spin {
+    animation: none;
+  }
+}
