@@ -134,6 +134,7 @@
 import { ref, computed, watch, onMounted, onUnmounted, inject, toValue, nextTick } from 'vue';
 import { useCurrentDocumentStore } from '@/stores/currentDocumentStore';
 import { useCrossFrameworkItem } from '@/composables/useCrossFrameworkItem';
+import { logger } from '@/utils/logger.js';
 import sanitizeHtml from 'sanitize-html';
 
 import docIcon from '@/assets/icons/ph/graph-fill.svg';
@@ -221,6 +222,7 @@ const {
 // Watch for fetched data and merge into the local item object
 // This ensures all computed properties (iconSrc, humanCodingScheme, etc.) work correctly
 watch(itemData, (newData) => {
+  logger.debug(`[TreeNode] itemData watcher triggered for ${props.item.identifier}, has data: ${!!newData}, isCrossFramework: ${isCrossFrameworkItem.value}`);
   if (newData && isCrossFrameworkItem.value) {
     // Merge fetched data into the item to enable proper display
     const mergedData = {
@@ -251,18 +253,44 @@ watch(itemData, (newData) => {
     }
 
     // Store the framework title on the item for reference
-    if (frameworkTitle.value && !props.item.externalFrameworkTitle) {
+    if (frameworkTitle.value &&
+        (!props.item.externalFrameworkTitle || props.item.externalFrameworkTitle === 'Loading...')) {
       props.item.externalFrameworkTitle = frameworkTitle.value;
     }
+
+    logger.debug(`[TreeNode] Merged cross-framework data for ${props.item.identifier}`);
+  }
+}, { immediate: true });
+
+// Watch for framework title changes separately to handle the case where
+// frameworkTitle is updated after itemData (due to async document fetch)
+watch(frameworkTitle, (newTitle) => {
+  if (newTitle && newTitle !== 'Loading...' && isCrossFrameworkItem.value) {
+    logger.debug(`[TreeNode] frameworkTitle watcher updating externalFrameworkTitle for ${props.item.identifier}: ${newTitle}`);
+    props.item.externalFrameworkTitle = newTitle;
   }
 }, { immediate: true });
 
 // Eagerly load the external item data if it's a cross-framework item
 watch(isCrossFrameworkItem, (isCross) => {
+  logger.debug(`[TreeNode] isCrossFrameworkItem watcher: ${isCross} for ${props.item.identifier}`);
   if (isCross) {
+    logger.debug(`[TreeNode] Calling loadExternalItem for ${props.item.identifier}, crossFrameworkUri: ${props.item.crossFrameworkUri}`);
     loadExternalItem();
   }
 }, { immediate: true });
+
+onMounted(() => {
+  if (isCrossFrameworkItem.value) {
+    logger.debug(`[TreeNode] Mounted cross-framework item: ${props.item.identifier}, loading: ${isLoadingCrossFramework.value}`);
+  }
+});
+
+onUnmounted(() => {
+  if (isCrossFrameworkItem.value) {
+    logger.debug(`[TreeNode] Unmounted cross-framework item: ${props.item.identifier}`);
+  }
+});
 
 
 const hasChildren = computed(() => props.item.children && props.item.children.length > 0);

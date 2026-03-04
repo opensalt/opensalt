@@ -768,17 +768,31 @@ const isReadOnly = computed(() => props.currentDocument?.isReadOnly || !sessionS
 // Use props.item directly to avoid circular dependency with displayItem
 const isCrossFrameworkItem = computed(() => props.item?.isCrossFramework === true);
 
+// Local reactive state for cross-framework item data to avoid prop mutation
+// MUST be declared BEFORE displayItem
+const localCrossFrameworkData = ref({});
+
+// Computed property that merges props.item with localCrossFrameworkData
+// This ensures fetched cross-framework data is displayed in the template
+// MUST be declared BEFORE crossFrameworkData to avoid temporal dead zone
+const displayItem = computed(() => ({
+  ...props.item,
+  ...localCrossFrameworkData.value
+}));
+
 // Setup cross-framework item loading for external items
 // Structure matches what useCrossFrameworkItem expects (like AssociationItem.vue)
 const crossFrameworkData = computed(() => {
-  if (!isCrossFrameworkItem.value || !displayItem.value?.crossFrameworkUri) {
+  // Use props.item for crossFrameworkUri check to avoid circular dependency
+  // displayItem will include local overrides that come FROM the composable
+  if (!isCrossFrameworkItem.value || !props.item?.crossFrameworkUri) {
     return null;
   }
   return {
     destinationNodeURI: {
-      uri: displayItem.value.crossFrameworkUri,
-      identifier: displayItem.value.identifier,
-      title: displayItem.value.title || displayItem.value.abbreviatedStatement || displayItem.value.fullStatement
+      uri: props.item.crossFrameworkUri,
+      identifier: props.item.identifier,
+      title: props.item.title || props.item.abbreviatedStatement || props.item.fullStatement
     },
     associationType: 'isChildOf'
   };
@@ -794,16 +808,6 @@ const {
   association: crossFrameworkData,
   direction: 'normal'
 });
-
-// Local reactive state for cross-framework item data to avoid prop mutation
-const localCrossFrameworkData = ref({});
-
-// Computed property that merges props.item with localCrossFrameworkData
-// This ensures fetched cross-framework data is displayed in the template
-const displayItem = computed(() => ({
-  ...props.item,
-  ...localCrossFrameworkData.value
-}));
 
 // Watch for fetched data and merge into the local item object
 watch(crossFrameworkItemData, (newData) => {

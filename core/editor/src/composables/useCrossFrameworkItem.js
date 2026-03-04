@@ -463,8 +463,11 @@ export function useCrossFrameworkItem(options) {
         docTitle = documentUri?.title || null;
         docId = documentUri?.identifier || null;
       } catch (err) {
-        console.warn(`Failed to fetch external item details directly:`, err);
-        // We will try falling back to full framework fetch if we know the CFDocumentURI
+        logger.warn(`[CrossFramework] Failed to fetch external item details directly:`, err);
+        fetchError.value = err;
+        externalItemData.value = null;
+        isLoading.value = false;
+        return;
       }
 
       // If item data didn't have doc ID but association did, use association's
