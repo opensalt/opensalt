@@ -83,15 +83,15 @@ class CommentRepository extends ServiceEntityRepository
     {
         // Try to find by identifier first, then by ID if it's numeric
         $entity = null;
-        if ($itemType === 'document') {
+        if ('document' === $itemType) {
             $entity = $this->getEntityManager()->getRepository(LsDoc::class)->findOneBy(['identifier' => $itemId]);
             if (null === $entity && is_numeric($itemId)) {
-                $entity = $this->getEntityManager()->getRepository(LsDoc::class)->find((int)$itemId);
+                $entity = $this->getEntityManager()->getRepository(LsDoc::class)->find((int) $itemId);
             }
-        } elseif ($itemType === 'item') {
+        } elseif ('item' === $itemType) {
             $entity = $this->getEntityManager()->getRepository(LsItem::class)->findOneBy(['identifier' => $itemId]);
             if (null === $entity && is_numeric($itemId)) {
-                $entity = $this->getEntityManager()->getRepository(LsItem::class)->find((int)$itemId);
+                $entity = $this->getEntityManager()->getRepository(LsItem::class)->find((int) $itemId);
             }
         }
 

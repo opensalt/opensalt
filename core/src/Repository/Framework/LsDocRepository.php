@@ -63,7 +63,7 @@ class LsDocRepository extends ServiceEntityRepository
         if (null !== $user) {
             if (!$this->security->isGranted(Permission::FRAMEWORK_EDIT_ALL)) {
                 $isEditor = $this->security->isGranted('ROLE_EDITOR');
-                $qb->leftJoin('d.docAcls', 'acls', 'WITH', 'acls.user = :user')
+                $qb->leftJoin('d.docAcls', 'acls', 'ON', 'acls.user = :user')
                     ->orWhere('(m.visible IS NULL OR m.visible = 1) AND (d.adoptionStatus != :privateDraft)')
                     ->orWhere('(m.visible IS NOT NULL AND 1 = :isEditor)')
                     ->orWhere('(d.org = :org OR d.user = :user OR acls.access = 1) AND (acls.access IS NULL OR acls.access != 0)')
@@ -1135,98 +1135,157 @@ xENDx;
     /**
      * Find related documents for a given document with permission filtering.
      *
-     * Optimized implementation that:
-     * 1. Uses a single native SQL UNION query to find associated document IDs
-     * 2. Integrates ACL filtering directly into the database query
-     * 3. Avoids hydrating intermediate entities
+     * Refactored implementation that:
+     * 1. Executes 6 separate queries (one for each original UNION ALL clause)
+     * 2. Uses NOT IN clauses to avoid duplicates and improve performance
+     * 3. Combines results in PHP
+     * 4. Maintains the same ACL filtering and return type
      *
      * @return LsDoc[]
      */
     public function findRelatedDocuments(LsDoc $lsDoc, ?User $user = null): array
     {
         $docId = $lsDoc->getId();
-        $conn = $this->getEntityManager()->getConnection();
 
-        // Get user context for ACL filtering
-        $userId = null;
-        $orgId = null;
-        $isEditor = false;
-        $hasEditAll = false;
+        // Collect document IDs from each query, avoiding duplicates
+        $docIds = [];
+        $foundIds = [];
 
-        if (null !== $user) {
-            $userId = $user->getId();
-            $orgId = $user->getOrg()?->getId();
-            $isEditor = $this->security->isGranted('ROLE_EDITOR');
-            $hasEditAll = $this->security->isGranted(Permission::FRAMEWORK_EDIT_ALL);
+        // Query 1: Items where the document has a destination item
+        // Original: SELECT DISTINCT i.ls_doc_id FROM ls_item i
+        //   INNER JOIN ls_association a ON a.destination_lsitem_id = i.id
+        //   INNER JOIN ls_item i2 ON i2.id = a.origin_lsitem_id
+        //   WHERE i2.ls_doc_id = :docId
+        $qb = $this->createQueryBuilder('d')
+            ->select('DISTINCT d.id')
+            ->join(LsItem::class, 'i', 'ON', 'i.lsDoc = d')
+            ->join(LsAssociation::class, 'a', 'ON', 'a.destinationLsItem = i')
+            ->join(LsItem::class, 'i2', 'ON', 'a.originLsItem = i2')
+            ->where('i2.lsDoc = :docId')
+            ->setParameter('docId', $docId);
+        $this->addAclConditions($qb, $user);
+        $results = $qb->getQuery()->getResult(AbstractQuery::HYDRATE_SCALAR);
+        foreach ($results as $row) {
+            $id = (int) $row['id'];
+            $foundIds[$id] = true;
+            $docIds[] = $id;
+        }
+        $foundIds = array_unique($foundIds);
+        $docIds = array_values(array_unique($docIds));
+
+        // Query 2: Items where the document has an origin item
+        // Original: SELECT DISTINCT i.ls_doc_id FROM ls_item i
+        //   INNER JOIN ls_association a ON a.origin_lsitem_id = i.id
+        //   INNER JOIN ls_item i2 ON i2.id = a.destination_lsitem_id
+        //   WHERE i2.ls_doc_id = :docId
+        $qb = $this->createQueryBuilder('d')
+            ->select('DISTINCT d.id')
+            ->join(LsItem::class, 'i', 'ON', 'i.lsDoc = d')
+            ->join(LsAssociation::class, 'a', 'ON', 'a.originLsItem = i')
+            ->join(LsItem::class, 'i2', 'ON', 'a.destinationLsItem = i2')
+            ->where('i2.lsDoc = :docId')
+            ->setParameter('docId', $docId);
+        if (!empty($foundIds)) {
+            $qb->andWhere('NOT EXISTS (SELECT 1 FROM App\Entity\Framework\LsDoc d2 WHERE d2.id IN (:foundIds) AND d2.id = d.id)')
+                ->setParameter('foundIds', array_keys($foundIds));
+        }
+        $this->addAclConditions($qb, $user);
+        $results = $qb->getQuery()->getResult(AbstractQuery::HYDRATE_SCALAR);
+        foreach ($results as $row) {
+            $id = (int) $row['id'];
+            $foundIds[$id] = true;
+            $docIds[] = $id;
         }
 
-        // Build ACL conditions as SQL
-        $aclConditions = $this->buildAclConditionsSql($userId, $orgId, $isEditor, $hasEditAll);
-
-        // Optimized query using EXISTS clauses instead of IN with sub-selects
-        // EXISTS short-circuits on first match found, making it much faster
-        $sql = <<<SQL
-SELECT DISTINCT d.id
-FROM ls_doc d
-LEFT JOIN mirror_framework m ON m.id = d.mirrored_framework_id
-INNER JOIN (
-    SELECT DISTINCT i.ls_doc_id
-    FROM ls_item i
-    INNER JOIN ls_association a ON a.destination_lsitem_id = i.id
-    INNER JOIN ls_item i2 ON i2.id = a.origin_lsitem_id
-    WHERE i2.ls_doc_id = :docId
-
-    UNION ALL
-
-    SELECT DISTINCT i.ls_doc_id
-    FROM ls_item i
-    INNER JOIN ls_association a ON a.origin_lsitem_id = i.id
-    INNER JOIN ls_item i2 ON i2.id = a.destination_lsitem_id
-    WHERE i2.ls_doc_id = :docId
-
-    UNION ALL
-
-    SELECT DISTINCT i.ls_doc_id
-    FROM ls_item i
-    INNER JOIN ls_association a ON a.origin_lsitem_id = i.id
-    WHERE a.destination_lsdoc_id = :docId
-
-    UNION ALL
-
-    SELECT DISTINCT i.ls_doc_id
-    FROM ls_item i
-    INNER JOIN ls_association a ON a.destination_lsitem_id = i.id
-    WHERE a.origin_lsdoc_id = :docId
-
-    UNION ALL
-
-    SELECT DISTINCT a.ls_doc_id
-    FROM ls_association a
-    INNER JOIN ls_item i ON i.id = a.destination_lsitem_id
-    WHERE i.ls_doc_id = :docId
-
-    UNION ALL
-
-    SELECT DISTINCT a.ls_doc_id
-    FROM ls_association a
-    INNER JOIN ls_item i ON i.id = a.origin_lsitem_id
-    WHERE i.ls_doc_id = :docId
-) related_docs ON related_docs.ls_doc_id = d.id
-AND ({$aclConditions})
-SQL;
-
-        $stmt = $conn->prepare($sql);
-        $stmt->bindValue('docId', $docId);
-
-        if (null !== $userId) {
-            $stmt->bindValue('userId', $userId);
-            if (null !== $orgId) {
-                $stmt->bindValue('orgId', $orgId);
-            }
+        // Query 3: Items where association destination is the document
+        // Original: SELECT DISTINCT i.ls_doc_id FROM ls_item i
+        //   INNER JOIN ls_association a ON a.origin_lsitem_id = i.id
+        //   WHERE a.destination_lsdoc_id = :docId
+        $qb = $this->createQueryBuilder('d')
+            ->select('DISTINCT d.id')
+            ->join(LsItem::class, 'i', 'ON', 'i.lsDoc = d')
+            ->join(LsAssociation::class, 'a', 'ON', 'a.originLsItem = i')
+            ->where('a.destinationLsDoc = :docId')
+            ->setParameter('docId', $docId);
+        if (!empty($foundIds)) {
+            $qb->andWhere('NOT EXISTS (SELECT 1 FROM App\Entity\Framework\LsDoc d2 WHERE d2.id IN (:foundIds) AND d2.id = d.id)')
+                ->setParameter('foundIds', array_keys($foundIds));
+        }
+        $this->addAclConditions($qb, $user);
+        $results = $qb->getQuery()->getResult(AbstractQuery::HYDRATE_SCALAR);
+        foreach ($results as $row) {
+            $id = (int) $row['id'];
+            $foundIds[$id] = true;
+            $docIds[] = $id;
         }
 
-        $result = $stmt->executeQuery();
-        $docIds = $result->fetchFirstColumn();
+        // Query 4: Items where association origin is the document
+        // Original: SELECT DISTINCT i.ls_doc_id FROM ls_item i
+        //   INNER JOIN ls_association a ON a.destination_lsitem_id = i.id
+        //   WHERE a.origin_lsdoc_id = :docId
+        $qb = $this->createQueryBuilder('d')
+            ->select('DISTINCT d.id')
+            ->join(LsItem::class, 'i', 'ON', 'i.lsDoc = d')
+            ->join(LsAssociation::class, 'a', 'ON', 'a.destinationLsItem = i')
+            ->where('a.originLsDoc = :docId')
+            ->setParameter('docId', $docId);
+        if (!empty($foundIds)) {
+            $qb->andWhere('NOT EXISTS (SELECT 1 FROM App\Entity\Framework\LsDoc d2 WHERE d2.id IN (:foundIds) AND d2.id = d.id)')
+                ->setParameter('foundIds', array_keys($foundIds));
+        }
+        $this->addAclConditions($qb, $user);
+        $results = $qb->getQuery()->getResult(AbstractQuery::HYDRATE_SCALAR);
+        foreach ($results as $row) {
+            $id = (int) $row['id'];
+            $foundIds[$id] = true;
+            $docIds[] = $id;
+        }
+
+        // Query 5: Document associations where destination is an item in the document
+        // Original: SELECT DISTINCT a.ls_doc_id FROM ls_association a
+        //   INNER JOIN ls_item i ON i.id = a.destination_lsitem_id
+        //   WHERE i.ls_doc_id = :docId
+        $qb = $this->createQueryBuilder('d')
+            ->select('DISTINCT d.id')
+            ->join(LsAssociation::class, 'a', 'ON', 'a.lsDoc = d')
+            ->join(LsItem::class, 'i', 'ON', 'a.destinationLsItem = i')
+            ->where('i.lsDoc = :docId')
+            ->setParameter('docId', $docId);
+        if (!empty($foundIds)) {
+            $qb->andWhere('NOT EXISTS (SELECT 1 FROM App\Entity\Framework\LsDoc d2 WHERE d2.id IN (:foundIds) AND d2.id = d.id)')
+                ->setParameter('foundIds', array_keys($foundIds));
+        }
+        $this->addAclConditions($qb, $user);
+        $results = $qb->getQuery()->getResult(AbstractQuery::HYDRATE_SCALAR);
+        foreach ($results as $row) {
+            $id = (int) $row['id'];
+            $foundIds[$id] = true;
+            $docIds[] = $id;
+        }
+
+        // Query 6: Document associations where origin is an item in the document
+        // Original: SELECT DISTINCT a.ls_doc_id FROM ls_association a
+        //   INNER JOIN ls_item i ON i.id = a.origin_lsitem_id
+        //   WHERE i.ls_doc_id = :docId
+        $qb = $this->createQueryBuilder('d')
+            ->select('DISTINCT d.id')
+            ->join(LsAssociation::class, 'a', 'ON', 'a.lsDoc = d')
+            ->join(LsItem::class, 'i', 'ON', 'a.originLsItem = i')
+            ->where('i.lsDoc = :docId')
+            ->setParameter('docId', $docId);
+        if (!empty($foundIds)) {
+            $qb->andWhere('NOT EXISTS (SELECT 1 FROM App\Entity\Framework\LsDoc d2 WHERE d2.id IN (:foundIds) AND d2.id = d.id)')
+                ->setParameter('foundIds', array_keys($foundIds));
+        }
+        $this->addAclConditions($qb, $user);
+        $results = $qb->getQuery()->getResult(AbstractQuery::HYDRATE_SCALAR);
+        foreach ($results as $row) {
+            $id = (int) $row['id'];
+            $foundIds[$id] = true;
+            $docIds[] = $id;
+        }
+        $foundIds = array_unique($foundIds);
+        $docIds = array_values(array_unique($docIds));
 
         if (empty($docIds)) {
             return [];
@@ -1235,7 +1294,7 @@ SQL;
         // Fetch full entities for the filtered document IDs
         $qb = $this->createQueryBuilder('d')
             ->select('d, s')
-            ->leftJoin('d.subjects','s')
+            ->leftJoin('d.subjects', 's')
             ->where('d.id IN (:docIds)')
             ->setParameter('docIds', $docIds)
             ->orderBy('d.creator', 'ASC')
@@ -1246,59 +1305,42 @@ SQL;
     }
 
     /**
-     * Build ACL conditions as SQL for use in native queries.
+     * Add ACL conditions to a QueryBuilder for filtering documents by user permissions.
      */
-    private function buildAclConditionsSql(?int $userId, ?int $orgId, bool $isEditor, bool $hasEditAll): string
+    private function addAclConditions(QueryBuilder $qb, ?User $user): void
     {
         // If user has FRAMEWORK_EDIT_ALL permission, they can see all documents
-        if ($hasEditAll) {
-            return '1 = 1';
+        if (null !== $user && $this->security->isGranted(Permission::FRAMEWORK_EDIT_ALL)) {
+            return;
         }
 
+        $qb->leftJoin('d.mirroredFramework', 'm');
+
         // Anonymous user - only public, non-private documents
-        if (null === $userId) {
-            return "(m.visible IS NULL OR m.visible = 1) AND d.adoption_status != 'Private Draft'";
+        if (null === $user) {
+            $qb->andWhere('(m.visible IS NULL OR m.visible = 1)')
+                ->andWhere('d.adoptionStatus != :privateDraft')
+                ->setParameter('privateDraft', LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT);
+
+            return;
         }
 
         // Logged-in user with specific permissions
-        $conditions = [];
+        $isEditor = $this->security->isGranted('ROLE_EDITOR');
 
-        // Public non-private documents
-        $conditions[] = "(m.visible IS NULL OR m.visible = 1) AND d.adoption_status != 'Private Draft'";
+        // Join ACLs table for user-based access checking
+        $qb->leftJoin('d.docAcls', 'acls', 'WITH', 'acls.user = :user');
 
-        // Editor can see visible mirrored frameworks
-        if ($isEditor) {
-            $conditions[] = '(m.visible IS NOT NULL AND m.visible = 1)';
-        }
-
-        // Documents in user's org, owned by user, or with explicit ACL access
-        $userConditions = [];
-        if (null !== $orgId) {
-            $userConditions[] = 'd.org_id = :orgId';
-        }
-        $userConditions[] = 'd.user_id = :userId';
-
-        // Check for explicit ACL access - use EXISTS for better performance than LEFT JOIN
-        $userConditions[] = 'EXISTS (
-            SELECT 1 FROM salt_user_doc_acl acls
-            WHERE acls.doc_id = d.id
-            AND acls.user_id = :userId
-            AND acls.access = 1
-        )';
-
-        // Combine the positive access conditions with OR (any one grants access)
-        $positiveConditions = '(' . implode(' OR ', $userConditions) . ')';
-
-        // Exclude documents where access was explicitly removed (must be AND'd with positive conditions)
-        $negativeCondition = 'NOT EXISTS (
-            SELECT 1 FROM salt_user_doc_acl acls
-            WHERE acls.doc_id = d.id
-            AND acls.user_id = :userId
-            AND acls.access = 0
-        )';
-
-        $conditions[] = "({$positiveConditions} AND {$negativeCondition})";
-
-        return '(' . implode(') OR (', $conditions) . ')';
+        // Match findForList() logic: three separate OR conditions
+        // 1. Public non-private documents
+        // 2. Editor can see visible mirrored frameworks
+        // 3. Org/user/acl positive check with negative check applied to that group only
+        $qb->orWhere('(m.visible IS NULL OR m.visible = 1) AND (d.adoptionStatus != :privateDraft)')
+            ->orWhere('(m.visible IS NOT NULL AND 1 = :isEditor)')
+            ->orWhere('(d.org = :org OR d.user = :user OR acls.access = 1) AND (acls.access IS NULL OR acls.access != 0)')
+            ->setParameter('isEditor', $isEditor ? 1 : 0)
+            ->setParameter('user', $user)
+            ->setParameter('org', $user->getOrg())
+            ->setParameter('privateDraft', LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT);
     }
 }
