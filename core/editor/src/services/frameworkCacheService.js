@@ -9,7 +9,7 @@ import { logger } from '../utils/logger.js';
 const DB_NAME = 'opensalt-framework-cache';
 const DB_VERSION = 1;
 const STORE_NAME = 'frameworks';
-const CACHE_MAX_AGE_MS = 600000; // 10 minutes in milliseconds
+const CACHE_MAX_AGE_MS = 86400000; // 1 day in milliseconds
 
 /**
  * Framework Cache Service class
@@ -183,11 +183,14 @@ class FrameworkCacheService {
         return false;
       }
 
-      logger.debug('Cache valid for document (by lastChange):', documentId);
-      return true;
+      // Refresh 1% of the time even if the server date matches
+      if (Math.random() < 0.01) {
+        logger.debug('Refresh cached document:', documentId);
+        return false;
+      }
     }
 
-    // Check if cache is older than max age (10 minutes)
+    // Check if cache is older than max age
     const now = Date.now();
     const cacheAge = now - cachedEntry.cachedAt;
 
