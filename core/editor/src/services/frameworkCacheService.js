@@ -173,15 +173,6 @@ class FrameworkCacheService {
       return false;
     }
 
-    // Check if cache is older than max age (10 minutes)
-    const now = Date.now();
-    const cacheAge = now - cachedEntry.cachedAt;
-
-    if (cacheAge > CACHE_MAX_AGE_MS) {
-      logger.debug('Cache expired for document:', documentId, '(age:', cacheAge, 'ms)');
-      return false;
-    }
-
     // Check if server has a newer version
     if (serverLastChangeDateTime && cachedEntry.lastChangeDateTime) {
       const serverDate = new Date(serverLastChangeDateTime);
@@ -191,6 +182,18 @@ class FrameworkCacheService {
         logger.debug('Server has newer version for document:', documentId);
         return false;
       }
+
+      logger.debug('Cache valid for document (by lastChange):', documentId);
+      return true;
+    }
+
+    // Check if cache is older than max age (10 minutes)
+    const now = Date.now();
+    const cacheAge = now - cachedEntry.cachedAt;
+
+    if (cacheAge > CACHE_MAX_AGE_MS) {
+      logger.debug('Cache expired for document:', documentId, '(age:', cacheAge, 'ms)');
+      return false;
     }
 
     logger.debug('Cache valid for document:', documentId);
