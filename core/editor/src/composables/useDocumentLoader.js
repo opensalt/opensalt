@@ -54,6 +54,7 @@ export function useDocumentLoader(options = {}) {
 
     return {
       id: cfDoc.identifier,
+      identifier: cfDoc.identifier,
       uri: cfDoc.uri || '',
       title: cfDoc.title || 'Untitled',
       description: cfDoc.description || null,
