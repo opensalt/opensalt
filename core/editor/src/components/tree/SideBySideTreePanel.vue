@@ -82,6 +82,7 @@
           <TreeView
             :doc="sideDocument"
             :selected-id="sideSelectedId"
+            :disable-drop="true"
             @select="onSideSelect"
             @tree-change="$emit('tree-change', $event)"
           />
@@ -112,9 +113,10 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, onMounted, inject } from 'vue';
 import TreeView from './TreeView.vue';
 import DocumentSelector from '../shared/common/DocumentSelector.vue';
+import { logger } from '@/utils/logger.js';
 
 const props = defineProps({
   mode: {
@@ -166,6 +168,29 @@ const emit = defineEmits([
 const selectedDocumentId = ref('');
 const sideSelectedId = ref(null);
 
+// Inject tree navigation context for expansion state management
+const navigation = inject('treeNavigation', {
+  expandItem: () => {},
+  collapseItem: () => {},
+  isItemExpanded: () => false
+});
+
+// Initialize selectedDocumentId from currentDocument when component mounts
+onMounted(() => {
+  if (props.currentDocument?.identifier && !selectedDocumentId.value) {
+    selectedDocumentId.value = props.currentDocument.identifier;
+    emit('document-select', props.currentDocument.identifier);
+  }
+});
+
+// Watch for currentDocument changes and initialize selectedDocumentId when it becomes available
+watch(() => props.currentDocument, (newDoc) => {
+  if (newDoc?.identifier && !selectedDocumentId.value) {
+    selectedDocumentId.value = newDoc.identifier;
+    emit('document-select', newDoc.identifier);
+  }
+}, { immediate: false });
+
 // Track current document for DocumentSelector
 const currentDocForSelector = computed(() => {
   // If sideDocument is set, it's the current selected document for this panel
@@ -199,12 +224,23 @@ watch(() => props.sideDocument, () => {
   sideSelectedId.value = null;
 });
 
-// Sync selectedDocumentId with sideDocument
+// Sync selectedDocumentId with sideDocument when it changes
+// This ensures selectedDocumentId matches the loaded document's ID
 watch(() => props.sideDocument, (newDoc) => {
-  if (newDoc) {
+  if (newDoc && newDoc.id) {
     selectedDocumentId.value = newDoc.id;
   }
-}, { immediate: true });
+});
+
+// Watch for sideDocument changes to expand the tree one level
+// This ensures the root document is expanded when a new document is loaded
+watch(() => props.sideDocument?.id, (newDocId, oldDocId) => {
+  if (newDocId && newDocId !== oldDocId) {
+    // Expand the document root by default (one level expansion)
+    navigation.expandItem(newDocId);
+    logger.debug('[SideBySideTreePanel] Expanded side document root:', newDocId);
+  }
+}, { immediate: false });
 </script>
 
 <style scoped>

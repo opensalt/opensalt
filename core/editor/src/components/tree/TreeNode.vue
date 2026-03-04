@@ -65,6 +65,7 @@
             :search-query="searchQuery"
             :matching-item-ids="matchingItemIds"
             :is-view-mode="isViewMode"
+            :disable-drop="disableDrop"
             @select="$emit('select', $event)"
             @dblclick="$emit('dblclick', $event)"
             @move="$emit('move', $event)"
@@ -187,6 +188,10 @@ const props = defineProps({
     default: () => new Set()
   },
   isViewMode: {
+    type: Boolean,
+    default: false
+  },
+  disableDrop: {
     type: Boolean,
     default: false
   }
@@ -453,6 +458,10 @@ const onChange = (evt) => {
 };
 
 const onMouseEnter = () => {
+  // Don't show popover when an item is being dragged
+  if (currentDocumentStore.draggedItem) {
+    return;
+  }
   if (popoverTimeout.value) {
     clearTimeout(popoverTimeout.value);
   }
@@ -580,6 +589,13 @@ function onDragStart(e) {
 
 function onDragOver(e) {
   e.preventDefault();
+
+  // When drops are disabled, show disabled indicator and prevent hover effects
+  if (props.disableDrop) {
+    dropPosition.value = 'disabled';
+    return;
+  }
+
   const rect = e.currentTarget.getBoundingClientRect();
   const y = e.clientY - rect.top;
   const height = rect.height;
@@ -600,6 +616,13 @@ function onDragLeave() {
 
 function onDrop(e) {
   e.preventDefault();
+
+  // Prevent drop when disableDrop is true (e.g., in "Copy Items" or "Create Associations" mode)
+  if (props.disableDrop) {
+    dropPosition.value = null;
+    return;
+  }
+
   const position = dropPosition.value;
   dropPosition.value = null;
 

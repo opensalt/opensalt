@@ -30,6 +30,7 @@
           :search-query="props.searchQuery || props.search"
           :matching-item-ids="props.matchingItemIds"
           :is-view-mode="isViewMode"
+          :disable-drop="disableDrop"
           @select="onSelect"
           @dblclick="onDblClick"
           @move="onMove"
@@ -68,6 +69,10 @@ const props = defineProps({
     default: false
   },
   isViewingDifferentFramework: {
+    type: Boolean,
+    default: false
+  },
+  disableDrop: {
     type: Boolean,
     default: false
   }
