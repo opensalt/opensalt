@@ -36,6 +36,9 @@ const FETCH_STATUS = {
   ERROR: 'error'
 };
 
+// Track frameworks whose related documents have already been fetched from the API this session
+const sessionFetchedFrameworks = new Set();
+
 /**
  * Queue item structure
  * @typedef {Object} QueueItem
@@ -512,6 +515,11 @@ export function useRelatedFrameworksQueue() {
       }
 
       // 2. Fetch fresh from API (revalidate)
+      if (sessionFetchedFrameworks.has(identifier)) {
+        logger.debug(`Already verified related documents for ${identifier} in this session, using cache`);
+        return cachedDocs || [];
+      }
+
       logger.debug('About to call api.getRelatedDocuments for fresh data');
 
       try {
@@ -519,6 +527,9 @@ export function useRelatedFrameworksQueue() {
         logger.debug(`Related documents response:`, relatedDocs);
 
         if (Array.isArray(relatedDocs)) {
+          // Mark as fetched from API during this session
+          sessionFetchedFrameworks.add(identifier);
+
           // 3. Update cache with fresh data
           await frameworkCacheService.setRelatedFrameworks(identifier, relatedDocs);
 
