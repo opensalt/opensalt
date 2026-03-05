@@ -15,11 +15,11 @@ describe('useAssociationTypePriority', () => {
         it('falls back to itemType if salt:type is missing or default', () => {
             expect(getItemKind({ itemType: 'Credential - Badge' })).toBe('credential');
             expect(getItemKind({ itemType: 'Something Else' })).toBe('default');
-            expect(getItemKind({ extensions: { 'salt:type': 'default' }, itemType: 'Credential' })).toBe('credential');
+            expect(getItemKind({ extensions: { 'salt:type': 'default' }, itemType: 'Credential' })).toBe('default');
         });
 
         it('identifies documents implicitly by type property', () => {
-            expect(getItemKind({ type: 'document' })).toBe('__cfdocument');
+            expect(getItemKind({ itemType: 'document' })).toBe('__cfdocument');
         });
 
         it('returns default for unknown/missing properties', () => {

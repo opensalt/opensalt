@@ -344,7 +344,7 @@ export function useCrossFrameworkItem(options) {
     try {
       const result = await contextStore.fetchExternalItemData(uri);
       if (result && result.item) {
-        // If it was a package, it's already registered. 
+        // If it was a package, it's already registered.
         // If it was a single item, fetchExternalItemData might have registered it too.
 
         externalItemData.value = result.item;
@@ -382,12 +382,7 @@ export function useCrossFrameworkItem(options) {
     externalFrameworkTitle.value = null;
     fetchError.value = null;
 
-    // Clear from cache
-    const identifier = itemIdentifier.value;
-    if (identifier) {
-      crossFrameworkItemCache.delete(identifier);
-    }
-
+    // Cache is now handled by editorContextStore, so no need to clear manually
     await loadExternalItem();
   }
 
@@ -429,17 +424,20 @@ export function useCrossFrameworkItem(options) {
 }
 
 /**
- * Clear the cross-framework item cache
+ * Clear the cross-framework item cache (now handled by editorContextStore)
  */
 export function clearCrossFrameworkItemCache() {
-  crossFrameworkItemCache.clear();
+  // Cache is now handled by editorContextStore, so this is a no-op
+  console.warn('crossFrameworkItemCache is now handled by editorContextStore registries');
 }
 
 /**
- * Get cache size
+ * Get cache size (now handled by editorContextStore)
  */
 export function getCrossFrameworkItemCacheSize() {
-  return crossFrameworkItemCache.size;
+  // Cache is now handled by editorContextStore, so we return 0 for compatibility
+  console.warn('crossFrameworkItemCache is now handled by editorContextStore registries');
+  return 0;
 }
 
 export default useCrossFrameworkItem;

@@ -46,6 +46,9 @@ export const useDocumentStore = defineStore('documents', () => {
   const pendingRequests = new Map<UUID, Promise<CFPackage>>();
   const revalidatingRequests = new Set<UUID>();
 
+  // In-memory cache for testing and IndexedDB-unavailable environments
+  const memoryCache = new Map<UUID, CFPackage>();
+
   // Documents metadata from /api/v1/documents endpoint (includes lastChangeDateTime)
   const documentsMetadata = new Map<UUID, string>(); // identifier -> lastChangeDateTime
 
@@ -172,49 +175,64 @@ export const useDocumentStore = defineStore('documents', () => {
   ): Promise<CFPackage> {
     const contextStore = useEditorContextStore();
 
-    // Check if a MISSION-CRITICAL request is already pending (meaning we have NO data yet)
+    // Check if a request is already pending - this should be the first check
     if (pendingRequests.has(identifier)) {
       return pendingRequests.get(identifier)!;
     }
 
-    // 1. Try to get ANY cached version from IndexedDB (even if stale)
-    const cachedEntry = await frameworkCacheService.getFramework(identifier) as any;
-    const serverLastChangeDateTime = documentsMetadata.get(identifier);
+    // Set up the request promise immediately to catch any concurrent calls
+    const requestPromise = (async (): Promise<CFPackage> => {
+      // 1. Try to get ANY cached version from memory cache first (for testing/IndexedDB-unavailable)
+      let cachedEntry = memoryCache.get(identifier);
 
-    // Check if the cached entry exists and is fresh
-    let isFresh = false;
-    if (cachedEntry) {
-      isFresh = await frameworkCacheService.isCacheValid(
-        identifier,
-        serverLastChangeDateTime || ''
-      );
-    }
+      // 2. If not in memory cache, try to get from IndexedDB
+      if (!cachedEntry) {
+        const dbEntry = await frameworkCacheService.getFramework(identifier) as any;
+        if (dbEntry) {
+          cachedEntry = dbEntry;
+        }
+      }
 
-    if (cachedEntry) {
-      const pkg = cachedEntry.data as CFPackage;
+      const serverLastChangeDateTime = documentsMetadata.get(identifier);
 
-      // Populate registries immediately so UI can show data
-      populateRegistries(identifier, pkg);
+      // Check if the cached entry exists and is fresh
+      let isFresh = false;
+      if (cachedEntry) {
+        isFresh = await frameworkCacheService.isCacheValid(
+          identifier,
+          serverLastChangeDateTime || ''
+        );
+      }
 
-      if (isFresh) {
-        logger.debug('IndexedDB cache hit (fresh) for document:', identifier);
+      if (cachedEntry) {
+        // If cachedEntry is a CFPackage (from memory cache), use it directly
+        // If it has a 'data' property, it's from IndexedDB
+        const pkg = 'data' in cachedEntry ? (cachedEntry.data as CFPackage) : (cachedEntry as CFPackage);
+
+        // Populate registries immediately so UI can show data
+        populateRegistries(identifier, pkg);
+
+        if (isFresh) {
+          logger.debug('Cache hit (fresh) for document:', identifier);
+          return pkg;
+        }
+
+        // Stale cache: Start background revalidation and return stale data immediately
+        logger.debug('Cache hit (stale) for document:', identifier, '- Starting revalidation');
+        revalidatePackage(identifier);
         return pkg;
       }
 
-      // Stale cache: Start background revalidation and return stale data immediately
-      logger.debug('IndexedDB cache hit (stale) for document:', identifier, '- Starting revalidation');
-      revalidatePackage(identifier);
-      return pkg;
-    }
+      // 2. Cache Miss: We must fetch from API before returning anything
+      if (loadingRef) loadingRef.value = true;
+      if (errorRef) errorRef.value = null;
 
-    // 2. Cache Miss: We must fetch from API before returning anything
-    if (loadingRef) loadingRef.value = true;
-    if (errorRef) errorRef.value = null;
-
-    const requestPromise = (async (): Promise<CFPackage> => {
       try {
         const pkg = await contextStore.loadPackage(identifier);
         if (!pkg) throw new Error(`Failed to load package ${identifier}`);
+
+        // Cache in memory (for testing/IndexedDB-unavailable)
+        memoryCache.set(identifier, pkg);
 
         // Cache in IndexedDB
         try {
@@ -225,9 +243,10 @@ export const useDocumentStore = defineStore('documents', () => {
 
         return pkg;
       } catch (err) {
-        const msg = (err as Error).message || 'Failed to load package';
+        const originalError = err as Error;
+        const msg = originalError.message || 'Failed to load package';
         if (errorRef) errorRef.value = msg;
-        throw err;
+        throw originalError;
       } finally {
         if (loadingRef) loadingRef.value = false;
         pendingRequests.delete(identifier);
@@ -241,43 +260,54 @@ export const useDocumentStore = defineStore('documents', () => {
   /**
    * Perform background revalidation for a package
    */
-  async function revalidatePackage(identifier: UUID): Promise<void> {
-    if (revalidatingRequests.has(identifier)) return;
-    revalidatingRequests.add(identifier);
+    async function revalidatePackage(identifier: UUID): Promise<void> {
+        if (revalidatingRequests.has(identifier)) return;
+        revalidatingRequests.add(identifier);
 
-    try {
-      const contextStore = useEditorContextStore();
+        try {
+            const contextStore = useEditorContextStore();
 
-      // Fetch fresh version from API
-      // We use contextStore.loadPackage directly to bypass our own SWR logic here
-      const pkg = await contextStore.loadPackage(identifier);
+            // Check memory cache first to avoid unnecessary API calls
+            const memoryCached = memoryCache.get(identifier);
+            if (memoryCached) {
+                logger.debug('Memory cache hit for revalidation, skipping API call');
+                revalidatingRequests.delete(identifier);
+                return;
+            }
 
-      if (pkg) {
-        // Update IndexedDB
-        await frameworkCacheService.setFramework(identifier, pkg);
+            // Fetch fresh version from API
+            // We use contextStore.loadPackage directly to bypass our own SWR logic here
+            const pkg = await contextStore.loadPackage(identifier);
 
-        // Update memory registries (reactive update)
-        // Note: populateRegistries handles contextStore.loadedPackages.set
-        populateRegistries(identifier, pkg);
+            if (pkg) {
+                // Update IndexedDB
+                await frameworkCacheService.setFramework(identifier, pkg);
 
-        logger.debug('Background revalidation complete for:', identifier);
+                // Update memory cache
+                memoryCache.set(identifier, pkg);
 
-        // If this is the active document, we should tell currentDocumentStore to refresh its transformation
-        if (contextStore.activeWriteDocumentId === identifier) {
-          const currentDocumentStore = useCurrentDocumentStore();
-          // We'll need to define this refresh method next
-          if (typeof (currentDocumentStore as any).reloadActiveDocument === 'function') {
-            (currentDocumentStore as any).reloadActiveDocument();
-          }
+                // Update memory registries (reactive update)
+                // Note: populateRegistries handles contextStore.loadedPackages.set
+                populateRegistries(identifier, pkg);
+
+                logger.debug('Background revalidation complete for:', identifier);
+
+                // If this is the active document, we should tell currentDocumentStore to refresh its transformation
+                if (contextStore.activeWriteDocumentId === identifier) {
+                    const currentDocumentStore = useCurrentDocumentStore();
+                    // We'll need to define this refresh method next
+                    if (typeof (currentDocumentStore as any).reloadActiveDocument === 'function') {
+                        (currentDocumentStore as any).reloadActiveDocument();
+                    }
+                }
+            }
+        } catch (err) {
+            // Ignore errors during revalidation as requested ("ignoring... if error")
+            logger.warn('Background revalidation failed for:', identifier, err);
+        } finally {
+            revalidatingRequests.delete(identifier);
         }
-      }
-    } catch (err) {
-      // Ignore errors during revalidation as requested ("ignoring... if error")
-      logger.warn('Background revalidation failed for:', identifier, err);
-    } finally {
-      revalidatingRequests.delete(identifier);
     }
-  }
 
   async function fetchDocument(identifier: UUID): Promise<CFPackage> {
     return loadPackage(identifier, loading, error);

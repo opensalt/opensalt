@@ -65,10 +65,10 @@ export const useEditorContextStore = defineStore('editorContext', () => {
     /**
      * Load a full framework package and populate registries
      */
-    async function loadPackage(id: UUID): Promise<CFPackage | null> {
+    async function loadPackage(id: UUID): Promise<CFPackage> {
         try {
             const pkg = await api.get(`/ims/case/v1p1/CFPackages/${id}`) as CFPackage;
-            if (!pkg) return null;
+            if (!pkg) throw new Error(`Package ${id} is null`);
 
             loadedPackages.set(id, pkg);
 
@@ -100,7 +100,7 @@ export const useEditorContextStore = defineStore('editorContext', () => {
             return pkg;
         } catch (err) {
             logger.error(`Failed to load package ${id}:`, err);
-            return null;
+            throw err;
         }
     }
 

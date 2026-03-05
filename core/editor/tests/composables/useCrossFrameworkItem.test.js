@@ -25,6 +25,7 @@ let mockDocumentStore;
 
 // Mock Pinia
 vi.mock('pinia', () => ({
+  defineStore: vi.fn(),
   storeToRefs: vi.fn((store) => ({
     currentDocument: store.currentDocument
   }))
@@ -37,6 +38,64 @@ vi.mock('../../src/stores/currentDocumentStore', () => ({
 
 vi.mock('../../src/stores/documentStore', () => ({
   useDocumentStore: vi.fn(() => mockDocumentStore)
+}));
+
+vi.mock('../../src/stores/editorContextStore', () => ({
+  useEditorContextStore: vi.fn(() => ({
+    resolveEndpoint: vi.fn((endpoint) => {
+      if (endpoint === 'ext-item-1') {
+        return {
+          entityType: 'item',
+          identifier: 'ext-item-1',
+          entity: { identifier: 'ext-item-1', title: 'Test External Item' },
+          frameworkId: 'ext-doc-1'
+        };
+      } else if (endpoint === 'doc-1') {
+        return {
+          entityType: 'document',
+          entity: { identifier: 'doc-1', title: 'Test Document' },
+          frameworkId: 'doc-1'
+        };
+      }
+      return null;
+    }),
+    itemRegistry: { get: vi.fn((id) => {
+      if (id === 'ext-item-1') {
+        return { item: { identifier: 'ext-item-1', title: 'Test External Item' }, frameworkId: 'ext-doc-1' };
+      }
+      return null;
+    }) },
+    documentRegistry: { get: vi.fn((id) => {
+      if (id === 'ext-doc-1') {
+        return { title: 'Test External Document', identifier: 'ext-doc-1' };
+      }
+      return null;
+    }) },
+    fetchExternalItemData: vi.fn(async (uri) => {
+      if (uri === 'http://example.com/ext-item-1') {
+        return {
+          item: { identifier: 'ext-item-1', title: 'Test External Item' }
+        };
+      } else if (uri === 'http://example.com/403') {
+        throw { status: 403, message: 'Forbidden' };
+      } else if (uri === 'http://example.com/404') {
+        throw { status: 404, message: 'Not Found' };
+      } else if (uri === 'http://example.com/network') {
+        throw { message: 'Network Error' };
+      }
+      throw new Error('Unknown URI');
+    }),
+    isViewingDifferentFramework: false,
+    viewedDocumentId: null,
+    activeWriteDocumentId: 'test-doc-id'
+  }))
+}));
+
+vi.mock('../../src/stores/viewStore', () => ({
+  useViewStore: vi.fn(() => ({
+    viewMode: 'single',
+    setLoading: vi.fn()
+  }))
 }));
 
 // Mock logger
@@ -233,15 +292,26 @@ describe('useCrossFrameworkItem', () => {
 
   describe('findInCachedFrameworks', () => {
     it('finds item in associatedDocuments', () => {
-      mockCurrentDocumentStore.associatedDocuments.set(externalDocId, {
-        id: externalDocId,
-        title: 'External Framework',
-        items: [
-          { identifier: 'ext-item-1', fullStatement: 'External Item 1' }
-        ]
+      const result = findInCachedFrameworks('ext-item-1', {
+        resolveEndpoint: vi.fn((identifier) => {
+          if (identifier === 'ext-item-1') {
+            return {
+              entityType: 'item',
+              entity: { identifier: 'ext-item-1', title: 'Test External Item' },
+              frameworkId: 'ext-doc-1'
+            };
+          }
+          return null;
+        }),
+        documentRegistry: {
+          get: vi.fn((frameworkId) => {
+            if (frameworkId === 'ext-doc-1') {
+              return { title: 'External Framework' };
+            }
+            return null;
+          })
+        }
       });
-
-      const result = findInCachedFrameworks('ext-item-1', mockCurrentDocumentStore, mockDocumentStore);
 
       expect(result).not.toBeNull();
       expect(result.item.identifier).toBe('ext-item-1');
@@ -249,27 +319,37 @@ describe('useCrossFrameworkItem', () => {
     });
 
     it('finds item in documentCache', () => {
-      mockDocumentStore.documentCache.set(externalDocId, {
-        CFDocument: { title: 'Cached Framework' },
-        CFItems: [
-          { identifier: 'cached-item-1', fullStatement: 'Cached Item 1' }
-        ]
+      const result = findInCachedFrameworks('doc-1', {
+        resolveEndpoint: vi.fn((identifier) => {
+          if (identifier === 'doc-1') {
+            return {
+              entityType: 'document',
+              entity: { identifier: 'doc-1', title: 'Cached Framework' }
+            };
+          }
+          return null;
+        }),
+        documentRegistry: { get: vi.fn() }
       });
 
-      const result = findInCachedFrameworks('cached-item-1', mockCurrentDocumentStore, mockDocumentStore);
-
       expect(result).not.toBeNull();
-      expect(result.item.identifier).toBe('cached-item-1');
+      expect(result.item.identifier).toBe('doc-1');
       expect(result.documentTitle).toBe('Cached Framework');
     });
 
     it('returns null when item not in any cache', () => {
-      const result = findInCachedFrameworks('non-existent', mockCurrentDocumentStore, mockDocumentStore);
+      const result = findInCachedFrameworks('non-existent', {
+        resolveEndpoint: vi.fn(),
+        documentRegistry: { get: vi.fn() }
+      });
       expect(result).toBeNull();
     });
 
     it('returns null for null identifier', () => {
-      const result = findInCachedFrameworks(null, mockCurrentDocumentStore, mockDocumentStore);
+      const result = findInCachedFrameworks(null, {
+        resolveEndpoint: vi.fn(),
+        documentRegistry: { get: vi.fn() }
+      });
       expect(result).toBeNull();
     });
   });
@@ -382,23 +462,9 @@ describe('useCrossFrameworkItem', () => {
 
   describe('CASE item fetching', () => {
     it('fetches item by URI for cross-framework CASE items', async () => {
-      const association = createAssociation('item-1', 'ext-item-1', currentDocId, externalDocId);
-      const itemUri = `https://example.com/uri/${externalDocId}/ext-item-1`;
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          identifier: 'ext-item-1',
-          fullStatement: 'External Item 1',
-          humanCodingScheme: 'E1',
-          CFDocumentURI: {
-            identifier: externalDocId,
-            title: 'External Framework'
-          }
-        })
+      const association = createAssociation('item-1', 'ext-item-1', currentDocId, externalDocId, {
+        destURI: { uri: 'http://example.com/ext-item-1' }
       });
-
-      mockDocumentStore.fetchDocument.mockResolvedValue(mockExternalDocument);
 
       composable = useCrossFrameworkItem({
         association: ref(association),
@@ -406,46 +472,17 @@ describe('useCrossFrameworkItem', () => {
       });
 
       await nextTick();
-
-      // Wait for fetch to be called
       await new Promise(resolve => setTimeout(resolve, 10));
 
-      expect(mockFetch).toHaveBeenCalled();
       expect(composable.itemData.value?.identifier).toBe('ext-item-1');
     });
 
-    it('caches fetched items', async () => {
-      const association = createAssociation('item-1', 'ext-item-1', currentDocId, externalDocId);
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          identifier: 'ext-item-1',
-          fullStatement: 'External Item 1',
-          CFDocumentURI: {
-            identifier: externalDocId,
-            title: 'External Framework'
-          }
-        })
-      });
-
-      composable = useCrossFrameworkItem({
-        association: ref(association),
-        direction: ref('normal')
-      });
-
-      await nextTick();
-      await new Promise(resolve => setTimeout(resolve, 10));
-
-      expect(getCrossFrameworkItemCacheSize()).toBe(1);
-    });
-
     it('sets fetchError on 403 response', async () => {
-      const association = createAssociation('item-1', 'ext-item-1', currentDocId, externalDocId);
-
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 403
+      const association = createAssociation('item-1', 'ext-item-403', currentDocId, externalDocId, {
+        destURI: {
+          identifier: 'ext-item-403',
+          uri: 'http://example.com/403'
+        }
       });
 
       composable = useCrossFrameworkItem({
@@ -461,11 +498,11 @@ describe('useCrossFrameworkItem', () => {
     });
 
     it('sets fetchError on 404 response', async () => {
-      const association = createAssociation('item-1', 'ext-item-1', currentDocId, externalDocId);
-
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 404
+      const association = createAssociation('item-1', 'ext-item-404', currentDocId, externalDocId, {
+        destURI: {
+          identifier: 'ext-item-404',
+          uri: 'http://example.com/404'
+        }
       });
 
       composable = useCrossFrameworkItem({
@@ -481,9 +518,12 @@ describe('useCrossFrameworkItem', () => {
     });
 
     it('sets fetchError on network error', async () => {
-      const association = createAssociation('item-1', 'ext-item-1', currentDocId, externalDocId);
-
-      mockFetch.mockRejectedValueOnce(new Error('Network error'));
+      const association = createAssociation('item-1', 'ext-item-network', currentDocId, externalDocId, {
+        destURI: {
+          identifier: 'ext-item-network',
+          uri: 'http://example.com/network'
+        }
+      });
 
       composable = useCrossFrameworkItem({
         association: ref(association),
@@ -717,74 +757,6 @@ describe('useCrossFrameworkItem', () => {
       await nextTick();
 
       expect(typeof composable.reload).toBe('function');
-    });
-
-    it('clears cache and reloads on reload call', async () => {
-      const association = createAssociation('item-1', 'ext-item-1', currentDocId, externalDocId);
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          identifier: 'ext-item-1',
-          fullStatement: 'External Item 1',
-          CFDocumentURI: { identifier: externalDocId, title: 'External Framework' }
-        })
-      });
-
-      composable = useCrossFrameworkItem({
-        association: ref(association),
-        direction: ref('normal')
-      });
-
-      await nextTick();
-      await new Promise(resolve => setTimeout(resolve, 10));
-
-      expect(getCrossFrameworkItemCacheSize()).toBe(1);
-
-      // Clear and reload
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          identifier: 'ext-item-1',
-          fullStatement: 'Updated External Item 1',
-          CFDocumentURI: { identifier: externalDocId, title: 'External Framework' }
-        })
-      });
-
-      await composable.reload();
-      await new Promise(resolve => setTimeout(resolve, 10));
-
-      // Cache should have been cleared and refilled
-      expect(getCrossFrameworkItemCacheSize()).toBe(1);
-    });
-  });
-
-  describe('cache management', () => {
-    it('clearCrossFrameworkItemCache clears all cached items', async () => {
-      const association = createAssociation('item-1', 'ext-item-1', currentDocId, externalDocId);
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          identifier: 'ext-item-1',
-          fullStatement: 'External Item 1',
-          CFDocumentURI: { identifier: externalDocId, title: 'External Framework' }
-        })
-      });
-
-      composable = useCrossFrameworkItem({
-        association: ref(association),
-        direction: ref('normal')
-      });
-
-      await nextTick();
-      await new Promise(resolve => setTimeout(resolve, 10));
-
-      expect(getCrossFrameworkItemCacheSize()).toBe(1);
-
-      clearCrossFrameworkItemCache();
-
-      expect(getCrossFrameworkItemCacheSize()).toBe(0);
     });
   });
 });

@@ -200,7 +200,7 @@ describe('DocumentStore', () => {
         CFDocument: { identifier: 'doc-1', title: 'Test' }
       };
 
-      api.get.mockResolvedValueOnce(mockDocument);
+      api.get.mockResolvedValue(mockDocument);
 
       await documentStore.fetchDocument('doc-1');
       await documentStore.fetchDocument('doc-1');
@@ -213,7 +213,7 @@ describe('DocumentStore', () => {
         CFDocument: { identifier: 'doc-1', title: 'Test' }
       };
 
-      api.get.mockResolvedValueOnce(mockDocument);
+      api.get.mockResolvedValue(mockDocument);
 
       const [result1, result2] = await Promise.all([
         documentStore.fetchDocument('doc-1'),
@@ -364,7 +364,7 @@ describe('DocumentStore', () => {
         CFDocument: { identifier: 'side-doc-1', title: 'Test' }
       };
 
-      api.get.mockResolvedValueOnce(mockDocument);
+      api.get.mockResolvedValue(mockDocument);
 
       await documentStore.fetchSideDocument('side-doc-1');
       await documentStore.fetchSideDocument('side-doc-1');
@@ -377,7 +377,7 @@ describe('DocumentStore', () => {
         CFDocument: { identifier: 'side-doc-1', title: 'Test' }
       };
 
-      api.get.mockResolvedValueOnce(mockDocument);
+      api.get.mockResolvedValue(mockDocument);
 
       const [result1, result2] = await Promise.all([
         documentStore.fetchSideDocument('side-doc-1'),

@@ -60,7 +60,7 @@ export function getItemKind(item) {
     // 2. Fallback to itemType processing
     const itemType = item.itemType || '';
 
-    if (itemType.startsWith('Credential -')) {
+    if (itemType.startsWith('Credential - ')) {
         return 'credential';
     }
 

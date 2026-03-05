@@ -5,16 +5,42 @@ import { logger } from '../utils/logger.js';
 import { useEditorContextStore } from './editorContextStore';
 
 export const useItemStore = defineStore('items', () => {
-  // O(1) lookup using the global registry
+  // Internal item lookup map for fast access
+  const itemLookupMap = ref(new Map());
+
+  // O(1) lookup using the internal map first, then global registry
   function getItemByIdentifierFast(identifier) {
+    if (itemLookupMap.value.has(identifier)) {
+      return itemLookupMap.value.get(identifier);
+    }
+
     const contextStore = useEditorContextStore();
     const resolved = contextStore.resolveEndpoint(identifier);
     return (resolved?.entityType === 'item') ? resolved.entity : null;
   }
 
-  // Legacy for compatibility - registries are updated by loadPackage
-  function buildItemLookupMap() { }
-  function invalidateCache() { }
+  // Build item lookup map from items array
+  function buildItemLookupMap(items = []) {
+    itemLookupMap.value.clear();
+
+    function traverse(itemsArray) {
+      if (!Array.isArray(itemsArray)) return;
+
+      for (const item of itemsArray) {
+        itemLookupMap.value.set(item.identifier, item);
+        if (item.children) {
+          traverse(item.children);
+        }
+      }
+    }
+
+    traverse(items);
+  }
+
+  // Clear the item lookup map
+  function invalidateCache() {
+    itemLookupMap.value.clear();
+  }
 
   // Actions
   function updateItem(currentDocument, updatedItem) {
