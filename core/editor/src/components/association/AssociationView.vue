@@ -101,10 +101,11 @@
                     &lsaquo; Previous
                   </button>
                 </li>
-                <li v-for="page in totalPages" :key="page">
-                  <button class="page-link" :class="{ active: page === currentPage }" @click="goToPage(page)">
+                <li v-for="page in displayedPages" :key="page" :class="{ active: page === currentPage, disabled: page === '...' }">
+                  <button v-if="page !== '...'" class="page-link" :class="{ active: page === currentPage }" @click="goToPage(page)">
                     {{ page }}
                   </button>
+                  <span v-else class="page-link border-0">...</span>
                 </li>
                 <li :class="{ disabled: currentPage === totalPages }">
                   <button class="page-link" @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages">
@@ -303,6 +304,8 @@ watch(
   }
 );
 
+
+
 const filteredAssociations = computed(() => {
   return associations.value.filter(assoc => {
     // Filter by type - only show if type is in selected types array
@@ -331,6 +334,43 @@ const filteredAssociations = computed(() => {
 });
 
 const totalPages = computed(() => Math.max(1, Math.ceil(filteredAssociations.value.length / itemsPerPage.value)));
+
+const displayedPages = computed(() => {
+  const pages = [];
+  const delta = 2; // Number of pages to show before and after current page
+  const left = currentPage.value - delta;
+  const right = currentPage.value + delta + 1;
+  const range = [];
+  const rangeWithDots = [];
+  let l;
+
+  for (let i = 1; i <= totalPages.value; i++) {
+    if (i === 1 || i === totalPages.value || (i >= left && i < right)) {
+      range.push(i);
+    }
+  }
+
+  for (const i of range) {
+    if (l) {
+      if (i - l === 2) {
+        rangeWithDots.push(l + 1);
+      } else if (i - l !== 1) {
+        rangeWithDots.push('...');
+      }
+    }
+    rangeWithDots.push(i);
+    l = i;
+  }
+
+  return rangeWithDots;
+});
+
+// Ensure currentPage is valid if totalPages decreases
+watch(totalPages, (newTotalPages) => {
+  if (currentPage.value > newTotalPages) {
+    currentPage.value = Math.max(1, newTotalPages);
+  }
+});
 
 const paginatedAssociations = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value;
