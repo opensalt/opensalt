@@ -115,7 +115,7 @@
         <h6 class="mb-0">Actions</h6>
       </div>
       <div class="card-body">
-        <div class="d-flex gap-2" v-if="!isReadOnly">
+        <div class="d-flex flex-wrap gap-2" v-if="!isReadOnly">
           <div class="btn-group">
             <button type="button" class="btn btn-outline-primary" @click="showModal('general')">
               <i class="bi bi-plus-circle"></i> Add Root Item
@@ -138,6 +138,12 @@
           </div>
           <button type="button" class="btn btn-outline-secondary" @click="$emit('manage-association-groups')">
             <i class="bi bi-tags"></i> Manage Groups
+          </button>
+          <button type="button" class="btn btn-outline-secondary" @click="$emit('import-children')">
+            <i class="bi bi-file-earmark-arrow-up"></i> Import Children
+          </button>
+          <button type="button" class="btn btn-outline-secondary" @click="$emit('update-framework')">
+            <i class="bi bi-arrow-repeat"></i> Update Framework
           </button>
         </div>
         <div v-else class="text-muted small" title="Document is read-only">
@@ -221,7 +227,9 @@ const licenseName = computed(() => {
 const emit = defineEmits([
   'edit-document',
   'add-root-item',
-  'manage-association-groups'
+  'manage-association-groups',
+  'import-children',
+  'update-framework'
 ]);
 
 const availableTypes = ['general', 'assessment', 'course', 'credential', 'job', 'organization', 'public_key', 'identifier'];

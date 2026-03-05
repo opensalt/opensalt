@@ -53,6 +53,8 @@
         @edit-document="$emit('edit-document')"
         @add-root-item="$emit('add-root-item')"
         @manage-association-groups="$emit('manage-association-groups')"
+        @import-children="$emit('import-children')"
+        @update-framework="$emit('update-framework')"
       />
 
       <!-- Copy Items or Create Associations Mode -->
@@ -121,6 +123,8 @@ const emit = defineEmits([
   'edit-document',
   'add-root-item',
   'manage-association-groups',
+  'import-children',
+  'update-framework',
   'side-document-select',
   'external-document-requested',
   'side-select'

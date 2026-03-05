@@ -19,6 +19,8 @@ export function useModalState() {
   const showAssocGroupModal = ref(false);
   const showLoadExternalModal = ref(false);
   const showCrossTreeModal = ref(false);
+  const showUpdateFrameworkModal = ref(false);
+  const showImportChildrenModal = ref(false);
 
   // Modal data states
   const associationOrigin = ref(null);
@@ -49,6 +51,8 @@ export function useModalState() {
     showAssocGroupModal.value = false;
     showLoadExternalModal.value = false;
     showCrossTreeModal.value = false;
+    showUpdateFrameworkModal.value = false;
+    showImportChildrenModal.value = false;
 
     resetModalData();
   }
@@ -226,6 +230,34 @@ export function useModalState() {
     crossTreePosition.value = null;
   }
 
+  /**
+   * Open the update framework modal
+   */
+  function openUpdateFrameworkModal() {
+    showUpdateFrameworkModal.value = true;
+  }
+
+  /**
+   * Close the update framework modal
+   */
+  function closeUpdateFrameworkModal() {
+    showUpdateFrameworkModal.value = false;
+  }
+
+  /**
+   * Open the import children modal
+   */
+  function openImportChildrenModal() {
+    showImportChildrenModal.value = true;
+  }
+
+  /**
+   * Close the import children modal
+   */
+  function closeImportChildrenModal() {
+    showImportChildrenModal.value = false;
+  }
+
   return {
     // Modal visibility states
     showEditDocModal,
@@ -236,6 +268,8 @@ export function useModalState() {
     showAssocGroupModal,
     showLoadExternalModal,
     showCrossTreeModal,
+    showUpdateFrameworkModal,
+    showImportChildrenModal,
 
     // Modal data states
     associationOrigin,
@@ -271,6 +305,10 @@ export function useModalState() {
     openLoadExternalModal,
     closeLoadExternalModal,
     openCrossTreeModal,
-    closeCrossTreeModal
+    closeCrossTreeModal,
+    openUpdateFrameworkModal,
+    closeUpdateFrameworkModal,
+    openImportChildrenModal,
+    closeImportChildrenModal
   };
 }

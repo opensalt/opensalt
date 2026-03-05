@@ -90,6 +90,20 @@
       @load="onExternalDocumentLoad"
       @hidden="onLoadExternalModalHidden"
     />
+
+    <!-- Update Framework Modal -->
+    <UpdateFrameworkModal
+      :show="showUpdateFrameworkModal"
+      @imported="onUpdateFrameworkImported"
+      @hidden="onUpdateFrameworkModalHidden"
+    />
+
+    <!-- Import Children Modal -->
+    <ImportChildrenModal
+      :show="showImportChildrenModal"
+      @imported="onImportChildrenImported"
+      @hidden="onImportChildrenModalHidden"
+    />
   </div>
 </template>
 
@@ -105,6 +119,8 @@ const ExemplarModal = defineAsyncComponent(() => import('../shared/modals/Exempl
 const AssociationGroupModal = defineAsyncComponent(() => import('../association/AssociationGroupModal.vue'));
 const CrossTreeDropModal = defineAsyncComponent(() => import('./CrossTreeDropModal.vue'));
 const LoadExternalDocumentModal = defineAsyncComponent(() => import('../shared/modals/LoadExternalDocumentModal.vue'));
+const UpdateFrameworkModal = defineAsyncComponent(() => import('../shared/modals/UpdateFrameworkModal.vue'));
+const ImportChildrenModal = defineAsyncComponent(() => import('../shared/modals/ImportChildrenModal.vue'));
 
 // Props
 const props = defineProps({
@@ -170,6 +186,14 @@ const props = defineProps({
     default: false
   },
   showLoadExternalModal: {
+    type: Boolean,
+    default: false
+  },
+  showUpdateFrameworkModal: {
+    type: Boolean,
+    default: false
+  },
+  showImportChildrenModal: {
     type: Boolean,
     default: false
   },
@@ -266,6 +290,12 @@ const emit = defineEmits([
   'assoc-group-modal-hidden',
   'load-external-modal-hidden',
 
+  // Import modal events
+  'update-framework-imported',
+  'update-framework-modal-hidden',
+  'import-children-imported',
+  'import-children-modal-hidden',
+
   // Dynamic edit modal events
   'dynamic-edit-updated',
   'dynamic-edit-hidden'
@@ -350,6 +380,22 @@ function onDynamicEditUpdated(item) {
 
 function onDynamicEditHidden() {
   emit('dynamic-edit-hidden');
+}
+
+function onUpdateFrameworkImported() {
+  emit('update-framework-imported');
+}
+
+function onUpdateFrameworkModalHidden() {
+  emit('update-framework-modal-hidden');
+}
+
+function onImportChildrenImported() {
+  emit('import-children-imported');
+}
+
+function onImportChildrenModalHidden() {
+  emit('import-children-modal-hidden');
 }
 </script>
 

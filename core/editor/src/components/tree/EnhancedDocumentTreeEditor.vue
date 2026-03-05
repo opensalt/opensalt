@@ -74,6 +74,8 @@
           @edit-document="onEditDocument"
           @add-root-item="handleAddRootItem"
           @manage-association-groups="onManageAssociationGroups"
+          @import-children="showImportChildrenModal = true"
+          @update-framework="showUpdateFrameworkModal = true"
           @side-document-select="onSideDocumentSelect"
           @external-document-requested="onExternalDocumentRequested"
           @side-select="onSideSelect"
@@ -109,6 +111,8 @@
       :show-assoc-group-modal="showAssocGroupModal"
       :show-cross-tree-modal="showCrossTreeModal"
       :show-load-external-modal="showLoadExternalModal"
+      :show-update-framework-modal="showUpdateFrameworkModal"
+      :show-import-children-modal="showImportChildrenModal"
       :association-origin="associationOrigin"
       :association-destination="associationDestination"
       :editing-association="editingAssociation"
@@ -140,6 +144,10 @@
       @exemplar-modal-hidden="showExemplarModal = false"
       @assoc-group-modal-hidden="showAssocGroupModal = false"
       @load-external-modal-hidden="showLoadExternalModal = false"
+      @update-framework-imported="onUpdateFrameworkImported"
+      @update-framework-modal-hidden="showUpdateFrameworkModal = false"
+      @import-children-imported="onImportChildrenImported"
+      @import-children-modal-hidden="showImportChildrenModal = false"
       @dynamic-edit-updated="handleUpdated"
       @dynamic-edit-hidden="handleEditHidden"
     />
@@ -344,6 +352,8 @@ const {
   closeEditAssociationModal,
   openCrossTreeModal,
   closeCrossTreeModal,
+  showUpdateFrameworkModal,
+  showImportChildrenModal,
 } = modalState;
 
 // ---------------------------------------------------------------------------
@@ -473,6 +483,19 @@ const {
   announcer,
   connectMercure,
 });
+
+// ---------------------------------------------------------------------------
+// Import modal handlers
+// ---------------------------------------------------------------------------
+function onUpdateFrameworkImported() {
+  // The modal itself triggers a page reload after success
+  logger.info('Framework update import completed');
+}
+
+function onImportChildrenImported() {
+  // The modal itself triggers a page reload after success
+  logger.info('Children import completed');
+}
 
 // ---------------------------------------------------------------------------
 // Scroll to selected item

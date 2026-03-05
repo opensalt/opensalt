@@ -9,6 +9,8 @@
       @edit-document="$emit('edit-document')"
       @add-root-item="$emit('add-root-item', $event)"
       @manage-association-groups="$emit('manage-association-groups')"
+      @import-children="$emit('import-children')"
+      @update-framework="$emit('update-framework')"
     />
 
     <!-- No Document Loaded -->
@@ -61,7 +63,9 @@ const emit = defineEmits([
   'update-item',
   'edit-document',
   'add-root-item',
-  'manage-association-groups'
+  'manage-association-groups',
+  'import-children',
+  'update-framework'
 ]);
 
 const contextStore = useEditorContextStore();
