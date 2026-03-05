@@ -58,7 +58,12 @@
                   v-model="formData.type"
                   @change="onTypeChange"
                 >
-                  <option v-for="type in forwardTypes" :key="type.value" :value="type.value">
+                  <option 
+                    v-for="type in forwardTypes" 
+                    :key="type.value" 
+                    :value="type.value"
+                    :disabled="type.isSeparator"
+                  >
                     {{ type.label }}
                   </option>
                 </select>
@@ -127,6 +132,7 @@
 <script setup>
 import { ref, reactive, computed, watch } from 'vue';
 import { Modal } from 'bootstrap';
+import { getOrderedAssociationTypes } from '../../composables/useAssociationTypePriority';
 
 const props = defineProps({
   originItem: Object,
@@ -151,19 +157,14 @@ const customType = ref('');
 
 const isReversed = ref(false);
 
-const forwardTypes = [
-  { value: 'isRelatedTo', label: 'Is Related To' },
-  { value: 'exactMatchOf', label: 'Exact Match Of' },
-  { value: 'isPartOf', label: 'Is Part Of' },
-  { value: 'hasSkillLevel', label: 'Has Skill Level' },
-  { value: 'isPeerOf', label: 'Is Peer Of' },
-  { value: 'exemplar', label: 'Exemplar' },
-  { value: 'isTranslationOf', label: 'Is Translation Of' },
-  { value: 'isChildOf', label: 'Is Child Of' },
-  { value: 'replacedBy', label: 'Replaced By' },
-  { value: 'precedes', label: 'Precedes' },
-  { value: 'other', label: 'Other' }
-];
+const forwardTypes = computed(() => {
+  const effectiveOrigin = isReversed.value ? props.destinationItem : props.originItem;
+  const effectiveDestination = isReversed.value ? props.originItem : props.destinationItem;
+  
+  return getOrderedAssociationTypes(effectiveOrigin, effectiveDestination, {
+    isEditing: false
+  });
+});
 
 const originItem = computed(() => props.originItem);
 const destinationItem = computed(() => props.destinationItem);

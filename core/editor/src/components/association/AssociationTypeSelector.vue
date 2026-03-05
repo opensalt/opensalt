@@ -12,7 +12,12 @@
         @change="handleChange"
         :disabled="isDisabled"
       >
-        <option v-for="type in types" :key="type.value" :value="type.value">
+        <option 
+          v-for="type in types" 
+          :key="type.value" 
+          :value="type.value"
+          :disabled="type.isSeparator"
+        >
           {{ type.label }}
         </option>
       </select>

@@ -58,6 +58,7 @@
               v-model:customType="customType"
               :isDisabled="isTypeDropdownDisabled"
               :isValidCustomType="isValidCustomType"
+              :types="prioritizedTypes"
               @change="onTypeChange"
             />
 
@@ -130,6 +131,7 @@ import AssociationItemDisplay from './AssociationItemDisplay.vue';
 import DirectionSwitchButton from './DirectionSwitchButton.vue';
 import AssociationTypeSelector from './AssociationTypeSelector.vue';
 import ExemplarFields from './ExemplarFields.vue';
+import { getOrderedAssociationTypes } from '../../composables/useAssociationTypePriority';
 
 const props = defineProps({
   association: Object,
@@ -219,6 +221,19 @@ const {
   initialType: toRef(props, 'initialType'),
   selectedItemIdentifier: toRef(props, 'selectedItemIdentifier'),
   formData: formData
+});
+
+// Computed prioritized association types
+const prioritizedTypes = computed(() => {
+  const source = leftSideItemData.value;
+  const target = rightSideItemData.value;
+  const isExemplar = rightSideTargetTypeInfo.value?.isUnknown && !rightSideTargetTypeInfo.value?.isCase;
+  
+  return getOrderedAssociationTypes(source, target, {
+    isEditing: props.mode === 'edit',
+    currentType: formData.type === 'other' ? customType.value : formData.type,
+    isExemplarTarget: isExemplar || formData.type === 'exemplar'
+  });
 });
 
 // Available groups for the group selector

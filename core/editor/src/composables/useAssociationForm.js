@@ -1,4 +1,5 @@
 import { ref, reactive, computed, toValue } from 'vue';
+import { getItemKind, MEANINGFUL_ASSOCIATIONS, MEANINGFUL_EXEMPLAR_ASSOCIATIONS } from './useAssociationTypePriority';
 
 /**
  * Association types available for selection
@@ -161,7 +162,25 @@ export function useAssociationForm(options) {
 
     // Use associationType instead of type
     const assocType = assoc.associationType || assoc.type || '';
-    if (assocType.startsWith('ext:')) {
+
+    // Determine if this is a known meaningful ext: type for the specific source/target pair
+    const reversed = toValue(isReversed);
+    const effectiveOrigin = reversed ? (assoc.destinationNodeURI || assoc.destination) : (assoc.originNodeURI || assoc.origin);
+    const effectiveDest = reversed ? (assoc.originNodeURI || assoc.origin) : (assoc.destinationNodeURI || assoc.destination);
+
+    // Calculate source and target kinds
+    const sourceKind = getItemKind(effectiveOrigin);
+    const targetKind = getItemKind(effectiveDest);
+
+    const isExemplar = assocType === 'exemplar' || (effectiveDest && effectiveDest.targetType && effectiveDest.targetType !== 'CASE');
+
+    const meaningfulTypes = isExemplar
+      ? (MEANINGFUL_EXEMPLAR_ASSOCIATIONS[sourceKind] || [])
+      : (MEANINGFUL_ASSOCIATIONS[`${sourceKind}→${targetKind}`] || []);
+
+    const isKnownExtTypeForPair = meaningfulTypes.includes(assocType);
+
+    if (assocType.startsWith('ext:') && !isKnownExtTypeForPair) {
       formData.type = 'other';
       customType.value = assocType;
     } else {
@@ -173,15 +192,15 @@ export function useAssociationForm(options) {
 
     // Handle group ID from CFAssociationGroupingURI
     formData.groupId = assoc.CFAssociationGroupingURI?.identifier ||
-                       assoc.groupId ||
-                       'default';
+      assoc.groupId ||
+      'default';
 
     // Load exemplar-specific fields
     if (formData.type === 'exemplar') {
       // For exemplar, the destination is the URL
       formData.exemplarUrl = assoc.destinationNodeURI?.uri ||
-                             assoc.destination?.uri ||
-                             '';
+        assoc.destination?.uri ||
+        '';
       // Description is stored in notes for exemplars
       formData.exemplarDescription = assoc.notes || '';
     }
