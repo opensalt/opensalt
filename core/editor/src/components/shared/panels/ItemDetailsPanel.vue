@@ -11,6 +11,7 @@
       @manage-association-groups="$emit('manage-association-groups')"
       @import-children="$emit('import-children')"
       @update-framework="$emit('update-framework')"
+      @export-document="$emit('export-document')"
     />
 
     <!-- No Document Loaded -->
@@ -65,7 +66,8 @@ const emit = defineEmits([
   'add-root-item',
   'manage-association-groups',
   'import-children',
-  'update-framework'
+  'update-framework',
+  'export-document'
 ]);
 
 const contextStore = useEditorContextStore();

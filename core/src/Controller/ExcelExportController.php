@@ -28,7 +28,8 @@ class ExcelExportController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/cfdoc/{id}/excel', name: 'export_excel_file', methods: ['GET'])]
+    #[Route(path: '/cfdoc/{id}/excel', name: 'export_excel_file', requirements: ['id' => '\d+'], methods: ['GET'])]
+    #[Route(path: '/cfdoc/{identifier}/excel', name: 'export_excel_file_by_identifier', methods: ['GET'])]
     #[IsGranted(Permission::FRAMEWORK_DOWNLOAD_EXCEL, 'lsDoc')]
     public function exportExcel(Request $request, LsDoc $lsDoc): StreamedResponse
     {

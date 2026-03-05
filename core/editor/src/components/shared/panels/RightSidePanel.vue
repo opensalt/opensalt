@@ -55,6 +55,7 @@
         @manage-association-groups="$emit('manage-association-groups')"
         @import-children="$emit('import-children')"
         @update-framework="$emit('update-framework')"
+        @export-document="$emit('export-document')"
       />
 
       <!-- Copy Items or Create Associations Mode -->
@@ -125,6 +126,7 @@ const emit = defineEmits([
   'manage-association-groups',
   'import-children',
   'update-framework',
+  'export-document',
   'side-document-select',
   'external-document-requested',
   'side-select'

@@ -104,6 +104,13 @@
       @imported="onImportChildrenImported"
       @hidden="onImportChildrenModalHidden"
     />
+
+    <!-- Export Document Modal -->
+    <ExportModal
+      :show="showExportModal"
+      :document="currentDoc"
+      @hidden="onExportModalHidden"
+    />
   </div>
 </template>
 
@@ -121,6 +128,7 @@ const CrossTreeDropModal = defineAsyncComponent(() => import('./CrossTreeDropMod
 const LoadExternalDocumentModal = defineAsyncComponent(() => import('../shared/modals/LoadExternalDocumentModal.vue'));
 const UpdateFrameworkModal = defineAsyncComponent(() => import('../shared/modals/UpdateFrameworkModal.vue'));
 const ImportChildrenModal = defineAsyncComponent(() => import('../shared/modals/ImportChildrenModal.vue'));
+const ExportModal = defineAsyncComponent(() => import('../shared/modals/ExportModal.vue'));
 
 // Props
 const props = defineProps({
@@ -194,6 +202,10 @@ const props = defineProps({
     default: false
   },
   showImportChildrenModal: {
+    type: Boolean,
+    default: false
+  },
+  showExportModal: {
     type: Boolean,
     default: false
   },
@@ -295,6 +307,7 @@ const emit = defineEmits([
   'update-framework-modal-hidden',
   'import-children-imported',
   'import-children-modal-hidden',
+  'export-modal-hidden',
 
   // Dynamic edit modal events
   'dynamic-edit-updated',
@@ -396,6 +409,10 @@ function onImportChildrenImported() {
 
 function onImportChildrenModalHidden() {
   emit('import-children-modal-hidden');
+}
+
+function onExportModalHidden() {
+  emit('export-modal-hidden');
 }
 </script>
 

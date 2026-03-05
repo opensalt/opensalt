@@ -21,6 +21,7 @@ export function useModalState() {
   const showCrossTreeModal = ref(false);
   const showUpdateFrameworkModal = ref(false);
   const showImportChildrenModal = ref(false);
+  const showExportModal = ref(false);
 
   // Modal data states
   const associationOrigin = ref(null);
@@ -53,6 +54,7 @@ export function useModalState() {
     showCrossTreeModal.value = false;
     showUpdateFrameworkModal.value = false;
     showImportChildrenModal.value = false;
+    showExportModal.value = false;
 
     resetModalData();
   }
@@ -258,6 +260,20 @@ export function useModalState() {
     showImportChildrenModal.value = false;
   }
 
+  /**
+   * Open the export modal
+   */
+  function openExportModal() {
+    showExportModal.value = true;
+  }
+
+  /**
+   * Close the export modal
+   */
+  function closeExportModal() {
+    showExportModal.value = false;
+  }
+
   return {
     // Modal visibility states
     showEditDocModal,
@@ -270,6 +286,7 @@ export function useModalState() {
     showCrossTreeModal,
     showUpdateFrameworkModal,
     showImportChildrenModal,
+    showExportModal,
 
     // Modal data states
     associationOrigin,
@@ -309,6 +326,8 @@ export function useModalState() {
     openUpdateFrameworkModal,
     closeUpdateFrameworkModal,
     openImportChildrenModal,
-    closeImportChildrenModal
+    closeImportChildrenModal,
+    openExportModal,
+    closeExportModal
   };
 }

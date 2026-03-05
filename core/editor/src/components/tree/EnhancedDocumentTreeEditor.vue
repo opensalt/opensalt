@@ -76,6 +76,7 @@
           @manage-association-groups="onManageAssociationGroups"
           @import-children="showImportChildrenModal = true"
           @update-framework="showUpdateFrameworkModal = true"
+          @export-document="showExportModal = true"
           @side-document-select="onSideDocumentSelect"
           @external-document-requested="onExternalDocumentRequested"
           @side-select="onSideSelect"
@@ -113,6 +114,7 @@
       :show-load-external-modal="showLoadExternalModal"
       :show-update-framework-modal="showUpdateFrameworkModal"
       :show-import-children-modal="showImportChildrenModal"
+      :show-export-modal="showExportModal"
       :association-origin="associationOrigin"
       :association-destination="associationDestination"
       :editing-association="editingAssociation"
@@ -148,6 +150,7 @@
       @update-framework-modal-hidden="showUpdateFrameworkModal = false"
       @import-children-imported="onImportChildrenImported"
       @import-children-modal-hidden="showImportChildrenModal = false"
+      @export-modal-hidden="showExportModal = false"
       @dynamic-edit-updated="handleUpdated"
       @dynamic-edit-hidden="handleEditHidden"
     />
@@ -354,6 +357,7 @@ const {
   closeCrossTreeModal,
   showUpdateFrameworkModal,
   showImportChildrenModal,
+  showExportModal,
 } = modalState;
 
 // ---------------------------------------------------------------------------

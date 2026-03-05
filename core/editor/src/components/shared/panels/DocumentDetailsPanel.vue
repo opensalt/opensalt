@@ -115,39 +115,44 @@
         <h6 class="mb-0">Actions</h6>
       </div>
       <div class="card-body">
-        <div class="d-flex flex-wrap gap-2" v-if="!isReadOnly">
-          <div class="btn-group">
-            <button type="button" class="btn btn-outline-primary" @click="showModal('general')">
-              <i class="bi bi-plus-circle"></i> Add Root Item
+        <div class="d-flex flex-wrap gap-2">
+          <!-- Export - always available to all users -->
+          <button type="button" class="btn btn-outline-secondary" @click="$emit('export-document')">
+            <i class="bi bi-box-arrow-up-right"></i> Export
+          </button>
+
+          <!-- Editor-only actions -->
+          <template v-if="!isReadOnly">
+            <div class="btn-group">
+              <button type="button" class="btn btn-outline-primary" @click="showModal('general')">
+                <i class="bi bi-plus-circle"></i> Add Root Item
+              </button>
+              <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="visually-hidden">Toggle Dropdown</span>
+              </button>
+              <ul class="dropdown-menu">
+                <li v-for="type in availableTypes" :key="type">
+                  <a
+                    class="dropdown-item"
+                    @click="showModal(type)"
+                    href="#"
+                    :aria-label="`Add ${getDisplayName(type)}`"
+                  >
+                    Add {{ getDisplayName(type) }}
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <button type="button" class="btn btn-outline-secondary" @click="$emit('manage-association-groups')">
+              <i class="bi bi-tags"></i> Manage Groups
             </button>
-            <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-              <span class="visually-hidden">Toggle Dropdown</span>
+            <button type="button" class="btn btn-outline-secondary" @click="$emit('import-children')">
+              <i class="bi bi-file-earmark-arrow-up"></i> Import Children
             </button>
-            <ul class="dropdown-menu">
-              <li v-for="type in availableTypes" :key="type">
-                <a
-                  class="dropdown-item"
-                  @click="showModal(type)"
-                  href="#"
-                  :aria-label="`Add ${getDisplayName(type)}`"
-                >
-                  Add {{ getDisplayName(type) }}
-                </a>
-              </li>
-            </ul>
-          </div>
-          <button type="button" class="btn btn-outline-secondary" @click="$emit('manage-association-groups')">
-            <i class="bi bi-tags"></i> Manage Groups
-          </button>
-          <button type="button" class="btn btn-outline-secondary" @click="$emit('import-children')">
-            <i class="bi bi-file-earmark-arrow-up"></i> Import Children
-          </button>
-          <button type="button" class="btn btn-outline-secondary" @click="$emit('update-framework')">
-            <i class="bi bi-arrow-repeat"></i> Update Framework
-          </button>
-        </div>
-        <div v-else class="text-muted small" title="Document is read-only">
-          <i class="bi bi-lock-fill"></i> No actions available (read-only)
+            <button type="button" class="btn btn-outline-secondary" @click="$emit('update-framework')">
+              <i class="bi bi-arrow-repeat"></i> Update Framework
+            </button>
+          </template>
         </div>
       </div>
     </div>
@@ -229,7 +234,8 @@ const emit = defineEmits([
   'add-root-item',
   'manage-association-groups',
   'import-children',
-  'update-framework'
+  'update-framework',
+  'export-document'
 ]);
 
 const availableTypes = ['general', 'assessment', 'course', 'credential', 'job', 'organization', 'public_key', 'identifier'];
