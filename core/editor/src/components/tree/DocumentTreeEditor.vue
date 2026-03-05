@@ -81,101 +81,94 @@ onMounted(async () => {
     });
 
     // Second pass: build parent-child relationships from CFAssociations
+    const itemsWithParentItem = new Set();
     (data.CFAssociations || []).forEach(assoc => {
-      if (assoc.associationType === 'isChildOf') {
-        const childId = assoc.originNodeURI?.identifier || assoc.originNodeIdentifier;
-        const parentId = assoc.destinationNodeURI?.identifier || assoc.destinationNodeIdentifier;
-        if (items.has(childId) && items.has(parentId)) {
-          const child = items.get(childId);
-          const parent = items.get(parentId);
-          // Store sequence number with the child for later sorting
-          child.sequenceNumber = assoc.sequenceNumber || 0;
-          parent.children.push(child);
-          children.set(childId, parentId); // Track child->parent relationship
+      if (assoc.associationType !== 'isChildOf') return;
+
+      const childId = assoc.originNodeURI?.identifier || assoc.originNodeIdentifier;
+      const parentId = assoc.destinationNodeURI?.identifier || assoc.destinationNodeIdentifier;
+      if (!childId || !parentId) return;
+
+      const childInDoc = items.has(childId);
+      const parentInDoc = items.has(parentId);
+
+      if (childInDoc && parentInDoc) {
+        // Both in document: standard parent-child
+        const child = items.get(childId);
+        const parent = items.get(parentId);
+        child.sequenceNumber = assoc.sequenceNumber ?? 0;
+        parent.children.push(child);
+        children.set(childId, parentId);
+        itemsWithParentItem.add(childId);
+      } else if (childInDoc && !parentInDoc) {
+        // Child is in doc, parent is NOT (could be document itself or cross-framework)
+        const child = items.get(childId);
+        child.sequenceNumber = assoc.sequenceNumber ?? 0;
+        children.set(childId, parentId);
+        // Don't add to itemsWithParentItem — this is a root item
+      }
+    });
+
+    // Segment-aware comparison for humanCodingScheme (e.g., "1.2.3" vs "1.10.1")
+    function compareBySegment(a, b) {
+      const segmentsA = a.split(/[^a-zA-Z0-9]+/).filter(s => s !== '');
+      const segmentsB = b.split(/[^a-zA-Z0-9]+/).filter(s => s !== '');
+      const maxLen = Math.max(segmentsA.length, segmentsB.length);
+
+      for (let i = 0; i < maxLen; i++) {
+        const segA = segmentsA[i] || '';
+        const segB = segmentsB[i] || '';
+        const isNumA = /^\d+$/.test(segA);
+        const isNumB = /^\d+$/.test(segB);
+
+        if (isNumA && isNumB) {
+          const numA = parseInt(segA, 10);
+          const numB = parseInt(segB, 10);
+          if (numA !== numB) return numA < numB ? -1 : 1;
+        } else {
+          const cmp = segA.localeCompare(segB);
+          if (cmp !== 0) return cmp;
         }
       }
-    });
+      return 0;
+    }
 
-    // Assign sequence numbers to all items from their associations
-    (data.CFAssociations || []).forEach(assoc => {
-      const itemId = assoc.originNodeURI?.identifier || assoc.originNodeIdentifier;
-      if (items.has(itemId)) {
-        const item = items.get(itemId);
-        // Only assign sequenceNumber if it doesn't already exist (child items already have it)
-        if (item.sequenceNumber === undefined) {
-          item.sequenceNumber = assoc.sequenceNumber || 0;
-        }
-      }
-    });
+    // Sort comparator: sequenceNumber → humanCodingScheme (by segments) → listEnumeration → abbreviatedTitle → fullStatement
+    function itemSortComparator(a, b) {
+      const seqA = a.sequenceNumber ?? 0;
+      const seqB = b.sequenceNumber ?? 0;
+      if (seqA !== seqB) return seqA - seqB;
 
-    // Third pass: sort children by sequenceNumber
-    items.forEach(item => {
-      if (item.children && item.children.length > 0) {
-        item.children.sort((a, b) => {
-          // Primary sort by sequenceNumber
-          const seqA = a.sequenceNumber || 0;
-          const seqB = b.sequenceNumber || 0;
-
-          if (seqA !== seqB) {
-            return seqA - seqB;
-          }
-
-          // Secondary sort by humanCodingScheme if sequenceNumbers are equal
-          const schemeA = a.humanCodingScheme || '';
-          const schemeB = b.humanCodingScheme || '';
-          if (schemeA !== schemeB) {
-            return schemeA.localeCompare(schemeB);
-          }
-
-          // Tertiary sort by title if humanCodingSchemes are equal
-          const titleA = a.title || '';
-          const titleB = b.title || '';
-          return titleA.localeCompare(titleB);
-        });
-      }
-    });
-
-    // Get root items (those without parents)
-    const rootItems = Array.from(items.values()).filter(item => !children.has(item.identifier));
-
-    // Sort root items using the same logic as child items
-    rootItems.sort((a, b) => {
-      // Primary sort: items with isChildOf associations to CFDocument come first
-      const aHasDocAssociation = data.CFAssociations?.some(assoc =>
-        assoc.associationType === 'isChildOf' &&
-        assoc.originNodeURI?.identifier === a.identifier &&
-        assoc.destinationNodeURI?.identifier === cfDoc.identifier
-      ) || false;
-      const bHasDocAssociation = data.CFAssociations?.some(assoc =>
-        assoc.associationType === 'isChildOf' &&
-        assoc.originNodeURI?.identifier === b.identifier &&
-        assoc.destinationNodeURI?.identifier === cfDoc.identifier
-      ) || false;
-
-      if (aHasDocAssociation !== bHasDocAssociation) {
-        return aHasDocAssociation ? -1 : 1; // Items with doc associations come first
-      }
-
-      // Within each group, sort by sequenceNumber, then humanCodingScheme, then title
-      const seqA = a.sequenceNumber || 0;
-      const seqB = b.sequenceNumber || 0;
-
-      if (seqA !== seqB) {
-        return seqA - seqB;
-      }
-
-      // Tertiary sort by humanCodingScheme if sequenceNumbers are equal
       const schemeA = a.humanCodingScheme || '';
       const schemeB = b.humanCodingScheme || '';
-      if (schemeA !== schemeB) {
-        return schemeA.localeCompare(schemeB);
-      }
+      const schemeCmp = compareBySegment(schemeA, schemeB);
+      if (schemeCmp !== 0) return schemeCmp;
 
-      // Quaternary sort by title if humanCodingSchemes are equal
+      const enumA = a.listEnumeration || '';
+      const enumB = b.listEnumeration || '';
+      if (enumA !== enumB) return enumA.localeCompare(enumB);
+
+      const abbrA = a.abbreviatedTitle || '';
+      const abbrB = b.abbreviatedTitle || '';
+      if (abbrA !== abbrB) return abbrA.localeCompare(abbrB);
+
       const titleA = a.title || '';
       const titleB = b.title || '';
       return titleA.localeCompare(titleB);
+    }
+
+    // Third pass: sort children
+    items.forEach(item => {
+      if (item.children && item.children.length > 0) {
+        item.children.sort(itemSortComparator);
+      }
     });
+
+    // Get root items (those NOT placed into another item's children array)
+    const rootItems = Array.from(items.values()).filter(item => !itemsWithParentItem.has(item.identifier));
+
+    // Sort root items
+    rootItems.sort(itemSortComparator);
 
     // Map/normalize data
     doc.value = {

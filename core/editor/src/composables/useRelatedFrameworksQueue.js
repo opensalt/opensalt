@@ -10,6 +10,7 @@ import { ref, computed } from 'vue';
 /* global setTimeout */
 import { useDocumentStore } from '../stores/documentStore';
 import { useCurrentDocumentStore } from '../stores/currentDocumentStore';
+import { useEditorContextStore } from '../stores/editorContextStore';
 import { api } from '../services/api.js';
 import { logger } from '../utils/logger.js';
 
@@ -56,6 +57,7 @@ const FETCH_STATUS = {
 export function useRelatedFrameworksQueue() {
   const documentStore = useDocumentStore();
   const currentDocumentStore = useCurrentDocumentStore();
+  const contextStore = useEditorContextStore();
 
   // Queue state
   const queue = ref([]);
@@ -146,9 +148,12 @@ export function useRelatedFrameworksQueue() {
       return false;
     }
 
-    // Check if already cached in documentStore
-    if (documentStore.documentCache.has(identifier)) {
-      logger.debug(`Document ${identifier} already cached, marking as completed`);
+    // Check if already fully loaded in contextStore (loadedPackages has the full package)
+    // NOTE: Do NOT check documentRegistry here — it's populated at startup with metadata
+    // for ALL documents via fetchDocuments(), which would cause ALL related frameworks
+    // to be skipped even though their full packages haven't been loaded.
+    if (contextStore.loadedPackages.has(identifier)) {
+      logger.debug(`Document ${identifier} already loaded (full package), marking as completed`);
       updateFetchStatus(identifier, FETCH_STATUS.COMPLETED);
       queueItemCache.set(identifier, true);
       return false;
@@ -266,30 +271,19 @@ export function useRelatedFrameworksQueue() {
       updateFetchStatus(identifier, FETCH_STATUS.LOADING);
       item.lastAttempt = new Date();
 
-      logger.debug(`Fetching document ${identifier} (attempt ${retryCount + 1}/${MAX_RETRIES}), active requests: ${activeRequestCount.value}`);
-
-      // Fetch document using documentStore
-      await documentStore.fetchDocument(identifier);
+      // Fetch document using contextStore (which populates registries and caches)
+      const pkg = await contextStore.loadPackage(identifier);
+      if (!pkg) {
+        throw new Error(`Failed to load package ${identifier}`);
+      }
 
       // Mark as completed
       updateFetchStatus(identifier, FETCH_STATUS.COMPLETED);
       logger.debug(`Successfully fetched document ${identifier}`);
 
-      // Populate reactive associatedDocuments for ItemDetails display
-      const cachedPkg = documentStore.documentCache.get(identifier);
-      if (cachedPkg && !currentDocumentStore.associatedDocuments.has(identifier)) {
-        const items = currentDocumentStore.transformCASEItems(
-          cachedPkg.CFItems || [],
-          cachedPkg.CFAssociations || [],
-          identifier
-        );
-        currentDocumentStore.associatedDocuments.set(identifier, {
-          id: cachedPkg.CFDocument?.identifier || identifier,
-          title: cachedPkg.CFDocument?.title || identifier,
-          items: items,
-          cfAssociations: cachedPkg.CFAssociations || []
-        });
-      }
+      // Note: loadPackage already populates registries. 
+      // The associatedDocuments in currentDocumentStore is now secondary or can be removed in Phase 5.
+      // For now, we keep it for compatibility if needed.
 
     } catch (error) {
       logger.error(`Failed to fetch document ${identifier}:`, error);
@@ -455,20 +449,24 @@ export function useRelatedFrameworksQueue() {
 
     const identifiers = new Set();
 
-    // Get associations for the current item
-    const associations = currentDocumentStore.getAssociationsForItem(currentItem.identifier);
-    if (!associations) {
-      return [];
-    }
+    // Get associations for the current item from centralized contextStore
+    const associations = contextStore.getAssociations(currentItem.identifier);
 
     // Extract document identifiers from associations
-    associations.forEach(assoc => {
-      const nodeURI = assoc.destinationNodeURI || assoc.destination;
-      if (nodeURI && nodeURI.identifier) {
-        // For now, we can't easily extract document identifier from item identifier
-        // This would require looking up the item to find its document
-        // For this implementation, we'll return an empty array
-        // In a future enhancement, we could maintain an item->document mapping
+    associations.forEach(regAssoc => {
+      const assoc = regAssoc.association;
+      const destId = assoc.destinationNodeURI?.identifier;
+      const originId = assoc.originNodeURI?.identifier;
+
+      // If we're looking at currentItem, find the OTHER end of the association
+      const otherId = (originId === currentItem.identifier) ? destId : originId;
+
+      if (otherId) {
+        // Find which framework this otherId belongs to in the registry
+        const resolved = contextStore.resolveEndpoint(otherId);
+        if (resolved && resolved.frameworkId && resolved.frameworkId !== contextStore.activeWriteDocumentId) {
+          identifiers.add(resolved.frameworkId);
+        }
       }
     });
 

@@ -137,9 +137,11 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, inject, toValue, nextTick } from 'vue';
 import { useCurrentDocumentStore } from '@/stores/currentDocumentStore';
+import { useViewStore } from '@/stores/viewStore';
+import { useEditorContextStore } from '@/stores/editorContextStore';
 import { useCrossFrameworkItem } from '@/composables/useCrossFrameworkItem';
 import { logger } from '@/utils/logger.js';
-import sanitizeHtml from 'sanitize-html';
+import { stripHtml } from '@/utils/markdownRenderer';
 
 import docIcon from '@/assets/icons/ph/graph-fill.svg';
 import itemIcon from '@/assets/icons/lucide/target.svg';
@@ -161,8 +163,8 @@ async function getMarkdownRenderer() {
     return cachedRenderMarkdown;
   }
   if (!markdownRendererPromise) {
-    markdownRendererPromise = import('@/utils/markdownRenderer.js').then(module => {
-      cachedRenderMarkdown = module.renderMarkdown;
+    markdownRendererPromise = import('@/utils/markdownRenderer').then(m => {
+      cachedRenderMarkdown = m.renderMarkdown;
       return cachedRenderMarkdown;
     });
   }
@@ -231,63 +233,34 @@ const {
   direction: 'normal'
 });
 
-// Watch for fetched data and merge into the local item object
-// This ensures all computed properties (iconSrc, humanCodingScheme, etc.) work correctly
-watch(itemData, (newData) => {
-  logger.debug(`[TreeNode] itemData watcher triggered for ${props.item.identifier}, has data: ${!!newData}, isCrossFramework: ${isCrossFrameworkItem.value}`);
-  if (newData && isCrossFrameworkItem.value) {
-    // Merge fetched data into the item to enable proper display
-    const mergedData = {
-      fullStatement: newData.fullStatement || newData.CFItemFullStatement,
-      abbreviatedStatement: newData.abbreviatedStatement || newData.CFItemAbbreviatedStatement,
-      humanCodingScheme: newData.humanCodingScheme || newData.CFItemHumanCodingScheme,
-      itemType: newData.itemType || newData.CFItemType,
-      notes: newData.notes || newData.CFItemNotes,
-      language: newData.language || newData.CFItemLanguage,
-      educationLevel: newData.educationLevel || newData.CFItemEducationLevel,
-      conceptKeywords: newData.conceptKeywords || newData.CFItemConceptKeywords,
-      licenseURI: newData.licenseURI || newData.CFItemLicenseURI,
-      lastChanged: newData.lastChanged || newData.CFItemLastChangeDateTime,
-      extensions: newData.extensions || newData.CFItemExtensions
+const contextStore = useEditorContextStore();
+
+// Use a computed property to resolve the actual item data without mutating props
+const resolvedItem = computed(() => {
+  if (!isCrossFrameworkItem.value) return props.item;
+  
+  // For cross-framework items, try to get the full data from the registry
+  const registered = contextStore.itemRegistry.get(props.item.identifier);
+  if (registered && registered.item) {
+    return {
+      ...props.item,
+      ...registered.item,
+      // Ensure we don't lose the external framework title if we have it
+      externalFrameworkTitle: props.item.externalFrameworkTitle || frameworkTitle.value
     };
-
-    // Only assign defined values to avoid overwriting with undefined
-    Object.keys(mergedData).forEach(key => {
-      if (mergedData[key] !== undefined) {
-        props.item[key] = mergedData[key];
-      }
-    });
-
-    // Also update the title display property if available
-    const newTitle = newData.title || newData.fullStatement || newData.CFItemFullStatement;
-    if (newTitle && (props.item.title === 'Loading...' || !props.item.title)) {
-      props.item.title = newTitle;
-    }
-
-    // Store the framework title on the item for reference
-    if (frameworkTitle.value &&
-        (!props.item.externalFrameworkTitle || props.item.externalFrameworkTitle === 'Loading...')) {
-      props.item.externalFrameworkTitle = frameworkTitle.value;
-    }
-
-    logger.debug(`[TreeNode] Merged cross-framework data for ${props.item.identifier}`);
   }
-}, { immediate: true });
+  
+  // Fallback to what we have locally plus any partially fetched data
+  return {
+    ...props.item,
+    ...(itemData.value || {}),
+    externalFrameworkTitle: props.item.externalFrameworkTitle || frameworkTitle.value
+  };
+});
 
-// Watch for framework title changes separately to handle the case where
-// frameworkTitle is updated after itemData (due to async document fetch)
-watch(frameworkTitle, (newTitle) => {
-  if (newTitle && newTitle !== 'Loading...' && isCrossFrameworkItem.value) {
-    logger.debug(`[TreeNode] frameworkTitle watcher updating externalFrameworkTitle for ${props.item.identifier}: ${newTitle}`);
-    props.item.externalFrameworkTitle = newTitle;
-  }
-}, { immediate: true });
-
-// Eagerly load the external item data if it's a cross-framework item
+// Remove prop-mutating watchers and replace with a simple eager loader
 watch(isCrossFrameworkItem, (isCross) => {
-  logger.debug(`[TreeNode] isCrossFrameworkItem watcher: ${isCross} for ${props.item.identifier}`);
   if (isCross) {
-    logger.debug(`[TreeNode] Calling loadExternalItem for ${props.item.identifier}, crossFrameworkUri: ${props.item.crossFrameworkUri}`);
     loadExternalItem();
   }
 }, { immediate: true });
@@ -344,11 +317,10 @@ const labelRef1 = ref(null);
 const labelRef2 = ref(null);
 
 const displayHumanCodingScheme = computed(() => {
-  if (isCrossFrameworkItem.value && itemData.value) {
-    const scheme = itemData.value.humanCodingScheme || itemData.value.CFItemHumanCodingScheme;
-    if (scheme) return scheme;
-  }
-  return props.item.humanCodingScheme;
+  // resolvedItem already handles merging itemData for cross-framework items
+  // If CFItemHumanCodingScheme is present in itemData, it would be merged into resolvedItem
+  // We prioritize CFItemHumanCodingScheme if it exists, otherwise use humanCodingScheme
+  return resolvedItem.value.CFItemHumanCodingScheme || resolvedItem.value.humanCodingScheme;
 });
 
 // Search/filter computed properties
@@ -357,16 +329,16 @@ const displayTitle = computed(() => {
   if (isCrossFrameworkItem.value && itemTitle.value && itemTitle.value !== 'Unknown') {
     return itemTitle.value;
   }
-  return props.item.abbreviatedStatement || props.item.fullStatement || props.item.title || props.item.identifier;
+  return resolvedItem.value.abbreviatedStatement || resolvedItem.value.fullStatement || resolvedItem.value.title || resolvedItem.value.identifier;
 });
 
 const searchableText = computed(() => {
   const parts = [
-    props.item.humanCodingScheme,
-    props.item.abbreviatedStatement,
-    props.item.fullStatement,
-    props.item.title,
-    props.item.identifier
+    resolvedItem.value.humanCodingScheme,
+    resolvedItem.value.abbreviatedStatement,
+    resolvedItem.value.fullStatement,
+    resolvedItem.value.title,
+    resolvedItem.value.identifier
   ].filter(Boolean);
   return parts.join(' ').toLowerCase();
 });
@@ -424,16 +396,11 @@ const isAncestorOnlyMatch = computed(() => {
 const highlightedTitle = computed(() => {
   if (!props.searchQuery || !hasMatch.value) return displayTitle.value;
 
-  // Sanitize both the title and query to prevent XSS attacks
-  const sanitizedTitle = sanitizeHtml(displayTitle.value, {
-    allowedTags: [],
-    allowedAttributes: {}
-  });
-  // Also sanitize the query to prevent any potential injection through search input
-  const sanitizedQuery = sanitizeHtml(props.searchQuery, {
-    allowedTags: [],
-    allowedAttributes: {}
-  });
+  // stripHtml acts as a safe way to remove any tags before highlighting
+  const sanitizedTitle = stripHtml(displayTitle.value);
+  // Also sanitize the query (strip tags) to prevent any potential injection through search input
+  const sanitizedQuery = stripHtml(props.searchQuery);
+  
   const regex = new RegExp(`(${escapeRegExp(sanitizedQuery)})`, 'gi');
   return sanitizedTitle.replace(regex, '<mark class="search-highlight">$1</mark>');
 });
@@ -459,7 +426,7 @@ const onChange = (evt) => {
 
 const onMouseEnter = () => {
   // Don't show popover when an item is being dragged
-  if (currentDocumentStore.draggedItem) {
+  if (viewStore.draggedItem) {
     return;
   }
   if (popoverTimeout.value) {
@@ -468,23 +435,12 @@ const onMouseEnter = () => {
   popoverTimeout.value = setTimeout(async () => {
     showPopover.value = true;
     // Lazy load markdown renderer when popover is shown
-    const text = props.item.fullStatement || props.item.title || '';
+    const text = resolvedItem.value.fullStatement || resolvedItem.value.title || '';
     if (text) {
-      const renderMarkdown = await getMarkdownRenderer();
-      const rawHtml = renderMarkdown(text);
-      // Sanitize the rendered markdown to prevent XSS attacks
-      fullStatementHtml.value = sanitizeHtml(rawHtml, {
-        allowedTags: ['p', 'br', 'strong', 'em', 'ul', 'ol', 'li', 'code', 'pre', 'a', 'span', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'hr', 'table', 'thead', 'tbody', 'tr', 'th', 'td'],
-        allowedAttributes: {
-          'a': ['href', 'title', 'target', 'rel'],
-          'span': ['class'],
-          'div': ['class'],
-          'code': ['class']
-        },
-        transformTags: {
-          'a': sanitizeHtml.simpleTransform('a', { target: '_blank', rel: 'noopener noreferrer' })
-        }
-      });
+      const renderMarkdownText = await getMarkdownRenderer();
+      const rawHtml = renderMarkdownText(text);
+      // Sanitization is already handled inside renderMarkdown utility
+      fullStatementHtml.value = rawHtml;
     }
   }, 500);
 };
@@ -498,15 +454,15 @@ const onMouseLeave = () => {
 };
 
 const tooltipTitle = computed(() => {
-  const statement = props.item.fullStatement || props.item.abbreviatedStatement || '';
-  const identifier = props.item.identifier || '';
-  const notes = props.item.notes || '';
+  const statement = resolvedItem.value.fullStatement || resolvedItem.value.abbreviatedStatement || '';
+  const identifier = resolvedItem.value.identifier || '';
+  const notes = resolvedItem.value.notes || '';
   return `<strong>Statement:</strong> ${statement}<br><strong>Identifier:</strong> ${identifier}<br><strong>Notes:</strong> ${notes}`;
 });
 
 const iconSrc = computed(() => {
-  const type = props.item.extensions?.['salt:type'] || 'item';
-  if (props.item.creator) {
+  const type = resolvedItem.value.extensions?.['salt:type'] || 'item';
+  if (resolvedItem.value.creator) {
       return docIcon;
   }
   if (type === 'item' && hasChildren.value) {
@@ -571,6 +527,7 @@ const handleKeyDown = (event) => {
 
 // Drag-and-drop
 const currentDocumentStore = useCurrentDocumentStore();
+const viewStore = useViewStore();
 const dropPosition = ref(null);
 
 function onDragStart(e) {
@@ -584,7 +541,7 @@ function onDragStart(e) {
     identifier: props.item.identifier,
     documentId: props.item.CFDocumentURI?.identifier || props.item.documentId
   }));
-  currentDocumentStore.setDraggedItem(props.item);
+  viewStore.setDraggedItem(props.item);
 }
 
 function onDragOver(e) {
@@ -626,7 +583,7 @@ function onDrop(e) {
   const position = dropPosition.value;
   dropPosition.value = null;
 
-  const draggedItem = currentDocumentStore.draggedItem;
+  const draggedItem = viewStore.draggedItem;
   if (!draggedItem) return;
 
   // Don't drop on self

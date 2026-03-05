@@ -4,6 +4,8 @@ import { api } from '../services/api.js';
 import { logger } from '../utils/logger.js';
 import { useRelatedFrameworksQueue } from '../composables/useRelatedFrameworksQueue.js';
 import { useDocumentStore } from './documentStore';
+import { useViewStore } from './viewStore';
+import { useEditorContextStore } from './editorContextStore';
 import type {
   CFDocument,
   CFDefinitions,
@@ -76,8 +78,6 @@ export interface EditorItemNode extends CFItemNode {
   childOfAssocId?: number;
   /** Flag indicating this is a cross-framework item (not in current document) */
   isCrossFramework?: boolean;
-  /** Loading state for cross-framework items being fetched */
-  loading?: boolean;
   /** URI of the cross-framework item for lazy loading */
   crossFrameworkUri?: string;
 }
@@ -124,6 +124,8 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
 
   // Access document store for cached frameworks
   const documentStore = useDocumentStore();
+  const viewStore = useViewStore();
+  const contextStore = useEditorContextStore();
 
   // State
   const currentDocument = ref<CFDocument | null>(null);
@@ -135,19 +137,11 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     extensions: undefined
   });
   const currentDocumentRubrics = ref<CFRubric[]>([]);
-  const currentDocumentAssociations = ref<EditorAssociation[]>([]);
   const currentDocumentAssociationGroupings = ref<EditorAssociationGrouping[]>([]);
-  const draggedItem = ref<EditorItemNode | null>(null);
-  const currentItem = ref<EditorItemNode | null>(null);
 
-  // NEW: Viewed framework state (for dual framework edit/view separation)
-  const viewedDocument = ref<CFDocument | null>(null);
-  const viewedDocumentItems = ref<EditorItemNode[]>([]);
+  // viewedDocument state moved to contextStore.viewedDocumentId
 
   // Actions
-  function setDraggedItem(item: EditorItemNode | null) {
-    draggedItem.value = item;
-  }
 
   const associationGroups = computed(() => {
     const defaultGroups: EditorAssociationGrouping[] = [
@@ -164,11 +158,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     return [...defaultGroups, ...packageGroups];
   });
 
-  // NEW: Computed property to check if viewing a different framework than editing
-  const isViewingDifferentFramework = computed(() => {
-    return viewedDocument.value !== null &&
-           viewedDocument.value.identifier !== currentDocument.value?.identifier;
-  });
+  // isViewingDifferentFramework moved to contextStore
 
   // Actions
   function selectDocument(
@@ -178,6 +168,8 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     definitions: CFDefinitions | null = null
   ) {
     currentDocument.value = document;
+    contextStore.activeWriteDocumentId = document?.identifier || null;
+
     currentDocumentDefinitions.value = definitions || {
       CFAssociationGroupings: [],
       CFConcepts: [],
@@ -190,19 +182,44 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
       ...group,
       id: group.identifier
     }));
-    currentDocumentAssociations.value = associations.map(assoc => ({
-      ...assoc,
-      groupId: assoc.CFAssociationGroupingURI?.identifier || (typeof assoc.CFAssociationGroupingURI === 'string' ? assoc.CFAssociationGroupingURI : null),
-    }));
 
-    // NEW: If viewed document matches the new current document, clear it to avoid duplication
-    if (viewedDocument.value?.identifier === document?.identifier) {
-      clearViewedDocument();
+    // If viewed document matches the new current document, clear it
+    if (contextStore.viewedDocumentId === document?.identifier) {
+      contextStore.viewedDocumentId = null;
+    }
+
+    // Ensure main framework data is in contextStore registries
+    if (document) {
+      contextStore.registerDocumentMetadata({
+        identifier: document.identifier,
+        uri: document.uri,
+        title: document.title,
+        frameworkId: document.identifier
+      });
+
+      // Register associations in global registry
+      associations.forEach(assoc => {
+        contextStore.associationRegistry.set(assoc.identifier, {
+          association: assoc,
+          frameworkId: document.identifier
+        });
+      });
+
+      // Register items in global registry for cross-framework lookup
+      if ((document as any).items) {
+        (function registerItems(items: any[]) {
+          items.forEach(item => {
+            contextStore.registerItem(item as any, (document as any).identifier);
+            if (item.children) registerItems(item.children);
+          });
+        })((document as any).items);
+      }
     }
   }
 
   function clearCurrentDocument() {
     currentDocument.value = null;
+    contextStore.activeWriteDocumentId = null;
     currentDocumentDefinitions.value = {
       CFAssociationGroupings: [],
       CFConcepts: [],
@@ -212,31 +229,12 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
       extensions: undefined
     };
     currentDocumentRubrics.value = [];
-    currentDocumentAssociations.value = [];
     currentDocumentAssociationGroupings.value = [];
     // Also clear viewed document when clearing current document
-    clearViewedDocument();
+    contextStore.viewedDocumentId = null;
   }
 
-  // NEW: Helper function to check if an item can be edited
-  // Item can only be edited if it belongs to the edited framework (currentDocument)
-  function isItemEditable(item: EditorItemNode): boolean {
-    // Item must belong to the edited framework
-    const itemDocId = item.documentId || item.CFDocumentURI?.identifier;
-    return itemDocId === currentDocument.value?.identifier;
-  }
-
-  // NEW: Set the viewed document (for dual framework edit/view separation)
-  function setViewedDocument(document: CFDocument | null, items: EditorItemNode[] = []) {
-    viewedDocument.value = document;
-    viewedDocumentItems.value = items;
-  }
-
-  // NEW: Clear the viewed document
-  function clearViewedDocument() {
-    viewedDocument.value = null;
-    viewedDocumentItems.value = [];
-  }
+  // viewedDocument actions moved to contextStore
 
   function transformCASEItems(
     cfItems: CFPckgItem[],
@@ -244,7 +242,8 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     docId: UUID | null = null
   ): EditorItemNode[] {
     const items = new Map<UUID, EditorItemNode>();
-    const children = new Map<UUID, UUID>();
+    const children = new Map<UUID, UUID>(); // originId -> destinationId for all isChildOf
+    const itemsWithParentItem = new Set<UUID>(); // items that are children of another ITEM (not document)
 
     // First pass: create all items
     cfItems.forEach(item => {
@@ -277,86 +276,44 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
         CFDocumentURI: undefined, // Not in CFPckgItem
         documentId: docId || null,
         children: [],
-        sequenceNumber: 0,
-        expanded: false,
-        selected: false,
-        loading: false
+        sequenceNumber: 0
       });
     });
 
-    // Second pass: build parent-child relationships and store associations
+    // Second pass: build parent-child relationships (only isChildOf)
     cfAssociations.forEach(assoc => {
+      if (assoc.associationType !== 'isChildOf') return;
+
       const originId = assoc.originNodeURI?.identifier;
       const destinationId = assoc.destinationNodeURI?.identifier;
+      if (!originId || !destinationId) return;
 
-      // Store association data on items
-      if (originId && items.has(originId)) {
-        const originItem = items.get(originId)!;
-        if (!originItem.associations) {
-          originItem.associations = [];
-        }
-        originItem.associations.push({
-          id: 0, // Will be set by backend
-          identifier: assoc.identifier,
-          associationType: assoc.associationType,
-          uri: assoc.uri,
-          sequenceNumber: assoc.sequenceNumber,
-          originNodeURI: assoc.originNodeURI,
-          destinationNodeURI: assoc.destinationNodeURI,
-          CFAssociationGroupingURI: assoc.CFAssociationGroupingURI,
-          groupId: assoc.CFAssociationGroupingURI?.identifier || (typeof assoc.CFAssociationGroupingURI === 'string' ? assoc.CFAssociationGroupingURI : null),
-          lastChangeDateTime: assoc.lastChangeDateTime,
-          notes: assoc.notes,
-          extensions: assoc.extensions,
-          CFDocumentURI: assoc.CFDocumentURI
-        });
-      }
+      const originInDoc = items.has(originId);
+      const destInDoc = items.has(destinationId);
 
-      if (destinationId && items.has(destinationId)) {
-        const destItem = items.get(destinationId)!;
-        if (!destItem.associations) {
-          destItem.associations = [];
-        }
-        destItem.associations.push({
-          id: 0, // Will be set by backend
-          identifier: assoc.identifier,
-          associationType: assoc.associationType,
-          uri: assoc.uri,
-          sequenceNumber: assoc.sequenceNumber,
-          originNodeURI: assoc.originNodeURI,
-          destinationNodeURI: assoc.destinationNodeURI,
-          CFAssociationGroupingURI: assoc.CFAssociationGroupingURI,
-          groupId: assoc.CFAssociationGroupingURI?.identifier || (typeof assoc.CFAssociationGroupingURI === 'string' ? assoc.CFAssociationGroupingURI : null),
-          lastChangeDateTime: assoc.lastChangeDateTime,
-          notes: assoc.notes,
-          extensions: assoc.extensions,
-          CFDocumentURI: assoc.CFDocumentURI
-        });
-      }
+      if (originInDoc && destInDoc) {
+        // Case 1: Both origin and destination are items in the current document
+        const child = items.get(originId)!;
+        const parent = items.get(destinationId)!;
+        child.sequenceNumber = assoc.sequenceNumber ?? 0;
+        child.childOfAssocId = 0;
+        parent.children.push(child);
+        children.set(originId, destinationId);
+        itemsWithParentItem.add(originId);
 
-      // Handle parent-child relationships
-      if (assoc.associationType === 'isChildOf') {
-        if (originId && destinationId && items.has(originId) && items.has(destinationId)) {
-          const child = items.get(originId)!;
-          const parent = items.get(destinationId)!;
+      } else if (originInDoc && !destInDoc) {
+        // Case 2: Origin is in the doc, destination is NOT
+        const child = items.get(originId)!;
+        child.sequenceNumber = assoc.sequenceNumber ?? 0;
+        child.childOfAssocId = 0;
+        children.set(originId, destinationId);
 
-          child.sequenceNumber = assoc.sequenceNumber || 0;
-          // Store the association ID for reordering
-          child.childOfAssocId = 0; // Will be set by backend
-          parent.children.push(child);
-          children.set(originId, destinationId);
-        }
-
-        // Infer docId from association if not provided
-        const effectiveDocId = docId || assoc.CFDocumentURI?.identifier;
-
-        if (originId && destinationId && items.has(originId) && (destinationId === effectiveDocId)) {
-          const child = items.get(originId)!;
-          child.sequenceNumber = assoc.sequenceNumber || 0;
-        }
-
-        // Handle cross-framework parents: destination (parent) not in current document but origin (child) is
-        if (originId && destinationId && items.has(originId) && !items.has(destinationId) && destinationId !== effectiveDocId) {
+        if (destinationId === docId) {
+          // Case 2a: isChildOf the document → this is a root item
+          // Don't add to any parent's children array; it will be collected as a root
+        } else {
+          // Case 2b: Cross-framework parent (destination is in another framework)
+          // Create a placeholder parent node for display purposes
           let parent = items.get(destinationId);
           if (!parent) {
             const destUri = assoc.destinationNodeURI;
@@ -390,68 +347,55 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
               documentId: null,
               children: [],
               sequenceNumber: 0,
-              expanded: false,
-              selected: false,
-              loading: true,
               isCrossFramework: true,
               crossFrameworkUri: destUri?.uri
             };
             items.set(destinationId, parent);
           }
-          const child = items.get(originId)!;
-          child.sequenceNumber = assoc.sequenceNumber || 0;
-          child.childOfAssocId = 0;
           parent.children.push(child);
-          children.set(originId, destinationId);
+          itemsWithParentItem.add(originId);
         }
 
-        // Handle cross-framework children: origin (child) not in current document but destination (parent) is
-        if (originId && destinationId && !items.has(originId) && items.has(destinationId)) {
-          const parent = items.get(destinationId)!;
-          const originUri = assoc.originNodeURI;
+      } else if (!originInDoc && destInDoc) {
+        // Case 3: Cross-framework child (origin is from another framework)
+        const parent = items.get(destinationId)!;
+        const originUri = assoc.originNodeURI;
 
-          // Create a placeholder child item for the cross-framework reference
-          const placeholderChild: EditorItemNode = {
-            id: 0,
-            identifier: originId,
-            uri: originUri?.uri || '',
-            title: originUri?.title || 'Loading...',
-            fullStatement: originUri?.title || 'Loading...',
-            abbreviatedTitle: originUri?.title || 'Loading...',
-            abbreviatedStatement: undefined,
-            alternativeLabel: '',
-            humanCodingScheme: undefined,
-            listEnumeration: undefined,
-            lastChanged: '',
-            lastChangeDateTime: '',
-            itemType: undefined,
-            CFItemTypeURI: undefined,
-            conceptKeywords: [],
-            conceptKeywordsURI: undefined,
-            notes: undefined,
-            language: undefined,
-            educationLevel: [],
-            licenseURI: undefined,
-            statusStartDate: undefined,
-            statusEndDate: undefined,
-            subject: [],
-            subjectURI: [],
-            extensions: undefined,
-            CFDocumentURI: undefined,
-            documentId: null,
-            children: [],
-            sequenceNumber: assoc.sequenceNumber || 0,
-            expanded: false,
-            selected: false,
-            // Cross-framework specific flags
-            isCrossFramework: true,
-            loading: true,
-            crossFrameworkUri: originUri?.uri
-          };
+        const placeholderChild: EditorItemNode = {
+          id: 0,
+          identifier: originId,
+          uri: originUri?.uri || '',
+          title: originUri?.title || 'Loading...',
+          fullStatement: originUri?.title || 'Loading...',
+          abbreviatedTitle: originUri?.title || 'Loading...',
+          abbreviatedStatement: undefined,
+          alternativeLabel: '',
+          humanCodingScheme: undefined,
+          listEnumeration: undefined,
+          lastChanged: '',
+          lastChangeDateTime: '',
+          itemType: undefined,
+          CFItemTypeURI: undefined,
+          conceptKeywords: [],
+          conceptKeywordsURI: undefined,
+          notes: undefined,
+          language: undefined,
+          educationLevel: [],
+          licenseURI: undefined,
+          statusStartDate: undefined,
+          statusEndDate: undefined,
+          subject: [],
+          subjectURI: [],
+          extensions: undefined,
+          CFDocumentURI: undefined,
+          documentId: null,
+          children: [],
+          sequenceNumber: assoc.sequenceNumber ?? 0,
+          isCrossFramework: true,
+          crossFrameworkUri: originUri?.uri
+        };
 
-          parent.children.push(placeholderChild);
-          // Note: We don't add to children map since this is a cross-framework reference
-        }
+        parent.children.push(placeholderChild);
       }
     });
 
@@ -467,229 +411,62 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
         const isNumB = /^\d+$/.test(segB);
 
         if (isNumA && isNumB) {
-          // If both segments are numbers then do a numeric comparison
           const numA = parseInt(segA, 10);
           const numB = parseInt(segB, 10);
-
-          if (numA !== numB) {
-            return numA < numB ? -1 : 1;
-          }
+          if (numA !== numB) return numA < numB ? -1 : 1;
         } else {
           const cmp = segA.localeCompare(segB);
-          if (cmp !== 0) {
-            return cmp;
-          }
+          if (cmp !== 0) return cmp;
         }
       }
-
       return 0;
     }
 
-    // Third pass: sort children by sequenceNumber, then listEnumeration, then humanCodingScheme segments
-    items.forEach(item => {
-      if (item.children && item.children.length > 0) {
-        item.children.sort((a, b) => {
-          // First priority: sequenceNumber from isChildOf association
-          const seqA = a.sequenceNumber || 0;
-          const seqB = b.sequenceNumber || 0;
+    // Sort comparator: sequenceNumber → humanCodingScheme (by segments) → listEnumeration → abbreviatedTitle → fullStatement
+    function itemSortComparator(a: EditorItemNode, b: EditorItemNode): number {
+      // 1. sequenceNumber
+      const seqA = a.sequenceNumber ?? 0;
+      const seqB = b.sequenceNumber ?? 0;
+      if (seqA !== seqB) return seqA - seqB;
 
-          if (seqA !== seqB) {
-            return seqA - seqB;
-          }
-
-          // Second priority: listEnumeration (listEnumInSource)
-          const enumA = a.listEnumeration || '';
-          const enumB = b.listEnumeration || '';
-
-          if (enumA !== enumB) {
-            return enumA.localeCompare(enumB);
-          }
-
-          // Third priority: each segment of humanCodingScheme (divided by . or -)
-          const schemeA = a.humanCodingScheme || '';
-          const schemeB = b.humanCodingScheme || '';
-          const cmp = compareBySegment(schemeA, schemeB);
-          if (cmp !== 0) {
-            return cmp;
-          }
-
-          // Final fallback: title
-          const titleA = a.title || '';
-          const titleB = b.title || '';
-
-          return titleA.localeCompare(titleB);
-        });
-      }
-    });
-
-    // Get root items (those without parents)
-    const rootItems = Array.from(items.values()).filter(item => !children.has(item.identifier));
-
-    // Sort root items by sequenceNumber, then listEnumeration, then humanCodingScheme segments
-    rootItems.sort((a, b) => {
-      // First priority: sequenceNumber from isChildOf association
-      const seqA = a.sequenceNumber || 0;
-      const seqB = b.sequenceNumber || 0;
-
-      if (seqA !== seqB) {
-        return seqA - seqB;
-      }
-
-      // Second priority: listEnumeration (listEnumInSource)
-      const enumA = a.listEnumeration || '';
-      const enumB = b.listEnumeration || '';
-
-      if (enumA !== enumB) {
-        return enumA.localeCompare(enumB);
-      }
-
-      // Third priority: each segment of humanCodingScheme (divided by . or -)
+      // 2. humanCodingScheme (by segments)
       const schemeA = a.humanCodingScheme || '';
       const schemeB = b.humanCodingScheme || '';
-      const cmp = compareBySegment(schemeA, schemeB);
-      if (cmp !== 0) {
-        return cmp;
+      const schemeCmp = compareBySegment(schemeA, schemeB);
+      if (schemeCmp !== 0) return schemeCmp;
+
+      // 3. listEnumeration
+      const enumA = a.listEnumeration || '';
+      const enumB = b.listEnumeration || '';
+      if (enumA !== enumB) return enumA.localeCompare(enumB);
+
+      // 4. abbreviatedStatement / abbreviatedTitle
+      const abbrA = a.abbreviatedStatement || a.abbreviatedTitle || '';
+      const abbrB = b.abbreviatedStatement || b.abbreviatedTitle || '';
+      if (abbrA !== abbrB) return abbrA.localeCompare(abbrB);
+
+      // 5. fullStatement
+      const fullA = a.fullStatement || '';
+      const fullB = b.fullStatement || '';
+      return fullA.localeCompare(fullB);
+    }
+
+    // Third pass: sort children
+    items.forEach(item => {
+      if (item.children && item.children.length > 0) {
+        item.children.sort(itemSortComparator);
       }
-
-      // Final fallback: title
-      const titleA = a.title || '';
-      const titleB = b.title || '';
-
-      return titleA.localeCompare(titleB);
     });
+
+    // Get root items: items NOT placed into another item's children array
+    // This includes both document-children (isChildOf -> document) and orphans
+    const rootItems = Array.from(items.values()).filter(item => !itemsWithParentItem.has(item.identifier));
+
+    // Sort root items
+    rootItems.sort(itemSortComparator);
 
     return rootItems;
   }
-
-  // Batch loading state with LRU cache limit
-  const MAX_CACHE_SIZE = 100;
-  const associatedDocuments = ref<Map<UUID, AssociatedDocument>>(new Map());
-  const loadingAssociatedDocs = ref<boolean>(false);
-
-  // Association index for O(1) lookups of documents containing associations for an item
-  // Maps itemIdentifier -> Set of documentIdentifiers that have associations for this item
-  const associationIndex = ref<Map<string, Set<string>>>(new Map());
-
-  async function fetchAssociatedDocuments(documentStore: DocumentStore, identifiers: UUID[]) {
-    if (loadingAssociatedDocs.value) return;
-    loadingAssociatedDocs.value = true;
-
-    try {
-      const uniqueIds = [...new Set(identifiers)].filter(id => !associatedDocuments.value.has(id));
-      const batchSize = 5;
-
-      for (let i = 0; i < uniqueIds.length; i += batchSize) {
-        const batch = uniqueIds.slice(i, i + batchSize);
-        await Promise.all(batch.map(async (id) => {
-          try {
-            const docData = await documentStore.fetchDocument(id);
-            const cfDoc: CFPckgDocument = docData.CFDocument || {} as CFPckgDocument;
-            const items = transformCASEItems(docData.CFItems || [], docData.CFAssociations || [], cfDoc.identifier);
-
-            associatedDocuments.value.set(id, {
-              id: cfDoc.identifier,
-              title: cfDoc.title,
-              items: items,
-              cfAssociations: docData.CFAssociations || [],
-            });
-
-            // Update the association index for O(1) lookups
-            addToAssociationIndex(id, docData);
-
-            // Simple cache eviction: remove oldest entries when over limit
-            if (associatedDocuments.value.size > MAX_CACHE_SIZE) {
-              const firstKey = associatedDocuments.value.keys().next().value;
-              if (firstKey) {
-                removeFromAssociationIndex(firstKey);
-                associatedDocuments.value.delete(firstKey);
-              }
-            }
-          } catch (err) {
-            logger.warn(`Failed to load associated document ${id}`, err);
-          }
-        }));
-      }
-    } finally {
-      loadingAssociatedDocs.value = false;
-    }
-  }
-
-  function getAssociatedDocument(id: UUID): AssociatedDocument | undefined {
-    return associatedDocuments.value.get(id);
-  }
-
-  /**
-   * Add a document's associations to the index
-   * @param {UUID} docId - The document identifier
-   * @param {CFPackage} doc - The document package containing associations
-   */
-  function addToAssociationIndex(docId: UUID, doc: CFPackage): void {
-    const associations = doc.CFAssociations || [];
-
-    associations.forEach(assoc => {
-      const originId = assoc.originNodeURI?.identifier;
-      const destId = assoc.destinationNodeURI?.identifier;
-
-      // Index both origin and destination items
-      if (originId) {
-        if (!associationIndex.value.has(originId)) {
-          associationIndex.value.set(originId, new Set());
-        }
-        associationIndex.value.get(originId)!.add(docId);
-      }
-
-      if (destId) {
-        if (!associationIndex.value.has(destId)) {
-          associationIndex.value.set(destId, new Set());
-        }
-        associationIndex.value.get(destId)!.add(docId);
-      }
-    });
-  }
-
-  /**
-   * Remove a document from the association index
-   * @param {UUID} docId - The document identifier to remove
-   */
-  function removeFromAssociationIndex(docId: UUID): void {
-    associationIndex.value.forEach((docIds, itemId) => {
-      docIds.delete(docId);
-      // Clean up empty sets to prevent memory leaks
-      if (docIds.size === 0) {
-        associationIndex.value.delete(itemId);
-      }
-    });
-  }
-
-  /**
-   * Build the association index from the local associated documents cache
-   * This should be called when the store is initialized or when the cache is significantly modified
-   */
-  function buildAssociationIndex(): void {
-    // Clear existing index
-    associationIndex.value.clear();
-
-    // Build index from local associated documents cache
-    // Uses associatedDocuments instead of documentStore.documentCache to avoid
-    // circular dependency issues and ensure consistency with local state
-    associatedDocuments.value.forEach((doc, docId) => {
-      // Convert AssociatedDocument to CFPackage format for addToAssociationIndex
-      const cfPackage: CFPackage = {
-        CFDocument: doc as unknown as CFDocument,
-        CFItems: doc.items as unknown as CFItem[],
-        CFAssociations: doc.cfAssociations,
-        CFDefinitions: undefined,
-        CFRubrics: undefined
-      };
-      addToAssociationIndex(docId, cfPackage);
-    });
-
-    logger.debug('Built association index from associated documents cache', {
-      documentCount: associatedDocuments.value.size,
-      indexedItemCount: associationIndex.value.size
-    });
-  }
-
   async function updateItems(documentId: number, lsItems: Record<string, unknown>) {
     try {
       // Use API service for consistent error handling
@@ -802,103 +579,29 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
   }
 
   /**
-   * Get associations for a specific item by identifier
-   * @param {UUID} itemIdentifier - The item identifier
-   * @returns {EditorAssociation[]} - Array of associations for the item
-   */
-  function getAssociationsForItem(itemIdentifier: UUID): EditorAssociation[] {
-    if (!itemIdentifier) return [];
-
-    // Find all associations where this item is either origin or destination
-    return currentDocumentAssociations.value.filter(assoc => {
-      const originId = assoc.originNodeURI?.identifier;
-      const destId = assoc.destinationNodeURI?.identifier;
-      return originId === itemIdentifier || destId === itemIdentifier;
-    });
-  }
-
-  /**
-   * Identify frameworks associated with the currently selected item
-   * Uses the pre-built association index for O(1) lookups
-   * @returns {UUID[]} - Array of document identifiers
+   * LEGACY: identifyAssociatedFrameworks is being moved to editorContextStore logic
    */
   function identifyAssociatedFrameworks(): UUID[] {
-    const item = currentItem.value;
-    if (!item) return [];
-
-    // Use the association index for O(1) lookup instead of scanning all documents
-    const docIds = associationIndex.value.get(item.identifier);
-    if (!docIds) return [];
-
-    // Filter out the current document and convert to array
-    const identifiers: UUID[] = [];
-    docIds.forEach(docId => {
-      if (docId !== currentDocument.value?.identifier) {
-        identifiers.push(docId as UUID);
-      }
-    });
-
-    return identifiers;
+    return [];
   }
 
-  /**
-   * Set HIGH priority for frameworks associated with the currently selected item
-   * This ensures that frameworks shown in the Item Details panel are prioritized
-   * Uses nextTick to defer queue updates and avoid blocking the main thread
-   */
   function setHighPriorityForAssociatedFrameworks() {
-    const associatedIds = identifyAssociatedFrameworks();
-
-    if (associatedIds.length === 0) {
-      logger.debug('No associated frameworks found for current item');
-      return;
-    }
-
-    // Defer only the queue updates to next tick to avoid blocking the main thread
-    nextTick(() => {
-      // Set HIGH priority for each associated framework in the queue
-      // Type assertion to ensure queue has the expected method
-      if (typeof queue.updateItemPriority === 'function') {
-        associatedIds.forEach(identifier => {
-          queue.updateItemPriority(identifier, 'HIGH');
-        });
-      }
-
-      logger.debug(`Set HIGH priority for ${associatedIds.length} associated frameworks:`, associatedIds);
-    });
+    // Legacy: being removed
   }
 
-  /**
-   * Set the currently selected item and trigger priority updates
-   * @param {EditorItemNode | null} item - The selected item or null
-   */
   function setSelectedItem(item: EditorItemNode | null) {
-    currentItem.value = item;
-
-    // When an item is selected, set HIGH priority for its associated frameworks
-    if (item) {
-      setHighPriorityForAssociatedFrameworks();
-    }
+    viewStore.setCurrentItem(item);
   }
-
-  // Note: Priority updates are handled by setSelectedItem, which calls
-  // setHighPriorityForAssociatedFrameworks(). We don't need a separate watcher
-  // since that would cause duplicate calls.
 
   return {
     currentDocument,
     currentDocumentDefinitions,
     currentDocumentRubrics,
-    currentDocumentAssociations,
     currentDocumentAssociationGroupings,
     associationGroups,
-    associatedDocuments,
-    loadingAssociatedDocs,
     selectDocument,
     clearCurrentDocument,
     transformCASEItems,
-    fetchAssociatedDocuments,
-    getAssociatedDocument,
     updateItems,
     addAssociation,
     removeAssociation,
@@ -908,24 +611,11 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     createAssociationGroup,
     updateAssociationGroup,
     deleteAssociationGroup,
-    draggedItem,
-    setDraggedItem,
     copyItem,
-    currentItem,
+    currentItem: computed(() => viewStore.currentItem),
     setSelectedItem,
-    identifyAssociatedFrameworks,
-    // Association index for O(1) lookups
-    associationIndex,
-    buildAssociationIndex,
-    addToAssociationIndex,
-    removeFromAssociationIndex,
-    // NEW: Viewed document state and actions (dual framework edit/view separation)
-    viewedDocument,
-    viewedDocumentItems,
-    isViewingDifferentFramework,
-    setViewedDocument,
-    clearViewedDocument,
-    isItemEditable
+    draggedItem: computed(() => viewStore.draggedItem),
+    setDraggedItem: (item: any) => viewStore.setDraggedItem(item)
   };
 });
 

@@ -149,6 +149,7 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useDocumentStore } from '../../stores/documentStore';
 import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
+import { useEditorContextStore } from '../../stores/editorContextStore';
 import { logger } from '../../utils/logger.js';
 import AssociationTableView from './AssociationTableView.vue';
 import EditAssociationModal from './EditAssociationModal.vue';
@@ -156,6 +157,7 @@ import DeleteAssociationModal from './DeleteAssociationModal.vue';
 
 const documentStore = useDocumentStore();
 const currentDocumentStore = useCurrentDocumentStore();
+const contextStore = useEditorContextStore();
 
 // Modal state
 const showEditAssociationModal = ref(false);
@@ -172,13 +174,10 @@ const currentDocument = computed(() => currentDocumentStore.currentDocument);
 const associationGroups = computed(() => currentDocumentStore.associationGroups);
 
 const associations = computed(() => {
-  const current = currentDocumentStore.currentDocumentAssociations || [];
-  const seenIds = new Set(current.map(a => a.identifier));
-  const crossFramework = [];
-
   // Collect all item identifiers in the current document (including document itself)
   const currentDocId = currentDocumentStore.currentDocument?.identifier;
   const currentItemIds = new Set();
+  
   if (currentDocumentStore.currentDocument?.items) {
     (function collectIds(items) {
       for (const item of items) {
@@ -189,20 +188,25 @@ const associations = computed(() => {
   }
   if (currentDocId) currentItemIds.add(currentDocId);
 
-  // Scan all associated documents for associations referencing current document items
-  for (const [frameworkId, doc] of currentDocumentStore.associatedDocuments) {
-    for (const assoc of (doc.cfAssociations || [])) {
-      const originId = assoc.originNodeURI?.identifier;
-      const destId = assoc.destinationNodeURI?.identifier;
-      if ((currentItemIds.has(originId) || currentItemIds.has(destId)) &&
-          !seenIds.has(assoc.identifier)) {
-        seenIds.add(assoc.identifier);
-        crossFramework.push({ ...assoc, CFDocumentURI: frameworkId });
-      }
-    }
-  }
+  // Use centralized registry to find all associations involving these items
+  const result = [];
+  const seenIds = new Set();
 
-  return [...current, ...crossFramework];
+  contextStore.associationRegistry.forEach((regAssoc) => {
+    const assoc = regAssoc.association;
+    const originId = assoc.originNodeURI?.identifier;
+    const destId = assoc.destinationNodeURI?.identifier;
+
+    if ((currentItemIds.has(originId) || currentItemIds.has(destId)) && !seenIds.has(assoc.identifier)) {
+      seenIds.add(assoc.identifier);
+      result.push({
+        ...assoc,
+        _sourceFrameworkId: regAssoc.frameworkId // Framework origin tracking
+      });
+    }
+  });
+
+  return result;
 });
 
 // Dynamically derive association types from actual data

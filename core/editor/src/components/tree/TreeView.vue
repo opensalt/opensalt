@@ -43,8 +43,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, provide, inject } from 'vue';
 import TreeNode from './TreeNode.vue';
+import { useTreeNavigation } from '../../composables/useTreeNavigation';
 
 const props = defineProps({
   doc: Object,
@@ -79,6 +80,39 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['select', 'dblclick', 'tree-change', 'focus']);
+
+// Setup tree navigation for this tree instance
+// If parent already provides treeNavigation, we can use it, but usually Standalone TreeView needs its own
+const existingNavigation = inject('treeNavigation', null);
+
+const {
+  focusedItemId,
+  setFocus,
+  handleKeyDown: navigationHandleKeyDown,
+  isItemExpanded,
+  expandItem,
+  collapseItem,
+  toggleExpanded,
+  initializeFocus
+} = useTreeNavigation({
+  items: computed(() => props.doc?.items || []),
+  selectedId: computed(() => props.selectedId),
+  onSelect: (id) => onSelect(id)
+});
+
+// Provide navigation to descendants if not already provided by a parent (like EnhancedDocumentTreeEditor)
+if (!existingNavigation) {
+  provide('treeNavigation', {
+    focusedItemId,
+    setFocus,
+    handleKeyDown: navigationHandleKeyDown,
+    isItemExpanded,
+    expandItem,
+    collapseItem,
+    toggleExpanded,
+    initializeFocus
+  });
+}
 
 const treeContainer = ref(null);
 
@@ -141,8 +175,7 @@ function handleFocus(itemId) {
 
 // Handle keyboard events at tree level
 function handleTreeKeyDown(event) {
-  // Navigation is handled by TreeNode components via the injected context
-  // This handler can be used for tree-level shortcuts if needed
+  navigationHandleKeyDown(event);
 }
 </script>
 

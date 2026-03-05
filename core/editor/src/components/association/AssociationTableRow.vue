@@ -1,5 +1,5 @@
 <template>
-  <tbody class="association-tbody" :class="{ 'cross-framework-tbody': !!association.CFDocumentURI }">
+  <tbody class="association-tbody" :class="{ 'cross-framework-tbody': isCrossFrameworkAssoc }">
     <!-- Main row -->
     <tr class="association-row">
       <!-- Origin Column -->
@@ -89,7 +89,7 @@
 
     <!-- Actions Column -->
     <td class="py-3 text-end">
-      <div v-if="!isReadOnly && !association.CFDocumentURI && association.associationType !== 'isChildOf' && association.type !== 'isChildOf'" class="btn-group btn-group-sm" role="group">
+      <div v-if="!isReadOnly && !isCrossFrameworkAssoc && association.associationType !== 'isChildOf' && association.type !== 'isChildOf'" class="btn-group btn-group-sm" role="group">
         <button
           type="button"
           class="btn btn-outline-primary"
@@ -127,6 +127,7 @@
 <script setup>
 import { computed, ref, onMounted, toRef } from 'vue';
 import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
+import { useEditorContextStore } from '../../stores/editorContextStore';
 import { useCrossFrameworkItem } from '../../composables/useCrossFrameworkItem';
 
 // Lazy-loaded markdown renderer with caching
@@ -154,14 +155,6 @@ onMounted(async () => {
   render.value = await getMarkdownRenderer();
 });
 
-// Resolve the source framework title from the associatedDocuments cache
-const sourceFrameworkTitle = computed(() => {
-  const frameworkId = props.association.CFDocumentURI;
-  if (!frameworkId) return null;
-
-  const doc = currentDocumentStore.associatedDocuments.get(frameworkId);
-  return doc?.title || null;
-});
 
 const props = defineProps({
   association: {
@@ -185,6 +178,34 @@ const props = defineProps({
 const emit = defineEmits(['edit', 'delete']);
 
 const currentDocumentStore = useCurrentDocumentStore();
+const contextStore = useEditorContextStore();
+
+// Check if this association comes from a different framework than the one being viewed
+const isCrossFrameworkAssoc = computed(() => {
+  const assocFrameworkId = props.association._sourceFrameworkId
+    || props.association.CFDocumentURI?.identifier
+    || (typeof props.association.CFDocumentURI === 'string' ? props.association.CFDocumentURI : null);
+  if (!assocFrameworkId) return false;
+
+  const displayedFrameworkId = contextStore.isViewingDifferentFramework
+    ? contextStore.viewedDocumentId
+    : contextStore.activeWriteDocumentId;
+
+  return assocFrameworkId !== displayedFrameworkId;
+});
+
+// Resolve the source framework title from the centralized document registry
+const sourceFrameworkTitle = computed(() => {
+  if (!isCrossFrameworkAssoc.value) return null;
+
+  const frameworkId = props.association._sourceFrameworkId
+    || props.association.CFDocumentURI?.identifier
+    || (typeof props.association.CFDocumentURI === 'string' ? props.association.CFDocumentURI : null);
+  if (!frameworkId) return null;
+
+  const doc = contextStore.documentRegistry.get(frameworkId);
+  return doc?.title || null;
+});
 
 // Use cross-framework item composable for origin (reversed direction)
 const {

@@ -2,36 +2,19 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { api } from '../services/api.js';
 import { logger } from '../utils/logger.js';
+import { useEditorContextStore } from './editorContextStore';
 
 export const useItemStore = defineStore('items', () => {
-  // O(1) item lookup cache
-  const itemLookupMap = ref(new Map());
-
-  // Build lookup map from items array (O(n) once, then O(1) lookups)
-  function buildItemLookupMap(items) {
-    itemLookupMap.value.clear();
-    if (!Array.isArray(items)) return;
-    
-    function traverse(itemList) {
-      for (const item of itemList) {
-        itemLookupMap.value.set(item.identifier, item);
-        if (item.children) {
-          traverse(item.children);
-        }
-      }
-    }
-    traverse(items);
-  }
-
-  // O(1) lookup using the map
+  // O(1) lookup using the global registry
   function getItemByIdentifierFast(identifier) {
-    return itemLookupMap.value.get(identifier) || null;
+    const contextStore = useEditorContextStore();
+    const resolved = contextStore.resolveEndpoint(identifier);
+    return (resolved?.entityType === 'item') ? resolved.entity : null;
   }
 
-  // Invalidate cache when items change
-  function invalidateCache() {
-    itemLookupMap.value.clear();
-  }
+  // Legacy for compatibility - registries are updated by loadPackage
+  function buildItemLookupMap() { }
+  function invalidateCache() { }
 
   // Actions
   function updateItem(currentDocument, updatedItem) {
@@ -72,6 +55,11 @@ export const useItemStore = defineStore('items', () => {
   }
 
   function findItemByIdentifier(items, identifier) {
+    // Try the global registry first for O(1)
+    const fastMatch = getItemByIdentifierFast(identifier);
+    if (fastMatch) return fastMatch;
+
+    // Fallback to recursive search if not in registry yet
     if (!Array.isArray(items)) return null;
     for (const item of items) {
       if (item.identifier === identifier) return item;
@@ -109,7 +97,7 @@ export const useItemStore = defineStore('items', () => {
 
     newItem.sequenceNumber = sequenceNum;
     targetArray.push(newItem);
-    
+
     // Sort the target array by sequenceNumber
     targetArray.sort((a, b) => (a.sequenceNumber || 0) - (b.sequenceNumber || 0));
 
@@ -202,7 +190,7 @@ export const useItemStore = defineStore('items', () => {
       logger.error('Failed to persist item move:', error);
       throw error;
     }
-    
+
     // Invalidate cache since items were moved
     invalidateCache();
 

@@ -22,7 +22,7 @@
     <div v-else-if="isItemFromViewedFramework" class="alert alert-secondary mb-2" role="alert">
       <i class="bi bi-eye me-2" aria-hidden="true"></i>
       <strong>Viewing Item</strong>
-      <span class="text-muted"> from {{ viewedDocument?.title || 'external framework' }}</span>
+      <span class="text-muted"> from {{ viewedDoc?.title || 'external framework' }}</span>
       <span class="d-block mt-1 small text-muted">
         <i class="bi bi-lock me-1" aria-hidden="true"></i>
         This item is read-only. Edits cannot be made to viewed framework items.
@@ -192,7 +192,7 @@
           <small class="text-muted">
             <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
             Associations created from this item will be saved in
-            <strong>{{ currentDocument?.title || 'the edited framework' }}</strong>
+            <strong>{{ props.currentDocument?.title || 'the edited framework' }}</strong>
           </small>
         </div>
         <div class="card-body">
@@ -275,7 +275,12 @@ import DeleteAssociationModal from '@/components/association/DeleteAssociationMo
 import { useDynamicModal } from '../../../composables/useDynamicModal.js';
 import { useDynamicEditModal } from '../../../composables/useDynamicEditModal.js';
 import { useCurrentDocumentStore } from '../../../stores/currentDocumentStore';
+import { useViewStore } from '../../../stores/viewStore';
+import { useEditorContextStore } from '../../../stores/editorContextStore';
+import { useDocumentStore } from '../../../stores/documentStore';
 import { useCrossFrameworkItem } from '../../../composables/useCrossFrameworkItem';
+import { useFilterStore } from '../../../stores/filterStore';
+import { useSessionStore } from '../../../stores/sessionStore';
 
 // Lazy-loaded markdown renderer with caching
 let markdownRendererPromise = null;
@@ -355,7 +360,13 @@ const emit = defineEmits([
 ]);
 
 // Access the store for association data and priority queue updates
+// Access stores for centralized state management
 const currentDocumentStore = useCurrentDocumentStore();
+const viewStore = useViewStore();
+const contextStore = useEditorContextStore();
+const sessionStore = useSessionStore();
+const filterStore = useFilterStore();
+const documentStore = useDocumentStore();
 
 const availableTypes = ['general', 'assessment', 'course', 'credential', 'job', 'organization', 'public_key', 'identifier'];
 
@@ -500,67 +511,55 @@ function clearAssociationsCache() {
 function computeMergedAssociations(itemIdentifier) {
   if (!itemIdentifier) return [];
 
-  // Get current item's associations
-  const currentAssociations = props.item.associations || [];
+  // Use centralized contextStore to get all associations (including cross-framework)
+  const itemUri = props.item?.uri || props.item?.crossFrameworkUri || displayItem.value?.uri;
+  const allContextAssociations = contextStore.getAssociations(itemIdentifier, itemUri);
 
-  // Collect cross-framework associations from the reactive associatedDocuments map
-  const crossFrameworkAssociations = [];
-  const seenIds = new Set(currentAssociations.map(a => a.identifier));
+  console.debug(`[ItemDetails] computeMergedAssociations for ${itemIdentifier}: found ${allContextAssociations.length} associations from registry (registry size: ${contextStore.associationRegistry.size}, loadedPackages: ${contextStore.loadedPackages.size})`);
+  
+  // Convert context associations to the format expected by ItemDetails
+  const currentAssociations = allContextAssociations.map(regAssoc => ({
+    ...regAssoc.association,
+    _sourceFrameworkId: regAssoc.frameworkId, // Framework origin tracking (use _ prefix to avoid colliding with CASE CFDocumentURI)
+    groupId: regAssoc.association.CFAssociationGroupingURI?.identifier || (typeof regAssoc.association.CFAssociationGroupingURI === 'string' ? regAssoc.association.CFAssociationGroupingURI : null)
+  }));
 
-  // Iterate over all reactive associatedDocuments (populated by the queue as frameworks load)
-  for (const [frameworkId, associatedDoc] of currentDocumentStore.associatedDocuments) {
-    const associations = associatedDoc.cfAssociations || [];
-    for (const assoc of associations) {
-      const originId = assoc.originNodeURI?.identifier;
-      const destId = assoc.destinationNodeURI?.identifier;
-
-      // Check if this association involves current item and isn't a duplicate
-      if ((originId === itemIdentifier || destId === itemIdentifier) &&
-          !seenIds.has(assoc.identifier)) {
-        seenIds.add(assoc.identifier);
-        crossFrameworkAssociations.push({
-          ...assoc,
-          CFDocumentURI: frameworkId
-        });
-      }
-    }
-  }
-
-  // Build item index once for O(1) lookup instead of recursive tree traversal
+  // Build item index once for O(1) lookup
   const items = currentDocumentStore.currentDocument?.items;
   const itemIndex = buildItemIndex(items);
 
-  // Merge current and cross-framework associations
-  // For cross-framework items, include isChildOf associations so they can be deleted
-  const allAssociations = [...currentAssociations, ...crossFrameworkAssociations]
+   // Filter associations
+  const filteredAssociations = currentAssociations
     .filter(a => {
       const assocType = a.associationType || a.type;
       // Filter out isChildOf associations - only show cross-framework isChildOf
       if (assocType === 'isChildOf') {
-        // Only show isChildOf associations that have a CFDocumentURI (cross-framework)
-        // and belong to a different framework than the one being displayed
-        const assocFrameworkId = a.CFDocumentURI?.identifier || a.CFDocumentURI;
+        const assocFrameworkId = a._sourceFrameworkId;
 
-        // If no CFDocumentURI, this is an internal association - always hide it
+        // If no framework tracking info, this is an unknown association - hide it
         if (!assocFrameworkId) {
           return false;
         }
 
         // Get the ID of the framework currently being displayed in the tree
-        const displayedFrameworkId = isViewingDifferentFramework.value
-          ? viewedDocument?.value?.identifier
-          : currentDocument?.value?.identifier;
+        const displayedFrameworkId = contextStore.isViewingDifferentFramework
+          ? contextStore.viewedDocumentId
+          : contextStore.activeWriteDocumentId;
 
         // Show only if the association belongs to a different framework than displayed
+        // This avoids showing redundant parent/child links in the associations list
+        // that are already represented by tree structure
         return assocFrameworkId !== displayedFrameworkId;
       }
       return true;
     });
 
+  console.debug(`[ItemDetails] After filter: ${filteredAssociations.length} of ${currentAssociations.length} associations remain (${currentAssociations.length - filteredAssociations.length} filtered out)`);
+
   // Group associations by type and determine direction
   const groupedAssociations = {};
 
-  allAssociations.forEach(assoc => {
+  filteredAssociations.forEach(assoc => {
     const associationType = assoc.associationType || assoc.type || assoc.association?.type || 'unknown';
 
     // Determine direction based on origin/destination
@@ -588,7 +587,9 @@ function computeMergedAssociations(itemIdentifier) {
   });
 
   // Convert to array and return
-  return Object.values(groupedAssociations);
+  const result = Object.values(groupedAssociations);
+  console.debug(`[ItemDetails] Final: ${result.length} groups with ${filteredAssociations.length} total associations`);
+  return result;
 }
 
 // Track processed items to prevent duplicate processing
@@ -604,7 +605,7 @@ watch(
       currentDocumentStore.setSelectedItem(props.item);
 
       // Clear cache if associated documents have changed significantly
-      const currentDocsSize = currentDocumentStore.associatedDocuments?.size || 0;
+      const currentDocsSize = contextStore.loadedPackages.size;
       if (currentDocsSize !== lastAssociatedDocumentsSize.value) {
         clearAssociationsCache();
         lastAssociatedDocumentsSize.value = currentDocsSize;
@@ -648,23 +649,26 @@ watch(
 );
 
 // Watch for changes in associated documents
-// When new documents are added, we process them in the background WITHOUT
+// When new documents/associations are added, re-process in the background WITHOUT
 // clearing the cache. This ensures the UI keeps showing existing associations
 // while new ones are being computed, avoiding the "Loading associations..." flash.
+let registryDebounceTimer = null;
 watch(
-  () => currentDocumentStore.associatedDocuments?.size,
-  (newSize, oldSize) => {
-    // Only re-process if documents were added (not removed)
-    if (newSize > oldSize && lastProcessedItemId.value) {
-      // IMPORTANT: Do NOT clear the cache here. Instead, keep showing the
-      // cached associations while we compute the new ones in the background.
-      // This prevents the "Loading associations..." message from appearing.
-      // The cache will be atomically updated when processAssociationsAsync completes.
-
-      const version = ++processingVersion.value;
-      // Pass background=true to avoid showing loading state during incremental updates
-      // Pass force=true to bypass the cache check and re-process with new documents
-      processAssociationsAsync(lastProcessedItemId.value, version, true, true);
+  () => contextStore.loadedPackages.size + contextStore.associationRegistry.size,
+  (newTotal, oldTotal) => {
+    // Only re-process if items were added (not removed)
+    if (newTotal > oldTotal && lastProcessedItemId.value) {
+      console.debug(`[ItemDetails] Registry changed: ${oldTotal} -> ${newTotal}, will re-process ${lastProcessedItemId.value}`);
+      
+      // Debounce: wait 200ms for rapid-fire registry updates to settle before re-computing
+      if (registryDebounceTimer) clearTimeout(registryDebounceTimer);
+      registryDebounceTimer = setTimeout(() => {
+        const version = ++processingVersion.value;
+        console.debug(`[ItemDetails] Debounced re-process of ${lastProcessedItemId.value} (version ${version})`);
+        // Pass background=true to avoid showing loading state during incremental updates
+        // Pass force=true to bypass the cache check and re-process with new documents
+        processAssociationsAsync(lastProcessedItemId.value, version, true, true);
+      }, 200);
     }
   }
 );
@@ -681,6 +685,7 @@ onUnmounted(() => {
   processingVersion.value++;
   isProcessingAssociations.value = false;
   processingItemId.value = null;
+  if (registryDebounceTimer) clearTimeout(registryDebounceTimer);
 });
 
 // Delete association modal handlers
@@ -801,36 +806,29 @@ function handleDropdownClick(type) {
   }
 }
 
-import { useSessionStore } from '../../../stores/sessionStore';
-
-const sessionStore = useSessionStore();
 const isReadOnly = computed(() => props.currentDocument?.isReadOnly || !sessionStore.isAuthenticated);
 
-// Access the store for isItemEditable helper and viewed document state
-const { isItemEditable, viewedDocument, currentDocument } = currentDocumentStore;
-
 // Computed property to check if the current item can be edited
-// Item can be edited if it belongs to the edited framework (not a viewed/cross-framework item)
+// Item can be edited if it belongs to the active write framework
 const canEditItem = computed(() => {
   if (isReadOnly.value) return false;
   if (!props.item) return false;
-  // Safeguard: ensure isItemEditable is available before calling
-  if (typeof isItemEditable !== 'function') return false;
-  return isItemEditable(props.item);
+  return contextStore.isEditable(props.item);
 });
 
 // Computed property to check if viewing a different framework than editing
-const isViewingDifferentFramework = computed(() => {
-  // Safeguard: ensure refs are available before accessing .value
-  if (!viewedDocument?.value || !currentDocument?.value) return false;
-  return viewedDocument.value.identifier !== currentDocument.value.identifier;
+const isViewingDifferentFramework = computed(() => contextStore.isViewingDifferentFramework);
+
+const viewedDoc = computed(() => {
+  if (!contextStore.viewedDocumentId) return null;
+  return contextStore.documentRegistry.get(contextStore.viewedDocumentId);
 });
 
 // Computed property to check if the current item is from the viewed framework
 const isItemFromViewedFramework = computed(() => {
   if (!isViewingDifferentFramework.value) return false;
   const itemDocId = props.item?.documentId || props.item?.CFDocumentURI?.identifier;
-  return itemDocId === viewedDocument?.value?.identifier;
+  return itemDocId === contextStore.viewedDocumentId;
 });
 
 // Detect if this is a cross-framework item

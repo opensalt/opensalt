@@ -1,4 +1,4 @@
- 
+
 import MarkdownIt from 'markdown-it';
 import markdownItKatex from '@vscode/markdown-it-katex';
 import markdownItUnderline from 'markdown-it-underline';
@@ -89,7 +89,30 @@ export function hasMarkdown(text) {
   return markdownPatterns.some(pattern => pattern.test(text));
 }
 
+/**
+ * Strips all HTML tags from a string
+ * @param {string} html - The HTML string to strip
+ * @returns {string} - The plain text
+ */
+export function stripHtml(html) {
+  if (!html || typeof html !== 'string') {
+    return '';
+  }
+  // Remove HTML tags and replace with empty string
+  // Also decode basic entities and handle multiple spaces
+  return html
+    .replace(/<[^>]*>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .trim();
+}
+
 export default {
   renderMarkdown,
-  hasMarkdown
+  hasMarkdown,
+  stripHtml
 };

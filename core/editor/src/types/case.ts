@@ -231,12 +231,6 @@ export interface CFItemNode extends CFItem {
   associations?: CFAssociation[];
   /** Sequence number for ordering */
   sequenceNumber?: number;
-  /** UI-specific: expanded state */
-  expanded?: boolean;
-  /** UI-specific: selected state */
-  selected?: boolean;
-  /** UI-specific: loading state */
-  loading?: boolean;
 }
 
 // ============================================================================

@@ -1,23 +1,13 @@
 import { ref, computed, watch, toValue } from 'vue';
 import { useCurrentDocumentStore } from '../stores/currentDocumentStore';
+import { useEditorContextStore } from '../stores/editorContextStore';
 import { useDocumentStore } from '../stores/documentStore';
+import { useViewStore } from '../stores/viewStore';
 import { logger } from '../utils/logger.js';
 
 /* global URL, fetch */
 
-/**
- * Cross-framework item cache for storing fetched items
- * Key: item identifier (UUID)
- * Value: { item, documentId, documentTitle, fetchedAt }
- */
-const crossFrameworkItemCache = new Map();
-
-/**
- * Pending requests for deduplication
- * Key: item URI
- * Value: Promise
- */
-const pendingRequests = new Map();
+// Cross-framework item cache is now handled by editorContextStore registries
 
 /**
  * Find an item recursively in a tree by identifier
@@ -62,75 +52,29 @@ export function determineTargetType(targetType, associationType) {
 }
 
 /**
- * Find an item in all cached frameworks
+ * Find an item in all cached frameworks using centralized registry
  * @param {string} identifier - The item identifier to find
- * @param {Object} currentDocumentStore - The current document store
- * @param {Object} documentStore - The document store
+ * @param {Object} contextStore - The editor context store
  * @returns {Object|null} - { item, documentTitle, documentId } or null
  */
-export function findInCachedFrameworks(identifier, currentDocumentStore, documentStore) {
+export function findInCachedFrameworks(identifier, contextStore) {
   if (!identifier) return null;
 
-  // Check if identifier matches the current document itself (by identifier, id, or uri)
-  const isCurrentDoc = currentDocumentStore.currentDocument &&
-    (currentDocumentStore.currentDocument.identifier === identifier ||
-      currentDocumentStore.currentDocument.id === identifier ||
-      currentDocumentStore.currentDocument.uri === identifier);
-
-  if (isCurrentDoc) {
-    const title = currentDocumentStore.currentDocument.title || identifier;
-    return {
-      item: { identifier, title, fullStatement: title },
-      documentTitle: title,
-      documentId: currentDocumentStore.currentDocument.id || identifier
-    };
-  }
-
-  // Check associatedDocuments cache
-  for (const [docId, doc] of currentDocumentStore.associatedDocuments) {
-    // Check if identifier matches the document itself
-    if (doc.id === identifier || doc.identifier === identifier || doc.uri === identifier) {
+  const resolved = contextStore.resolveEndpoint(identifier);
+  if (resolved) {
+    if (resolved.entityType === 'item') {
+      const doc = contextStore.documentRegistry.get(resolved.frameworkId);
       return {
-        item: { identifier, title: doc.title, fullStatement: doc.title },
-        documentTitle: doc.title,
-        documentId: docId
+        item: resolved.entity,
+        documentTitle: doc?.title,
+        documentId: resolved.frameworkId
       };
-    }
-    const found = findItemById(doc.items, identifier);
-    if (found) {
+    } else if (resolved.entityType === 'document') {
       return {
-        item: found,
-        documentTitle: doc.title,
-        documentId: docId
+        item: { identifier, title: resolved.entity.title, fullStatement: resolved.entity.title },
+        documentTitle: resolved.entity.title,
+        documentId: resolved.entity.identifier
       };
-    }
-  }
-
-  // Check documentCache
-  for (const [docId, pkg] of documentStore.documentCache) {
-    // Check if identifier matches this document
-    const isDocMatch = pkg?.CFDocument &&
-      (pkg.CFDocument.identifier === identifier ||
-        pkg.CFDocument.id === identifier ||
-        pkg.CFDocument.uri === identifier);
-
-    if (isDocMatch) {
-      const title = pkg.CFDocument.title || identifier;
-      return {
-        item: { identifier, title, fullStatement: title },
-        documentTitle: title,
-        documentId: docId
-      };
-    }
-    if (pkg && pkg.CFItems) {
-      const item = pkg.CFItems.find(i => i.identifier === identifier);
-      if (item) {
-        return {
-          item,
-          documentTitle: pkg.CFDocument?.title,
-          documentId: docId
-        };
-      }
     }
   }
 
@@ -175,67 +119,7 @@ function extractUuidFromUri(uri) {
   }
 }
 
-/**
- * Fetch a CASE item directly by its URI with local server fallback
- * First tries the local server endpoint, then falls back to the original URI
- * @param {string} uri - The item URI
- * @returns {Promise<Object>} - The item data
- */
-async function fetchItemByUri(uri) {
-  // Check for pending request to deduplicate
-  if (pendingRequests.has(uri)) {
-    return pendingRequests.get(uri);
-  }
-
-  const request = (async () => {
-    try {
-      // Extract UUID from the URI
-      const uuid = extractUuidFromUri(uri);
-
-      // If we have a UUID, try local server first
-      if (uuid) {
-        try {
-          const localUrl = `/ims/case/v1p1/CFItems/${uuid}`;
-          const localResponse = await fetch(localUrl, {
-            headers: { 'Accept': 'application/json' }
-          });
-
-          if (localResponse.ok) {
-            pendingRequests.delete(uri);
-            return localResponse.json();
-          }
-
-          // Log the local fetch failure but don't throw - we'll try the original URI
-          logger.debug(`Local fetch failed for item ${uuid}, trying original URI`);
-        } catch (localError) {
-          // Local fetch failed, continue to try original URI
-          logger.debug(`Local fetch error for item ${uuid}:`, localError);
-        }
-      }
-
-      // Fall back to the original URI
-      const response = await fetch(uri, {
-        headers: { 'Accept': 'application/json' }
-      });
-
-      pendingRequests.delete(uri);
-
-      if (!response.ok) {
-        const error = new Error(`Failed to fetch item: ${response.status}`);
-        error.status = response.status;
-        throw error;
-      }
-
-      return response.json();
-    } catch (error) {
-      pendingRequests.delete(uri);
-      throw error;
-    }
-  })();
-
-  pendingRequests.set(uri, request);
-  return request;
-}
+// Direct fetch functions are now in editorContextStore.ts
 
 /**
  * Composable for resolving items that may be in different frameworks
@@ -257,6 +141,8 @@ export function useCrossFrameworkItem(options) {
 
   const currentDocumentStore = useCurrentDocumentStore();
   const documentStore = useDocumentStore();
+  const contextStore = useEditorContextStore();
+  const viewStore = useViewStore();
 
   // State
   const isLoading = ref(false);
@@ -321,8 +207,20 @@ export function useCrossFrameworkItem(options) {
     return found;
   });
 
-  // Check if this is a cross-framework reference
+  // Check if this is a cross-framework reference relative to the viewed framework
   const isCrossFramework = computed(() => {
+    // If we have an item identifier, check if it belongs to the framework being viewed in the tree
+    if (itemIdentifier.value) {
+      const displayedFrameworkId = contextStore.isViewingDifferentFramework
+        ? contextStore.viewedDocumentId
+        : contextStore.activeWriteDocumentId;
+
+      const registered = contextStore.itemRegistry.get(itemIdentifier.value);
+      if (registered && registered.frameworkId === displayedFrameworkId) {
+        return false;
+      }
+    }
+
     // If we found the item in the current document, it's NOT cross-framework
     if (itemInCurrentDocument.value) return false;
 
@@ -338,6 +236,12 @@ export function useCrossFrameworkItem(options) {
     // First check current document
     if (itemInCurrentDocument.value) {
       return itemInCurrentDocument.value;
+    }
+
+    // Check if the item is in the global contextStore registry
+    if (itemIdentifier.value) {
+      const registered = contextStore.itemRegistry.get(itemIdentifier.value);
+      if (registered) return registered.item;
     }
 
     // Then check external item data we've loaded
@@ -404,7 +308,7 @@ export function useCrossFrameworkItem(options) {
     }
 
     // Otherwise indicate we're loading or don't have the info
-    return isLoading.value ? 'Loading...' : 'External Framework';
+    return isLoading.value || (itemIdentifier.value && viewStore.getViewState(itemIdentifier.value).loading) ? 'Loading...' : 'External Framework';
   });
 
   /**
@@ -415,32 +319,16 @@ export function useCrossFrameworkItem(options) {
     const uri = nodeURI.value?.uri;
 
     if (!identifier || !uri) return;
-    if (itemInCurrentDocument.value) return; // Already found in current doc
+    if (itemInCurrentDocument.value) return;
 
     // For non-CASE items, don't fetch
     if (!targetTypeInfo.value.isCase) return;
 
-    // Check cross-framework item cache first
-    if (crossFrameworkItemCache.has(identifier)) {
-      const cached = crossFrameworkItemCache.get(identifier);
-      externalItemData.value = cached.item;
-      externalFrameworkTitle.value = cached.documentTitle;
-      return;
-    }
-
-    // Check cached frameworks
-    const cachedResult = findInCachedFrameworks(identifier, currentDocumentStore, documentStore);
+    // Check cached frameworks/registries first
+    const cachedResult = findInCachedFrameworks(identifier, contextStore);
     if (cachedResult) {
       externalItemData.value = cachedResult.item;
       externalFrameworkTitle.value = cachedResult.documentTitle;
-
-      // Also add to cross-framework cache
-      crossFrameworkItemCache.set(identifier, {
-        item: cachedResult.item,
-        documentId: cachedResult.documentId,
-        documentTitle: cachedResult.documentTitle,
-        fetchedAt: new Date()
-      });
       return;
     }
 
@@ -448,89 +336,28 @@ export function useCrossFrameworkItem(options) {
     if (isLoading.value) return;
 
     isLoading.value = true;
+    if (identifier) {
+      viewStore.setLoading(identifier, true);
+    }
     fetchError.value = null;
 
     try {
-      // Fetch the item directly by URI
-      let itemData = null;
-      let docId = null;
-      let docTitle = null;
+      const result = await contextStore.fetchExternalItemData(uri);
+      if (result && result.item) {
+        // If it was a package, it's already registered. 
+        // If it was a single item, fetchExternalItemData might have registered it too.
 
-      try {
-        itemData = await fetchItemByUri(uri);
-        // Extract document info from CFDocumentURI
-        const documentUri = itemData?.CFDocumentURI;
-        docTitle = documentUri?.title || null;
-        docId = documentUri?.identifier || null;
-      } catch (err) {
-        logger.warn(`[CrossFramework] Failed to fetch external item details directly:`, err);
-        fetchError.value = err;
-        externalItemData.value = null;
-        isLoading.value = false;
-        return;
-      }
+        externalItemData.value = result.item;
 
-      // If item data didn't have doc ID but association did, use association's
-      if (!docId && associationCFDocumentURI.value) {
-        docId = associationCFDocumentURI.value.identifier;
-        docTitle = associationCFDocumentURI.value.title || docTitle;
-      }
-
-      if (itemData) {
-        // Cache the item
-        crossFrameworkItemCache.set(identifier, {
-          item: itemData,
-          documentId: docId,
-          documentTitle: docTitle,
-          fetchedAt: new Date()
-        });
-
-        externalItemData.value = itemData;
-      }
-
-      // If we have document info, fetch and cache the document
-      if (docId) {
-        try {
-          const packageData = await documentStore.fetchDocument(docId);
-          if (packageData && packageData.CFDocument) {
-            docTitle = packageData.CFDocument.title;
-            externalFrameworkTitle.value = docTitle;
-
-            // Transform items and cache in associatedDocuments
-            const items = currentDocumentStore.transformCASEItems(
-              packageData.CFItems || [],
-              packageData.CFAssociations || [],
-              packageData.CFDocument.identifier
-            );
-            currentDocumentStore.associatedDocuments.set(packageData.CFDocument.identifier, {
-              ...packageData.CFDocument,
-              items: items.items
-            });
-
-            // If we didn't get item data directly, try to extract it from the newly fetched document
-            if (!itemData) {
-              const found = findItemById(items.items, identifier);
-              if (found) {
-                itemData = found;
-                crossFrameworkItemCache.set(identifier, {
-                  item: itemData,
-                  documentId: docId,
-                  documentTitle: docTitle,
-                  fetchedAt: new Date()
-                });
-                externalItemData.value = itemData;
-              }
-            }
-          }
-        } catch (docErr) {
-          console.error(`Failed to fetch associated document:`, docErr);
+        // Try to get document title from registry
+        const fwId = contextStore.itemRegistry.get(result.item.identifier)?.frameworkId;
+        if (fwId) {
+          const doc = contextStore.documentRegistry.get(fwId);
+          externalFrameworkTitle.value = doc?.title || 'External Framework';
         }
-      }
-
-      if (!itemData) {
+      } else {
         fetchError.value = "Failed to load item details";
       }
-
     } catch (error) {
       console.warn(`Unexpected error in loadExternalItem:`, error);
       fetchError.value = {
@@ -541,6 +368,9 @@ export function useCrossFrameworkItem(options) {
       };
     } finally {
       isLoading.value = false;
+      if (identifier) {
+        viewStore.setLoading(identifier, false);
+      }
     }
   }
 

@@ -42,8 +42,6 @@
         v-if="currentMode === 'itemDetails'"
         :selected-item="selectedItem"
         :current-document="currentDocument"
-        :viewed-document="viewedDocument"
-        :is-viewing-different-framework="isViewingDifferentFramework"
         :association-groups="associationGroups"
         @edit-item="$emit('edit-item', $event)"
         @delete-item="$emit('delete-item', $event)"
@@ -85,14 +83,6 @@ const sessionStore = useSessionStore();
 const props = defineProps({
   selectedItem: Object,
   currentDocument: Object,
-  viewedDocument: {
-    type: Object,
-    default: null
-  },
-  isViewingDifferentFramework: {
-    type: Boolean,
-    default: false
-  },
   initialMode: {
     type: String,
     default: 'itemDetails'

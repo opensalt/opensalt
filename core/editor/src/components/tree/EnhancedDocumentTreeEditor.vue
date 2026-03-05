@@ -13,7 +13,7 @@
           <span class="badge bg-secondary">
             <i class="bi bi-eye me-1"></i>Viewing
           </span>
-          <span class="ms-2 text-muted">{{ viewedDoc?.title || 'Untitled' }}</span>
+          <span class="text-muted"> from {{ viewedDoc?.title || 'external framework' }}</span>
         </div>
       </div>
     </header>
@@ -39,8 +39,6 @@
         :association-groups="associationGroups"
         :selected-association-group="selectedAssociationGroupValue"
         :available-subjects="availableSubjects"
-        :viewed-doc="viewedDoc"
-        :is-viewing-different-framework="isViewingDifferentFramework"
         @viewed-document-changed="onViewedDocumentChanged"
         @external-document-requested="onExternalDocumentRequested"
         @select="onSelect"
@@ -59,8 +57,6 @@
         <RightSidePanel
           v-if="rightPanelMode === 'itemDetails'"
           :current-document="currentDoc"
-          :viewed-document="viewedDoc"
-          :is-viewing-different-framework="isViewingDifferentFramework"
           :association-groups="associationGroups"
           :selected-item="selectedItem"
           :initial-mode="rightPanelMode"
@@ -159,6 +155,7 @@ import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
 import { useFilterStore } from '../../stores/filterStore';
 import { useItemStore } from '../../stores/itemStore';
 import { useViewStore } from '../../stores/viewStore';
+import { useEditorContextStore } from '@/stores/editorContextStore';
 import { useTreeNavigation } from '../../composables/useTreeNavigation.js';
 import { useAnnouncer } from '../../composables/useAnnouncer.js';
 import { useDynamicEditModal } from '../../composables/useDynamicEditModal.js';
@@ -184,6 +181,7 @@ const currentDocumentStore = useCurrentDocumentStore();
 const filterStore = useFilterStore();
 const itemStore = useItemStore();
 const viewStore = useViewStore();
+const contextStore = useEditorContextStore();
 const route = useRoute();
 const router = useRouter();
 
@@ -224,16 +222,27 @@ const currentDoc = computed(() => currentDocumentStore.currentDocument);
 // NEW: Viewed document state for dual framework edit/view separation
 // Combine viewed document metadata with its items for tree display
 const viewedDoc = computed(() => {
-  const doc = currentDocumentStore.viewedDocument;
+  const id = contextStore.viewedDocumentId;
+  if (!id) return null;
+  
+  const doc = contextStore.documentRegistry.get(id);
   if (!doc) return null;
-  // Return document with items from viewedDocumentItems
+  
+  // Get items from centralized registries
+  const pkg = contextStore.loadedPackages.get(id);
+  let items = [];
+  if (pkg && pkg.CFItems) {
+    const transformed = currentDocumentStore.transformCASEItems(pkg.CFItems, pkg.CFAssociations || [], id);
+    items = transformed.items || transformed;
+  }
+  
   return {
     ...doc,
     id: doc.identifier,
-    items: currentDocumentStore.viewedDocumentItems || []
+    items: items
   };
 });
-const isViewingDifferentFramework = computed(() => currentDocumentStore.isViewingDifferentFramework);
+const isViewingDifferentFramework = computed(() => contextStore.isViewingDifferentFramework);
 
 // filteredDoc must be declared before treeItems since treeItems depends on it
 const filteredDoc = computed(() => ({
@@ -272,8 +281,14 @@ const {
   initializeFocus
 } = useTreeNavigation({
   items: treeItems,
-  selectedId,
-  onSelect: (id) => onSelect(id)
+  selectedId: computed(() => viewStore.currentItem?.identifier),
+  onSelect: (id) => onSelect(id),
+  // Pass centralized state from viewStore
+  externalFocusedItemId: computed({
+    get: () => viewStore.focusedItemId,
+    set: (val) => viewStore.setFocusedItemId(val)
+  }),
+  externalExpandedState: computed(() => viewStore.itemViewState)
 });
 
 // Provide navigation context to child components (TreeNode, TreeView)
@@ -364,7 +379,7 @@ const matchCount = computed(() => {
   const query = treeSearchQuery.value.toLowerCase();
   // Use viewed document items when in view mode, otherwise use edited document items
   const itemsToSearch = isViewingDifferentFramework.value
-    ? (currentDocumentStore.viewedDocumentItems || [])
+    ? (viewedDoc.value?.items || [])
     : (doc.value.items || []);
   return countMatches(itemsToSearch, query);
 });
@@ -419,7 +434,7 @@ const matchingItemIds = computed(() => {
 
   // Use viewed document items when in view mode, otherwise use edited document items
   const itemsToSearch = isViewingDifferentFramework.value
-    ? (currentDocumentStore.viewedDocumentItems || [])
+    ? (viewedDoc.value?.items || [])
     : (doc.value.items || []);
 
   findMatches(itemsToSearch);
@@ -438,11 +453,26 @@ const selectedAssociationGroupValue = computed({
 // Watch for route changes to update selected item
 watch(() => route.params.itemId, (newItemId) => {
   selectedId.value = newItemId || null;
+  
+  // If we have an ID in the route, try to sync viewStore.currentItem
+  // But don't do it if it's already set to prevent infinite loops
+  if (newItemId && viewStore.currentItem?.identifier !== newItemId) {
+    // Note: Here we might not have the item object yet if it's external,
+    // so we rely on the component that loads it to update the store.
+  }
+  
   // Store the selected item with document context for view switching
   if (newItemId && currentDoc.value?.id) {
     viewStore.setLastSelectedItem(currentDoc.value.id, newItemId);
   }
 }, { immediate: true });
+
+// Sync selectedId with viewStore.currentItem changes
+watch(() => viewStore.currentItem, (newItem) => {
+  if (newItem && newItem.identifier !== selectedId.value) {
+    selectedId.value = newItem.identifier;
+  }
+});
 
 // Initialize data on mount
 onMounted(async () => {
@@ -501,21 +531,24 @@ async function scrollToSelectedItem() {
   if (scrollTimeoutId.value) clearTimeout(scrollTimeoutId.value);
 
   // Find the selected element and scroll it into view
-  // Use a small delay to ensure the DOM is fully rendered
-  scrollTimeoutId.value = setTimeout(() => {
-    const selectedElement = document.querySelector(`[data-tree-node-id="${selectedId.value}"]`);
-    if (selectedElement) {
-      selectedElement.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-        inline: 'nearest'
-      });
+// Use a small delay to ensure the DOM is fully rendered
+scrollTimeoutId.value = setTimeout(() => {
+  const identifier = viewStore.currentItem?.identifier || route.params.itemId;
+  if (!identifier) return;
 
-      // Also set focus to the selected item for accessibility
-      setFocus(selectedId.value);
-    }
-    scrollTimeoutId.value = null;
-  }, 100);
+  const selectedElement = document.querySelector(`[data-tree-node-id="${identifier}"]`);
+  if (selectedElement) {
+    selectedElement.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+      inline: 'nearest'
+    });
+
+    // Also set focus to the selected item for accessibility
+    setFocus(identifier);
+  }
+  scrollTimeoutId.value = null;
+}, 100);
 }
 
 // Watch for document changes to handle initialization and scrolling
@@ -526,16 +559,16 @@ watch(() => doc.value?.id, (newDocId, oldDocId) => {
     // Initialize focus on the document root
     initializeFocus();
 
-    // Handle scrolling when document is loaded and we have a selected item
-    if (newDocId !== oldDocId && selectedId.value) {
-      // Clear any existing timeout to prevent memory leaks on rapid changes
-      if (docChangeTimeoutId.value) clearTimeout(docChangeTimeoutId.value);
-      // Delay slightly to ensure tree is rendered
-      docChangeTimeoutId.value = setTimeout(() => {
-        scrollToSelectedItem();
-        docChangeTimeoutId.value = null;
-      }, 200);
-    }
+  // Handle scrolling when document is loaded and we have a selected item
+  if (newDocId !== oldDocId && (viewStore.currentItem?.identifier || route.params.itemId)) {
+    // Clear any existing timeout to prevent memory leaks on rapid changes
+    if (docChangeTimeoutId.value) clearTimeout(docChangeTimeoutId.value);
+    // Delay slightly to ensure tree is rendered
+    docChangeTimeoutId.value = setTimeout(() => {
+      scrollToSelectedItem();
+      docChangeTimeoutId.value = null;
+    }, 200);
+  }
   }
 }, { immediate: true });
 
@@ -555,14 +588,21 @@ function onSelect(id) {
   const frameworkId = currentDocumentStore.currentDocument?.id;
   if (frameworkId) {
     if (id) {
+      // Find the item object to store in viewStore
+      const item = findItem(currentDoc.value?.items || [], id) || (viewedDoc.value ? findItem(viewedDoc.value.items, id) : null);
+      viewStore.setCurrentItem(item);
+
       router.push(`/${frameworkId}/${id}`);
       // Store the selected item with document context for view switching
       viewStore.setLastSelectedItem(frameworkId, id);
     } else {
+      viewStore.setCurrentItem(null);
       router.push(`/${frameworkId}`);
     }
   } else {
-    selectedId.value = id;
+    // If no document context, just find the item anyway
+    const item = findItem(currentDoc.value?.items || [], id) || (viewedDoc.value ? findItem(viewedDoc.value.items, id) : null);
+    viewStore.setCurrentItem(item);
   }
 }
 
@@ -658,42 +698,29 @@ function onCrossTreeAssociate() {
   closeCrossTreeModal();
 }
 
-// NEW: Handle viewed document changes for dual framework edit/view separation
-async function onViewedDocumentChanged({ documentId }) {
+// NEW: Changed to update contextStore.viewedDocumentId for dual framework edit/view separation
+async function onViewedDocumentChanged(id) {
+  // If id is an object (from event), extract documentId
+  const documentId = (id && typeof id === 'object') ? id.documentId : id;
+
+  if (!documentId) {
+    contextStore.viewedDocumentId = null;
+    return;
+  }
+
   // If selecting the edited framework, clear viewed framework
   if (documentId === currentDoc.value?.identifier) {
-    currentDocumentStore.clearViewedDocument();
+    contextStore.viewedDocumentId = null;
     return;
   }
 
   try {
-    // Fetch the viewed document
-    const docData = await documentStore.fetchViewedDocument(documentId);
-    const cfDoc = docData.CFDocument || {};
-
-    // Transform items for the viewed document
-    const items = currentDocumentStore.transformCASEItems(
-      docData.CFItems || [],
-      docData.CFAssociations || [],
-      cfDoc.identifier
-    );
-
-    // Set the viewed document in the store
-    currentDocumentStore.setViewedDocument(
-      {
-        id: cfDoc.identifier,
-        identifier: cfDoc.identifier,
-        title: cfDoc.title || 'Untitled',
-        ...cfDoc
-      },
-      items
-    );
-
-    logger.debug('Viewed document loaded:', cfDoc.title);
-  } catch (error) {
-    logger.error('Error loading viewed document:', error);
-    // Clear viewed document on error
-    currentDocumentStore.clearViewedDocument();
+    const pkg = await contextStore.loadPackage(documentId);
+    if (pkg && pkg.CFDocument) {
+      contextStore.viewedDocumentId = documentId;
+    }
+  } catch (err) {
+    console.error(`Failed to switch viewed document:`, err);
   }
 }
 
@@ -849,6 +876,8 @@ function onTreeFocus(itemId) {
   if (item) {
     announcer.announceNavigation(item);
   }
+  // Synchronize focused item with viewStore
+  viewStore.setFocusedItemId(itemId);
 }
 
 function findItem(items, id) {

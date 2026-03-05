@@ -15,44 +15,55 @@ export function useTreeNavigation(options = {}) {
   const {
     items = ref([]),
     selectedId = ref(null),
-    onSelect = () => {},
+    onSelect = () => { },
+    // NEW: Optional external state from viewStore
+    externalFocusedItemId = null,
+    externalExpandedState = null
   } = options;
 
-  // Focus state
-  const focusedItemId = ref(null);
+  // Focus state - use external if provided, otherwise local ref
+  const focusedItemId = externalFocusedItemId || ref(null);
   const treeRef = ref(null);
 
-  // Centralized expanded state - keyed by item identifier
-  // Using a plain object with ref for better reactivity tracking
-  const expandedState = ref({});
+  // Centralized expanded state - use external if provided, otherwise local ref
+  const expandedState = externalExpandedState || ref({});
 
   // Helper to check if an item is expanded
   const isItemExpanded = (itemId) => {
+    // If using externalExpandedState (which might be a Map), handle it correctly
+    if (expandedState.value instanceof Map) {
+      return expandedState.value.get(itemId)?.expanded === true;
+    }
     return expandedState.value[itemId] === true;
   };
 
   // Helper to set expanded state
   const setItemExpanded = (itemId, expanded) => {
+    if (expandedState.value instanceof Map) {
+      const state = expandedState.value.get(itemId) || { expanded: false, selected: false, loading: false };
+      expandedState.value.set(itemId, { ...state, expanded });
+      return;
+    }
     expandedState.value = { ...expandedState.value, [itemId]: expanded };
   };
 
   // Toggle expanded state
   const toggleExpanded = (itemId) => {
-    const current = expandedState.value[itemId] === true;
-    expandedState.value = { ...expandedState.value, [itemId]: !current };
+    const current = isItemExpanded(itemId);
+    setItemExpanded(itemId, !current);
   };
 
   // Expand an item
   const expandItem = (itemId) => {
-    if (expandedState.value[itemId] !== true) {
-      expandedState.value = { ...expandedState.value, [itemId]: true };
+    if (!isItemExpanded(itemId)) {
+      setItemExpanded(itemId, true);
     }
   };
 
   // Collapse an item
   const collapseItem = (itemId) => {
-    if (expandedState.value[itemId] !== false) {
-      expandedState.value = { ...expandedState.value, [itemId]: false };
+    if (isItemExpanded(itemId)) {
+      setItemExpanded(itemId, false);
     }
   };
 

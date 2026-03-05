@@ -6,7 +6,6 @@
       v-if="!selectedItem && displayDocument"
       :document="displayDocument"
       :association-groups="associationGroups"
-      :is-viewing-different-framework="isViewingDifferentFramework"
       @edit-document="$emit('edit-document')"
       @add-root-item="$emit('add-root-item', $event)"
       @manage-association-groups="$emit('manage-association-groups')"
@@ -38,20 +37,13 @@
 
 <script setup>
 import { computed } from 'vue';
+import { useEditorContextStore } from '@/stores/editorContextStore';
 import DocumentDetailsPanel from './DocumentDetailsPanel.vue';
 import ItemDetails from './ItemDetails.vue';
 
 const props = defineProps({
   selectedItem: Object,
   currentDocument: Object,
-  viewedDocument: {
-    type: Object,
-    default: null
-  },
-  isViewingDifferentFramework: {
-    type: Boolean,
-    default: false
-  },
   associationGroups: {
     type: Array,
     default: () => []
@@ -72,18 +64,27 @@ const emit = defineEmits([
   'manage-association-groups'
 ]);
 
+const contextStore = useEditorContextStore();
+
 /**
  * Computed property to determine which document to display in the details panel.
  * When viewing a different framework and no item is selected, show the viewed document.
  * Otherwise, show the current (edited) document.
  */
 const displayDocument = computed(() => {
-  if (props.isViewingDifferentFramework && props.viewedDocument) {
-    return props.viewedDocument;
+  if (contextStore.isViewingDifferentFramework && contextStore.viewedDocumentId) {
+    return contextStore.documentRegistry.get(contextStore.viewedDocumentId);
   }
   return props.currentDocument;
 });
 </script>
+
+<style scoped>
+.item-details-panel {
+  flex: 1;
+  min-height: 0;
+}
+</style>
 
 <style scoped>
 .item-details-panel {

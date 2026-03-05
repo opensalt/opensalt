@@ -13,6 +13,17 @@ export const useViewStore = defineStore('view', () => {
     itemId: null
   });
 
+  const focusedItemId = ref(null);
+  const draggedItem = ref(null);
+
+  function setFocusedItemId(id) {
+    focusedItemId.value = id;
+  }
+
+  function setDraggedItem(item) {
+    draggedItem.value = item;
+  }
+
   // Actions
   function setCurrentView(view) {
     currentView.value = view;
@@ -41,6 +52,45 @@ export const useViewStore = defineStore('view', () => {
     return null;
   }
 
+  // itemViewState stores transient UI state for item nodes
+  // Maps itemIdentifier -> { expanded, selected, loading }
+  const itemViewState = ref(new Map());
+
+  function getViewState(identifier) {
+    if (!itemViewState.value.has(identifier)) {
+      itemViewState.value.set(identifier, {
+        expanded: false,
+        selected: false,
+        loading: false
+      });
+    }
+    return itemViewState.value.get(identifier);
+  }
+
+  function setExpanded(identifier, expanded) {
+    const state = getViewState(identifier);
+    state.expanded = expanded;
+  }
+
+  function toggleExpanded(identifier) {
+    const state = getViewState(identifier);
+    state.expanded = !state.expanded;
+  }
+
+  function setSelected(identifier, selected) {
+    const state = getViewState(identifier);
+    state.selected = selected;
+  }
+
+  function setLoading(identifier, loading) {
+    const state = getViewState(identifier);
+    state.loading = loading;
+  }
+
+  function clearViewState() {
+    itemViewState.value.clear();
+  }
+
   return {
     currentView,
     currentItem,
@@ -49,6 +99,17 @@ export const useViewStore = defineStore('view', () => {
     setCurrentItem,
     setLastSelectedItem,
     clearLastSelectedItem,
-    getLastItemIdForDocument
+    getLastItemIdForDocument,
+    itemViewState,
+    getViewState,
+    setExpanded,
+    toggleExpanded,
+    setSelected,
+    setLoading,
+    clearViewState,
+    focusedItemId,
+    setFocusedItemId,
+    draggedItem,
+    setDraggedItem
   };
 });

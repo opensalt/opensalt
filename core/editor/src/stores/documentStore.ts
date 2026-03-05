@@ -9,6 +9,7 @@ import type {
   CaseDocumentListResponse,
   UUID
 } from '../types/case';
+import { useEditorContextStore } from './editorContextStore';
 
 // API response types (the api.get returns any type, so we define expected structure)
 interface ApiDocumentListResponse {
@@ -106,9 +107,17 @@ export const useDocumentStore = defineStore('documents', () => {
 
       documents.value = allDocuments;
 
-      // Store document metadata for cache validation
+      // Store document metadata for cache validation and lightweight resolution
+      const contextStore = useEditorContextStore();
       setDocumentsMetadata(allDocuments);
-
+      allDocuments.forEach(doc => {
+        contextStore.registerDocumentMetadata({
+          identifier: doc.identifier,
+          uri: doc.uri,
+          title: doc.title,
+          frameworkId: doc.identifier // Documents are their own framework
+        });
+      });
     } catch (err) {
       error.value = (err as Error).message || 'Failed to fetch documents';
       console.error('Error fetching documents:', err);
@@ -121,44 +130,36 @@ export const useDocumentStore = defineStore('documents', () => {
     }
   }
 
-  async function fetchDocument(identifier: UUID): Promise<CFPackage> {
-
-    // Phase 1: Check memory cache first
-    if (documentCache.has(identifier)) {
-      logger.debug('Memory cache hit for document:', identifier);
-      return documentCache.get(identifier)!;
-    }
+  /**
+   * Unified package loader that manages multiple loading states and delegates to editorContextStore
+   */
+  async function loadPackage(
+    identifier: UUID,
+    loadingRef?: Ref<boolean>,
+    errorRef?: Ref<string | null>
+  ): Promise<CFPackage> {
+    const contextStore = useEditorContextStore();
 
     // Check if request is already pending
     if (pendingRequests.has(identifier)) {
       return pendingRequests.get(identifier)!;
     }
 
-    loading.value = true;
-    error.value = null;
+    if (loadingRef) loadingRef.value = true;
+    if (errorRef) errorRef.value = null;
 
-    // Type guard to validate CFPackage response
-    function isCFPackage(response: unknown): response is CFPackage {
-      return (
-        typeof response === 'object' &&
-        response !== null &&
-        'CFDocument' in response
-      );
-    }
-
-    // Create request promise
     const requestPromise = (async (): Promise<CFPackage> => {
       try {
-        // Phase 2: Check persistent cache via IndexedDB
-        // Use pre-loaded metadata from /api/v1/documents to get server's lastChangeDateTime
-        // This avoids making an extra API call for metadata
+        // editorContextStore.loadPackage handles memory caching,
+        // but we still want to benefit from documentStore's documentsMetadata for cache validation
+        // (Wait, loadPackage in contextStore currently just calls API. 
+        // We should move the IndexedDB logic to contextStore or keep it here.)
+        // For Phase 1, let's keep the IndexedDB logic here for safety, 
+        // but ensure registries are populated.
+
         const serverLastChangeDateTime = documentsMetadata.get(identifier);
 
-        if (!serverLastChangeDateTime) {
-          logger.debug('Document metadata not found in pre-loaded list, fetching full document:', identifier);
-        }
-
-        // Check if we have a valid cached version in IndexedDB
+        // 1. Check persistent cache via IndexedDB
         const cachedFramework = await frameworkCacheService.getValidFramework(
           identifier,
           serverLastChangeDateTime || ''
@@ -166,209 +167,62 @@ export const useDocumentStore = defineStore('documents', () => {
 
         if (cachedFramework) {
           logger.debug('IndexedDB cache hit for document:', identifier);
-          // Store in memory cache for faster access next time
-          documentCache.set(identifier, cachedFramework);
-          loading.value = false;
+          // Manually populate context store registries from cached data
+          contextStore.loadedPackages.set(identifier, cachedFramework);
+          if (cachedFramework.CFDocument) {
+            contextStore.registerDocumentMetadata({
+              identifier: cachedFramework.CFDocument.identifier,
+              uri: cachedFramework.CFDocument.uri,
+              title: cachedFramework.CFDocument.title,
+              frameworkId: identifier
+            });
+          }
+          if (cachedFramework.CFItems) {
+            cachedFramework.CFItems.forEach(item => contextStore.registerItem(item, identifier));
+          }
+          if (cachedFramework.CFAssociations) {
+            cachedFramework.CFAssociations.forEach(assoc => contextStore.associationRegistry.set(assoc.identifier, { association: assoc, frameworkId: identifier }));
+            logger.debug(`[IndexedDB cache] Registered ${cachedFramework.CFAssociations.length} associations for ${identifier}, total registry: ${contextStore.associationRegistry.size}`);
+          }
           return cachedFramework;
         }
 
-        logger.debug('Cache miss for document, fetching from API:', identifier);
+        // 2. Fetch from API via contextStore
+        const pkg = await contextStore.loadPackage(identifier);
+        if (!pkg) throw new Error(`Failed to load package ${identifier}`);
 
-        // Phase 3: Fetch full document from API
-        const responseData = await api.get(`/ims/case/v1p1/CFPackages/${identifier}`);
-
-        // Validate response structure before type assertion
-        if (!isCFPackage(responseData)) {
-          throw new Error('Invalid response format: expected CFPackage structure');
-        }
-
-        // Safe to assert type after validation
-        const data: CFPackage = responseData as CFPackage;
-
-        // Cache result in memory
-        documentCache.set(identifier, data);
-
-        // Cache result in IndexedDB for persistence
+        // 3. Cache in IndexedDB
         try {
-          await frameworkCacheService.setFramework(identifier, data);
+          await frameworkCacheService.setFramework(identifier, pkg);
         } catch (cacheErr) {
-          // Log but don't fail if IndexedDB caching fails
           logger.warn('Failed to cache framework in IndexedDB:', cacheErr);
         }
 
-        return data;
+        return pkg;
       } catch (err) {
-        error.value = (err as Error).message || 'Failed to fetch document';
-        console.error('Error fetching document:', err);
+        const msg = (err as Error).message || 'Failed to load package';
+        if (errorRef) errorRef.value = msg;
         throw err;
       } finally {
-        loading.value = false;
+        if (loadingRef) loadingRef.value = false;
         pendingRequests.delete(identifier);
       }
     })();
 
-    // Store the pending request
     pendingRequests.set(identifier, requestPromise);
-
     return requestPromise;
   }
 
-  /**
-   * Fetch a document for the side panel (Copy Items / Create Associations modes)
-   * This uses a separate loading state so the main page doesn't show a spinner
-   */
+  async function fetchDocument(identifier: UUID): Promise<CFPackage> {
+    return loadPackage(identifier, loading, error);
+  }
+
   async function fetchSideDocument(identifier: UUID): Promise<CFPackage> {
-    console.log('[fetchSideDocument] Called for identifier:', identifier);
-
-    // Set loading state FIRST to ensure UI shows spinner immediately
-    loadingSideDocument.value = true;
-    sideDocError.value = null;
-    console.log('[fetchSideDocument] Set loadingSideDocument = true');
-
-    // Wait for Vue to process the loading state change before checking cache
-    // This ensures the spinner is shown even for cached documents
-    await nextTick();
-    console.log('[fetchSideDocument] After nextTick, loadingSideDocument =', loadingSideDocument.value);
-
-    // Check if request is already pending - return the existing promise
-    // The pending request will manage the loading state
-    if (pendingRequests.has(identifier)) {
-      console.log('[fetchSideDocument] Request already pending, returning existing promise');
-      return pendingRequests.get(identifier)!;
-    }
-
-    // Check cache after Vue has processed the loading state
-    if (documentCache.has(identifier)) {
-      console.log('[fetchSideDocument] Cache hit! Returning cached document');
-      const cachedDoc = documentCache.get(identifier)!;
-      loadingSideDocument.value = false;
-      return cachedDoc;
-    }
-
-    // Type guard to validate CFPackage response
-    function isCFPackage(response: unknown): response is CFPackage {
-      return (
-        typeof response === 'object' &&
-        response !== null &&
-        'CFDocument' in response
-      );
-    }
-
-    // Create request promise
-    const requestPromise = (async (): Promise<CFPackage> => {
-      try {
-        const responseData = await api.get(`/ims/case/v1p1/CFPackages/${identifier}`);
-
-        // Validate response structure before type assertion
-        if (!isCFPackage(responseData)) {
-          throw new Error('Invalid response format: expected CFPackage structure');
-        }
-
-        // Safe to assert type after validation
-        const data: CFPackage = responseData as CFPackage;
-
-        // Cache result
-        documentCache.set(identifier, data);
-
-        return data;
-      } catch (err) {
-        sideDocError.value = (err as Error).message || 'Failed to fetch side document';
-        console.error('Error fetching side document:', err);
-        throw err;
-      } finally {
-        loadingSideDocument.value = false;
-        pendingRequests.delete(identifier);
-      }
-    })();
-
-    // Store the pending request
-    pendingRequests.set(identifier, requestPromise);
-
-    return requestPromise;
+    return loadPackage(identifier, loadingSideDocument, sideDocError);
   }
 
-  /**
-   * NEW: Fetch a document for viewing (dual framework edit/view separation)
-   * Similar to fetchDocument but uses separate loading state for viewed documents
-   * Uses the existing caching mechanism and IndexedDB persistence
-   */
   async function fetchViewedDocument(identifier: UUID): Promise<CFPackage> {
-    // Check memory cache first
-    if (documentCache.has(identifier)) {
-      logger.debug('Memory cache hit for viewed document:', identifier);
-      return documentCache.get(identifier)!;
-    }
-
-    // Check if request is already pending
-    if (pendingRequests.has(identifier)) {
-      return pendingRequests.get(identifier)!;
-    }
-
-    loadingViewedDocument.value = true;
-    viewedDocError.value = null;
-
-    // Type guard to validate CFPackage response
-    function isCFPackage(response: unknown): response is CFPackage {
-      return (
-        typeof response === 'object' &&
-        response !== null &&
-        'CFDocument' in response
-      );
-    }
-
-    // Create request promise
-    const requestPromise = (async (): Promise<CFPackage> => {
-      try {
-        // Check persistent cache via IndexedDB
-        const serverLastChangeDateTime = documentsMetadata.get(identifier);
-
-        const cachedFramework = await frameworkCacheService.getValidFramework(
-          identifier,
-          serverLastChangeDateTime || ''
-        ) as CFPackage | null;
-
-        if (cachedFramework) {
-          logger.debug('IndexedDB cache hit for viewed document:', identifier);
-          documentCache.set(identifier, cachedFramework);
-          return cachedFramework;
-        }
-
-        logger.debug('Cache miss for viewed document, fetching from API:', identifier);
-
-        // Fetch from API
-        const responseData = await api.get(`/ims/case/v1p1/CFPackages/${identifier}`);
-
-        if (!isCFPackage(responseData)) {
-          throw new Error('Invalid response format: expected CFPackage structure');
-        }
-
-        const data: CFPackage = responseData as CFPackage;
-
-        // Cache result
-        documentCache.set(identifier, data);
-
-        // Cache in IndexedDB for persistence
-        try {
-          await frameworkCacheService.setFramework(identifier, data);
-        } catch (cacheErr) {
-          logger.warn('Failed to cache viewed framework in IndexedDB:', cacheErr);
-        }
-
-        return data;
-      } catch (err) {
-        viewedDocError.value = (err as Error).message || 'Failed to fetch viewed document';
-        logger.error('Error fetching viewed document:', err);
-        throw err;
-      } finally {
-        loadingViewedDocument.value = false;
-        pendingRequests.delete(identifier);
-      }
-    })();
-
-    // Store the pending request
-    pendingRequests.set(identifier, requestPromise);
-
-    return requestPromise;
+    return loadPackage(identifier, loadingViewedDocument, viewedDocError);
   }
 
   /**

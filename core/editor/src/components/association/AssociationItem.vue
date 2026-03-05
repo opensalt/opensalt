@@ -84,6 +84,7 @@ import { computed, ref, onMounted, toRef, watch } from 'vue';
 import { useCrossFrameworkItem } from '../../composables/useCrossFrameworkItem';
 import { useRelatedFrameworksQueue } from '../../composables/useRelatedFrameworksQueue.js';
 import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
+import { useEditorContextStore } from '@/stores/editorContextStore';
 
 // Lazy-loaded markdown renderer with caching
 let markdownRendererPromise = null;
@@ -138,20 +139,36 @@ const emit = defineEmits(['edit', 'delete']);
 // Use the related frameworks queue composable
 const { getQueueStatus } = useRelatedFrameworksQueue();
 
-// Access current document store for resolving source framework titles
+// Access stores for resolving source framework titles
 const currentDocumentStore = useCurrentDocumentStore();
+const contextStore = useEditorContextStore();
 
-// Check if this association comes from a different framework (has CFDocumentURI set by mergedAssociations)
+// Check if this association comes from a different framework than the one being viewed
 const isCrossFrameworkAssoc = computed(() => {
-  return !!props.association.CFDocumentURI;
+  // _sourceFrameworkId is set by our mergedAssociations logic
+  // Fall back to CASE CFDocumentURI.identifier for associations from AssociationView
+  const assocFrameworkId = props.association._sourceFrameworkId
+    || props.association.CFDocumentURI?.identifier
+    || (typeof props.association.CFDocumentURI === 'string' ? props.association.CFDocumentURI : null);
+  if (!assocFrameworkId) return false;
+
+  const displayedFrameworkId = contextStore.isViewingDifferentFramework
+    ? contextStore.viewedDocumentId
+    : contextStore.activeWriteDocumentId;
+
+  return assocFrameworkId !== displayedFrameworkId;
 });
 
-// Resolve the source framework title from the associatedDocuments cache
+// Resolve the source framework title from the centralized document registry
 const sourceFrameworkTitle = computed(() => {
-  const frameworkId = props.association.CFDocumentURI;
+  if (!isCrossFrameworkAssoc.value) return null;
+
+  const frameworkId = props.association._sourceFrameworkId
+    || props.association.CFDocumentURI?.identifier
+    || (typeof props.association.CFDocumentURI === 'string' ? props.association.CFDocumentURI : null);
   if (!frameworkId) return null;
 
-  const doc = currentDocumentStore.associatedDocuments.get(frameworkId);
+  const doc = contextStore.documentRegistry.get(frameworkId);
   return doc?.title || null;
 });
 
