@@ -10,6 +10,7 @@ import type {
   UUID
 } from '../types/case';
 import { useEditorContextStore } from './editorContextStore';
+import { useCurrentDocumentStore } from './currentDocumentStore';
 
 // API response types (the api.get returns any type, so we define expected structure)
 interface ApiDocumentListResponse {
@@ -43,7 +44,7 @@ export const useDocumentStore = defineStore('documents', () => {
 
   // Request deduplication cache
   const pendingRequests = new Map<UUID, Promise<CFPackage>>();
-  const documentCache = new Map<UUID, CFPackage>(); // Cache fetched documents
+  const revalidatingRequests = new Set<UUID>();
 
   // Documents metadata from /api/v1/documents endpoint (includes lastChangeDateTime)
   const documentsMetadata = new Map<UUID, string>(); // identifier -> lastChangeDateTime
@@ -131,7 +132,38 @@ export const useDocumentStore = defineStore('documents', () => {
   }
 
   /**
-   * Unified package loader that manages multiple loading states and delegates to editorContextStore
+   * Helper to populate centralized registries from a CFPackage
+   */
+  function populateRegistries(identifier: UUID, pkg: CFPackage): void {
+    const contextStore = useEditorContextStore();
+    contextStore.loadedPackages.set(identifier, pkg);
+
+    if (pkg.CFDocument) {
+      contextStore.registerDocumentMetadata({
+        identifier: pkg.CFDocument.identifier,
+        uri: pkg.CFDocument.uri,
+        title: pkg.CFDocument.title,
+        frameworkId: identifier
+      });
+    }
+
+    if (pkg.CFItems) {
+      pkg.CFItems.forEach(item => contextStore.registerItem(item, identifier));
+    }
+
+    if (pkg.CFAssociations) {
+      pkg.CFAssociations.forEach(assoc => {
+        contextStore.associationRegistry.set(assoc.identifier, {
+          association: assoc,
+          frameworkId: identifier
+        });
+      });
+      logger.debug(`[Registry] Populated ${pkg.CFAssociations.length} associations for ${identifier}`);
+    }
+  }
+
+  /**
+   * Unified package loader that manages multiple loading states and implements Stale-While-Revalidate
    */
   async function loadPackage(
     identifier: UUID,
@@ -140,58 +172,51 @@ export const useDocumentStore = defineStore('documents', () => {
   ): Promise<CFPackage> {
     const contextStore = useEditorContextStore();
 
-    // Check if request is already pending
+    // Check if a MISSION-CRITICAL request is already pending (meaning we have NO data yet)
     if (pendingRequests.has(identifier)) {
       return pendingRequests.get(identifier)!;
     }
 
+    // 1. Try to get ANY cached version from IndexedDB (even if stale)
+    const cachedEntry = await frameworkCacheService.getFramework(identifier) as any;
+    const serverLastChangeDateTime = documentsMetadata.get(identifier);
+
+    // Check if the cached entry exists and is fresh
+    let isFresh = false;
+    if (cachedEntry) {
+      isFresh = await frameworkCacheService.isCacheValid(
+        identifier,
+        serverLastChangeDateTime || ''
+      );
+    }
+
+    if (cachedEntry) {
+      const pkg = cachedEntry.data as CFPackage;
+
+      // Populate registries immediately so UI can show data
+      populateRegistries(identifier, pkg);
+
+      if (isFresh) {
+        logger.debug('IndexedDB cache hit (fresh) for document:', identifier);
+        return pkg;
+      }
+
+      // Stale cache: Start background revalidation and return stale data immediately
+      logger.debug('IndexedDB cache hit (stale) for document:', identifier, '- Starting revalidation');
+      revalidatePackage(identifier);
+      return pkg;
+    }
+
+    // 2. Cache Miss: We must fetch from API before returning anything
     if (loadingRef) loadingRef.value = true;
     if (errorRef) errorRef.value = null;
 
     const requestPromise = (async (): Promise<CFPackage> => {
       try {
-        // editorContextStore.loadPackage handles memory caching,
-        // but we still want to benefit from documentStore's documentsMetadata for cache validation
-        // (Wait, loadPackage in contextStore currently just calls API. 
-        // We should move the IndexedDB logic to contextStore or keep it here.)
-        // For Phase 1, let's keep the IndexedDB logic here for safety, 
-        // but ensure registries are populated.
-
-        const serverLastChangeDateTime = documentsMetadata.get(identifier);
-
-        // 1. Check persistent cache via IndexedDB
-        const cachedFramework = await frameworkCacheService.getValidFramework(
-          identifier,
-          serverLastChangeDateTime || ''
-        ) as CFPackage | null;
-
-        if (cachedFramework) {
-          logger.debug('IndexedDB cache hit for document:', identifier);
-          // Manually populate context store registries from cached data
-          contextStore.loadedPackages.set(identifier, cachedFramework);
-          if (cachedFramework.CFDocument) {
-            contextStore.registerDocumentMetadata({
-              identifier: cachedFramework.CFDocument.identifier,
-              uri: cachedFramework.CFDocument.uri,
-              title: cachedFramework.CFDocument.title,
-              frameworkId: identifier
-            });
-          }
-          if (cachedFramework.CFItems) {
-            cachedFramework.CFItems.forEach(item => contextStore.registerItem(item, identifier));
-          }
-          if (cachedFramework.CFAssociations) {
-            cachedFramework.CFAssociations.forEach(assoc => contextStore.associationRegistry.set(assoc.identifier, { association: assoc, frameworkId: identifier }));
-            logger.debug(`[IndexedDB cache] Registered ${cachedFramework.CFAssociations.length} associations for ${identifier}, total registry: ${contextStore.associationRegistry.size}`);
-          }
-          return cachedFramework;
-        }
-
-        // 2. Fetch from API via contextStore
         const pkg = await contextStore.loadPackage(identifier);
         if (!pkg) throw new Error(`Failed to load package ${identifier}`);
 
-        // 3. Cache in IndexedDB
+        // Cache in IndexedDB
         try {
           await frameworkCacheService.setFramework(identifier, pkg);
         } catch (cacheErr) {
@@ -211,6 +236,47 @@ export const useDocumentStore = defineStore('documents', () => {
 
     pendingRequests.set(identifier, requestPromise);
     return requestPromise;
+  }
+
+  /**
+   * Perform background revalidation for a package
+   */
+  async function revalidatePackage(identifier: UUID): Promise<void> {
+    if (revalidatingRequests.has(identifier)) return;
+    revalidatingRequests.add(identifier);
+
+    try {
+      const contextStore = useEditorContextStore();
+
+      // Fetch fresh version from API
+      // We use contextStore.loadPackage directly to bypass our own SWR logic here
+      const pkg = await contextStore.loadPackage(identifier);
+
+      if (pkg) {
+        // Update IndexedDB
+        await frameworkCacheService.setFramework(identifier, pkg);
+
+        // Update memory registries (reactive update)
+        // Note: populateRegistries handles contextStore.loadedPackages.set
+        populateRegistries(identifier, pkg);
+
+        logger.debug('Background revalidation complete for:', identifier);
+
+        // If this is the active document, we should tell currentDocumentStore to refresh its transformation
+        if (contextStore.activeWriteDocumentId === identifier) {
+          const currentDocumentStore = useCurrentDocumentStore();
+          // We'll need to define this refresh method next
+          if (typeof (currentDocumentStore as any).reloadActiveDocument === 'function') {
+            (currentDocumentStore as any).reloadActiveDocument();
+          }
+        }
+      }
+    } catch (err) {
+      // Ignore errors during revalidation as requested ("ignoring... if error")
+      logger.warn('Background revalidation failed for:', identifier, err);
+    } finally {
+      revalidatingRequests.delete(identifier);
+    }
   }
 
   async function fetchDocument(identifier: UUID): Promise<CFPackage> {
@@ -267,12 +333,11 @@ export const useDocumentStore = defineStore('documents', () => {
   async function fetchDocumentWithFallback(url: string): Promise<unknown> {
     const uuid = extractUuidFromUri(url);
 
-    // If we have a UUID, try local server first
+    // If we have a UUID, try local server first (with caching)
     if (uuid) {
       try {
-        const localUrl = `/ims/case/v1p1/CFDocuments/${uuid}`;
-        const localResponse = await api.get(localUrl);
-        logger.debug(`Local fetch succeeded for document ${uuid}`);
+        const localResponse = await loadPackage(uuid);
+        logger.debug(`Local fetch (cached) succeeded for document ${uuid}`);
         return localResponse;
       } catch (localError) {
         // Local fetch failed, continue to try original URL
@@ -290,12 +355,11 @@ export const useDocumentStore = defineStore('documents', () => {
   async function fetchPackageWithFallback(url: string): Promise<unknown> {
     const uuid = extractUuidFromUri(url);
 
-    // If we have a UUID, try local server first
+    // If we have a UUID, try local server first (with caching)
     if (uuid) {
       try {
-        const localUrl = `/ims/case/v1p1/CFPackages/${uuid}`;
-        const localResponse = await api.get(localUrl);
-        logger.debug(`Local fetch succeeded for package ${uuid}`);
+        const localResponse = await loadPackage(uuid);
+        logger.debug(`Local fetch (cached) succeeded for package ${uuid}`);
         return localResponse;
       } catch (localError) {
         // Local fetch failed, continue to try original URL
@@ -435,19 +499,19 @@ export const useDocumentStore = defineStore('documents', () => {
   }
 
   /**
-   * Check if a document is cached
+   * Check if a document is cached in memory
    * @param {UUID} identifier - Document identifier
-   * @returns {boolean} - True if document is cached
+   * @returns {boolean} - True if document is in memory
    */
   function isDocumentCached(identifier: UUID): boolean {
-    return documentCache.has(identifier);
+    const contextStore = useEditorContextStore();
+    return contextStore.loadedPackages.has(identifier);
   }
 
   return {
     documents,
     loading,
     error,
-    documentCache,
     loadingSideDocument,
     sideDocError,
     fetchDocuments,
@@ -458,6 +522,7 @@ export const useDocumentStore = defineStore('documents', () => {
     clearError,
     clearSideDocError,
     resetLoadingSideDocument,
+    loadPackage,
     isDocumentCached,
     setDocumentsMetadata,
     // NEW: Viewed document state and actions (dual framework edit/view separation)

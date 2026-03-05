@@ -715,7 +715,7 @@ async function onViewedDocumentChanged(id) {
   }
 
   try {
-    const pkg = await contextStore.loadPackage(documentId);
+    const pkg = await documentStore.loadPackage(documentId);
     if (pkg && pkg.CFDocument) {
       contextStore.viewedDocumentId = documentId;
     }

@@ -9,6 +9,7 @@ import { logger } from '../utils/logger.js';
 const DB_NAME = 'opensalt-framework-cache';
 const DB_VERSION = 1;
 const STORE_NAME = 'frameworks';
+const RELATED_STORE_NAME = 'related_frameworks';
 const CACHE_MAX_AGE_MS = 86400000; // 1 day in milliseconds
 
 /**
@@ -55,8 +56,14 @@ class FrameworkCacheService {
 
         // Create the frameworks object store with id as keyPath
         if (!database.objectStoreNames.contains(STORE_NAME)) {
-          const store = database.createObjectStore(STORE_NAME, { keyPath: 'id' });
+          database.createObjectStore(STORE_NAME, { keyPath: 'id' });
           logger.debug('Created frameworks object store in IndexedDB');
+        }
+
+        // Create the related frameworks object store
+        if (!database.objectStoreNames.contains(RELATED_STORE_NAME)) {
+          database.createObjectStore(RELATED_STORE_NAME, { keyPath: 'id' });
+          logger.debug('Created related_frameworks object store in IndexedDB');
         }
       };
     });
@@ -289,6 +296,66 @@ class FrameworkCacheService {
 
     const entry = await this.getFramework(documentId);
     return entry ? entry.data : null;
+  }
+
+  /**
+   * Get cached related frameworks for a document
+   * @param {string} documentId - The document UUID
+   * @returns {Promise<Array|null>} - Cached related frameworks or null
+   */
+  async getRelatedFrameworks(documentId) {
+    if (!documentId) return null;
+
+    const database = await this.openDatabase();
+    if (!database) return null;
+
+    return new Promise((resolve) => {
+      try {
+        const transaction = database.transaction([RELATED_STORE_NAME], 'readonly');
+        const store = transaction.objectStore(RELATED_STORE_NAME);
+        const request = store.get(documentId);
+
+        request.onerror = () => resolve(null);
+        request.onsuccess = (event) => {
+          const result = event.target.result;
+          resolve(result ? result.data : null);
+        };
+      } catch (error) {
+        resolve(null);
+      }
+    });
+  }
+
+  /**
+   * Set cached related frameworks for a document
+   * @param {string} documentId - The document UUID
+   * @param {Array} relatedFrameworks - Array of related frameworks
+   * @returns {Promise<boolean>} - Success or failure
+   */
+  async setRelatedFrameworks(documentId, relatedFrameworks) {
+    if (!documentId || !relatedFrameworks) return false;
+
+    const database = await this.openDatabase();
+    if (!database) return false;
+
+    const cacheEntry = {
+      id: documentId,
+      data: relatedFrameworks,
+      cachedAt: Date.now()
+    };
+
+    return new Promise((resolve) => {
+      try {
+        const transaction = database.transaction([RELATED_STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(RELATED_STORE_NAME);
+        const request = store.put(cacheEntry);
+
+        request.onerror = () => resolve(false);
+        request.onsuccess = () => resolve(true);
+      } catch (error) {
+        resolve(false);
+      }
+    });
   }
 }
 

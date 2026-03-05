@@ -593,6 +593,44 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     viewStore.setCurrentItem(item);
   }
 
+  /**
+   * Reload the active document from the central registry
+   * and re-run transformations (used after background revalidation)
+   */
+  function reloadActiveDocument() {
+    const id = contextStore.activeWriteDocumentId;
+    if (!id) return;
+
+    const pkg = contextStore.loadedPackages.get(id);
+    if (!pkg || !pkg.CFDocument) return;
+
+    logger.debug('[currentDocumentStore] Reloading active document from fresh registry data');
+
+    // 1. Transform items using fresh package data
+    const items = transformCASEItems(
+      pkg.CFItems || [],
+      pkg.CFAssociations || [],
+      pkg.CFDocument.identifier
+    );
+
+    // 2. Prepare transformed document (mirroring useDocumentLoader logic)
+    const transformedDoc = {
+      ...pkg.CFDocument,
+      id: pkg.CFDocument.identifier,
+      items: items,
+      // Ensure specific fields required by UI are mapped
+      lastModified: pkg.CFDocument.lastChangeDateTime || ''
+    };
+
+    // 3. Re-select the document (this updates everything reactively)
+    selectDocument(
+      transformedDoc as any,
+      pkg.CFDefinitions?.CFAssociationGroupings || [],
+      pkg.CFAssociations || [],
+      pkg.CFDefinitions || null
+    );
+  }
+
   return {
     currentDocument,
     currentDocumentDefinitions,
@@ -600,6 +638,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     currentDocumentAssociationGroupings,
     associationGroups,
     selectDocument,
+    reloadActiveDocument,
     clearCurrentDocument,
     transformCASEItems,
     updateItems,

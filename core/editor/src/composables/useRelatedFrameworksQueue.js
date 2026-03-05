@@ -12,6 +12,7 @@ import { useDocumentStore } from '../stores/documentStore';
 import { useCurrentDocumentStore } from '../stores/currentDocumentStore';
 import { useEditorContextStore } from '../stores/editorContextStore';
 import { api } from '../services/api.js';
+import { frameworkCacheService } from '../services/frameworkCacheService.js';
 import { logger } from '../utils/logger.js';
 
 // Constants from design document
@@ -271,8 +272,8 @@ export function useRelatedFrameworksQueue() {
       updateFetchStatus(identifier, FETCH_STATUS.LOADING);
       item.lastAttempt = new Date();
 
-      // Fetch document using contextStore (which populates registries and caches)
-      const pkg = await contextStore.loadPackage(identifier);
+      // Fetch document using documentStore (which handles IndexedDB cache OR API load via contextStore)
+      const pkg = await documentStore.loadPackage(identifier);
       if (!pkg) {
         throw new Error(`Failed to load package ${identifier}`);
       }
@@ -486,40 +487,69 @@ export function useRelatedFrameworksQueue() {
     logger.debug(`Set HIGH priority for ${associatedIds.length} associated frameworks`);
   }
 
-  /**
-   * Fetch related documents for a document and add to queue
-   * @param {string} identifier - Document identifier
-   * @returns {Promise<Array>} - Array of related documents
-   */
   async function fetchAndQueueRelatedDocuments(identifier) {
     try {
       logger.debug(`Fetching related documents for ${identifier}`);
-      logger.debug('About to call api.getRelatedDocuments');
-      const relatedDocs = await api.getRelatedDocuments(identifier);
-      logger.debug(`Related documents response:`, relatedDocs);
 
-      if (!Array.isArray(relatedDocs)) {
-        logger.warn('Related documents response is not an array:', relatedDocs);
-        return [];
+      // 1. Check cache first and queue if found to allow immediate processing
+      const cachedDocs = await frameworkCacheService.getRelatedFrameworks(identifier);
+      if (cachedDocs && Array.isArray(cachedDocs)) {
+        logger.debug(`Found ${cachedDocs.length} cached related documents for ${identifier}`);
+        cachedDocs.forEach(doc => {
+          addToQueue({
+            identifier: doc.identifier,
+            uri: doc.uri,
+            CFPackageURI: doc.CFPackageURI,
+            title: doc.title || doc.identifier,
+            priority: PRIORITY.NORMAL
+          });
+        });
+
+        // Start processing cached items immediately while we revalidate
+        if (cachedDocs.length > 0) {
+          startQueue();
+        }
       }
 
-      logger.debug(`Adding ${relatedDocs.length} related documents to queue`);
-      // Add all related documents to queue with NORMAL priority
-      relatedDocs.forEach(doc => {
-        addToQueue({
-          identifier: doc.identifier,
-          uri: doc.uri,
-          CFPackageURI: doc.CFPackageURI,
-          title: doc.title || doc.identifier,
-          priority: PRIORITY.NORMAL
-        });
-      });
+      // 2. Fetch fresh from API (revalidate)
+      logger.debug('About to call api.getRelatedDocuments for fresh data');
 
-      logger.debug(`fetchAndQueueRelatedDocuments completed for ${identifier}`);
-      return relatedDocs;
+      try {
+        const relatedDocs = await api.getRelatedDocuments(identifier);
+        logger.debug(`Related documents response:`, relatedDocs);
+
+        if (Array.isArray(relatedDocs)) {
+          // 3. Update cache with fresh data
+          await frameworkCacheService.setRelatedFrameworks(identifier, relatedDocs);
+
+          // 4. Add all fresh related documents to queue
+          // addToQueue already handles duplicates, so this will only add brand new ones
+          relatedDocs.forEach(doc => {
+            addToQueue({
+              identifier: doc.identifier,
+              uri: doc.uri,
+              CFPackageURI: doc.CFPackageURI,
+              title: doc.title || doc.identifier,
+              priority: PRIORITY.NORMAL
+            });
+          });
+
+          // Ensure queue is running for newly added items
+          startQueue();
+          return relatedDocs;
+        } else {
+          logger.warn('Related documents response is not an array:', relatedDocs);
+          return cachedDocs || [];
+        }
+      } catch (err) {
+        // "ignoring using the new version if there is an error"
+        // If revalidation fails, we just keep using what we got from cache
+        logger.warn(`Failed to fetch fresh related documents for ${identifier}, continuing with cache:`, err);
+        return cachedDocs || [];
+      }
 
     } catch (error) {
-      logger.error(`Failed to fetch related documents for ${identifier}:`, error);
+      logger.error(`Error in fetchAndQueueRelatedDocuments for ${identifier}:`, error);
       return [];
     }
   }
