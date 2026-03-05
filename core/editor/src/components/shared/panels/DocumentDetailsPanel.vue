@@ -190,12 +190,14 @@ const props = defineProps({
 
 import { useSessionStore } from '../../../stores/sessionStore';
 import { useCurrentDocumentStore } from '../../../stores/currentDocumentStore';
+import { useEditorContextStore } from '../../../stores/editorContextStore';
 
 const sessionStore = useSessionStore();
 const isReadOnly = computed(() => props.isViewingDifferentFramework || props.document?.isReadOnly || !sessionStore.isAuthenticated);
 
 // Get license name from definitions
 const currentDocumentStore = useCurrentDocumentStore();
+const contextStore = useEditorContextStore();
 const licenseName = computed(() => {
   if (!props.document?.licenseURI?.identifier) {
     return null;
@@ -251,51 +253,54 @@ function formatDate(dateString) {
 
 // Cached item count to avoid recomputation on every render
 const cachedItemCount = ref(0);
-const cachedAssociationCount = ref(0);
 
-// Recursive function to count all items in the hierarchy
+// Recursive function to count items in the hierarchy, excluding cross-framework placeholders
 function countItemsRecursively(items) {
   if (!items || !Array.isArray(items)) return 0;
 
   let count = 0;
   for (const item of items) {
-    count += 1; // Count this item
+    // Skip cross-framework placeholder items — they belong to other frameworks
+    if (item.isCrossFramework) continue;
+    count += 1;
     if (item.children && item.children.length > 0) {
-      count += countItemsRecursively(item.children); // Recursively count children
+      count += countItemsRecursively(item.children);
     }
   }
   return count;
 }
 
-// Function to count associations
-function countAssociations(items) {
-  if (!items || !Array.isArray(items)) return 0;
-  return items.reduce((total, item) => {
-    const itemAssociations = (item.associations?.filter(assoc =>
-      assoc.type !== 'isChildOf'
-    ).length || 0);
-    const childAssociations = item.children ? countAssociations(item.children) : 0;
-    return total + itemAssociations + childAssociations;
-  }, 0);
-}
-
-// Watch for changes in document items and update cached counts
+// Watch for changes in document items and update cached item count
 watch(
   () => props.document?.items,
   (newItems) => {
     cachedItemCount.value = countItemsRecursively(newItems);
-    cachedAssociationCount.value = countAssociations(newItems);
   },
   { immediate: true, deep: true }
 );
 
-// Document statistics - use cached values
+// Document statistics
 const itemCount = computed(() => cachedItemCount.value);
 
-const associationCount = computed(() => cachedAssociationCount.value);
+// Count associations from the raw package data in the context store.
+// The tree nodes don't carry associations, so we read CFAssociations from
+// the loaded package and count non-isChildOf ones.
+const associationCount = computed(() => {
+  const docId = props.document?.identifier || props.document?.id;
+  if (!docId) return 0;
 
+  const pkg = contextStore.loadedPackages.get(docId);
+  if (!pkg?.CFAssociations) return 0;
+
+  return pkg.CFAssociations.filter(
+    assoc => assoc.associationType !== 'isChildOf'
+  ).length;
+});
+
+// Count actual association groupings from the store, not the synthetic groups
+// (which always include 'All Groups' and 'Default Group').
 const associationGroupCount = computed(() => {
-  return props.associationGroups?.length || 0;
+  return currentDocumentStore.currentDocumentAssociationGroupings?.length || 0;
 });
 </script>
 
