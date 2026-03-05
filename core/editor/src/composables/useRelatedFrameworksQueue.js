@@ -514,54 +514,75 @@ export function useRelatedFrameworksQueue() {
         }
       }
 
-      // 2. Fetch fresh from API (revalidate)
+      // 2. If already fetched from API this session, no revalidation needed — return immediately
       if (sessionFetchedFrameworks.has(identifier)) {
         logger.debug(`Already verified related documents for ${identifier} in this session, using cache`);
         return cachedDocs || [];
       }
 
-      logger.debug('About to call api.getRelatedDocuments for fresh data');
-
-      try {
-        const relatedDocs = await api.getRelatedDocuments(identifier);
-        logger.debug(`Related documents response:`, relatedDocs);
-
-        if (Array.isArray(relatedDocs)) {
-          // Mark as fetched from API during this session
-          sessionFetchedFrameworks.add(identifier);
-
-          // 3. Update cache with fresh data
-          await frameworkCacheService.setRelatedFrameworks(identifier, relatedDocs);
-
-          // 4. Add all fresh related documents to queue
-          // addToQueue already handles duplicates, so this will only add brand new ones
-          relatedDocs.forEach(doc => {
-            addToQueue({
-              identifier: doc.identifier,
-              uri: doc.uri,
-              CFPackageURI: doc.CFPackageURI,
-              title: doc.title || doc.identifier,
-              priority: PRIORITY.NORMAL
-            });
-          });
-
-          // Ensure queue is running for newly added items
-          startQueue();
-          return relatedDocs;
-        } else {
-          logger.warn('Related documents response is not an array:', relatedDocs);
-          return cachedDocs || [];
-        }
-      } catch (err) {
-        // "ignoring using the new version if there is an error"
-        // If revalidation fails, we just keep using what we got from cache
-        logger.warn(`Failed to fetch fresh related documents for ${identifier}, continuing with cache:`, err);
-        return cachedDocs || [];
+      // 3. If we have cached data, fire revalidation in the background (don't block the caller)
+      //    so the queue can start processing immediately with fresh-enough data.
+      if (cachedDocs && cachedDocs.length > 0) {
+        logger.debug(`Cache hit for ${identifier} — revalidating in background`);
+        revalidateRelatedDocuments(identifier, cachedDocs).catch(err => {
+          logger.warn(`Background revalidation failed for ${identifier}:`, err);
+        });
+        return cachedDocs;
       }
+
+      // 4. No cache — must fetch synchronously so the caller gets useful data
+      logger.debug('No cache found, fetching api.getRelatedDocuments synchronously for:', identifier);
+      return await revalidateRelatedDocuments(identifier, null);
 
     } catch (error) {
       logger.error(`Error in fetchAndQueueRelatedDocuments for ${identifier}:`, error);
       return [];
+    }
+  }
+
+  /**
+   * Fetch fresh related documents from the API and update the cache/queue.
+   * This runs asynchronously when called from a cache-hit path.
+   * @param {string} identifier - Document identifier
+   * @param {Array|null} existingCachedDocs - Previously cached docs (for fallback on error)
+   * @returns {Promise<Array>}
+   */
+  async function revalidateRelatedDocuments(identifier, existingCachedDocs) {
+    try {
+      logger.debug('About to call api.getRelatedDocuments for fresh data');
+      const relatedDocs = await api.getRelatedDocuments(identifier);
+      logger.debug(`Related documents response:`, relatedDocs);
+
+      if (Array.isArray(relatedDocs)) {
+        // Mark as fetched from API during this session
+        sessionFetchedFrameworks.add(identifier);
+
+        // Update cache with fresh data
+        await frameworkCacheService.setRelatedFrameworks(identifier, relatedDocs);
+
+        // Add all fresh related documents to queue
+        // addToQueue already handles duplicates, so this will only add brand new ones
+        relatedDocs.forEach(doc => {
+          addToQueue({
+            identifier: doc.identifier,
+            uri: doc.uri,
+            CFPackageURI: doc.CFPackageURI,
+            title: doc.title || doc.identifier,
+            priority: PRIORITY.NORMAL
+          });
+        });
+
+        // Ensure queue is running for newly added items
+        startQueue();
+        return relatedDocs;
+      } else {
+        logger.warn('Related documents response is not an array:', relatedDocs);
+        return existingCachedDocs || [];
+      }
+    } catch (err) {
+      // If revalidation fails, we keep using what we already have from cache
+      logger.warn(`Failed to fetch fresh related documents for ${identifier}, continuing with cache:`, err);
+      return existingCachedDocs || [];
     }
   }
 
