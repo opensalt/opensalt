@@ -525,6 +525,7 @@ export const useDocumentStore = defineStore('documents', () => {
     loadPackage,
     isDocumentCached,
     setDocumentsMetadata,
+    revalidatePackage,
     // NEW: Viewed document state and actions (dual framework edit/view separation)
     loadingViewedDocument,
     viewedDocError,

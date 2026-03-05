@@ -161,6 +161,7 @@ import { useAnnouncer } from '../../composables/useAnnouncer.js';
 import { useDynamicEditModal } from '../../composables/useDynamicEditModal.js';
 import { useModalState } from '../../composables/useModalState.js';
 import { useSideDocument } from '../../composables/useSideDocument.js';
+import { useMercureNotifications } from '../../composables/useMercureNotifications.js';
 
 import { useDocumentLoader } from '../../composables/useDocumentLoader.js';
 import { logger } from '../../utils/logger.js';
@@ -366,6 +367,9 @@ const {
   }
 });
 
+// Initialize Mercure notifications for live updates
+const { connect: connectMercure } = useMercureNotifications();
+
 // Panel modes
 const rightPanelMode = ref('itemDetails');
 
@@ -558,6 +562,9 @@ watch(() => doc.value?.id, (newDocId, oldDocId) => {
     expandItem(newDocId);
     // Initialize focus on the document root
     initializeFocus();
+    
+    // Connect to Mercure for real-time updates
+    connectMercure(newDocId);
 
   // Handle scrolling when document is loaded and we have a selected item
   if (newDocId !== oldDocId && (viewStore.currentItem?.identifier || route.params.itemId)) {

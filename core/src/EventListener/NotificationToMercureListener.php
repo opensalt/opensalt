@@ -57,6 +57,7 @@ class NotificationToMercureListener implements EventSubscriberInterface
             return;
         }
         $docId = $doc->getId();
+        $docUuid = $doc->getIdentifier();
 
         $notification = [
             'msgId' => $event->getMessageId(),
@@ -66,10 +67,14 @@ class NotificationToMercureListener implements EventSubscriberInterface
             'at' => (int) new \DateTime()->format('Uv'),
         ];
 
-        $this->addDocChangeToMercure($notification, $docId);
+        $topics = [
+            'doc-updates/' . $docId,
+            'doc-updates/' . $docUuid,
+        ];
+        $this->addDocChangeToMercure($notification, $topics);
     }
 
-    protected function addDocChangeToMercure(array $notification, int $docId): void
+    protected function addDocChangeToMercure(array $notification, array|string|int $topics): void
     {
         $this->info('Sending to Mercure', [
             'msg' => $notification['msg'],
@@ -78,7 +83,7 @@ class NotificationToMercureListener implements EventSubscriberInterface
         ]);
 
         $update = new Update(
-            'doc-updates/' . $docId,
+            $topics,
             json_encode($notification, JSON_THROW_ON_ERROR),
             false
         );
