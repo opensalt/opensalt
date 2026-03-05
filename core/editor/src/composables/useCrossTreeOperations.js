@@ -52,47 +52,45 @@ export function useCrossTreeOperations(options = {}) {
     if (event.type === 'move') {
       const { draggedItem, targetItem, position } = event;
 
-      // Check if it's internal or cross-tree
+      // Check for drop on same item
+      if (draggedItem.identifier === targetItem.identifier) return;
+
+      // NEW: Check mode first to determine operation type
+      if (rightPanelMode?.value === 'createAssociations') {
+        // Always create association when in createAssociations mode
+        if (associationOrigin) {
+          associationOrigin.value = draggedItem;
+        }
+        if (associationDestination) {
+          associationDestination.value = targetItem;
+        }
+        if (showAssociateModal) {
+          showAssociateModal.value = true;
+        }
+        return { isInternal: false, action: 'associate' };
+      } else if (rightPanelMode?.value === 'copyItems') {
+        // Always copy when in copyItems mode
+        crossTreeSource.value = draggedItem;
+        crossTreeTarget.value = targetItem;
+        crossTreePosition.value = position;
+        showCrossTreeModal.value = true;
+        return { isInternal: false, action: 'copy' };
+      }
+
+      // Only check document IDs for default behavior (Item Details mode)
       const draggedDocId = draggedItem.CFDocumentURI?.identifier || draggedItem.documentId;
       const targetDocId = currentDoc?.value?.id;
 
-      // Check for drop on same item type
-      if (draggedItem.identifier === targetItem.identifier) return;
-
       if (draggedDocId === targetDocId) {
         // Internal move - not handled by this composable
-        // This should be handled by the item store directly
         return { isInternal: true, draggedItem, targetItem, position };
       } else {
-        // Cross-tree move (Copy/Associate)
-        // Determine action based on current mode
-        if (rightPanelMode?.value === 'copyItems') {
-          // Show cross-tree modal for copy confirmation
-          crossTreeSource.value = draggedItem;
-          crossTreeTarget.value = targetItem;
-          crossTreePosition.value = position;
-          showCrossTreeModal.value = true;
-          return { isInternal: false, action: 'copy' };
-        } else if (rightPanelMode?.value === 'createAssociations') {
-          // Prepare association modal directly
-          if (associationOrigin) {
-            associationOrigin.value = draggedItem;
-          }
-          if (associationDestination) {
-            associationDestination.value = targetItem;
-          }
-          if (showAssociateModal) {
-            showAssociateModal.value = true;
-          }
-          return { isInternal: false, action: 'associate' };
-        } else {
-          // Default behavior (Item Details mode) - prompt for action
-          crossTreeSource.value = draggedItem;
-          crossTreeTarget.value = targetItem;
-          crossTreePosition.value = position;
-          showCrossTreeModal.value = true;
-          return { isInternal: false, action: 'prompt' };
-        }
+        // Cross-tree move (Item Details mode) - prompt for action
+        crossTreeSource.value = draggedItem;
+        crossTreeTarget.value = targetItem;
+        crossTreePosition.value = position;
+        showCrossTreeModal.value = true;
+        return { isInternal: false, action: 'prompt' };
       }
     }
     return null;

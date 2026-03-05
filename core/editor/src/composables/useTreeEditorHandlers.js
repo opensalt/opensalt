@@ -125,23 +125,32 @@ export function useTreeEditorHandlers({
         if (event.type !== 'move') return;
         const { draggedItem, targetItem, position } = event;
 
+        // Check for drop on same item
+        if (draggedItem.identifier === targetItem.identifier) return;
+
+        // Check mode FIRST before document IDs
+        if (rightPanelMode.value === 'createAssociations') {
+            // Always create association when in createAssociations mode
+            associationOrigin.value = draggedItem;
+            associationDestination.value = targetItem;
+            showAssociateModal.value = true;
+            return;
+        } else if (rightPanelMode.value === 'copyItems') {
+            // Always copy when in copyItems mode
+            openCrossTreeModal(draggedItem, targetItem, position);
+            return;
+        }
+
+        // Only check document IDs for default behavior
         const draggedDocId = draggedItem.CFDocumentURI?.identifier || draggedItem.documentId;
         const targetDocId = currentDoc.value?.id;
 
-        if (draggedItem.identifier === targetItem.identifier) return;
-
         if (draggedDocId === targetDocId) {
+            // Internal move - only when NOT in special modes
             await itemStore.moveItem(currentDoc.value, { draggedItem, targetItem, position });
         } else {
-            if (rightPanelMode.value === 'copyItems') {
-                openCrossTreeModal(draggedItem, targetItem, position);
-            } else if (rightPanelMode.value === 'createAssociations') {
-                associationOrigin.value = draggedItem;
-                associationDestination.value = targetItem;
-                showAssociateModal.value = true;
-            } else {
-                openCrossTreeModal(draggedItem, targetItem, position);
-            }
+            // Cross-tree move (Item Details mode) - prompt for action
+            openCrossTreeModal(draggedItem, targetItem, position);
         }
     }
 
