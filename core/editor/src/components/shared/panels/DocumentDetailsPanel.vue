@@ -84,37 +84,10 @@
           </small>
         </div>
       </div>
-    </div>
-
-    <!-- Document Statistics -->
-    <div class="card mb-3">
-      <div class="card-header">
-        <h6 class="mb-0">Document Statistics</h6>
-      </div>
-      <div class="card-body">
-        <div class="row text-center">
-          <div class="col-4">
-            <div class="fs-4 fw-bold text-primary">{{ itemCount }}</div>
-            <div class="text-muted small">Items</div>
-          </div>
-          <div class="col-4">
-            <div class="fs-4 fw-bold text-success">{{ associationCount }}</div>
-            <div class="text-muted small">Associations</div>
-          </div>
-          <div class="col-4">
-            <div class="fs-4 fw-bold text-info">{{ associationGroupCount }}</div>
-            <div class="text-muted small">Groups</div>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!-- Document Actions -->
-    <div class="card">
-      <div class="card-header">
-        <h6 class="mb-0">Actions</h6>
-      </div>
-      <div class="card-body">
+    <div class="card mt-0 border-0">
+      <div class="card-body pt-0 ms-auto">
         <div class="d-flex flex-wrap gap-2">
           <!-- Export - always available to all users -->
           <button type="button" class="btn btn-outline-secondary" @click="$emit('export-document')">
@@ -146,9 +119,11 @@
             <button type="button" class="btn btn-outline-secondary" @click="$emit('manage-association-groups')">
               <i class="bi bi-tags"></i> Manage Groups
             </button>
+            <!-- TODO: Remove
             <button type="button" class="btn btn-outline-secondary" @click="$emit('import-children')">
               <i class="bi bi-file-earmark-arrow-up"></i> Import Children
             </button>
+             -->
             <button type="button" class="btn btn-outline-secondary" @click="$emit('update-framework')">
               <i class="bi bi-arrow-repeat"></i> Update Framework
             </button>
@@ -159,6 +134,33 @@
         </div>
       </div>
     </div>
+
+    </div>
+
+    <!-- Document Statistics -->
+     <!-- TODO: Remove
+    <div class="card mb-3">
+      <div class="card-header">
+        <h6 class="mb-0">Document Statistics</h6>
+      </div>
+      <div class="card-body">
+        <div class="row text-center">
+          <div class="col-4">
+            <div class="fs-4 fw-bold text-primary">{{ itemCount }}</div>
+            <div class="text-muted small">Items</div>
+          </div>
+          <div class="col-4">
+            <div class="fs-4 fw-bold text-success">{{ associationCount }}</div>
+            <div class="text-muted small">Associations</div>
+          </div>
+          <div class="col-4">
+            <div class="fs-4 fw-bold text-info">{{ associationGroupCount }}</div>
+            <div class="text-muted small">Groups</div>
+          </div>
+        </div>
+      </div>
+    </div>
+      -->
 
     <!-- Comments -->
     <CommentModule

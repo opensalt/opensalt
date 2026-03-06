@@ -11,11 +11,8 @@
   </div>
 
   <!-- Actions - Only available for editable items -->
-  <div v-if="canEditItem" class="card mt-3">
-    <div class="card-header">
-      <h6 class="mb-0">Actions</h6>
-    </div>
-    <div class="card-body mx-auto">
+  <div v-if="canEditItem" class="card mt-0 border-0">
+    <div class="card-body py-0 ms-auto">
       <div class="d-flex gap-2">
         <div class="btn-group">
           <button type="button" class="btn btn-outline-primary" @click="$emit('add-child', 'general')">

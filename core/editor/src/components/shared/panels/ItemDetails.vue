@@ -31,7 +31,6 @@
         :rendered-notes="renderedNotes"
         :license-name="licenseName"
       />
-    </ItemHeaderCard>
 
     <!-- Actions card (inside the outer card-body "shell", after the header card) -->
     <ItemActionsCard
@@ -42,6 +41,8 @@
       @add-child="handleDropdownClick"
       @add-exemplar="$emit('add-exemplar', item)"
     />
+    </ItemHeaderCard>
+
 
     <!-- Associations card -->
     <ItemAssociationsCard
