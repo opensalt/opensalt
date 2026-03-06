@@ -136,43 +136,17 @@ export const useEditorContextStore = defineStore('editorContext', () => {
     /**
      * Resolve an endpoint (item, document, or external) by identifier or URI
      */
-    function resolveEndpoint(identifier: string) {
-        // DEBUG: Log what we're trying to resolve
-        console.log('[resolveEndpoint] Called with:', {
-            identifier,
-            identifierType: typeof identifier,
-            identifierValue: identifier
-        });
-
-        if (!identifier) {
-            console.log('[resolveEndpoint] Early return: identifier is null/undefined');
-            return null;
-        }
+    function resolveEndpoint(identifier: string): { entity: CFItem | RegistryDocument | ExternalEndpoint; frameworkId: UUID | null; entityType: 'item' | 'document' | 'external' } | null {
+        if (!identifier) return null;
 
         // 1. Check item registry
         let registeredItem = itemRegistry.get(identifier as UUID);
-        console.log('[resolveEndpoint] Item registry lookup:', {
-            lookupKey: identifier,
-            found: !!registeredItem,
-            registrySize: itemRegistry.size
-        });
-
         if (!registeredItem) {
             const uuid = itemUriRegistry.get(identifier);
-            console.log('[resolveEndpoint] Item URI registry lookup:', {
-                lookupKey: identifier,
-                foundUuid: uuid
-            });
             if (uuid) registeredItem = itemRegistry.get(uuid);
         }
 
         if (registeredItem) {
-            console.log('[resolveEndpoint] Found item in registry:', {
-                itemIdentifier: registeredItem.item.identifier,
-                itemUri: registeredItem.item.uri,
-                frameworkId: registeredItem.frameworkId,
-                itemType: registeredItem.item.CFItemType
-            });
             return {
                 entity: registeredItem.item,
                 frameworkId: registeredItem.frameworkId,
@@ -182,27 +156,12 @@ export const useEditorContextStore = defineStore('editorContext', () => {
 
         // 2. Check document registry
         let registeredDoc = documentRegistry.get(identifier as UUID);
-        console.log('[resolveEndpoint] Document registry lookup:', {
-            lookupKey: identifier,
-            found: !!registeredDoc,
-            registrySize: documentRegistry.size
-        });
-
         if (!registeredDoc) {
             const uuid = documentUriRegistry.get(identifier);
-            console.log('[resolveEndpoint] Document URI registry lookup:', {
-                lookupKey: identifier,
-                foundUuid: uuid
-            });
             if (uuid) registeredDoc = documentRegistry.get(uuid);
         }
 
         if (registeredDoc) {
-            console.log('[resolveEndpoint] Found document in registry:', {
-                docIdentifier: registeredDoc.identifier,
-                docUri: registeredDoc.uri,
-                frameworkId: registeredDoc.frameworkId
-            });
             return {
                 entity: registeredDoc,
                 frameworkId: registeredDoc.frameworkId,
@@ -212,18 +171,7 @@ export const useEditorContextStore = defineStore('editorContext', () => {
 
         // 3. Check external endpoint registry
         const external = externalEndpointRegistry.get(identifier);
-        console.log('[resolveEndpoint] External endpoint registry lookup:', {
-            lookupKey: identifier,
-            found: !!external,
-            registrySize: externalEndpointRegistry.size
-        });
-
         if (external) {
-            console.log('[resolveEndpoint] Found external endpoint:', {
-                uri: external.uri,
-                title: external.title,
-                targetType: external.targetType
-            });
             return {
                 entity: external,
                 frameworkId: null,
@@ -231,7 +179,6 @@ export const useEditorContextStore = defineStore('editorContext', () => {
             };
         }
 
-        console.log('[resolveEndpoint] Not found in any registry, returning null');
         return null;
     }
 
@@ -279,40 +226,14 @@ export const useEditorContextStore = defineStore('editorContext', () => {
     /**
      * Check if an entity is editable within the current workspace session
      */
-    function isEditable(identifier: string | CFItem): boolean {
-        // DEBUG: Log what's being passed to isEditable
-        console.log('[isEditable] Called with:', {
-            identifier,
-            identifierType: typeof identifier,
-            identifierValue: identifier,
-            'is CFItem?': identifier && typeof identifier === 'object' && 'identifier' in identifier,
-            'has uri?': identifier && typeof identifier === 'object' && 'uri' in identifier
-        });
+    function isEditable(identifier: string): boolean {
+        if (!activeWriteDocumentId.value) return false;
 
-        // Handle case where a CFItem object is passed instead of identifier string
-        if (identifier && typeof identifier === 'object' && 'identifier' in identifier) {
-            const item = identifier as CFItem;
-            console.log('[isEditable] Received CFItem object, extracting identifier:', {
-                itemIdentifier: item.identifier,
-                itemUri: item.uri,
-                itemCFDocumentURI: item.CFDocumentURI
-            });
-            identifier = item.identifier;
-        }
-
-        if (!activeWriteDocumentId.value) {
-            console.log('[isEditable] Early return: no active write document');
-            return false;
-        }
-
-        const resolved = resolveEndpoint(identifier as string);
-        if (!resolved) {
-            console.log('[isEditable] Early return: resolveEndpoint returned null');
-            return false;
-        }
+        const resolved = resolveEndpoint(identifier);
+        if (!resolved) return false;
 
         // DEBUG: Log isEditable computation
-        console.log('[editorContextStore] isEditable resolved:', {
+        console.log('[editorContextStore] isEditable called:', {
             identifier,
             activeWriteDocumentId: activeWriteDocumentId.value,
             resolved,
@@ -324,13 +245,7 @@ export const useEditorContextStore = defineStore('editorContext', () => {
 
         // If it's a document, check if it's the active document
         if (resolved.entityType === 'document') {
-            const result = (resolved.entity as RegistryDocument).identifier === activeWriteDocumentId.value;
-            console.log('[isEditable] Document check:', {
-                docIdentifier: (resolved.entity as RegistryDocument).identifier,
-                activeWriteDocumentId: activeWriteDocumentId.value,
-                result
-            });
-            return result;
+            return (resolved.entity as RegistryDocument).identifier === activeWriteDocumentId.value;
         }
 
         // For items, check framework it belongs to
@@ -338,75 +253,30 @@ export const useEditorContextStore = defineStore('editorContext', () => {
         if (resolved.entityType === 'item' && resolved.frameworkId === null) {
             const item = resolved.entity as CFItem;
             const itemDocId = item.CFDocumentURI?.identifier;
-            console.log('[isEditable] Item with null frameworkId, checking document:', {
-                itemIdentifier: item.identifier,
-                itemDocId,
-                activeWriteDocumentId: activeWriteDocumentId.value,
-                matches: itemDocId === activeWriteDocumentId.value
-            });
             if (itemDocId && itemDocId === activeWriteDocumentId.value) {
                 return true;
             }
         }
 
-        const result = resolved.frameworkId === activeWriteDocumentId.value;
-        console.log('[isEditable] Final result:', {
-            resolvedFrameworkId: resolved.frameworkId,
-            activeWriteDocumentId: activeWriteDocumentId.value,
-            result
-        });
-        return result;
+        return resolved.frameworkId === activeWriteDocumentId.value;
     }
 
     /**
      * Extract UUID from a CASE URI
      */
     function extractUuidFromUri(uri: string): string | null {
-        console.log('[extractUuidFromUri] Called with:', {
-            uri,
-            uriType: typeof uri,
-            uriValue: uri
-        });
-
-        if (!uri) {
-            console.log('[extractUuidFromUri] Early return: uri is null/undefined');
-            return null;
-        }
-
+        if (!uri) return null;
         try {
             const url = new URL(uri);
-            console.log('[extractUuidFromUri] Successfully parsed as URL:', {
-                protocol: url.protocol,
-                hostname: url.hostname,
-                pathname: url.pathname
-            });
-
             const segments = url.pathname.split('/').filter(Boolean);
             const lastSegment = segments[segments.length - 1];
-            console.log('[extractUuidFromUri] Extracted segments:', {
-                segments,
-                lastSegment,
-                isUuid: lastSegment && /^[0-9a-fA-F-]{36}$/.test(lastSegment)
-            });
-
             if (lastSegment && /^[0-9a-fA-F-]{36}$/.test(lastSegment)) {
-                console.log('[extractUuidFromUri] Returning UUID from URL:', lastSegment);
                 return lastSegment;
             }
             return null;
-        } catch (err) {
-            console.log('[extractUuidFromUri] URL parsing failed, trying regex:', {
-                uri,
-                error: err
-            });
+        } catch {
             const uuidMatch = uri.match(/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/);
-            const result = uuidMatch ? uuidMatch[1] : null;
-            console.log('[extractUuidFromUri] Regex match result:', {
-                uri,
-                match: uuidMatch,
-                result
-            });
-            return result;
+            return uuidMatch ? uuidMatch[1] : null;
         }
     }
 
@@ -414,58 +284,27 @@ export const useEditorContextStore = defineStore('editorContext', () => {
      * Centralized cross-framework fetching
      */
     async function fetchExternalItemData(uri: string) {
-        console.log('[fetchExternalItemData] Called with:', {
-            uri,
-            uriType: typeof uri,
-            uriValue: uri
-        });
-
         try {
             // 1. Try to extract UUID and fetch locally if possible
             const uuid = extractUuidFromUri(uri);
-            console.log('[fetchExternalItemData] Extracted UUID:', {
-                uri,
-                extractedUuid: uuid
-            });
-
             if (uuid) {
                 try {
                     // Try fetching as a package first to get full data
                     const pkg = await loadPackage(uuid);
-                    if (pkg) {
-                        console.log('[fetchExternalItemData] Successfully loaded package:', {
-                            uuid,
-                            packageId: pkg.CFDocument?.identifier
-                        });
-                        return { item: pkg.CFDocument, isPackage: true };
-                    }
+                    if (pkg) return { item: pkg.CFDocument, isPackage: true };
 
                     // Fallback to single item fetch if package fetch fails
                     const item = await api.get(`/ims/case/v1p1/CFItems/${uuid}`) as CFItem;
                     if (item) {
-                        console.log('[fetchExternalItemData] Successfully fetched item:', {
-                            uuid,
-                            itemIdentifier: item.identifier,
-                            itemUri: item.uri,
-                            itemCFDocumentURI: item.CFDocumentURI
-                        });
                         // We don't have a frameworkId here yet, ideally we find it from CFDocumentURI
                         const fwId = extractUuidFromUri(item.CFDocumentURI?.uri || '') as UUID;
                         if (fwId) {
                             itemRegistry.set(item.identifier, { item, frameworkId: fwId });
-                            console.log('[fetchExternalItemData] Registered item with frameworkId:', {
-                                itemIdentifier: item.identifier,
-                                frameworkId: fwId
-                            });
                         }
                         return { item, isPackage: false };
                     }
                 } catch (err) {
                     logger.debug(`Local fetch failed for ${uuid}, trying direct URI`);
-                    console.log('[fetchExternalItemData] Local fetch failed:', {
-                        uuid,
-                        error: err
-                    });
                 }
             }
 
@@ -479,11 +318,6 @@ export const useEditorContextStore = defineStore('editorContext', () => {
             return response;
         } catch (err) {
             logger.error(`Failed to fetch external item data for ${uri}:`, err);
-            console.log('[fetchExternalItemData] Error:', {
-                uri,
-                error: err,
-                errorMessage: err instanceof Error ? err.message : String(err)
-            });
             return null;
         }
     }

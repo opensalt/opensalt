@@ -1,5 +1,5 @@
 <template>
-  <div class="association-item d-flex justify-content-between align-items-center p-2 border rounded" :class="{ 'cross-framework-assoc': isCrossFrameworkAssoc }">
+  <div class="association-item d-flex justify-content-between align-items-center p-2 border rounded" :class="{ 'cross-framework-assoc': isCrossFrameworkAssoc }" :data-identifier="association.identifier">
     <div class="association-info flex-grow-1">
       <!--
       <div class="d-flex align-items-center mb-2">
