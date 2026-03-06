@@ -23,7 +23,6 @@ export const MEANINGFUL_ASSOCIATIONS = {
     'credential->job': ['ext:accepts', 'isRelatedTo', 'precedes'],
     'credential->course': ['exactMatchOf', 'isChildOf', 'isRelatedTo', 'precedes'],
     'default->credential': ['isChildOf'], // CFItem isChildOf Credential
-    'course->credential': ['isChildOf'],
 
     // --- Course Associations ---
     'course->default': ['ext:accepts', 'ext:assesses', 'exactMatchOf', 'hasSkillLevel', 'isChildOf', 'isPeerOf', 'isRelatedTo', 'isTranslationOf', 'ext:offers', 'precedes', 'ext:teaches'], // default = CFItem
@@ -115,12 +114,9 @@ export function getOrderedAssociationTypes(sourceItemOrKind, targetItemOrKind, o
     const mappingKey = `${sourceKind}->${targetKind}`;
 
     // Determine the pool of meaningful types
-    let meaningfulTypeValues = [];
-    if (isExemplarTarget) {
-        meaningfulTypeValues = MEANINGFUL_EXEMPLAR_ASSOCIATIONS[sourceKind] || [];
-    } else {
-        meaningfulTypeValues = MEANINGFUL_ASSOCIATIONS[mappingKey] || [];
-    }
+    const meaningfulTypeValues = isExemplarTarget
+        ? (MEANINGFUL_EXEMPLAR_ASSOCIATIONS[sourceKind] || [])
+        : (MEANINGFUL_ASSOCIATIONS[mappingKey] || []);
 
     // Set up tracking
     const processedValues = new Set();
@@ -129,7 +125,6 @@ export function getOrderedAssociationTypes(sourceItemOrKind, targetItemOrKind, o
     // Always handle currentType in edit mode if it's unknown/imported (not ext:)
     const isExtCurrentType = currentType.startsWith('ext:');
     const isKnownStandardType = ASSOCIATION_TYPES.some(t => t.value === currentType);
-    const isKnownExtType = meaningfulTypeValues.includes(currentType);
 
     // If editing an unknown non-ext type, prepend it so it isn't lost
     if (isEditing && currentType && !isExtCurrentType && !isKnownStandardType) {

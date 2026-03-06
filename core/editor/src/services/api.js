@@ -1,5 +1,3 @@
-/* global localStorage, fetch, console */
-
 /**
  * Centralized API Service
  * Provides a unified interface for all API calls with consistent error handling

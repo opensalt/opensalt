@@ -7,7 +7,6 @@
  */
 import { ref, computed } from 'vue';
 
-/* global setTimeout */
 import { useDocumentStore } from '../stores/documentStore';
 import { useCurrentDocumentStore } from '../stores/currentDocumentStore';
 import { useEditorContextStore } from '../stores/editorContextStore';

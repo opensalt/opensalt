@@ -10,7 +10,6 @@ import { useDocumentStore } from '../stores/documentStore';
 import { useCurrentDocumentStore } from '../stores/currentDocumentStore';
 import { useRelatedFrameworksQueue } from './useRelatedFrameworksQueue';
 
-/* global console */
 
 // Log when this composable is instantiated
 console.log('[useDocumentLoader] Composable instantiated');

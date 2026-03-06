@@ -116,7 +116,7 @@ const render = (function () {
                 '=': '&#x3D;'
             };
 
-            return String(value).replace(/[&<>"'`=\/]/g, function (s) {
+            return String(value).replace(/[&<>"'`=/]/g, function (s) {
                 return entityMap[s];
             });
         }

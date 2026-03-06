@@ -1,4 +1,3 @@
-/* global requestIdleCallback, setTimeout, console */
 import { ref, shallowRef, computed, watch, onUnmounted, nextTick } from 'vue';
 import { useCurrentDocumentStore } from '../stores/currentDocumentStore';
 import { useEditorContextStore } from '../stores/editorContextStore';

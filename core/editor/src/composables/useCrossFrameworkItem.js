@@ -5,7 +5,6 @@ import { useDocumentStore } from '../stores/documentStore';
 import { useViewStore } from '../stores/viewStore';
 import { logger } from '../utils/logger.js';
 
-/* global URL, fetch */
 
 // Cross-framework item cache is now handled by editorContextStore registries
 
