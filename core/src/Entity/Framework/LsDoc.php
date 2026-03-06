@@ -181,7 +181,7 @@ class LsDoc implements CaseApiInterface, LockableInterface
     #[Assert\All([new Assert\Type(LsDefAssociationGrouping::class)])]
     protected Collection $associationGroupings;
 
-    #[Assert\Choice(['organization', 'user'])]
+    #[Assert\Choice(choices: ['organization', 'user'])]
     protected ?string $ownedBy = null;
 
     #[ORM\OneToOne(inversedBy: 'framework', targetEntity: Framework::class)]

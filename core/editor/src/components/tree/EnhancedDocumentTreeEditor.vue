@@ -77,6 +77,7 @@
           @import-children="showImportChildrenModal = true"
           @update-framework="showUpdateFrameworkModal = true"
           @export-document="showExportModal = true"
+          @clone-framework="onCloneFramework"
           @side-document-select="onSideDocumentSelect"
           @external-document-requested="onExternalDocumentRequested"
           @side-select="onSideSelect"
@@ -115,6 +116,8 @@
       :show-update-framework-modal="showUpdateFrameworkModal"
       :show-import-children-modal="showImportChildrenModal"
       :show-export-modal="showExportModal"
+      :show-clone-framework-modal="showCloneFrameworkModal"
+      :clone-framework-title="cloneFrameworkTitle"
       :association-origin="associationOrigin"
       :association-destination="associationDestination"
       :editing-association="editingAssociation"
@@ -151,6 +154,8 @@
       @import-children-imported="onImportChildrenImported"
       @import-children-modal-hidden="showImportChildrenModal = false"
       @export-modal-hidden="showExportModal = false"
+      @clone-framework-confirmed="onCloneFrameworkConfirmed"
+      @clone-framework-modal-hidden="showCloneFrameworkModal = false"
       @dynamic-edit-updated="handleUpdated"
       @dynamic-edit-hidden="handleEditHidden"
     />
@@ -385,6 +390,12 @@ const { connect: connectMercure } = useMercureNotifications();
 const rightPanelMode = ref('itemDetails');
 const treeSearchQuery = ref('');
 
+// ---------------------------------------------------------------------------
+// Clone Framework modal state
+// ---------------------------------------------------------------------------
+const showCloneFrameworkModal = ref(false);
+const cloneFrameworkTitle = ref('');
+
 // Use extracted search composable
 const { matchCount, matchingItemIds } = useFrameworkSearch({
   treeSearchQuery,
@@ -499,6 +510,55 @@ function onUpdateFrameworkImported() {
 function onImportChildrenImported() {
   // The modal itself triggers a page reload after success
   logger.info('Children import completed');
+}
+
+// ---------------------------------------------------------------------------
+// Clone Framework modal handlers
+// ---------------------------------------------------------------------------
+function onCloneFramework() {
+  // Show the clone framework modal with the current document's title
+  showCloneFrameworkModal.value = true;
+  cloneFrameworkTitle.value = currentDoc.value?.title || '';
+}
+
+async function onCloneFrameworkConfirmed() {
+  const frameworkIdentifier = currentDoc.value?.identifier;
+  if (!frameworkIdentifier) {
+    logger.error('No framework identifier available for cloning');
+    showCloneFrameworkModal.value = false;
+    return;
+  }
+
+  try {
+    // Make a POST request to the clone endpoint
+    const response = await fetch(`/clone/framework/${frameworkIdentifier}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to clone framework: ${response.statusText} (${response.status})`);
+    }
+
+    // The backend returns a 302 redirect to /editor/{newFrameworkIdentifier}
+    // Since fetch follows redirects automatically, response.url will be the final URL
+    // Navigate to the new framework using browser navigation
+    window.location.href = response.url;
+
+  } catch (error) {
+    logger.error('Failed to clone framework:', error);
+    // TODO: Show error message to user
+  } finally {
+    showCloneFrameworkModal.value = false;
+  }
+}
+
+function onCloneFrameworkModalHidden() {
+  // Hide the clone framework modal
+  showCloneFrameworkModal.value = false;
 }
 
 // ---------------------------------------------------------------------------

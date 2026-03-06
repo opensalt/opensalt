@@ -111,6 +111,14 @@
       :document="currentDoc"
       @hidden="onExportModalHidden"
     />
+
+    <!-- Clone Framework Modal -->
+    <CloneFrameworkModal
+      :show="showCloneFrameworkModal"
+      :framework-title="cloneFrameworkTitle"
+      @confirmed="onCloneFrameworkConfirmed"
+      @hidden="onCloneFrameworkModalHidden"
+    />
   </div>
 </template>
 
@@ -129,6 +137,7 @@ const LoadExternalDocumentModal = defineAsyncComponent(() => import('../shared/m
 const UpdateFrameworkModal = defineAsyncComponent(() => import('../shared/modals/UpdateFrameworkModal.vue'));
 const ImportChildrenModal = defineAsyncComponent(() => import('../shared/modals/ImportChildrenModal.vue'));
 const ExportModal = defineAsyncComponent(() => import('../shared/modals/ExportModal.vue'));
+const CloneFrameworkModal = defineAsyncComponent(() => import('../shared/modals/CloneFrameworkModal.vue'));
 
 // Props
 const props = defineProps({
@@ -209,6 +218,10 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
+  showCloneFrameworkModal: {
+    type: Boolean,
+    default: false
+  },
 
   // Modal data
   associationOrigin: {
@@ -264,6 +277,10 @@ const props = defineProps({
   editModalComponent: {
     type: Object,
     default: null
+  },
+  cloneFrameworkTitle: {
+    type: String,
+    default: ''
   }
 });
 
@@ -308,6 +325,10 @@ const emit = defineEmits([
   'import-children-imported',
   'import-children-modal-hidden',
   'export-modal-hidden',
+
+  // Clone Framework modal events
+  'clone-framework-confirmed',
+  'clone-framework-modal-hidden',
 
   // Dynamic edit modal events
   'dynamic-edit-updated',
@@ -413,6 +434,14 @@ function onImportChildrenModalHidden() {
 
 function onExportModalHidden() {
   emit('export-modal-hidden');
+}
+
+function onCloneFrameworkConfirmed() {
+  emit('clone-framework-confirmed');
+}
+
+function onCloneFrameworkModalHidden() {
+  emit('clone-framework-modal-hidden');
 }
 </script>
 

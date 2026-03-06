@@ -19,7 +19,7 @@ class AddExternalDocCommand extends BaseCommand
         private readonly string $identifier,
         #[Assert\NotNull]
         #[Assert\NotBlank]
-        #[Assert\Choice(['true', 'false'])]
+        #[Assert\Choice(choices: ['true', 'false'])]
         private readonly string $autoload,
         #[Assert\NotNull]
         #[Assert\NotBlank]

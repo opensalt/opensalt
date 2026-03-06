@@ -259,11 +259,17 @@ const externalFrameworkTitle = computed(() => {
 // ---------------------------------------------------------------------------
 // Read-only / edit permission
 // ---------------------------------------------------------------------------
-const isReadOnly = computed(() => props.currentDocument?.isReadOnly || !sessionStore.isAuthenticated);
+const isReadOnly = computed(() => {
+  // Document is read-only if it's not the active write document or user is not authenticated
+  const docId = props.currentDocument?.identifier;
+  const result = !docId || !contextStore.isEditable(docId) || !sessionStore.isAuthenticated;
+  return result;
+});
 const canEditItem = computed(() => {
   if (isReadOnly.value) return false;
   if (!props.item) return false;
-  return contextStore.isEditable(props.item);
+  const result = contextStore.isEditable(props.item.identifier);
+  return result;
 });
 
 const isViewingDifferentFramework = computed(() => contextStore.isViewingDifferentFramework);

@@ -152,6 +152,9 @@
             <button type="button" class="btn btn-outline-secondary" @click="$emit('update-framework')">
               <i class="bi bi-arrow-repeat"></i> Update Framework
             </button>
+            <button type="button" class="btn btn-outline-secondary" @click="$emit('clone-framework')">
+              <i class="bi bi-copy"></i> Clone Framework
+            </button>
           </template>
         </div>
       </div>
@@ -235,7 +238,8 @@ const emit = defineEmits([
   'manage-association-groups',
   'import-children',
   'update-framework',
-  'export-document'
+  'export-document',
+  'clone-framework'
 ]);
 
 const availableTypes = ['general', 'assessment', 'course', 'credential', 'job', 'organization', 'public_key', 'identifier'];

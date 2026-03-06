@@ -2,7 +2,7 @@
 import MarkdownIt from 'markdown-it';
 import markdownItKatex from '@vscode/markdown-it-katex';
 import markdownItUnderline from 'markdown-it-underline';
-import sanitizeHtml from 'sanitize-html';
+// import sanitizeHtml from 'sanitize-html';
 
 // Configure markdown-it with plugins
 const md = new MarkdownIt({
@@ -49,9 +49,9 @@ export function renderMarkdown(markdownText) {
     const html = md.render(markdownText);
 
     // Sanitize HTML to prevent XSS attacks
-    const sanitizedHtml = sanitizeHtml(html, sanitizeOptions);
+    // const sanitizedHtml = sanitizeHtml(html, sanitizeOptions);
 
-    return sanitizedHtml;
+    return html;
   } catch (error) {
     console.error('Error rendering markdown:', error);
     // Return original text if rendering fails

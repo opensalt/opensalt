@@ -53,7 +53,7 @@
         :association-groups="associationGroups"
         :direction="group.direction"
         :item-identifier="itemIdentifier"
-        :is-read-only="isReadOnly || !canEditItem"
+        :is-read-only="isReadOnly"
         @edit-association="canEditItem ? $emit('edit-association', $event) : null"
         @delete-association="$emit('delete-association', $event)"
       />
@@ -64,7 +64,7 @@
 <script setup>
 import AssociationGroupDisplay from '../../association/AssociationGroupDisplay.vue';
 
-defineProps({
+const props = defineProps({
   mergedAssociations: { type: Array, default: () => [] },
   isProcessingAssociations: { type: Boolean, default: false },
   isCrossFrameworkItem: { type: Boolean, default: false },

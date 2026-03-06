@@ -56,6 +56,7 @@
         @import-children="$emit('import-children')"
         @update-framework="$emit('update-framework')"
         @export-document="$emit('export-document')"
+        @clone-framework="$emit('clone-framework')"
       />
 
       <!-- Copy Items or Create Associations Mode -->
@@ -127,6 +128,7 @@ const emit = defineEmits([
   'import-children',
   'update-framework',
   'export-document',
+  'clone-framework',
   'side-document-select',
   'external-document-requested',
   'side-select'

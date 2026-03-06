@@ -44,7 +44,7 @@ class DocumentDto
     public ?LinkURI $cfPackageURI = null;
 
     #[Groups(['create', 'update', 'view'])]
-    #[Assert\Choice([null, '1.1'], groups: ['create', 'update', 'view'])]
+    #[Assert\Choice(choices: [null, '1.1'], groups: ['create', 'update', 'view'])]
     #[Map('caseVersion')]
     public ?string $caseVersion = null;
 

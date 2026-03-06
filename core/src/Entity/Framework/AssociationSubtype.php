@@ -29,12 +29,12 @@ class AssociationSubtype
     #[ORM\Column(type: 'string', length: 255)]
     #[Assert\NotBlank]
     #[Assert\NotNull]
-    #[Assert\Choice(['isChildOf', 'exactMatchOf', 'isRelatedTo', 'isPartOf', 'replacedBy', 'precedes', 'hasSkillLevel', 'isPeerOf', 'exemplar', 'isTranslationOf'])]
+    #[Assert\Choice(choices: ['isChildOf', 'exactMatchOf', 'isRelatedTo', 'isPartOf', 'replacedBy', 'precedes', 'hasSkillLevel', 'isPeerOf', 'exemplar', 'isTranslationOf'])]
     private string $parentType;
 
     #[ORM\Column(type: 'integer')]
     #[Assert\NotNull]
-    #[Assert\Choice([self::DIR_BOTH, self::DIR_FORWARD, self::DIR_INVERSE])]
+    #[Assert\Choice(choices: [self::DIR_BOTH, self::DIR_FORWARD, self::DIR_INVERSE])]
     private int $direction;
 
     #[ORM\Column(type: 'string', length: 512)]

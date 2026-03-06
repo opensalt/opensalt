@@ -159,6 +159,14 @@ const isCrossFrameworkAssoc = computed(() => {
   return assocFrameworkId !== displayedFrameworkId;
 });
 
+// DEBUG: Log props to see what values we're receiving
+console.log('[AssociationItem] Props received:', {
+  isReadOnly: props.isReadOnly,
+  isCrossFrameworkAssoc: isCrossFrameworkAssoc.value,
+  associationId: props.association.identifier,
+  shouldShowActions: !props.isReadOnly && !isCrossFrameworkAssoc.value
+});
+
 // Resolve the source framework title from the centralized document registry
 const sourceFrameworkTitle = computed(() => {
   if (!isCrossFrameworkAssoc.value) return null;
