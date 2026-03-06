@@ -32,7 +32,10 @@
 
 		mercure {
 			# Transport to use (default to Bolt)
-			transport {$MERCURE_TRANSPORT_URL:bolt:///data/mercure.db}
+            transport bolt {
+                path {$MERCURE_BOLT_PATH:/data/mercure.db}
+                {$MERCURE_BOLT_EXTRA_DIRECTIVES}
+            }
 			# Publisher JWT key
 			publisher_jwt {env.MERCURE_PUBLISHER_JWT_KEY} {env.MERCURE_PUBLISHER_JWT_ALG}
 			# Subscriber JWT key
