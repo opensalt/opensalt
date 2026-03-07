@@ -9,7 +9,6 @@
       @edit-document="$emit('edit-document')"
       @add-root-item="$emit('add-root-item', $event)"
       @manage-association-groups="$emit('manage-association-groups')"
-      @import-children="$emit('import-children')"
       @update-framework="$emit('update-framework')"
       @export-document="$emit('export-document')"
       @clone-framework="$emit('clone-framework')"
@@ -66,7 +65,6 @@ const emit = defineEmits([
   'edit-document',
   'add-root-item',
   'manage-association-groups',
-  'import-children',
   'update-framework',
   'export-document',
   'clone-framework'

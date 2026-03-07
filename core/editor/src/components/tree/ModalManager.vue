@@ -89,13 +89,6 @@
       @hidden="onUpdateFrameworkModalHidden"
     />
 
-    <!-- Import Children Modal -->
-    <ImportChildrenModal
-      :show="showImportChildrenModal"
-      @imported="onImportChildrenImported"
-      @hidden="onImportChildrenModalHidden"
-    />
-
     <!-- Export Document Modal -->
     <ExportModal
       :show="showExportModal"
@@ -125,7 +118,6 @@ const AssociationGroupModal = defineAsyncComponent(() => import('../association/
 const CrossTreeDropModal = defineAsyncComponent(() => import('./CrossTreeDropModal.vue'));
 const LoadExternalDocumentModal = defineAsyncComponent(() => import('../shared/modals/LoadExternalDocumentModal.vue'));
 const UpdateFrameworkModal = defineAsyncComponent(() => import('../shared/modals/UpdateFrameworkModal.vue'));
-const ImportChildrenModal = defineAsyncComponent(() => import('../shared/modals/ImportChildrenModal.vue'));
 const ExportModal = defineAsyncComponent(() => import('../shared/modals/ExportModal.vue'));
 const CloneFrameworkModal = defineAsyncComponent(() => import('../shared/modals/CloneFrameworkModal.vue'));
 
@@ -193,10 +185,6 @@ const props = defineProps({
     default: false
   },
   showUpdateFrameworkModal: {
-    type: Boolean,
-    default: false
-  },
-  showImportChildrenModal: {
     type: Boolean,
     default: false
   },
@@ -303,8 +291,6 @@ const emit = defineEmits([
   // Import modal events
   'update-framework-imported',
   'update-framework-modal-hidden',
-  'import-children-imported',
-  'import-children-modal-hidden',
   'export-modal-hidden',
 
   // Clone Framework modal events
@@ -399,14 +385,6 @@ function onUpdateFrameworkImported() {
 
 function onUpdateFrameworkModalHidden() {
   emit('update-framework-modal-hidden');
-}
-
-function onImportChildrenImported() {
-  emit('import-children-imported');
-}
-
-function onImportChildrenModalHidden() {
-  emit('import-children-modal-hidden');
 }
 
 function onExportModalHidden() {

@@ -119,11 +119,7 @@
             <button type="button" class="btn btn-outline-secondary" @click="$emit('manage-association-groups')">
               <i class="bi bi-tags"></i> Manage Groups
             </button>
-            <!-- TODO: Remove
-            <button type="button" class="btn btn-outline-secondary" @click="$emit('import-children')">
-              <i class="bi bi-file-earmark-arrow-up"></i> Import Children
-            </button>
-             -->
+
             <button type="button" class="btn btn-outline-secondary" @click="$emit('update-framework')">
               <i class="bi bi-arrow-repeat"></i> Update Framework
             </button>
@@ -137,30 +133,7 @@
 
     </div>
 
-    <!-- Document Statistics -->
-     <!-- TODO: Remove
-    <div class="card mb-3">
-      <div class="card-header">
-        <h6 class="mb-0">Document Statistics</h6>
-      </div>
-      <div class="card-body">
-        <div class="row text-center">
-          <div class="col-4">
-            <div class="fs-4 fw-bold text-primary">{{ itemCount }}</div>
-            <div class="text-muted small">Items</div>
-          </div>
-          <div class="col-4">
-            <div class="fs-4 fw-bold text-success">{{ associationCount }}</div>
-            <div class="text-muted small">Associations</div>
-          </div>
-          <div class="col-4">
-            <div class="fs-4 fw-bold text-info">{{ associationGroupCount }}</div>
-            <div class="text-muted small">Groups</div>
-          </div>
-        </div>
-      </div>
-    </div>
-      -->
+
 
     <!-- Comments -->
     <CommentModule
@@ -184,7 +157,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { computed } from 'vue';
 import { useDynamicModal } from '../../../composables/useDynamicModal.js';
 import CommentModule from '../CommentModule.vue';
 import docIcon from '@/assets/icons/ph/graph-fill.svg';
@@ -238,7 +211,6 @@ const emit = defineEmits([
   'edit-document',
   'add-root-item',
   'manage-association-groups',
-  'import-children',
   'update-framework',
   'export-document',
   'clone-framework'
@@ -270,58 +242,6 @@ function formatDate(dateString) {
   if (!dateString) return '';
   return new Date(dateString).toLocaleDateString();
 }
-
-// Cached item count to avoid recomputation on every render
-const cachedItemCount = ref(0);
-
-// Recursive function to count items in the hierarchy, excluding cross-framework placeholders
-function countItemsRecursively(items) {
-  if (!items || !Array.isArray(items)) return 0;
-
-  let count = 0;
-  for (const item of items) {
-    // Skip cross-framework placeholder items — they belong to other frameworks
-    if (item.isCrossFramework) continue;
-    count += 1;
-    if (item.children && item.children.length > 0) {
-      count += countItemsRecursively(item.children);
-    }
-  }
-  return count;
-}
-
-// Watch for changes in document items and update cached item count
-watch(
-  () => props.document?.items,
-  (newItems) => {
-    cachedItemCount.value = countItemsRecursively(newItems);
-  },
-  { immediate: true, deep: true }
-);
-
-// Document statistics
-const itemCount = computed(() => cachedItemCount.value);
-
-// Count associations from the raw package data in the context store.
-// The tree nodes don't carry associations, so we read CFAssociations from
-// the loaded package and count non-isChildOf ones.
-const associationCount = computed(() => {
-  const docId = props.document?.identifier || props.document?.id;
-  if (!docId) return 0;
-
-  const pkg = contextStore.loadedPackages.get(docId);
-  if (!pkg?.CFAssociations) return 0;
-
-  return pkg.CFAssociations.filter(
-    assoc => assoc.associationType !== 'isChildOf'
-  ).length;
-});
-
-// Count actual association groupings from the store, not the synthetic groups
-// (which always include 'All Groups' and 'Default Group').
-const associationGroupCount = computed(() => {
-  return currentDocumentStore.currentDocumentAssociationGroupings?.length || 0;
-});
 </script>
 
 <style scoped>

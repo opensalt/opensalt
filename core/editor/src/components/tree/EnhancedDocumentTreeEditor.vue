@@ -74,7 +74,6 @@
           @edit-document="onEditDocument"
           @add-root-item="handleAddRootItem"
           @manage-association-groups="onManageAssociationGroups"
-          @import-children="showImportChildrenModal = true"
           @update-framework="showUpdateFrameworkModal = true"
           @export-document="showExportModal = true"
           @clone-framework="onCloneFramework"
@@ -113,7 +112,6 @@
       :show-cross-tree-modal="showCrossTreeModal"
       :show-load-external-modal="showLoadExternalModal"
       :show-update-framework-modal="showUpdateFrameworkModal"
-      :show-import-children-modal="showImportChildrenModal"
       :show-export-modal="showExportModal"
       :show-clone-framework-modal="showCloneFrameworkModal"
       :clone-framework-title="cloneFrameworkTitle"
@@ -148,8 +146,6 @@
       @load-external-modal-hidden="showLoadExternalModal = false"
       @update-framework-imported="onUpdateFrameworkImported"
       @update-framework-modal-hidden="showUpdateFrameworkModal = false"
-      @import-children-imported="onImportChildrenImported"
-      @import-children-modal-hidden="showImportChildrenModal = false"
       @export-modal-hidden="showExportModal = false"
       @clone-framework-confirmed="onCloneFrameworkConfirmed"
       @clone-framework-modal-hidden="showCloneFrameworkModal = false"
@@ -356,7 +352,6 @@ const {
   openCrossTreeModal,
   closeCrossTreeModal,
   showUpdateFrameworkModal,
-  showImportChildrenModal,
   showExportModal,
 } = modalState;
 
@@ -498,11 +493,6 @@ const {
 function onUpdateFrameworkImported() {
   // The modal itself triggers a page reload after success
   logger.info('Framework update import completed');
-}
-
-function onImportChildrenImported() {
-  // The modal itself triggers a page reload after success
-  logger.info('Children import completed');
 }
 
 // ---------------------------------------------------------------------------
