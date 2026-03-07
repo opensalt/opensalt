@@ -42,6 +42,7 @@ export function useAssociationForm(options) {
     initialType,
     association,
     currentItem,
+    destinationItem,
     isReversed
   } = options;
 
@@ -252,24 +253,33 @@ export function useAssociationForm(options) {
    */
   function createAssociationData(finalType) {
     const item = toValue(currentItem);
+    const destItem = toValue(destinationItem);
+    const reversed = toValue(isReversed);
+
+    const effectiveOrigin = reversed ? destItem : item;
+    const effectiveDestination = reversed ? item : destItem;
 
     if (isExemplarType.value) {
       // Exemplar association
       return {
-        originNodeIdentifier: item?.identifier,
+        originNodeIdentifier: effectiveOrigin?.identifier,
+        destinationNodeIdentifier: effectiveDestination?.identifier,
         destinationNodeUri: formData.exemplarUrl,
         associationType: 'exemplar',
         annotation: formData.annotation,
-        notes: formData.exemplarDescription
+        notes: formData.exemplarDescription,
+        associationGroupingIdentifier: formData.groupId !== 'default' ? formData.groupId : null
       };
     }
 
     // Standard association
     return {
-      originNodeIdentifier: item?.identifier,
+      originNodeIdentifier: effectiveOrigin?.identifier,
+      destinationNodeIdentifier: effectiveDestination?.identifier,
       associationType: finalType,
       annotation: formData.annotation,
-      groupId: formData.groupId
+      groupId: formData.groupId,
+      associationGroupingIdentifier: formData.groupId !== 'default' ? formData.groupId : null
     };
   }
 

@@ -12,7 +12,6 @@ import { ref } from 'vue';
 export function useModalState() {
   // Modal visibility states
   const showEditDocModal = ref(false);
-  const showAssociateModal = ref(false);
   const showEditAssociationModal = ref(false);
   const showDeleteModal = ref(false);
   const showExemplarModal = ref(false);
@@ -34,6 +33,7 @@ export function useModalState() {
   const addingAssociation = ref(false);
   const addingAssociationType = ref('');
   const addingAssociationOrigin = ref(null);
+  const addingAssociationDestination = ref(null);
 
   // Cross-tree drop state
   const crossTreeSource = ref(null);
@@ -45,7 +45,6 @@ export function useModalState() {
    */
   function resetAllModals() {
     showEditDocModal.value = false;
-    showAssociateModal.value = false;
     showEditAssociationModal.value = false;
     showDeleteModal.value = false;
     showExemplarModal.value = false;
@@ -71,6 +70,7 @@ export function useModalState() {
     addingAssociation.value = false;
     addingAssociationType.value = '';
     addingAssociationOrigin.value = null;
+    addingAssociationDestination.value = null;
     crossTreeSource.value = null;
     crossTreeTarget.value = null;
     crossTreePosition.value = null;
@@ -96,18 +96,20 @@ export function useModalState() {
    * @param {Object|null} destination - The destination item for the association
    */
   function openAssociateModal(origin, destination = null) {
-    associationOrigin.value = origin;
-    associationDestination.value = destination;
-    showAssociateModal.value = true;
+    addingAssociation.value = true;
+    addingAssociationType.value = '';
+    addingAssociationOrigin.value = origin;
+    addingAssociationDestination.value = destination;
+    editingAssociation.value = null;
+    showEditAssociationModal.value = true;
   }
 
   /**
-   * Close the associate modal
+   * Close the associate modal (maintained for backwards compatibility, 
+   * but maps to closeEditAssociationModal state)
    */
   function closeAssociateModal() {
-    showAssociateModal.value = false;
-    associationOrigin.value = null;
-    associationDestination.value = null;
+    closeEditAssociationModal();
   }
 
   /**
@@ -144,6 +146,7 @@ export function useModalState() {
     addingAssociation.value = false;
     addingAssociationType.value = '';
     addingAssociationOrigin.value = null;
+    addingAssociationDestination.value = null;
     editingAssociation.value = null;
   }
 
@@ -277,7 +280,6 @@ export function useModalState() {
   return {
     // Modal visibility states
     showEditDocModal,
-    showAssociateModal,
     showEditAssociationModal,
     showDeleteModal,
     showExemplarModal,
@@ -297,6 +299,7 @@ export function useModalState() {
     addingAssociation,
     addingAssociationType,
     addingAssociationOrigin,
+    addingAssociationDestination,
     crossTreeSource,
     crossTreeTarget,
     crossTreePosition,

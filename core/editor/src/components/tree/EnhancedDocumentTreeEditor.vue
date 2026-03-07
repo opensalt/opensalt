@@ -106,7 +106,6 @@
       :selected-id="selectedId"
       :association-groups="associationGroups"
       :show-edit-doc-modal="showEditDocModal"
-      :show-associate-modal="showAssociateModal"
       :show-edit-association-modal="showEditAssociationModal"
       :show-delete-modal="showDeleteModal"
       :show-exemplar-modal="showExemplarModal"
@@ -118,14 +117,13 @@
       :show-export-modal="showExportModal"
       :show-clone-framework-modal="showCloneFrameworkModal"
       :clone-framework-title="cloneFrameworkTitle"
-      :association-origin="associationOrigin"
-      :association-destination="associationDestination"
       :editing-association="editingAssociation"
       :items-to-delete="itemsToDelete"
       :delete-type="deleteType"
       :adding-association="addingAssociation"
       :adding-association-type="addingAssociationType"
       :adding-association-origin="addingAssociationOrigin"
+      :adding-association-destination="addingAssociationDestination"
       :cross-tree-source="crossTreeSource"
       :cross-tree-target="crossTreeTarget"
       :is-edit-modal-visible="isEditModalVisible"
@@ -143,7 +141,6 @@
       @cross-tree-associate="onCrossTreeAssociate"
       @external-document-load="onExternalDocumentUrlLoaded"
       @edit-doc-modal-hidden="showEditDocModal = false"
-      @associate-modal-hidden="showAssociateModal = false"
       @edit-association-modal-hidden="onEditAssociationModalHidden"
       @delete-modal-hidden="showDeleteModal = false"
       @exemplar-modal-hidden="showExemplarModal = false"
@@ -340,21 +337,19 @@ const {
 const modalState = useModalState();
 const {
   showEditDocModal,
-  showAssociateModal,
   showEditAssociationModal,
   showDeleteModal,
   showExemplarModal,
   showAssocGroupModal,
   showLoadExternalModal,
   showCrossTreeModal,
-  associationOrigin,
-  associationDestination,
   editingAssociation,
   itemsToDelete,
   deleteType,
   addingAssociation,
   addingAssociationType,
   addingAssociationOrigin,
+  addingAssociationDestination,
   crossTreeSource,
   crossTreeTarget,
   closeEditAssociationModal,
@@ -468,18 +463,16 @@ const {
   rightPanelMode,
   filteredDoc,
   showEditDocModal,
-  showAssociateModal,
   showEditAssociationModal,
   showDeleteModal,
   showExemplarModal,
-  associationOrigin,
-  associationDestination,
   editingAssociation,
   itemsToDelete,
   deleteType,
   addingAssociation,
   addingAssociationType,
   addingAssociationOrigin,
+  addingAssociationDestination,
   closeEditAssociationModal,
   openCrossTreeModal,
   closeCrossTreeModal,

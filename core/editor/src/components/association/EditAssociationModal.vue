@@ -151,6 +151,10 @@ const props = defineProps({
     type: Object,
     default: null
   },
+  destinationItem: {
+    type: Object,
+    default: null
+  },
   initialType: {
     type: String,
     default: ''
@@ -187,6 +191,7 @@ const {
   initialType: toRef(props, 'initialType'),
   association: toRef(props, 'association'),
   currentItem: toRef(props, 'currentItem'),
+  destinationItem: toRef(props, 'destinationItem'),
   isReversed: ref(false) // Will be updated from direction composable
 });
 
@@ -217,6 +222,7 @@ const {
 } = useAssociationDirection({
   association: toRef(props, 'association'),
   currentItem: toRef(props, 'currentItem'),
+  destinationItem: toRef(props, 'destinationItem'),
   mode: toRef(props, 'mode'),
   initialType: toRef(props, 'initialType'),
   selectedItemIdentifier: toRef(props, 'selectedItemIdentifier'),
@@ -242,6 +248,7 @@ const availableGroups = computed(() => props.availableGroups || []);
 // Watch for show prop changes
 watch(() => props.show, async (newVal) => {
   if (newVal) {
+    error.value = '';
     loadAssociationData();
     resetDirection();
     // Wait for DOM to be ready before accessing the modal element

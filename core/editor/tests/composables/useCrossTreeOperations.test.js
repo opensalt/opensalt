@@ -10,14 +10,12 @@ describe('useCrossTreeOperations', () => {
       const rightPanelMode = ref('itemDetails');
       const associationOrigin = ref(null);
       const associationDestination = ref(null);
-      const showAssociateModal = ref(false);
 
       const { handleTreeChange } = useCrossTreeOperations({
         currentDoc,
         rightPanelMode,
         associationOrigin,
         associationDestination,
-        showAssociateModal
       });
 
       const event = {
@@ -45,14 +43,12 @@ describe('useCrossTreeOperations', () => {
       const rightPanelMode = ref('createAssociations');
       const associationOrigin = ref(null);
       const associationDestination = ref(null);
-      const showAssociateModal = ref(false);
 
       const { handleTreeChange } = useCrossTreeOperations({
         currentDoc,
         rightPanelMode,
         associationOrigin,
         associationDestination,
-        showAssociateModal
       });
 
       const event = {
@@ -69,7 +65,6 @@ describe('useCrossTreeOperations', () => {
       expect(result).toEqual({ isInternal: false, action: 'associate' });
       expect(associationOrigin.value).toEqual(event.draggedItem);
       expect(associationDestination.value).toEqual(event.targetItem);
-      expect(showAssociateModal.value).toBe(true);
     });
 
     it('should create association when in createAssociations mode with different documents', async () => {
@@ -78,14 +73,12 @@ describe('useCrossTreeOperations', () => {
       const rightPanelMode = ref('createAssociations');
       const associationOrigin = ref(null);
       const associationDestination = ref(null);
-      const showAssociateModal = ref(false);
 
       const { handleTreeChange } = useCrossTreeOperations({
         currentDoc,
         rightPanelMode,
         associationOrigin,
         associationDestination,
-        showAssociateModal
       });
 
       const event = {
@@ -102,7 +95,6 @@ describe('useCrossTreeOperations', () => {
       expect(result).toEqual({ isInternal: false, action: 'associate' });
       expect(associationOrigin.value).toEqual(event.draggedItem);
       expect(associationDestination.value).toEqual(event.targetItem);
-      expect(showAssociateModal.value).toBe(true);
     });
 
     it('should copy when in copyItems mode even with same document', async () => {
@@ -111,14 +103,12 @@ describe('useCrossTreeOperations', () => {
       const rightPanelMode = ref('copyItems');
       const associationOrigin = ref(null);
       const associationDestination = ref(null);
-      const showAssociateModal = ref(false);
 
       const { handleTreeChange, showCrossTreeModal, crossTreeSource, crossTreeTarget, crossTreePosition } = useCrossTreeOperations({
         currentDoc,
         rightPanelMode,
         associationOrigin,
         associationDestination,
-        showAssociateModal
       });
 
       const event = {
@@ -145,14 +135,12 @@ describe('useCrossTreeOperations', () => {
       const rightPanelMode = ref('copyItems');
       const associationOrigin = ref(null);
       const associationDestination = ref(null);
-      const showAssociateModal = ref(false);
 
       const { handleTreeChange, showCrossTreeModal, crossTreeSource, crossTreeTarget, crossTreePosition } = useCrossTreeOperations({
         currentDoc,
         rightPanelMode,
         associationOrigin,
         associationDestination,
-        showAssociateModal
       });
 
       const event = {
@@ -179,14 +167,12 @@ describe('useCrossTreeOperations', () => {
       const rightPanelMode = ref('itemDetails');
       const associationOrigin = ref(null);
       const associationDestination = ref(null);
-      const showAssociateModal = ref(false);
 
       const { handleTreeChange, showCrossTreeModal, crossTreeSource, crossTreeTarget, crossTreePosition } = useCrossTreeOperations({
         currentDoc,
         rightPanelMode,
         associationOrigin,
         associationDestination,
-        showAssociateModal
       });
 
       const event = {
@@ -213,14 +199,12 @@ describe('useCrossTreeOperations', () => {
       const rightPanelMode = ref('itemDetails');
       const associationOrigin = ref(null);
       const associationDestination = ref(null);
-      const showAssociateModal = ref(false);
 
       const { handleTreeChange } = useCrossTreeOperations({
         currentDoc,
         rightPanelMode,
         associationOrigin,
         associationDestination,
-        showAssociateModal
       });
 
       const event = {
@@ -243,14 +227,12 @@ describe('useCrossTreeOperations', () => {
       const rightPanelMode = ref('itemDetails');
       const associationOrigin = ref(null);
       const associationDestination = ref(null);
-      const showAssociateModal = ref(false);
 
       const { handleTreeChange } = useCrossTreeOperations({
         currentDoc,
         rightPanelMode,
         associationOrigin,
         associationDestination,
-        showAssociateModal
       });
 
       const event = {

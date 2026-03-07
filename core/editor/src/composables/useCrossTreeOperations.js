@@ -15,7 +15,6 @@ import { useCurrentDocumentStore } from '../stores/currentDocumentStore';
  * @param {import('vue').Ref} options.rightPanelMode - Reference to the current panel mode
  * @param {import('vue').Ref} options.associationOrigin - Reference to association origin
  * @param {import('vue').Ref} options.associationDestination - Reference to association destination
- * @param {import('vue').Ref} options.showAssociateModal - Reference to show associate modal
  * @param {Function} options.onCopyComplete - Callback after copy operation completes
  * @param {Function} options.onAssociateComplete - Callback after associate operation completes
  * @returns {Object} Cross-tree operations state and methods
@@ -26,7 +25,6 @@ export function useCrossTreeOperations(options = {}) {
     rightPanelMode,
     associationOrigin,
     associationDestination,
-    showAssociateModal,
     onCopyComplete,
     onAssociateComplete
   } = options;
@@ -63,9 +61,6 @@ export function useCrossTreeOperations(options = {}) {
         }
         if (associationDestination) {
           associationDestination.value = targetItem;
-        }
-        if (showAssociateModal) {
-          showAssociateModal.value = true;
         }
         return { isInternal: false, action: 'associate' };
       } else if (rightPanelMode?.value === 'copyItems') {
@@ -162,10 +157,6 @@ export function useCrossTreeOperations(options = {}) {
     }
     if (associationDestination) {
       associationDestination.value = crossTreeSource.value;
-    }
-
-    if (showAssociateModal) {
-      showAssociateModal.value = true;
     }
 
     onCrossTreeClose();

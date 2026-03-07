@@ -13,16 +13,6 @@
       @hidden="onEditDocModalHidden"
     />
 
-    <!-- Associate Modal -->
-    <AssociateModal
-      :origin-item="associationOrigin"
-      :destination-item="associationDestination"
-      :available-groups="associationGroups"
-      :show="showAssociateModal"
-      @created="onAssociationCreated"
-      @hidden="onAssociateModalHidden"
-    />
-
     <!-- Edit Association Modal (dual-mode: add/edit) -->
     <EditAssociationModal
       :association="editingAssociation"
@@ -31,6 +21,7 @@
       :selected-item-identifier="selectedId"
       :mode="addingAssociation ? 'add' : 'edit'"
       :current-item="addingAssociationOrigin"
+      :destination-item="addingAssociationDestination"
       :initial-type="addingAssociationType"
       @updated="onAssociationUpdated"
       @created="onAssociationCreated"
@@ -127,7 +118,6 @@ import { defineAsyncComponent } from 'vue';
 
 // Lazy-loaded modal components
 const EditDocModal = defineAsyncComponent(() => import('../shared/modals/EditDocModal.vue'));
-const AssociateModal = defineAsyncComponent(() => import('../association/AssociateModal.vue'));
 const EditAssociationModal = defineAsyncComponent(() => import('../association/EditAssociationModal.vue'));
 const DeleteItemsModal = defineAsyncComponent(() => import('../shared/modals/DeleteItemsModal.vue'));
 const ExemplarModal = defineAsyncComponent(() => import('../shared/modals/ExemplarModal.vue'));
@@ -178,10 +168,6 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  showAssociateModal: {
-    type: Boolean,
-    default: false
-  },
   showEditAssociationModal: {
     type: Boolean,
     default: false
@@ -224,14 +210,6 @@ const props = defineProps({
   },
 
   // Modal data
-  associationOrigin: {
-    type: Object,
-    default: null
-  },
-  associationDestination: {
-    type: Object,
-    default: null
-  },
   editingAssociation: {
     type: Object,
     default: null
@@ -253,6 +231,10 @@ const props = defineProps({
     default: ''
   },
   addingAssociationOrigin: {
+    type: Object,
+    default: null
+  },
+  addingAssociationDestination: {
     type: Object,
     default: null
   },
@@ -312,7 +294,6 @@ const emit = defineEmits([
 
   // Modal hidden events
   'edit-doc-modal-hidden',
-  'associate-modal-hidden',
   'edit-association-modal-hidden',
   'delete-modal-hidden',
   'exemplar-modal-hidden',
@@ -350,10 +331,6 @@ function onAssociationCreated(association) {
 
 function onAssociationUpdated(association) {
   emit('association-updated', association);
-}
-
-function onAssociateModalHidden() {
-  emit('associate-modal-hidden');
 }
 
 function onEditAssociationModalHidden() {

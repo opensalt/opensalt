@@ -31,18 +31,16 @@ export function useTreeEditorHandlers({
     filteredDoc,
     // Modal state (from useModalState)
     showEditDocModal,
-    showAssociateModal,
     showEditAssociationModal,
     showDeleteModal,
     showExemplarModal,
-    associationOrigin,
-    associationDestination,
     editingAssociation,
     itemsToDelete,
     deleteType,
     addingAssociation,
     addingAssociationType,
     addingAssociationOrigin,
+    addingAssociationDestination,
     closeEditAssociationModal,
     openCrossTreeModal,
     closeCrossTreeModal,
@@ -131,9 +129,11 @@ export function useTreeEditorHandlers({
         // Check mode FIRST before document IDs
         if (rightPanelMode.value === 'createAssociations') {
             // Always create association when in createAssociations mode
-            associationOrigin.value = draggedItem;
-            associationDestination.value = targetItem;
-            showAssociateModal.value = true;
+            addingAssociation.value = true;
+            addingAssociationType.value = '';
+            addingAssociationOrigin.value = draggedItem;
+            addingAssociationDestination.value = targetItem;
+            showEditAssociationModal.value = true;
             return;
         } else if (rightPanelMode.value === 'copyItems') {
             // Always copy when in copyItems mode
@@ -185,9 +185,11 @@ export function useTreeEditorHandlers({
 
     function onCrossTreeAssociate() {
         if (!crossTreeSource.value || !crossTreeTarget.value) return;
-        associationOrigin.value = crossTreeTarget.value;
-        associationDestination.value = crossTreeSource.value;
-        showAssociateModal.value = true;
+        addingAssociation.value = true;
+        addingAssociationType.value = '';
+        addingAssociationOrigin.value = crossTreeTarget.value;
+        addingAssociationDestination.value = crossTreeSource.value;
+        showEditAssociationModal.value = true;
         closeCrossTreeModal();
     }
 
@@ -277,9 +279,11 @@ export function useTreeEditorHandlers({
     }
 
     function onAddAssociation(item) {
-        associationOrigin.value = item;
-        associationDestination.value = null;
-        showAssociateModal.value = true;
+        addingAssociation.value = true;
+        addingAssociationType.value = '';
+        addingAssociationOrigin.value = item;
+        addingAssociationDestination.value = null;
+        showEditAssociationModal.value = true;
     }
 
     function onEditAssociation(association) {

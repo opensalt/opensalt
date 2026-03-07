@@ -23,6 +23,7 @@ export function useAssociationDirection(options) {
   const {
     association,
     currentItem,
+    destinationItem,
     mode,
     initialType,
     selectedItemIdentifier,
@@ -40,8 +41,10 @@ export function useAssociationDirection(options) {
   const effectiveAssociation = computed(() => {
     if (isAddMode.value && toValue(currentItem)) {
       const item = toValue(currentItem);
+      const destItem = toValue(destinationItem);
+
       // In add mode, create a synthetic association with the currentItem as origin
-      return {
+      const syntheticAssoc = {
         originNodeURI: {
           identifier: item.identifier,
           uri: item.uri || item.identifier,
@@ -49,6 +52,16 @@ export function useAssociationDirection(options) {
         },
         associationType: toValue(initialType) || toValue(formData)?.type
       };
+
+      if (destItem) {
+        syntheticAssoc.destinationNodeURI = {
+          identifier: destItem.identifier,
+          uri: destItem.uri || destItem.identifier,
+          title: destItem.title || destItem.fullStatement || destItem.abbreviatedStatement
+        };
+      }
+
+      return syntheticAssoc;
     }
     return toValue(association);
   });
