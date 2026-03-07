@@ -57,9 +57,25 @@ export function useAssociationDirection(options) {
         syntheticAssoc.destinationNodeURI = {
           identifier: destItem.identifier,
           uri: destItem.uri || destItem.identifier,
-          title: destItem.title || destItem.fullStatement || destItem.abbreviatedStatement
+          title: destItem.title || destItem.fullStatement || destItem.abbreviatedStatement,
+          targetType: 'CASE' // Ensure it recognizes as CASE item for item endpoints
         };
+      } else if (toValue(mode) === 'add') {
+        // If there's no destination item, but we are providing one manually via forms
+        if (toValue(formData)?.type === 'exemplar') {
+           syntheticAssoc.destinationNodeURI = { uri: toValue(formData)?.exemplarUrl, targetType: undefined };
+        } else if (toValue(formData)?.destinationUri) {
+           syntheticAssoc.destinationNodeURI = {
+             uri: toValue(formData)?.destinationUri,
+             title: toValue(formData)?.destinationTitle,
+             identifier: toValue(formData)?.destinationIdentifier,
+             targetType: toValue(formData)?.destinationTargetType
+           }
+        }
       }
+
+      // Add CASE targetType to origin node too always
+      syntheticAssoc.originNodeURI.targetType = 'CASE';
 
       return syntheticAssoc;
     }
@@ -144,13 +160,12 @@ export function useAssociationDirection(options) {
   });
 
   // Fallback text when item not found in document
-  const originFallbackText = computed(() => {
+  const originTitle = computed(() => {
     return effectiveAssociation.value?.originNodeURI?.title ||
-           effectiveAssociation.value?.origin?.title ||
-           'Origin item';
+           effectiveAssociation.value?.origin?.title;
   });
 
-  const destinationFallbackText = computed(() => {
+  const destinationTitle = computed(() => {
     // For exemplar associations, show the URL as the destination
     if (effectiveAssociation.value?.associationType === 'exemplar') {
       const url = effectiveAssociation.value?.destinationNodeURI?.uri ||
@@ -159,9 +174,17 @@ export function useAssociationDirection(options) {
         return url;
       }
     }
+    
+    // In add mode, if we are typing manual fields, show them as the fallback immediately
+    const formObj = toValue(formData);
+    if (isAddMode.value && !toValue(destinationItem) && formObj) {
+      if (formObj.destinationTitle) return formObj.destinationTitle;
+      if (formObj.destinationUri) return formObj.destinationUri;
+      if (formObj.destinationIdentifier) return formObj.destinationIdentifier;
+    }
+
     return effectiveAssociation.value?.destinationNodeURI?.title ||
-           effectiveAssociation.value?.destination?.title ||
-           'Destination item';
+           effectiveAssociation.value?.destination?.title;
   });
 
   // Computed properties for left/right side items based on direction
@@ -296,21 +319,31 @@ export function useAssociationDirection(options) {
   // Fallback text for left/right sides
   const leftSideFallbackText = computed(() => {
     if (isReversed.value) {
-      return destinationFallbackText.value;
+      const formDataType = toValue(formData)?.type;
+      if (isAddMode.value && !toValue(destinationItem)) {
+        if (formDataType === 'exemplar') {
+          return 'Enter exemplar URL below';
+        }
+        return 'Enter origin URI below';
+      }
+      return destinationTitle.value || 'Origin item';
     }
-    return originFallbackText.value;
+    return originTitle.value || 'Origin item';
   });
 
   const rightSideFallbackText = computed(() => {
     if (isReversed.value) {
-      return originFallbackText.value;
+      return originTitle.value || 'Destination item';
     }
-    // For add mode with exemplar type, show a placeholder
+    // For add mode, show a placeholder if no destination items are selected
     const formDataType = toValue(formData)?.type;
-    if (isAddMode.value && formDataType === 'exemplar') {
-      return 'Enter exemplar URL below';
+    if (isAddMode.value && !toValue(destinationItem)) {
+      if (formDataType === 'exemplar') {
+        return 'Enter exemplar URL below';
+      }
+      return 'Enter destination URI below';
     }
-    return destinationFallbackText.value;
+    return destinationTitle.value || 'Destination item';
   });
 
   // Check if origin or destination is the selected item (for reference)
@@ -380,7 +413,7 @@ export function useAssociationDirection(options) {
     originFetchError,
     originIdentifier,
     originItemDisplayText,
-    originFallbackText,
+    originTitle,
 
     destinationItemData,
     destinationItemTitle,
@@ -390,7 +423,7 @@ export function useAssociationDirection(options) {
     destinationFetchError,
     destinationIdentifier,
     destinationItemDisplayText,
-    destinationFallbackText,
+    destinationTitle,
 
     // Left/right side computed (based on direction)
     leftSideItemData,

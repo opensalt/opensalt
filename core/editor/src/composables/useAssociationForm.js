@@ -53,11 +53,17 @@ export function useAssociationForm(options) {
     groupId: 'default',
     // Exemplar-specific fields
     exemplarUrl: '',
-    exemplarDescription: ''
+    exemplarDescription: '',
+    // Destination-specific fields (when creating manual external associations)
+    destinationUri: '',
+    destinationIdentifier: '',
+    destinationTitle: '',
+    destinationTargetType: 'CASE'
   });
 
   const customType = ref('');
   const exemplarUrlError = ref('');
+  const destinationUriError = ref('');
 
   // Mode detection
   const isAddMode = computed(() => toValue(mode) === 'add');
@@ -115,6 +121,19 @@ export function useAssociationForm(options) {
         return false;
       }
       if (formData.exemplarUrl.length > 300) {
+        return false;
+      }
+    }
+
+    // Check custom destination validity if it's an add mode without a destination item
+    if (isAddMode.value && !toValue(destinationItem) && !isExemplarType.value) {
+      if (!formData.destinationUri.trim()) {
+        return false;
+      }
+      if (!validateUrl(formData.destinationUri)) {
+        return false;
+      }
+      if (formData.destinationUri.length > 300) {
         return false;
       }
     }
@@ -241,8 +260,25 @@ export function useAssociationForm(options) {
       exemplarUrlError.value = 'URL must be 300 characters or less';
       return false;
     }
-
     exemplarUrlError.value = '';
+    
+    // Also validate destinationUri in generic case
+    if (isAddMode.value && !toValue(destinationItem) && !isExemplarType.value) {
+      if (!formData.destinationUri.trim()) {
+        destinationUriError.value = 'Destination URI is required';
+        return false;
+      }
+      if (!validateUrl(formData.destinationUri)) {
+        destinationUriError.value = 'Please enter a valid URL';
+        return false;
+      }
+      if (formData.destinationUri.length > 300) {
+        destinationUriError.value = 'URL must be 300 characters or less';
+        return false;
+      }
+      destinationUriError.value = '';
+    }
+
     return true;
   }
 
@@ -273,14 +309,27 @@ export function useAssociationForm(options) {
     }
 
     // Standard association
-    return {
+    const assocData = {
       originNodeIdentifier: effectiveOrigin?.identifier,
-      destinationNodeIdentifier: effectiveDestination?.identifier,
       associationType: finalType,
       annotation: formData.annotation,
       groupId: formData.groupId,
       associationGroupingIdentifier: formData.groupId !== 'default' ? formData.groupId : null
     };
+
+    if (effectiveDestination?.identifier) {
+      assocData.destinationNodeIdentifier = effectiveDestination.identifier;
+    } else if (isAddMode.value) {
+      assocData.destinationNodeUri = formData.destinationUri;
+      if (formData.destinationIdentifier) {
+        assocData.destinationNodeIdentifier = formData.destinationIdentifier;
+      }
+      // Target types might be passed differently or not explicitly but saving what was requested.
+      // Usually targetType is part of the URI object or it's inferred.
+      // We will create the association request to handle targetType in the backend if supported.
+    }
+    
+    return assocData;
   }
 
   /**
@@ -348,6 +397,7 @@ export function useAssociationForm(options) {
     formData,
     customType,
     exemplarUrlError,
+    destinationUriError,
 
     // Mode
     isAddMode,

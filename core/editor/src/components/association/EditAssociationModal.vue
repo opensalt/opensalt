@@ -85,9 +85,22 @@
               v-model:description="formData.exemplarDescription"
               :urlError="exemplarUrlError"
             />
+            
+            <!-- Manual Destination Fields -->
+            <DestinationFields
+              v-if="isAddMode && !destinationItem && !isExemplarType"
+              v-model:uri="formData.destinationUri"
+              v-model:identifier="formData.destinationIdentifier"
+              v-model:title="formData.destinationTitle"
+              v-model:targetType="formData.destinationTargetType"
+              :isOrigin="isReversed"
+            />
+            <div v-if="destinationUriError" class="text-danger small mt-1 ms-3 mb-3">
+              {{ destinationUriError }}
+            </div>
 
              <!-- Group Selector -->
-             <div v-if="showGroupSelector" class="row mb-3" id="editAssociationFormGroupHolderOuter">
+             <div v-if="showGroupSelector && availableGroups.length > 0" class="row mb-3" id="editAssociationFormGroupHolderOuter">
               <label for="editAssociationFormGroup" class="col-sm-3 col-form-label required text-end">
                 Association Group
               </label>
@@ -97,7 +110,7 @@
                   class="form-select"
                   v-model="formData.groupId"
                 >
-                  <option value="default">Default Group</option>
+                  <option value="default">None</option>
                   <option v-for="group in availableGroups" :key="group.id" :value="group.id">
                     {{ group.title }}
                   </option>
@@ -131,6 +144,7 @@ import AssociationItemDisplay from './AssociationItemDisplay.vue';
 import DirectionSwitchButton from './DirectionSwitchButton.vue';
 import AssociationTypeSelector from './AssociationTypeSelector.vue';
 import ExemplarFields from './ExemplarFields.vue';
+import DestinationFields from './DestinationFields.vue';
 import { getOrderedAssociationTypes } from '../../composables/useAssociationTypePriority';
 
 const props = defineProps({
@@ -173,6 +187,7 @@ const {
   formData,
   customType,
   exemplarUrlError,
+  destinationUriError,
   isTypeDropdownDisabled,
   isValidCustomType,
   isExemplarType,
@@ -197,6 +212,8 @@ const {
 
 // Use the direction composable
 const {
+  isAddMode,
+  isEditMode,
   isReversed,
   leftSideItemData,
   rightSideItemData,
@@ -242,8 +259,16 @@ const prioritizedTypes = computed(() => {
   });
 });
 
-// Available groups for the group selector
-const availableGroups = computed(() => props.availableGroups || []);
+// Available groups for the group selector (filtering out virtual groups)
+const availableGroups = computed(() => {
+  if (!props.availableGroups) return [];
+  return props.availableGroups.filter(g => 
+    g.id !== 'default' && 
+    g.id !== 'all' && 
+    g.title !== 'Default' && 
+    g.title !== 'All'
+  );
+});
 
 // Watch for show prop changes
 watch(() => props.show, async (newVal) => {
