@@ -30,8 +30,8 @@ class CloneController extends AbstractController
         if ('clone_framework_by_identifier' === $_route) {
             // TODO: This should use a route at some point
             return $this->redirect('/editor/' . $newLsDoc->getIdentifier());
-        } else {
-            return $this->redirectToRoute('doc_tree_view', ['slug' => $newLsDoc->getId(), 'edit' => 1]);
         }
+
+        return $this->redirectToRoute('doc_tree_view', ['slug' => $newLsDoc->getId(), 'edit' => 1]);
     }
 }

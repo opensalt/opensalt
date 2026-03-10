@@ -23,9 +23,27 @@ class FrameworkTypeRepository extends ServiceEntityRepository
      */
     public function getList(): array
     {
-        $qBuilder = $this->createQueryBuilder('f', 'f.frameworkType')
-            ->orderBy('f.frameworkType');
+        $allTypes = $this->createQueryBuilder('f')
+            ->getQuery()
+            ->getResult();
 
-        return $qBuilder->getQuery()->getResult();
+        // Deduplicate case-insensitively, keeping smallest ID - O(n) complexity
+        $typesByLowerKey = [];
+        foreach ($allTypes as $frameworkType) {
+            $typeLower = mb_strtolower($frameworkType->getFrameworkType() ?? '');
+
+            // Replace if current ID is smaller (or not yet seen)
+            if (!isset($typesByLowerKey[$typeLower])
+                || $frameworkType->getId() < $typesByLowerKey[$typeLower]->getId()) {
+                $typesByLowerKey[$typeLower] = $frameworkType;
+            }
+        }
+
+        // Sort alphabetically by framework type name
+        $distinctTypes = array_values($typesByLowerKey);
+        usort($distinctTypes, fn ($a, $b) => strcasecmp($a->getFrameworkType() ?? '', $b->getFrameworkType() ?? '')
+        );
+
+        return $distinctTypes;
     }
 }
