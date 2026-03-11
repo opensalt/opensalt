@@ -98,6 +98,13 @@
 	#	# In this case, they will be handled by the PHP app.
 	#	reverse_proxy @pwa http://{$PWA_UPSTREAM}
 
+    handle /editor/* {
+        uri strip_prefix /editor
+        root * /srv/core/public/editor
+        file_server
+        try_files {path} /index.html
+    }
+
 	{$CADDY_SERVER_EXTRA_DIRECTIVES}
 
 	# Disable Topics tracking if not enabled explicitly: https://github.com/jkarlin/topics
