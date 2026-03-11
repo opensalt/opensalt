@@ -6,7 +6,7 @@
     </div>
 
     <div class="mt-2">
-      <strong>Identifier:</strong> <span class="ms-1">{{ item.identifier }}</span>
+      <strong>Identifier:</strong> <a :href="`/uri/${item.identifier}`" target="_blank" class="ms-1">{{ item.identifier }}</a>
     </div>
 
     <div class="row mt-2">

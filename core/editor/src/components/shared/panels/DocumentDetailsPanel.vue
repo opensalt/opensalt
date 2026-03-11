@@ -27,6 +27,11 @@
           {{ document.title || 'Untitled Document' }}
         </h5>
 
+        <div v-if="document.identifier" class="mb-3">
+          <strong>Identifier:</strong>
+          <a :href="`/uri/${document.identifier}`" target="_blank" class="ms-1">{{ document.identifier }}</a>
+        </div>
+
         <div v-if="document.description" class="mb-3">
           <strong>Description:</strong>
           <p class="mt-1">{{ document.description }}</p>

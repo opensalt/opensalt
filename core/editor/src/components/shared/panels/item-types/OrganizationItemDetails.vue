@@ -1,5 +1,11 @@
 <template>
   <div class="organization-item-details">
+    <!-- Identifier link -->
+    <div class="mb-3">
+      <strong>Identifier:</strong>
+      <a :href="`/uri/${item.identifier}`" target="_blank" class="ms-1">{{ item.identifier }}</a>
+    </div>
+
     <!-- Organization-specific fields -->
     <div v-if="item.abbreviatedStatement" class="mb-3">
       <strong>Organization Name:</strong>

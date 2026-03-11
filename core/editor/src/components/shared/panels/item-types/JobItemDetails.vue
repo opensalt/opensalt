@@ -1,5 +1,11 @@
 <template>
   <div class="job-item-details">
+    <!-- Identifier link -->
+    <div class="mb-3">
+      <strong>Identifier:</strong>
+      <a :href="`/uri/${item.identifier}`" target="_blank" class="ms-1">{{ item.identifier }}</a>
+    </div>
+
     <!-- Job-specific fields -->
     <div v-if="item.fullStatement" class="mb-3">
       <strong>Job Title:</strong>
