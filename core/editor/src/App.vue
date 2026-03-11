@@ -51,7 +51,7 @@
 </template>
 
 <script setup>
-import { ref, provide, computed, onMounted } from 'vue';
+import { ref, provide, computed, onMounted, watch } from 'vue';
 import { RouterView } from 'vue-router';
 import { useCurrentDocumentStore } from './stores/currentDocumentStore';
 import { useSessionStore } from './stores/sessionStore';
@@ -83,6 +83,15 @@ provide('notify', notify);
 const doc = computed(() => currentDocumentStore.currentDocument || { title: '', status: '', items: [] });
 const docTitle = computed(() => doc.value.title);
 const docStatus = computed(() => doc.value.status || 'Draft');
+
+// Update browser tab title when framework changes
+watch(() => doc.value?.title, (newTitle) => {
+  if (newTitle) {
+    document.title = `${newTitle} - OpenSALT Framework Editor`;
+  } else {
+    document.title = 'OpenSALT Framework Editor';
+  }
+}, { immediate: true });
 </script>
 
 <style>
