@@ -91,11 +91,14 @@ export function useDocumentLoader(options = {}) {
     const docData = await documentStore.fetchDocument(documentId);
     const transformedDoc = transformDocumentData(docData);
 
+    const definitions = docData.CFDefinitions || {};
+    const associationGroupings = definitions.CFAssociationGroupings || docData.CFAssociationGroupings || [];
+
     currentDocumentStore.selectDocument(
       transformedDoc,
-      docData.CFAssociationGroupings || [],
+      associationGroupings,
       docData.CFAssociations || [],
-      docData.CFDefinitions || null
+      definitions
     );
 
     if (onDocumentLoaded) {

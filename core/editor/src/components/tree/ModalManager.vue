@@ -41,6 +41,7 @@
     <ExemplarModal
       :current-item="selectedItem"
       :show="showExemplarModal"
+      :association-groups="associationGroups"
       @added="onExemplarAdded"
       @hidden="onExemplarModalHidden"
     />

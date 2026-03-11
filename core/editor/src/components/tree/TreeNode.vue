@@ -67,7 +67,7 @@
       <slot name="actions" :item="item" />
     </summary>
 
-    <div v-if="hasChildren" class="children-container" role="group">
+    <div v-if="hasChildren && isExpanded" class="children-container" role="group">
       <div v-for="(child, index) in item.children" :key="child.identifier">
         <TreeNode
           :item="child"

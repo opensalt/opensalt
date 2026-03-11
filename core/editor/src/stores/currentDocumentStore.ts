@@ -74,6 +74,8 @@ export interface EditorItemNode extends CFItemNode {
   sequenceNumber: number;
   /** Associations */
   associations?: EditorAssociation[];
+  /** Pre-calculated group IDs for faster filtering */
+  groupIds?: Set<string>;
   /** Child of association ID for reordering */
   childOfAssocId?: number;
   /** Flag indicating this is a cross-framework item (not in current document) */
@@ -152,7 +154,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     // Add groups from the current document's CFAssociationGroupings
     const packageGroups = currentDocumentAssociationGroupings.value.map(grouping => ({
       ...grouping,
-      id: grouping.identifier
+      id: grouping.identifier || grouping.uri
     }));
 
     return [...defaultGroups, ...packageGroups];
@@ -180,7 +182,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     };
     currentDocumentAssociationGroupings.value = associationGroupings.map(group => ({
       ...group,
-      id: group.identifier
+      id: group.identifier || group.uri
     }));
 
     // If viewed document matches the new current document, clear it
@@ -276,19 +278,37 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
         CFDocumentURI: undefined, // Not in CFPckgItem
         documentId: docId || null,
         children: [],
-        sequenceNumber: 0
+        sequenceNumber: 0,
+        groupIds: new Set()
       });
     });
 
-    // Second pass: build parent-child relationships (only isChildOf)
+    // Second pass: build parent-child relationships and associate items with associations
     cfAssociations.forEach(assoc => {
-      if (assoc.associationType !== 'isChildOf') return;
-
       const originId = assoc.originNodeURI?.identifier;
       const destinationId = assoc.destinationNodeURI?.identifier;
-      if (!originId || !destinationId) return;
+      if (!originId) return;
 
       const originInDoc = items.has(originId);
+      
+      // Associate everything (including non-isChildOf) with the item for filtering purposes
+      if (originInDoc) {
+        const item = items.get(originId)!;
+        if (!item.associations) item.associations = [];
+        
+        // Map CFAssociation to EditorAssociation
+        const groupId = assoc.CFAssociationGroupingURI?.identifier || assoc.CFAssociationGroupingURI?.uri || 'default';
+        const editorAssoc: EditorAssociation = {
+          ...assoc,
+          groupId: groupId as UUID
+        };
+        item.associations.push(editorAssoc);
+        item.groupIds?.add(groupId);
+      }
+
+      if (assoc.associationType !== 'isChildOf') return;
+      if (!destinationId) return;
+
       const destInDoc = items.has(destinationId);
 
       if (originInDoc && destInDoc) {

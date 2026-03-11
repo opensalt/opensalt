@@ -1,4 +1,5 @@
 import { ref, reactive, computed, toValue } from 'vue';
+import { useFilterStore } from '../stores/filterStore';
 import { getItemKind, MEANINGFUL_ASSOCIATIONS, MEANINGFUL_EXEMPLAR_ASSOCIATIONS } from './useAssociationTypePriority';
 
 /**
@@ -46,11 +47,14 @@ export function useAssociationForm(options) {
     isReversed
   } = options;
 
+  // Import and use filterStore to get current selected group
+  const filterStore = useFilterStore();
+
   // Form state
   const formData = reactive({
     type: '',
     annotation: '',
-    groupId: 'default',
+    groupId: filterStore.selectedAssociationGroup === 'all' ? 'default' : filterStore.selectedAssociationGroup,
     // Exemplar-specific fields
     exemplarUrl: '',
     exemplarDescription: '',
@@ -84,9 +88,9 @@ export function useAssociationForm(options) {
   // Exemplar type detection
   const isExemplarType = computed(() => formData.type === 'exemplar');
 
-  // Show group selector for non-exemplar, non-isChildOf types
+  // Show group selector for all types if groups exist
   const showGroupSelector = computed(() => {
-    return formData.type && !['exemplar', 'isChildOf'].includes(formData.type);
+    return true;
   });
 
   // Modal title based on mode
@@ -162,7 +166,7 @@ export function useAssociationForm(options) {
     // Reset form data
     formData.type = '';
     formData.annotation = '';
-    formData.groupId = 'default';
+    formData.groupId = filterStore.selectedAssociationGroup === 'all' ? 'default' : filterStore.selectedAssociationGroup;
     formData.exemplarUrl = '';
     formData.exemplarDescription = '';
     customType.value = '';
@@ -230,10 +234,8 @@ export function useAssociationForm(options) {
    * Handle type change event
    */
   function onTypeChange() {
-    // Auto-select default group for certain association types
-    if (['isChildOf', 'exemplar'].includes(formData.type)) {
-      formData.groupId = 'default';
-    }
+    // No longer auto-selecting default group for children/exemplars
+    // We want to allow them to be grouped too.
   }
 
   /**
@@ -372,7 +374,7 @@ export function useAssociationForm(options) {
   function resetForm() {
     formData.type = '';
     formData.annotation = '';
-    formData.groupId = 'default';
+    formData.groupId = filterStore.selectedAssociationGroup === 'all' ? 'default' : filterStore.selectedAssociationGroup;
     formData.exemplarUrl = '';
     formData.exemplarDescription = '';
     customType.value = '';

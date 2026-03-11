@@ -1,4 +1,4 @@
-import { ref, nextTick, computed, shallowRef } from 'vue';
+import { ref, nextTick, computed, shallowRef, watch } from 'vue';
 
 /**
  * Tree Navigation Composable
@@ -252,10 +252,30 @@ export function useTreeNavigation(options = {}) {
     onSelect(item.identifier);
   };
 
+  // Expand all ancestors to make an item visible
+  const expandToItem = (itemId) => {
+    if (!itemId) return;
+
+    function findPath(currItems, targetId, path = []) {
+      for (const item of currItems) {
+        if (item.identifier === targetId) return path;
+        if (item.children && item.children.length > 0) {
+          const foundPath = findPath(item.children, targetId, [...path, item.identifier]);
+          if (foundPath) return foundPath;
+        }
+      }
+      return null;
+    }
+
+    const path = findPath(items.value, itemId);
+    if (path) {
+      path.forEach(id => expandItem(id));
+    }
+  };
+
   // Handle Asterisk (*) key - expand all siblings
   const onAsterisk = (item) => {
     const visibleNodes = getVisibleNodes();
-    const currentIndex = visibleNodes.findIndex(i => i.identifier === item.identifier);
     const currentItemLevel = item.level || 0;
 
     // Expand all siblings at the same level
@@ -327,6 +347,11 @@ export function useTreeNavigation(options = {}) {
     }
   };
 
+  // NEW: Watch selectedId and expand to it
+  watch(() => selectedId.value, (newId) => {
+    if (newId) expandToItem(newId);
+  }, { immediate: true });
+
   return {
     // State
     focusedItemId,
@@ -351,6 +376,7 @@ export function useTreeNavigation(options = {}) {
     expandItem,
     collapseItem,
     toggleExpanded,
+    expandToItem,
 
     // Keyboard handlers
     onArrowRight,

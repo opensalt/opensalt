@@ -10,7 +10,7 @@ export const useFilterStore = defineStore('filters', () => {
     associationStatus: '',
     modifiedSince: ''
   });
-  const selectedAssociationGroup = ref('all');
+  const selectedAssociationGroup = ref('default');
 
   // Getters
   const availableSubjects = computed(() => {
@@ -41,17 +41,31 @@ export const useFilterStore = defineStore('filters', () => {
   }
 
   function filterItemsRecursively(items, searchQuery, filters, selectedAssociationGroup = 'all') {
+    const hasSearch = !!searchQuery;
+    const hasTypeFilter = !!filters.itemType;
+    const hasSubjectFilter = !!filters.subject;
+    const hasStatusFilter = !!filters.associationStatus;
+    const hasDateFilter = !!filters.modifiedSince;
+    const hasGroupFilter = selectedAssociationGroup !== 'all';
+
+    const isFiltering = hasSearch || hasTypeFilter || hasSubjectFilter || hasStatusFilter || hasDateFilter || hasGroupFilter;
+
+    if (!isFiltering) {
+      return items;
+    }
+
     const filtered = [];
+    let anyChange = false;
 
     for (const item of items) {
       let matches = true;
 
       // Apply search filter
-      if (searchQuery) {
+      if (hasSearch) {
         const query = searchQuery.toLowerCase();
-        const title = item.title?.toLowerCase() || '';
-        const abbreviatedTitle = item.abbreviatedTitle?.toLowerCase() || '';
-        const humanCodingScheme = item.humanCodingScheme?.toLowerCase() || '';
+        const title = (item.title || '').toLowerCase();
+        const abbreviatedTitle = (item.abbreviatedTitle || '').toLowerCase();
+        const humanCodingScheme = (item.humanCodingScheme || '').toLowerCase();
 
         if (!title.includes(query) && !abbreviatedTitle.includes(query) && !humanCodingScheme.includes(query)) {
           matches = false;
@@ -59,28 +73,28 @@ export const useFilterStore = defineStore('filters', () => {
       }
 
       // Apply item type filter
-      if (matches && filters.itemType && item.itemType !== filters.itemType) {
+      if (matches && hasTypeFilter && item.itemType !== filters.itemType) {
         matches = false;
       }
 
       // Apply subject filter
-      if (matches && filters.subject && item.subject !== filters.subject) {
+      if (matches && hasSubjectFilter && item.subject !== filters.subject) {
         matches = false;
       }
 
       // Apply association status filter
-      if (matches && filters.associationStatus) {
-        const hasAssociations = item.associations && item.associations.length > 0;
-        if (filters.associationStatus === 'has-associations' && !hasAssociations) {
+      if (matches && hasStatusFilter) {
+        const hasAssociationsCount = item.associations?.length || 0;
+        if (filters.associationStatus === 'has-associations' && hasAssociationsCount === 0) {
           matches = false;
         }
-        if (filters.associationStatus === 'no-associations' && hasAssociations) {
+        if (filters.associationStatus === 'no-associations' && hasAssociationsCount > 0) {
           matches = false;
         }
       }
 
       // Apply modified date filter
-      if (matches && filters.modifiedSince && item.lastChanged) {
+      if (matches && hasDateFilter && item.lastChanged) {
         const itemDate = new Date(item.lastChanged);
         const now = new Date();
         let cutoffDate;
@@ -100,37 +114,48 @@ export const useFilterStore = defineStore('filters', () => {
             break;
         }
 
-        if (itemDate < cutoffDate) {
+        if (cutoffDate && itemDate < cutoffDate) {
           matches = false;
         }
       }
 
-      // Apply association group filter
-      if (matches && selectedAssociationGroup !== 'all') {
-        // Check if item has associations in the selected group
-        const hasAssociationInGroup = item.associations && item.associations.some(assoc =>
-          assoc.groupId === selectedAssociationGroup
-        );
-        if (!hasAssociationInGroup) {
+      // Apply association group filter - Use pre-calculated groupIds Set
+      if (matches && hasGroupFilter) {
+        if (!item.groupIds?.has(selectedAssociationGroup)) {
           matches = false;
         }
       }
 
-      // If item matches, include it and recursively filter its children
-      if (matches) {
-        const filteredItem = { ...item };
-        if (item.children && item.children.length > 0) {
-          filteredItem.children = filterItemsRecursively(item.children, searchQuery, filters, selectedAssociationGroup);
+      // Process children
+      const originalChildren = item.children || [];
+      const filteredChildren = originalChildren.length > 0
+        ? filterItemsRecursively(originalChildren, searchQuery, filters, selectedAssociationGroup)
+        : originalChildren;
+
+      const childrenChanged = filteredChildren !== originalChildren;
+
+      // If item matches OR has matching children, include it
+      if (matches || (filteredChildren && filteredChildren.length > 0)) {
+        if (!matches || childrenChanged) {
+          // Something changed (either filtered out children or item itself doesn't match but child does)
+          anyChange = true;
+          filtered.push({
+            ...item,
+            children: filteredChildren
+          });
+        } else {
+          // Item matches and children are untouched
+          filtered.push(item);
         }
-        filtered.push(filteredItem);
-      } else if (item.children && item.children.length > 0) {
-        // If item doesn't match but has children, check if any children match
-        const filteredChildren = filterItemsRecursively(item.children, searchQuery, filters, selectedAssociationGroup);
-        if (filteredChildren.length > 0) {
-          const filteredItem = { ...item, children: filteredChildren };
-          filtered.push(filteredItem);
-        }
+      } else {
+        // Item and its children were filtered out
+        anyChange = true;
       }
+    }
+
+    // Return the original array if nothing was filtered out and nothing changed referentially
+    if (filtered.length === items.length && !anyChange) {
+      return items;
     }
 
     return filtered;

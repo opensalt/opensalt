@@ -35,15 +35,6 @@ export function useItemAssociations({ item, displayItem }) {
     // Helpers
     // -----------------------------------------------------------------------
 
-    /** Build a flat identifier → item Map for O(1) lookup */
-    function buildItemIndex(items, index = new Map()) {
-        if (!items || !Array.isArray(items)) return index;
-        for (const it of items) {
-            if (it?.identifier) index.set(it.identifier, it);
-            if (it?.children?.length) buildItemIndex(it.children, index);
-        }
-        return index;
-    }
 
     function clearAssociationsCache() {
         mergedAssociationsCache.value = new Map();
@@ -77,8 +68,6 @@ export function useItemAssociations({ item, displayItem }) {
                     : null),
         }));
 
-        // Build item index (unused but kept for consistent O(1) access pattern)
-        buildItemIndex(currentDocumentStore.currentDocument?.items);
 
         const filteredAssociations = currentAssociations.filter((a) => {
             const assocType = a.associationType || a.type;

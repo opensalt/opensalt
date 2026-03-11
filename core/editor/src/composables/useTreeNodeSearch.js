@@ -11,56 +11,23 @@ import { computed, watch } from 'vue';
  * @param {import('vue').ComputedRef} options.itemIdentifier - This node's identifier
  */
 export function useTreeNodeSearch({ resolvedItem, searchQuery, matchingItemIds, navigation, itemIdentifier }) {
-    const searchableText = computed(() => {
-        const parts = [
-            resolvedItem.value.humanCodingScheme,
-            resolvedItem.value.abbreviatedStatement,
-            resolvedItem.value.fullStatement,
-            resolvedItem.value.title,
-            resolvedItem.value.identifier,
-        ].filter(Boolean);
-        return parts.join(' ').toLowerCase();
-    });
-
     const hasMatch = computed(() => {
         if (!searchQuery.value) return true;
-        return searchableText.value.includes(searchQuery.value.toLowerCase());
+        return matchingItemIds.value.has(itemIdentifier.value);
     });
-
-    function checkDescendantsForMatch(children, query) {
-        for (const child of children) {
-            const childText = [
-                child.humanCodingScheme,
-                child.abbreviatedStatement,
-                child.fullStatement,
-                child.title,
-                child.identifier,
-            ]
-                .filter(Boolean)
-                .join(' ')
-                .toLowerCase();
-            if (childText.includes(query)) return true;
-            if (child.children && checkDescendantsForMatch(child.children, query)) return true;
-        }
-        return false;
-    }
 
     const hasMatchingDescendant = computed(() => {
         if (!searchQuery.value) return false;
-        return checkDescendantsForMatch(resolvedItem.value.children || [], searchQuery.value.toLowerCase());
+        // In the filtered tree, if a node has children, it's because either it matches or a descendant matches.
+        // If it doesn't match itself, but has children, then it MUST have matching descendants.
+        return resolvedItem.value.children?.length > 0;
     });
 
-    const isVisible = computed(() => {
-        if (!searchQuery.value) return true;
-        if (matchingItemIds.value.has(itemIdentifier.value)) return true;
-        if (hasMatchingDescendant.value) return true;
-        return false;
-    });
+    const isVisible = computed(() => true); // If it's in the filtered tree, it's visible.
 
     const isAncestorOnlyMatch = computed(() => {
         if (!searchQuery.value) return false;
-        if (hasMatch.value) return false;
-        return isVisible.value && hasMatchingDescendant.value;
+        return !hasMatch.value && hasMatchingDescendant.value;
     });
 
     function escapeRegExp(string) {
@@ -91,7 +58,6 @@ export function useTreeNodeSearch({ resolvedItem, searchQuery, matchingItemIds, 
     );
 
     return {
-        searchableText,
         hasMatch,
         hasMatchingDescendant,
         isVisible,

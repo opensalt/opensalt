@@ -74,6 +74,24 @@
                 ></textarea>
               </div>
             </div>
+
+            <div v-if="filteredGroups.length > 0" class="row mb-3">
+              <label for="addExemplarFormGroup" class="col-sm-3 col-form-label">
+                Association Group
+              </label>
+              <div class="col-sm-9">
+                <select
+                  id="addExemplarFormGroup"
+                  class="form-select"
+                  v-model="formData.groupId"
+                >
+                  <option value="default">None</option>
+                  <option v-for="group in filteredGroups" :key="group.id" :value="group.id">
+                    {{ group.title }}
+                  </option>
+                </select>
+              </div>
+            </div>
           </form>
         </div>
         <div class="modal-footer">
@@ -89,16 +107,22 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch } from 'vue';
+import { ref, reactive, watch, computed } from 'vue';
 import { Modal } from 'bootstrap';
+import { useFilterStore } from '../../../stores/filterStore';
 
 const props = defineProps({
   currentItem: Object,
-  show: Boolean
+  show: Boolean,
+  associationGroups: {
+    type: Array,
+    default: () => []
+  }
 });
 
 const emit = defineEmits(['added', 'hidden']);
 
+const filterStore = useFilterStore();
 const error = ref('');
 const saving = ref(false);
 const modal = ref(null);
@@ -106,7 +130,17 @@ const modal = ref(null);
 const formData = reactive({
   exemplarUrl: '',
   exemplarDescription: '',
-  annotation: ''
+  annotation: '',
+  groupId: 'default'
+});
+
+const filteredGroups = computed(() => {
+  return props.associationGroups.filter(g => 
+    g.id !== 'default' && 
+    g.id !== 'all' && 
+    g.title !== 'Default' && 
+    g.title !== 'All'
+  );
 });
 
 watch(() => props.show, (newVal) => {
@@ -125,6 +159,7 @@ function resetForm() {
   formData.exemplarUrl = '';
   formData.exemplarDescription = '';
   formData.annotation = '';
+  formData.groupId = filterStore.selectedAssociationGroup === 'all' ? 'default' : filterStore.selectedAssociationGroup;
   error.value = '';
 }
 
@@ -158,7 +193,8 @@ function addExemplar() {
       destinationNodeUri: formData.exemplarUrl,
       associationType: 'exemplar',
       annotation: formData.annotation,
-      notes: formData.exemplarDescription
+      notes: formData.exemplarDescription,
+      assocGroup: formData.groupId !== 'default' ? formData.groupId : null
   };
 
   emit('added', exemplarData);
