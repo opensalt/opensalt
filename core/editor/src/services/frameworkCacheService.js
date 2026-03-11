@@ -116,7 +116,7 @@ class FrameworkCacheService {
    * @param {Object} cfPackage - The CFPackage object to cache
    * @returns {Promise<boolean>} - True if stored successfully, false otherwise
    */
-  async setFramework(documentId, cfPackage) {
+  async setFramework(documentId, cfPackage, etag = null, lastModified = null) {
     if (!documentId || !cfPackage) {
       logger.warn('setFramework called with invalid arguments');
       return false;
@@ -134,7 +134,9 @@ class FrameworkCacheService {
       id: documentId,
       data: cfPackage,
       cachedAt: Date.now(),
-      lastChangeDateTime: lastChangeDateTime
+      lastChangeDateTime: lastChangeDateTime,
+      etag: etag,
+      lastModified: lastModified
     };
 
     return new Promise((resolve) => {
@@ -149,7 +151,7 @@ class FrameworkCacheService {
         };
 
         request.onsuccess = () => {
-          logger.debug('Framework stored in cache:', documentId);
+          logger.debug('Framework stored in cache:', documentId, etag ? `(ETag: ${etag})` : '');
           resolve(true);
         };
       } catch (error) {

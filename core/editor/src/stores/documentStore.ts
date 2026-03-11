@@ -228,18 +228,30 @@ export const useDocumentStore = defineStore('documents', () => {
       if (errorRef) errorRef.value = null;
 
       try {
-        const pkg = await contextStore.loadPackage(identifier);
+        // Fetch with fullResponse to get headers for caching
+        const response = await api.get(`/ims/case/v1p1/CFPackages/${identifier}`, {
+          fullResponse: true
+        }) as any;
+
+        const pkg = response.data as CFPackage;
         if (!pkg) throw new Error(`Failed to load package ${identifier}`);
+
+        const etag = response.headers.get('etag');
+        const lastModified = response.headers.get('last-modified');
+        logger.debug(`[loadPackage] Received headers for ${identifier}:`, { etag, lastModified });
 
         // Cache in memory (for testing/IndexedDB-unavailable)
         memoryCache.set(identifier, pkg);
 
         // Cache in IndexedDB
         try {
-          await frameworkCacheService.setFramework(identifier, pkg);
+          await frameworkCacheService.setFramework(identifier, pkg, etag, lastModified);
         } catch (cacheErr) {
           logger.warn('Failed to cache framework in IndexedDB:', cacheErr);
         }
+
+        // Still populate registries for consistency
+        populateRegistries(identifier, pkg);
 
         return pkg;
       } catch (err) {
@@ -267,23 +279,41 @@ export const useDocumentStore = defineStore('documents', () => {
         try {
             const contextStore = useEditorContextStore();
 
-            if (!force) {
-                // Check memory cache first to avoid unnecessary API calls
-                const memoryCached = memoryCache.get(identifier);
-                if (memoryCached) {
-                    logger.debug('Memory cache hit for revalidation, skipping API call');
-                    revalidatingRequests.delete(identifier);
-                    return;
-                }
+            // Get cached headers for conditional request
+            const cachedEntry = await frameworkCacheService.getFramework(identifier) as any;
+            const headers: Record<string, string> = {};
+            if (cachedEntry) {
+                if (cachedEntry.etag) headers['If-None-Match'] = cachedEntry.etag;
+                if (cachedEntry.lastModified) headers['If-Modified-Since'] = cachedEntry.lastModified;
             }
 
-            // Fetch fresh version from API
-            // We use contextStore.loadPackage directly to bypass our own SWR logic here
-            const pkg = await contextStore.loadPackage(identifier);
+            // Fetch version from API with conditional headers
+            const response = await api.get(`/ims/case/v1p1/CFPackages/${identifier}`, {
+                headers,
+                fullResponse: true
+            }) as any;
+
+            if (response.status === 304 && cachedEntry) {
+                logger.debug('Background revalidation: 304 Not Modified for:', identifier);
+                // Update cachedAt timestamp in IndexedDB
+                await frameworkCacheService.setFramework(
+                    identifier,
+                    cachedEntry.data,
+                    cachedEntry.etag,
+                    cachedEntry.lastModified
+                );
+                revalidatingRequests.delete(identifier);
+                return;
+            }
+
+            const pkg = response.data as CFPackage;
 
             if (pkg) {
-                // Update IndexedDB
-                await frameworkCacheService.setFramework(identifier, pkg);
+                const etag = response.headers.get('etag');
+                const lastModified = response.headers.get('last-modified');
+
+                // Update IndexedDB with new data and headers
+                await frameworkCacheService.setFramework(identifier, pkg, etag, lastModified);
 
                 // Update memory cache
                 memoryCache.set(identifier, pkg);
@@ -292,7 +322,7 @@ export const useDocumentStore = defineStore('documents', () => {
                 // Note: populateRegistries handles contextStore.loadedPackages.set
                 populateRegistries(identifier, pkg);
 
-                logger.debug('Background revalidation complete for:', identifier);
+                logger.debug('Background revalidation complete for:', identifier, etag ? `(ETag: ${etag})` : '');
 
                 // If this is the active document, we should tell currentDocumentStore to refresh its transformation
                 if (contextStore.activeWriteDocumentId === identifier) {

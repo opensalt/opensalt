@@ -84,17 +84,34 @@ class ApiService {
     try {
       const response = await fetch(url, requestOptions);
 
+      // Handle 304 Not Modified correctly for caching
+      if (response.status === 304) {
+        if (options.fullResponse) {
+          return { data: null, status: 304, headers: response.headers };
+        }
+        return null;
+      }
+
       if (!response.ok) {
         throw this.createApiError(response);
       }
 
       // Handle empty responses
       const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        return null;
+      let data = null;
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
       }
 
-      return await response.json();
+      if (options.fullResponse) {
+        return {
+          data,
+          status: response.status,
+          headers: response.headers
+        };
+      }
+
+      return data;
     } catch (error) {
       // Re-throw ApiError as-is, wrap other errors
       if (error instanceof ApiError) {
