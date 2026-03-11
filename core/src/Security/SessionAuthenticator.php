@@ -89,8 +89,6 @@ final readonly class SessionAuthenticator implements AuthenticatorInterface
         // Extract the security token from the session (stored by the main firewall)
         $tokenData = $sessionData['_sf2_attributes']['_security_main'] ?? null;
 
-        dump($sessionData, $tokenData);
-
         if (null === $tokenData) {
             throw new AuthenticationException('No authentication token found in session.');
         }
@@ -103,7 +101,6 @@ final readonly class SessionAuthenticator implements AuthenticatorInterface
         }
 
         $user = $token->getUser();
-        dump($user, $this->userProvider->loadUserByIdentifier($user->getUserIdentifier()));
 
         if (null === $user) {
             throw new AuthenticationException('No user found in session token.');
