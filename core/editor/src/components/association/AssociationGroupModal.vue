@@ -205,23 +205,24 @@ function cancelEdit() {
 }
 
 function saveGroup() {
-  if (!formData.title.trim()) {
-    error.value = 'Title is required';
-    return;
+  try {
+    const groupData = {
+      title: formData.title,
+      description: formData.description
+    };
+
+    if (isEdit.value && editingGroup.value) {
+      groupData.id = editingGroup.value.id;
+    }
+
+    emit('saved', groupData);
+    mode.value = 'list';
+    resetForm();
+  } catch (e) {
+    error.value = 'Failed to save group: ' + e.message;
+  } finally {
+    saving.value = false;
   }
-
-  const groupData = {
-    title: formData.title,
-    description: formData.description
-  };
-
-  if (isEdit.value && editingGroup.value) {
-    groupData.id = editingGroup.value.id;
-  }
-
-  emit('saved', groupData);
-  mode.value = 'list';
-  resetForm();
 }
 
 function deleteGroup(group) {

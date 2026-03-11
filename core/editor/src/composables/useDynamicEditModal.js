@@ -5,14 +5,26 @@ function determineType(item) {
     return item.extensions?.['salt:type'] || item.itemType || 'general';
 }
 
-export function useDynamicEditModal(onUpdate, availableTypes = ['general', 'assessment', 'course', 'credential', 'job', 'organization', 'public_key']) {
+export function useDynamicEditModal(onUpdate, onAdd, availableTypes = ['general', 'assessment', 'course', 'credential', 'job', 'organization', 'public_key', 'identifier']) {
   const editingItem = ref(null);
+  const modalParentItem = ref(null);
   const selectedEditType = ref('');
   const isEditModalVisible = ref(false);
 
   const showEditModal = (item) => {
     editingItem.value = item;
+    modalParentItem.value = null;
     selectedEditType.value = determineType(item);
+    if (!availableTypes.includes(selectedEditType.value)) {
+      selectedEditType.value = 'general';
+    }
+    isEditModalVisible.value = true;
+  };
+
+  const showAddModal = (parent, type = 'general') => {
+    editingItem.value = null;
+    modalParentItem.value = parent;
+    selectedEditType.value = type;
     if (!availableTypes.includes(selectedEditType.value)) {
       selectedEditType.value = 'general';
     }
@@ -38,20 +50,34 @@ export function useDynamicEditModal(onUpdate, availableTypes = ['general', 'asse
     onUpdate(updatedItem);
     isEditModalVisible.value = false;
     editingItem.value = null;
+    modalParentItem.value = null;
+  };
+
+  const handleCreated = (newItem) => {
+    if (onAdd) {
+      onAdd(newItem, modalParentItem.value);
+    }
+    isEditModalVisible.value = false;
+    editingItem.value = null;
+    modalParentItem.value = null;
   };
 
   const handleEditHidden = () => {
     isEditModalVisible.value = false;
     editingItem.value = null;
+    modalParentItem.value = null;
   };
 
   return {
     showEditModal,
+    showAddModal,
     selectedEditType,
     isEditModalVisible,
     editingItem,
+    modalParentItem,
     editModalComponent,
     handleUpdated,
+    handleCreated,
     handleEditHidden
   };
 }

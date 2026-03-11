@@ -36,6 +36,7 @@ class AddTreeAssociationCommand extends BaseCommand
                 'identifier' => new Assert\Type('string'),
                 'uri' => new Assert\Type('string'),
                 'externalDoc' => new Assert\Type('string'),
+                'targetType' => new Assert\Type('string'),
             ],
             allowMissingFields: true,
         )]
@@ -51,6 +52,7 @@ class AddTreeAssociationCommand extends BaseCommand
                 'identifier' => new Assert\Type('string'),
                 'uri' => new Assert\Type('string'),
                 'externalDoc' => new Assert\Type('string'),
+                'targetType' => new Assert\Type('string'),
             ],
             allowMissingFields: true,
         )]
@@ -116,8 +118,8 @@ class AddTreeAssociationCommand extends BaseCommand
                 ->addViolation();
         }
 
-        if (empty($this->dest['id']) && empty($this->dest['identifier'])) {
-            $context->buildViolation('One of id or identifier must be supplied for the destination.')
+        if (empty($this->dest['id']) && empty($this->dest['identifier']) && empty($this->dest['uri'])) {
+            $context->buildViolation('One of id, identifier, or uri must be supplied for the destination.')
                 ->atPath('dest')
                 ->addViolation();
         }

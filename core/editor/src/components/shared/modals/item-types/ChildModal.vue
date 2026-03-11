@@ -430,64 +430,61 @@ function saveItem() {
   saving.value = true;
   error.value = '';
 
-  // Simulate saving - in real app, API call to create/update item
-  setTimeout(() => {
-    try {
-      let savedItem;
-      if (isEdit.value) {
-        savedItem = {
-          ...props.item,
-          fullStatement: formData.fullStatement,
-          humanCodingScheme: formData.humanCodingScheme,
-          abbreviatedStatement: formData.abbreviatedStatement,
-          listEnumInSource: formData.listEnumInSource,
-          conceptKeywords: formData.conceptKeywords,
-          language: formData.language,
-          educationalAlignment: formData.educationalAlignment,
-          itemType: formData.itemType,
-          subjects: formData.subjects,
-          licence: formData.licence,
-          notes: formData.notes,
-          updated: new Date().toISOString()
-        };
-        emit('updated', savedItem);
-      } else {
-        savedItem = {
-          fullStatement: formData.fullStatement,
-          humanCodingScheme: formData.humanCodingScheme,
-          abbreviatedStatement: formData.abbreviatedStatement,
-          listEnumInSource: formData.listEnumInSource,
-          conceptKeywords: formData.conceptKeywords,
-          language: formData.language || 'en',
-          educationalAlignment: formData.educationalAlignment,
-          itemType: formData.itemType,
-          subjects: formData.subjects,
-          licence: formData.licence,
-          notes: formData.notes,
-          children: [],
-          associations: []
-        };
+  try {
+    let savedItem;
+    if (isEdit.value) {
+      savedItem = {
+        ...props.item,
+        fullStatement: formData.fullStatement,
+        humanCodingScheme: formData.humanCodingScheme,
+        abbreviatedStatement: formData.abbreviatedStatement,
+        listEnumInSource: formData.listEnumInSource,
+        conceptKeywords: formData.conceptKeywords,
+        language: formData.language,
+        educationalAlignment: formData.educationalAlignment,
+        itemType: formData.itemType,
+        subjects: formData.subjects,
+        licence: formData.licence,
+        notes: formData.notes,
+        updated: new Date().toISOString()
+      };
+      emit('updated', savedItem);
+    } else {
+      savedItem = {
+        fullStatement: formData.fullStatement,
+        humanCodingScheme: formData.humanCodingScheme,
+        abbreviatedStatement: formData.abbreviatedStatement,
+        listEnumInSource: formData.listEnumInSource,
+        conceptKeywords: formData.conceptKeywords,
+        language: formData.language || 'en',
+        educationalAlignment: formData.educationalAlignment,
+        itemType: formData.itemType,
+        subjects: formData.subjects,
+        licence: formData.licence,
+        notes: formData.notes,
+        children: [],
+        associations: []
+      };
 
-        // Set isChildOf association if parent provided
-        if (props.parentItem && formData.humanCodingScheme) {
-          savedItem.associations.push({
-            type: 'isChildOf',
-            originNode: props.parentItem.humanCodingScheme,
-            targetNode: formData.humanCodingScheme,
-            originIdentifier: props.parentItem.humanCodingScheme,
-            targetIdentifier: formData.humanCodingScheme
-          });
-        }
-
-        savedItem.created = new Date().toISOString();
-        emit('created', savedItem);
+      // Set isChildOf association if parent provided
+      if (props.parentItem && formData.humanCodingScheme) {
+        savedItem.associations.push({
+          type: 'isChildOf',
+          originNode: props.parentItem.humanCodingScheme,
+          targetNode: formData.humanCodingScheme,
+          originIdentifier: props.parentItem.humanCodingScheme,
+          targetIdentifier: formData.humanCodingScheme
+        });
       }
-    } catch (e) {
-      error.value = 'Failed to save item: ' + e.message;
-    } finally {
-      saving.value = false;
+
+      savedItem.created = new Date().toISOString();
+      emit('created', savedItem);
     }
-  }, 1000);
+  } catch (e) {
+    error.value = 'Failed to save item: ' + e.message;
+  } finally {
+    saving.value = false;
+  }
 }
 
 function closeModal() {

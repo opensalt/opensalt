@@ -276,53 +276,50 @@ function saveItem() {
   saving.value = true;
   error.value = '';
 
-  // Simulate API call
-  setTimeout(() => {
-    try {
-      let savedItem;
-      if (isEdit.value) {
-        // Map form fields back to CASE structure
-        savedItem = {
-          ...props.item,
-          abbreviatedStatement: formData.name,
-          fullStatement: formData.description,
-          extensions: {
-            ...(props.item?.extensions || {}),
-            'ceterms:agentType': formData.type,
-            'ceterms:image': formData.logo,
-            'sdo:legalName': formData.legalName,
-            'ceterms:ctid': formData.ctid,
-            'ceterms:subjectWebpage': formData.webpage,
-            'ceterms:jurisdiction': formData.jurisdiction
-          },
-          updated: new Date().toISOString()
-        };
-        emit('updated', savedItem);
-      } else {
-        savedItem = {
-          identifier: 'org_' + Date.now(),
-          abbreviatedStatement: formData.name,
-          fullStatement: formData.description,
-          extensions: {
-            'ceterms:agentType': formData.type,
-            'ceterms:image': formData.logo,
-            'sdo:legalName': formData.legalName,
-            'ceterms:ctid': formData.ctid,
-            'ceterms:subjectWebpage': formData.webpage,
-            'ceterms:jurisdiction': formData.jurisdiction
-          },
-          parentId: props.parentItem?.identifier || null,
-          created: new Date().toISOString(),
-          children: []
-        };
-        emit('created', savedItem);
-      }
-    } catch (e) {
-      error.value = 'Failed to save organization: ' + e.message;
-    } finally {
-      saving.value = false;
+  try {
+    let savedItem;
+    if (isEdit.value) {
+      // Map form fields back to CASE structure
+      savedItem = {
+        ...props.item,
+        abbreviatedStatement: formData.name,
+        fullStatement: formData.description,
+        extensions: {
+          ...(props.item?.extensions || {}),
+          'ceterms:agentType': formData.type,
+          'ceterms:image': formData.logo,
+          'sdo:legalName': formData.legalName,
+          'ceterms:ctid': formData.ctid,
+          'ceterms:subjectWebpage': formData.webpage,
+          'ceterms:jurisdiction': formData.jurisdiction
+        },
+        updated: new Date().toISOString()
+      };
+      emit('updated', savedItem);
+    } else {
+      savedItem = {
+        identifier: 'org_' + Date.now(),
+        abbreviatedStatement: formData.name,
+        fullStatement: formData.description,
+        extensions: {
+          'ceterms:agentType': formData.type,
+          'ceterms:image': formData.logo,
+          'sdo:legalName': formData.legalName,
+          'ceterms:ctid': formData.ctid,
+          'ceterms:subjectWebpage': formData.webpage,
+          'ceterms:jurisdiction': formData.jurisdiction
+        },
+        parentId: props.parentItem?.identifier || null,
+        created: new Date().toISOString(),
+        children: []
+      };
+      emit('created', savedItem);
     }
-  }, 1000);
+  } catch (e) {
+    error.value = 'Failed to save organization: ' + e.message;
+  } finally {
+    saving.value = false;
+  }
 }
 
 function closeModal() {

@@ -203,22 +203,19 @@ function confirmDelete() {
   deleting.value = true;
   error.value = '';
 
-  // Simulate deletion - in real app this would be an API call
-  setTimeout(() => {
-    try {
-      emit('confirmed', {
-        items: itemsToDelete.value,
-        deleteType: props.deleteType
-      });
-      if (modal.value) {
-        modal.value.hide();
-      }
-    } catch (e) {
-      error.value = 'Failed to delete: ' + e.message;
-    } finally {
-      deleting.value = false;
+  try {
+    emit('confirmed', {
+      items: itemsToDelete.value,
+      deleteType: props.deleteType
+    });
+    if (modal.value) {
+      modal.value.hide();
     }
-  }, 1000);
+  } catch (e) {
+    error.value = 'Failed to delete: ' + e.message;
+  } finally {
+    deleting.value = false;
+  }
 }
 
 // Handle modal hidden event

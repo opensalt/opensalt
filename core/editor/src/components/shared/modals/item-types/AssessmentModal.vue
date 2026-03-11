@@ -218,49 +218,46 @@ function saveItem() {
   saving.value = true;
   error.value = '';
 
-  // Simulate saving item - in real app this would be an API call
-  setTimeout(() => {
-    try {
-      let savedItem;
-      if (isEdit.value) {
-        // Map form fields back to CASE structure
-        savedItem = {
-          ...props.item,
-          abbreviatedStatement: formData.name,
-          fullStatement: formData.description,
-          language: formData.inLanguage,
-          conceptKeywords: formData.keywords.split(',').map(k => k.trim()).filter(k => k),
-          extensions: {
-            ...props.item?.extensions,
-            'ceterms:deliveryType': formData.deliveryType,
-            'ceterms:subjectWebpage': formData.webpage
-          },
-          updated: new Date().toISOString()
-        };
-        emit('updated', savedItem);
-      } else {
-        savedItem = {
-          identifier: 'assessment_' + Date.now(),
-          abbreviatedStatement: formData.name,
-          fullStatement: formData.description,
-          language: formData.inLanguage,
-          conceptKeywords: formData.keywords.split(',').map(k => k.trim()).filter(k => k),
-          extensions: {
-            'ceterms:deliveryType': formData.deliveryType,
-            'ceterms:subjectWebpage': formData.webpage
-          },
-          parentId: props.parentItem?.identifier || null,
-          created: new Date().toISOString(),
-          children: []
-        };
-        emit('created', savedItem);
-      }
-    } catch (e) {
-      error.value = 'Failed to save assessment: ' + e.message;
-    } finally {
-      saving.value = false;
+  try {
+    let savedItem;
+    if (isEdit.value) {
+      // Map form fields back to CASE structure
+      savedItem = {
+        ...props.item,
+        abbreviatedStatement: formData.name,
+        fullStatement: formData.description,
+        language: formData.inLanguage,
+        conceptKeywords: formData.keywords.split(',').map(k => k.trim()).filter(k => k),
+        extensions: {
+          ...props.item?.extensions,
+          'ceterms:deliveryType': formData.deliveryType,
+          'ceterms:subjectWebpage': formData.webpage
+        },
+        updated: new Date().toISOString()
+      };
+      emit('updated', savedItem);
+    } else {
+      savedItem = {
+        identifier: 'assessment_' + Date.now(),
+        abbreviatedStatement: formData.name,
+        fullStatement: formData.description,
+        language: formData.inLanguage,
+        conceptKeywords: formData.keywords.split(',').map(k => k.trim()).filter(k => k),
+        extensions: {
+          'ceterms:deliveryType': formData.deliveryType,
+          'ceterms:subjectWebpage': formData.webpage
+        },
+        parentId: props.parentItem?.identifier || null,
+        created: new Date().toISOString(),
+        children: []
+      };
+      emit('created', savedItem);
     }
-  }, 1000);
+  } catch (e) {
+    error.value = 'Failed to save assessment: ' + e.message;
+  } finally {
+    saving.value = false;
+  }
 }
 
 function closeModal() {

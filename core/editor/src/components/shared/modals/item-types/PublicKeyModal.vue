@@ -131,41 +131,38 @@ function saveItem() {
   saving.value = true;
   error.value = '';
 
-  // Simulate saving item - in real app this would be an API call
-  setTimeout(() => {
-    try {
-      let savedItem;
-      if (isEdit.value) {
-        // Map form fields back to CASE structure
-        savedItem = {
-          ...props.item,
-          fullStatement: formData.publicKey,
-          extensions: {
-            ...(props.item?.extensions || {})
-            // , 'salt:kid': formData.type
-          },
-          updated: new Date().toISOString()
-        };
-        emit('updated', savedItem);
-      } else {
-        savedItem = {
-          identifier: 'public_key_' + Date.now(),
-          fullStatement: formData.publicKey,
-          extensions: {
-            // 'salt:kid': formData.type
-          },
-          parentId: props.parentItem?.identifier || null,
-          created: new Date().toISOString(),
-          children: []
-        };
-        emit('created', savedItem);
-      }
-    } catch (e) {
-      error.value = 'Failed to save public key: ' + e.message;
-    } finally {
-      saving.value = false;
+  try {
+    let savedItem;
+    if (isEdit.value) {
+      // Map form fields back to CASE structure
+      savedItem = {
+        ...props.item,
+        fullStatement: formData.publicKey,
+        extensions: {
+          ...(props.item?.extensions || {})
+          // , 'salt:kid': formData.type
+        },
+        updated: new Date().toISOString()
+      };
+      emit('updated', savedItem);
+    } else {
+      savedItem = {
+        identifier: 'public_key_' + Date.now(),
+        fullStatement: formData.publicKey,
+        extensions: {
+          // 'salt:kid': formData.type
+        },
+        parentId: props.parentItem?.identifier || null,
+        created: new Date().toISOString(),
+        children: []
+      };
+      emit('created', savedItem);
     }
-  }, 1000);
+  } catch (e) {
+    error.value = 'Failed to save public key: ' + e.message;
+  } finally {
+    saving.value = false;
+  }
 }
 
 function closeModal() {

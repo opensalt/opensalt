@@ -69,9 +69,10 @@
       :is="editModalComponent"
       v-if="isEditModalVisible"
       :item="editingItem"
+      :parent-item="modalParentItem"
       :show="true"
       @updated="onDynamicEditUpdated"
-      @created="onDynamicEditUpdated"
+      @created="onDynamicEditCreated"
       @hidden="onDynamicEditHidden"
     />
 
@@ -94,6 +95,14 @@
       :show="showExportModal"
       :document="currentDoc"
       @hidden="onExportModalHidden"
+    />
+
+    <!-- Delete Association Modal -->
+    <DeleteAssociationModal
+      :association="associationToDelete"
+      :show="showDeleteAssociationModal"
+      @confirmed="onDeleteAssociationConfirmed"
+      @hidden="onDeleteAssociationModalHidden"
     />
 
     <!-- Clone Framework Modal -->
@@ -120,6 +129,7 @@ const LoadExternalDocumentModal = defineAsyncComponent(() => import('../shared/m
 const UpdateFrameworkModal = defineAsyncComponent(() => import('../shared/modals/UpdateFrameworkModal.vue'));
 const ExportModal = defineAsyncComponent(() => import('../shared/modals/ExportModal.vue'));
 const CloneFrameworkModal = defineAsyncComponent(() => import('../shared/modals/CloneFrameworkModal.vue'));
+const DeleteAssociationModal = defineAsyncComponent(() => import('../association/DeleteAssociationModal.vue'));
 
 // Props
 const props = defineProps({
@@ -144,6 +154,22 @@ const props = defineProps({
    */
   selectedId: {
     type: String,
+    default: null
+  },
+
+  /**
+   * Show flag for association deletion confirmation
+   */
+  showDeleteAssociationModal: {
+    type: Boolean,
+    default: false
+  },
+
+  /**
+   * Association object currently targeted for deletion
+   */
+  associationToDelete: {
+    type: Object,
     default: null
   },
 
@@ -248,6 +274,10 @@ const props = defineProps({
     type: Object,
     default: null
   },
+  modalParentItem: {
+    type: Object,
+    default: null
+  },
   cloneFrameworkTitle: {
     type: String,
     default: ''
@@ -265,6 +295,8 @@ const emit = defineEmits([
 
   // Item events
   'items-deleted',
+  'delete-association-confirmed',
+  'delete-association-modal-hidden',
   'exemplar-added',
   'edit-item',
 
@@ -299,6 +331,7 @@ const emit = defineEmits([
 
   // Dynamic edit modal events
   'dynamic-edit-updated',
+  'dynamic-edit-created',
   'dynamic-edit-hidden'
 ]);
 
@@ -329,6 +362,14 @@ function onItemsDeleted(data) {
 
 function onDeleteModalHidden() {
   emit('delete-modal-hidden');
+}
+
+function onDeleteAssociationConfirmed(association) {
+  emit('delete-association-confirmed', association);
+}
+
+function onDeleteAssociationModalHidden() {
+  emit('delete-association-modal-hidden');
 }
 
 function onExemplarAdded(exemplar) {
@@ -373,6 +414,10 @@ function onLoadExternalModalHidden() {
 
 function onDynamicEditUpdated(item) {
   emit('dynamic-edit-updated', item);
+}
+
+function onDynamicEditCreated(item) {
+  emit('dynamic-edit-created', item);
 }
 
 function onDynamicEditHidden() {

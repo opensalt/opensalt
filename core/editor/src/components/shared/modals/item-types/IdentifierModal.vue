@@ -150,45 +150,42 @@ function saveItem() {
   saving.value = true;
   error.value = '';
 
-  // Simulate saving item - in real app this would be an API call
-  setTimeout(() => {
-    try {
-      let savedItem;
-      if (isEdit.value) {
-        // Map form fields back to CASE structure
-        savedItem = {
-          ...props.item,
-          abbreviatedStatement: formData.identifier,
-          uri: formData.identifier,
-          fullStatement: formData.description,
-          extensions: {
-            ...(props.item?.extensions || {})
-            // , 'salt:idType': formData.type
-          },
-          updated: new Date().toISOString()
-        };
-        emit('updated', savedItem);
-      } else {
-        savedItem = {
-          identifier: 'identifier_' + Date.now(),
-          abbreviatedStatement: formData.identifier,
-          uri: formData.identifier,
-          fullStatement: formData.description,
-          extensions: {
-            // 'salt:idType': formData.type
-          },
-          parentId: props.parentItem?.identifier || null,
-          created: new Date().toISOString(),
-          children: []
-        };
-        emit('created', savedItem);
-      }
-    } catch (e) {
-      error.value = 'Failed to save identifier: ' + e.message;
-    } finally {
-      saving.value = false;
+  try {
+    let savedItem;
+    if (isEdit.value) {
+      // Map form fields back to CASE structure
+      savedItem = {
+        ...props.item,
+        abbreviatedStatement: formData.identifier,
+        uri: formData.identifier,
+        fullStatement: formData.description,
+        extensions: {
+          ...(props.item?.extensions || {})
+          // , 'salt:idType': formData.type
+        },
+        updated: new Date().toISOString()
+      };
+      emit('updated', savedItem);
+    } else {
+      savedItem = {
+        identifier: 'identifier_' + Date.now(),
+        abbreviatedStatement: formData.identifier,
+        uri: formData.identifier,
+        fullStatement: formData.description,
+        extensions: {
+          // 'salt:idType': formData.type
+        },
+        parentId: props.parentItem?.identifier || null,
+        created: new Date().toISOString(),
+        children: []
+      };
+      emit('created', savedItem);
     }
-  }, 1000);
+  } catch (e) {
+    error.value = 'Failed to save identifier: ' + e.message;
+  } finally {
+    saving.value = false;
+  }
 }
 
 function closeModal() {

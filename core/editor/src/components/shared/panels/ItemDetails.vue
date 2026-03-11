@@ -17,7 +17,7 @@
       :item-icon-src="itemIconSrc"
       :can-edit-item="canEditItem"
       :is-item-from-viewed-framework="isItemFromViewedFramework"
-      @edit="showEditModal(item)"
+      @edit="$emit('edit-item', item)"
       @delete="$emit('delete-item', item)"
     >
       <!-- Specialized Item Details -->
@@ -57,7 +57,7 @@
       :current-document="currentDocument"
       @add-association="$emit('add-association', item)"
       @edit-association="canEditItem ? $emit('edit-association', $event) : null"
-      @delete-association="(assoc) => handleDeleteAssociationRequest(assoc, isCrossFrameworkItem, canEditItem)"
+      @delete-association="$emit('delete-association', $event)"
     />
 
     <!-- Comments -->
@@ -68,42 +68,7 @@
     />
   </div>
 
-  <!-- Dynamic Add-Child Modal -->
-  <Teleport to="body">
-    <div v-if="isModalVisible">
-      <component
-        :is="modalComponent"
-        :parent-item="parentItem"
-        :show="isModalVisible"
-        :item-type="selectedType"
-        @created="handleCreated"
-        @hidden="handleHidden"
-      />
-    </div>
-  </Teleport>
 
-  <!-- Dynamic Edit Modal -->
-  <Teleport to="body">
-    <div v-if="isEditModalVisible">
-      <component
-        :is="editModalComponent"
-        :parent-item="null"
-        :show="isEditModalVisible"
-        :item-type="selectedEditType"
-        :item="editingItem"
-        @updated="handleUpdated"
-        @hidden="handleEditHidden"
-      />
-    </div>
-  </Teleport>
-
-  <!-- Delete Association Modal -->
-  <DeleteAssociationModal
-    v-model:show="showDeleteModal"
-    :association="associationToDelete"
-    @confirmed="(assoc) => handleDeleteConfirmed(assoc, emit)"
-    @hidden="handleDeleteModalHidden"
-  />
 </template>
 
 <script setup>
@@ -121,8 +86,6 @@ import DeleteAssociationModal from '@/components/association/DeleteAssociationMo
 
 // Composables
 import { useItemAssociations } from '../../../composables/useItemAssociations.js';
-import { useDynamicModal } from '../../../composables/useDynamicModal.js';
-import { useDynamicEditModal } from '../../../composables/useDynamicEditModal.js';
 import { useEditorContextStore } from '../../../stores/editorContextStore';
 import { useDocumentStore } from '../../../stores/documentStore';
 import { useSessionStore } from '../../../stores/sessionStore';
@@ -212,45 +175,7 @@ const {
   fetchError: crossFrameworkFetchError,
 } = useCrossFrameworkItem({ association: crossFrameworkData, direction: 'normal' });
 
-// Merge fetched cross-framework data into local state
-watch(
-  crossFrameworkItemData,
-  (newData) => {
-    if (newData && isCrossFrameworkItem.value) {
-      const mergedData = {
-        fullStatement: newData.fullStatement || newData.CFItemFullStatement,
-        abbreviatedStatement: newData.abbreviatedStatement || newData.CFItemAbbreviatedStatement,
-        humanCodingScheme: newData.humanCodingScheme || newData.CFItemHumanCodingScheme,
-        itemType: newData.itemType || newData.CFItemType,
-        notes: newData.notes || newData.CFItemNotes,
-        language: newData.language || newData.CFItemLanguage,
-        educationLevel: newData.educationLevel || newData.CFItemEducationLevel,
-        conceptKeywords: newData.conceptKeywords || newData.CFItemConceptKeywords,
-        licenseURI: newData.licenseURI || newData.CFItemLicenseURI,
-        lastChanged: newData.lastChanged || newData.CFItemLastChangeDateTime,
-        extensions: newData.extensions || newData.CFItemExtensions,
-      };
 
-      let hasChanges = false;
-      Object.keys(mergedData).forEach((key) => {
-        if (mergedData[key] !== undefined && mergedData[key] !== props.item[key]) {
-          localCrossFrameworkData.value[key] = mergedData[key];
-          hasChanges = true;
-        }
-      });
-
-      if (newData.title && !localCrossFrameworkData.value.title && newData.title !== props.item.title) {
-        localCrossFrameworkData.value.title = newData.title;
-        hasChanges = true;
-      }
-
-      if (hasChanges) {
-        emit('update-item', { ...props.item, ...localCrossFrameworkData.value });
-      }
-    }
-  },
-  { immediate: true }
-);
 
 const externalFrameworkTitle = computed(() => {
   if (!isCrossFrameworkItem.value) return null;
@@ -286,32 +211,9 @@ const isItemFromViewedFramework = computed(() => {
   return itemDocId === contextStore.viewedDocumentId;
 });
 
-// ---------------------------------------------------------------------------
-// Dynamic modals
-// ---------------------------------------------------------------------------
-const { showModal, selectedType, isModalVisible, handleCreated, modalComponent, handleHidden, parentItem } =
-  useDynamicModal(
-    props.item,
-    (newItem) => { emit('add-child', newItem); },
-    availableTypes
-  );
-
-const {
-  showEditModal,
-  selectedEditType,
-  isEditModalVisible,
-  editingItem,
-  editModalComponent,
-  handleUpdated,
-  handleEditHidden,
-} = useDynamicEditModal(
-  (updatedItem) => { emit('update-item', updatedItem); },
-  availableTypes
-);
-
 function handleDropdownClick(type) {
   if (availableTypes.includes(type)) {
-    showModal(type);
+    emit('add-child', props.item, type);
   }
 }
 
@@ -321,11 +223,6 @@ function handleDropdownClick(type) {
 const {
   mergedAssociations,
   isProcessingAssociations,
-  showDeleteModal,
-  associationToDelete,
-  handleDeleteAssociationRequest,
-  handleDeleteConfirmed,
-  handleDeleteModalHidden,
 } = useItemAssociations({ item: computed(() => props.item), displayItem });
 
 // ---------------------------------------------------------------------------

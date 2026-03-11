@@ -45,11 +45,12 @@
         :association-groups="associationGroups"
         @edit-item="$emit('edit-item', $event)"
         @delete-item="$emit('delete-item', $event)"
-        @add-child="$emit('add-child', $event)"
+        @add-child="(...args) => $emit('add-child', ...args)"
         @add-exemplar="$emit('add-exemplar', $event)"
         @add-association="$emit('add-association', $event)"
         @edit-association="$emit('edit-association', $event)"
         @delete-association="$emit('delete-association', $event)"
+        @update-item="$emit('update-item', $event)"
         @edit-document="$emit('edit-document')"
         @add-root-item="$emit('add-root-item')"
         @manage-association-groups="$emit('manage-association-groups')"
@@ -121,6 +122,7 @@ const emit = defineEmits([
   'add-association',
   'edit-association',
   'delete-association',
+  'update-item',
   'edit-document',
   'add-root-item',
   'manage-association-groups',

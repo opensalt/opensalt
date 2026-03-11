@@ -47,10 +47,14 @@ export const useEditorContextStore = defineStore('editorContext', () => {
     const documentUriRegistry = reactive(new Map<string, UUID>());
     const activeWriteDocumentId = ref<UUID | null>(null);
     const viewedDocumentId = ref<UUID | null>(null);
+    const registryVersion = ref(0);
 
     /**
-     * Initialize the store, hydrating registries from persistent caches
+     * Increment the registry version to trigger reactive updates in watchers
      */
+    function touchRegistry() {
+        registryVersion.value++;
+    }
     async function initialize() {
         try {
             const endpoints = await externalEndpointCacheService.getAll();
@@ -97,6 +101,7 @@ export const useEditorContextStore = defineStore('editorContext', () => {
                 logger.debug(`[loadPackage] Registered ${pkg.CFAssociations.length} associations for framework ${id}, total registry: ${associationRegistry.size}`);
             }
 
+            touchRegistry();
             return pkg;
         } catch (err) {
             logger.error(`Failed to load package ${id}:`, err);
@@ -110,6 +115,7 @@ export const useEditorContextStore = defineStore('editorContext', () => {
     function registerDocumentMetadata(doc: RegistryDocument) {
         documentRegistry.set(doc.identifier, doc);
         if (doc.uri) documentUriRegistry.set(doc.uri, doc.identifier);
+        touchRegistry();
     }
 
     /**
@@ -118,6 +124,7 @@ export const useEditorContextStore = defineStore('editorContext', () => {
     function registerItem(item: CFItem, frameworkId: UUID) {
         itemRegistry.set(item.identifier, { item, frameworkId });
         if (item.uri) itemUriRegistry.set(item.uri, item.identifier);
+        touchRegistry();
     }
 
     /**
@@ -131,6 +138,7 @@ export const useEditorContextStore = defineStore('editorContext', () => {
         };
         externalEndpointRegistry.set(uri, endpoint);
         await externalEndpointCacheService.set(uri, endpoint);
+        touchRegistry();
     }
 
     /**
@@ -347,6 +355,8 @@ export const useEditorContextStore = defineStore('editorContext', () => {
         getAssociations,
         isEditable,
         fetchExternalItemData,
-        registerItem
+        registerItem,
+        registryVersion,
+        touchRegistry
     };
 });

@@ -21,11 +21,13 @@ export function useModalState() {
   const showUpdateFrameworkModal = ref(false);
   const showImportChildrenModal = ref(false);
   const showExportModal = ref(false);
+  const showDeleteAssociationModal = ref(false);
 
   // Modal data states
   const associationOrigin = ref(null);
   const associationDestination = ref(null);
   const editingAssociation = ref(null);
+  const associationToDelete = ref(null);
   const itemsToDelete = ref([]);
   const deleteType = ref('single'); // 'single' or 'bulk'
 
@@ -53,6 +55,7 @@ export function useModalState() {
     showCrossTreeModal.value = false;
     showUpdateFrameworkModal.value = false;
     showImportChildrenModal.value = false;
+    showDeleteAssociationModal.value = false;
     showExportModal.value = false;
 
     resetModalData();
@@ -66,6 +69,7 @@ export function useModalState() {
     associationDestination.value = null;
     editingAssociation.value = null;
     itemsToDelete.value = [];
+    associationToDelete.value = null;
     deleteType.value = 'single';
     addingAssociation.value = false;
     addingAssociationType.value = '';
@@ -168,6 +172,23 @@ export function useModalState() {
     showDeleteModal.value = false;
     itemsToDelete.value = [];
     deleteType.value = 'single';
+  }
+
+  /**
+   * Open the delete association modal
+   * @param {Object} association - The association to delete
+   */
+  function openDeleteAssociationModal(association) {
+    associationToDelete.value = association;
+    showDeleteAssociationModal.value = true;
+  }
+
+  /**
+   * Close the delete association modal
+   */
+  function closeDeleteAssociationModal() {
+    showDeleteAssociationModal.value = false;
+    associationToDelete.value = null;
   }
 
   /**
@@ -289,11 +310,13 @@ export function useModalState() {
     showUpdateFrameworkModal,
     showImportChildrenModal,
     showExportModal,
+    showDeleteAssociationModal,
 
     // Modal data states
     associationOrigin,
     associationDestination,
     editingAssociation,
+    associationToDelete,
     itemsToDelete,
     deleteType,
     addingAssociation,
@@ -331,6 +354,8 @@ export function useModalState() {
     openImportChildrenModal,
     closeImportChildrenModal,
     openExportModal,
-    closeExportModal
+    closeExportModal,
+    openDeleteAssociationModal,
+    closeDeleteAssociationModal
   };
 }

@@ -62,6 +62,10 @@ export function useTreeEditorHandlers({
     scrollToSelectedItem,
     // Announcer
     announcer,
+    showDeleteAssociationModal,
+    associationToDelete,
+    openDeleteAssociationModal,
+    closeDeleteAssociationModal,
     // Mercure
     connectMercure,
 }) {
@@ -162,7 +166,7 @@ export function useTreeEditorHandlers({
         try {
             const documentId = currentDoc.value?.id;
             const targetParentId =
-                crossTreeTarget.value.identifier === documentId ? null : crossTreeTarget.value.identifier;
+                crossTreeTarget.value.identifier === documentId ? documentId : crossTreeTarget.value.identifier;
             await currentDocumentStore.copyItem(documentId, crossTreeSource.value, targetParentId);
             if (documentId) {
                 const docData = await documentStore.fetchDocument(documentId);
@@ -266,8 +270,15 @@ export function useTreeEditorHandlers({
 
     async function handleAddChild(newItem, parentItem) {
         if (newItem && parentItem?.identifier) {
-            const success = itemStore.addItem(currentDoc.value, newItem, parentItem.identifier);
-            if (!success) logger.error('Failed to add child item');
+            try {
+                await currentDocumentStore.createItem(parentItem.identifier, newItem);
+                if (currentDoc.value?.id) {
+                    await documentStore.revalidatePackage(currentDoc.value.id, true);
+                }
+                currentDocumentStore.reloadActiveDocument();
+            } catch (error) {
+                logger.error('Failed to add child item:', error);
+            }
         }
     }
 
@@ -294,8 +305,23 @@ export function useTreeEditorHandlers({
         showEditAssociationModal.value = true;
     }
 
-    function onDeleteAssociation() {
-        // Handled inside ItemDetails via DeleteAssociationModal
+    function onDeleteAssociation(association) {
+        if (!association?.identifier) return;
+        openDeleteAssociationModal(association);
+    }
+
+    async function onDeleteAssociationConfirmed(association) {
+        if (!association?.identifier) return;
+        try {
+            await currentDocumentStore.removeAssociation(association.identifier);
+            if (currentDoc.value?.id) {
+                await documentStore.revalidatePackage(currentDoc.value.id, true);
+            }
+            currentDocumentStore.reloadActiveDocument();
+            closeDeleteAssociationModal();
+        } catch (error) {
+            logger.error('Failed to delete association:', error);
+        }
     }
 
     function onRightPanelModeChanged(mode) {
@@ -305,29 +331,122 @@ export function useTreeEditorHandlers({
     // ---------------------------------------------------------------------------
     // Modal event callbacks
     // ---------------------------------------------------------------------------
-    function onDocSaved() { }
-
-    function onAssociationCreated(association) {
-        addingAssociation.value = false;
-        addingAssociationType.value = '';
-        addingAssociationOrigin.value = null;
-        logger.debug('Association created:', association);
+    async function onDocSaved(data) {
+        const documentId = currentDoc.value?.id;
+        if (!documentId) return;
+        try {
+            await currentDocumentStore.updateDocument(documentId, data);
+            if (currentDoc.value?.id) {
+                await documentStore.revalidatePackage(currentDoc.value.id, true);
+            }
+            currentDocumentStore.reloadActiveDocument();
+        } catch (error) {
+            logger.error('Failed to save document:', error);
+        }
     }
 
-    function onAssociationUpdated() {
-        addingAssociation.value = false;
-        addingAssociationType.value = '';
-        addingAssociationOrigin.value = null;
+    async function onAssociationCreated(association) {
+        const documentId = currentDoc.value?.id;
+        if (!documentId) return;
+        try {
+            await currentDocumentStore.addAssociation(documentId, association);
+            addingAssociation.value = false;
+            addingAssociationType.value = '';
+            addingAssociationOrigin.value = null;
+            if (currentDoc.value?.id) {
+                await documentStore.revalidatePackage(currentDoc.value.id, true);
+            }
+            currentDocumentStore.reloadActiveDocument();
+        } catch (error) {
+            logger.error('Failed to create association:', error);
+        }
+    }
+
+    async function onAssociationUpdated(association) {
+        if (!association?.identifier) return;
+        try {
+            await currentDocumentStore.updateAssociation(association.identifier, association);
+            addingAssociation.value = false;
+            addingAssociationType.value = '';
+            addingAssociationOrigin.value = null;
+            if (currentDoc.value?.id) {
+                await documentStore.revalidatePackage(currentDoc.value.id, true);
+            }
+            currentDocumentStore.reloadActiveDocument();
+        } catch (error) {
+            logger.error('Failed to update association:', error);
+        }
     }
 
     function onEditAssociationModalHidden() {
         closeEditAssociationModal();
     }
 
-    function onExemplarAdded() { }
-    function onItemsDeleted() { logger.debug('Items deleted'); }
-    function onAssocGroupSaved() { logger.debug('Association group saved'); }
-    function onAssocGroupDeleted() { }
+    async function onExemplarAdded(exemplar) {
+        const documentId = currentDoc.value?.identifier || currentDoc.value?.id;
+        if (!documentId) return;
+        try {
+            await currentDocumentStore.addAssociation(documentId, exemplar);
+            if (currentDoc.value?.id) {
+                await documentStore.revalidatePackage(currentDoc.value.id, true);
+            }
+            currentDocumentStore.reloadActiveDocument();
+        } catch (error) {
+            logger.error('Failed to add exemplar:', error);
+        }
+    }
+
+    async function onItemsDeleted({ items, deleteType }) {
+        try {
+            if (deleteType === 'framework') {
+                const documentId = currentDoc.value?.id;
+                await currentDocumentStore.deleteDocument(documentId);
+                router.push('/');
+                return;
+            }
+
+            for (const item of items) {
+                await currentDocumentStore.deleteItem(item.identifier);
+            }
+            if (currentDoc.value?.id) {
+                await documentStore.revalidatePackage(currentDoc.value.id, true);
+            }
+            currentDocumentStore.reloadActiveDocument();
+        } catch (error) {
+            logger.error('Failed to delete items:', error);
+        }
+    }
+
+    async function onAssocGroupSaved(group) {
+        const documentId = currentDoc.value?.id;
+        if (!documentId) return;
+        try {
+            if (group.identifier) {
+                await currentDocumentStore.updateAssociationGroup(group.identifier, group);
+            } else {
+                await currentDocumentStore.createAssociationGroup(documentId, group);
+            }
+            if (currentDoc.value?.id) {
+                await documentStore.revalidatePackage(currentDoc.value.id, true);
+            }
+            currentDocumentStore.reloadActiveDocument();
+        } catch (error) {
+            logger.error('Failed to save association group:', error);
+        }
+    }
+
+    async function onAssocGroupDeleted(group) {
+        if (!group?.identifier) return;
+        try {
+            await currentDocumentStore.deleteAssociationGroup(group.identifier);
+            if (currentDoc.value?.id) {
+                await documentStore.revalidatePackage(currentDoc.value.id, true);
+            }
+            currentDocumentStore.reloadActiveDocument();
+        } catch (error) {
+            logger.error('Failed to delete association group:', error);
+        }
+    }
 
     function onEditDocument() {
         showEditDocModal.value = true;
@@ -335,8 +454,15 @@ export function useTreeEditorHandlers({
 
     async function handleAddRootItem(newItem) {
         if (newItem && currentDoc.value) {
-            const success = itemStore.addItem(currentDoc.value, newItem, null);
-            if (!success) logger.error('Failed to add root item');
+            try {
+                await currentDocumentStore.createItem(currentDoc.value.id, newItem);
+                if (currentDoc.value?.id) {
+                    await documentStore.revalidatePackage(currentDoc.value.id, true);
+                }
+                currentDocumentStore.reloadActiveDocument();
+            } catch (error) {
+                logger.error('Failed to add root item:', error);
+            }
         }
     }
 
@@ -393,6 +519,7 @@ export function useTreeEditorHandlers({
         onAddAssociation,
         onEditAssociation,
         onDeleteAssociation,
+        onDeleteAssociationConfirmed,
         onRightPanelModeChanged,
         onDocSaved,
         onAssociationCreated,

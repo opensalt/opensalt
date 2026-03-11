@@ -296,39 +296,41 @@ export function useAssociationForm(options) {
     const effectiveDestination = reversed ? item : destItem;
 
     if (isExemplarType.value) {
-      // Exemplar association
       return {
-        originNodeIdentifier: effectiveOrigin?.identifier,
-        destinationNodeIdentifier: effectiveDestination?.identifier,
-        destinationNodeUri: formData.exemplarUrl,
-        associationType: 'exemplar',
+        origin: { identifier: effectiveOrigin?.identifier },
+        dest: { uri: formData.exemplarUrl },
+        type: 'exemplar',
         annotation: formData.annotation,
-        notes: formData.exemplarDescription,
-        associationGroupingIdentifier: formData.groupId !== 'default' ? formData.groupId : null
+        assocGroup: formData.groupId !== 'default' ? formData.groupId : null
       };
     }
 
     // Standard association
     const assocData = {
-      originNodeIdentifier: effectiveOrigin?.identifier,
-      associationType: finalType,
+      origin: { identifier: effectiveOrigin?.identifier },
+      type: finalType,
       annotation: formData.annotation,
-      groupId: formData.groupId,
-      associationGroupingIdentifier: formData.groupId !== 'default' ? formData.groupId : null
+      assocGroup: formData.groupId !== 'default' ? formData.groupId : null
     };
 
     if (effectiveDestination?.identifier) {
-      assocData.destinationNodeIdentifier = effectiveDestination.identifier;
+      assocData.dest = { 
+        identifier: effectiveDestination.identifier,
+        targetType: effectiveDestination.targetType || 'CASE'
+      };
     } else if (isAddMode.value) {
-      assocData.destinationNodeUri = formData.destinationUri;
+      assocData.dest = { 
+        uri: formData.destinationUri,
+        targetType: formData.destinationTargetType || 'CASE'
+      };
       if (formData.destinationIdentifier) {
-        assocData.destinationNodeIdentifier = formData.destinationIdentifier;
+        assocData.dest.identifier = formData.destinationIdentifier;
       }
-      // Target types might be passed differently or not explicitly but saving what was requested.
-      // Usually targetType is part of the URI object or it's inferred.
-      // We will create the association request to handle targetType in the backend if supported.
     }
-    
+
+    // Origin targetType
+    assocData.origin.targetType = effectiveOrigin?.targetType || 'CASE';
+
     return assocData;
   }
 
@@ -339,33 +341,18 @@ export function useAssociationForm(options) {
    */
   function updateAssociationData(finalType) {
     const assoc = toValue(association);
-    const reversed = toValue(isReversed);
 
-    // Determine effective origin/destination based on direction switch
-    const effectiveOriginNodeURI = reversed
-      ? assoc.destinationNodeURI || assoc.destination
-      : assoc.originNodeURI || assoc.origin;
-    const effectiveDestinationNodeURI = reversed
-      ? assoc.originNodeURI || assoc.origin
-      : assoc.destinationNodeURI || assoc.destination;
-
+    // Keep the identifier from the original association
     const baseAssociation = {
-      ...assoc,
-      originNodeURI: effectiveOriginNodeURI,
-      destinationNodeURI: effectiveDestinationNodeURI,
-      associationType: finalType,
-      notes: formData.annotation,
-      groupId: formData.groupId,
-      updated: new Date().toISOString()
+      identifier: assoc.identifier,
+      type: finalType,
+      annotation: formData.annotation,
+      assocGroup: formData.groupId !== 'default' ? formData.groupId : null
     };
 
     // Add exemplar-specific fields
     if (isExemplarType.value) {
-      baseAssociation.destinationNodeURI = {
-        uri: formData.exemplarUrl,
-        title: formData.exemplarDescription || formData.exemplarUrl
-      };
-      baseAssociation.notes = formData.exemplarDescription;
+      baseAssociation.annotation = formData.exemplarDescription;
     }
 
     return baseAssociation;

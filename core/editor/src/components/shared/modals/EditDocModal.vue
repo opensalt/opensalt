@@ -379,25 +379,23 @@ function loadDocumentData() {
   loading.value = true;
   error.value = '';
 
-  setTimeout(() => {
-    formData.title = props.document.title || '';
-    formData.creator = props.document.creator || '';
-    formData.officialUri = props.document.officialSourceURL || '';
-    formData.publisher = props.document.publisher || '';
-    formData.urlName = props.document.urlName || '';
-    formData.version = props.document.version || '';
-    formData.description = props.document.description || '';
-    formData.subjects = props.document.subjects || [];
-    formData.language = props.document.language || '';
-    formData.adoptionStatus = props.document.adoptionStatus || 'Draft';
-    formData.statusStart = props.document.statusStart || '';
-    formData.statusEnd = props.document.statusEnd || '';
-    formData.note = props.document.note || '';
-    formData.licence = props.document.licence || '';
-    formData.frameworkType = props.document.frameworkType || '';
+  formData.title = props.document.title || '';
+  formData.creator = props.document.creator || '';
+  formData.officialUri = props.document.officialSourceURL || '';
+  formData.publisher = props.document.publisher || '';
+  formData.urlName = props.document.urlName || '';
+  formData.version = props.document.version || '';
+  formData.description = props.document.description || '';
+  formData.subjects = props.document.subjects || [];
+  formData.language = props.document.language || '';
+  formData.adoptionStatus = props.document.adoptionStatus || 'Draft';
+  formData.statusStart = props.document.statusStart || '';
+  formData.statusEnd = props.document.statusEnd || '';
+  formData.note = props.document.note || '';
+  formData.licence = props.document.licence || '';
+  formData.frameworkType = props.document.frameworkType || '';
 
-    loading.value = false;
-  }, 500);
+  loading.value = false;
 }
 
 function saveDocument() {
@@ -409,18 +407,16 @@ function saveDocument() {
   saving.value = true;
   error.value = '';
 
-  setTimeout(() => {
-    try {
-      emit('saved', { ...formData });
-      if (modal.value) {
-        modal.value.hide();
-      }
-    } catch (e) {
-      error.value = 'Failed to save document: ' + e.message;
-    } finally {
-      saving.value = false;
+  try {
+    emit('saved', { ...formData });
+    if (modal.value) {
+      modal.value.hide();
     }
-  }, 1000);
+  } catch (e) {
+    error.value = 'Failed to save document: ' + e.message;
+  } finally {
+    saving.value = false;
+  }
 }
 
 // Handle modal hidden event

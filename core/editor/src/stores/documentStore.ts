@@ -260,19 +260,21 @@ export const useDocumentStore = defineStore('documents', () => {
   /**
    * Perform background revalidation for a package
    */
-    async function revalidatePackage(identifier: UUID): Promise<void> {
-        if (revalidatingRequests.has(identifier)) return;
+    async function revalidatePackage(identifier: UUID, force = false): Promise<void> {
+        if (!force && revalidatingRequests.has(identifier)) return;
         revalidatingRequests.add(identifier);
 
         try {
             const contextStore = useEditorContextStore();
 
-            // Check memory cache first to avoid unnecessary API calls
-            const memoryCached = memoryCache.get(identifier);
-            if (memoryCached) {
-                logger.debug('Memory cache hit for revalidation, skipping API call');
-                revalidatingRequests.delete(identifier);
-                return;
+            if (!force) {
+                // Check memory cache first to avoid unnecessary API calls
+                const memoryCached = memoryCache.get(identifier);
+                if (memoryCached) {
+                    logger.debug('Memory cache hit for revalidation, skipping API call');
+                    revalidatingRequests.delete(identifier);
+                    return;
+                }
             }
 
             // Fetch fresh version from API

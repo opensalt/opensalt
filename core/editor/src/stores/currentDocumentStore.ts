@@ -467,10 +467,10 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
 
     return rootItems;
   }
-  async function updateItems(documentId: number, lsItems: Record<string, unknown>) {
+  async function updateItems(documentIdentifier: UUID, lsItems: Record<string, unknown>) {
     try {
       // Use API service for consistent error handling
-      const data = await api.post(`/doctree/update_items/${documentId}?_format=json`, { lsItems });
+      const data = await api.post(`/framework/editor/document/${documentIdentifier}/update_items`, { lsItems });
       return data;
     } catch (e) {
       logger.error("Error updating items:", e);
@@ -478,9 +478,9 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     }
   }
 
-  async function addAssociation(documentId: number, associationData: Record<string, unknown>) {
+  async function addAssociation(documentIdentifier: UUID, associationData: Record<string, unknown>) {
     try {
-      const data = await api.post(`/cftree/association/new/${documentId}`, associationData);
+      const data = await api.post(`/framework/editor/association/new/${documentIdentifier}`, associationData);
       return data;
     } catch (e) {
       logger.error("Error creating association:", e);
@@ -488,9 +488,22 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     }
   }
 
-  async function removeAssociation(associationId: number) {
+  async function removeAssociation(associationIdentifier: UUID) {
     try {
-      await api.post(`/cftree/association/${associationId}/remove`, {});
+      await api.delete(`/framework/editor/association/${associationIdentifier}`);
+      
+      // Manually remove from local registry so UI updates immediately upon reloadActiveDocument
+      const contextStore = useEditorContextStore();
+      const assocData = contextStore.associationRegistry.get(associationIdentifier);
+      if (assocData) {
+        const docId = assocData.frameworkId;
+        contextStore.associationRegistry.delete(associationIdentifier);
+        const pkg = contextStore.loadedPackages.get(docId);
+        if (pkg && pkg.CFAssociations) {
+          pkg.CFAssociations = pkg.CFAssociations.filter(a => a.identifier !== associationIdentifier);
+        }
+      }
+      
       return true;
     } catch (e) {
       logger.error("Error removing association:", e);
@@ -498,9 +511,9 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     }
   }
 
-  async function deleteItem(itemId: number) {
+  async function deleteItem(itemIdentifier: UUID) {
     try {
-      await api.post(`/cftree/item/delete/${itemId}`, {});
+      await api.delete(`/framework/editor/item/${itemIdentifier}`);
       return true;
     } catch (e) {
       logger.error("Error deleting item:", e);
@@ -508,9 +521,9 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     }
   }
 
-  async function createItem(documentId: number, parentId: number, itemData: Record<string, unknown>) {
+  async function createItem(parentIdentifier: UUID, itemData: Record<string, unknown>) {
     try {
-      const data = await api.post(`/cftree/item/new/${parentId}`, itemData);
+      const data = await api.post(`/framework/editor/item/new/${parentIdentifier}`, itemData);
       return data;
     } catch (e) {
       logger.error("Error creating item:", e);
@@ -518,19 +531,18 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     }
   }
 
-  async function copyItem(documentId: number, sourceItem: EditorItemNode, targetParentId: number) {
+  async function copyItem(documentIdentifier: UUID, sourceItem: EditorItemNode, targetParentIdentifier: UUID) {
     try {
       // Prepare data for copying
       const itemData: Record<string, unknown> = {
-        copyFromId: sourceItem.id, // The Salt numeric ID
+        copyFromIdentifier: sourceItem.identifier,
         addCopyToTitle: 'true',
         // Common fields that might be useful
         title: sourceItem.title,
         fullStatement: sourceItem.fullStatement,
-        // The backend logic for copyFromId should handle the rest
       };
 
-      const newItem = await createItem(documentId, targetParentId, itemData);
+      const newItem = await createItem(targetParentIdentifier, itemData);
       return newItem;
     } catch (e) {
       logger.error("Error copying item:", e);
@@ -538,9 +550,9 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     }
   }
 
-  async function updateItem(documentId: number, itemId: number, itemData: Record<string, unknown>) {
+  async function updateItem(itemIdentifier: UUID, itemData: Record<string, unknown>) {
     try {
-      const data = await api.post(`/cftree/item/update/${itemId}`, itemData);
+      const data = await api.put(`/framework/editor/item/${itemIdentifier}`, itemData);
       return data;
     } catch (e) {
       logger.error("Error updating item:", e);
@@ -548,9 +560,9 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     }
   }
 
-  async function createAssociationGroup(documentId: number, groupData: Record<string, unknown>) {
+  async function createAssociationGroup(documentIdentifier: UUID, groupData: Record<string, unknown>) {
     try {
-      const data = await api.post(`/cftree/association_grouping/new/${documentId}`, groupData);
+      const data = await api.post(`/framework/editor/association_grouping/new/${documentIdentifier}`, groupData);
       return data;
     } catch (e) {
       logger.error("Error creating association group:", e);
@@ -558,9 +570,9 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     }
   }
 
-  async function updateAssociationGroup(groupId: number, groupData: Record<string, unknown>) {
+  async function updateAssociationGroup(groupIdentifier: UUID, groupData: Record<string, unknown>) {
     try {
-      const data = await api.post(`/cftree/association_grouping/update/${groupId}`, groupData);
+      const data = await api.put(`/framework/editor/association_grouping/${groupIdentifier}`, groupData);
       return data;
     } catch (e) {
       logger.error("Error updating association group:", e);
@@ -568,9 +580,9 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     }
   }
 
-  async function deleteAssociationGroup(groupId: number) {
+  async function deleteAssociationGroup(groupIdentifier: UUID) {
     try {
-      await api.post(`/cftree/association_grouping/delete/${groupId}`, {});
+      await api.delete(`/framework/editor/association_grouping/${groupIdentifier}`);
       return true;
     } catch (e) {
       logger.error("Error deleting association group:", e);
@@ -631,6 +643,36 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     );
   }
 
+  async function updateDocument(documentIdentifier: UUID, data: Record<string, unknown>) {
+    try {
+      await api.put(`/framework/editor/document/${documentIdentifier}`, data);
+      return true;
+    } catch (e) {
+      logger.error("Error updating document:", e);
+      throw e;
+    }
+  }
+
+  async function deleteDocument(documentIdentifier: UUID) {
+    try {
+      await api.delete(`/framework/editor/document/${documentIdentifier}`);
+      return true;
+    } catch (e) {
+      logger.error("Error deleting document:", e);
+      throw e;
+    }
+  }
+
+  async function updateAssociation(associationIdentifier: UUID, data: Record<string, unknown>) {
+    try {
+      await api.put(`/framework/editor/association/${associationIdentifier}`, data);
+      return true;
+    } catch (e) {
+      logger.error("Error updating association:", e);
+      throw e;
+    }
+  }
+
   return {
     currentDocument,
     currentDocumentDefinitions,
@@ -651,6 +693,9 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     updateAssociationGroup,
     deleteAssociationGroup,
     copyItem,
+    updateDocument,
+    deleteDocument,
+    updateAssociation,
     currentItem: computed(() => viewStore.currentItem),
     setSelectedItem,
     draggedItem: computed(() => viewStore.draggedItem),

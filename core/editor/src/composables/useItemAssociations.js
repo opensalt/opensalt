@@ -227,7 +227,7 @@ export function useItemAssociations({ item, displayItem }) {
     // Re-compute in the background when the registry grows
     let registryDebounceTimer = null;
     watch(
-        () => contextStore.loadedPackages.size + contextStore.associationRegistry.size,
+        () => contextStore.loadedPackages.size + contextStore.associationRegistry.size + contextStore.registryVersion,
         (newTotal, oldTotal) => {
             if (newTotal > oldTotal && lastProcessedItemId.value) {
                 console.debug(

@@ -66,7 +66,7 @@
           @mode-changed="onRightPanelModeChanged"
           @edit-item="onEditItem"
           @delete-item="onDeleteItem"
-          @add-child="handleAddChild"
+          @add-child="showAddModal"
           @add-exemplar="onAddExemplar"
           @add-association="onAddAssociation"
           @edit-association="onEditAssociation"
@@ -74,6 +74,7 @@
           @edit-document="onEditDocument"
           @add-root-item="handleAddRootItem"
           @manage-association-groups="onManageAssociationGroups"
+          @update-item="onItemUpdate"
           @update-framework="showUpdateFrameworkModal = true"
           @export-document="showExportModal = true"
           @clone-framework="onCloneFramework"
@@ -114,6 +115,8 @@
       :show-update-framework-modal="showUpdateFrameworkModal"
       :show-export-modal="showExportModal"
       :show-clone-framework-modal="showCloneFrameworkModal"
+      :show-delete-association-modal="showDeleteAssociationModal"
+      :association-to-delete="associationToDelete"
       :clone-framework-title="cloneFrameworkTitle"
       :editing-association="editingAssociation"
       :items-to-delete="itemsToDelete"
@@ -126,6 +129,7 @@
       :cross-tree-target="crossTreeTarget"
       :is-edit-modal-visible="isEditModalVisible"
       :editing-item="editingItem"
+      :modal-parent-item="modalParentItem"
       :edit-modal-component="editModalComponent"
       @doc-saved="onDocSaved"
       @association-created="onAssociationCreated"
@@ -149,7 +153,10 @@
       @export-modal-hidden="showExportModal = false"
       @clone-framework-confirmed="onCloneFrameworkConfirmed"
       @clone-framework-modal-hidden="showCloneFrameworkModal = false"
+      @delete-association-confirmed="onDeleteAssociationConfirmed"
+      @delete-association-modal-hidden="showDeleteAssociationModal = false"
       @dynamic-edit-updated="handleUpdated"
+      @dynamic-edit-created="onDynamicEditCreated"
       @dynamic-edit-hidden="handleEditHidden"
     />
   </div>
@@ -312,24 +319,48 @@ provide('treeNavigation', {
   toggleExpanded,
 });
 
+
 // ---------------------------------------------------------------------------
 // Dynamic edit modal
 // ---------------------------------------------------------------------------
+const onItemUpdate = async (updatedItem) => {
+  console.log('onItemUpdate triggered with:', updatedItem);
+  try {
+    if (updatedItem && updatedItem.identifier) {
+      console.log('Sending update to backend for:', updatedItem.identifier);
+      const result = await currentDocumentStore.updateItem(updatedItem.identifier, updatedItem);
+      console.log('Backend response:', result);
+      // Local update
+      itemStore.updateItem(currentDoc.value, updatedItem);
+      // Force revalidation to update cached data
+      if (currentDoc.value?.id) {
+        await documentStore.revalidatePackage(currentDoc.value.id, true);
+      }
+      currentDocumentStore.reloadActiveDocument();
+    } else {
+      console.warn('updatedItem is missing identifier:', updatedItem);
+    }
+  } catch (error) {
+    logger.error('Failed to update item:', error);
+    console.error('Update item error detail:', error);
+  }
+};
+
 const {
   showEditModal,
+  showAddModal,
   isEditModalVisible,
   editingItem,
+  modalParentItem,
   editModalComponent,
   handleUpdated,
+  handleCreated,
   handleEditHidden,
 } = useDynamicEditModal(
-  (updatedItem) => { itemStore.updateItem(currentDoc.value, updatedItem); },
+  onItemUpdate,
+  null, // break circular dependency, don't pass handleAddChild here
   availableTypes
 );
-
-// ---------------------------------------------------------------------------
-// Modal state
-// ---------------------------------------------------------------------------
 const modalState = useModalState();
 const {
   showEditDocModal,
@@ -348,11 +379,15 @@ const {
   addingAssociationDestination,
   crossTreeSource,
   crossTreeTarget,
-  closeEditAssociationModal,
   openCrossTreeModal,
   closeCrossTreeModal,
+  closeEditAssociationModal,
   showUpdateFrameworkModal,
   showExportModal,
+  showDeleteAssociationModal,
+  associationToDelete,
+  openDeleteAssociationModal,
+  closeDeleteAssociationModal,
 } = modalState;
 
 // ---------------------------------------------------------------------------
@@ -428,6 +463,7 @@ const {
   onAddAssociation,
   onEditAssociation,
   onDeleteAssociation,
+  onDeleteAssociationConfirmed,
   onRightPanelModeChanged,
   onDocSaved,
   onAssociationCreated,
@@ -482,10 +518,26 @@ const {
   expandItem,
   initializeFocus,
   setFocus,
-  scrollToSelectedItem: () => scrollToSelectedItem(),
+  scrollToSelectedItem,
+  // Announcer
   announcer,
+  // Modal state for association deletion
+  showDeleteAssociationModal,
+  associationToDelete,
+  openDeleteAssociationModal,
+  closeDeleteAssociationModal,
+  // Mercure
   connectMercure,
 });
+
+function onDynamicEditCreated(newItem) {
+  // Capture parent before clearing modal state
+  const parent = modalParentItem.value;
+  // Hide modal and clean up state
+  handleCreated(newItem);
+  // Actually create and add the item
+  handleAddChild(newItem, parent);
+}
 
 // ---------------------------------------------------------------------------
 // Import modal handlers

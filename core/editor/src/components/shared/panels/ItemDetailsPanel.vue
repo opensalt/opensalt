@@ -28,7 +28,7 @@
       :association-groups="associationGroups"
       @edit-item="$emit('edit-item', $event)"
       @delete-item="$emit('delete-item', $event)"
-      @add-child="$emit('add-child', $event)"
+      @add-child="(...args) => $emit('add-child', ...args)"
       @add-exemplar="$emit('add-exemplar', $event)"
       @add-association="$emit('add-association', $event)"
       @edit-association="$emit('edit-association', $event)"

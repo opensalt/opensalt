@@ -322,27 +322,24 @@ function saveAssociation() {
   saving.value = true;
   error.value = '';
 
-  // Simulate API call - in real app this would be an API call
-  setTimeout(() => {
-    try {
-      if (props.mode === 'add') {
-        // Create new association
-        const newAssociation = createAssociationData(finalType);
-        emit('created', newAssociation);
-      } else {
-        // Update existing association
-        const updatedAssociation = updateAssociationData(finalType);
-        emit('updated', updatedAssociation);
-      }
-      if (modal.value) {
-        modal.value.hide();
-      }
-    } catch (e) {
-      error.value = `Failed to ${props.mode === 'add' ? 'create' : 'update'} association: ${e.message}`;
-    } finally {
-      saving.value = false;
+  try {
+    if (props.mode === 'add') {
+      // Create new association
+      const newAssociation = createAssociationData(finalType);
+      emit('created', newAssociation);
+    } else {
+      // Update existing association
+      const updatedAssociation = updateAssociationData(finalType);
+      emit('updated', updatedAssociation);
     }
-  }, 1000);
+    if (modal.value) {
+      modal.value.hide();
+    }
+  } catch (e) {
+    error.value = `Failed to ${props.mode === 'add' ? 'create' : 'update'} association: ${e.message}`;
+  } finally {
+    saving.value = false;
+  }
 }
 
 // Handle modal hidden event with proper lifecycle management
