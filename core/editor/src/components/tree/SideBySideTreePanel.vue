@@ -78,7 +78,7 @@
         </div>
         <!-- Show tree when document is loaded AND the ID matches the selected document -->
         <!-- This prevents showing stale content when re-selecting a different document -->
-        <div v-else-if="selectedDocumentId && sideDocument && sideDocument.id === selectedDocumentId" class="side-tree flex-grow-1 overflow-auto border rounded p-2">
+        <div v-else-if="selectedDocumentId && sideDocument && sideDocument.id === selectedDocumentId" class="side-tree flex-grow-1 d-flex flex-column overflow-hidden border rounded p-2">
           <TreeView
             :doc="sideDocument"
             :selected-id="sideSelectedId"
@@ -265,7 +265,11 @@ watch(() => props.sideDocument?.id, (newDocId, oldDocId) => {
 
 .side-tree {
   background-color: #f8f9fa;
-  min-height: 200px;
+  min-height: 0;
+}
+
+.side-tree :deep(.tree-view) {
+  min-height: 0;
 }
 
 .instructions {

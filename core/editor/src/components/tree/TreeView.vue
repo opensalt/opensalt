@@ -185,15 +185,21 @@ function handleTreeKeyDown(event) {
 }
 
 .tree-container {
-  /* Height controlled by flex parent */
-  height: 100%;
+  /* Fill available card body space without forcing overflow */
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
   position: relative;
 
   /* Reset any parent margins/paddings that could cause positioning issues */
   margin: 0 !important;
-  padding: 0 !important;
+  padding: 4px 8px 10px !important;
+  box-sizing: border-box;
+}
+
+.tree-view .card-body {
+  min-height: 0;
 }
 
 /* Ensure tree content starts at the top of the container */

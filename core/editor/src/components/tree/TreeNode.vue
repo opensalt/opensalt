@@ -488,6 +488,7 @@ const { dropPosition, onDragStart, onDragOver, onDragLeave, onDrop } = useTreeNo
   align-items: center;
   padding: 2px 6px;
   border-radius: 4px;
+  box-sizing: border-box;
   transition: background-color 0.2s;
   user-select: text;
 }
@@ -500,7 +501,14 @@ const { dropPosition, onDragStart, onDragOver, onDragLeave, onDrop } = useTreeNo
   background: #e3f2fd;
   border-radius: 4px;
   padding: 2px 6px;
+  margin: 0 2px;
   font-weight: 600;
+}
+
+.tree-node-label:focus,
+.expand-control:focus,
+.tree-node:focus {
+  outline: none;
 }
 
 /* High contrast mode support */

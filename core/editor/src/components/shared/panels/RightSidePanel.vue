@@ -170,6 +170,7 @@ watch(() => sessionStore.isAuthenticated, (auth) => {
 
 .panel-content {
   min-height: 0;
+  padding-bottom: 0.75rem;
 }
 
 .btn-group .btn {

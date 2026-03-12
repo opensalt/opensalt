@@ -39,7 +39,7 @@
     />
 
     <!-- Tree View -->
-    <div class="mt-3 flex-grow-1 overflow-auto mb-3">
+    <div class="mt-2 mb-1 px-2 pb-3 flex-grow-1 overflow-hidden">
       <TreeView
         :doc="displayedDoc"
         :selected-id="selectedId"
@@ -181,14 +181,14 @@ const viewedDoc = computed(() => {
   if (!id) return null;
   const doc = contextStore.documentRegistry.get(id);
   if (!doc) return null;
-  
+
   const pkg = contextStore.loadedPackages.get(id);
   let items = [];
   if (pkg && pkg.CFItems) {
     const transformed = currentDocumentStore.transformCASEItems(pkg.CFItems, pkg.CFAssociations || [], id);
     items = transformed.items || transformed;
   }
-  
+
   return { ...doc, id: doc.identifier, items };
 });
 

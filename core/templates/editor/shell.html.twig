@@ -8,12 +8,20 @@
     {{ parent() }}
     <style>
         .editor-shell-page .container.container--main {
+            height: 100vh;
             max-width: 100%;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
+            padding-bottom: 0;
             padding-left: 0;
             padding-right: 0;
+        }
+
+        .editor-shell-page .header {
+            flex-shrink: 0;
+            margin-bottom: 0 !important;
         }
 
         .editor-shell-page main.content.editor-shell-main {
@@ -22,13 +30,20 @@
             flex-direction: column;
             min-height: 0;
             margin-bottom: 0 !important;
+            overflow: hidden;
             padding-left: 0;
             padding-right: 0;
         }
 
         .editor-shell-page main.content.editor-shell-main #app {
             flex: 1;
+            height: 100%;
             min-height: 0;
+        }
+
+        .editor-shell-page .footer {
+            position: static;
+            flex-shrink: 0;
         }
 
     </style>

@@ -419,6 +419,7 @@ function getDropPosition(e) {
   flex: 1;
   padding: 2px 6px;
   border-radius: 4px;
+  box-sizing: border-box;
   transition: background-color 0.2s;
   user-select: text;
 }
@@ -431,7 +432,14 @@ function getDropPosition(e) {
   background: #e3f2fd;
   border-radius: 4px;
   padding: 2px 6px;
+  margin: 0 2px;
   font-weight: 600;
+}
+
+.tree-node-label:focus,
+.expand-control:focus,
+.tree-node:focus {
+  outline: none;
 }
 
 .tree-node-label.drag-over {

@@ -24,7 +24,7 @@
     </div>
 
     <!-- Side Tree -->
-    <div v-if="selectedDocumentId" class="side-tree flex-grow-1 overflow-auto border rounded p-2">
+    <div v-if="selectedDocumentId" class="side-tree flex-grow-1 d-flex flex-column overflow-hidden border rounded p-2">
       <div v-if="loadingSideDoc" class="d-flex justify-content-center align-items-center h-100">
         <div class="spinner-border spinner-border-sm text-primary" role="status">
           <span class="visually-hidden">Loading...</span>
@@ -151,11 +151,18 @@ watch(() => props.sideDocument, (newDoc) => {
 
 .side-tree {
   background-color: #f8f9fa;
-  min-height: 200px;
+  min-height: 0;
 }
 
 .side-tree-content {
-  min-height: 100%;
+  min-height: 0;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.side-tree-content :deep(.tree-view) {
+  min-height: 0;
 }
 
 .instructions {
