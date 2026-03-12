@@ -33,26 +33,32 @@ class FrameworkAclController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    #[Route(path: '/{id}/acl', name: 'framework_acl_edit', methods: ['GET', 'POST'])]
+    #[Route(path: '/{id}/acl', name: 'framework_acl_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
+    #[Route(path: '/{identifier}/acl', name: 'framework_acl_edit_identifier', requirements: ['identifier' => '[a-fA-F0-9]{8}-([a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}'], methods: ['GET', 'POST'])]
     #[IsGranted(Permission::MANAGE_EDITORS, 'lsDoc')]
-    public function edit(Request $request, LsDoc $lsDoc): Response
-    {
+    public function edit(
+        Request $request,
+        #[MapEntity(expr: '((id ?? null) == null) ? repository.findOneByIdentifier(identifier ?? null) : repository.find(id ?? null)')] LsDoc $lsDoc
+    ): Response {
+        $routeName = $request->attributes->get('_route');
+        $routeParams = $request->attributes->get('_route_params');
+
         $addAclUserDto = new AddAclUserDTO($lsDoc, UserDocAcl::DENY);
         $addOrgUserForm = $this->createForm(AddAclUserType::class, $addAclUserDto, [
             'lsDoc' => $lsDoc,
-            'action' => $this->generateUrl('framework_acl_edit', ['id' => $lsDoc->getId()]),
+            'action' => $this->generateUrl($routeName, $routeParams),
             'method' => 'POST',
         ]);
         $addAclUsernameDto = new AddAclUsernameDTO($lsDoc, UserDocAcl::ALLOW);
         $addUsernameForm = $this->createForm(AddAclUsernameType::class, $addAclUsernameDto);
 
         $addOrgUserForm->handleRequest($request);
-        if (($ret = $this->handleOrgUserAdd($lsDoc, $addOrgUserForm)) !== null) {
+        if (($ret = $this->handleOrgUserAdd($lsDoc, $addOrgUserForm, $routeName, $routeParams)) !== null) {
             return $ret;
         }
 
         $addUsernameForm->handleRequest($request);
-        if (($ret = $this->handleUsernameAdd($lsDoc, $addUsernameForm)) !== null) {
+        if (($ret = $this->handleUsernameAdd($lsDoc, $addUsernameForm, $routeName, $routeParams)) !== null) {
             return $ret;
         }
 
@@ -71,12 +77,18 @@ class FrameworkAclController extends AbstractController
         foreach ($acls as $acl) {
             /** @var UserDocAcl $acl */
             $aclUser = $acl->getUser();
-            $deleteForms[$aclUser->getId()] = $this->createDeleteForm($lsDoc, $aclUser)->createView();
+            $deleteForms[$aclUser->getId()] = $this->createDeleteForm($lsDoc, $aclUser, $routeName)->createView();
         }
 
         $orgUsers = [];
         if ('organization' === $lsDoc->getOwnedBy()) {
             $orgUsers = $lsDoc->getOrg()->getUsers();
+        }
+
+        if ($routeName === 'framework_acl_edit') {
+            $frameworkUrl = $this->generateUrl('doc_tree_view', ['slug' => $lsDoc->getSlug()]);
+        } else {
+            $frameworkUrl = '/editor/'.$lsDoc->getIdentifier();
         }
 
         return $this->render('user/framework_acl/edit.html.twig', [
@@ -87,10 +99,11 @@ class FrameworkAclController extends AbstractController
             'addOrgUserForm' => $addOrgUserForm->createView(),
             'addUsernameForm' => $addUsernameForm->createView(),
             'deleteForms' => $deleteForms,
+            'frameworkUrl' => $frameworkUrl,
         ]);
     }
 
-    private function handleOrgUserAdd(LsDoc $lsDoc, FormInterface $addOrgUserForm): ?RedirectResponse
+    private function handleOrgUserAdd(LsDoc $lsDoc, FormInterface $addOrgUserForm, string $routeName, array $routeParams): ?RedirectResponse
     {
         if ($addOrgUserForm->isSubmitted() && $addOrgUserForm->isValid()) {
             $dto = $addOrgUserForm->getData();
@@ -99,7 +112,7 @@ class FrameworkAclController extends AbstractController
             try {
                 $this->sendCommand($command);
 
-                return $this->redirectToRoute('framework_acl_edit', ['id' => $lsDoc->getId()]);
+                return $this->redirectToRoute($routeName, $routeParams);
             } catch (UniqueConstraintViolationException) {
                 $error = new FormError('The username is already in your exception list.');
                 $error->setOrigin($addOrgUserForm);
@@ -118,7 +131,7 @@ class FrameworkAclController extends AbstractController
         return null;
     }
 
-    private function handleUsernameAdd(LsDoc $lsDoc, FormInterface $addUsernameForm): ?RedirectResponse
+    private function handleUsernameAdd(LsDoc $lsDoc, FormInterface $addUsernameForm, string $routeName, array $routeParams): ?RedirectResponse
     {
         if ($addUsernameForm->isSubmitted() && $addUsernameForm->isValid()) {
             $dto = $addUsernameForm->getData();
@@ -127,7 +140,7 @@ class FrameworkAclController extends AbstractController
             try {
                 $this->sendCommand($command);
 
-                return $this->redirectToRoute('framework_acl_edit', ['id' => $lsDoc->getId()]);
+                return $this->redirectToRoute($routeName, $routeParams);
             } catch (UniqueConstraintViolationException) {
                 $error = new FormError('The username is already in your exception list.');
                 $error->setOrigin($addUsernameForm);
@@ -147,14 +160,24 @@ class FrameworkAclController extends AbstractController
         return null;
     }
 
-    #[Route(path: '/{id}/acl/{targetUser}', name: 'framework_acl_remove', methods: ['DELETE'])]
+    #[Route(path: '/{id}/acl/{targetUser}', name: 'framework_acl_remove', requirements: ['id' => '\d+'], methods: ['DELETE'])]
+    #[Route(path: '/{identifier}/acl/{targetUser}', name: 'framework_acl_remove_identifier', requirements: ['identifier' => '[a-fA-F0-9]{8}-([a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}'], methods: ['DELETE'])]
     #[IsGranted(Permission::MANAGE_EDITORS, 'lsDoc')]
     public function removeAcl(
         Request $request,
-        LsDoc $lsDoc,
+        #[MapEntity(expr: '((id ?? null) == null) ? repository.findOneByIdentifier(identifier ?? null) : repository.find(id ?? null)')] LsDoc $lsDoc,
         #[MapEntity(id: 'targetUser')] User $targetUser,
     ): RedirectResponse {
-        $form = $this->createDeleteForm($lsDoc, $targetUser);
+        $deleteRoute = $request->attributes->get('_route');
+        if ($deleteRoute === 'framework_acl_remove') {
+            $routeName = 'framework_acl_edit';
+            $routeParams = ['id' => $lsDoc->getId()];
+        } else {
+            $routeName = 'framework_acl_edit_identifier';
+            $routeParams = ['identifier' => $lsDoc->getIdentifier()];
+        }
+
+        $form = $this->createDeleteForm($lsDoc, $targetUser, $routeName);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -162,16 +185,23 @@ class FrameworkAclController extends AbstractController
             $this->sendCommand($command);
         }
 
-        return $this->redirectToRoute('framework_acl_edit', ['id' => $lsDoc->getId()]);
+        return $this->redirectToRoute($routeName, $routeParams);
     }
 
     /**
      * Creates a form to delete a user entity.
      */
-    private function createDeleteForm(LsDoc $lsDoc, User $targetUser): FormInterface
+    private function createDeleteForm(LsDoc $lsDoc, User $targetUser, string $routeName): FormInterface
     {
+        if ($routeName === 'framework_acl_edit') {
+            $deleteRoute = 'framework_acl_remove';
+            $deleteParams = ['id' => $lsDoc->getId(), 'targetUser' => $targetUser->getId()];
+        } else {
+            $deleteRoute = 'framework_acl_remove_identifier';
+            $deleteParams = ['identifier' => $lsDoc->getIdentifier(), 'targetUser' => $targetUser->getId()];
+        }
         return $this->createFormBuilder()
-            ->setAction($this->generateUrl('framework_acl_remove', ['id' => $lsDoc->getId(), 'targetUser' => $targetUser->getId()]))
+            ->setAction($this->generateUrl($deleteRoute, $deleteParams))
             ->setMethod(Request::METHOD_DELETE)
             ->getForm()
             ;

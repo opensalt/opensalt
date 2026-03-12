@@ -131,6 +131,15 @@
             <button type="button" class="btn btn-outline-secondary" @click="$emit('clone-framework')">
               <i class="bi bi-copy"></i> Clone Framework
             </button>
+            <button
+              v-if="document?.identifier"
+              type="button"
+              class="btn btn-outline-secondary"
+              @click="manageAccess"
+              title="Manage document access control"
+            >
+              <i class="bi bi-shield-lock"></i> Manage Access
+            </button>
           </template>
         </div>
       </div>
@@ -246,6 +255,12 @@ function getDisplayName(type) {
 function formatDate(dateString) {
   if (!dateString) return '';
   return new Date(dateString).toLocaleDateString();
+}
+
+function manageAccess() {
+  if (props.document?.identifier) {
+    window.location.href = `/cfdoc/${props.document.identifier}/acl`;
+  }
 }
 </script>
 
