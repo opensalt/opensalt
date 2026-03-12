@@ -151,7 +151,7 @@
 
     <!-- Comments -->
     <CommentModule
-      v-if="document?.identifier"
+      v-if="commentsEnabled && document?.identifier"
       item-type="document"
       :item-identifier="document.identifier"
     />
@@ -173,6 +173,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useDynamicModal } from '../../../composables/useDynamicModal.js';
+import { editorConfig } from '../../../config/editorConfig.js';
 import CommentModule from '../CommentModule.vue';
 import docIcon from '@/assets/icons/ph/graph-fill.svg';
 
@@ -197,6 +198,7 @@ import { useEditorContextStore } from '../../../stores/editorContextStore';
 
 const sessionStore = useSessionStore();
 const isReadOnly = computed(() => props.isViewingDifferentFramework || props.document?.isReadOnly || !sessionStore.isAuthenticated);
+const commentsEnabled = editorConfig.features.comments;
 
 // Get license name from definitions
 const currentDocumentStore = useCurrentDocumentStore();

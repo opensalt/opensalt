@@ -58,6 +58,11 @@
 
 {% block body %}
     <div id="app"></div>
+    <script>
+        window.openSaltEditor = Object.assign({}, window.openSaltEditor || {}, {
+            features: {{ editorFeatures|default({})|json_encode(constant('JSON_THROW_ON_ERROR'))|raw }},
+        });
+    </script>
 {% endblock %}
 
 {% block javascripts %}

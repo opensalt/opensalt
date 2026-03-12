@@ -62,7 +62,7 @@
 
     <!-- Comments -->
     <CommentModule
-      v-if="item?.identifier"
+      v-if="commentsEnabled && item?.identifier"
       item-type="item"
       :item-identifier="item.identifier"
     />
@@ -74,6 +74,7 @@
 <script setup>
 /* global localStorage */
 import { computed, ref, onMounted, watch } from 'vue';
+import { editorConfig } from '../../../config/editorConfig.js';
 
 // Sub-components
 import ItemCrossFrameworkBanner from './ItemCrossFrameworkBanner.vue';
@@ -137,6 +138,7 @@ const emit = defineEmits([
 const contextStore = useEditorContextStore();
 const sessionStore = useSessionStore();
 const documentStore = useDocumentStore();
+const commentsEnabled = editorConfig.features.comments;
 
 // ---------------------------------------------------------------------------
 // Item type constants

@@ -4,12 +4,19 @@ declare(strict_types=1);
 
 namespace App\Controller\Editor;
 
+use App\Security\Feature;
+use Novaway\Bundle\FeatureFlagBundle\Manager\FeatureManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class EditorShellController extends AbstractController
 {
+    public function __construct(
+        private readonly FeatureManager $featureManager,
+    ) {
+    }
+
     #[Route(path: '/editor', name: 'editor_shell', methods: ['GET'])]
     #[Route(path: '/editor/{path}', name: 'editor_shell_path', requirements: ['path' => '.+'], methods: ['GET'])]
     public function index(): Response
@@ -23,6 +30,9 @@ final class EditorShellController extends AbstractController
             'editorDevEntry' => '/editor/'.$entry,
             'editorProdScripts' => $this->buildProdScripts($entry),
             'editorProdStyles' => $this->buildProdStyles($entry),
+            'editorFeatures' => [
+                'comments' => $this->featureManager->isEnabled(Feature::COMMENTS),
+            ],
         ]);
     }
 
