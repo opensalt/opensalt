@@ -150,7 +150,7 @@ const frameworkSlug = computed(() => {
  */
 const jsonExportUrl = computed(() => {
   if (!frameworkIdentifier.value) return '#';
-  return `/ims/case/v1p1/CFPackages/${frameworkIdentifier.value}.json`;
+  return `/ims/case/v1p1/CFPackages/${frameworkIdentifier.value}.json?download=1`;
 });
 
 /**
