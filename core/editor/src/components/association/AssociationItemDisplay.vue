@@ -1,5 +1,5 @@
 <template>
-  <div class="col-sm-5">
+  <div class="col">
     <div
       class="ls-association-item-display border p-3 rounded"
       :id="elementId"

@@ -92,7 +92,7 @@ defineEmits(['switch']);
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   border: 2px solid #dee2e6;
   transition: all 0.2s ease;
-  min-width: 280px;
+  min-width: 210px;
   justify-content: space-between;
 }
 
@@ -139,7 +139,7 @@ defineEmits(['switch']);
   font-size: 0.85rem;
   font-weight: 500;
   color: #212529;
-  max-width: 100px;
+  max-width: 80px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

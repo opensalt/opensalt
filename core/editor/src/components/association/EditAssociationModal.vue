@@ -369,6 +369,7 @@ onUnmounted(() => {
 .vcenter {
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 .form-control:focus,
