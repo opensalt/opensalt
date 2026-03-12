@@ -120,7 +120,7 @@
 
 <script setup>
 import { ref, reactive, computed, watch } from 'vue';
-import { Modal } from 'bootstrap';
+import Modal from 'bootstrap/js/dist/modal';
 
 const props = defineProps({
   show: Boolean,

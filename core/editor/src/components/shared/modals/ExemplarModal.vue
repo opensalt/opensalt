@@ -108,7 +108,7 @@
 
 <script setup>
 import { ref, reactive, watch, computed } from 'vue';
-import { Modal } from 'bootstrap';
+import Modal from 'bootstrap/js/dist/modal';
 import { useFilterStore } from '../../../stores/filterStore';
 
 const props = defineProps({

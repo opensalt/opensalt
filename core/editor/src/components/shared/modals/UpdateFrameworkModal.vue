@@ -78,7 +78,7 @@
 
 <script setup>
 import { ref, watch, onMounted } from 'vue';
-import { Modal } from 'bootstrap';
+import Modal from 'bootstrap/js/dist/modal';
 
 const props = defineProps({
   show: Boolean

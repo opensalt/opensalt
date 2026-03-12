@@ -13,10 +13,15 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    allowedHosts: true
+    allowedHosts: true,
+    hmr: {
+      path: '/editor/@vite-hmr',
+    },
   },
   build: {
+    manifest: true,
     rollupOptions: {
+      input: 'src/main.js',
       output: {
         manualChunks: {
           'vendor-vue': ['vue', 'vue-router', 'pinia'],

@@ -109,7 +109,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
-import { Modal } from 'bootstrap';
+import Modal from 'bootstrap/js/dist/modal';
 import { useDocumentStore } from '../../../stores/documentStore';
 import { useRoute } from 'vue-router';
 

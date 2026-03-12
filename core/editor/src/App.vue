@@ -1,13 +1,5 @@
 <template>
-  <div id="editor" class="d-flex flex-column vh-100 overflow-hidden">
-    <nav class="navbar navbar-expand navbar-light bg-light flex-shrink-0">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="#">
-          <i class="bi bi-diagram-3"></i> Document Editor
-        </a>
-      </div>
-    </nav>
-
+  <div id="editor" class="d-flex flex-column h-100 overflow-hidden">
     <div class="container-fluid d-flex flex-column flex-grow-1 overflow-hidden" style="min-height: 0;">
       <!-- Header row: document name (left), status (right) -->
       <header class="d-flex align-items-center justify-content-between my-2 header-section flex-shrink-0">

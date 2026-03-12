@@ -103,7 +103,7 @@
 <script setup>
 /* global document */
 import { ref, computed, watch, nextTick } from 'vue';
-import { Modal } from 'bootstrap';
+import Modal from 'bootstrap/js/dist/modal';
 import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
 
 const props = defineProps({

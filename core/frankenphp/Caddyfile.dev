@@ -98,8 +98,8 @@
 	#	# In this case, they will be handled by the PHP app.
 	#	reverse_proxy @pwa http://{$PWA_UPSTREAM}
 
-    @editor expression `(path('/editor', '/editor/*'))`
-    reverse_proxy @editor editor:5173
+	@editor_vite path /editor/@vite/* /editor/@vite-hmr /editor/@id/* /editor/@fs/* /editor/src/* /editor/node_modules/* /editor/__vite_ping
+	reverse_proxy @editor_vite editor:5173
 
 	{$CADDY_SERVER_EXTRA_DIRECTIVES}
 

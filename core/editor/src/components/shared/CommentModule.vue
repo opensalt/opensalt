@@ -187,6 +187,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, nextTick } from 'vue';
+import Modal from 'bootstrap/js/dist/modal';
 import { useCommentStore } from '../../stores/commentStore.js';
 import { useSessionStore } from '../../stores/sessionStore.js';
 import CommentItem from './CommentItem.vue';
@@ -322,11 +323,11 @@ function handleEdit(comment) {
     editContent.value = comment.content;
 
     nextTick(() => {
-        if (editModal.value && typeof bootstrap !== 'undefined') {
+        if (editModal.value) {
             if (!editModalInstance) {
-                editModalInstance = new bootstrap.Modal(editModal.value);
+                editModalInstance = new Modal(editModal.value);
             }
-            editModalInstance?.show();
+            editModalInstance.show();
         }
     });
 }
@@ -377,17 +378,14 @@ function exportComments() {
 
 // Cleanup on unmount
 onMounted(() => {
-    // Initialize Bootstrap modals if needed
-    if (typeof bootstrap !== 'undefined') {
-        nextTick(() => {
-            if (editModal.value) {
-                editModalInstance = new bootstrap.Modal(editModal.value);
-            }
-            if (deleteModal.value) {
-                deleteModalInstance = new bootstrap.Modal(deleteModal.value);
-            }
-        });
-    }
+    nextTick(() => {
+        if (editModal.value) {
+            editModalInstance = new Modal(editModal.value);
+        }
+        if (deleteModal.value) {
+            deleteModalInstance = new Modal(deleteModal.value);
+        }
+    });
 });
 </script>
 

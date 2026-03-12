@@ -186,7 +186,7 @@
 
 <script setup>
 import { ref, reactive, watch, computed } from 'vue';
-import { Modal } from 'bootstrap';
+import Modal from 'bootstrap/js/dist/modal';
 import MultiSelect from '../MultiSelect.vue';
 import SingleSelect from '../SingleSelect.vue';
 
