@@ -446,6 +446,10 @@ function saveItem() {
         subjects: formData.subjects,
         licence: formData.licence,
         notes: formData.notes,
+        extensions: {
+          ...(props.item.extensions || {}),
+          'salt:type': formData.itemType || 'default'
+        },
         updated: new Date().toISOString()
       };
       emit('updated', savedItem);
@@ -462,6 +466,9 @@ function saveItem() {
         subjects: formData.subjects,
         licence: formData.licence,
         notes: formData.notes,
+        extensions: {
+          'salt:type': formData.itemType || 'default'
+        },
         children: [],
         associations: []
       };

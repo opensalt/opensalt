@@ -86,6 +86,7 @@ const isEdit = computed(() => !!props.item);
 
 const formData = reactive({
   publicKey: '',
+  kid: '',
   type: 'jwk'
 });
 
@@ -110,12 +111,14 @@ function loadFormData() {
     // fullStatement contains the public key as JSON
     formData.publicKey = props.item.fullStatement || '';
     // abbreviatedStatement contains the kid
+    formData.kid = props.item.abbreviatedStatement || '';
     // Note: In edit mode, kid is read-only (derived from key)
     // salt:kid is stored in extensions
     formData.type = props.item.extensions?.['salt:kid'] || 'jwk';
   } else {
     // Reset for new
     formData.publicKey = '';
+    formData.kid = '';
     formData.type = 'jwk';
   }
 
@@ -137,10 +140,12 @@ function saveItem() {
       // Map form fields back to CASE structure
       savedItem = {
         ...props.item,
-        fullStatement: formData.publicKey,
+        publicKey: formData.publicKey,
+        kid: formData.kid,
+        type: formData.type,
         extensions: {
-          ...(props.item?.extensions || {})
-          // , 'salt:kid': formData.type
+          ...(props.item?.extensions || {}),
+          'salt:type': 'public_key'
         },
         updated: new Date().toISOString()
       };
@@ -148,9 +153,11 @@ function saveItem() {
     } else {
       savedItem = {
         identifier: 'public_key_' + Date.now(),
-        fullStatement: formData.publicKey,
+        publicKey: formData.publicKey,
+        kid: formData.kid,
+        type: formData.type,
         extensions: {
-          // 'salt:kid': formData.type
+          'salt:type': 'public_key'
         },
         parentId: props.parentItem?.identifier || null,
         created: new Date().toISOString(),

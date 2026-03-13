@@ -201,13 +201,14 @@ function saveItem() {
     if (isEdit.value) {
       savedItem = {
         ...props.item,
-        fullStatement: formData.title,
-        notes: formData.description,
-        humanCodingScheme: formData.codedNotation,
-        conceptKeywords: formData.keywords ? formData.keywords.split(',').map(k => k.trim()) : [],
+        title: formData.title,
+        description: formData.description,
+        codedNotation: formData.codedNotation,
+        keywords: formData.keywords ? formData.keywords.split('|').map(k => k.trim()) : [],
+        webpage: formData.webpage,
         extensions: {
           ...(props.item.extensions || {}),
-          'ceterms:subjectWebpage': formData.webpage
+          'salt:type': 'job'
         },
         updated: new Date().toISOString()
       };
@@ -215,12 +216,13 @@ function saveItem() {
     } else {
       savedItem = {
         identifier: 'item_' + Date.now(),
-        fullStatement: formData.title,
-        notes: formData.description,
-        humanCodingScheme: formData.codedNotation,
-        conceptKeywords: formData.keywords ? formData.keywords.split(',').map(k => k.trim()) : [],
+        title: formData.title,
+        description: formData.description,
+        codedNotation: formData.codedNotation,
+        keywords: formData.keywords ? formData.keywords.split('|').map(k => k.trim()) : [],
+        webpage: formData.webpage,
         extensions: {
-          'ceterms:subjectWebpage': formData.webpage
+          'salt:type': 'job'
         },
         parentId: props.parentItem?.identifier || null,
         created: new Date().toISOString(),

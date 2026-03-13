@@ -224,14 +224,15 @@ function saveItem() {
       // Map form fields back to CASE structure
       savedItem = {
         ...props.item,
-        abbreviatedStatement: formData.name,
-        fullStatement: formData.description,
-        language: formData.inLanguage,
-        conceptKeywords: formData.keywords.split(',').map(k => k.trim()).filter(k => k),
+        name: formData.name,
+        description: formData.description,
+        inLanguage: formData.inLanguage,
+        keywords: formData.keywords.split('|').map(k => k.trim()).filter(k => k),
+        deliveryType: formData.deliveryType,
+        webpage: formData.webpage,
         extensions: {
           ...props.item?.extensions,
-          'ceterms:deliveryType': formData.deliveryType,
-          'ceterms:subjectWebpage': formData.webpage
+          'salt:type': 'assessment'
         },
         updated: new Date().toISOString()
       };
@@ -239,13 +240,14 @@ function saveItem() {
     } else {
       savedItem = {
         identifier: 'assessment_' + Date.now(),
-        abbreviatedStatement: formData.name,
-        fullStatement: formData.description,
-        language: formData.inLanguage,
-        conceptKeywords: formData.keywords.split(',').map(k => k.trim()).filter(k => k),
+        name: formData.name,
+        description: formData.description,
+        inLanguage: formData.inLanguage,
+        keywords: formData.keywords.split('|').map(k => k.trim()).filter(k => k),
+        deliveryType: formData.deliveryType,
+        webpage: formData.webpage,
         extensions: {
-          'ceterms:deliveryType': formData.deliveryType,
-          'ceterms:subjectWebpage': formData.webpage
+          'salt:type': 'assessment'
         },
         parentId: props.parentItem?.identifier || null,
         created: new Date().toISOString(),

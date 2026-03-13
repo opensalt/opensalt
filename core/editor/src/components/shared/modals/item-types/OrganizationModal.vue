@@ -282,16 +282,17 @@ function saveItem() {
       // Map form fields back to CASE structure
       savedItem = {
         ...props.item,
-        abbreviatedStatement: formData.name,
-        fullStatement: formData.description,
+        name: formData.name,
+        description: formData.description,
+        type: formData.type,
+        webpage: formData.webpage,
+        logo: formData.logo,
+        jurisdiction: formData.jurisdiction,
+        legalName: formData.legalName,
+        ctid: formData.ctid,
         extensions: {
           ...(props.item?.extensions || {}),
-          'ceterms:agentType': formData.type,
-          'ceterms:image': formData.logo,
-          'sdo:legalName': formData.legalName,
-          'ceterms:ctid': formData.ctid,
-          'ceterms:subjectWebpage': formData.webpage,
-          'ceterms:jurisdiction': formData.jurisdiction
+          'salt:type': 'organization'
         },
         updated: new Date().toISOString()
       };
@@ -299,15 +300,16 @@ function saveItem() {
     } else {
       savedItem = {
         identifier: 'org_' + Date.now(),
-        abbreviatedStatement: formData.name,
-        fullStatement: formData.description,
+        name: formData.name,
+        description: formData.description,
+        type: formData.type,
+        webpage: formData.webpage,
+        logo: formData.logo,
+        jurisdiction: formData.jurisdiction,
+        legalName: formData.legalName,
+        ctid: formData.ctid,
         extensions: {
-          'ceterms:agentType': formData.type,
-          'ceterms:image': formData.logo,
-          'sdo:legalName': formData.legalName,
-          'ceterms:ctid': formData.ctid,
-          'ceterms:subjectWebpage': formData.webpage,
-          'ceterms:jurisdiction': formData.jurisdiction
+          'salt:type': 'organization'
         },
         parentId: props.parentItem?.identifier || null,
         created: new Date().toISOString(),

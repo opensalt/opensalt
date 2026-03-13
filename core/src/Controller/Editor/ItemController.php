@@ -44,7 +44,6 @@ class ItemController extends AbstractController
     public function newItem(
         Request $request,
         string $parentIdentifier,
-        #[MapQueryParameter] ?string $itemType = null,
     ): Response {
         $parentItem = $this->itemRepository->findOneBy(['identifier' => $parentIdentifier]);
         $doc = null;
@@ -69,8 +68,12 @@ class ItemController extends AbstractController
         $lsItem->setLsDoc($doc);
         $lsItem->setLsDocUri($doc->getUri());
 
-        // Extract data from request body
+        // Parse request body
         $data = json_decode($request->getContent(), true);
+
+        // Extract itemType from extensions.salt:type, fall back to query parameter
+        $itemType = $data['extensions']['salt:type'] ?? $request->query->get('itemType');
+
         if (null !== $data) {
             $this->applyDataToItem($lsItem, $data, $itemType);
         }
@@ -93,9 +96,13 @@ class ItemController extends AbstractController
     public function updateItem(
         Request $request,
         #[MapEntity(mapping: ['identifier' => 'identifier'])] LsItem $lsItem,
-        #[MapQueryParameter] ?string $itemType = null,
     ): Response {
+        // Parse request body
         $data = json_decode($request->getContent(), true);
+
+        // Extract itemType from extensions.salt:type, fall back to query parameter
+        $itemType = $data['extensions']['salt:type'] ?? $request->query->get('itemType');
+
         if (null !== $data) {
             $this->applyDataToItem($lsItem, $data, $itemType);
         }
@@ -147,9 +154,8 @@ class ItemController extends AbstractController
 
                     // Simple property mapper for the DTO
                     foreach ($data as $key => $value) {
-                        $method = 'set' . ucfirst($key);
-                        if (method_exists($dto, $method)) {
-                            $dto->$method($value);
+                        if (property_exists($dto, $key)) {
+                            $dto->$key = $value;
                         }
                     }
 

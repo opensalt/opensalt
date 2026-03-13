@@ -218,14 +218,15 @@ function saveItem() {
       // Map form fields back to CASE structure
       savedItem = {
         ...props.item,
-        abbreviatedStatement: formData.name,
-        fullStatement: formData.description,
-        humanCodingScheme: formData.codedNotation,
-        language: formData.inLanguage,
+        name: formData.name,
+        description: formData.description,
+        codedNotation: formData.codedNotation,
+        inLanguage: formData.inLanguage,
+        deliveryType: formData.deliveryType,
+        webpage: formData.webpage,
         extensions: {
           ...(props.item?.extensions || {}),
-          'ceterms:deliveryType': formData.deliveryType,
-          'ceterms:subjectWebpage': formData.webpage
+          'salt:type': 'course'
         },
         updated: new Date().toISOString()
       };
@@ -233,13 +234,14 @@ function saveItem() {
     } else {
       savedItem = {
         identifier: 'item_' + Date.now(),
-        abbreviatedStatement: formData.name,
-        fullStatement: formData.description,
-        humanCodingScheme: formData.codedNotation,
-        language: formData.inLanguage,
+        name: formData.name,
+        description: formData.description,
+        codedNotation: formData.codedNotation,
+        inLanguage: formData.inLanguage,
+        deliveryType: formData.deliveryType,
+        webpage: formData.webpage,
         extensions: {
-          'ceterms:deliveryType': formData.deliveryType,
-          'ceterms:subjectWebpage': formData.webpage
+          'salt:type': 'course'
         },
         parentId: props.parentItem?.identifier || null,
         created: new Date().toISOString(),

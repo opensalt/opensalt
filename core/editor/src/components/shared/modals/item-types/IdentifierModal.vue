@@ -156,12 +156,12 @@ function saveItem() {
       // Map form fields back to CASE structure
       savedItem = {
         ...props.item,
-        abbreviatedStatement: formData.identifier,
-        uri: formData.identifier,
-        fullStatement: formData.description,
+        identifier: formData.identifier,
+        description: formData.description,
+        type: formData.type,
         extensions: {
-          ...(props.item?.extensions || {})
-          // , 'salt:idType': formData.type
+          ...(props.item?.extensions || {}),
+          'salt:type': 'identifier'
         },
         updated: new Date().toISOString()
       };
@@ -169,11 +169,11 @@ function saveItem() {
     } else {
       savedItem = {
         identifier: 'identifier_' + Date.now(),
-        abbreviatedStatement: formData.identifier,
         uri: formData.identifier,
-        fullStatement: formData.description,
+        description: formData.description,
+        type: formData.type,
         extensions: {
-          // 'salt:idType': formData.type
+          'salt:type': 'identifier'
         },
         parentId: props.parentItem?.identifier || null,
         created: new Date().toISOString(),
