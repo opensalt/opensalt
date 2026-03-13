@@ -53,7 +53,7 @@
         @update-item="$emit('update-item', $event)"
         @edit-document="$emit('edit-document')"
         @delete-document="$emit('delete-document')"
-        @add-root-item="$emit('add-root-item')"
+        @add-root-item="$emit('add-root-item', $event)"
         @manage-association-groups="$emit('manage-association-groups')"
         @update-framework="$emit('update-framework')"
         @export-document="$emit('export-document')"

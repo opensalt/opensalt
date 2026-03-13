@@ -54,7 +54,7 @@
         <TreeNodeLabel
           :is-cross-framework-item="isCrossFrameworkItem"
           :is-loading-cross-framework="isLoadingCrossFramework"
-          :external-framework-title="item.externalFrameworkTitle"
+          :external-framework-title="resolvedItem.externalFrameworkTitle"
           :display-human-coding-scheme="displayHumanCodingScheme"
           :search-query="searchQuery"
           :has-match="hasMatch"
@@ -141,7 +141,7 @@
         <TreeNodeLabel
           :is-cross-framework-item="isCrossFrameworkItem"
           :is-loading-cross-framework="isLoadingCrossFramework"
-          :external-framework-title="item.externalFrameworkTitle"
+          :external-framework-title="resolvedItem.externalFrameworkTitle"
           :display-human-coding-scheme="displayHumanCodingScheme"
           :search-query="searchQuery"
           :has-match="hasMatch"
@@ -218,10 +218,11 @@ const emit = defineEmits(['select', 'dblclick', 'move', 'item-change', 'focus'])
 const isCrossFrameworkItem = computed(() => props.item.isCrossFramework === true);
 
 const crossFrameworkData = computed(() => {
-  if (!isCrossFrameworkItem.value || !props.item.crossFrameworkUri) return null;
+  if (!isCrossFrameworkItem.value) return null;
+  const itemUri = props.item.crossFrameworkUri || props.item.uri || props.item.identifier;
   return {
     destinationNodeURI: {
-      uri: props.item.crossFrameworkUri,
+      uri: itemUri,
       identifier: props.item.identifier,
       title: props.item.title || props.item.abbreviatedStatement || props.item.fullStatement,
     },
@@ -242,6 +243,11 @@ const contextStore = useEditorContextStore();
 const resolvedItem = computed(() => {
   if (!isCrossFrameworkItem.value) return props.item;
   const registered = contextStore.itemRegistry.get(props.item.identifier);
+  const resolvedByUri = !registered
+    ? contextStore.resolveEndpoint(props.item.crossFrameworkUri || props.item.uri || '')
+    : null;
+  const resolvedItemEntity = resolvedByUri?.entityType === 'item' ? resolvedByUri.entity : null;
+
   if (registered?.item) {
     return {
       ...props.item,
@@ -249,6 +255,15 @@ const resolvedItem = computed(() => {
       externalFrameworkTitle: props.item.externalFrameworkTitle || frameworkTitle.value,
     };
   }
+
+  if (resolvedItemEntity) {
+    return {
+      ...props.item,
+      ...resolvedItemEntity,
+      externalFrameworkTitle: props.item.externalFrameworkTitle || frameworkTitle.value,
+    };
+  }
+
   return {
     ...props.item,
     ...(itemData.value || {}),
@@ -305,7 +320,7 @@ const displayHumanCodingScheme = computed(
 );
 
 const displayTitle = computed(() => {
-  if (isCrossFrameworkItem.value && itemTitle.value && itemTitle.value !== 'Unknown') {
+  if (isCrossFrameworkItem.value && itemTitle.value && itemTitle.value !== 'Unknown' && itemTitle.value !== 'Loading...') {
     return itemTitle.value;
   }
   return (
@@ -366,8 +381,33 @@ onUnmounted(() => {
 // ---------------------------------------------------------------------------
 // Icon resolution
 // ---------------------------------------------------------------------------
+const normalizeItemKind = (item) => {
+  const saltType = item?.extensions?.['salt:type'];
+  if (typeof saltType === 'string' && saltType.trim()) {
+    return saltType.trim().toLowerCase();
+  }
+
+  const fallbackType = item?.itemType || item?.CFItemType;
+  if (typeof fallbackType !== 'string' || !fallbackType.trim()) {
+    return 'item';
+  }
+
+  const normalized = fallbackType.trim().toLowerCase();
+  if (normalized.startsWith('credential')) return 'credential';
+  if (normalized.startsWith('course')) return 'course';
+  if (normalized.startsWith('assessment')) return 'assessment';
+  if (normalized.startsWith('job')) return 'job';
+  if (normalized.startsWith('organization')) return 'organization';
+  if (normalized.startsWith('identifier')) return 'identifier';
+  if (normalized === 'public key' || normalized === 'public_key' || normalized.startsWith('public key ')) return 'public_key';
+  if (normalized === 'document') return 'document';
+  if (normalized === 'item' || normalized === 'default' || normalized === 'general') return 'item';
+
+  return 'item';
+};
+
 const iconSrc = computed(() => {
-  const type = resolvedItem.value.extensions?.['salt:type'] || 'item';
+  const type = normalizeItemKind(resolvedItem.value);
   if (resolvedItem.value.creator) return docIcon;
   if (type === 'item' && hasChildren.value) return folderIcon;
   const iconMap = {

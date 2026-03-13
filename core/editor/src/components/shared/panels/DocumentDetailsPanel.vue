@@ -244,7 +244,7 @@ const emit = defineEmits([
 const availableTypes = ['general', 'assessment', 'course', 'credential', 'job', 'organization', 'public_key', 'identifier'];
 
 const { showModal, selectedType, isModalVisible, handleCreated, modalComponent, handleHidden } = useDynamicModal(
-  null,
+  props.document?.identifier || null,
   (newItem) => { emit('add-root-item', newItem); },
   availableTypes
 );

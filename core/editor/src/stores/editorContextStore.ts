@@ -330,37 +330,97 @@ export const useEditorContextStore = defineStore('editorContext', () => {
      */
     async function fetchExternalItemData(uri: string) {
         try {
-            // 1. Try to extract UUID and fetch locally if possible
-            const uuid = extractUuidFromUri(uri);
-            if (uuid) {
-                try {
-                    // Try fetching as a package first to get full data
-                    const pkg = await loadPackage(uuid);
-                    if (pkg) return { item: pkg.CFDocument, isPackage: true };
+            const registerFetchedItem = (item: CFItem) => {
+                const frameworkIdentifier =
+                    item.CFDocumentURI?.identifier
+                    || extractUuidFromUri(item.CFDocumentURI?.uri || '')
+                    || null;
+                if (frameworkIdentifier) {
+                    itemRegistry.set(item.identifier, { item, frameworkId: frameworkIdentifier as UUID });
+                }
+            };
 
-                    // Fallback to single item fetch if package fetch fails
-                    const item = await api.get(`/ims/case/v1p1/CFItems/${uuid}`) as CFItem;
-                    if (item) {
-                        // We don't have a frameworkId here yet, ideally we find it from CFDocumentURI
-                        const fwId = extractUuidFromUri(item.CFDocumentURI?.uri || '') as UUID;
-                        if (fwId) {
-                            itemRegistry.set(item.identifier, { item, frameworkId: fwId });
-                        }
-                        return { item, isPackage: false };
+            const normalizeFetchedPayload = (payload: any): { item: any; isPackage: boolean } | null => {
+                if (!payload) return null;
+
+                if (payload.CFDocument && payload.CFItems) {
+                    return { item: payload.CFDocument, isPackage: true };
+                }
+
+                const item = payload.item || payload.CFItem || (payload.identifier ? payload : null);
+                if (item) {
+                    return { item, isPackage: false };
+                }
+
+                return null;
+            };
+
+            // Try direct CASE URI first (same-host absolute URI or relative path).
+            if (uri) {
+                try {
+                    let directPath = uri;
+                    if (/^https?:\/\//i.test(uri)) {
+                        const parsed = new URL(uri);
+                        directPath = `${parsed.pathname}${parsed.search || ''}`;
                     }
-                } catch (err) {
-                    logger.debug(`Local fetch failed for ${uuid}, trying direct URI`);
+
+                    const directPayload = await api.get(directPath);
+                    const normalizedDirect = normalizeFetchedPayload(directPayload);
+                    if (normalizedDirect) {
+                        if (!normalizedDirect.isPackage) {
+                            registerFetchedItem(normalizedDirect.item as CFItem);
+                        }
+                        return normalizedDirect;
+                    }
+                } catch {
+                    // Fall through to identifier-based attempts.
                 }
             }
 
-            // 2. Fallback to direct URI fetch
-            /*
-            const response = await api.get(uri);
-            return response;
-            */
-            //throw new Error(`Failed to fetch external item data for ${uri}`); // Do not try using remote URI for now
-            const response = await api.get(`/ims/case/v1p1/CFItems/${uuid}`) as CFItem;
-            return response;
+            // Build candidate identifiers from UUID, raw input, and URI path segment.
+            const candidates: string[] = [];
+            const extractedUuid = extractUuidFromUri(uri);
+            if (extractedUuid) candidates.push(extractedUuid);
+            if (uri) candidates.push(uri);
+
+            try {
+                const parsed = new URL(uri);
+                const segments = parsed.pathname.split('/').filter(Boolean);
+                const lastSegment = decodeURIComponent(segments[segments.length - 1] || '');
+                if (lastSegment) candidates.push(lastSegment);
+            } catch {
+                // Input may already be an identifier, not a URL.
+            }
+
+            // De-duplicate while preserving order.
+            const uniqueCandidates = Array.from(new Set(candidates.filter(Boolean)));
+
+            for (const candidate of uniqueCandidates) {
+                // If this candidate is a document/package id, this will warm registries.
+                try {
+                    const pkg = await loadPackage(candidate as UUID);
+                    if (pkg?.CFDocument) {
+                        return { item: pkg.CFDocument, isPackage: true };
+                    }
+                } catch {
+                    // Not a package id; continue with item fetch.
+                }
+
+                try {
+                    const payload = await api.get(`/ims/case/v1p1/CFItems/${encodeURIComponent(candidate)}`);
+                    const normalized = normalizeFetchedPayload(payload);
+                    if (normalized) {
+                        if (!normalized.isPackage) {
+                            registerFetchedItem(normalized.item as CFItem);
+                        }
+                        return normalized;
+                    }
+                } catch {
+                    // Try next candidate.
+                }
+            }
+
+            throw new Error(`Failed to fetch external item data for ${uri}`);
         } catch (err) {
             logger.error(`Failed to fetch external item data for ${uri}:`, err);
             return null;

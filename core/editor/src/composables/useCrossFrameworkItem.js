@@ -56,11 +56,17 @@ export function determineTargetType(targetType, associationType) {
  * @param {Object} contextStore - The editor context store
  * @returns {Object|null} - { item, documentTitle, documentId } or null
  */
-export function findInCachedFrameworks(identifier, contextStore) {
-  if (!identifier) return null;
+export function findInCachedFrameworks(identifierOrCandidates, contextStore) {
+  const candidates = Array.isArray(identifierOrCandidates)
+    ? identifierOrCandidates.filter(Boolean)
+    : [identifierOrCandidates].filter(Boolean);
 
-  const resolved = contextStore.resolveEndpoint(identifier);
-  if (resolved) {
+  if (candidates.length === 0) return null;
+
+  for (const candidate of candidates) {
+    const resolved = contextStore.resolveEndpoint(candidate);
+    if (!resolved) continue;
+
     if (resolved.entityType === 'item') {
       const doc = contextStore.documentRegistry.get(resolved.frameworkId);
       return {
@@ -68,9 +74,11 @@ export function findInCachedFrameworks(identifier, contextStore) {
         documentTitle: doc?.title,
         documentId: resolved.frameworkId
       };
-    } else if (resolved.entityType === 'document') {
+    }
+
+    if (resolved.entityType === 'document') {
       return {
-        item: { identifier, title: resolved.entity.title, fullStatement: resolved.entity.title },
+        item: { identifier: candidate, title: resolved.entity.title, fullStatement: resolved.entity.title },
         documentTitle: resolved.entity.title,
         documentId: resolved.entity.identifier
       };
@@ -164,7 +172,15 @@ export function useCrossFrameworkItem(options) {
 
   // Get the item identifier from the node URI
   const itemIdentifier = computed(() => {
-    return nodeURI.value?.identifier;
+    return nodeURI.value?.identifier || extractUuidFromUri(nodeURI.value?.uri || '');
+  });
+
+  // Candidate lookup keys for registry/cache resolution
+  const lookupCandidates = computed(() => {
+    const uri = nodeURI.value?.uri;
+    const identifier = itemIdentifier.value;
+    const fromUri = extractUuidFromUri(uri || '');
+    return [identifier, uri, fromUri].filter(Boolean);
   });
 
   // Determine target type info (CASE vs non-CASE vs unknown)
@@ -209,13 +225,13 @@ export function useCrossFrameworkItem(options) {
   // Check if this is a cross-framework reference relative to the viewed framework
   const isCrossFramework = computed(() => {
     // If we have an item identifier, check if it belongs to the framework being viewed in the tree
-    if (itemIdentifier.value) {
+    if (lookupCandidates.value.length > 0) {
       const displayedFrameworkId = contextStore.isViewingDifferentFramework
         ? contextStore.viewedDocumentId
         : contextStore.activeWriteDocumentId;
 
-      const registered = contextStore.itemRegistry.get(itemIdentifier.value);
-      if (registered && registered.frameworkId === displayedFrameworkId) {
+      const cachedResult = findInCachedFrameworks(lookupCandidates.value, contextStore);
+      if (cachedResult && cachedResult.documentId === displayedFrameworkId) {
         return false;
       }
     }
@@ -223,10 +239,11 @@ export function useCrossFrameworkItem(options) {
     // If we found the item in the current document, it's NOT cross-framework
     if (itemInCurrentDocument.value) return false;
 
-    // If we don't have a node URI, we can't determine if it's cross-framework
-    if (!nodeURI.value?.uri) return false;
+    // If URI is missing but we have an identifier not found locally, still treat as cross-framework.
+    if (!nodeURI.value?.uri) {
+      return !!itemIdentifier.value;
+    }
 
-    // If we have an item identifier but couldn't find it locally, it's cross-framework
     return !!itemIdentifier.value;
   });
 
@@ -238,9 +255,11 @@ export function useCrossFrameworkItem(options) {
     }
 
     // Check if the item is in the global contextStore registry
-    if (itemIdentifier.value) {
-      const registered = contextStore.itemRegistry.get(itemIdentifier.value);
-      if (registered) return registered.item;
+    for (const candidate of lookupCandidates.value) {
+      const resolved = contextStore.resolveEndpoint(candidate);
+      if (resolved?.entityType === 'item') {
+        return resolved.entity;
+      }
     }
 
     // Then check external item data we've loaded
@@ -316,15 +335,16 @@ export function useCrossFrameworkItem(options) {
   async function loadExternalItem() {
     const identifier = itemIdentifier.value;
     const uri = nodeURI.value?.uri;
+    const loadingKey = identifier || uri;
 
-    if (!identifier || !uri) return;
+    if (!loadingKey) return;
     if (itemInCurrentDocument.value) return;
 
     // For non-CASE items, don't fetch
     if (!targetTypeInfo.value.isCase) return;
 
     // Check cached frameworks/registries first
-    const cachedResult = findInCachedFrameworks(identifier, contextStore);
+    const cachedResult = findInCachedFrameworks(lookupCandidates.value, contextStore);
     if (cachedResult) {
       externalItemData.value = cachedResult.item;
       externalFrameworkTitle.value = cachedResult.documentTitle;
@@ -335,21 +355,22 @@ export function useCrossFrameworkItem(options) {
     if (isLoading.value) return;
 
     isLoading.value = true;
-    if (identifier) {
-      viewStore.setLoading(identifier, true);
-    }
+    viewStore.setLoading(loadingKey, true);
     fetchError.value = null;
 
     try {
-      const result = await contextStore.fetchExternalItemData(uri);
-      if (result && result.item) {
+      const fetchReference = uri || identifier;
+      const result = await contextStore.fetchExternalItemData(fetchReference);
+      const fetchedItem = result?.item || (result?.identifier ? result : null);
+      if (fetchedItem) {
         // If it was a package, it's already registered.
         // If it was a single item, fetchExternalItemData might have registered it too.
 
-        externalItemData.value = result.item;
+        externalItemData.value = fetchedItem;
 
         // Try to get document title from registry
-        const fwId = contextStore.itemRegistry.get(result.item.identifier)?.frameworkId;
+        const fwId = contextStore.itemRegistry.get(fetchedItem.identifier)?.frameworkId
+          || contextStore.resolveEndpoint(fetchedItem.uri || fetchedItem.identifier)?.frameworkId;
         if (fwId) {
           const doc = contextStore.documentRegistry.get(fwId);
           externalFrameworkTitle.value = doc?.title || 'External Framework';
@@ -367,9 +388,7 @@ export function useCrossFrameworkItem(options) {
       };
     } finally {
       isLoading.value = false;
-      if (identifier) {
-        viewStore.setLoading(identifier, false);
-      }
+      viewStore.setLoading(loadingKey, false);
     }
   }
 
