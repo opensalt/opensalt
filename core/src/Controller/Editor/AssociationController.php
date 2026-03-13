@@ -48,7 +48,8 @@ class AssociationController extends AbstractController
                 $data['type'] ?? null,
                 $data['dest'] ?? null,
                 $data['assocGroup'] ?? null,
-                $data['annotation'] ?? null
+                $data['annotation'] ?? null,
+                $data['extensions'] ?? null
             );
             $this->sendCommand($command);
             $lsAssociation = $command->getAssociation();

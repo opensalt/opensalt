@@ -61,6 +61,8 @@ class AddTreeAssociationCommand extends BaseCommand
         private readonly ?string $assocGroup = null,
         #[Assert\Type('string')]
         private readonly ?string $annotation = null,
+        #[Assert\Type('array')]
+        private readonly ?array $extensions = null,
     ) {
     }
 
@@ -102,6 +104,11 @@ class AddTreeAssociationCommand extends BaseCommand
     public function getAnnotation(): ?string
     {
         return $this->annotation;
+    }
+
+    public function getExtensions(): ?array
+    {
+        return $this->extensions;
     }
 
     public function setAllowedSubtypes(array $subtypes): void

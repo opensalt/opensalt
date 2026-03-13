@@ -103,10 +103,16 @@ export function formatExtTypeLabel(extType) {
  * @param {boolean} options.isEditing - Whether this is an edit modal
  * @param {string} options.currentType - The current association type (to preserve unknown/isChildOf types)
  * @param {boolean} options.isExemplarTarget - True if the target is an external link (exemplar)
+ * @param {boolean} options.allowIsChildOf - True to allow selecting isChildOf in add/edit modes
  * @returns {Array} Array of options: { value, label, isMeaningful, isSeparator }
  */
 export function getOrderedAssociationTypes(sourceItemOrKind, targetItemOrKind, options = {}) {
-    const { isEditing = false, currentType = '', isExemplarTarget = false } = options;
+    const {
+        isEditing = false,
+        currentType = '',
+        isExemplarTarget = false,
+        allowIsChildOf = false
+    } = options;
 
     const sourceKind = typeof sourceItemOrKind === 'string' ? sourceItemOrKind : getItemKind(unref(sourceItemOrKind));
     const targetKind = typeof targetItemOrKind === 'string' ? targetItemOrKind : getItemKind(unref(targetItemOrKind));
@@ -121,6 +127,7 @@ export function getOrderedAssociationTypes(sourceItemOrKind, targetItemOrKind, o
     // Set up tracking
     const processedValues = new Set();
     const prioritizedOptions = [];
+    const shouldIncludeIsChildOf = allowIsChildOf || (isEditing && currentType === 'isChildOf');
 
     // Always handle currentType in edit mode if it's unknown/imported (not ext:)
     const isExtCurrentType = currentType.startsWith('ext:');
@@ -151,8 +158,8 @@ export function getOrderedAssociationTypes(sourceItemOrKind, targetItemOrKind, o
             label = formatExtTypeLabel(typeVal);
         }
 
-        // Special exclusion: only show isChildOf if we are currently editing it
-        if (typeVal === 'isChildOf' && (!isEditing || currentType !== 'isChildOf')) {
+        // Hide isChildOf unless explicitly allowed or currently editing isChildOf.
+        if (typeVal === 'isChildOf' && !shouldIncludeIsChildOf) {
             continue;
         }
 
@@ -181,8 +188,8 @@ export function getOrderedAssociationTypes(sourceItemOrKind, targetItemOrKind, o
         if (stdType.value === 'other') continue; // Save 'other' for last
         if (processedValues.has(stdType.value)) continue;
 
-        // Special exclusion: only show isChildOf if we are currently editing it
-        if (stdType.value === 'isChildOf' && (!isEditing || currentType !== 'isChildOf')) {
+        // Hide isChildOf unless explicitly allowed or currently editing isChildOf.
+        if (stdType.value === 'isChildOf' && !shouldIncludeIsChildOf) {
             continue;
         }
 

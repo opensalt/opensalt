@@ -1,5 +1,6 @@
 import { ref, reactive, computed, toValue } from 'vue';
 import { useFilterStore } from '../stores/filterStore';
+import { useEditorContextStore } from '../stores/editorContextStore';
 import { getItemKind, MEANINGFUL_ASSOCIATIONS, MEANINGFUL_EXEMPLAR_ASSOCIATIONS } from './useAssociationTypePriority';
 
 /**
@@ -49,6 +50,7 @@ export function useAssociationForm(options) {
 
   // Import and use filterStore to get current selected group
   const filterStore = useFilterStore();
+  const contextStore = useEditorContextStore();
 
   // Form state
   const formData = reactive({
@@ -333,7 +335,77 @@ export function useAssociationForm(options) {
     // Origin targetType
     assocData.origin.targetType = effectiveOrigin?.targetType || 'CASE';
 
+    const sourceDocumentExtensions = getSourceDocumentExtensions(finalType, effectiveOrigin);
+    if (sourceDocumentExtensions) {
+      assocData.extensions = sourceDocumentExtensions;
+    }
+
     return assocData;
+  }
+
+  /**
+   * Build source document extension values for cross-framework isChildOf associations.
+   *
+   * @param {string} finalType
+   * @param {Object|null} effectiveOrigin
+   * @returns {Object|null}
+   */
+  function getSourceDocumentExtensions(finalType, effectiveOrigin) {
+    if (finalType !== 'isChildOf' || !effectiveOrigin) return null;
+
+    const activeWriteDocumentId = contextStore.activeWriteDocumentId || null;
+    if (!activeWriteDocumentId) return null;
+
+    let sourceDocumentIdentifier = null;
+    let sourceDocumentURI = null;
+    let resolvedOrigin = null;
+
+    if (effectiveOrigin.identifier) {
+      resolvedOrigin = contextStore.resolveEndpoint(effectiveOrigin.identifier);
+      if (resolvedOrigin?.frameworkId) {
+        sourceDocumentIdentifier = resolvedOrigin.frameworkId;
+        const sourceDoc = contextStore.documentRegistry.get(sourceDocumentIdentifier);
+        if (sourceDoc?.uri) {
+          sourceDocumentURI = sourceDoc.uri;
+        }
+      }
+    }
+
+    if (!sourceDocumentIdentifier) {
+      sourceDocumentIdentifier =
+        effectiveOrigin.CFDocumentURI?.identifier ||
+        effectiveOrigin.documentId ||
+        null;
+    }
+
+    if (!sourceDocumentURI) {
+      sourceDocumentURI =
+        resolvedOrigin?.entity?.CFDocumentURI?.uri ||
+        resolvedOrigin?.entity?.uri ||
+        null;
+    }
+
+    if (!sourceDocumentURI) {
+      sourceDocumentURI =
+        effectiveOrigin.CFDocumentURI?.uri ||
+        (typeof effectiveOrigin.CFDocumentURI === 'string' ? effectiveOrigin.CFDocumentURI : null) ||
+        null;
+    }
+
+    if (!sourceDocumentURI && sourceDocumentIdentifier) {
+      const sourceDoc = contextStore.documentRegistry.get(sourceDocumentIdentifier);
+      if (sourceDoc?.uri) {
+        sourceDocumentURI = sourceDoc.uri;
+      }
+    }
+
+    if (!sourceDocumentIdentifier || !sourceDocumentURI) return null;
+    if (sourceDocumentIdentifier === activeWriteDocumentId) return null;
+
+    return {
+      sourceDocumentIdentifier,
+      sourceDocumentURI
+    };
   }
 
   /**

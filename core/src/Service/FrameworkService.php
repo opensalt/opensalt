@@ -123,7 +123,7 @@ class FrameworkService
         return $lsAssociation;
     }
 
-    public function addTreeAssociation(LsDoc $doc, array $origin, string $type, array $dest, ?string $assocGroup = null, ?string $annotation = null): LsAssociation
+    public function addTreeAssociation(LsDoc $doc, array $origin, string $type, array $dest, ?string $assocGroup = null, ?string $annotation = null, ?array $extensions = null): LsAssociation
     {
         $association = new LsAssociation();
         $association->setLsDoc($doc);
@@ -132,6 +132,7 @@ class FrameworkService
         $association->setType($types[0]);
         $association->setSubtype($types[1] ?? null);
         $association->setNotes($annotation);
+        $association->setExtensions($extensions);
 
         // deal with origin and dest items, which can be specified by id or by identifier
         // if externalDoc is specified for either one, mark this document as "autoLoad": "true" in the doc's externalDocuments

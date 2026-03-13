@@ -146,6 +146,7 @@ import AssociationTypeSelector from './AssociationTypeSelector.vue';
 import ExemplarFields from './ExemplarFields.vue';
 import DestinationFields from './DestinationFields.vue';
 import { getOrderedAssociationTypes } from '../../composables/useAssociationTypePriority';
+import { useEditorContextStore } from '../../stores/editorContextStore';
 
 const props = defineProps({
   association: Object,
@@ -176,6 +177,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['updated', 'hidden', 'created']);
+const contextStore = useEditorContextStore();
 
 // Error and saving state
 const error = ref('');
@@ -246,6 +248,31 @@ const {
   formData: formData
 });
 
+const allowIsChildOf = computed(() => {
+  const source = leftSideItemData.value;
+  if (!source) return false;
+
+  let sourceFrameworkId = null;
+
+  if (source.identifier) {
+    const resolved = contextStore.resolveEndpoint(source.identifier);
+    if (resolved?.frameworkId) {
+      sourceFrameworkId = resolved.frameworkId;
+    }
+  }
+
+  if (!sourceFrameworkId) {
+    sourceFrameworkId =
+      source.CFDocumentURI?.identifier ||
+      (typeof source.CFDocumentURI === 'string' ? source.CFDocumentURI : null) ||
+      source.documentId ||
+      null;
+  }
+
+  if (!sourceFrameworkId || !contextStore.activeWriteDocumentId) return false;
+  return sourceFrameworkId !== contextStore.activeWriteDocumentId;
+});
+
 // Computed prioritized association types
 const prioritizedTypes = computed(() => {
   const source = leftSideItemData.value;
@@ -255,7 +282,8 @@ const prioritizedTypes = computed(() => {
   return getOrderedAssociationTypes(source, target, {
     isEditing: props.mode === 'edit',
     currentType: formData.type === 'other' ? customType.value : formData.type,
-    isExemplarTarget: isExemplar || formData.type === 'exemplar'
+    isExemplarTarget: isExemplar || formData.type === 'exemplar',
+    allowIsChildOf: allowIsChildOf.value
   });
 });
 

@@ -75,6 +75,15 @@ describe('useAssociationTypePriority', () => {
             expect(isChildOpt.isMeaningful).toBe(true);
         });
 
+        it('includes isChildOf in non-edit mode when allowIsChildOf is true', () => {
+            const options = getOrderedAssociationTypes('organization', 'organization', {
+                allowIsChildOf: true
+            });
+            const isChildOpt = options.find(o => o.value === 'isChildOf');
+            expect(isChildOpt).toBeDefined();
+            expect(isChildOpt.isMeaningful).toBe(true);
+        });
+
         it('prepends unknown non-ext types when editing', () => {
             const options = getOrderedAssociationTypes('default', 'default', {
                 isEditing: true,
