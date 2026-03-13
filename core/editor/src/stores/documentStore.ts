@@ -570,6 +570,19 @@ export const useDocumentStore = defineStore('documents', () => {
     return contextStore.loadedPackages.has(identifier);
   }
 
+  function removeDocument(identifier: UUID): void {
+    documents.value = documents.value.filter(doc => doc.identifier !== identifier);
+    documentsMetadata.delete(identifier);
+    memoryCache.delete(identifier);
+    pendingRequests.delete(identifier);
+    revalidatingRequests.delete(identifier);
+    sideDocError.value = null;
+
+    if (useEditorContextStore().viewedDocumentId === identifier) {
+      viewedDocError.value = null;
+    }
+  }
+
   return {
     documents,
     loading,
@@ -586,6 +599,7 @@ export const useDocumentStore = defineStore('documents', () => {
     resetLoadingSideDocument,
     loadPackage,
     isDocumentCached,
+    removeDocument,
     setDocumentsMetadata,
     revalidatePackage,
     // NEW: Viewed document state and actions (dual framework edit/view separation)

@@ -375,6 +375,34 @@ xENDx;
         $preparedStatement->bindValue('lsDocId', $lsDoc->getId());
         $preparedStatement->executeStatement();
 
+        $progressCallback('Deleting item subject links');
+        $stmt = <<<'xENDx'
+DELETE FROM ls_item_subject
+ WHERE ls_item_id IN (
+   SELECT id
+     FROM ls_item
+    WHERE ls_doc_id = :lsDocId
+ )
+;
+xENDx;
+        $preparedStatement = $conn->prepare($stmt);
+        $preparedStatement->bindValue('lsDocId', $lsDoc->getId());
+        $preparedStatement->executeStatement();
+
+        $progressCallback('Deleting item concept links');
+        $stmt = <<<'xENDx'
+DELETE FROM ls_item_concept
+ WHERE ls_item_id IN (
+   SELECT id
+     FROM ls_item
+    WHERE ls_doc_id = :lsDocId
+ )
+;
+xENDx;
+        $preparedStatement = $conn->prepare($stmt);
+        $preparedStatement->bindValue('lsDocId', $lsDoc->getId());
+        $preparedStatement->executeStatement();
+
         $progressCallback('Deleting items');
         $stmt = <<<'xENDx'
 DELETE FROM ls_item

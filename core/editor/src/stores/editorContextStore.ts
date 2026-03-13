@@ -127,6 +127,43 @@ export const useEditorContextStore = defineStore('editorContext', () => {
         touchRegistry();
     }
 
+    function removeFrameworkData(frameworkId: UUID) {
+        loadedPackages.delete(frameworkId);
+
+        const documentEntry = documentRegistry.get(frameworkId);
+        if (documentEntry?.uri) {
+            documentUriRegistry.delete(documentEntry.uri);
+        }
+        documentRegistry.delete(frameworkId);
+
+        for (const [identifier, entry] of itemRegistry.entries()) {
+            if (entry.frameworkId !== frameworkId) {
+                continue;
+            }
+
+            if (entry.item.uri) {
+                itemUriRegistry.delete(entry.item.uri);
+            }
+            itemRegistry.delete(identifier);
+        }
+
+        for (const [identifier, entry] of associationRegistry.entries()) {
+            if (entry.frameworkId === frameworkId) {
+                associationRegistry.delete(identifier);
+            }
+        }
+
+        if (activeWriteDocumentId.value === frameworkId) {
+            activeWriteDocumentId.value = null;
+        }
+
+        if (viewedDocumentId.value === frameworkId) {
+            viewedDocumentId.value = null;
+        }
+
+        touchRegistry();
+    }
+
     /**
      * Register a non-CASE external endpoint
      */
@@ -356,6 +393,7 @@ export const useEditorContextStore = defineStore('editorContext', () => {
         isEditable,
         fetchExternalItemData,
         registerItem,
+        removeFrameworkData,
         registryVersion,
         touchRegistry
     };

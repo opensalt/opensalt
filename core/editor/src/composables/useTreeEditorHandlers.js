@@ -382,6 +382,14 @@ export function useTreeEditorHandlers({
         closeEditAssociationModal();
     }
 
+    function onDeleteDocument() {
+        if (!currentDoc.value || isViewingDifferentFramework.value) return;
+
+        itemsToDelete.value = [currentDoc.value];
+        deleteType.value = 'framework';
+        showDeleteModal.value = true;
+    }
+
     async function onExemplarAdded(exemplar) {
         const documentId = currentDoc.value?.identifier || currentDoc.value?.id;
         if (!documentId) return;
@@ -399,9 +407,14 @@ export function useTreeEditorHandlers({
     async function onItemsDeleted({ items, deleteType }) {
         try {
             if (deleteType === 'framework') {
-                const documentId = currentDoc.value?.id;
+                const framework = Array.isArray(items) ? items[0] : null;
+                const documentId = framework?.identifier || framework?.id;
+                if (!documentId) {
+                    logger.error('Failed to delete framework: missing document identifier', { items });
+                    return;
+                }
                 await currentDocumentStore.deleteDocument(documentId);
-                router.push('/');
+                window.location.href = '/';
                 return;
             }
 
@@ -530,6 +543,7 @@ export function useTreeEditorHandlers({
         onAssocGroupSaved,
         onAssocGroupDeleted,
         onEditDocument,
+        onDeleteDocument,
         handleAddRootItem,
         onManageAssociationGroups,
         onTreeFocus,

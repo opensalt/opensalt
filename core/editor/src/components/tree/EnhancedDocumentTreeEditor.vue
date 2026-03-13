@@ -72,6 +72,7 @@
           @edit-association="onEditAssociation"
           @delete-association="onDeleteAssociation"
           @edit-document="onEditDocument"
+          @delete-document="onDeleteDocument"
           @add-root-item="handleAddRootItem"
           @manage-association-groups="onManageAssociationGroups"
           @update-item="onItemUpdate"
@@ -474,6 +475,7 @@ const {
   onAssocGroupSaved,
   onAssocGroupDeleted,
   onEditDocument,
+  onDeleteDocument,
   handleAddRootItem,
   onManageAssociationGroups,
   onTreeFocus,

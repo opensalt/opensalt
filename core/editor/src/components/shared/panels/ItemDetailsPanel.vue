@@ -7,6 +7,7 @@
       :document="displayDocument"
       :association-groups="associationGroups"
       @edit-document="$emit('edit-document')"
+      @delete-document="$emit('delete-document')"
       @add-root-item="$emit('add-root-item', $event)"
       @manage-association-groups="$emit('manage-association-groups')"
       @update-framework="$emit('update-framework')"
@@ -63,6 +64,7 @@ const emit = defineEmits([
   'delete-association',
   'update-item',
   'edit-document',
+  'delete-document',
   'add-root-item',
   'manage-association-groups',
   'update-framework',

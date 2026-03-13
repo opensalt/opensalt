@@ -16,6 +16,14 @@
           >
             <i class="bi bi-pencil"></i>
           </button>
+          <button
+            type="button"
+            class="btn btn-outline-danger"
+            @click="$emit('delete-document')"
+            title="Delete document"
+          >
+            <i class="bi bi-trash"></i>
+          </button>
         </div>
         <div v-else class="text-muted small" title="Document is read-only">
           <i class="bi bi-lock-fill"></i> Read-only
@@ -225,6 +233,7 @@ const licenseName = computed(() => {
 
 const emit = defineEmits([
   'edit-document',
+  'delete-document',
   'add-root-item',
   'manage-association-groups',
   'update-framework',

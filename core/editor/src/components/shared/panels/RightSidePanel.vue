@@ -52,6 +52,7 @@
         @delete-association="$emit('delete-association', $event)"
         @update-item="$emit('update-item', $event)"
         @edit-document="$emit('edit-document')"
+        @delete-document="$emit('delete-document')"
         @add-root-item="$emit('add-root-item')"
         @manage-association-groups="$emit('manage-association-groups')"
         @update-framework="$emit('update-framework')"
@@ -124,6 +125,7 @@ const emit = defineEmits([
   'delete-association',
   'update-item',
   'edit-document',
+  'delete-document',
   'add-root-item',
   'manage-association-groups',
   'update-framework',

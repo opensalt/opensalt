@@ -6,6 +6,7 @@ import { useRelatedFrameworksQueue } from '../composables/useRelatedFrameworksQu
 import { useDocumentStore } from './documentStore';
 import { useViewStore } from './viewStore';
 import { useEditorContextStore } from './editorContextStore';
+import { frameworkCacheService } from '../services/frameworkCacheService.js';
 import type {
   CFDocument,
   CFDefinitions,
@@ -676,6 +677,11 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
   async function deleteDocument(documentIdentifier: UUID) {
     try {
       await api.delete(`/framework/editor/document/${documentIdentifier}`);
+      await frameworkCacheService.deleteFramework(documentIdentifier);
+      documentStore.removeDocument(documentIdentifier);
+      contextStore.removeFrameworkData(documentIdentifier);
+      clearCurrentDocument();
+      viewStore.setCurrentItem(null);
       return true;
     } catch (e) {
       logger.error("Error deleting document:", e);

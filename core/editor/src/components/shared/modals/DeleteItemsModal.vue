@@ -1,10 +1,21 @@
 <template>
-  <div class="modal fade" :id="modalId" tabindex="-1" role="dialog" :aria-labelledby="modalLabel" aria-hidden="true">
+  <div v-if="props.show" class="modal-backdrop fade show" @click="closeModal"></div>
+
+  <div
+    class="modal fade"
+    :class="{ 'show d-block': props.show }"
+    :id="modalId"
+    tabindex="-1"
+    role="dialog"
+    :aria-labelledby="modalLabel"
+    :aria-hidden="!props.show"
+    :style="{ display: props.show ? 'block' : 'none' }"
+  >
     <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content">
+      <div class="modal-content" @click.stop>
         <div class="modal-header">
           <h5 class="modal-title" :id="modalLabel">{{ modalTitle }}</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close" aria-label="Close" @click="closeModal"></button>
         </div>
         <div class="modal-body">
           <div v-if="error" class="alert alert-danger mb-3" role="alert">
@@ -83,7 +94,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
           <button
             type="button"
             class="btn"
@@ -102,7 +113,6 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue';
-import Modal from 'bootstrap/js/dist/modal';
 
 const props = defineProps({
   items: Array,
@@ -118,7 +128,6 @@ const emit = defineEmits(['confirmed', 'hidden']);
 const error = ref('');
 const deleting = ref(false);
 const deleteConfirmation = ref('');
-const modal = ref(null);
 
 const modalId = computed(() => {
   switch (props.deleteType) {
@@ -175,16 +184,13 @@ const buttonText = computed(() => {
   }
 });
 
-watch(() => props.show, (newVal) => {
+watch(() => props.show, async (newVal) => {
   if (newVal) {
     resetModal();
-    if (!modal.value) {
-      modal.value = new Modal(document.getElementById(modalId.value));
-    }
-    modal.value.show();
-  } else if (modal.value) {
-    modal.value.hide();
+    return;
   }
+
+  resetModal();
 });
 
 function resetModal() {
@@ -208,9 +214,7 @@ function confirmDelete() {
       items: itemsToDelete.value,
       deleteType: props.deleteType
     });
-    if (modal.value) {
-      modal.value.hide();
-    }
+    emit('hidden');
   } catch (e) {
     error.value = 'Failed to delete: ' + e.message;
   } finally {
@@ -218,12 +222,14 @@ function confirmDelete() {
   }
 }
 
-// Handle modal hidden event
-document.addEventListener('hidden.bs.modal', (event) => {
-  if (event.target.id === modalId.value) {
-    emit('hidden');
+function closeModal() {
+  if (deleting.value) {
+    return;
   }
-});
+
+  resetModal();
+  emit('hidden');
+}
 </script>
 
 <style scoped>
