@@ -8,6 +8,7 @@ import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useDocumentStore } from '../stores/documentStore';
 import { useCurrentDocumentStore } from '../stores/currentDocumentStore';
+import { useFilterStore } from '../stores/filterStore';
 import { useRelatedFrameworksQueue } from './useRelatedFrameworksQueue';
 
 
@@ -29,6 +30,7 @@ export function useDocumentLoader(options = {}) {
   const route = useRoute();
   const documentStore = useDocumentStore();
   const currentDocumentStore = useCurrentDocumentStore();
+  const filterStore = useFilterStore();
   const relatedFrameworksQueue = useRelatedFrameworksQueue();
 
   // Loading and error states
@@ -100,6 +102,14 @@ export function useDocumentLoader(options = {}) {
       docData.CFAssociations || [],
       definitions
     );
+
+    filterStore.syncSelectedAssociationGroup({
+      frameworkId: transformedDoc.identifier || documentId,
+      associations: docData.CFAssociations || [],
+      realGroupIds: associationGroupings
+        .map(group => group.identifier || group.uri)
+        .filter(Boolean)
+    });
 
     if (onDocumentLoaded) {
       onDocumentLoaded(transformedDoc, docData);

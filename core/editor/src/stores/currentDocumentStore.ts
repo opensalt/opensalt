@@ -244,12 +244,18 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     cfAssociations: CaseAssociation[],
     docId: UUID | null = null
   ): EditorItemNode[] {
-    const items = new Map<UUID, EditorItemNode>();
-    const children = new Map<UUID, UUID>(); // originId -> destinationId for all isChildOf
-    const itemsWithParentItem = new Set<UUID>(); // items that are children of another ITEM (not document)
+    const items = new Map<string, EditorItemNode>();
+    const inDocumentIds = new Set<string>();
+    const parentByChild = new Map<string, string>();
+    const itemsWithParentItem = new Set<string>(); // items that are children of another ITEM (not document)
+
+    function normalizeAssociationGroupId(assoc: CaseAssociation): string {
+      return assoc.CFAssociationGroupingURI?.identifier || assoc.CFAssociationGroupingURI?.uri || 'default';
+    }
 
     // First pass: create all items
     cfItems.forEach(item => {
+      inDocumentIds.add(item.identifier);
       items.set(item.identifier, {
         id: 0, // Will be set by backend
         identifier: item.identifier,
@@ -280,115 +286,37 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
         documentId: docId || null,
         children: [],
         sequenceNumber: 0,
-        groupIds: new Set()
+        groupIds: new Set(),
+        associations: []
       });
     });
 
-    // Second pass: build parent-child relationships and associate items with associations
-    cfAssociations.forEach(assoc => {
-      const originId = assoc.originNodeURI?.identifier;
-      const destinationId = assoc.destinationNodeURI?.identifier;
-      if (!originId) return;
-
-      const originInDoc = items.has(originId);
-      
-      // Associate everything (including non-isChildOf) with the item for filtering purposes
-      if (originInDoc) {
-        const item = items.get(originId)!;
-        if (!item.associations) item.associations = [];
-        
-        // Map CFAssociation to EditorAssociation
-        const groupId = assoc.CFAssociationGroupingURI?.identifier || assoc.CFAssociationGroupingURI?.uri || 'default';
+    function ensureEditorAssociation(item: EditorItemNode, assoc: CaseAssociation, groupId: string) {
+      if (!item.associations) item.associations = [];
+      if (!item.associations.some(existing => existing.identifier === assoc.identifier)) {
         const editorAssoc: EditorAssociation = {
           ...assoc,
           groupId: groupId as UUID
         };
         item.associations.push(editorAssoc);
-        item.groupIds?.add(groupId);
       }
+      if (!item.groupIds) item.groupIds = new Set();
+      item.groupIds.add(groupId);
+    }
 
-      if (assoc.associationType !== 'isChildOf') return;
-      if (!destinationId) return;
+    function getOrCreatePlaceholder(link: LinkGenURI | undefined, groupId: string, assoc: CaseAssociation): EditorItemNode | null {
+      const identifier = link?.identifier;
+      if (!identifier) return null;
 
-      const destInDoc = items.has(destinationId);
-
-      if (originInDoc && destInDoc) {
-        // Case 1: Both origin and destination are items in the current document
-        const child = items.get(originId)!;
-        const parent = items.get(destinationId)!;
-        child.sequenceNumber = assoc.sequenceNumber ?? 0;
-        child.childOfAssocId = 0;
-        parent.children.push(child);
-        children.set(originId, destinationId);
-        itemsWithParentItem.add(originId);
-
-      } else if (originInDoc && !destInDoc) {
-        // Case 2: Origin is in the doc, destination is NOT
-        const child = items.get(originId)!;
-        child.sequenceNumber = assoc.sequenceNumber ?? 0;
-        child.childOfAssocId = 0;
-        children.set(originId, destinationId);
-
-        if (destinationId === docId) {
-          // Case 2a: isChildOf the document → this is a root item
-          // Don't add to any parent's children array; it will be collected as a root
-        } else {
-          // Case 2b: Cross-framework parent (destination is in another framework)
-          // Create a placeholder parent node for display purposes
-          let parent = items.get(destinationId);
-          if (!parent) {
-            const destUri = assoc.destinationNodeURI;
-            parent = {
-              id: 0,
-              identifier: destinationId,
-              uri: destUri?.uri || '',
-              title: destUri?.title || 'Loading...',
-              fullStatement: destUri?.title || 'Loading...',
-              abbreviatedTitle: destUri?.title || 'Loading...',
-              abbreviatedStatement: undefined,
-              alternativeLabel: '',
-              humanCodingScheme: undefined,
-              listEnumeration: undefined,
-              lastChanged: '',
-              lastChangeDateTime: '',
-              itemType: undefined,
-              CFItemTypeURI: undefined,
-              conceptKeywords: [],
-              conceptKeywordsURI: undefined,
-              notes: undefined,
-              language: undefined,
-              educationLevel: [],
-              licenseURI: undefined,
-              statusStartDate: undefined,
-              statusEndDate: undefined,
-              subject: [],
-              subjectURI: [],
-              extensions: undefined,
-              CFDocumentURI: assoc.CFDocumentURI,
-              documentId: null,
-              children: [],
-              sequenceNumber: 0,
-              isCrossFramework: true,
-              crossFrameworkUri: destUri?.uri
-            };
-            items.set(destinationId, parent);
-          }
-          parent.children.push(child);
-          itemsWithParentItem.add(originId);
-        }
-
-      } else if (!originInDoc && destInDoc) {
-        // Case 3: Cross-framework child (origin is from another framework)
-        const parent = items.get(destinationId)!;
-        const originUri = assoc.originNodeURI;
-
-        const placeholderChild: EditorItemNode = {
+      let node = items.get(identifier);
+      if (!node) {
+        node = {
           id: 0,
-          identifier: originId,
-          uri: originUri?.uri || '',
-          title: originUri?.title || 'Loading...',
-          fullStatement: originUri?.title || 'Loading...',
-          abbreviatedTitle: originUri?.title || 'Loading...',
+          identifier,
+          uri: link?.uri || '',
+          title: link?.title || 'Loading...',
+          fullStatement: link?.title || 'Loading...',
+          abbreviatedTitle: link?.title || 'Loading...',
           abbreviatedStatement: undefined,
           alternativeLabel: '',
           humanCodingScheme: undefined,
@@ -408,17 +336,166 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
           subject: [],
           subjectURI: [],
           extensions: undefined,
-          CFDocumentURI: undefined,
+          CFDocumentURI: assoc.CFDocumentURI,
           documentId: null,
           children: [],
-          sequenceNumber: assoc.sequenceNumber ?? 0,
+          sequenceNumber: 0,
           isCrossFramework: true,
-          crossFrameworkUri: originUri?.uri
+          crossFrameworkUri: link?.uri,
+          groupIds: new Set(),
+          associations: []
         };
+        items.set(identifier, node);
+      } else {
+        if (!node.crossFrameworkUri && link?.uri) node.crossFrameworkUri = link.uri;
+        if ((!node.title || node.title === 'Loading...') && link?.title) {
+          node.title = link.title;
+          node.fullStatement = link.title;
+          node.abbreviatedTitle = link.title;
+        }
+      }
 
-        parent.children.push(placeholderChild);
+      if (!node.groupIds) node.groupIds = new Set();
+      node.groupIds.add(groupId);
+      return node;
+    }
+
+    function attachChildToParent(
+      child: EditorItemNode,
+      parentId: string,
+      parent: EditorItemNode | null,
+      assoc: CaseAssociation,
+      groupId: string
+    ) {
+      const existingParentId = parentByChild.get(child.identifier);
+      if (existingParentId && existingParentId !== parentId) {
+        // Keep the first discovered parent to avoid duplicate/ambiguous attachment.
+        return;
+      }
+
+      child.sequenceNumber = assoc.sequenceNumber ?? child.sequenceNumber ?? 0;
+      child.childOfAssocId = 0;
+      ensureEditorAssociation(child, assoc, groupId);
+
+      if (parent && parentId !== docId) {
+        if (!parent.children.some(node => node.identifier === child.identifier)) {
+          parent.children.push(child);
+        }
+        itemsWithParentItem.add(child.identifier);
+      } else if (parentId === docId) {
+        itemsWithParentItem.delete(child.identifier);
+      }
+
+      parentByChild.set(child.identifier, parentId);
+    }
+
+    // Associate everything (including non-isChildOf) with local origin items for filtering.
+    cfAssociations.forEach(assoc => {
+      const originId = assoc.originNodeURI?.identifier;
+      if (originId && items.has(originId)) {
+        const item = items.get(originId)!;
+        const groupId = normalizeAssociationGroupId(assoc);
+        ensureEditorAssociation(item, assoc, groupId);
       }
     });
+
+    type ChildEdge = {
+      assoc: CaseAssociation;
+      originId: string;
+      destinationId: string;
+      groupId: string;
+    };
+
+    const immediateEdges: ChildEdge[] = [];
+    const deferredEdges: ChildEdge[] = [];
+
+    cfAssociations.forEach(assoc => {
+      if (assoc.associationType !== 'isChildOf') return;
+
+      const originId = assoc.originNodeURI?.identifier;
+      const destinationId = assoc.destinationNodeURI?.identifier;
+      if (!originId || !destinationId) return;
+      const groupId = normalizeAssociationGroupId(assoc);
+
+      const originInDoc = inDocumentIds.has(originId);
+      const destInDoc = inDocumentIds.has(destinationId);
+      const destinationIsDoc = docId !== null && destinationId === docId;
+
+      if (originInDoc || destInDoc || destinationIsDoc) {
+        immediateEdges.push({ assoc, originId, destinationId, groupId });
+      } else {
+        deferredEdges.push({ assoc, originId, destinationId, groupId });
+      }
+    });
+
+    // Pass 1: process all edges that directly touch the viewed framework.
+    immediateEdges.forEach(({ assoc, originId, destinationId, groupId }) => {
+      const originInDoc = inDocumentIds.has(originId);
+      const destInDoc = inDocumentIds.has(destinationId);
+      const destinationIsDoc = docId !== null && destinationId === docId;
+
+      if (originInDoc && destInDoc) {
+        const child = items.get(originId)!;
+        const parent = items.get(destinationId)!;
+        attachChildToParent(child, destinationId, parent, assoc, groupId);
+      } else if (originInDoc && !destInDoc) {
+        const child = items.get(originId)!;
+        if (destinationIsDoc) {
+          attachChildToParent(child, destinationId, null, assoc, groupId);
+        } else {
+          const parent = getOrCreatePlaceholder(assoc.destinationNodeURI, groupId, assoc);
+          if (parent) {
+            attachChildToParent(child, destinationId, parent, assoc, groupId);
+          }
+        }
+      } else if (!originInDoc && destInDoc) {
+        const parent = items.get(destinationId)!;
+        const child = getOrCreatePlaceholder(assoc.originNodeURI, groupId, assoc);
+        if (child) {
+          attachChildToParent(child, destinationId, parent, assoc, groupId);
+        }
+      } else if (!originInDoc && !destInDoc && destinationIsDoc) {
+        // Cross-framework item directly attached to document root.
+        const child = getOrCreatePlaceholder(assoc.originNodeURI, groupId, assoc);
+        if (child) {
+          attachChildToParent(child, destinationId, null, assoc, groupId);
+        }
+      }
+    });
+
+    // Pass 2: resolve deferred external->external edges only when destination is anchored.
+    let unresolved = deferredEdges;
+    let progressed = true;
+    while (progressed && unresolved.length > 0) {
+      progressed = false;
+      const nextUnresolved: ChildEdge[] = [];
+
+      unresolved.forEach(edge => {
+        const destinationIsAnchored =
+          edge.destinationId === docId ||
+          parentByChild.has(edge.destinationId) ||
+          inDocumentIds.has(edge.destinationId);
+
+        if (!destinationIsAnchored) {
+          nextUnresolved.push(edge);
+          return;
+        }
+
+        const parent = items.get(edge.destinationId) ||
+          getOrCreatePlaceholder(edge.assoc.destinationNodeURI, edge.groupId, edge.assoc);
+        const child = getOrCreatePlaceholder(edge.assoc.originNodeURI, edge.groupId, edge.assoc);
+
+        if (!parent || !child) {
+          nextUnresolved.push(edge);
+          return;
+        }
+
+        attachChildToParent(child, edge.destinationId, parent, edge.assoc, edge.groupId);
+        progressed = true;
+      });
+
+      unresolved = nextUnresolved;
+    }
 
     function compareBySegment(a: string, b: string): number {
       const segmentsA = a.split(/[^a-zA-Z0-9]+/).filter(s => s !== '');

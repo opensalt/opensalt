@@ -11,6 +11,7 @@ export const useFilterStore = defineStore('filters', () => {
     modifiedSince: ''
   });
   const selectedAssociationGroup = ref('default');
+  const lastFrameworkId = ref(null);
 
   // Getters
   const availableSubjects = computed(() => {
@@ -38,6 +39,40 @@ export const useFilterStore = defineStore('filters', () => {
 
   function setSelectedAssociationGroup(groupId) {
     selectedAssociationGroup.value = groupId;
+  }
+
+  function normalizeAssociationGroupId(association) {
+    return association?.CFAssociationGroupingURI?.identifier ||
+      association?.CFAssociationGroupingURI?.uri ||
+      'default';
+  }
+
+  function syncSelectedAssociationGroup({ frameworkId, associations = [], realGroupIds = [] }) {
+    if (!frameworkId) return;
+
+    const normalizedRealGroupIds = realGroupIds
+      .filter(Boolean)
+      .filter(groupId => groupId !== 'all' && groupId !== 'default');
+    const hasDefaultAssociations = associations.some(assoc => normalizeAssociationGroupId(assoc) === 'default');
+
+    const getPreferredGroup = () => {
+      if (hasDefaultAssociations) return 'default';
+      if (normalizedRealGroupIds.length === 1) return normalizedRealGroupIds[0];
+      return 'default';
+    };
+
+    const hasValidCurrentSelection =
+      selectedAssociationGroup.value === 'default' ||
+      normalizedRealGroupIds.includes(selectedAssociationGroup.value);
+
+    const frameworkChanged = lastFrameworkId.value !== frameworkId;
+    if (frameworkChanged) {
+      selectedAssociationGroup.value = getPreferredGroup();
+    } else if (!hasValidCurrentSelection) {
+      selectedAssociationGroup.value = getPreferredGroup();
+    }
+
+    lastFrameworkId.value = frameworkId;
   }
 
   function filterItemsRecursively(items, searchQuery, filters, selectedAssociationGroup = 'all') {
@@ -165,11 +200,13 @@ export const useFilterStore = defineStore('filters', () => {
     searchQuery,
     selectedFilters,
     selectedAssociationGroup,
+    lastFrameworkId,
     availableSubjects,
     setSearchQuery,
     setFilters,
     clearFilters,
     setSelectedAssociationGroup,
+    syncSelectedAssociationGroup,
     filterItemsRecursively
   };
 });
