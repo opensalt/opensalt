@@ -227,7 +227,7 @@ function saveItem() {
         name: formData.name,
         description: formData.description,
         inLanguage: formData.inLanguage,
-        keywords: formData.keywords.split('|').map(k => k.trim()).filter(k => k),
+        keywords: formData.keywords.split(', ').map(k => k.trim()).filter(k => k),
         deliveryType: formData.deliveryType,
         webpage: formData.webpage,
         extensions: {
@@ -243,7 +243,7 @@ function saveItem() {
         name: formData.name,
         description: formData.description,
         inLanguage: formData.inLanguage,
-        keywords: formData.keywords.split('|').map(k => k.trim()).filter(k => k),
+        keywords: formData.keywords.split(', ').map(k => k.trim()).filter(k => k),
         deliveryType: formData.deliveryType,
         webpage: formData.webpage,
         extensions: {

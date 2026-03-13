@@ -204,7 +204,7 @@ function saveItem() {
         title: formData.title,
         description: formData.description,
         codedNotation: formData.codedNotation,
-        keywords: formData.keywords ? formData.keywords.split('|').map(k => k.trim()) : [],
+        keywords: formData.keywords ? formData.keywords.split(', ').map(k => k.trim()) : [],
         webpage: formData.webpage,
         extensions: {
           ...(props.item.extensions || {}),
@@ -219,7 +219,7 @@ function saveItem() {
         title: formData.title,
         description: formData.description,
         codedNotation: formData.codedNotation,
-        keywords: formData.keywords ? formData.keywords.split('|').map(k => k.trim()) : [],
+        keywords: formData.keywords ? formData.keywords.split(', ').map(k => k.trim()) : [],
         webpage: formData.webpage,
         extensions: {
           'salt:type': 'job'
