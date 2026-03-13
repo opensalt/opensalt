@@ -91,8 +91,8 @@ final class EditorShellController extends AbstractController
     }
 
     /**
-     * @param array<string, mixed>              $manifest
-     * @param array<string, mixed>              $entryData
+     * @param array<string, mixed> $manifest
+     * @param array<string, mixed> $entryData
      * @param array<string, array<string, mixed>> $imports
      *
      * @return array<string, array<string, mixed>>

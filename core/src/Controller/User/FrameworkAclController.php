@@ -38,7 +38,7 @@ class FrameworkAclController extends AbstractController
     #[IsGranted(Permission::MANAGE_EDITORS, 'lsDoc')]
     public function edit(
         Request $request,
-        #[MapEntity(expr: '((id ?? null) == null) ? repository.findOneByIdentifier(identifier ?? null) : repository.find(id ?? null)')] LsDoc $lsDoc
+        #[MapEntity(expr: '((id ?? null) == null) ? repository.findOneByIdentifier(identifier ?? null) : repository.find(id ?? null)')] LsDoc $lsDoc,
     ): Response {
         $routeName = $request->attributes->get('_route');
         $routeParams = $request->attributes->get('_route_params');
@@ -85,7 +85,7 @@ class FrameworkAclController extends AbstractController
             $orgUsers = $lsDoc->getOrg()->getUsers();
         }
 
-        if ($routeName === 'framework_acl_edit') {
+        if ('framework_acl_edit' === $routeName) {
             $frameworkUrl = $this->generateUrl('doc_tree_view', ['slug' => $lsDoc->getSlug()]);
         } else {
             $frameworkUrl = '/editor/'.$lsDoc->getIdentifier();
@@ -169,7 +169,7 @@ class FrameworkAclController extends AbstractController
         #[MapEntity(id: 'targetUser')] User $targetUser,
     ): RedirectResponse {
         $deleteRoute = $request->attributes->get('_route');
-        if ($deleteRoute === 'framework_acl_remove') {
+        if ('framework_acl_remove' === $deleteRoute) {
             $routeName = 'framework_acl_edit';
             $routeParams = ['id' => $lsDoc->getId()];
         } else {
@@ -193,13 +193,14 @@ class FrameworkAclController extends AbstractController
      */
     private function createDeleteForm(LsDoc $lsDoc, User $targetUser, string $routeName): FormInterface
     {
-        if ($routeName === 'framework_acl_edit') {
+        if ('framework_acl_edit' === $routeName) {
             $deleteRoute = 'framework_acl_remove';
             $deleteParams = ['id' => $lsDoc->getId(), 'targetUser' => $targetUser->getId()];
         } else {
             $deleteRoute = 'framework_acl_remove_identifier';
             $deleteParams = ['identifier' => $lsDoc->getIdentifier(), 'targetUser' => $targetUser->getId()];
         }
+
         return $this->createFormBuilder()
             ->setAction($this->generateUrl($deleteRoute, $deleteParams))
             ->setMethod(Request::METHOD_DELETE)
