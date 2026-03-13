@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
 import { useCurrentDocumentStore } from '@/stores/currentDocumentStore';
 import { useFilterStore } from '@/stores/filterStore.js';
+import { useEditorContextStore } from '@/stores/editorContextStore';
 
 vi.mock('@/composables/useRelatedFrameworksQueue.js', () => ({
   useRelatedFrameworksQueue: () => ({})
@@ -83,11 +84,13 @@ function findNode(items, identifier) {
 describe('CurrentDocumentStore transformCASEItems', () => {
   let currentDocumentStore;
   let filterStore;
+  let contextStore;
 
   beforeEach(() => {
     setActivePinia(createPinia());
     currentDocumentStore = useCurrentDocumentStore();
     filterStore = useFilterStore();
+    contextStore = useEditorContextStore();
   });
 
   it('shows local <- external chain in default filter and preserves groupIds', () => {
@@ -194,5 +197,32 @@ describe('CurrentDocumentStore transformCASEItems', () => {
     expect(findNode(defaultFiltered, 'external-2')).toBeNull();
     expect(findNode(groupFiltered, 'external-1')).toBeTruthy();
     expect(findNode(groupFiltered, 'external-2')).toBeTruthy();
+  });
+
+  it('prefers registry item title over generic "origin node" link title for cross-framework placeholders', () => {
+    contextStore.registerItem({
+      identifier: 'external-1',
+      uri: 'https://example.org/items/external-1',
+      fullStatement: 'External Item One'
+    }, 'external-doc-1');
+
+    const items = [makeItem('itemA', 'Item A')];
+    const associations = [
+      {
+        identifier: 'assoc-1',
+        associationType: 'isChildOf',
+        sequenceNumber: 1,
+        uri: 'https://example.org/associations/assoc-1',
+        originNodeURI: makeNode('external-1', 'origin node'),
+        destinationNodeURI: makeNode('itemA'),
+        lastChangeDateTime: '2024-01-01T00:00:00Z'
+      }
+    ];
+
+    const transformed = currentDocumentStore.transformCASEItems(items, associations, 'doc-1');
+    const external = findNode(transformed, 'external-1');
+
+    expect(external).toBeTruthy();
+    expect(external.title).toBe('External Item One');
   });
 });

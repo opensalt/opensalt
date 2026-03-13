@@ -253,6 +253,46 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
       return assoc.CFAssociationGroupingURI?.identifier || assoc.CFAssociationGroupingURI?.uri || 'default';
     }
 
+    function isGenericAssociationNodeTitle(title?: string): boolean {
+      if (!title) return true;
+      const normalized = title.trim().toLowerCase();
+      return normalized === 'origin node' || normalized === 'destination node';
+    }
+
+    function getRegistryTitle(identifier: string): string | null {
+      const registered = contextStore.itemRegistry.get(identifier);
+      if (registered?.item) {
+        const item = registered.item as any;
+        return item.fullStatement || item.abbreviatedStatement || item.title || item.humanCodingScheme || null;
+      }
+
+      const resolved = contextStore.resolveEndpoint(identifier);
+      if (!resolved) return null;
+
+      if (resolved.entityType === 'item') {
+        const item = resolved.entity as any;
+        return item.fullStatement || item.abbreviatedStatement || item.title || item.humanCodingScheme || null;
+      }
+
+      if (resolved.entityType === 'document') {
+        const doc = resolved.entity as any;
+        return doc.title || null;
+      }
+
+      return null;
+    }
+
+    function getPlaceholderTitle(identifier: string, link: LinkGenURI | undefined): string {
+      const registryTitle = getRegistryTitle(identifier);
+      if (registryTitle) return registryTitle;
+
+      if (link?.title && !isGenericAssociationNodeTitle(link.title)) {
+        return link.title;
+      }
+
+      return 'Loading...';
+    }
+
     // First pass: create all items
     cfItems.forEach(item => {
       inDocumentIds.add(item.identifier);
@@ -307,6 +347,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     function getOrCreatePlaceholder(link: LinkGenURI | undefined, groupId: string, assoc: CaseAssociation): EditorItemNode | null {
       const identifier = link?.identifier;
       if (!identifier) return null;
+      const placeholderTitle = getPlaceholderTitle(identifier, link);
 
       let node = items.get(identifier);
       if (!node) {
@@ -314,9 +355,9 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
           id: 0,
           identifier,
           uri: link?.uri || '',
-          title: link?.title || 'Loading...',
-          fullStatement: link?.title || 'Loading...',
-          abbreviatedTitle: link?.title || 'Loading...',
+          title: placeholderTitle,
+          fullStatement: placeholderTitle,
+          abbreviatedTitle: placeholderTitle,
           abbreviatedStatement: undefined,
           alternativeLabel: '',
           humanCodingScheme: undefined,
@@ -348,10 +389,11 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
         items.set(identifier, node);
       } else {
         if (!node.crossFrameworkUri && link?.uri) node.crossFrameworkUri = link.uri;
-        if ((!node.title || node.title === 'Loading...') && link?.title) {
-          node.title = link.title;
-          node.fullStatement = link.title;
-          node.abbreviatedTitle = link.title;
+        const resolvedTitle = getPlaceholderTitle(identifier, link);
+        if ((!node.title || node.title === 'Loading...' || isGenericAssociationNodeTitle(node.title)) && resolvedTitle !== 'Loading...') {
+          node.title = resolvedTitle;
+          node.fullStatement = resolvedTitle;
+          node.abbreviatedTitle = resolvedTitle;
         }
       }
 
