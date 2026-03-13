@@ -64,7 +64,7 @@ class AssociationGroupController extends AbstractController
     }
 
     #[Route(path: '/association_grouping/{identifier}', name: 'editor_association_grouping_update', methods: ['PUT', 'PATCH'])]
-    #[IsGranted(Permission::FRAMEWORK_EDIT, 'group')]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
     public function updateGroup(
         Request $request,
         #[MapEntity(mapping: ['identifier' => 'identifier'])] LsDefAssociationGrouping $group,
@@ -90,7 +90,7 @@ class AssociationGroupController extends AbstractController
     }
 
     #[Route(path: '/association_grouping/{identifier}', name: 'editor_association_grouping_delete', methods: ['DELETE'])]
-    #[IsGranted(Permission::FRAMEWORK_EDIT, 'group')]
+    #[IsGranted(Permission::FRAMEWORK_CREATE)]
     public function deleteGroup(
         #[MapEntity(mapping: ['identifier' => 'identifier'])] LsDefAssociationGrouping $group,
     ): Response {
