@@ -344,6 +344,42 @@ describe('CurrentDocumentStore transformCASEItems', () => {
     expect(thirdChild?.isCrossFramework).toBe(true);
   });
 
+  it('shows a viewed-framework child under an external parent when the association uses legacy node identifier fields', () => {
+    const transformed = currentDocumentStore.transformCASEItems(
+      [makeItemForDocument('doc-1', 'itemA', 'Viewed Framework Child')],
+      [
+        {
+          identifier: 'assoc-legacy-1',
+          associationType: 'isChildOf',
+          sequenceNumber: 1,
+          uri: 'https://example.org/associations/assoc-legacy-1',
+          originNodeIdentifier: 'itemA',
+          originNodeURI: {
+            title: 'Viewed Framework Child',
+            uri: 'https://example.org/items/itemA'
+          },
+          destinationNodeIdentifier: 'external-1',
+          destinationNodeURI: {
+            title: 'External Parent',
+            uri: 'https://example.org/items/external-1'
+          },
+          lastChangeDateTime: '2024-01-01T00:00:00Z'
+        }
+      ],
+      'doc-1'
+    );
+
+    const externalParent = findNode(transformed, 'external-1');
+    const localChild = findNode(transformed, 'itemA');
+
+    expect(externalParent).toBeTruthy();
+    expect(externalParent?.title).toBe('External Parent');
+    expect(findNode(externalParent.children || [], 'itemA')).toBeTruthy();
+    expect(localChild?.title).toBe('Viewed Framework Child');
+    expect(localChild?.documentId).toBe('doc-1');
+    expect(localChild?.isCrossFramework).not.toBe(true);
+  });
+
   it('does not surface unrelated loaded frameworks as tree roots', () => {
     contextStore.loadedPackages.set('unrelated-doc-1', {
       CFDocument: {
@@ -374,5 +410,44 @@ describe('CurrentDocumentStore transformCASEItems', () => {
 
     expect(findNode(transformed, 'unrelated-parent')).toBeNull();
     expect(findNode(transformed, 'unrelated-child')).toBeNull();
+  });
+
+  it('does not register unresolved cross-framework placeholders into the shared item registry', () => {
+    const authoritativeItem = {
+      identifier: 'external-1',
+      uri: 'https://example.org/items/external-1',
+      fullStatement: 'Authoritative External Item'
+    };
+    contextStore.registerItem(authoritativeItem, 'external-doc-1');
+
+    currentDocumentStore.selectDocument({
+      identifier: 'doc-1',
+      uri: 'https://example.org/documents/doc-1',
+      title: 'Doc 1',
+      creator: 'Tester',
+      publisher: 'Tester',
+      subjectURI: [],
+      subject: [],
+      language: 'en',
+      version: '1.0',
+      adoptionStatus: 'Draft',
+      statusStartDate: '',
+      statusEndDate: '',
+      lastChangeDateTime: '2024-01-01T00:00:00Z',
+      notes: '',
+      items: [
+        {
+          identifier: 'external-1',
+          uri: 'https://example.org/items/external-1',
+          title: 'Loading...',
+          fullStatement: 'Loading...',
+          children: [],
+          isCrossFramework: true
+        }
+      ]
+    });
+
+    expect(contextStore.itemRegistry.get('external-1')?.item.fullStatement).toBe('Authoritative External Item');
+    expect(contextStore.itemRegistry.get('external-1')?.frameworkId).toBe('external-doc-1');
   });
 });

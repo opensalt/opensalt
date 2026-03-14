@@ -50,6 +50,33 @@ export function determineTargetType(targetType, associationType) {
   };
 }
 
+function isUnresolvedCrossFrameworkPlaceholder(item) {
+  if (!item?.isCrossFramework) return false;
+
+  const hasFrameworkIdentity = !!(
+    item.documentId ||
+    item.CFDocumentURI?.identifier ||
+    item.CFDocumentURI?.uri
+  );
+  if (hasFrameworkIdentity) return false;
+
+  const displayValue = item.fullStatement || item.abbreviatedStatement || item.title || '';
+  return !displayValue || displayValue === 'Loading...';
+}
+
+function isUuidLike(value) {
+  return typeof value === 'string' &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value.trim());
+}
+
+function isMeaningfulTitle(value) {
+  if (!value || typeof value !== 'string') return false;
+  const normalized = value.trim();
+  if (!normalized || normalized === 'Loading...') return false;
+  const lower = normalized.toLowerCase();
+  return lower !== 'origin node' && lower !== 'destination node';
+}
+
 /**
  * Find an item in all cached frameworks using centralized registry
  * @param {string} identifier - The item identifier to find
@@ -68,6 +95,9 @@ export function findInCachedFrameworks(identifierOrCandidates, contextStore) {
     if (!resolved) continue;
 
     if (resolved.entityType === 'item') {
+      if (isUnresolvedCrossFrameworkPlaceholder(resolved.entity)) {
+        continue;
+      }
       const doc = contextStore.documentRegistry.get(resolved.frameworkId);
       return {
         item: resolved.entity,
@@ -183,6 +213,20 @@ export function useCrossFrameworkItem(options) {
     return [identifier, uri, fromUri].filter(Boolean);
   });
 
+  const registryItemData = computed(() => {
+    for (const candidate of lookupCandidates.value) {
+      const resolved = contextStore.resolveEndpoint(candidate);
+      if (resolved?.entityType === 'item') {
+        if (isUnresolvedCrossFrameworkPlaceholder(resolved.entity)) {
+          continue;
+        }
+        return resolved.entity;
+      }
+    }
+
+    return null;
+  });
+
   // Determine target type info (CASE vs non-CASE vs unknown)
   const targetTypeInfo = computed(() => {
     const targetType = nodeURI.value?.targetType;
@@ -254,20 +298,33 @@ export function useCrossFrameworkItem(options) {
       return itemInCurrentDocument.value;
     }
 
-    // Check if the item is in the global contextStore registry
-    for (const candidate of lookupCandidates.value) {
-      const resolved = contextStore.resolveEndpoint(candidate);
-      if (resolved?.entityType === 'item') {
-        return resolved.entity;
-      }
+    if (registryItemData.value && externalItemData.value) {
+      return {
+        ...registryItemData.value,
+        ...externalItemData.value
+      };
     }
 
-    // Then check external item data we've loaded
+    if (registryItemData.value) {
+      return registryItemData.value;
+    }
+
     if (externalItemData.value) {
       return externalItemData.value;
     }
 
     return null;
+  });
+
+  const resolvedFrameworkId = computed(() => {
+    const item = itemData.value || externalItemData.value || registryItemData.value;
+    return (
+      item?.documentId ||
+      item?.CFDocumentURI?.identifier ||
+      contextStore.itemRegistry.get(item?.identifier)?.frameworkId ||
+      contextStore.resolveEndpoint(item?.uri || item?.identifier || nodeURI.value?.uri || itemIdentifier.value)?.frameworkId ||
+      null
+    );
   });
 
   // The display title for the item
@@ -289,29 +346,33 @@ export function useCrossFrameworkItem(options) {
     }
 
     const item = itemData.value;
+    const fallbackTitle = isMeaningfulTitle(nodeURI.value?.title) ? nodeURI.value.title : null;
 
     if (item) {
-      // Build display text from item data
-      const parts = [];
       const abbr = item.abbreviatedStatement || item.CFItemAbbreviatedStatement;
       const full = item.fullStatement || item.CFItemFullStatement;
+      const humanCoding = item.humanCodingScheme || item.CFItemHumanCodingScheme;
+      const directTitle = item.title;
 
       if (abbr) {
-        parts.push(abbr);
-      } else if (full) {
-        // Truncate long statements
-        parts.push(full.length > 100 ? full.substring(0, 100) + '...' : full);
+        return abbr;
       }
-
-      if (parts.length > 0) {
-        return parts.join(' ');
+      if (full) {
+        return full.length > 100 ? full.substring(0, 100) + '...' : full;
       }
-      return item.title || item.identifier || 'Unknown';
+      if (fallbackTitle && (!directTitle || directTitle === item.identifier || isUuidLike(directTitle))) {
+        return fallbackTitle;
+      }
+      if (humanCoding) {
+        return humanCoding;
+      }
+      if (isMeaningfulTitle(directTitle)) {
+        return directTitle;
+      }
+      return item.identifier || fallbackTitle || 'Unknown';
     }
 
-    // Fallback to node URI title
-    const fallbackTitle = nodeURI.value?.title;
-    if (fallbackTitle && fallbackTitle !== 'Loading...') {
+    if (fallbackTitle) {
       return fallbackTitle;
     }
 
@@ -330,9 +391,62 @@ export function useCrossFrameworkItem(options) {
       return externalFrameworkTitle.value;
     }
 
+    const documentTitle =
+      itemData.value?.CFDocumentURI?.title ||
+      (resolvedFrameworkId.value ? contextStore.documentRegistry.get(resolvedFrameworkId.value)?.title : null);
+    if (documentTitle) {
+      return documentTitle;
+    }
+
     // Otherwise indicate we're loading or don't have the info
     return isLoading.value || (itemIdentifier.value && viewStore.getViewState(itemIdentifier.value).loading) ? 'Loading...' : 'External Framework';
   });
+
+  async function ensureFrameworkMetadata(item) {
+    if (!item) return null;
+
+    const frameworkId =
+      item.documentId ||
+      item.CFDocumentURI?.identifier ||
+      contextStore.itemRegistry.get(item.identifier)?.frameworkId ||
+      contextStore.resolveEndpoint(item.uri || item.identifier)?.frameworkId ||
+      null;
+
+    if (!frameworkId) {
+      return null;
+    }
+
+    const existingDoc = contextStore.documentRegistry.get(frameworkId);
+    if (existingDoc?.title) {
+      return existingDoc.title;
+    }
+
+    const linkTitle = item.CFDocumentURI?.title;
+    if (linkTitle) {
+      contextStore.registerDocumentMetadata({
+        identifier: frameworkId,
+        uri: item.CFDocumentURI?.uri || existingDoc?.uri || '',
+        title: linkTitle,
+        frameworkId
+      });
+      return linkTitle;
+    }
+
+    if (typeof documentStore.fetchDocumentMetadata === 'function') {
+      const metadata = await documentStore.fetchDocumentMetadata(frameworkId);
+      if (metadata?.title) {
+        contextStore.registerDocumentMetadata({
+          identifier: metadata.identifier || frameworkId,
+          uri: metadata.uri || existingDoc?.uri || '',
+          title: metadata.title,
+          frameworkId
+        });
+        return metadata.title;
+      }
+    }
+
+    return null;
+  }
 
   /**
    * Load the external item for CASE items
@@ -350,9 +464,9 @@ export function useCrossFrameworkItem(options) {
 
     // Check cached frameworks/registries first
     const cachedResult = findInCachedFrameworks(lookupCandidates.value, contextStore);
-    if (cachedResult) {
+    if (cachedResult && !isUnresolvedCrossFrameworkPlaceholder(cachedResult.item)) {
       externalItemData.value = cachedResult.item;
-      externalFrameworkTitle.value = cachedResult.documentTitle;
+      externalFrameworkTitle.value = cachedResult.documentTitle || await ensureFrameworkMetadata(cachedResult.item);
       return;
     }
 
@@ -378,7 +492,9 @@ export function useCrossFrameworkItem(options) {
           || contextStore.resolveEndpoint(fetchedItem.uri || fetchedItem.identifier)?.frameworkId;
         if (fwId) {
           const doc = contextStore.documentRegistry.get(fwId);
-          externalFrameworkTitle.value = doc?.title || 'External Framework';
+          externalFrameworkTitle.value = doc?.title || await ensureFrameworkMetadata(fetchedItem) || 'External Framework';
+        } else {
+          externalFrameworkTitle.value = await ensureFrameworkMetadata(fetchedItem);
         }
       } else {
         fetchError.value = {

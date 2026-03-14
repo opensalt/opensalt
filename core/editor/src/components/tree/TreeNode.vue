@@ -252,6 +252,7 @@ const resolvedItem = computed(() => {
     return {
       ...props.item,
       ...registered.item,
+      ...(itemData.value || {}),
       externalFrameworkTitle: props.item.externalFrameworkTitle || frameworkTitle.value,
     };
   }
@@ -260,6 +261,7 @@ const resolvedItem = computed(() => {
     return {
       ...props.item,
       ...resolvedItemEntity,
+      ...(itemData.value || {}),
       externalFrameworkTitle: props.item.externalFrameworkTitle || frameworkTitle.value,
     };
   }

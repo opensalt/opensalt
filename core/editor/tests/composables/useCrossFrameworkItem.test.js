@@ -15,6 +15,16 @@ const createMockCurrentDocumentStore = () => {
 
 const createMockDocumentStore = () => ({
   fetchDocument: vi.fn(),
+  fetchDocumentMetadata: vi.fn(async (identifier) => {
+    if (identifier === 'ext-doc-3') {
+      return {
+        identifier: 'ext-doc-3',
+        uri: 'https://example.com/doc/ext-doc-3',
+        title: 'Fetched External Document 3'
+      };
+    }
+    return null;
+  }),
   documentCache: new Map(),
   pendingRequests: new Map()
 });
@@ -22,6 +32,10 @@ const createMockDocumentStore = () => ({
 // Store instances
 let mockCurrentDocumentStore;
 let mockDocumentStore;
+let mockResolvedEndpoints;
+let mockRegistryItems;
+let mockRegistryDocuments;
+let mockFetchExternalItemData;
 
 // Mock Pinia
 vi.mock('pinia', () => ({
@@ -42,49 +56,13 @@ vi.mock('../../src/stores/documentStore', () => ({
 
 vi.mock('../../src/stores/editorContextStore', () => ({
   useEditorContextStore: vi.fn(() => ({
-    resolveEndpoint: vi.fn((endpoint) => {
-      if (endpoint === 'ext-item-1') {
-        return {
-          entityType: 'item',
-          identifier: 'ext-item-1',
-          entity: { identifier: 'ext-item-1', title: 'Test External Item' },
-          frameworkId: 'ext-doc-1'
-        };
-      } else if (endpoint === 'doc-1') {
-        return {
-          entityType: 'document',
-          entity: { identifier: 'doc-1', title: 'Test Document' },
-          frameworkId: 'doc-1'
-        };
-      }
-      return null;
+    resolveEndpoint: vi.fn((endpoint) => mockResolvedEndpoints.get(endpoint) || null),
+    itemRegistry: { get: vi.fn((id) => mockRegistryItems.get(id) || null) },
+    documentRegistry: { get: vi.fn((id) => mockRegistryDocuments.get(id) || null) },
+    registerDocumentMetadata: vi.fn((doc) => {
+      mockRegistryDocuments.set(doc.identifier, doc);
     }),
-    itemRegistry: { get: vi.fn((id) => {
-      if (id === 'ext-item-1') {
-        return { item: { identifier: 'ext-item-1', title: 'Test External Item' }, frameworkId: 'ext-doc-1' };
-      }
-      return null;
-    }) },
-    documentRegistry: { get: vi.fn((id) => {
-      if (id === 'ext-doc-1') {
-        return { title: 'Test External Document', identifier: 'ext-doc-1' };
-      }
-      return null;
-    }) },
-    fetchExternalItemData: vi.fn(async (uri) => {
-      if (uri === 'http://example.com/ext-item-1') {
-        return {
-          item: { identifier: 'ext-item-1', title: 'Test External Item' }
-        };
-      } else if (uri === 'http://example.com/403') {
-        throw { status: 403, message: 'Forbidden' };
-      } else if (uri === 'http://example.com/404') {
-        throw { status: 404, message: 'Not Found' };
-      } else if (uri === 'http://example.com/network') {
-        throw { message: 'Network Error' };
-      }
-      throw new Error('Unknown URI');
-    }),
+    fetchExternalItemData: vi.fn(async (uri) => mockFetchExternalItemData(uri)),
     isViewingDifferentFramework: false,
     viewedDocumentId: null,
     activeWriteDocumentId: 'test-doc-id'
@@ -208,6 +186,86 @@ describe('useCrossFrameworkItem', () => {
     mockCurrentDocumentStore.associatedDocuments = new Map();
     mockDocumentStore.documentCache = new Map();
     mockDocumentStore.pendingRequests = new Map();
+
+    mockResolvedEndpoints = new Map([
+      ['ext-item-1', {
+        entityType: 'item',
+        identifier: 'ext-item-1',
+        entity: { identifier: 'ext-item-1', title: 'Test External Item' },
+        frameworkId: 'ext-doc-1'
+      }],
+      ['doc-1', {
+        entityType: 'document',
+        entity: { identifier: 'doc-1', title: 'Test Document' },
+        frameworkId: 'doc-1'
+      }]
+    ]);
+    mockRegistryItems = new Map([
+      ['ext-item-1', {
+        item: { identifier: 'ext-item-1', title: 'Test External Item' },
+        frameworkId: 'ext-doc-1'
+      }]
+    ]);
+    mockRegistryDocuments = new Map([
+      ['ext-doc-1', { title: 'Test External Document', identifier: 'ext-doc-1' }]
+    ]);
+    mockFetchExternalItemData = vi.fn(async (uri) => {
+      if (uri === 'http://example.com/ext-item-1') {
+        return {
+          item: { identifier: 'ext-item-1', title: 'Test External Item' }
+        };
+      } else if (uri === 'http://example.com/ext-item-2') {
+        return {
+          item: {
+            identifier: 'ext-item-2',
+            title: 'Resolved External Item 2',
+            fullStatement: 'Resolved External Item 2',
+            uri
+          }
+        };
+      } else if (uri === 'http://example.com/ext-item-3') {
+        return {
+          item: {
+            identifier: 'ext-item-3',
+            uri,
+            humanCodingScheme: 'E3',
+            CFDocumentURI: {
+              identifier: 'ext-doc-3',
+              uri: 'https://example.com/doc/ext-doc-3',
+              title: 'External Document 3'
+            }
+          }
+        };
+      } else if (uri === 'http://example.com/ext-item-4') {
+        return {
+          item: {
+            identifier: '123e4567-e89b-12d3-a456-426614174000',
+            uri,
+            title: '123e4567-e89b-12d3-a456-426614174000',
+            humanCodingScheme: 'E4'
+          }
+        };
+      } else if (uri === 'http://example.com/ext-item-5') {
+        return {
+          item: {
+            identifier: 'ext-item-5',
+            uri,
+            humanCodingScheme: 'E5',
+            CFDocumentURI: {
+              identifier: 'ext-doc-3',
+              uri: 'https://example.com/doc/ext-doc-3'
+            }
+          }
+        };
+      } else if (uri === 'http://example.com/403') {
+        throw { status: 403, message: 'Forbidden' };
+      } else if (uri === 'http://example.com/404') {
+        throw { status: 404, message: 'Not Found' };
+      } else if (uri === 'http://example.com/network') {
+        throw { message: 'Network Error' };
+      }
+      throw new Error('Unknown URI');
+    });
 
     // Reset fetch mock
     mockFetch.mockReset();
@@ -476,6 +534,107 @@ describe('useCrossFrameworkItem', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
 
       expect(composable.itemData.value?.identifier).toBe('ext-item-1');
+    });
+
+    it('ignores unresolved cached placeholders and still fetches the real external item', async () => {
+      mockResolvedEndpoints.set('ext-item-2', {
+        entityType: 'item',
+        entity: {
+          identifier: 'ext-item-2',
+          title: 'Loading...',
+          fullStatement: 'Loading...',
+          isCrossFramework: true
+        },
+        frameworkId: 'current-doc-uuid'
+      });
+      mockResolvedEndpoints.set('http://example.com/ext-item-2', {
+        entityType: 'item',
+        entity: {
+          identifier: 'ext-item-2',
+          title: 'Loading...',
+          fullStatement: 'Loading...',
+          isCrossFramework: true
+        },
+        frameworkId: 'current-doc-uuid'
+      });
+      mockRegistryItems.set('ext-item-2', {
+        item: {
+          identifier: 'ext-item-2',
+          title: 'Loading...',
+          fullStatement: 'Loading...',
+          isCrossFramework: true
+        },
+        frameworkId: 'current-doc-uuid'
+      });
+
+      const association = createAssociation('item-1', 'ext-item-2', currentDocId, externalDocId, {
+        destURI: { uri: 'http://example.com/ext-item-2', title: 'Loading...' }
+      });
+
+      composable = useCrossFrameworkItem({
+        association: ref(association),
+        direction: ref('normal')
+      });
+
+      await nextTick();
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      expect(mockFetchExternalItemData).toHaveBeenCalledWith('http://example.com/ext-item-2');
+      expect(composable.itemData.value?.identifier).toBe('ext-item-2');
+      expect(composable.itemTitle.value).toBe('Resolved External Item 2');
+    });
+
+    it('uses the fetched item document title for the framework badge', async () => {
+      const association = createAssociation('item-1', 'ext-item-3', currentDocId, externalDocId, {
+        destURI: { uri: 'http://example.com/ext-item-3', title: 'Loading...' }
+      });
+
+      composable = useCrossFrameworkItem({
+        association: ref(association),
+        direction: ref('normal')
+      });
+
+      await nextTick();
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      expect(composable.frameworkTitle.value).toBe('External Document 3');
+    });
+
+    it('prefers a better display value than a UUID title', async () => {
+      const association = createAssociation('item-1', '123e4567-e89b-12d3-a456-426614174000', currentDocId, externalDocId, {
+        destURI: {
+          identifier: '123e4567-e89b-12d3-a456-426614174000',
+          uri: 'http://example.com/ext-item-4',
+          title: 'Loading...'
+        }
+      });
+
+      composable = useCrossFrameworkItem({
+        association: ref(association),
+        direction: ref('normal')
+      });
+
+      await nextTick();
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      expect(composable.itemTitle.value).toBe('E4');
+    });
+
+    it('fetches framework metadata when the item does not include a framework title', async () => {
+      const association = createAssociation('item-1', 'ext-item-5', currentDocId, externalDocId, {
+        destURI: { uri: 'http://example.com/ext-item-5', title: 'Loading...' }
+      });
+
+      composable = useCrossFrameworkItem({
+        association: ref(association),
+        direction: ref('normal')
+      });
+
+      await nextTick();
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      expect(mockDocumentStore.fetchDocumentMetadata).toHaveBeenCalledWith('ext-doc-3');
+      expect(composable.frameworkTitle.value).toBe('Fetched External Document 3');
     });
 
     it('sets fetchError on 403 response', async () => {

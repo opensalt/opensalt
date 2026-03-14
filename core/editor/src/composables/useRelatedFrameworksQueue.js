@@ -20,6 +20,7 @@ const MAX_RETRIES = 3;
 const RETRY_DELAYS = [1000, 2000, 4000]; // Exponential backoff: 1s, 2s, 4s
 const FAIR_SCHEDULING_RATIO = { high: 2, normal: 1 }; // Process 2 high, then 1 normal
 const RESET_RATIO_AFTER = 3; // Reset ratio counters after processing 3 items (2 high + 1 normal)
+const RELATED_DOCS_SESSION_TTL_MS = 5 * 60 * 1000;
 
 // Priority levels
 const PRIORITY = {
@@ -37,6 +38,8 @@ const FETCH_STATUS = {
 
 // Track frameworks whose related documents have already been fetched from the API this session
 const sessionFetchedFrameworks = new Set();
+const pendingRelatedDocumentRequests = new Map();
+const sessionRelatedDocumentsCache = new Map();
 
 /**
  * Queue item structure
@@ -497,28 +500,59 @@ export function useRelatedFrameworksQueue() {
     logger.debug(`Set HIGH priority for ${associatedIds.length} associated frameworks`);
   }
 
+function getSessionRelatedDocuments(identifier) {
+  const cached = sessionRelatedDocumentsCache.get(identifier);
+  if (!cached) return null;
+
+    if ((Date.now() - cached.cachedAt) > RELATED_DOCS_SESSION_TTL_MS) {
+      sessionRelatedDocumentsCache.delete(identifier);
+      return null;
+    }
+
+  return cached.data;
+}
+
+function setSessionRelatedDocuments(identifier, docs) {
+    sessionRelatedDocumentsCache.set(identifier, {
+      data: docs,
+      cachedAt: Date.now()
+    });
+  }
+
+  function queueRelatedDocuments(relatedDocs) {
+    if (!Array.isArray(relatedDocs) || relatedDocs.length === 0) return;
+
+    relatedDocs.forEach(doc => {
+      addToQueue({
+        identifier: doc.identifier,
+        uri: doc.uri,
+        CFPackageURI: doc.CFPackageURI,
+        title: doc.title || doc.identifier,
+        priority: PRIORITY.NORMAL
+      });
+    });
+
+    startQueue();
+  }
+
   async function fetchAndQueueRelatedDocuments(identifier) {
     try {
       logger.debug(`Fetching related documents for ${identifier}`);
+
+      const sessionDocs = sessionFetchedFrameworks.has(identifier)
+        ? getSessionRelatedDocuments(identifier)
+        : null;
+      if (sessionDocs) {
+        logger.debug(`Using session-cached related documents for ${identifier}`);
+        queueRelatedDocuments(sessionDocs);
+        return sessionDocs;
+      }
 
       // 1. Check cache first and queue if found to allow immediate processing
       const cachedDocs = await frameworkCacheService.getRelatedFrameworks(identifier);
       if (cachedDocs && Array.isArray(cachedDocs)) {
         logger.debug(`Found ${cachedDocs.length} cached related documents for ${identifier}`);
-        cachedDocs.forEach(doc => {
-          addToQueue({
-            identifier: doc.identifier,
-            uri: doc.uri,
-            CFPackageURI: doc.CFPackageURI,
-            title: doc.title || doc.identifier,
-            priority: PRIORITY.NORMAL
-          });
-        });
-
-        // Start processing cached items immediately while we revalidate
-        if (cachedDocs.length > 0) {
-          startQueue();
-        }
+        queueRelatedDocuments(cachedDocs);
       }
 
       // 2. If already fetched from API this session, no revalidation needed — return immediately
@@ -529,9 +563,18 @@ export function useRelatedFrameworksQueue() {
 
       // 3. If we have cached data, fire revalidation in the background (don't block the caller)
       //    so the queue can start processing immediately with fresh-enough data.
+      if (pendingRelatedDocumentRequests.has(identifier)) {
+        logger.debug(`Related document fetch already in flight for ${identifier}, reusing existing request`);
+        return await pendingRelatedDocumentRequests.get(identifier);
+      }
+
       if (cachedDocs && cachedDocs.length > 0) {
         logger.debug(`Cache hit for ${identifier} — revalidating in background`);
-        revalidateRelatedDocuments(identifier, cachedDocs).catch(err => {
+        const request = revalidateRelatedDocuments(identifier, cachedDocs).finally(() => {
+          pendingRelatedDocumentRequests.delete(identifier);
+        });
+        pendingRelatedDocumentRequests.set(identifier, request);
+        request.catch(err => {
           logger.warn(`Background revalidation failed for ${identifier}:`, err);
         });
         return cachedDocs;
@@ -539,7 +582,11 @@ export function useRelatedFrameworksQueue() {
 
       // 4. No cache — must fetch synchronously so the caller gets useful data
       logger.debug('No cache found, fetching api.getRelatedDocuments synchronously for:', identifier);
-      return await revalidateRelatedDocuments(identifier, null);
+      const request = revalidateRelatedDocuments(identifier, null).finally(() => {
+        pendingRelatedDocumentRequests.delete(identifier);
+      });
+      pendingRelatedDocumentRequests.set(identifier, request);
+      return await request;
 
     } catch (error) {
       logger.error(`Error in fetchAndQueueRelatedDocuments for ${identifier}:`, error);
@@ -563,24 +610,12 @@ export function useRelatedFrameworksQueue() {
       if (Array.isArray(relatedDocs)) {
         // Mark as fetched from API during this session
         sessionFetchedFrameworks.add(identifier);
+        setSessionRelatedDocuments(identifier, relatedDocs);
 
         // Update cache with fresh data
         await frameworkCacheService.setRelatedFrameworks(identifier, relatedDocs);
 
-        // Add all fresh related documents to queue
-        // addToQueue already handles duplicates, so this will only add brand new ones
-        relatedDocs.forEach(doc => {
-          addToQueue({
-            identifier: doc.identifier,
-            uri: doc.uri,
-            CFPackageURI: doc.CFPackageURI,
-            title: doc.title || doc.identifier,
-            priority: PRIORITY.NORMAL
-          });
-        });
-
-        // Ensure queue is running for newly added items
-        startQueue();
+        queueRelatedDocuments(relatedDocs);
         return relatedDocs;
       } else {
         logger.warn('Related documents response is not an array:', relatedDocs);

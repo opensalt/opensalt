@@ -703,7 +703,7 @@ $font-size-base: 0.875rem;
 // Cross-framework item in tree
 .tree-node-label.cross-framework {
   font-style: italic;
-  border-left: 3px solid #0d6efd;
+  // border-left: 3px solid #0d6efd;
 
   &:hover {
     background-color: rgba(59, 130, 246, 0.15);
@@ -711,7 +711,7 @@ $font-size-base: 0.875rem;
 
   &.selected {
     background-color: rgba(59, 130, 246, 0.2);
-    border-left-color: #2563eb;
+    // border-left-color: #2563eb;
   }
 }
 

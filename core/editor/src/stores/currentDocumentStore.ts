@@ -113,6 +113,27 @@ export interface AssociatedDocument {
   cfAssociations: CaseAssociation[];
 }
 
+function isUnresolvedCrossFrameworkPlaceholder(
+  item: Partial<EditorItemNode> | Partial<CFItem> | null | undefined
+): boolean {
+  if (!item?.isCrossFramework) return false;
+
+  const hasFrameworkIdentity = !!(
+    item.CFDocumentURI?.identifier ||
+    item.CFDocumentURI?.uri ||
+    (item as Partial<EditorItemNode>).documentId
+  );
+  if (hasFrameworkIdentity) return false;
+
+  const displayValue =
+    item.fullStatement ||
+    item.abbreviatedStatement ||
+    (item as Partial<EditorItemNode>).title ||
+    '';
+
+  return !displayValue || displayValue === 'Loading...';
+}
+
 /**
  * Document store type for API calls
  */
@@ -212,6 +233,11 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
       if ((document as any).items) {
         (function registerItems(items: any[]) {
           items.forEach(item => {
+            if (isUnresolvedCrossFrameworkPlaceholder(item)) {
+              if (item.children) registerItems(item.children);
+              return;
+            }
+
             const registeredFrameworkId =
               item.documentId ||
               item.CFDocumentURI?.identifier ||
@@ -258,12 +284,60 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
       return assoc.CFAssociationGroupingURI?.identifier || assoc.CFAssociationGroupingURI?.uri || 'default';
     }
 
+    function normalizeAssociationNodeLink(
+      rawLink: LinkGenURI | string | undefined,
+      fallbackIdentifier?: string
+    ): LinkGenURI | undefined {
+      if (!rawLink && !fallbackIdentifier) return undefined;
+
+      if (rawLink && typeof rawLink === 'object') {
+        return {
+          ...rawLink,
+          identifier: rawLink.identifier || fallbackIdentifier || '',
+          title: rawLink.title || '',
+          uri: rawLink.uri || ''
+        };
+      }
+
+      if (typeof rawLink === 'string') {
+        return {
+          identifier: fallbackIdentifier || rawLink,
+          title: '',
+          uri: rawLink
+        };
+      }
+
+      return fallbackIdentifier
+        ? {
+            identifier: fallbackIdentifier,
+            title: '',
+            uri: ''
+          }
+        : undefined;
+    }
+
+    function getAssociationOriginId(assoc: CaseAssociation | any): string | undefined {
+      return assoc.originNodeURI?.identifier || assoc.originNodeIdentifier;
+    }
+
+    function getAssociationDestinationId(assoc: CaseAssociation | any): string | undefined {
+      return assoc.destinationNodeURI?.identifier || assoc.destinationNodeIdentifier;
+    }
+
+    function getAssociationOriginLink(assoc: CaseAssociation | any): LinkGenURI | undefined {
+      return normalizeAssociationNodeLink(assoc.originNodeURI, getAssociationOriginId(assoc));
+    }
+
+    function getAssociationDestinationLink(assoc: CaseAssociation | any): LinkGenURI | undefined {
+      return normalizeAssociationNodeLink(assoc.destinationNodeURI, getAssociationDestinationId(assoc));
+    }
+
     function resolveRegisteredItem(
       identifier: string,
       link?: LinkGenURI
     ): { item: Partial<CFItem> | null; frameworkId: UUID | null } {
       const registered = contextStore.itemRegistry.get(identifier);
-      if (registered?.item) {
+      if (registered?.item && !isUnresolvedCrossFrameworkPlaceholder(registered.item as Partial<EditorItemNode>)) {
         return {
           item: registered.item as Partial<CFItem>,
           frameworkId: registered.frameworkId as UUID
@@ -271,7 +345,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
       }
 
       const resolved = contextStore.resolveEndpoint(link?.uri || identifier);
-      if (resolved?.entityType === 'item') {
+      if (resolved?.entityType === 'item' && !isUnresolvedCrossFrameworkPlaceholder(resolved.entity as Partial<EditorItemNode>)) {
         return {
           item: resolved.entity as Partial<CFItem>,
           frameworkId: resolved.frameworkId as UUID | null
@@ -597,8 +671,8 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
           (pkg.CFAssociations || []).forEach(assoc => {
             if (assoc.associationType !== 'isChildOf') return;
 
-            const originId = assoc.originNodeURI?.identifier;
-            const destinationId = assoc.destinationNodeURI?.identifier;
+            const originId = getAssociationOriginId(assoc);
+            const destinationId = getAssociationDestinationId(assoc);
             if (!originId || !destinationId) return;
 
             const destinationIsDoc = docId !== null && destinationId === docId;
@@ -607,7 +681,9 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
             }
 
             const groupId = normalizeAssociationGroupId(assoc);
-            const destinationRegistry = resolveRegisteredItem(destinationId, assoc.destinationNodeURI);
+            const destinationLink = getAssociationDestinationLink(assoc);
+            const originLink = getAssociationOriginLink(assoc);
+            const destinationRegistry = resolveRegisteredItem(destinationId, destinationLink);
             const destinationSource =
               packageItems.get(destinationId) ||
               destinationRegistry.item;
@@ -618,7 +694,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
             let parent: EditorItemNode | null = null;
             if (!destinationIsDoc) {
               parent = items.get(destinationId) || getOrCreatePlaceholder(
-                assoc.destinationNodeURI,
+                destinationLink,
                 groupId,
                 assoc,
                 destinationSource,
@@ -628,7 +704,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
               applyAuthoritativeItemData(parent, destinationSource, destinationFrameworkId);
             }
 
-            const originRegistry = resolveRegisteredItem(originId, assoc.originNodeURI);
+            const originRegistry = resolveRegisteredItem(originId, originLink);
             const originSource =
               packageItems.get(originId) ||
               originRegistry.item;
@@ -636,7 +712,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
               resolveItemFrameworkId(originSource as Partial<CFItem>, frameworkId as UUID) ||
               originRegistry.frameworkId;
             const child = items.get(originId) || getOrCreatePlaceholder(
-              assoc.originNodeURI,
+              originLink,
               groupId,
               assoc,
               originSource,
@@ -657,7 +733,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
 
     // Associate everything (including non-isChildOf) with local origin items for filtering.
     cfAssociations.forEach(assoc => {
-      const originId = assoc.originNodeURI?.identifier;
+      const originId = getAssociationOriginId(assoc);
       if (originId && items.has(originId)) {
         const item = items.get(originId)!;
         const groupId = normalizeAssociationGroupId(assoc);
@@ -678,8 +754,8 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     cfAssociations.forEach(assoc => {
       if (assoc.associationType !== 'isChildOf') return;
 
-      const originId = assoc.originNodeURI?.identifier;
-      const destinationId = assoc.destinationNodeURI?.identifier;
+      const originId = getAssociationOriginId(assoc);
+      const destinationId = getAssociationDestinationId(assoc);
       if (!originId || !destinationId) return;
       const groupId = normalizeAssociationGroupId(assoc);
 
@@ -709,20 +785,20 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
         if (destinationIsDoc) {
           attachChildToParent(child, destinationId, null, assoc, groupId);
         } else {
-          const parent = getOrCreatePlaceholder(assoc.destinationNodeURI, groupId, assoc);
+          const parent = getOrCreatePlaceholder(getAssociationDestinationLink(assoc), groupId, assoc);
           if (parent) {
             attachChildToParent(child, destinationId, parent, assoc, groupId);
           }
         }
       } else if (!originInDoc && destInDoc) {
         const parent = items.get(destinationId)!;
-        const child = getOrCreatePlaceholder(assoc.originNodeURI, groupId, assoc);
+        const child = getOrCreatePlaceholder(getAssociationOriginLink(assoc), groupId, assoc);
         if (child) {
           attachChildToParent(child, destinationId, parent, assoc, groupId);
         }
       } else if (!originInDoc && !destInDoc && destinationIsDoc) {
         // Cross-framework item directly attached to document root.
-        const child = getOrCreatePlaceholder(assoc.originNodeURI, groupId, assoc);
+        const child = getOrCreatePlaceholder(getAssociationOriginLink(assoc), groupId, assoc);
         if (child) {
           attachChildToParent(child, destinationId, null, assoc, groupId);
         }
@@ -748,8 +824,8 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
         }
 
         const parent = items.get(edge.destinationId) ||
-          getOrCreatePlaceholder(edge.assoc.destinationNodeURI, edge.groupId, edge.assoc);
-        const child = getOrCreatePlaceholder(edge.assoc.originNodeURI, edge.groupId, edge.assoc);
+          getOrCreatePlaceholder(getAssociationDestinationLink(edge.assoc), edge.groupId, edge.assoc);
+        const child = getOrCreatePlaceholder(getAssociationOriginLink(edge.assoc), edge.groupId, edge.assoc);
 
         if (!parent || !child) {
           nextUnresolved.push(edge);
