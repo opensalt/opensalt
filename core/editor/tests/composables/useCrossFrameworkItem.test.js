@@ -94,7 +94,8 @@ vi.mock('../../src/stores/editorContextStore', () => ({
 vi.mock('../../src/stores/viewStore', () => ({
   useViewStore: vi.fn(() => ({
     viewMode: 'single',
-    setLoading: vi.fn()
+    setLoading: vi.fn(),
+    getViewState: vi.fn(() => ({ loading: false }))
   }))
 }));
 
@@ -633,6 +634,31 @@ describe('useCrossFrameworkItem', () => {
       await nextTick();
 
       expect(composable.itemTitle.value).toBe('unknown-item');
+    });
+
+    it('does not stay on Loading after an external fetch fails', async () => {
+      const association = {
+        originNodeURI: {
+          identifier: 'item-1',
+          uri: `/uri/${currentDocId}/item-1`
+        },
+        destinationNodeURI: {
+          identifier: 'ext-item-network',
+          title: 'Loading...',
+          uri: 'http://example.com/network'
+        }
+      };
+
+      composable = useCrossFrameworkItem({
+        association: ref(association),
+        direction: ref('normal')
+      });
+
+      await nextTick();
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      expect(composable.fetchError.value).not.toBeNull();
+      expect(composable.itemTitle.value).toBe('ext-item-network');
     });
   });
 

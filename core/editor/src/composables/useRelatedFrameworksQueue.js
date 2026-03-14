@@ -284,6 +284,14 @@ export function useRelatedFrameworksQueue() {
       updateFetchStatus(identifier, FETCH_STATUS.COMPLETED);
       logger.debug(`Successfully fetched document ${identifier}`);
 
+      fetchAndQueueRelatedDocuments(identifier).catch(error => {
+        logger.warn(`Failed to recursively queue related frameworks for ${identifier}:`, error);
+      });
+
+      if (contextStore.activeWriteDocumentId) {
+        currentDocumentStore.reloadActiveDocument();
+      }
+
       // Note: loadPackage already populates registries. 
       // The associatedDocuments in currentDocumentStore is now secondary or can be removed in Phase 5.
       // For now, we keep it for compatibility if needed.

@@ -73,7 +73,7 @@
 
 <script setup>
 /* global localStorage */
-import { computed, ref, onMounted, watch } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { editorConfig } from '../../../config/editorConfig.js';
 
 // Sub-components
@@ -88,7 +88,6 @@ import DeleteAssociationModal from '@/components/association/DeleteAssociationMo
 // Composables
 import { useItemAssociations } from '../../../composables/useItemAssociations.js';
 import { useEditorContextStore } from '../../../stores/editorContextStore';
-import { useDocumentStore } from '../../../stores/documentStore';
 import { useSessionStore } from '../../../stores/sessionStore';
 import { useCrossFrameworkItem } from '../../../composables/useCrossFrameworkItem';
 import { useCurrentDocumentStore } from '../../../stores/currentDocumentStore';
@@ -137,7 +136,6 @@ const emit = defineEmits([
 // ---------------------------------------------------------------------------
 const contextStore = useEditorContextStore();
 const sessionStore = useSessionStore();
-const documentStore = useDocumentStore();
 const commentsEnabled = editorConfig.features.comments;
 
 // ---------------------------------------------------------------------------
@@ -149,14 +147,6 @@ const availableTypes = ['general', 'assessment', 'course', 'credential', 'job', 
 // Cross-framework item detection & data loading
 // ---------------------------------------------------------------------------
 const isCrossFrameworkItem = computed(() => props.item?.isCrossFramework === true);
-
-const localCrossFrameworkData = ref({});
-
-// displayItem merges live prop data with any fetched cross-framework overrides
-const displayItem = computed(() => ({
-  ...props.item,
-  ...localCrossFrameworkData.value,
-}));
 
 const crossFrameworkData = computed(() => {
   if (!isCrossFrameworkItem.value || !props.item?.crossFrameworkUri) return null;
@@ -177,7 +167,11 @@ const {
   fetchError: crossFrameworkFetchError,
 } = useCrossFrameworkItem({ association: crossFrameworkData, direction: 'normal' });
 
-
+// displayItem merges live prop data with any fetched cross-framework overrides
+const displayItem = computed(() => ({
+  ...props.item,
+  ...(isCrossFrameworkItem.value ? crossFrameworkItemData.value || {} : {}),
+}));
 
 const externalFrameworkTitle = computed(() => {
   if (!isCrossFrameworkItem.value) return null;

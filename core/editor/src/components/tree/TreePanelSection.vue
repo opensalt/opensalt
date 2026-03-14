@@ -177,6 +177,8 @@ const currentDocumentStore = useCurrentDocumentStore();
 const isViewingDifferentFramework = computed(() => contextStore.isViewingDifferentFramework);
 
 const viewedDoc = computed(() => {
+  const registryVersion = contextStore.registryVersion;
+  void registryVersion;
   const id = contextStore.viewedDocumentId;
   if (!id) return null;
   const doc = contextStore.documentRegistry.get(id);

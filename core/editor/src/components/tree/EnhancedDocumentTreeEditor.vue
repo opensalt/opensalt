@@ -220,6 +220,8 @@ const selectedId = ref(route.params.itemId || null);
 const currentDoc = computed(() => currentDocumentStore.currentDocument);
 
 const viewedDoc = computed(() => {
+  const registryVersion = contextStore.registryVersion;
+  void registryVersion;
   const id = contextStore.viewedDocumentId;
   if (!id) return null;
   const docMeta = contextStore.documentRegistry.get(id);

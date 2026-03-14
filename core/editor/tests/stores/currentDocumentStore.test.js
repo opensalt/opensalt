@@ -29,7 +29,23 @@ function makeItem(identifier, title = identifier) {
     identifier,
     uri: `https://example.org/items/${identifier}`,
     fullStatement: title,
-    lastChangeDateTime: '2024-01-01T00:00:00Z'
+    lastChangeDateTime: '2024-01-01T00:00:00Z',
+    CFDocumentURI: {
+      identifier: 'doc-1',
+      uri: 'https://example.org/documents/doc-1',
+      title: 'Doc 1'
+    }
+  };
+}
+
+function makeItemForDocument(documentId, identifier, title = identifier) {
+  return {
+    ...makeItem(identifier, title),
+    CFDocumentURI: {
+      identifier: documentId,
+      uri: `https://example.org/documents/${documentId}`,
+      title: documentId
+    }
   };
 }
 
@@ -224,5 +240,139 @@ describe('CurrentDocumentStore transformCASEItems', () => {
 
     expect(external).toBeTruthy();
     expect(external.title).toBe('External Item One');
+  });
+
+  it('hydrates same-framework descendants from a loaded related package', () => {
+    contextStore.loadedPackages.set('external-doc-1', {
+      CFDocument: {
+        identifier: 'external-doc-1',
+        uri: 'https://example.org/documents/external-doc-1',
+        title: 'External Doc',
+        creator: 'Tester',
+        lastChangeDateTime: '2024-01-01T00:00:00Z'
+      },
+      CFItems: [
+        makeItemForDocument('external-doc-1', 'external-1', 'External Parent'),
+        makeItemForDocument('external-doc-1', 'external-1-child', 'External Child')
+      ],
+      CFAssociations: [
+        makeChildOfAssociation({
+          identifier: 'external-assoc-1',
+          originId: 'external-1-child',
+          destinationId: 'external-1'
+        })
+      ]
+    });
+
+    const transformed = currentDocumentStore.transformCASEItems(
+      [makeItemForDocument('doc-1', 'itemA', 'Item A')],
+      [
+        makeChildOfAssociation({
+          identifier: 'assoc-1',
+          originId: 'external-1',
+          destinationId: 'itemA'
+        })
+      ],
+      'doc-1'
+    );
+
+    const externalParent = findNode(transformed, 'external-1');
+    const externalChild = findNode(transformed, 'external-1-child');
+
+    expect(externalParent).toBeTruthy();
+    expect(externalParent.title).toBe('External Parent');
+    expect(externalParent.documentId).toBe('external-doc-1');
+    expect(findNode(externalParent.children || [], 'external-1-child')).toBeTruthy();
+    expect(externalChild?.title).toBe('External Child');
+    expect(externalChild?.documentId).toBe('external-doc-1');
+  });
+
+  it('hydrates third-framework descendants attached beneath an anchored external parent', () => {
+    contextStore.loadedPackages.set('external-doc-1', {
+      CFDocument: {
+        identifier: 'external-doc-1',
+        uri: 'https://example.org/documents/external-doc-1',
+        title: 'External Doc',
+        creator: 'Tester',
+        lastChangeDateTime: '2024-01-01T00:00:00Z'
+      },
+      CFItems: [
+        makeItemForDocument('external-doc-1', 'external-1', 'External Parent')
+      ],
+      CFAssociations: []
+    });
+
+    contextStore.loadedPackages.set('third-doc-1', {
+      CFDocument: {
+        identifier: 'third-doc-1',
+        uri: 'https://example.org/documents/third-doc-1',
+        title: 'Third Doc',
+        creator: 'Tester',
+        lastChangeDateTime: '2024-01-01T00:00:00Z'
+      },
+      CFItems: [
+        makeItemForDocument('third-doc-1', 'third-1', 'Third Framework Child')
+      ],
+      CFAssociations: [
+        makeChildOfAssociation({
+          identifier: 'third-assoc-1',
+          originId: 'third-1',
+          destinationId: 'external-1'
+        })
+      ]
+    });
+
+    const transformed = currentDocumentStore.transformCASEItems(
+      [makeItemForDocument('doc-1', 'itemA', 'Item A')],
+      [
+        makeChildOfAssociation({
+          identifier: 'assoc-1',
+          originId: 'external-1',
+          destinationId: 'itemA'
+        })
+      ],
+      'doc-1'
+    );
+
+    const externalParent = findNode(transformed, 'external-1');
+    const thirdChild = findNode(transformed, 'third-1');
+
+    expect(externalParent).toBeTruthy();
+    expect(findNode(externalParent.children || [], 'third-1')).toBeTruthy();
+    expect(thirdChild?.title).toBe('Third Framework Child');
+    expect(thirdChild?.documentId).toBe('third-doc-1');
+    expect(thirdChild?.isCrossFramework).toBe(true);
+  });
+
+  it('does not surface unrelated loaded frameworks as tree roots', () => {
+    contextStore.loadedPackages.set('unrelated-doc-1', {
+      CFDocument: {
+        identifier: 'unrelated-doc-1',
+        uri: 'https://example.org/documents/unrelated-doc-1',
+        title: 'Unrelated Doc',
+        creator: 'Tester',
+        lastChangeDateTime: '2024-01-01T00:00:00Z'
+      },
+      CFItems: [
+        makeItemForDocument('unrelated-doc-1', 'unrelated-parent', 'Unrelated Parent'),
+        makeItemForDocument('unrelated-doc-1', 'unrelated-child', 'Unrelated Child')
+      ],
+      CFAssociations: [
+        makeChildOfAssociation({
+          identifier: 'unrelated-assoc-1',
+          originId: 'unrelated-child',
+          destinationId: 'unrelated-parent'
+        })
+      ]
+    });
+
+    const transformed = currentDocumentStore.transformCASEItems(
+      [makeItemForDocument('doc-1', 'itemA', 'Item A')],
+      [],
+      'doc-1'
+    );
+
+    expect(findNode(transformed, 'unrelated-parent')).toBeNull();
+    expect(findNode(transformed, 'unrelated-child')).toBeNull();
   });
 });

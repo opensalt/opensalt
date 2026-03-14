@@ -6,19 +6,45 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ref } from 'vue';
+import { ref, nextTick } from 'vue';
 import { createPinia, setActivePinia } from 'pinia';
+import { shallowMount } from '@vue/test-utils';
 
 // Mock stores
 const mockContextStore = {
   activeWriteDocumentId: { value: null },
   isEditable: vi.fn(() => false),
   documentRegistry: new Map(),
+  isViewingDifferentFramework: false,
+  viewedDocumentId: null,
 };
 
 const mockSessionStore = {
   isAuthenticated: false,
 };
+
+const mockCrossFrameworkItemData = ref(null);
+const mockCrossFrameworkIsLoading = ref(false);
+const mockCrossFrameworkFrameworkTitle = ref(null);
+const mockCrossFrameworkFetchError = ref(null);
+
+vi.mock('@/config/editorConfig.js', () => ({
+  editorConfig: {
+    features: {
+      comments: false,
+    },
+  },
+}));
+
+vi.mock('@/utils/render-md.js', () => ({
+  default: {
+    block: vi.fn((value) => value),
+  },
+}));
+
+vi.mock('@/utils/markdownRenderer.js', () => ({
+  hasMarkdown: vi.fn(() => false),
+}));
 
 vi.mock('@/stores/editorContextStore', () => ({
   useEditorContextStore: vi.fn(() => mockContextStore),
@@ -77,12 +103,14 @@ vi.mock('@/composables/useDynamicEditModal', () => ({
 
 vi.mock('@/composables/useCrossFrameworkItem', () => ({
   useCrossFrameworkItem: vi.fn(() => ({
-    itemData: ref(null),
-    isLoading: ref(false),
-    frameworkTitle: ref(null),
-    fetchError: ref(null),
+    itemData: mockCrossFrameworkItemData,
+    isLoading: mockCrossFrameworkIsLoading,
+    frameworkTitle: mockCrossFrameworkFrameworkTitle,
+    fetchError: mockCrossFrameworkFetchError,
   })),
 }));
+
+import ItemDetails from '@/components/shared/panels/ItemDetails.vue';
 
 describe('ItemDetails.vue - isReadOnly computed property logic', () => {
   let pinia;
@@ -95,6 +123,13 @@ describe('ItemDetails.vue - isReadOnly computed property logic', () => {
     mockContextStore.activeWriteDocumentId.value = null;
     mockContextStore.isEditable.mockReturnValue(false);
     mockSessionStore.isAuthenticated = false;
+    mockContextStore.isViewingDifferentFramework = false;
+    mockContextStore.viewedDocumentId = null;
+    mockContextStore.documentRegistry = new Map();
+    mockCrossFrameworkItemData.value = null;
+    mockCrossFrameworkIsLoading.value = false;
+    mockCrossFrameworkFrameworkTitle.value = null;
+    mockCrossFrameworkFetchError.value = null;
   });
 
   describe('isReadOnly logic verification', () => {
@@ -442,6 +477,56 @@ describe('ItemDetails.vue - isReadOnly computed property logic', () => {
 
       expect(mockContextStore.isEditable).toHaveBeenCalledWith('framework-123');
       expect(isReadOnly).toBe(true);
+    });
+  });
+
+  describe('cross-framework detail hydration', () => {
+    it('re-renders detail content when cross-framework item data resolves', async () => {
+      const wrapper = shallowMount(ItemDetails, {
+        props: {
+          item: {
+            identifier: 'external-item-1',
+            title: 'Loading...',
+            fullStatement: 'Loading...',
+            isCrossFramework: true,
+            crossFrameworkUri: 'https://example.org/items/external-item-1',
+          },
+          currentDocument: {
+            identifier: 'doc-1',
+          },
+        },
+        global: {
+          stubs: {
+            ItemCrossFrameworkBanner: true,
+            ItemHeaderCard: { template: '<div><slot /></div>' },
+            ItemDefaultDetails: {
+              props: ['item'],
+              template: '<div data-test="detail-text">{{ item.fullStatement || item.title }}</div>',
+            },
+            ItemActionsCard: true,
+            ItemAssociationsCard: true,
+            CommentModule: true,
+            DeleteAssociationModal: true,
+            JobItemDetails: true,
+            CourseItemDetails: true,
+            AssessmentItemDetails: true,
+            CredentialItemDetails: true,
+            OrganizationItemDetails: true,
+            IdentifierItemDetails: true,
+            PublicKeyItemDetails: true,
+          },
+        },
+      });
+
+      expect(wrapper.find('[data-test="detail-text"]').text()).toBe('Loading...');
+
+      mockCrossFrameworkItemData.value = {
+        identifier: 'external-item-1',
+        fullStatement: 'Hydrated external item details',
+      };
+      await nextTick();
+
+      expect(wrapper.find('[data-test="detail-text"]').text()).toBe('Hydrated external item details');
     });
   });
 });

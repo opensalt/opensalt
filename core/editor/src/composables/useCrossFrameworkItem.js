@@ -310,7 +310,12 @@ export function useCrossFrameworkItem(options) {
     }
 
     // Fallback to node URI title
-    return nodeURI.value?.title || nodeURI.value?.identifier || 'Unknown';
+    const fallbackTitle = nodeURI.value?.title;
+    if (fallbackTitle && fallbackTitle !== 'Loading...') {
+      return fallbackTitle;
+    }
+
+    return itemIdentifier.value || nodeURI.value?.uri || 'Unknown';
   });
 
   // The framework title (for badge display)
@@ -376,7 +381,10 @@ export function useCrossFrameworkItem(options) {
           externalFrameworkTitle.value = doc?.title || 'External Framework';
         }
       } else {
-        fetchError.value = "Failed to load item details";
+        fetchError.value = {
+          type: 'not_found',
+          message: 'Failed to load item details'
+        };
       }
     } catch (error) {
       console.warn(`Unexpected error in loadExternalItem:`, error);

@@ -212,7 +212,12 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
       if ((document as any).items) {
         (function registerItems(items: any[]) {
           items.forEach(item => {
-            contextStore.registerItem(item as any, (document as any).identifier);
+            const registeredFrameworkId =
+              item.documentId ||
+              item.CFDocumentURI?.identifier ||
+              contextStore.resolveEndpoint(item.CFDocumentURI?.uri || item.crossFrameworkUri || item.uri || item.identifier)?.frameworkId ||
+              (document as any).identifier;
+            contextStore.registerItem(item as any, registeredFrameworkId);
             if (item.children) registerItems(item.children);
           });
         })((document as any).items);
@@ -253,6 +258,96 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
       return assoc.CFAssociationGroupingURI?.identifier || assoc.CFAssociationGroupingURI?.uri || 'default';
     }
 
+    function resolveRegisteredItem(
+      identifier: string,
+      link?: LinkGenURI
+    ): { item: Partial<CFItem> | null; frameworkId: UUID | null } {
+      const registered = contextStore.itemRegistry.get(identifier);
+      if (registered?.item) {
+        return {
+          item: registered.item as Partial<CFItem>,
+          frameworkId: registered.frameworkId as UUID
+        };
+      }
+
+      const resolved = contextStore.resolveEndpoint(link?.uri || identifier);
+      if (resolved?.entityType === 'item') {
+        return {
+          item: resolved.entity as Partial<CFItem>,
+          frameworkId: resolved.frameworkId as UUID | null
+        };
+      }
+
+      return { item: null, frameworkId: null };
+    }
+
+    function resolveItemFrameworkId(
+      item: Partial<CFItem> | null | undefined,
+      fallbackFrameworkId: UUID | null = null
+    ): UUID | null {
+      if (!item) return fallbackFrameworkId;
+
+      return (
+        item.CFDocumentURI?.identifier ||
+        contextStore.resolveEndpoint(item.CFDocumentURI?.uri || '')?.frameworkId ||
+        contextStore.itemRegistry.get(item.identifier as UUID)?.frameworkId ||
+        contextStore.resolveEndpoint(item.uri || item.identifier || '')?.frameworkId ||
+        fallbackFrameworkId
+      ) as UUID | null;
+    }
+
+    function applyAuthoritativeItemData(
+      node: EditorItemNode,
+      sourceItem: Partial<CFItem> | Partial<CFPckgItem> | null | undefined,
+      sourceFrameworkId: UUID | null = null
+    ) {
+      if (!sourceItem) return;
+
+      const authoritativeTitle =
+        sourceItem.fullStatement?.trim() ||
+        sourceItem.abbreviatedStatement?.trim() ||
+        (sourceItem as any).title?.trim() ||
+        node.title ||
+        node.identifier;
+      const resolvedFrameworkId = resolveItemFrameworkId(sourceItem as Partial<CFItem>, sourceFrameworkId);
+
+      node.id = (sourceItem as any).id ?? node.id;
+      node.identifier = sourceItem.identifier || node.identifier;
+      node.uri = sourceItem.uri || node.uri || '';
+      node.title = authoritativeTitle;
+      node.fullStatement = sourceItem.fullStatement ?? node.fullStatement ?? authoritativeTitle;
+      node.abbreviatedTitle = sourceItem.abbreviatedStatement ?? sourceItem.fullStatement ?? node.abbreviatedTitle ?? authoritativeTitle;
+      node.abbreviatedStatement = sourceItem.abbreviatedStatement ?? node.abbreviatedStatement;
+      node.alternativeLabel = sourceItem.alternativeLabel ?? node.alternativeLabel ?? '';
+      node.humanCodingScheme = sourceItem.humanCodingScheme ?? node.humanCodingScheme;
+      node.listEnumeration = (sourceItem as any).listEnumeration ?? (sourceItem as any).listEnumInSource ?? node.listEnumeration;
+      node.lastChanged = sourceItem.lastChangeDateTime ?? node.lastChanged;
+      node.lastChangeDateTime = sourceItem.lastChangeDateTime ?? node.lastChangeDateTime;
+      node.itemType = sourceItem.CFItemType ?? (sourceItem as any).itemType ?? node.itemType;
+      node.CFItemTypeURI = sourceItem.CFItemTypeURI ?? node.CFItemTypeURI;
+      node.conceptKeywords = sourceItem.conceptKeywords ?? node.conceptKeywords;
+      node.conceptKeywordsURI = sourceItem.conceptKeywordsURI ?? node.conceptKeywordsURI;
+      node.notes = sourceItem.notes ?? node.notes;
+      node.language = sourceItem.language ?? node.language;
+      node.educationLevel = sourceItem.educationLevel ?? node.educationLevel;
+      node.licenseURI = sourceItem.licenseURI ?? node.licenseURI;
+      node.statusStartDate = sourceItem.statusStartDate ?? node.statusStartDate;
+      node.statusEndDate = sourceItem.statusEndDate ?? node.statusEndDate;
+      node.subject = sourceItem.subject ?? node.subject;
+      node.subjectURI = sourceItem.subjectURI ?? node.subjectURI;
+      node.extensions = sourceItem.extensions ?? node.extensions;
+
+      if (resolvedFrameworkId) {
+        node.documentId = resolvedFrameworkId;
+        node.isCrossFramework = resolvedFrameworkId !== docId;
+        if (node.isCrossFramework) {
+          node.crossFrameworkUri = sourceItem.uri || node.crossFrameworkUri || node.uri;
+        } else {
+          node.crossFrameworkUri = undefined;
+        }
+      }
+    }
+
     function isGenericAssociationNodeTitle(title?: string): boolean {
       if (!title) return true;
       const normalized = title.trim().toLowerCase();
@@ -260,8 +355,8 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     }
 
     function getRegistryTitle(identifier: string): string | null {
-      const registered = contextStore.itemRegistry.get(identifier);
-      if (registered?.item) {
+      const registered = resolveRegisteredItem(identifier);
+      if (registered.item) {
         const item = registered.item as any;
         return item.fullStatement || item.abbreviatedStatement || item.title || item.humanCodingScheme || null;
       }
@@ -344,10 +439,19 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
       item.groupIds.add(groupId);
     }
 
-    function getOrCreatePlaceholder(link: LinkGenURI | undefined, groupId: string, assoc: CaseAssociation): EditorItemNode | null {
+    function getOrCreatePlaceholder(
+      link: LinkGenURI | undefined,
+      groupId: string,
+      assoc: CaseAssociation,
+      sourceItem: Partial<CFItem> | Partial<CFPckgItem> | null = null,
+      sourceFrameworkId: UUID | null = null
+    ): EditorItemNode | null {
       const identifier = link?.identifier;
       if (!identifier) return null;
       const placeholderTitle = getPlaceholderTitle(identifier, link);
+      const registered = resolveRegisteredItem(identifier, link);
+      const authoritativeItem = sourceItem || registered.item;
+      const authoritativeFrameworkId = sourceFrameworkId || registered.frameworkId;
 
       let node = items.get(identifier);
       if (!node) {
@@ -387,6 +491,10 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
           associations: []
         };
         items.set(identifier, node);
+      }
+
+      if (authoritativeItem) {
+        applyAuthoritativeItemData(node, authoritativeItem, authoritativeFrameworkId);
       } else {
         if (!node.crossFrameworkUri && link?.uri) node.crossFrameworkUri = link.uri;
         const resolvedTitle = getPlaceholderTitle(identifier, link);
@@ -402,17 +510,36 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
       return node;
     }
 
+    function wouldCreateCycle(childId: string, parentId: string): boolean {
+      if (childId === parentId) return true;
+
+      const visited = new Set<string>();
+      let currentParentId: string | undefined = parentId;
+
+      while (currentParentId && !visited.has(currentParentId)) {
+        if (currentParentId === childId) return true;
+        visited.add(currentParentId);
+        currentParentId = parentByChild.get(currentParentId);
+      }
+
+      return false;
+    }
+
     function attachChildToParent(
       child: EditorItemNode,
       parentId: string,
       parent: EditorItemNode | null,
       assoc: CaseAssociation,
       groupId: string
-    ) {
+    ): boolean {
       const existingParentId = parentByChild.get(child.identifier);
       if (existingParentId && existingParentId !== parentId) {
         // Keep the first discovered parent to avoid duplicate/ambiguous attachment.
-        return;
+        return false;
+      }
+
+      if (wouldCreateCycle(child.identifier, parentId)) {
+        return false;
       }
 
       child.sequenceNumber = assoc.sequenceNumber ?? child.sequenceNumber ?? 0;
@@ -429,6 +556,103 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
       }
 
       parentByChild.set(child.identifier, parentId);
+      return true;
+    }
+
+    function markAnchoredBranch(
+      item: EditorItemNode,
+      anchoredIds: Set<string>,
+      visited: Set<string> = new Set()
+    ) {
+      if (visited.has(item.identifier) || anchoredIds.has(item.identifier)) return;
+
+      visited.add(item.identifier);
+      anchoredIds.add(item.identifier);
+      item.children.forEach(child => markAnchoredBranch(child, anchoredIds, visited));
+      visited.delete(item.identifier);
+    }
+
+    function buildAnchoredIdSet(): Set<string> {
+      const anchoredIds = new Set<string>();
+      const roots = Array.from(items.values()).filter(item => !itemsWithParentItem.has(item.identifier));
+      roots.forEach(root => markAnchoredBranch(root, anchoredIds));
+      return anchoredIds;
+    }
+
+    function enrichAnchoredExternalBranches() {
+      const loadedPackages = Array.from(contextStore.loadedPackages.entries())
+        .filter(([frameworkId]) => frameworkId !== docId);
+
+      if (loadedPackages.length === 0) return;
+
+      const anchoredIds = buildAnchoredIdSet();
+      let progressed = true;
+
+      while (progressed) {
+        progressed = false;
+
+        loadedPackages.forEach(([frameworkId, pkg]) => {
+          const packageItems = new Map((pkg.CFItems || []).map(item => [item.identifier, item]));
+
+          (pkg.CFAssociations || []).forEach(assoc => {
+            if (assoc.associationType !== 'isChildOf') return;
+
+            const originId = assoc.originNodeURI?.identifier;
+            const destinationId = assoc.destinationNodeURI?.identifier;
+            if (!originId || !destinationId) return;
+
+            const destinationIsDoc = docId !== null && destinationId === docId;
+            if (!destinationIsDoc && !anchoredIds.has(destinationId) && !inDocumentIds.has(destinationId)) {
+              return;
+            }
+
+            const groupId = normalizeAssociationGroupId(assoc);
+            const destinationRegistry = resolveRegisteredItem(destinationId, assoc.destinationNodeURI);
+            const destinationSource =
+              packageItems.get(destinationId) ||
+              destinationRegistry.item;
+            const destinationFrameworkId =
+              resolveItemFrameworkId(destinationSource as Partial<CFItem>, frameworkId as UUID) ||
+              destinationRegistry.frameworkId;
+
+            let parent: EditorItemNode | null = null;
+            if (!destinationIsDoc) {
+              parent = items.get(destinationId) || getOrCreatePlaceholder(
+                assoc.destinationNodeURI,
+                groupId,
+                assoc,
+                destinationSource,
+                destinationFrameworkId
+              );
+              if (!parent) return;
+              applyAuthoritativeItemData(parent, destinationSource, destinationFrameworkId);
+            }
+
+            const originRegistry = resolveRegisteredItem(originId, assoc.originNodeURI);
+            const originSource =
+              packageItems.get(originId) ||
+              originRegistry.item;
+            const originFrameworkId =
+              resolveItemFrameworkId(originSource as Partial<CFItem>, frameworkId as UUID) ||
+              originRegistry.frameworkId;
+            const child = items.get(originId) || getOrCreatePlaceholder(
+              assoc.originNodeURI,
+              groupId,
+              assoc,
+              originSource,
+              originFrameworkId
+            );
+            if (!child) return;
+
+            applyAuthoritativeItemData(child, originSource, originFrameworkId);
+
+            if (attachChildToParent(child, destinationId, parent, assoc, groupId) && !anchoredIds.has(originId)) {
+              markAnchoredBranch(child, anchoredIds);
+              progressed = true;
+            }
+          });
+        });
+      }
     }
 
     // Associate everything (including non-isChildOf) with local origin items for filtering.
@@ -538,6 +762,8 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
 
       unresolved = nextUnresolved;
     }
+
+    enrichAnchoredExternalBranches();
 
     function compareBySegment(a: string, b: string): number {
       const segmentsA = a.split(/[^a-zA-Z0-9]+/).filter(s => s !== '');
