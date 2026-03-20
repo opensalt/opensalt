@@ -209,7 +209,7 @@ export const useItemStore = defineStore('items', () => {
 
     // Call API to persist the move
     try {
-      await api.post('/framework/editor/document/' + currentDocument.id + '/update_items', {
+      await api.post('/doctree/update_items/' + currentDocument.id + '?_format=json', {
         lsItems: [itemToMove]
       });
     } catch (error) {

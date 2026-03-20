@@ -3,6 +3,7 @@ import { ref, reactive, computed } from 'vue';
 import { api } from '../services/api.js';
 import { logger } from '../utils/logger.js';
 import { externalEndpointCacheService } from '../services/externalEndpointCacheService.js';
+import { editorConfig } from '../config/editorConfig.js';
 import type {
     CFPackage,
     CFItem,
@@ -94,7 +95,7 @@ export const useEditorContextStore = defineStore('editorContext', () => {
             }
 
             // Populate association registry
-            if (pkg.CFAssociations) {
+            if (pkg.CFAssociations && !editorConfig.features.useLocalAssociationQueries) {
                 pkg.CFAssociations.forEach(assoc => {
                     associationRegistry.set(assoc.identifier, { association: assoc, frameworkId: id });
                 });
@@ -231,6 +232,10 @@ export const useEditorContextStore = defineStore('editorContext', () => {
      * Get associations for an entity (item or document)
      */
     function getAssociations(identifier: string, uri?: string, filter?: { type?: string }) {
+        if (editorConfig.features.useLocalAssociationQueries) {
+            return [];
+        }
+
         const results: (RegistryAssociation)[] = [];
         if (!identifier) return results;
 

@@ -11,7 +11,8 @@ import { useDocumentStore } from '../stores/documentStore';
 import { useCurrentDocumentStore } from '../stores/currentDocumentStore';
 import { useEditorContextStore } from '../stores/editorContextStore';
 import { api } from '../services/api.js';
-import { frameworkCacheService } from '../services/frameworkCacheService.js';
+import { localFrameworkDb } from '../services/localFrameworkDb.js';
+import { editorConfig } from '../config/editorConfig.js';
 import { logger } from '../utils/logger.js';
 
 // Constants from design document
@@ -455,7 +456,7 @@ export function useRelatedFrameworksQueue() {
    * Used to set HIGH priority for relevant frameworks
    * @returns {Array} - Array of document identifiers
    */
-  function getAssociatedDocumentIdentifiers() {
+  async function getAssociatedDocumentIdentifiers() {
     const currentItem = currentDocumentStore.currentItem;
     if (!currentItem) {
       return [];
@@ -463,8 +464,18 @@ export function useRelatedFrameworksQueue() {
 
     const identifiers = new Set();
 
-    // Get associations for the current item from centralized contextStore
-    const associations = contextStore.getAssociations(currentItem.identifier);
+    // Get associations for the current item
+    let associations = [];
+    if (editorConfig.features.useLocalAssociationQueries) {
+      associations = await localFrameworkDb.getItemAssociations(
+        currentItem.identifier,
+        contextStore.isViewingDifferentFramework ? contextStore.viewedDocumentId : contextStore.activeWriteDocumentId,
+        null
+      );
+    }
+    if (!editorConfig.features.useLocalAssociationQueries && (!Array.isArray(associations) || associations.length === 0)) {
+      associations = contextStore.getAssociations(currentItem.identifier);
+    }
 
     // Extract document identifiers from associations
     associations.forEach(regAssoc => {
@@ -490,8 +501,8 @@ export function useRelatedFrameworksQueue() {
   /**
    * Set HIGH priority for frameworks associated with current item
    */
-  function setHighPriorityForAssociatedFrameworks() {
-    const associatedIds = getAssociatedDocumentIdentifiers();
+  async function setHighPriorityForAssociatedFrameworks() {
+    const associatedIds = await getAssociatedDocumentIdentifiers();
 
     associatedIds.forEach(identifier => {
       updateItemPriority(identifier, PRIORITY.HIGH);
@@ -549,7 +560,7 @@ function setSessionRelatedDocuments(identifier, docs) {
       }
 
       // 1. Check cache first and queue if found to allow immediate processing
-      const cachedDocs = await frameworkCacheService.getRelatedFrameworks(identifier);
+      const cachedDocs = await localFrameworkDb.getRelatedFrameworks(identifier);
       if (cachedDocs && Array.isArray(cachedDocs)) {
         logger.debug(`Found ${cachedDocs.length} cached related documents for ${identifier}`);
         queueRelatedDocuments(cachedDocs);
@@ -613,7 +624,7 @@ function setSessionRelatedDocuments(identifier, docs) {
         setSessionRelatedDocuments(identifier, relatedDocs);
 
         // Update cache with fresh data
-        await frameworkCacheService.setRelatedFrameworks(identifier, relatedDocs);
+        await localFrameworkDb.setRelatedFrameworks(identifier, relatedDocs);
 
         queueRelatedDocuments(relatedDocs);
         return relatedDocs;

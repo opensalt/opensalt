@@ -10,6 +10,8 @@ import { useDocumentStore } from '../stores/documentStore';
 import { useCurrentDocumentStore } from '../stores/currentDocumentStore';
 import { useFilterStore } from '../stores/filterStore';
 import { useRelatedFrameworksQueue } from './useRelatedFrameworksQueue';
+import { localFrameworkDb } from '../services/localFrameworkDb.js';
+import { editorConfig } from '../config/editorConfig.js';
 
 
 // Log when this composable is instantiated
@@ -45,11 +47,28 @@ export function useDocumentLoader(options = {}) {
    * @param {Object} docData - The raw document data from the API
    * @returns {Object} The transformed document object
    */
-  function transformDocumentData(docData) {
+  async function transformDocumentData(docData, requestedDocumentId = null) {
     const cfDoc = docData.CFDocument || {};
+    let treeSource = docData;
+
+    if (editorConfig.features.useLocalTreeQueries && (requestedDocumentId || cfDoc.identifier)) {
+      try {
+        const dbPackage = await localFrameworkDb.getPackage(requestedDocumentId || cfDoc.identifier);
+        if (dbPackage?.CFItems && dbPackage?.CFAssociations) {
+          treeSource = {
+            ...docData,
+            CFItems: dbPackage.CFItems,
+            CFAssociations: dbPackage.CFAssociations
+          };
+        }
+      } catch (error) {
+        console.warn('[useDocumentLoader] Failed to use DB-backed package for tree read:', error);
+      }
+    }
+
     const items = currentDocumentStore.transformCASEItems(
-      docData.CFItems || [],
-      docData.CFAssociations || [],
+      treeSource.CFItems || [],
+      treeSource.CFAssociations || [],
       cfDoc.identifier
     );
 
@@ -91,7 +110,7 @@ export function useDocumentLoader(options = {}) {
     console.log('[useDocumentLoader] loadDocument called with documentId:', documentId);
 
     const docData = await documentStore.fetchDocument(documentId);
-    const transformedDoc = transformDocumentData(docData);
+    const transformedDoc = await transformDocumentData(docData, documentId);
 
     const definitions = docData.CFDefinitions || {};
     const associationGroupings = definitions.CFAssociationGroupings || docData.CFAssociationGroupings || [];

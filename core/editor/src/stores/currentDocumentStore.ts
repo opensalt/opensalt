@@ -6,7 +6,8 @@ import { useRelatedFrameworksQueue } from '../composables/useRelatedFrameworksQu
 import { useDocumentStore } from './documentStore';
 import { useViewStore } from './viewStore';
 import { useEditorContextStore } from './editorContextStore';
-import { frameworkCacheService } from '../services/frameworkCacheService.js';
+import { localFrameworkDb } from '../services/localFrameworkDb.js';
+import { editorConfig } from '../config/editorConfig.js';
 import type {
   CFDocument,
   CFDefinitions,
@@ -221,13 +222,15 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
         frameworkId: document.identifier
       });
 
-      // Register associations in global registry
-      associations.forEach(assoc => {
-        contextStore.associationRegistry.set(assoc.identifier, {
-          association: assoc,
-          frameworkId: document.identifier
+      if (!editorConfig.features.useLocalAssociationQueries) {
+        // Register associations in global registry only for legacy read path.
+        associations.forEach(assoc => {
+          contextStore.associationRegistry.set(assoc.identifier, {
+            association: assoc,
+            frameworkId: document.identifier
+          });
         });
-      });
+      }
 
       // Register items in global registry for cross-framework lookup
       if ((document as any).items) {
@@ -934,15 +937,17 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     try {
       await api.delete(`/framework/editor/association/${associationIdentifier}`);
       
-      // Manually remove from local registry so UI updates immediately upon reloadActiveDocument
-      const contextStore = useEditorContextStore();
-      const assocData = contextStore.associationRegistry.get(associationIdentifier);
-      if (assocData) {
-        const docId = assocData.frameworkId;
-        contextStore.associationRegistry.delete(associationIdentifier);
-        const pkg = contextStore.loadedPackages.get(docId);
-        if (pkg && pkg.CFAssociations) {
-          pkg.CFAssociations = pkg.CFAssociations.filter(a => a.identifier !== associationIdentifier);
+      if (!editorConfig.features.useLocalAssociationQueries) {
+        // Legacy read path keeps association registry in sync.
+        const contextStore = useEditorContextStore();
+        const assocData = contextStore.associationRegistry.get(associationIdentifier);
+        if (assocData) {
+          const docId = assocData.frameworkId;
+          contextStore.associationRegistry.delete(associationIdentifier);
+          const pkg = contextStore.loadedPackages.get(docId);
+          if (pkg && pkg.CFAssociations) {
+            pkg.CFAssociations = pkg.CFAssociations.filter(a => a.identifier !== associationIdentifier);
+          }
         }
       }
       
@@ -1098,7 +1103,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
   async function deleteDocument(documentIdentifier: UUID) {
     try {
       await api.delete(`/framework/editor/document/${documentIdentifier}`);
-      await frameworkCacheService.deleteFramework(documentIdentifier);
+      await localFrameworkDb.deleteFramework(documentIdentifier);
       documentStore.removeDocument(documentIdentifier);
       contextStore.removeFrameworkData(documentIdentifier);
       clearCurrentDocument();

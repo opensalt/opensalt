@@ -2,7 +2,8 @@ import { defineStore } from 'pinia';
 import { logger } from '../utils/logger.js';
 import { ref, Ref, nextTick } from 'vue';
 import { api } from '../services/api.js';
-import { frameworkCacheService } from '../services/frameworkCacheService.js';
+import { localFrameworkDb } from '../services/localFrameworkDb.js';
+import { editorConfig } from '../config/editorConfig.js';
 import type {
   CFDocument,
   CFPackage,
@@ -28,7 +29,15 @@ interface ApiPackageResponse {
   };
 }
 
+interface NormalizedPackageResponse {
+  pkg: CFPackage;
+  etag: string | null;
+  lastModified: string | null;
+  status: number | null;
+}
+
 export const useDocumentStore = defineStore('documents', () => {
+  const useLocalDb = editorConfig.features.useLocalFrameworkDb === true;
   // State
   const documents = ref<CFDocument[]>([]);
   const loading = ref<boolean>(false);
@@ -51,6 +60,35 @@ export const useDocumentStore = defineStore('documents', () => {
 
   // Documents metadata from /api/v1/documents endpoint (includes lastChangeDateTime)
   const documentsMetadata = new Map<UUID, string>(); // identifier -> lastChangeDateTime
+
+  function normalizePackageResponse(response: unknown): NormalizedPackageResponse {
+    const wrapped = response as any;
+    if (wrapped?.status === 304) {
+      return {
+        pkg: null as unknown as CFPackage,
+        etag: null,
+        lastModified: null,
+        status: 304
+      };
+    }
+
+    const pkg = wrapped?.data && wrapped.data.CFDocument ? wrapped.data : wrapped;
+    if (!pkg?.CFDocument) {
+      throw new Error('Response does not contain a valid CFPackage');
+    }
+
+    const headers = wrapped?.headers;
+    const etag = headers && typeof headers.get === 'function' ? headers.get('etag') : null;
+    const lastModified = headers && typeof headers.get === 'function' ? headers.get('last-modified') : null;
+    const status = typeof wrapped?.status === 'number' ? wrapped.status : null;
+
+    return {
+      pkg,
+      etag,
+      lastModified,
+      status
+    };
+  }
 
   /**
    * Store documents metadata from /api/v1/documents endpoint
@@ -154,7 +192,7 @@ export const useDocumentStore = defineStore('documents', () => {
       pkg.CFItems.forEach(item => contextStore.registerItem(item, identifier));
     }
 
-    if (pkg.CFAssociations) {
+    if (pkg.CFAssociations && !editorConfig.features.useLocalAssociationQueries) {
       pkg.CFAssociations.forEach(assoc => {
         contextStore.associationRegistry.set(assoc.identifier, {
           association: assoc,
@@ -186,8 +224,8 @@ export const useDocumentStore = defineStore('documents', () => {
       let cachedEntry = memoryCache.get(identifier);
 
       // 2. If not in memory cache, try to get from IndexedDB
-      if (!cachedEntry) {
-        const dbEntry = await frameworkCacheService.getFramework(identifier) as any;
+      if (!cachedEntry && useLocalDb) {
+        const dbEntry = await localFrameworkDb.getFramework(identifier) as any;
         if (dbEntry) {
           cachedEntry = dbEntry;
         }
@@ -198,10 +236,14 @@ export const useDocumentStore = defineStore('documents', () => {
       // Check if the cached entry exists and is fresh
       let isFresh = false;
       if (cachedEntry) {
-        isFresh = await frameworkCacheService.isCacheValid(
-          identifier,
-          serverLastChangeDateTime || ''
-        );
+        if (!useLocalDb || !('data' in (cachedEntry as any))) {
+          isFresh = true;
+        } else {
+          isFresh = await localFrameworkDb.isCacheValid(
+            identifier,
+            serverLastChangeDateTime || ''
+          );
+        }
       }
 
       if (cachedEntry) {
@@ -228,26 +270,20 @@ export const useDocumentStore = defineStore('documents', () => {
       if (errorRef) errorRef.value = null;
 
       try {
-        // Fetch with fullResponse to get headers for caching
-        const response = await api.get(`/ims/case/v1p1/CFPackages/${identifier}`, {
-          fullResponse: true
-        }) as any;
-
-        const pkg = response.data as CFPackage;
-        if (!pkg) throw new Error(`Failed to load package ${identifier}`);
-
-        const etag = response.headers.get('etag');
-        const lastModified = response.headers.get('last-modified');
+        const response = await api.get(`/ims/case/v1p1/CFPackages/${identifier}`) as any;
+        const { pkg, etag, lastModified } = normalizePackageResponse(response);
         logger.debug(`[loadPackage] Received headers for ${identifier}:`, { etag, lastModified });
 
         // Cache in memory (for testing/IndexedDB-unavailable)
         memoryCache.set(identifier, pkg);
 
         // Cache in IndexedDB
-        try {
-          await frameworkCacheService.setFramework(identifier, pkg, etag, lastModified);
-        } catch (cacheErr) {
-          logger.warn('Failed to cache framework in IndexedDB:', cacheErr);
+        if (useLocalDb) {
+          try {
+            await localFrameworkDb.upsertPackage(identifier, pkg, etag, lastModified);
+          } catch (cacheErr) {
+            logger.warn('Failed to cache framework in IndexedDB:', cacheErr);
+          }
         }
 
         // Still populate registries for consistency
@@ -280,7 +316,7 @@ export const useDocumentStore = defineStore('documents', () => {
             const contextStore = useEditorContextStore();
 
             // Get cached headers for conditional request
-            const cachedEntry = await frameworkCacheService.getFramework(identifier) as any;
+            const cachedEntry = useLocalDb ? await localFrameworkDb.getFramework(identifier) as any : null;
             const headers: Record<string, string> = {};
             if (cachedEntry) {
                 if (cachedEntry.etag) headers['If-None-Match'] = cachedEntry.etag;
@@ -289,31 +325,37 @@ export const useDocumentStore = defineStore('documents', () => {
 
             // Fetch version from API with conditional headers
             const response = await api.get(`/ims/case/v1p1/CFPackages/${identifier}`, {
-                headers,
-                fullResponse: true
+              headers,
+              fullResponse: true
             }) as any;
 
-            if (response.status === 304 && cachedEntry) {
+            const normalized = normalizePackageResponse(response);
+
+            if (normalized.status === 304 && cachedEntry) {
                 logger.debug('Background revalidation: 304 Not Modified for:', identifier);
                 // Update cachedAt timestamp in IndexedDB
-                await frameworkCacheService.setFramework(
-                    identifier,
-                    cachedEntry.data,
-                    cachedEntry.etag,
-                    cachedEntry.lastModified
-                );
+                if (useLocalDb) {
+                  await localFrameworkDb.upsertPackage(
+                      identifier,
+                      cachedEntry.data,
+                      cachedEntry.etag,
+                      cachedEntry.lastModified
+                  );
+                }
                 revalidatingRequests.delete(identifier);
                 return;
             }
 
-            const pkg = response.data as CFPackage;
+            const pkg = normalized.pkg;
 
             if (pkg) {
-                const etag = response.headers.get('etag');
-                const lastModified = response.headers.get('last-modified');
+                const etag = normalized.etag;
+                const lastModified = normalized.lastModified;
 
                 // Update IndexedDB with new data and headers
-                await frameworkCacheService.setFramework(identifier, pkg, etag, lastModified);
+                if (useLocalDb) {
+                  await localFrameworkDb.upsertPackage(identifier, pkg, etag, lastModified);
+                }
 
                 // Update memory cache
                 memoryCache.set(identifier, pkg);

@@ -1,6 +1,8 @@
 import { ref, shallowRef, computed, watch, onUnmounted, nextTick } from 'vue';
 import { useCurrentDocumentStore } from '../stores/currentDocumentStore';
 import { useEditorContextStore } from '../stores/editorContextStore';
+import { localFrameworkDb } from '../services/localFrameworkDb.js';
+import { editorConfig } from '../config/editorConfig.js';
 
 /**
  * Composable that manages association merging and caching for an item.
@@ -42,14 +44,32 @@ export function useItemAssociations({ item, displayItem }) {
     }
 
     /** Compute the merged association groups for a given item identifier */
-    function computeMergedAssociations(itemIdentifier) {
+    async function computeMergedAssociations(itemIdentifier) {
         if (!itemIdentifier) return [];
 
         const itemUri =
             item.value?.uri ||
             item.value?.crossFrameworkUri ||
             displayItem.value?.uri;
-        const allContextAssociations = contextStore.getAssociations(itemIdentifier, itemUri);
+        const displayedFrameworkId = contextStore.isViewingDifferentFramework
+            ? contextStore.viewedDocumentId
+            : contextStore.activeWriteDocumentId;
+
+        let allContextAssociations = [];
+        if (editorConfig.features.useLocalAssociationQueries) {
+            const dbAssociations = await localFrameworkDb.getItemAssociations(
+                itemIdentifier,
+                displayedFrameworkId,
+                null
+            );
+            if (Array.isArray(dbAssociations)) {
+                allContextAssociations = dbAssociations;
+            }
+        }
+
+        if (!editorConfig.features.useLocalAssociationQueries && (!Array.isArray(allContextAssociations) || allContextAssociations.length === 0)) {
+            allContextAssociations = contextStore.getAssociations(itemIdentifier, itemUri);
+        }
 
         console.debug(
             `[useItemAssociations] computeMergedAssociations for ${itemIdentifier}: ` +
@@ -74,9 +94,6 @@ export function useItemAssociations({ item, displayItem }) {
             if (assocType === 'isChildOf') {
                 const assocFrameworkId = a._sourceFrameworkId;
                 if (!assocFrameworkId) return false;
-                const displayedFrameworkId = contextStore.isViewingDifferentFramework
-                    ? contextStore.viewedDocumentId
-                    : contextStore.activeWriteDocumentId;
                 return assocFrameworkId !== displayedFrameworkId;
             }
             return true;
@@ -140,13 +157,13 @@ export function useItemAssociations({ item, displayItem }) {
                 : (cb) => setTimeout(cb, 0);
 
         return new Promise((resolve) => {
-            scheduleTask(() => {
+            scheduleTask(async () => {
                 if (version !== processingVersion.value) {
                     resolve();
                     return;
                 }
                 try {
-                    const result = computeMergedAssociations(itemIdentifier);
+                    const result = await computeMergedAssociations(itemIdentifier);
                     const newCache = new Map(mergedAssociationsCache.value);
                     if (newCache.size >= MAX_CACHE_SIZE) {
                         newCache.delete(newCache.keys().next().value);
@@ -179,7 +196,7 @@ export function useItemAssociations({ item, displayItem }) {
             if (newItemId && newItemId !== oldItemId) {
                 currentDocumentStore.setSelectedItem(item.value);
 
-                const currentDocsSize = contextStore.loadedPackages.size;
+                const currentDocsSize = contextStore.registryVersion;
                 if (currentDocsSize !== lastAssociatedDocumentsSize.value) {
                     clearAssociationsCache();
                     lastAssociatedDocumentsSize.value = currentDocsSize;
@@ -213,10 +230,10 @@ export function useItemAssociations({ item, displayItem }) {
         }
     );
 
-    // Re-compute in the background when the registry grows
+    // Re-compute in the background when read-model metadata changes
     let registryDebounceTimer = null;
     watch(
-        () => contextStore.loadedPackages.size + contextStore.associationRegistry.size + contextStore.registryVersion,
+        () => contextStore.registryVersion,
         (newTotal, oldTotal) => {
             if (newTotal > oldTotal && lastProcessedItemId.value) {
                 console.debug(

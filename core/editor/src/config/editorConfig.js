@@ -8,5 +8,9 @@ export function isEditorFeatureEnabled(featureName) {
 export const editorConfig = {
   features: {
     comments: isEditorFeatureEnabled('comments'),
+    useLocalFrameworkDb: isEditorFeatureEnabled('useLocalFrameworkDb'),
+    useLocalAssociationQueries: isEditorFeatureEnabled('useLocalAssociationQueries'),
+    useLocalTreeQueries: isEditorFeatureEnabled('useLocalTreeQueries'),
+    useLocalSimilaritySearch: isEditorFeatureEnabled('useLocalSimilaritySearch'),
   },
 };

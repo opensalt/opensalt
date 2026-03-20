@@ -6,6 +6,9 @@ import path from 'path';
 export default defineConfig({
   base: '/editor/',
   plugins: [tsconfigPaths(), vue()],
+  worker: {
+    format: 'es',
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

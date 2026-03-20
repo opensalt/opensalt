@@ -2,7 +2,7 @@ import { ref, watch, onUnmounted } from 'vue';
 import { useCurrentDocumentStore } from '../stores/currentDocumentStore';
 import { useDocumentStore } from '../stores/documentStore';
 import { logger } from '../utils/logger';
-import { frameworkCacheService } from '../services/frameworkCacheService';
+import { localFrameworkDb } from '../services/localFrameworkDb.js';
 
 export function useMercureNotifications() {
     const currentDocumentStore = useCurrentDocumentStore();
@@ -25,7 +25,7 @@ export function useMercureNotifications() {
 
         try {
             // First try to look up from the local cache to avoid another network request
-            const cachedDocs = await frameworkCacheService.getRelatedFrameworks(documentId);
+            const cachedDocs = await localFrameworkDb.getRelatedFrameworks(documentId);
             if (Array.isArray(cachedDocs)) {
                 cachedDocs.forEach((doc) => {
                     if (doc.identifier) docIds.add(doc.identifier);

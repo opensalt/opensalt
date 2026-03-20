@@ -32,6 +32,10 @@ final class EditorShellController extends AbstractController
             'editorProdStyles' => $this->buildProdStyles($entry),
             'editorFeatures' => [
                 'comments' => $this->featureManager->isEnabled(Feature::COMMENTS),
+                'useLocalFrameworkDb' => $this->featureManager->isEnabled(Feature::EDITOR_LOCAL_FRAMEWORK_DB),
+                'useLocalAssociationQueries' => $this->featureManager->isEnabled(Feature::EDITOR_LOCAL_ASSOCIATION_QUERIES),
+                'useLocalTreeQueries' => $this->featureManager->isEnabled(Feature::EDITOR_LOCAL_TREE_QUERIES),
+                'useLocalSimilaritySearch' => $this->featureManager->isEnabled(Feature::EDITOR_LOCAL_SIMILARITY_SEARCH),
             ],
         ]);
     }

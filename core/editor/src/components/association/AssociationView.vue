@@ -151,6 +151,8 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useDocumentStore } from '../../stores/documentStore';
 import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
 import { useEditorContextStore } from '../../stores/editorContextStore';
+import { editorConfig } from '../../config/editorConfig.js';
+import { localFrameworkDb } from '../../services/localFrameworkDb.js';
 import { logger } from '../../utils/logger.js';
 import AssociationTableView from './AssociationTableView.vue';
 import EditAssociationModal from './EditAssociationModal.vue';
@@ -173,12 +175,12 @@ const loading = computed(() => documentStore.loading);
 const error = computed(() => documentStore.error);
 const currentDocument = computed(() => currentDocumentStore.currentDocument);
 const associationGroups = computed(() => currentDocumentStore.associationGroups);
+const dbAssociations = ref([]);
 
-const associations = computed(() => {
-  // Collect all item identifiers in the current document (including document itself)
+function collectCurrentItemIds() {
   const currentDocId = currentDocumentStore.currentDocument?.identifier;
   const currentItemIds = new Set();
-  
+
   if (currentDocumentStore.currentDocument?.items) {
     (function collectIds(items) {
       for (const item of items) {
@@ -188,6 +190,54 @@ const associations = computed(() => {
     })(currentDocumentStore.currentDocument.items);
   }
   if (currentDocId) currentItemIds.add(currentDocId);
+  return currentItemIds;
+}
+
+async function refreshDbAssociations() {
+  if (!editorConfig.features.useLocalAssociationQueries) {
+    dbAssociations.value = [];
+    return;
+  }
+
+  const currentItemIds = collectCurrentItemIds();
+  if (currentItemIds.size === 0) {
+    dbAssociations.value = [];
+    return;
+  }
+
+  const seenIds = new Set();
+  const result = [];
+
+  for (const itemId of currentItemIds) {
+    const related = await localFrameworkDb.getItemAssociations(itemId, null, null);
+    (related || []).forEach((entry) => {
+      const assoc = entry?.association;
+      if (!assoc?.identifier || seenIds.has(assoc.identifier)) return;
+      seenIds.add(assoc.identifier);
+      result.push({
+        ...assoc,
+        _sourceFrameworkId: entry.frameworkId
+      });
+    });
+  }
+
+  dbAssociations.value = result;
+}
+
+watch(
+  () => [currentDocumentStore.currentDocument?.identifier, contextStore.registryVersion],
+  () => {
+    void refreshDbAssociations();
+  },
+  { immediate: true }
+);
+
+const associations = computed(() => {
+  if (editorConfig.features.useLocalAssociationQueries) {
+    return dbAssociations.value;
+  }
+
+  const currentItemIds = collectCurrentItemIds();
 
   // Use centralized registry to find all associations involving these items
   const result = [];
