@@ -19,8 +19,12 @@ final class EditorShellController extends AbstractController
 
     #[Route(path: '/editor', name: 'editor_shell', methods: ['GET'])]
     #[Route(path: '/editor/{path}', name: 'editor_shell_path', requirements: ['path' => '.+'], methods: ['GET'])]
-    public function index(): Response
+    public function index(?string $path = null): Response
     {
+        if (null !== $path && ctype_digit($path)) {
+            return $this->redirectToRoute('doc_tree_view', ['slug' => $path]);
+        }
+
         $isDev = $this->getParameter('kernel.debug');
         $entry = 'src/main.js';
 

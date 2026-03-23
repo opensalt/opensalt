@@ -18,7 +18,8 @@
     "test:e2e:headed": "playwright test --headed"
   },
   "dependencies": {
-    "@electric-sql/pglite": "^0.3.16",
+    "@electric-sql/pglite": "^0.4.1",
+    "@electric-sql/pglite-repl": "^0.3.1",
     "@opensalt/ob3-definer": "^1.2.8",
     "@vscode/markdown-it-katex": "^1.1.2",
     "bootstrap": "^5.3.0",

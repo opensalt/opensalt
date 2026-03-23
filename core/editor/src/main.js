@@ -1,5 +1,5 @@
 import { createApp } from 'vue';
-import { createPinia } from 'pinia';
+import { createPinia, setActivePinia } from 'pinia';
 import App from './App.vue';
 import router from './router/index.js';
 import { editorConfig } from './config/editorConfig.js';
@@ -11,6 +11,7 @@ import "github-markdown-css/github-markdown.css"
 
 const app = createApp(App);
 const pinia = createPinia();
+setActivePinia(pinia);
 
 if (editorConfig.features.useLocalFrameworkDb) {
   void localFrameworkDb.initialize();
@@ -24,8 +25,13 @@ import { useDocumentStore } from './stores/documentStore.ts';
 import { useCurrentDocumentStore } from './stores/currentDocumentStore.ts';
 
 router.beforeEach(async (to, from, next) => {
-  const documentStore = useDocumentStore();
-  const currentDocumentStore = useCurrentDocumentStore();
+  if (to.name === 'DbReplView') {
+    next();
+    return;
+  }
+
+  const documentStore = useDocumentStore(pinia);
+  const currentDocumentStore = useCurrentDocumentStore(pinia);
   const frameworkId = to.params.frameworkId;
 
   // Ensure document list is loaded if not already

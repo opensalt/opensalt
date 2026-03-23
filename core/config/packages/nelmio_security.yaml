@@ -17,6 +17,7 @@ nelmio_security:
     # prevents framing
     clickjacking:
         paths:
+            '^/cf-tree/doc/': ALLOW
             '^/cftree/doc/': ALLOW
             '^/.*': DENY
         content_types: []

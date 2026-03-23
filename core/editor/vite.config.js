@@ -5,9 +5,18 @@ import path from 'path';
 
 export default defineConfig({
   base: '/editor/',
-  plugins: [tsconfigPaths(), vue()],
-  worker: {
-    format: 'es',
+  plugins: [
+    tsconfigPaths(),
+    vue({
+      template: {
+        compilerOptions: {
+          isCustomElement: (tag) => tag === 'pglite-repl',
+        },
+      },
+    }),
+  ],
+  optimizeDeps: {
+    exclude: ['@electric-sql/pglite'],
   },
   resolve: {
     alias: {
@@ -19,6 +28,10 @@ export default defineConfig({
     allowedHosts: true,
     hmr: {
       path: '/editor/@vite-hmr',
+    },
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin',
+      'Cross-Origin-Embedder-Policy': 'credentialless',
     },
   },
   build: {

@@ -4,6 +4,11 @@ import { createRouter, createWebHistory } from 'vue-router';
 // Components are only loaded when the route is accessed
 const routes = [
   {
+    path: '/db',
+    name: 'DbReplView',
+    component: () => import('../components/db/PgliteReplView.vue')
+  },
+  {
     path: '/:frameworkId/association/:itemId?',
     name: 'AssociationView',
     component: () => import('../components/association/AssociationView.vue')

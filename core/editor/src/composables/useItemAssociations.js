@@ -136,8 +136,13 @@ export function useItemAssociations({ item, displayItem }) {
         force = false
     ) {
         if (!itemIdentifier) return;
-
-        if (!force && mergedAssociationsCache.value.has(itemIdentifier)) return;
+        
+        if (!force && mergedAssociationsCache.value.has(itemIdentifier)) {
+            if (version === processingVersion.value) {
+                isProcessingAssociations.value = false;
+            }
+            return;
+        }
 
         if (!background) {
             isProcessingAssociations.value = true;
@@ -162,6 +167,7 @@ export function useItemAssociations({ item, displayItem }) {
                     resolve();
                     return;
                 }
+                
                 try {
                     const result = await computeMergedAssociations(itemIdentifier);
                     const newCache = new Map(mergedAssociationsCache.value);
