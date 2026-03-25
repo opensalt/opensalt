@@ -78,13 +78,12 @@
                </div>
              </div>
 
-            <!-- Exemplar-specific fields -->
-            <ExemplarFields
-              v-if="isExemplarType"
-              v-model:url="formData.exemplarUrl"
-              v-model:description="formData.exemplarDescription"
-              :urlError="exemplarUrlError"
-            />
+             <!-- Exemplar-specific fields -->
+             <ExemplarFields
+               v-if="isExemplarType"
+               v-model:url="formData.exemplarUrl"
+               :urlError="exemplarUrlError"
+             />
             
             <!-- Manual Destination Fields -->
             <DestinationFields

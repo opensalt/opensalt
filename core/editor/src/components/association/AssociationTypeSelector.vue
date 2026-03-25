@@ -1,7 +1,7 @@
 <template>
   <div class="row mb-3">
     <label for="editAssociationFormType" class="col-sm-3 col-form-label required text-end">
-      Association Type *
+      Association Type
     </label>
     <div class="col-sm-9">
       <select
@@ -21,7 +21,7 @@
           {{ type.label }}
         </option>
       </select>
-      <div v-if="isDisabled" class="form-text text-muted">
+      <div v-if="false && isDisabled" class="form-text text-muted">
         <i class="bi bi-lock me-1"></i>Type is locked when adding an exemplar
       </div>
       <div v-if="showCustomTypeField" class="form-group mt-2">

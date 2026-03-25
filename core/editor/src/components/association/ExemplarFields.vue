@@ -3,7 +3,7 @@
     <!-- Exemplar URL Field -->
     <div class="row mb-3">
       <label for="editAssociationFormExemplarUrl" class="col-sm-3 col-form-label required text-end">
-        Exemplar URL *
+        Exemplar URL
       </label>
       <div class="col-sm-9">
         <input
@@ -24,22 +24,6 @@
       </div>
     </div>
 
-    <!-- Exemplar Description Field -->
-    <div class="row mb-3">
-      <label for="editAssociationFormExemplarDescription" class="col-sm-3 col-form-label text-end">
-        Description
-      </label>
-      <div class="col-sm-9">
-        <textarea
-          id="editAssociationFormExemplarDescription"
-          class="form-control"
-          rows="3"
-          :value="description"
-          @input="$emit('update:description', $event.target.value)"
-          placeholder="Optional description of the exemplar"
-        ></textarea>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -60,13 +44,6 @@ defineProps({
     default: ''
   },
   /**
-   * Exemplar description value (v-model)
-   */
-  description: {
-    type: String,
-    default: ''
-  },
-  /**
    * Validation error message for URL
    */
   urlError: {
@@ -75,7 +52,7 @@ defineProps({
   }
 });
 
-defineEmits(['update:url', 'update:description']);
+defineEmits(['update:url']);
 </script>
 
 <style scoped>
