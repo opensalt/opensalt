@@ -55,6 +55,7 @@ export function useTreeEditorHandlers({
     documentLoaderOnExternalDocumentUrlLoaded,
     // Side document
     sideDocument,
+    onSideDocumentSelect,
     // Navigation helpers
     expandItem,
     initializeFocus,
@@ -205,11 +206,13 @@ export function useTreeEditorHandlers({
 
         if (!documentId) {
             contextStore.viewedDocumentId = null;
+            contextStore.setFrameworkSelection('treeView', null);
             return;
         }
 
         if (documentId === currentDoc.value?.identifier) {
             contextStore.viewedDocumentId = null;
+            contextStore.setFrameworkSelection('treeView', null);
             return;
         }
 
@@ -217,6 +220,8 @@ export function useTreeEditorHandlers({
             const pkg = await documentStore.loadPackage(documentId);
             if (pkg?.CFDocument) {
                 contextStore.viewedDocumentId = documentId;
+                // Save framework selection for treeView mode
+                contextStore.setFrameworkSelection('treeView', documentId);
             }
         } catch (err) {
             console.error('Failed to switch viewed document:', err);
@@ -324,8 +329,17 @@ export function useTreeEditorHandlers({
         }
     }
 
-    function onRightPanelModeChanged(mode) {
+    async function onRightPanelModeChanged(mode) {
         rightPanelMode.value = mode;
+
+        // Restore framework selection for the new mode
+        if (mode === 'copyItems' || mode === 'createAssociations') {
+            const selection = contextStore.getFrameworkSelection(mode);
+            if (selection?.documentId) {
+                // Trigger side document loading
+                await onSideDocumentSelect(selection.documentId);
+            }
+        }
     }
 
     // ---------------------------------------------------------------------------

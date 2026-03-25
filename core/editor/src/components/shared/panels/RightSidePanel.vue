@@ -82,8 +82,10 @@ import { ref, watch } from 'vue';
 import ItemDetailsPanel from './ItemDetailsPanel.vue';
 import SideTreePanel from '../../tree/SideTreePanel.vue';
 import { useSessionStore } from '../../../stores/sessionStore';
+import { useEditorContextStore } from '../../../stores/editorContextStore';
 
 const sessionStore = useSessionStore();
+const editorContextStore = useEditorContextStore();
 
 const props = defineProps({
   selectedItem: Object,
@@ -141,6 +143,29 @@ const currentMode = ref(props.initialMode);
 function setMode(mode) {
   currentMode.value = mode;
   emit('mode-changed', mode);
+
+  // Restore framework selection for the new mode
+  restoreFrameworkSelection(mode);
+}
+
+async function restoreFrameworkSelection(mode) {
+  if (mode === 'itemDetails') {
+    return;
+  }
+
+  const selection = editorContextStore.getFrameworkSelection(mode);
+  
+  if (!selection?.documentId) {
+    // Try to get the most recently used framework as a fallback
+    const mostRecent = editorContextStore.getMostRecentFramework();
+    
+    if (mostRecent) {
+      emit('side-document-select', mostRecent);
+    }
+    return;
+  }
+
+  emit('side-document-select', selection.documentId);
 }
 
 // Sync with prop changes
@@ -153,6 +178,12 @@ watch(() => sessionStore.isAuthenticated, (auth) => {
     setMode('itemDetails');
   }
 });
+
+// Restore framework selection on initial mount
+watch(() => props.initialMode, async (newMode) => {
+  currentMode.value = newMode;
+  await restoreFrameworkSelection(newMode);
+}, { immediate: true });
 </script>
 
 <style scoped>

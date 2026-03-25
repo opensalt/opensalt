@@ -64,6 +64,9 @@
 import { ref, watch, computed } from 'vue';
 import TreeView from './TreeView.vue';
 import DocumentSelector from '../shared/common/DocumentSelector.vue';
+import { useEditorContextStore } from '../../stores/editorContextStore';
+
+const editorContextStore = useEditorContextStore();
 
 const props = defineProps({
   mode: {
@@ -116,9 +119,18 @@ const currentDocForSelector = computed(() => {
 
 function onDocumentChanged(event) {
   const { side, documentId } = event;
+  console.log('[SideTreePanel.onDocumentChanged] Called with documentId:', documentId);
+  console.log('[SideTreePanel.onDocumentChanged] Stack trace:', new Error().stack);
   if (documentId) {
     selectedDocumentId.value = documentId;
+    console.log('[SideTreePanel.onDocumentChanged] Emitting document-select with:', documentId);
     emit('document-select', documentId);
+
+    // Save framework selection to centralized state
+    if (props.mode === 'copyItems' || props.mode === 'createAssociations') {
+      editorContextStore.setFrameworkSelection(props.mode, documentId);
+      console.log('[SideTreePanel] Saved framework selection for mode', props.mode, ':', documentId);
+    }
   }
 }
 

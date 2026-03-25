@@ -8,10 +8,11 @@
 import { ref, computed, nextTick } from 'vue';
 import { useDocumentStore } from '../stores/documentStore';
 import { useCurrentDocumentStore } from '../stores/currentDocumentStore';
+import { useEditorContextStore } from '../stores/editorContextStore';
 
 /**
  * @param {Object} options - Configuration options
- * @param {Function} options.onDocumentLoaded - Callback when a side document is loaded
+ * @param {Function} options.onDocumentLoaded - Callback function when a side document is loaded. Called with (sideDocument, docData) parameters.
  * @returns {Object} Side document state and methods
  */
 export function useSideDocument(options = {}) {
@@ -19,6 +20,7 @@ export function useSideDocument(options = {}) {
 
   const documentStore = useDocumentStore();
   const currentDocumentStore = useCurrentDocumentStore();
+  const editorContextStore = useEditorContextStore();
 
   // Side document state
   const sideDocument = ref(null);
@@ -34,8 +36,6 @@ export function useSideDocument(options = {}) {
    * @returns {Promise<Object|null>} The loaded side document or null on error
    */
   async function onSideDocumentSelect(documentId) {
-    console.log('[onSideDocumentSelect] Called with documentId:', documentId);
-
     if (!documentId) {
       sideDocument.value = null;
       documentStore.clearSideDocError();
@@ -46,14 +46,15 @@ export function useSideDocument(options = {}) {
     // This ensures the spinner shows instead of stale content
     documentStore.clearSideDocError();
     sideDocument.value = null;
-    console.log('[onSideDocumentSelect] Cleared sideDocument, about to fetch');
 
     try {
       // Use fetchSideDocument which sets loading state
       // Note: loadingSideDocument is set to true at the start of fetchSideDocument
       // and we reset it here after all processing is complete
       const docData = await documentStore.fetchSideDocument(documentId);
+
       const cfDoc = docData.CFDocument || {};
+
       const items = currentDocumentStore.transformCASEItems(
         docData.CFItems || [],
         docData.CFAssociations || [],
@@ -77,7 +78,6 @@ export function useSideDocument(options = {}) {
       await new Promise(resolve => requestAnimationFrame(resolve)); // Wait for paint to complete
       // Additional small delay to ensure tree is fully rendered and visible
       await new Promise(resolve => setTimeout(resolve, 50));
-      console.log('[onSideDocumentSelect] Tree should now be visible, sideDocument set to:', sideDocument.value?.id);
 
       if (onDocumentLoaded) {
         onDocumentLoaded(sideDocument.value, docData);
@@ -85,12 +85,11 @@ export function useSideDocument(options = {}) {
 
       return sideDocument.value;
     } catch (error) {
-      console.error('Error loading side document:', error);
+      console.error('[onSideDocumentSelect] Error loading side document:', error);
       sideDocument.value = null;
       return null;
     } finally {
       // Reset loading state after tree is fully rendered and visible
-      console.log('[onSideDocumentSelect] Finally block - resetting loading state');
       documentStore.resetLoadingSideDocument();
     }
   }
@@ -113,6 +112,29 @@ export function useSideDocument(options = {}) {
   }
 
   /**
+   * Restore side document from centralized framework selection state
+   * @param {string} mode - The mode to restore selection for ('copyItems' or 'createAssociations')
+   * @returns {Promise<Object|null>} The restored side document or null
+   */
+  async function restoreSideDocumentFromState(mode) {
+    const selection = editorContextStore.getFrameworkSelection(mode);
+
+    if (!selection?.documentId) {
+      return null;
+    }
+
+    // Validate that the framework still exists
+    const isValid = await editorContextStore.validateFrameworkSelection(mode);
+
+    if (!isValid) {
+      return null;
+    }
+
+    const result = await onSideDocumentSelect(selection.documentId);
+    return result;
+  }
+
+  /**
    * Set side document directly (e.g., from external document loading)
    * @param {Object} doc - The document object to set
    */
@@ -131,6 +153,7 @@ export function useSideDocument(options = {}) {
     onSideDocumentSelect,
     onSideSelect,
     clearSideDocument,
-    setSideDocument
+    setSideDocument,
+    restoreSideDocumentFromState
   };
 }

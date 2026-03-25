@@ -37,6 +37,21 @@ export interface ExternalEndpoint {
     cachedAt: string;
 }
 
+export interface FrameworkSelectionMode {
+    documentId: UUID | null;
+    lastSelectedAt: string | null;
+    isLoaded: boolean;
+}
+
+export type FrameworkSelectionMap = {
+    itemDetails: null;
+    copyItems: FrameworkSelectionMode;
+    createAssociations: FrameworkSelectionMode;
+    treeView: FrameworkSelectionMode;
+    associationView: null;
+    logView: null;
+};
+
 export const useEditorContextStore = defineStore('editorContext', () => {
     // State
     const loadedPackages = reactive(new Map<UUID, CFPackage>());
@@ -49,6 +64,14 @@ export const useEditorContextStore = defineStore('editorContext', () => {
     const activeWriteDocumentId = ref<UUID | null>(null);
     const viewedDocumentId = ref<UUID | null>(null);
     const registryVersion = ref(0);
+    const frameworkSelectionState = reactive<FrameworkSelectionMap>({
+        itemDetails: null,
+        copyItems: { documentId: null, lastSelectedAt: null, isLoaded: false },
+        createAssociations: { documentId: null, lastSelectedAt: null, isLoaded: false },
+        treeView: { documentId: null, lastSelectedAt: null, isLoaded: false },
+        associationView: null,
+        logView: null
+    });
 
     /**
      * Increment the registry version to trigger reactive updates in watchers
@@ -163,6 +186,99 @@ export const useEditorContextStore = defineStore('editorContext', () => {
         }
 
         touchRegistry();
+    }
+
+    /**
+     * Get framework selection for a specific mode
+     */
+    function getFrameworkSelection(mode: 'copyItems' | 'createAssociations' | 'treeView'): FrameworkSelectionMode {
+        const selection = frameworkSelectionState[mode];
+        return selection;
+    }
+
+    /**
+     * Set framework selection for a specific mode
+     */
+    function setFrameworkSelection(mode: 'copyItems' | 'createAssociations' | 'treeView', documentId: UUID | null) {
+        const modeState = frameworkSelectionState[mode];
+        if (!modeState) {
+            return;
+        }
+
+        modeState.documentId = documentId;
+        modeState.lastSelectedAt = documentId ? new Date().toISOString() : null;
+        modeState.isLoaded = !!documentId;
+
+        // Sync with existing viewedDocumentId for treeView mode
+        if (mode === 'treeView') {
+            viewedDocumentId.value = documentId;
+        }
+
+        touchRegistry();
+    }
+
+    /**
+     * Clear framework selection for a specific mode
+     */
+    function clearFrameworkSelection(mode: 'copyItems' | 'createAssociations' | 'treeView') {
+        setFrameworkSelection(mode, null);
+    }
+
+    /**
+     * Clear all framework selections
+     */
+    function clearAllFrameworkSelections() {
+        setFrameworkSelection('copyItems', null);
+        setFrameworkSelection('createAssociations', null);
+        setFrameworkSelection('treeView', null);
+    }
+
+    /**
+     * Get the most recently used framework across all modes
+     */
+    function getMostRecentFramework(): UUID | null {
+        const modes: Array<keyof FrameworkSelectionMap> = ['copyItems', 'createAssociations', 'treeView'];
+        let mostRecent: { documentId: UUID | null; timestamp: string | null } = {
+            documentId: null,
+            timestamp: null
+        };
+
+        for (const mode of modes) {
+            const modeState = frameworkSelectionState[mode];
+            if (modeState?.documentId && modeState.lastSelectedAt) {
+                if (!mostRecent.timestamp || modeState.lastSelectedAt > mostRecent.timestamp) {
+                    mostRecent = {
+                        documentId: modeState.documentId,
+                        timestamp: modeState.lastSelectedAt
+                    };
+                }
+            }
+        }
+
+        return mostRecent.documentId;
+    }
+
+    /**
+     * Validate that a framework selection still exists
+     * Returns true if the framework is still available
+     */
+    async function validateFrameworkSelection(mode: 'copyItems' | 'createAssociations' | 'treeView'): Promise<boolean> {
+        const modeState = frameworkSelectionState[mode];
+        if (!modeState?.documentId) return false;
+
+        try {
+            // Check if the framework exists in the registry
+            const docExists = documentRegistry.has(modeState.documentId);
+            if (!docExists) {
+                // Framework no longer exists, clear selection
+                clearFrameworkSelection(mode);
+                return false;
+            }
+            return true;
+        } catch (err) {
+            logger.error(`Failed to validate framework selection for mode ${mode}:`, err);
+            return false;
+        }
     }
 
     /**
@@ -449,6 +565,13 @@ export const useEditorContextStore = defineStore('editorContext', () => {
         registerItem,
         removeFrameworkData,
         registryVersion,
-        touchRegistry
+        touchRegistry,
+        frameworkSelectionState,
+        getFrameworkSelection,
+        setFrameworkSelection,
+        clearFrameworkSelection,
+        clearAllFrameworkSelections,
+        getMostRecentFramework,
+        validateFrameworkSelection
     };
 });

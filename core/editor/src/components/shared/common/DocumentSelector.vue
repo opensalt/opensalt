@@ -127,11 +127,13 @@ function getDocumentId(document) {
 }
 
 watch(() => props.currentDoc, (newDoc) => {
+  console.log('[DocumentSelector] Watch currentDoc changed to:', newDoc);
   selectedDoc.value = getDocumentId(newDoc);
 }, { immediate: true });
 
 // NEW: Watch for viewed document changes to update selection
 watch(() => props.viewedDoc, (newViewedDoc) => {
+  console.log('[DocumentSelector] Watch viewedDoc changed to:', newViewedDoc);
   const viewedDocumentId = getDocumentId(newViewedDoc);
   if (viewedDocumentId) {
     selectedDoc.value = viewedDocumentId;
@@ -140,6 +142,8 @@ watch(() => props.viewedDoc, (newViewedDoc) => {
 
 function onDocumentChange() {
   const selectedValue = selectedDoc.value;
+  console.log('[DocumentSelector.onDocumentChange] Called with selectedValue:', selectedValue);
+  console.log('[DocumentSelector.onDocumentChange] Stack trace:', new Error().stack);
 
   if (selectedValue === 'external') {
     // Emit event to request external document loading UI
@@ -150,6 +154,7 @@ function onDocumentChange() {
   } else if (selectedValue) {
     // NEW: Emit 'viewed-document-changed' instead of 'document-changed'
     // This supports the dual framework edit/view separation feature
+    console.log('[DocumentSelector.onDocumentChange] Emitting viewed-document-changed with:', selectedValue);
     emit('viewed-document-changed', {
       side: props.side,
       documentId: selectedValue

@@ -42,12 +42,14 @@ import { useRouter, useRoute } from 'vue-router';
 import { useCurrentDocumentStore } from '../../../stores/currentDocumentStore';
 import { useSessionStore } from '../../../stores/sessionStore';
 import { useViewStore } from '../../../stores/viewStore';
+import { useEditorContextStore } from '../../../stores/editorContextStore';
 
 const router = useRouter();
 const route = useRoute();
 const currentDocumentStore = useCurrentDocumentStore();
 const sessionStore = useSessionStore();
 const viewStore = useViewStore();
+const editorContextStore = useEditorContextStore();
 
 const currentFrameworkId = computed(() => currentDocumentStore.currentDocument?.id || '');
 
@@ -58,25 +60,42 @@ const currentView = computed(() => {
   return 'tree';
 });
 
-function switchView(view) {
+async function switchView(view) {
   if (!currentFrameworkId.value) {
     console.warn('No framework ID available for navigation');
     return;
   }
+
   let path;
+
   if (view === 'tree') {
-    // Get the last selected item for this specific document
-    const lastItemId = viewStore.getLastItemIdForDocument(currentFrameworkId.value);
-    if (lastItemId) {
-      path = `/${currentFrameworkId.value}/${lastItemId}`;
+    // Check if there's a saved framework selection for treeView
+    const treeViewSelection = editorContextStore.getFrameworkSelection('treeView');
+
+    if (treeViewSelection?.documentId && treeViewSelection.documentId !== currentFrameworkId.value) {
+      // Use the saved framework selection
+      const lastItemId = viewStore.getLastItemIdForDocument(treeViewSelection.documentId);
+      if (lastItemId) {
+        path = `/${treeViewSelection.documentId}/${lastItemId}`;
+      } else {
+        path = `/${treeViewSelection.documentId}`;
+      }
+      console.log('[ViewSwitcher] Using saved treeView framework:', treeViewSelection.documentId);
     } else {
-      path = `/${currentFrameworkId.value}`;
+      // Use current framework
+      const lastItemId = viewStore.getLastItemIdForDocument(currentFrameworkId.value);
+      if (lastItemId) {
+        path = `/${currentFrameworkId.value}/${lastItemId}`;
+      } else {
+        path = `/${currentFrameworkId.value}`;
+      }
     }
   } else if (view === 'association') {
     path = `/${currentFrameworkId.value}/association`;
   } else if (view === 'log') {
     path = `/${currentFrameworkId.value}/log`;
   }
+
   router.push(path);
 }
 </script>

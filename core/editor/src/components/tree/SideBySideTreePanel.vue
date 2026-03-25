@@ -117,6 +117,7 @@ import { ref, watch, computed, onMounted, inject } from 'vue';
 import TreeView from './TreeView.vue';
 import DocumentSelector from '../shared/common/DocumentSelector.vue';
 import { logger } from '@/utils/logger.js';
+import { useEditorContextStore } from '@/stores/editorContextStore';
 
 const props = defineProps({
   mode: {
@@ -146,15 +147,6 @@ const props = defineProps({
   }
 });
 
-// Debug: Log prop changes
-watch(() => props.loadingSideDoc, (newVal) => {
-  console.log('[SideBySideTreePanel] loadingSideDoc changed to:', newVal);
-});
-
-watch(() => props.sideDocument, (newVal) => {
-  console.log('[SideBySideTreePanel] sideDocument changed to:', newVal?.id || null);
-}, { immediate: true });
-
 const emit = defineEmits([
   'mode-changed',
   'document-select',
@@ -165,6 +157,7 @@ const emit = defineEmits([
   'create-association'
 ]);
 
+const editorContextStore = useEditorContextStore();
 const selectedDocumentId = ref('');
 const sideSelectedId = ref(null);
 
@@ -174,22 +167,6 @@ const navigation = inject('treeNavigation', {
   collapseItem: () => {},
   isItemExpanded: () => false
 });
-
-// Initialize selectedDocumentId from currentDocument when component mounts
-onMounted(() => {
-  if (props.currentDocument?.identifier && !selectedDocumentId.value) {
-    selectedDocumentId.value = props.currentDocument.identifier;
-    emit('document-select', props.currentDocument.identifier);
-  }
-});
-
-// Watch for currentDocument changes and initialize selectedDocumentId when it becomes available
-watch(() => props.currentDocument, (newDoc) => {
-  if (newDoc?.identifier && !selectedDocumentId.value) {
-    selectedDocumentId.value = newDoc.identifier;
-    emit('document-select', newDoc.identifier);
-  }
-}, { immediate: false });
 
 // Track current document for DocumentSelector
 const currentDocForSelector = computed(() => {
@@ -202,11 +179,13 @@ const currentDocForSelector = computed(() => {
 
 function onDocumentChanged(event) {
   const { side, documentId } = event;
-  console.log('[SideBySideTreePanel] onDocumentChanged called with documentId:', documentId);
   if (documentId) {
     selectedDocumentId.value = documentId;
-    console.log('[SideBySideTreePanel] Emitting document-select event');
     emit('document-select', documentId);
+    // Save framework selection to centralized state
+    if (props.mode === 'copyItems' || props.mode === 'createAssociations') {
+      editorContextStore.setFrameworkSelection(props.mode, documentId);
+    }
   }
 }
 

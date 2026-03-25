@@ -218,6 +218,7 @@ const error = computed(() => documentStore.error);
 const searchQuery = computed(() => filterStore.searchQuery);
 const selectedId = ref(route.params.itemId || null);
 const currentDoc = computed(() => currentDocumentStore.currentDocument);
+const rightPanelMode = ref('itemDetails');
 
 const viewedDoc = computed(() => {
   const registryVersion = contextStore.registryVersion;
@@ -397,7 +398,14 @@ const {
 // Side document
 // ---------------------------------------------------------------------------
 const { sideDocument, loadingSideDoc, sideDocError, onSideDocumentSelect, onSideSelect } =
-  useSideDocument();
+  useSideDocument({
+    onDocumentLoaded: (sideDoc, docData) => {
+      // Save framework selection when document is loaded
+      if (sideDoc?.id) {
+        contextStore.setFrameworkSelection(rightPanelMode.value, sideDoc.id);
+      }
+    }
+  });
 
 // ---------------------------------------------------------------------------
 // Document loader
@@ -415,7 +423,6 @@ const { connect: connectMercure } = useMercureNotifications();
 // ---------------------------------------------------------------------------
 // Panel / search state
 // ---------------------------------------------------------------------------
-const rightPanelMode = ref('itemDetails');
 const treeSearchQuery = ref('');
 
 // ---------------------------------------------------------------------------
@@ -519,6 +526,7 @@ const {
   documentLoaderOnExternalDocumentRequested,
   documentLoaderOnExternalDocumentUrlLoaded,
   sideDocument,
+  onSideDocumentSelect,
   expandItem,
   initializeFocus,
   setFocus,
