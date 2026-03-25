@@ -11,7 +11,6 @@ import { useCurrentDocumentStore } from '../stores/currentDocumentStore';
 import { useFilterStore } from '../stores/filterStore';
 import { useRelatedFrameworksQueue } from './useRelatedFrameworksQueue';
 import { localFrameworkDb } from '../services/localFrameworkDb.js';
-import { editorConfig } from '../config/editorConfig.js';
 
 
 // Log when this composable is instantiated
@@ -63,7 +62,7 @@ export function useDocumentLoader(options = {}) {
     const cfDoc = docData.CFDocument || {};
     let treeSource = docData;
 
-    if (editorConfig.features.useLocalTreeQueries && (requestedDocumentId || cfDoc.identifier)) {
+    if (requestedDocumentId || cfDoc.identifier) {
       try {
         const dbPackage = await localFrameworkDb.getPackage(requestedDocumentId || cfDoc.identifier);
         if (dbPackage?.CFItems && dbPackage?.CFAssociations) {

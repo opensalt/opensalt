@@ -12,7 +12,6 @@ import { useCurrentDocumentStore } from '../stores/currentDocumentStore';
 import { useEditorContextStore } from '../stores/editorContextStore';
 import { api } from '../services/api.js';
 import { localFrameworkDb } from '../services/localFrameworkDb.js';
-import { editorConfig } from '../config/editorConfig.js';
 import { logger } from '../utils/logger.js';
 
 // Constants from design document
@@ -466,14 +465,14 @@ export function useRelatedFrameworksQueue() {
 
     // Get associations for the current item
     let associations = [];
-    if (editorConfig.features.useLocalAssociationQueries) {
+    if (await localFrameworkDb.hasPersistentClient()) {
       associations = await localFrameworkDb.getItemAssociations(
         currentItem.identifier,
         contextStore.isViewingDifferentFramework ? contextStore.viewedDocumentId : contextStore.activeWriteDocumentId,
         null
       );
     }
-    if (!editorConfig.features.useLocalAssociationQueries && (!Array.isArray(associations) || associations.length === 0)) {
+    if (!Array.isArray(associations) || associations.length === 0) {
       associations = contextStore.getAssociations(currentItem.identifier);
     }
 

@@ -3,7 +3,6 @@ import { logger } from '../utils/logger.js';
 import { ref, Ref, nextTick } from 'vue';
 import { api } from '../services/api.js';
 import { localFrameworkDb } from '../services/localFrameworkDb.js';
-import { editorConfig } from '../config/editorConfig.js';
 import type {
   CFDocument,
   CFPackage,
@@ -37,7 +36,6 @@ interface NormalizedPackageResponse {
 }
 
 export const useDocumentStore = defineStore('documents', () => {
-  const useLocalDb = editorConfig.features.useLocalFrameworkDb === true;
   // State
   const documents = ref<CFDocument[]>([]);
   const loading = ref<boolean>(false);
@@ -220,11 +218,13 @@ export const useDocumentStore = defineStore('documents', () => {
 
     // Set up the request promise immediately to catch any concurrent calls
     const requestPromise = (async (): Promise<CFPackage> => {
+      const hasPersistentClient = await localFrameworkDb.hasPersistentClient();
+
       // 1. Try to get ANY cached version from memory cache first (for testing/IndexedDB-unavailable)
       let cachedEntry = memoryCache.get(identifier);
 
-      // 2. If not in memory cache, try to get from IndexedDB
-      if (!cachedEntry && useLocalDb) {
+      // 2. If not in memory cache, try to get from the local DB service.
+      if (!cachedEntry && hasPersistentClient) {
         const dbEntry = await localFrameworkDb.getFramework(identifier) as any;
         if (dbEntry) {
           cachedEntry = dbEntry;
@@ -236,7 +236,7 @@ export const useDocumentStore = defineStore('documents', () => {
       // Check if the cached entry exists and is fresh
       let isFresh = false;
       if (cachedEntry) {
-        if (!useLocalDb || !('data' in (cachedEntry as any))) {
+        if (!hasPersistentClient || !('data' in (cachedEntry as any))) {
           isFresh = true;
         } else {
           isFresh = await localFrameworkDb.isCacheValid(
@@ -277,12 +277,12 @@ export const useDocumentStore = defineStore('documents', () => {
         // Cache in memory (for testing/IndexedDB-unavailable)
         memoryCache.set(identifier, pkg);
 
-        // Cache in IndexedDB
-        if (useLocalDb) {
+        // Cache in the local DB service
+        if (hasPersistentClient) {
           try {
             await localFrameworkDb.upsertPackage(identifier, pkg, etag, lastModified);
           } catch (cacheErr) {
-            logger.warn('Failed to cache framework in IndexedDB:', cacheErr);
+            logger.warn('Failed to cache framework in local DB:', cacheErr);
           }
         }
 
@@ -314,9 +314,12 @@ export const useDocumentStore = defineStore('documents', () => {
 
         try {
             const contextStore = useEditorContextStore();
+            const hasPersistentClient = await localFrameworkDb.hasPersistentClient();
 
             // Get cached headers for conditional request
-            const cachedEntry = useLocalDb ? await localFrameworkDb.getFramework(identifier) as any : null;
+            const cachedEntry = hasPersistentClient
+              ? await localFrameworkDb.getFramework(identifier) as any
+              : null;
             const headers: Record<string, string> = {};
             if (cachedEntry) {
                 if (cachedEntry.etag) headers['If-None-Match'] = cachedEntry.etag;
@@ -333,8 +336,8 @@ export const useDocumentStore = defineStore('documents', () => {
 
             if (normalized.status === 304 && cachedEntry) {
                 logger.debug('Background revalidation: 304 Not Modified for:', identifier);
-                // Update cachedAt timestamp in IndexedDB
-                if (useLocalDb) {
+                if (hasPersistentClient) {
+                  // Update cachedAt timestamp in the local DB service.
                   await localFrameworkDb.upsertPackage(
                       identifier,
                       cachedEntry.data,
@@ -352,8 +355,8 @@ export const useDocumentStore = defineStore('documents', () => {
                 const etag = normalized.etag;
                 const lastModified = normalized.lastModified;
 
-                // Update IndexedDB with new data and headers
-                if (useLocalDb) {
+                if (hasPersistentClient) {
+                  // Update the local DB service with new data and headers.
                   await localFrameworkDb.upsertPackage(identifier, pkg, etag, lastModified);
                 }
 

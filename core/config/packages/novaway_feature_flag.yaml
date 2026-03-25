@@ -20,15 +20,3 @@ novaway_feature_flag:
                     mfa:
                         enabled: '%use_mfa%'
                         description: Use MFA for authentication
-                    editor_local_framework_db:
-                        enabled: '%editor_local_framework_db%'
-                        description: Use PGlite-backed local framework DB
-                    editor_local_association_queries:
-                        enabled: '%editor_local_association_queries%'
-                        description: Read item associations from local DB
-                    editor_local_tree_queries:
-                        enabled: '%editor_local_tree_queries%'
-                        description: Read tree search from local DB
-                    editor_local_similarity_search:
-                        enabled: '%editor_local_similarity_search%'
-                        description: Enable local similarity search scaffolding

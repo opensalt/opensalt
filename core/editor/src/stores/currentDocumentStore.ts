@@ -7,7 +7,6 @@ import { useDocumentStore } from './documentStore';
 import { useViewStore } from './viewStore';
 import { useEditorContextStore } from './editorContextStore';
 import { localFrameworkDb } from '../services/localFrameworkDb.js';
-import { editorConfig } from '../config/editorConfig.js';
 import type {
   CFDocument,
   CFDefinitions,
@@ -942,21 +941,18 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
   async function removeAssociation(associationIdentifier: UUID) {
     try {
       await api.delete(`/framework/editor/association/${associationIdentifier}`);
-      
-      if (!editorConfig.features.useLocalAssociationQueries) {
-        // Legacy read path keeps association registry in sync.
-        const contextStore = useEditorContextStore();
-        const assocData = contextStore.associationRegistry.get(associationIdentifier);
-        if (assocData) {
-          const docId = assocData.frameworkId;
-          contextStore.associationRegistry.delete(associationIdentifier);
-          const pkg = contextStore.loadedPackages.get(docId);
-          if (pkg && pkg.CFAssociations) {
-            pkg.CFAssociations = pkg.CFAssociations.filter(a => a.identifier !== associationIdentifier);
-          }
+
+      const contextStore = useEditorContextStore();
+      const assocData = contextStore.associationRegistry.get(associationIdentifier);
+      if (assocData) {
+        const docId = assocData.frameworkId;
+        contextStore.associationRegistry.delete(associationIdentifier);
+        const pkg = contextStore.loadedPackages.get(docId);
+        if (pkg && pkg.CFAssociations) {
+          pkg.CFAssociations = pkg.CFAssociations.filter(a => a.identifier !== associationIdentifier);
         }
       }
-      
+
       return true;
     } catch (e) {
       logger.error("Error removing association:", e);

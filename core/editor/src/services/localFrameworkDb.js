@@ -1,5 +1,4 @@
 import { logger } from '../utils/logger.js';
-import { editorConfig } from '../config/editorConfig.js';
 import { createPgliteClient } from '../db/pgliteClient.js';
 
 class LocalFrameworkDbService {
@@ -7,7 +6,6 @@ class LocalFrameworkDbService {
     this.client = null;
     this.initialized = false;
     this.initPromise = null;
-    this.enabled = editorConfig.features.useLocalFrameworkDb === true;
     this.memory = {
       frameworks: new Map(),
       relatedFrameworks: new Map(),
@@ -19,11 +17,6 @@ class LocalFrameworkDbService {
     if (this.initPromise) return this.initPromise;
 
     this.initPromise = (async () => {
-      if (!this.enabled) {
-        this.initialized = true;
-        return null;
-      }
-
       try {
         const client = createPgliteClient();
         const mode = await client.init();
@@ -40,6 +33,11 @@ class LocalFrameworkDbService {
     })();
 
     return this.initPromise;
+  }
+
+  async hasPersistentClient() {
+    await this.initialize();
+    return this.client !== null;
   }
 
   async callWithFallback(methodName, fallback, ...args) {

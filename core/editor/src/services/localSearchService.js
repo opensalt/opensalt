@@ -1,6 +1,5 @@
 import { logger } from '../utils/logger.js';
 import { localFrameworkDb } from './localFrameworkDb.js';
-import { editorConfig } from '../config/editorConfig.js';
 
 /**
  * Placeholder for DB-backed search reads.
@@ -9,7 +8,7 @@ import { editorConfig } from '../config/editorConfig.js';
  */
 class LocalSearchService {
   async searchItems({ documentId, query, limit = 1000 }) {
-    if (!editorConfig.features.useLocalTreeQueries || !documentId || !query) {
+    if (!documentId || !query) {
       return [];
     }
 

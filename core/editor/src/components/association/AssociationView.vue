@@ -151,7 +151,6 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useDocumentStore } from '../../stores/documentStore';
 import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
 import { useEditorContextStore } from '../../stores/editorContextStore';
-import { editorConfig } from '../../config/editorConfig.js';
 import { localFrameworkDb } from '../../services/localFrameworkDb.js';
 import { logger } from '../../utils/logger.js';
 import AssociationTableView from './AssociationTableView.vue';
@@ -193,53 +192,7 @@ function collectCurrentItemIds() {
   return currentItemIds;
 }
 
-async function refreshDbAssociations() {
-  if (!editorConfig.features.useLocalAssociationQueries) {
-    dbAssociations.value = [];
-    return;
-  }
-
-  const currentItemIds = collectCurrentItemIds();
-  if (currentItemIds.size === 0) {
-    dbAssociations.value = [];
-    return;
-  }
-
-  const seenIds = new Set();
-  const result = [];
-
-  for (const itemId of currentItemIds) {
-    const related = await localFrameworkDb.getItemAssociations(itemId, null, null);
-    (related || []).forEach((entry) => {
-      const assoc = entry?.association;
-      if (!assoc?.identifier || seenIds.has(assoc.identifier)) return;
-      seenIds.add(assoc.identifier);
-      result.push({
-        ...assoc,
-        _sourceFrameworkId: entry.frameworkId
-      });
-    });
-  }
-
-  dbAssociations.value = result;
-}
-
-watch(
-  () => [currentDocumentStore.currentDocument?.identifier, contextStore.registryVersion],
-  () => {
-    void refreshDbAssociations();
-  },
-  { immediate: true }
-);
-
-const associations = computed(() => {
-  if (editorConfig.features.useLocalAssociationQueries) {
-    return dbAssociations.value;
-  }
-
-  const currentItemIds = collectCurrentItemIds();
-
-  // Use centralized registry to find all associations involving these items
+function getRegistryAssociations(currentItemIds) {
   const result = [];
   const seenIds = new Set();
 
@@ -252,13 +205,51 @@ const associations = computed(() => {
       seenIds.add(assoc.identifier);
       result.push({
         ...assoc,
-        _sourceFrameworkId: regAssoc.frameworkId // Framework origin tracking
+        _sourceFrameworkId: regAssoc.frameworkId
       });
     }
   });
 
   return result;
-});
+}
+
+async function refreshDbAssociations() {
+  const currentItemIds = collectCurrentItemIds();
+  if (currentItemIds.size === 0) {
+    dbAssociations.value = [];
+    return;
+  }
+
+  const seenIds = new Set();
+  const result = [];
+
+  if (await localFrameworkDb.hasPersistentClient()) {
+    for (const itemId of currentItemIds) {
+      const related = await localFrameworkDb.getItemAssociations(itemId, null, null);
+      (related || []).forEach((entry) => {
+        const assoc = entry?.association;
+        if (!assoc?.identifier || seenIds.has(assoc.identifier)) return;
+        seenIds.add(assoc.identifier);
+        result.push({
+          ...assoc,
+          _sourceFrameworkId: entry.frameworkId
+        });
+      });
+    }
+  }
+
+  dbAssociations.value = result.length > 0 ? result : getRegistryAssociations(currentItemIds);
+}
+
+watch(
+  () => [currentDocumentStore.currentDocument?.identifier, contextStore.registryVersion],
+  () => {
+    void refreshDbAssociations();
+  },
+  { immediate: true }
+);
+
+const associations = computed(() => dbAssociations.value);
 
 // Dynamically derive association types from actual data
 const allAssociationTypes = computed(() => {

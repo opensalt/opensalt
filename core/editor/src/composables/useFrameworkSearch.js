@@ -1,5 +1,5 @@
 import { computed, ref, watch } from 'vue';
-import { editorConfig } from '../config/editorConfig.js';
+import { localFrameworkDb } from '../services/localFrameworkDb.js';
 import { localSearchService } from '../services/localSearchService.js';
 
 /**
@@ -15,11 +15,11 @@ import { localSearchService } from '../services/localSearchService.js';
 export function useFrameworkSearch({ treeSearchQuery, doc, viewedDoc, isViewingDifferentFramework }) {
     const dbMatchingIds = ref(new Set());
     const dbMatchCount = ref(null);
+    const useLocalSearchResults = ref(false);
 
     watch(
         [treeSearchQuery, () => doc.value?.identifier, () => viewedDoc.value?.identifier, isViewingDifferentFramework],
         async () => {
-            if (!editorConfig.features.useLocalTreeQueries) return;
             const query = treeSearchQuery.value?.trim();
             if (!query) {
                 dbMatchingIds.value = new Set();
@@ -34,6 +34,13 @@ export function useFrameworkSearch({ treeSearchQuery, doc, viewedDoc, isViewingD
             if (!targetDocId) {
                 dbMatchingIds.value = new Set();
                 dbMatchCount.value = 0;
+                return;
+            }
+
+            useLocalSearchResults.value = await localFrameworkDb.hasPersistentClient();
+            if (!useLocalSearchResults.value) {
+                dbMatchingIds.value = new Set();
+                dbMatchCount.value = null;
                 return;
             }
 
@@ -85,7 +92,7 @@ export function useFrameworkSearch({ treeSearchQuery, doc, viewedDoc, isViewingD
     }
 
     const matchCount = computed(() => {
-        if (editorConfig.features.useLocalTreeQueries) {
+        if (useLocalSearchResults.value) {
             return dbMatchCount.value;
         }
         if (!treeSearchQuery.value) return null;
@@ -97,7 +104,7 @@ export function useFrameworkSearch({ treeSearchQuery, doc, viewedDoc, isViewingD
     });
 
     const matchingItemIds = computed(() => {
-        if (editorConfig.features.useLocalTreeQueries) {
+        if (useLocalSearchResults.value) {
             return dbMatchingIds.value;
         }
         if (!treeSearchQuery.value) return new Set();

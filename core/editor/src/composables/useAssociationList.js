@@ -2,7 +2,6 @@ import { ref, computed, watch, onUnmounted, toValue } from 'vue';
 import { useEditorContextStore } from '../stores/editorContextStore';
 import { useCurrentDocumentStore } from '../stores/currentDocumentStore';
 import { localFrameworkDb } from '../services/localFrameworkDb.js';
-import { editorConfig } from '../config/editorConfig.js';
 import { logger } from '../utils/logger.js';
 
 function normalizeGroupId(association) {
@@ -53,10 +52,6 @@ export function useAssociationList({ mode, item = null, displayItem = null, docu
   let activeSubscription = null;
   let subscriptionVersion = 0;
   const LOCAL_QUERY_TIMEOUT_MS = 1500;
-
-  const useLocalAssociations = computed(() => (
-    editorConfig.features.useLocalAssociationQueries && localFrameworkDb.enabled === true
-  ));
 
   const displayedFrameworkId = computed(() => (
     contextStore.isViewingDifferentFramework
@@ -177,6 +172,12 @@ export function useAssociationList({ mode, item = null, displayItem = null, docu
     return Object.values(grouped);
   }
 
+  function getRegistryEntries() {
+    return mode === 'item'
+      ? getItemAssociationsFromRegistry(itemIdentifier.value, itemUri.value)
+      : getDocumentAssociationsFromRegistry(documentIdentifier.value, documentItemIds.value);
+  }
+
   async function stop({ timeoutMs = 250 } = {}) {
     if (!activeSubscription) return;
 
@@ -197,10 +198,9 @@ export function useAssociationList({ mode, item = null, displayItem = null, docu
   }
 
   async function fetchSnapshotEntries() {
-    if (!useLocalAssociations.value) {
-      return mode === 'item'
-        ? getItemAssociationsFromRegistry(itemIdentifier.value, itemUri.value)
-        : getDocumentAssociationsFromRegistry(documentIdentifier.value, documentItemIds.value);
+    const hasPersistentClient = await localFrameworkDb.hasPersistentClient();
+    if (!hasPersistentClient) {
+      return getRegistryEntries();
     }
 
     if (mode === 'item') {
@@ -219,10 +219,6 @@ export function useAssociationList({ mode, item = null, displayItem = null, docu
   }
 
   async function fetchEntriesWithFallback() {
-    if (!useLocalAssociations.value) {
-      return fetchSnapshotEntries();
-    }
-
     try {
       return await Promise.race([
         fetchSnapshotEntries(),
@@ -231,9 +227,7 @@ export function useAssociationList({ mode, item = null, displayItem = null, docu
         })
       ]);
     } catch (error) {
-      const fallbackEntries = mode === 'item'
-        ? getItemAssociationsFromRegistry(itemIdentifier.value, itemUri.value)
-        : getDocumentAssociationsFromRegistry(documentIdentifier.value, documentItemIds.value);
+      const fallbackEntries = getRegistryEntries();
 
       if (Array.isArray(fallbackEntries) && fallbackEntries.length > 0) {
         logger.debug('[useAssociationList] Falling back to registry-backed associations:', error);
@@ -309,12 +303,14 @@ export function useAssociationList({ mode, item = null, displayItem = null, docu
           itemIdentifier.value,
           itemUri.value,
           displayedFrameworkId.value,
-          useLocalAssociations.value ? toValue(item) : contextStore.registryVersion
+          toValue(item),
+          contextStore.registryVersion
         ]
         : [
           documentIdentifier.value,
           displayedFrameworkId.value,
-          useLocalAssociations.value ? toValue(document) : contextStore.registryVersion
+          toValue(document),
+          contextStore.registryVersion
         ]
     ),
     () => {

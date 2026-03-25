@@ -54,10 +54,6 @@ parameters:
     env(CASE_NETWORK_SCOPE): 'http://purl.imsglobal.org/casenetwork/case/v1p0/scope/all.readonly'
     env(MFA_ISSUER): 'OpenSALT'
     env(USE_MFA): false
-    env(EDITOR_LOCAL_FRAMEWORK_DB): 'always-active'
-    env(EDITOR_LOCAL_ASSOCIATION_QUERIES): 'always-active'
-    env(EDITOR_LOCAL_TREE_QUERIES): 'always-active'
-    env(EDITOR_LOCAL_SIMILARITY_SEARCH): 'always-active'
     env(MERCURE_JWT_SECRET): '!ChangeThisMercureHubJWTSecretKey!'
     env(MERCURE_URL): 'http://web/.well-known/mercure'
     env(MERCURE_PUBLIC_URL): null
@@ -109,10 +105,6 @@ parameters:
     case_network_scope: '%env(CASE_NETWORK_SCOPE)%'
     mfa_issuer: '%env(MFA_ISSUER)%'
     use_mfa: '%env(feature_flag:USE_MFA)%'
-    editor_local_framework_db: '%env(feature_flag:EDITOR_LOCAL_FRAMEWORK_DB)%'
-    editor_local_association_queries: '%env(feature_flag:EDITOR_LOCAL_ASSOCIATION_QUERIES)%'
-    editor_local_tree_queries: '%env(feature_flag:EDITOR_LOCAL_TREE_QUERIES)%'
-    editor_local_similarity_search: '%env(feature_flag:EDITOR_LOCAL_SIMILARITY_SEARCH)%'
     issuer_signing_key: '%env(ISSUER_SIGNING_KEY)%'
 
 services:
