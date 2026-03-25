@@ -95,7 +95,7 @@ export const useEditorContextStore = defineStore('editorContext', () => {
             }
 
             // Populate association registry
-            if (pkg.CFAssociations && !editorConfig.features.useLocalAssociationQueries) {
+            if (pkg.CFAssociations) {
                 pkg.CFAssociations.forEach(assoc => {
                     associationRegistry.set(assoc.identifier, { association: assoc, frameworkId: id });
                 });
@@ -232,10 +232,6 @@ export const useEditorContextStore = defineStore('editorContext', () => {
      * Get associations for an entity (item or document)
      */
     function getAssociations(identifier: string, uri?: string, filter?: { type?: string }) {
-        if (editorConfig.features.useLocalAssociationQueries) {
-            return [];
-        }
-
         const results: (RegistryAssociation)[] = [];
         if (!identifier) return results;
 
@@ -279,19 +275,12 @@ export const useEditorContextStore = defineStore('editorContext', () => {
     function isEditable(identifier: string): boolean {
         if (!activeWriteDocumentId.value) return false;
 
+        if (identifier === activeWriteDocumentId.value) {
+            return true;
+        }
+
         const resolved = resolveEndpoint(identifier);
         if (!resolved) return false;
-
-        // DEBUG: Log isEditable computation
-        console.log('[editorContextStore] isEditable called:', {
-            identifier,
-            activeWriteDocumentId: activeWriteDocumentId.value,
-            resolved,
-            resolvedFrameworkId: resolved.frameworkId,
-            entityType: resolved.entityType,
-            'frameworkId === activeWriteDocumentId': resolved.frameworkId === activeWriteDocumentId.value,
-            result: resolved.frameworkId === activeWriteDocumentId.value
-        });
 
         // If it's a document, check if it's the active document
         if (resolved.entityType === 'document') {

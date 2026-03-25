@@ -192,7 +192,7 @@ export const useDocumentStore = defineStore('documents', () => {
       pkg.CFItems.forEach(item => contextStore.registerItem(item, identifier));
     }
 
-    if (pkg.CFAssociations && !editorConfig.features.useLocalAssociationQueries) {
+    if (pkg.CFAssociations) {
       pkg.CFAssociations.forEach(assoc => {
         contextStore.associationRegistry.set(assoc.identifier, {
           association: assoc,

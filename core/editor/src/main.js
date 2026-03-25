@@ -54,9 +54,12 @@ router.beforeEach(async (to, from, next) => {
       // Transform and set the current document
       const cfDoc = docData.CFDocument || {};
       const items = currentDocumentStore.transformCASEItems(docData.CFItems || [], docData.CFAssociations || [], cfDoc.identifier);
+      const definitions = docData.CFDefinitions || {};
+      const associationGroupings = definitions.CFAssociationGroupings || docData.CFAssociationGroupings || [];
 
       currentDocumentStore.selectDocument({
         id: cfDoc.identifier,
+        identifier: cfDoc.identifier,
         uri: cfDoc.uri || '',
         title: cfDoc.title || 'Untitled',
         description: cfDoc.description || null,
@@ -78,7 +81,7 @@ router.beforeEach(async (to, from, next) => {
         extensions: cfDoc.extensions || null,
         CFPackageURI: cfDoc.CFPackageURI || null,
         items: items
-      }, docData.CFAssociationGroupings || [], docData.CFAssociations || []);
+      }, associationGroupings, docData.CFAssociations || [], definitions);
     } catch (error) {
       console.error('Failed to load framework:', error);
       // Redirect to root or error page

@@ -50,7 +50,6 @@ class LocalFrameworkDbService {
         return await this.client[methodName](...args);
       } catch (error) {
         logger.warn(`Local framework DB call failed (${methodName}); falling back to in-memory adapter.`, error);
-        this.client = null;
       }
     }
 
@@ -114,10 +113,52 @@ class LocalFrameworkDbService {
   getItemAssociations(itemId, displayedFrameworkId = null, groupId = null) {
     return this.callWithFallback(
       'getItemAssociations',
-      async () => null,
+      async () => [],
       itemId,
       displayedFrameworkId,
       groupId
+    );
+  }
+
+  getDocumentAssociations(documentId, displayedFrameworkId = null, groupId = null) {
+    return this.callWithFallback(
+      'getDocumentAssociations',
+      async () => [],
+      documentId,
+      displayedFrameworkId,
+      groupId
+    );
+  }
+
+  subscribeItemAssociations(itemId, displayedFrameworkId = null, groupId = null, onData = () => {}) {
+    return this.callWithFallback(
+      'subscribeItemAssociations',
+      async () => {
+        return {
+          unsubscribe: async () => {},
+          refresh: async () => {}
+        };
+      },
+      itemId,
+      displayedFrameworkId,
+      groupId,
+      onData
+    );
+  }
+
+  subscribeDocumentAssociations(documentId, displayedFrameworkId = null, groupId = null, onData = () => {}) {
+    return this.callWithFallback(
+      'subscribeDocumentAssociations',
+      async () => {
+        return {
+          unsubscribe: async () => {},
+          refresh: async () => {}
+        };
+      },
+      documentId,
+      displayedFrameworkId,
+      groupId,
+      onData
     );
   }
 

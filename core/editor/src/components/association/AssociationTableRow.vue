@@ -1,5 +1,5 @@
 <template>
-  <tbody class="association-tbody" :class="{ 'cross-framework-tbody': isCrossFrameworkAssoc }">
+  <tbody class="association-tbody" :class="{ 'cross-framework-tbody': isAssociationFromDifferentDisplayedFramework }">
     <!-- Main row -->
     <tr class="association-row">
       <!-- Origin Column -->
@@ -89,7 +89,7 @@
 
     <!-- Actions Column -->
     <td class="py-3 text-end">
-      <div v-if="!isReadOnly && !isCrossFrameworkAssoc && association.associationType !== 'isChildOf' && association.type !== 'isChildOf'" class="btn-group btn-group-sm" role="group">
+      <div v-if="canManageAssociation" class="btn-group btn-group-sm" role="group">
         <button
           type="button"
           class="btn btn-outline-primary"
@@ -166,7 +166,7 @@ const props = defineProps({
     default: () => []
   },
   itemIdentifier: {
-    type: String,
+    type: [String, null],
     default: null
   },
   isReadOnly: {
@@ -180,27 +180,77 @@ const emit = defineEmits(['edit', 'delete']);
 const currentDocumentStore = useCurrentDocumentStore();
 const contextStore = useEditorContextStore();
 
-// Check if this association comes from a different framework than the one being viewed
-const isCrossFrameworkAssoc = computed(() => {
-  const assocFrameworkId = props.association._sourceFrameworkId
-    || props.association.CFDocumentURI?.identifier
-    || (typeof props.association.CFDocumentURI === 'string' ? props.association.CFDocumentURI : null);
-  if (!assocFrameworkId) return false;
+const displayedFrameworkId = computed(() => (
+  contextStore.isViewingDifferentFramework
+    ? (
+      contextStore.viewedDocumentId ||
+      currentDocumentStore.currentDocument?.identifier ||
+      currentDocumentStore.currentDocument?.id ||
+      null
+    )
+    : (
+      contextStore.activeWriteDocumentId ||
+      currentDocumentStore.currentDocument?.identifier ||
+      currentDocumentStore.currentDocument?.id ||
+      null
+    )
+));
 
-  const displayedFrameworkId = contextStore.isViewingDifferentFramework
-    ? contextStore.viewedDocumentId
-    : contextStore.activeWriteDocumentId;
+const activeFrameworkId = computed(() => (
+  contextStore.activeWriteDocumentId ||
+  currentDocumentStore.currentDocument?.identifier ||
+  currentDocumentStore.currentDocument?.id ||
+  null
+));
 
-  return assocFrameworkId !== displayedFrameworkId;
+const associationSourceFrameworkId = computed(() => (
+  props.association._sourceFrameworkId
+  || props.association.CFDocumentURI?.identifier
+  || (typeof props.association.CFDocumentURI === 'string' ? props.association.CFDocumentURI : null)
+  || null
+));
+
+const resolvedAssociationSourceDocumentId = computed(() => {
+  const sourceId = associationSourceFrameworkId.value;
+  if (!sourceId) return null;
+
+  if (contextStore.documentRegistry.has(sourceId)) {
+    return sourceId;
+  }
+
+  for (const doc of contextStore.documentRegistry.values()) {
+    if (doc.frameworkId === sourceId) {
+      return doc.identifier;
+    }
+  }
+
+  return sourceId;
+});
+
+const isAssociationFromDifferentDisplayedFramework = computed(() => {
+  if (!resolvedAssociationSourceDocumentId.value) return false;
+  return displayedFrameworkId.value != null && resolvedAssociationSourceDocumentId.value !== displayedFrameworkId.value;
+});
+
+const associationTypeForPermissions = computed(() => (
+  props.association.associationType || props.association.type || 'unknown'
+));
+
+const isAssociationSourceEditable = computed(() => {
+  if (!resolvedAssociationSourceDocumentId.value || !activeFrameworkId.value) return true;
+  return contextStore.isEditable(resolvedAssociationSourceDocumentId.value);
+});
+
+const canManageAssociation = computed(() => {
+  if (props.isReadOnly || associationTypeForPermissions.value === 'isChildOf') return false;
+  return isAssociationSourceEditable.value;
 });
 
 // Resolve the source framework title from the centralized document registry
 const sourceFrameworkTitle = computed(() => {
-  if (!isCrossFrameworkAssoc.value) return null;
+  if (!isAssociationFromDifferentDisplayedFramework.value) return null;
 
-  const frameworkId = props.association._sourceFrameworkId
-    || props.association.CFDocumentURI?.identifier
-    || (typeof props.association.CFDocumentURI === 'string' ? props.association.CFDocumentURI : null);
+  const frameworkId = resolvedAssociationSourceDocumentId.value;
   if (!frameworkId) return null;
 
   const doc = contextStore.documentRegistry.get(frameworkId);

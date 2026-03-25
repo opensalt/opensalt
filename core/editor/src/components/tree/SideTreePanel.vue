@@ -6,7 +6,7 @@
       :available-documents="availableDocuments"
       :label="mode === 'copyItems' ? 'Source Document' : 'Target Document'"
       side="right"
-      @document-changed="onDocumentChanged"
+      @viewed-document-changed="onDocumentChanged"
       @external-document-requested="onExternalDocumentRequested"
     />
 

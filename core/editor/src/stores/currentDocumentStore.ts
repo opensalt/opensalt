@@ -192,8 +192,17 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     associations: CaseAssociation[] = [],
     definitions: CFDefinitions | null = null
   ) {
-    currentDocument.value = document;
-    contextStore.activeWriteDocumentId = document?.identifier || null;
+    const normalizedDocument = document
+      ? ({
+        ...document,
+        identifier: document.identifier || (document as any).id || null,
+        id: (document as any).id || document.identifier || null
+      } as CFDocument & { id?: UUID | null })
+      : null;
+    const documentIdentifier = normalizedDocument?.identifier || normalizedDocument?.id || null;
+
+    currentDocument.value = normalizedDocument as CFDocument | null;
+    contextStore.activeWriteDocumentId = documentIdentifier;
 
     currentDocumentDefinitions.value = definitions || {
       CFAssociationGroupings: [],
@@ -209,31 +218,28 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     }));
 
     // If viewed document matches the new current document, clear it
-    if (contextStore.viewedDocumentId === document?.identifier) {
+    if (contextStore.viewedDocumentId === documentIdentifier) {
       contextStore.viewedDocumentId = null;
     }
 
     // Ensure main framework data is in contextStore registries
-    if (document) {
+    if (normalizedDocument && documentIdentifier) {
       contextStore.registerDocumentMetadata({
-        identifier: document.identifier,
-        uri: document.uri,
-        title: document.title,
-        frameworkId: document.identifier
+        identifier: documentIdentifier,
+        uri: normalizedDocument.uri,
+        title: normalizedDocument.title,
+        frameworkId: documentIdentifier
       });
 
-      if (!editorConfig.features.useLocalAssociationQueries) {
-        // Register associations in global registry only for legacy read path.
-        associations.forEach(assoc => {
-          contextStore.associationRegistry.set(assoc.identifier, {
-            association: assoc,
-            frameworkId: document.identifier
-          });
+      associations.forEach(assoc => {
+        contextStore.associationRegistry.set(assoc.identifier, {
+          association: assoc,
+          frameworkId: documentIdentifier
         });
-      }
+      });
 
       // Register items in global registry for cross-framework lookup
-      if ((document as any).items) {
+      if ((normalizedDocument as any).items) {
         (function registerItems(items: any[]) {
           items.forEach(item => {
             if (isUnresolvedCrossFrameworkPlaceholder(item)) {
@@ -245,11 +251,11 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
               item.documentId ||
               item.CFDocumentURI?.identifier ||
               contextStore.resolveEndpoint(item.CFDocumentURI?.uri || item.crossFrameworkUri || item.uri || item.identifier)?.frameworkId ||
-              (document as any).identifier;
+              documentIdentifier;
             contextStore.registerItem(item as any, registeredFrameworkId);
             if (item.children) registerItems(item.children);
           });
-        })((document as any).items);
+        })((normalizedDocument as any).items);
       }
     }
   }

@@ -6,6 +6,7 @@
       v-if="!selectedItem && displayDocument"
       :document="displayDocument"
       :association-groups="associationGroups"
+      :is-viewing-different-framework="contextStore.isViewingDifferentFramework"
       @edit-document="$emit('edit-document')"
       @delete-document="$emit('delete-document')"
       @add-root-item="$emit('add-root-item', $event)"
@@ -13,6 +14,8 @@
       @update-framework="$emit('update-framework')"
       @export-document="$emit('export-document')"
       @clone-framework="$emit('clone-framework')"
+      @edit-association="$emit('edit-association', $event)"
+      @delete-association="$emit('delete-association', $event)"
     />
 
     <!-- No Document Loaded -->

@@ -77,6 +77,10 @@ function isMeaningfulTitle(value) {
   return lower !== 'origin node' && lower !== 'destination node';
 }
 
+function isLoadableAssociationUri(uri) {
+  return typeof uri === 'string' && /^https?:\/\//i.test(uri.trim());
+}
+
 /**
  * Find an item in all cached frameworks using centralized registry
  * @param {string} identifier - The item identifier to find
@@ -205,12 +209,33 @@ export function useCrossFrameworkItem(options) {
     return nodeURI.value?.identifier || extractUuidFromUri(nodeURI.value?.uri || '');
   });
 
+  const displayedFrameworkId = computed(() => (
+    contextStore.isViewingDifferentFramework
+      ? (
+        contextStore.viewedDocumentId ||
+        currentDocumentStore.currentDocument?.identifier ||
+        currentDocumentStore.currentDocument?.id ||
+        null
+      )
+      : (
+        contextStore.activeWriteDocumentId ||
+        currentDocumentStore.currentDocument?.identifier ||
+        currentDocumentStore.currentDocument?.id ||
+        null
+      )
+  ));
+
   // Candidate lookup keys for registry/cache resolution
   const lookupCandidates = computed(() => {
     const uri = nodeURI.value?.uri;
     const identifier = itemIdentifier.value;
     const fromUri = extractUuidFromUri(uri || '');
     return [identifier, uri, fromUri].filter(Boolean);
+  });
+
+  const hasNonLoadableUri = computed(() => {
+    const uri = nodeURI.value?.uri;
+    return !!uri && !isLoadableAssociationUri(uri);
   });
 
   const registryItemData = computed(() => {
@@ -221,6 +246,34 @@ export function useCrossFrameworkItem(options) {
           continue;
         }
         return resolved.entity;
+      }
+    }
+
+    return null;
+  });
+
+  const resolvedLocalFrameworkId = computed(() => {
+    const registryItem = registryItemData.value;
+    if (registryItem) {
+      return (
+        registryItem.documentId ||
+        registryItem.CFDocumentURI?.identifier ||
+        contextStore.itemRegistry.get(registryItem.identifier)?.frameworkId ||
+        contextStore.resolveEndpoint(registryItem.uri || registryItem.identifier)?.frameworkId ||
+        null
+      );
+    }
+
+    for (const candidate of lookupCandidates.value) {
+      const resolved = contextStore.resolveEndpoint(candidate);
+      if (!resolved) continue;
+
+      if (resolved.entityType === 'item') {
+        return resolved.frameworkId || null;
+      }
+
+      if (resolved.entityType === 'document') {
+        return resolved.entity.identifier || resolved.frameworkId || null;
       }
     }
 
@@ -268,20 +321,24 @@ export function useCrossFrameworkItem(options) {
 
   // Check if this is a cross-framework reference relative to the viewed framework
   const isCrossFramework = computed(() => {
-    // If we have an item identifier, check if it belongs to the framework being viewed in the tree
-    if (lookupCandidates.value.length > 0) {
-      const displayedFrameworkId = contextStore.isViewingDifferentFramework
-        ? contextStore.viewedDocumentId
-        : contextStore.activeWriteDocumentId;
+    if (!itemIdentifier.value && !nodeURI.value?.uri) {
+      return false;
+    }
 
+    // If we have an item identifier, check if it belongs to the framework being viewed in the tree.
+    if (lookupCandidates.value.length > 0) {
       const cachedResult = findInCachedFrameworks(lookupCandidates.value, contextStore);
-      if (cachedResult && cachedResult.documentId === displayedFrameworkId) {
-        return false;
+      if (cachedResult?.documentId) {
+        return cachedResult.documentId !== displayedFrameworkId.value;
       }
     }
 
     // If we found the item in the current document, it's NOT cross-framework
     if (itemInCurrentDocument.value) return false;
+
+    if (resolvedLocalFrameworkId.value) {
+      return resolvedLocalFrameworkId.value !== displayedFrameworkId.value;
+    }
 
     // If URI is missing but we have an identifier not found locally, still treat as cross-framework.
     if (!nodeURI.value?.uri) {
@@ -296,6 +353,10 @@ export function useCrossFrameworkItem(options) {
     // First check current document
     if (itemInCurrentDocument.value) {
       return itemInCurrentDocument.value;
+    }
+
+    if (hasNonLoadableUri.value) {
+      return null;
     }
 
     if (registryItemData.value && externalItemData.value) {
@@ -333,6 +394,10 @@ export function useCrossFrameworkItem(options) {
     const assoc = toValue(association);
     if (assoc?.associationType === 'exemplar') {
       return nodeURI.value?.uri || 'Unknown URI';
+    }
+
+    if (hasNonLoadableUri.value) {
+      return nodeURI.value?.uri || nodeURI.value?.title || itemIdentifier.value || 'Unknown URI';
     }
 
     // For non-CASE or unknown items, display the URI
@@ -382,6 +447,7 @@ export function useCrossFrameworkItem(options) {
   // The framework title (for badge display)
   const frameworkTitle = computed(() => {
     if (!isCrossFramework.value) return null;
+    if (hasNonLoadableUri.value) return null;
 
     // For non-CASE items, no framework title
     if (!targetTypeInfo.value.isCase) return null;
@@ -461,6 +527,7 @@ export function useCrossFrameworkItem(options) {
 
     // For non-CASE items, don't fetch
     if (!targetTypeInfo.value.isCase) return;
+    if (hasNonLoadableUri.value) return;
 
     // Check cached frameworks/registries first
     const cachedResult = findInCachedFrameworks(lookupCandidates.value, contextStore);
@@ -538,7 +605,7 @@ export function useCrossFrameworkItem(options) {
       fetchError.value = null;
 
       // Load external item if needed
-      if (isCrossFramework.value && !itemInCurrentDocument.value && targetTypeInfo.value.isCase) {
+      if (isCrossFramework.value && !itemInCurrentDocument.value && targetTypeInfo.value.isCase && !hasNonLoadableUri.value) {
         loadExternalItem();
       }
     },

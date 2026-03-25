@@ -67,7 +67,7 @@ const props = defineProps({
     default: () => []
   },
   itemIdentifier: {
-    type: String,
+    type: [String, null],
     default: null
   },
   isReadOnly: {

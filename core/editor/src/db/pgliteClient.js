@@ -1,4 +1,5 @@
 import { logger } from '../utils/logger.js';
+import { live } from '@electric-sql/pglite/live';
 import { PGliteWorker } from '@electric-sql/pglite/worker';
 import { ensureWebLocks } from './webLocksShim.js';
 
@@ -57,6 +58,73 @@ function isCacheValidEntry(entry, serverLastChangeDateTime) {
   return (Date.now() - entry.cachedAt) <= CACHE_MAX_AGE_MS;
 }
 
+function mapAssociationRows(rows) {
+  return rows.map((row) => ({
+    association: parseJsonValue(row.json_data),
+    frameworkId: row.source_document_id,
+    originInDocument: row.origin_in_document === true || row.origin_in_document === 't',
+    destinationInDocument: row.destination_in_document === true || row.destination_in_document === 't',
+  }));
+}
+
+function buildItemAssociationsQuery(itemId, displayedFrameworkId = null, groupId = null) {
+  const params = [itemId];
+  let sql = `
+    SELECT a.json_data, e.source_document_id
+    FROM item_association_edges e
+    JOIN associations a ON a.association_id = e.association_id
+    WHERE e.item_id = $1
+  `;
+
+  if (groupId && groupId !== 'all') {
+    params.push(groupId);
+    sql += ` AND COALESCE(e.group_id, 'default') = $${params.length}`;
+  }
+
+  if (displayedFrameworkId) {
+    params.push(displayedFrameworkId);
+    sql += ` AND NOT (e.association_type = 'isChildOf' AND e.source_document_id = $${params.length})`;
+  }
+
+  return { sql, params };
+}
+
+function buildDocumentAssociationsQuery(documentId, displayedFrameworkId = null, groupId = null) {
+  const params = [documentId];
+  let sql = `
+    SELECT
+      a.json_data,
+      a.document_id AS source_document_id,
+      COALESCE(oi.document_id = $1, false) AS origin_in_document,
+      COALESCE(di.document_id = $1, false) AS destination_in_document
+    FROM associations a
+    LEFT JOIN items oi ON oi.item_id = a.origin_item_id
+    LEFT JOIN items di ON di.item_id = a.destination_item_id
+    WHERE
+      (
+        oi.document_id = $1
+        AND (di.document_id IS NULL OR di.document_id <> $1)
+      )
+      OR
+      (
+        di.document_id = $1
+        AND (oi.document_id IS NULL OR oi.document_id <> $1)
+      )
+  `;
+
+  if (groupId && groupId !== 'all') {
+    params.push(groupId);
+    sql += ` AND COALESCE(a.group_id, 'default') = $${params.length}`;
+  }
+
+  if (displayedFrameworkId) {
+    params.push(displayedFrameworkId);
+    sql += ` AND NOT (a.association_type = 'isChildOf' AND a.document_id = $${params.length})`;
+  }
+
+  return { sql, params };
+}
+
 class PgliteClient {
   constructor() {
     this.worker = null;
@@ -101,8 +169,12 @@ class PgliteClient {
 
     const workerOptions = {
       dataDir: DEFAULT_DATA_DIR,
+      extensions: { live },
       ...options,
     };
+    if (options.extensions) {
+      workerOptions.extensions = { live, ...options.extensions };
+    }
 
     this.pgliteWorkerPromise = PGliteWorker.create(this.ensureWorker(), workerOptions)
       .then(async (pgWorker) => {
@@ -328,32 +400,74 @@ class PgliteClient {
     });
   }
 
+  async runLiveAssociationSubscription(sql, params, onData) {
+    const pgWorker = await this.getPGliteWorker();
+
+    if (pgWorker?.live?.query) {
+      try {
+        const liveQuery = await pgWorker.live.query({
+          query: sql,
+          params,
+          callback: (results) => {
+            onData(mapAssociationRows(getRows(results)));
+          }
+        });
+
+        onData(mapAssociationRows(getRows(liveQuery.initialResults)));
+
+        return {
+          unsubscribe: async () => {
+            try {
+              await liveQuery.unsubscribe();
+            } catch (error) {
+              logger.warn('[PgliteWorker] Failed to unsubscribe live query cleanly:', error);
+            }
+          },
+          refresh: async () => {
+            try {
+              await liveQuery.refresh();
+            } catch (error) {
+              logger.warn('[PgliteWorker] Failed to refresh live query:', error);
+            }
+          }
+        };
+      } catch (error) {
+        logger.warn('[PgliteWorker] Live query subscription failed, falling back to one-shot query:', error);
+      }
+    }
+
+    const rows = getRows(await pgWorker.query(sql, params));
+    onData(mapAssociationRows(rows));
+    return {
+      unsubscribe: async () => {},
+      refresh: async () => {}
+    };
+  }
+
   getItemAssociations(itemId, displayedFrameworkId = null, groupId = null) {
     return this.getPGliteWorker().then(async (pgWorker) => {
-      const params = [itemId];
-      let sql = `
-        SELECT a.json_data, e.source_document_id
-        FROM item_association_edges e
-        JOIN associations a ON a.association_id = e.association_id
-        WHERE e.item_id = $1
-      `;
-
-      if (groupId && groupId !== 'all') {
-        params.push(groupId);
-        sql += ` AND COALESCE(e.group_id, 'default') = $${params.length}`;
-      }
-
-      if (displayedFrameworkId) {
-        params.push(displayedFrameworkId);
-        sql += ` AND NOT (e.association_type = 'isChildOf' AND e.source_document_id = $${params.length})`;
-      }
-
+      const { sql, params } = buildItemAssociationsQuery(itemId, displayedFrameworkId, groupId);
       const rows = getRows(await pgWorker.query(sql, params));
-      return rows.map((row) => ({
-        association: parseJsonValue(row.json_data),
-        frameworkId: row.source_document_id,
-      }));
+      return mapAssociationRows(rows);
     });
+  }
+
+  getDocumentAssociations(documentId, displayedFrameworkId = null, groupId = null) {
+    return this.getPGliteWorker().then(async (pgWorker) => {
+      const { sql, params } = buildDocumentAssociationsQuery(documentId, displayedFrameworkId, groupId);
+      const rows = getRows(await pgWorker.query(sql, params));
+      return mapAssociationRows(rows);
+    });
+  }
+
+  subscribeItemAssociations(itemId, displayedFrameworkId = null, groupId = null, onData = () => {}) {
+    const { sql, params } = buildItemAssociationsQuery(itemId, displayedFrameworkId, groupId);
+    return this.runLiveAssociationSubscription(sql, params, onData);
+  }
+
+  subscribeDocumentAssociations(documentId, displayedFrameworkId = null, groupId = null, onData = () => {}) {
+    const { sql, params } = buildDocumentAssociationsQuery(documentId, displayedFrameworkId, groupId);
+    return this.runLiveAssociationSubscription(sql, params, onData);
   }
 
   searchItems(documentId, query, limit = 1000) {

@@ -36,10 +36,10 @@
             v-for="doc in group.documents"
             :key="doc.identifier"
             :value="doc.identifier"
-            :selected="doc.identifier === currentDoc?.identifier"
-            :style="(doc.identifier === currentDoc?.identifier) ? 'color: blue;' : ''"
+            :selected="doc.identifier === (currentDoc?.identifier || currentDoc?.id)"
+            :style="(doc.identifier === (currentDoc?.identifier || currentDoc?.id)) ? 'color: blue;' : ''"
           >
-            {{ doc.identifier === currentDoc?.identifier ? '** Current Document ** - ' : '' }}
+            {{ doc.identifier === (currentDoc?.identifier || currentDoc?.id) ? '** Current Document ** - ' : '' }}
             {{ doc.title || 'Unknown Name' }} ({{ doc.identifier || 'No Identifier' }})
           </option>
         </optgroup>
@@ -122,16 +122,19 @@ const emit = defineEmits(['viewed-document-changed', 'external-document-requeste
 
 const selectedDoc = ref('');
 
+function getDocumentId(document) {
+  return document?.identifier || document?.id || '';
+}
+
 watch(() => props.currentDoc, (newDoc) => {
-  if (newDoc) {
-    selectedDoc.value = newDoc.identifier;
-  }
+  selectedDoc.value = getDocumentId(newDoc);
 }, { immediate: true });
 
 // NEW: Watch for viewed document changes to update selection
 watch(() => props.viewedDoc, (newViewedDoc) => {
-  if (newViewedDoc && newViewedDoc.identifier) {
-    selectedDoc.value = newViewedDoc.identifier;
+  const viewedDocumentId = getDocumentId(newViewedDoc);
+  if (viewedDocumentId) {
+    selectedDoc.value = viewedDocumentId;
   }
 });
 
@@ -143,7 +146,7 @@ function onDocumentChange() {
     emit('external-document-requested', { side: props.side });
 
     // Reset selection
-    selectedDoc.value = props.currentDoc?.identifier || '';
+    selectedDoc.value = getDocumentId(props.currentDoc);
   } else if (selectedValue) {
     // NEW: Emit 'viewed-document-changed' instead of 'document-changed'
     // This supports the dual framework edit/view separation feature

@@ -536,6 +536,31 @@ describe('useCrossFrameworkItem', () => {
       expect(composable.itemData.value?.identifier).toBe('ext-item-1');
     });
 
+    it('does not fetch non-HTTP(S) URIs and shows the raw URI instead', async () => {
+      const dataUri = 'data:text/plain;base64,SGVsbG8=';
+      const association = createAssociation('item-1', 'ext-item-data', currentDocId, externalDocId, {
+        destURI: {
+          identifier: 'ext-item-data',
+          uri: dataUri,
+          title: 'Inline data item'
+        }
+      });
+
+      composable = useCrossFrameworkItem({
+        association: ref(association),
+        direction: ref('normal')
+      });
+
+      await nextTick();
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      expect(mockFetchExternalItemData).not.toHaveBeenCalled();
+      expect(composable.itemData.value).toBeNull();
+      expect(composable.itemTitle.value).toBe(dataUri);
+      expect(composable.frameworkTitle.value).toBeNull();
+      expect(composable.fetchError.value).toBeNull();
+    });
+
     it('ignores unresolved cached placeholders and still fetches the real external item', async () => {
       mockResolvedEndpoints.set('ext-item-2', {
         entityType: 'item',
@@ -750,7 +775,7 @@ describe('useCrossFrameworkItem', () => {
   });
 
   describe('fallback title handling', () => {
-    it('returns title from association when item not found', async () => {
+    it('shows the raw URI for non-HTTP(S) endpoints even when a title is present', async () => {
       const association = {
         originNodeURI: {
           identifier: 'item-1',
@@ -770,10 +795,10 @@ describe('useCrossFrameworkItem', () => {
 
       await nextTick();
 
-      expect(composable.itemTitle.value).toBe('Destination Item');
+      expect(composable.itemTitle.value).toBe(`/uri/${externalDocId}/non-existent-item`);
     });
 
-    it('handles missing title gracefully', async () => {
+    it('shows the raw URI for non-HTTP(S) endpoints when no title is present', async () => {
       const association = {
         originNodeURI: {
           identifier: 'item-1',
@@ -792,7 +817,7 @@ describe('useCrossFrameworkItem', () => {
 
       await nextTick();
 
-      expect(composable.itemTitle.value).toBe('unknown-item');
+      expect(composable.itemTitle.value).toBe('/uri/unknown-doc/unknown-item');
     });
 
     it('does not stay on Loading after an external fetch fails', async () => {

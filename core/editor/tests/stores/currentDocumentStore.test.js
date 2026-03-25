@@ -450,4 +450,29 @@ describe('CurrentDocumentStore transformCASEItems', () => {
     expect(contextStore.itemRegistry.get('external-1')?.item.fullStatement).toBe('Authoritative External Item');
     expect(contextStore.itemRegistry.get('external-1')?.frameworkId).toBe('external-doc-1');
   });
+
+  it('normalizes document identity when selectDocument receives an id-only document', () => {
+    currentDocumentStore.selectDocument({
+      id: 'doc-1',
+      uri: 'https://example.org/documents/doc-1',
+      title: 'Doc 1',
+      creator: 'Tester',
+      publisher: 'Tester',
+      subjectURI: [],
+      subject: [],
+      language: 'en',
+      version: '1.0',
+      adoptionStatus: 'Draft',
+      statusStartDate: '',
+      statusEndDate: '',
+      lastChangeDateTime: '2024-01-01T00:00:00Z',
+      notes: '',
+      items: []
+    });
+
+    expect(currentDocumentStore.currentDocument?.identifier).toBe('doc-1');
+    expect(currentDocumentStore.currentDocument?.id).toBe('doc-1');
+    expect(contextStore.activeWriteDocumentId).toBe('doc-1');
+    expect(contextStore.documentRegistry.get('doc-1')?.identifier).toBe('doc-1');
+  });
 });

@@ -155,6 +155,23 @@
 
     </div>
 
+    <ItemAssociationsCard
+      :merged-associations="mergedAssociations"
+      :is-processing-associations="isProcessingAssociations"
+      :is-cross-framework-item="false"
+      :association-groups="associationGroups"
+      :item-identifier="document?.identifier"
+      :is-read-only="isReadOnly"
+      :can-edit-item="canManageAssociationActions"
+      :can-manage-association-actions="canManageAssociationActions"
+      :association-actions-read-only="!sessionStore.isAuthenticated"
+      :is-viewing-different-framework="isViewingDifferentFramework"
+      :current-document="document"
+      :show-add-button="false"
+      @edit-association="$emit('edit-association', $event)"
+      @delete-association="$emit('delete-association', $event)"
+    />
+
 
 
     <!-- Comments -->
@@ -181,8 +198,10 @@
 <script setup>
 import { computed } from 'vue';
 import { useDynamicModal } from '../../../composables/useDynamicModal.js';
+import { useDocumentAssociations } from '../../../composables/useDocumentAssociations.js';
 import { editorConfig } from '../../../config/editorConfig.js';
 import CommentModule from '../CommentModule.vue';
+import ItemAssociationsCard from './ItemAssociationsCard.vue';
 import docIcon from '@/assets/icons/ph/graph-fill.svg';
 
 const props = defineProps({
@@ -205,12 +224,20 @@ import { useCurrentDocumentStore } from '../../../stores/currentDocumentStore';
 import { useEditorContextStore } from '../../../stores/editorContextStore';
 
 const sessionStore = useSessionStore();
+const contextStore = useEditorContextStore();
 const isReadOnly = computed(() => props.isViewingDifferentFramework || props.document?.isReadOnly || !sessionStore.isAuthenticated);
 const commentsEnabled = editorConfig.features.comments;
 
 // Get license name from definitions
 const currentDocumentStore = useCurrentDocumentStore();
-const contextStore = useEditorContextStore();
+
+const {
+  mergedAssociations,
+  isProcessingAssociations,
+} = useDocumentAssociations({
+  document: computed(() => props.document),
+});
+
 const licenseName = computed(() => {
   if (!props.document?.licenseURI?.identifier) {
     return null;
@@ -231,6 +258,19 @@ const licenseName = computed(() => {
   return props.document.licenseURI.uri || props.document.licenseURI.identifier;
 });
 
+const canManageAssociationActions = computed(() => {
+  if (!sessionStore.isAuthenticated) return false;
+
+  const activeDocumentId =
+    contextStore.activeWriteDocumentId ||
+    currentDocumentStore.currentDocument?.identifier ||
+    currentDocumentStore.currentDocument?.id ||
+    null;
+
+  if (!activeDocumentId) return false;
+  return contextStore.isEditable(activeDocumentId);
+});
+
 const emit = defineEmits([
   'edit-document',
   'delete-document',
@@ -238,7 +278,9 @@ const emit = defineEmits([
   'manage-association-groups',
   'update-framework',
   'export-document',
-  'clone-framework'
+  'clone-framework',
+  'edit-association',
+  'delete-association',
 ]);
 
 const availableTypes = ['general', 'assessment', 'course', 'credential', 'job', 'organization', 'public_key', 'identifier'];

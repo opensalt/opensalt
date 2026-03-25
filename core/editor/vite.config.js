@@ -17,6 +17,11 @@ export default defineConfig({
   ],
   optimizeDeps: {
     exclude: ['@electric-sql/pglite'],
+    esbuildOptions: {
+      // Avoid remote source-map lookups from prebundled deps (for example
+      // markdown-it -> entities) that get blocked by the app CSP in dev.
+      sourcemap: false,
+    },
   },
   resolve: {
     alias: {
@@ -33,6 +38,9 @@ export default defineConfig({
       'Cross-Origin-Opener-Policy': 'same-origin',
       'Cross-Origin-Embedder-Policy': 'credentialless',
     },
+  },
+  worker: {
+    format: 'es',
   },
   build: {
     manifest: true,

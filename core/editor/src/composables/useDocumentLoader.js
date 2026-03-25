@@ -42,6 +42,18 @@ export function useDocumentLoader(options = {}) {
   // Available documents list
   const availableDocuments = computed(() => documentStore.documents);
 
+  function isCurrentDocumentLoaded(documentId) {
+    if (!documentId) return false;
+    const currentId =
+      currentDocumentStore.currentDocument?.identifier ||
+      currentDocumentStore.currentDocument?.id ||
+      null;
+
+    if (currentId !== documentId) return false;
+
+    return Array.isArray(currentDocumentStore.currentDocument?.items);
+  }
+
   /**
    * Transform CASE document data into format expected by application
    * @param {Object} docData - The raw document data from the API
@@ -106,6 +118,10 @@ export function useDocumentLoader(options = {}) {
    */
   async function loadDocument(documentId) {
     if (!documentId) return null;
+
+    if (isCurrentDocumentLoaded(documentId)) {
+      return currentDocumentStore.currentDocument;
+    }
 
     console.log('[useDocumentLoader] loadDocument called with documentId:', documentId);
 
@@ -225,6 +241,9 @@ export function useDocumentLoader(options = {}) {
       const frameworkId = route.params.frameworkId;
 
       if (frameworkId) {
+        if (isCurrentDocumentLoaded(frameworkId)) {
+          return;
+        }
         await loadDocument(frameworkId);
       } else if (!currentDocumentStore.currentDocument || Object.keys(currentDocumentStore.currentDocument).length === 0) {
         await documentStore.fetchDocuments();

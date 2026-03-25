@@ -14,7 +14,7 @@
         ></span>
       </h6>
       <button
-        v-if="!isReadOnly"
+        v-if="showAddButton && !isReadOnly"
         type="button"
         class="btn btn-sm btn-outline-primary"
         @click="$emit('add-association')"
@@ -44,6 +44,12 @@
         <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
         <span class="text-muted">Loading associations...</span>
       </div>
+      <div
+        v-else-if="!isProcessingAssociations && mergedAssociations.length === 0"
+        class="text-muted py-2"
+      >
+        No associations to display.
+      </div>
 
       <AssociationGroupDisplay
         v-for="group in mergedAssociations"
@@ -53,8 +59,8 @@
         :association-groups="associationGroups"
         :direction="group.direction"
         :item-identifier="itemIdentifier"
-        :is-read-only="isReadOnly"
-        @edit-association="canEditItem ? $emit('edit-association', $event) : null"
+        :is-read-only="associationActionsReadOnly === true"
+        @edit-association="$emit('edit-association', $event)"
         @delete-association="$emit('delete-association', $event)"
       />
     </div>
@@ -69,11 +75,14 @@ const props = defineProps({
   isProcessingAssociations: { type: Boolean, default: false },
   isCrossFrameworkItem: { type: Boolean, default: false },
   associationGroups: { type: Array, default: () => [] },
-  itemIdentifier: { type: String, default: null },
+  itemIdentifier: { type: [String, null], default: null },
   isReadOnly: { type: Boolean, default: false },
   canEditItem: { type: Boolean, default: false },
+  canManageAssociationActions: { type: Boolean, default: false },
+  associationActionsReadOnly: { type: Boolean, default: undefined },
   isViewingDifferentFramework: { type: Boolean, default: false },
   currentDocument: { type: Object, default: null },
+  showAddButton: { type: Boolean, default: true },
 });
 
 defineEmits(['add-association', 'edit-association', 'delete-association']);

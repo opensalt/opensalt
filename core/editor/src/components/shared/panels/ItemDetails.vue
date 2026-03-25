@@ -53,10 +53,12 @@
       :item-identifier="item.identifier"
       :is-read-only="isReadOnly"
       :can-edit-item="canEditItem"
+      :can-manage-association-actions="canManageAssociationActions"
+      :association-actions-read-only="!sessionStore.isAuthenticated"
       :is-viewing-different-framework="isViewingDifferentFramework"
       :current-document="currentDocument"
       @add-association="$emit('add-association', item)"
-      @edit-association="canEditItem ? $emit('edit-association', $event) : null"
+      @edit-association="$emit('edit-association', $event)"
       @delete-association="$emit('delete-association', $event)"
     />
 
@@ -192,6 +194,19 @@ const canEditItem = computed(() => {
   if (!props.item) return false;
   const result = contextStore.isEditable(props.item.identifier);
   return result;
+});
+
+const canManageAssociationActions = computed(() => {
+  if (!sessionStore.isAuthenticated) return false;
+
+  const activeDocumentId =
+    contextStore.activeWriteDocumentId ||
+    props.currentDocument?.identifier ||
+    props.currentDocument?.id ||
+    null;
+
+  if (!activeDocumentId) return false;
+  return contextStore.isEditable(activeDocumentId);
 });
 
 const isViewingDifferentFramework = computed(() => contextStore.isViewingDifferentFramework);
