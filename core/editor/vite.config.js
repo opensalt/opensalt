@@ -1,12 +1,33 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import tsconfigPaths from 'vite-tsconfig-paths';
 import path from 'path';
+
+const manualChunkGroups = [
+  ['vendor-vue', ['vue', 'vue-router', 'pinia']],
+  ['vendor-bootstrap', ['bootstrap']],
+  ['vendor-markdown', ['markdown-it', 'markdown-it-underline', 'sanitize-html']],
+  ['vendor-katex', ['katex', '@vscode/markdown-it-katex']],
+  ['vendor-editor', ['easymde']],
+  ['vendor-tables', ['datatables.net', 'datatables.net-bs5']],
+];
+
+function manualChunks(id) {
+  if (!id.includes('node_modules')) {
+    return undefined;
+  }
+
+  for (const [chunkName, packages] of manualChunkGroups) {
+    if (packages.some((pkg) => id.includes(`/node_modules/${pkg}/`))) {
+      return chunkName;
+    }
+  }
+
+  return undefined;
+}
 
 export default defineConfig({
   base: '/editor/',
   plugins: [
-    tsconfigPaths(),
     vue({
       template: {
         compilerOptions: {
@@ -27,6 +48,7 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
+    tsconfigPaths: true
   },
   server: {
     port: 5173,
@@ -47,14 +69,7 @@ export default defineConfig({
     rollupOptions: {
       input: 'src/main.js',
       output: {
-        manualChunks: {
-          'vendor-vue': ['vue', 'vue-router', 'pinia'],
-          'vendor-bootstrap': ['bootstrap'],
-          'vendor-markdown': ['markdown-it', 'markdown-it-underline', 'sanitize-html'],
-          'vendor-katex': ['katex', '@vscode/markdown-it-katex'],
-          'vendor-editor': ['easymde'],
-          'vendor-tables': ['datatables.net', 'datatables.net-bs5'],
-        }
+        manualChunks,
       }
     }
   }
