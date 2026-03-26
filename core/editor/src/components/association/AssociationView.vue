@@ -82,7 +82,7 @@
           <AssociationTableView
             :associations="paginatedAssociations"
             :association-groups="associationGroups"
-            :is-read-only="false"
+            :is-read-only="associationActionsReadOnly"
             @edit-association="editAssoc"
             @delete-association="deleteAssoc"
           />
@@ -151,6 +151,7 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useDocumentStore } from '../../stores/documentStore';
 import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
 import { useEditorContextStore } from '../../stores/editorContextStore';
+import { useSessionStore } from '../../stores/sessionStore';
 import { localFrameworkDb } from '../../services/localFrameworkDb.js';
 import { logger } from '../../utils/logger.js';
 import AssociationTableView from './AssociationTableView.vue';
@@ -160,6 +161,7 @@ import DeleteAssociationModal from './DeleteAssociationModal.vue';
 const documentStore = useDocumentStore();
 const currentDocumentStore = useCurrentDocumentStore();
 const contextStore = useEditorContextStore();
+const sessionStore = useSessionStore();
 
 // Modal state
 const showEditAssociationModal = ref(false);
@@ -175,6 +177,7 @@ const error = computed(() => documentStore.error);
 const currentDocument = computed(() => currentDocumentStore.currentDocument);
 const associationGroups = computed(() => currentDocumentStore.associationGroups);
 const dbAssociations = ref([]);
+const associationActionsReadOnly = computed(() => !sessionStore.isAuthenticated);
 
 function collectCurrentItemIds() {
   const currentDocId = currentDocumentStore.currentDocument?.identifier;
