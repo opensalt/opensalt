@@ -1,8 +1,10 @@
 
 import underline from 'markdown-it-underline';
-import mk from '@vscode/markdown-it-katex';
+import mkModule from '@vscode/markdown-it-katex';
 import markdown from 'markdown-it';
 // import sanitizeHtml from 'sanitize-html';
+
+const mk = mkModule?.default || mkModule;
 
 const render = (function () {
     const

@@ -93,7 +93,7 @@ export const useEditorContextStore = defineStore('editorContext', () => {
     /**
      * Load a full framework package and populate registries
      */
-    async function loadPackage(id: UUID): Promise<CFPackage> {
+    async function loadPackage(id: UUID, options: { suppressNotFound?: boolean } = {}): Promise<CFPackage> {
         try {
             const pkg = await api.get(`/ims/case/v1p1/CFPackages/${id}`) as CFPackage;
             if (!pkg) throw new Error(`Package ${id} is null`);
@@ -128,6 +128,10 @@ export const useEditorContextStore = defineStore('editorContext', () => {
             touchRegistry();
             return pkg;
         } catch (err) {
+            if (options.suppressNotFound && (err as { status?: number })?.status === 404) {
+                logger.debug(`[loadPackage] Package ${id} was not found during external lookup`);
+                throw err;
+            }
             logger.error(`Failed to load package ${id}:`, err);
             throw err;
         }
@@ -508,7 +512,7 @@ export const useEditorContextStore = defineStore('editorContext', () => {
             for (const candidate of uniqueCandidates) {
                 // If this candidate is a document/package id, this will warm registries.
                 try {
-                    const pkg = await loadPackage(candidate as UUID);
+                    const pkg = await loadPackage(candidate as UUID, { suppressNotFound: true });
                     if (pkg?.CFDocument) {
                         return { item: pkg.CFDocument, isPackage: true };
                     }
@@ -530,8 +534,14 @@ export const useEditorContextStore = defineStore('editorContext', () => {
                 }
             }
 
-            throw new Error(`Failed to fetch external item data for ${uri}`);
+            const notFoundError = new Error(`Failed to fetch external item data for ${uri}`) as Error & { status?: number };
+            notFoundError.status = 404;
+            throw notFoundError;
         } catch (err) {
+            if ((err as { status?: number })?.status === 404) {
+                logger.debug(`External item data was not found for ${uri}`);
+                return null;
+            }
             logger.error(`Failed to fetch external item data for ${uri}:`, err);
             return null;
         }

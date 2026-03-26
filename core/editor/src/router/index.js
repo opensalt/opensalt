@@ -38,11 +38,7 @@ const router = createRouter({
   }
 });
 
-// Navigation guard for route validation
-router.beforeEach((to, from, next) => {
-  // Add any global route guards here
-  // For example: authentication checks, analytics tracking, etc.
-  next();
-});
+// Navigation guard placeholder for future app-wide checks.
+router.beforeEach(() => true);
 
 export default router;

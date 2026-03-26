@@ -1,8 +1,10 @@
 
 import MarkdownIt from 'markdown-it';
-import markdownItKatex from '@vscode/markdown-it-katex';
+import markdownItKatexModule from '@vscode/markdown-it-katex';
 import markdownItUnderline from 'markdown-it-underline';
 // import sanitizeHtml from 'sanitize-html';
+
+const markdownItKatex = markdownItKatexModule?.default || markdownItKatexModule;
 
 // Configure markdown-it with plugins
 const md = new MarkdownIt({

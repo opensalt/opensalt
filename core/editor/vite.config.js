@@ -54,7 +54,7 @@ export default defineConfig({
     port: 5173,
     allowedHosts: true,
     hmr: {
-      path: '/editor/@vite-hmr',
+      path: '/@vite-hmr',
     },
     headers: {
       'Cross-Origin-Opener-Policy': 'same-origin',

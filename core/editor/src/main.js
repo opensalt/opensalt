@@ -3,6 +3,8 @@ import { createPinia, setActivePinia } from 'pinia';
 import App from './App.vue';
 import router from './router/index.js';
 import { localFrameworkDb } from './services/localFrameworkDb.js';
+import { useDocumentStore } from './stores/documentStore.ts';
+import { useCurrentDocumentStore } from './stores/currentDocumentStore.ts';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import 'katex/dist/katex.min.css';
@@ -14,17 +16,9 @@ setActivePinia(pinia);
 
 void localFrameworkDb.initialize();
 
-app.use(pinia);
-app.use(router);
-
-// Initialize router guards after Pinia is set up
-import { useDocumentStore } from './stores/documentStore.ts';
-import { useCurrentDocumentStore } from './stores/currentDocumentStore.ts';
-
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to) => {
   if (to.name === 'DbReplView') {
-    next();
-    return;
+    return true;
   }
 
   const documentStore = useDocumentStore(pinia);
@@ -39,8 +33,7 @@ router.beforeEach(async (to, from, next) => {
   // If no frameworkId and at root, load first document if available
   if (!frameworkId && to.path === '/') {
     if (documentStore.documents.length > 0) {
-      next(`/${documentStore.documents[0].id}`);
-      return;
+      return `/${documentStore.documents[0].id}`;
     }
   }
 
@@ -82,12 +75,14 @@ router.beforeEach(async (to, from, next) => {
     } catch (error) {
       console.error('Failed to load framework:', error);
       // Redirect to root or error page
-      next('/');
-      return;
+      return '/';
     }
   }
 
-  next();
+  return true;
 });
+
+app.use(pinia);
+app.use(router);
 
 app.mount('#app');
