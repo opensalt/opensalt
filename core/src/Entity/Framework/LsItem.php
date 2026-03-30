@@ -167,6 +167,12 @@ class LsItem implements CaseApiInterface, LockableInterface, ItemTypeInterface
     #[ORM\OneToMany(targetEntity: CfRubricCriterion::class, mappedBy: 'item')]
     private Collection $criteria;
 
+    /**
+     * @var Collection<array-key, \App\VectorSearch\Entity\LsItemEmbedding>
+     */
+    #[ORM\OneToMany(targetEntity: \App\VectorSearch\Entity\LsItemEmbedding::class, mappedBy: 'lsItem', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $embeddings;
+
     public function __construct(UuidInterface|string|null $identifier = null)
     {
         $this->setIdentifierOrNew($identifier);
@@ -179,6 +185,7 @@ class LsItem implements CaseApiInterface, LockableInterface, ItemTypeInterface
         $this->criteria = new ArrayCollection();
         $this->concepts = new ArrayCollection();
         $this->subjects = new ArrayCollection();
+        $this->embeddings = new ArrayCollection();
     }
 
     /**
@@ -1068,6 +1075,42 @@ class LsItem implements CaseApiInterface, LockableInterface, ItemTypeInterface
     public function addSubject(LsDefSubject $subject): static
     {
         $this->subjects[] = $subject;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<array-key, \App\VectorSearch\Entity\LsItemEmbedding>
+     */
+    public function getEmbeddings(): Collection
+    {
+        return $this->embeddings;
+    }
+
+    /**
+     * @psalm-param ?iterable<array-key, \App\VectorSearch\Entity\LsItemEmbedding> $embeddings
+     */
+    public function setEmbeddings(?iterable $embeddings): static
+    {
+        $this->embeddings = new ArrayCollection();
+
+        if (null === $embeddings) {
+            return $this;
+        }
+
+        foreach ($embeddings as $embedding) {
+            $this->addEmbedding($embedding);
+        }
+
+        return $this;
+    }
+
+    public function addEmbedding(\App\VectorSearch\Entity\LsItemEmbedding $embedding): static
+    {
+        if (!$this->embeddings->contains($embedding)) {
+            $this->embeddings[] = $embedding;
+            $embedding->setLsItem($this);
+        }
 
         return $this;
     }

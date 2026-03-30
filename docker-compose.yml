@@ -34,7 +34,8 @@ services:
         condition: service_healthy
     environment:
       APP_ENV: "${APP_ENV:-prod}"
-      APP_RUNTIME: "${APP_RUNTIME:-Runtime\\FrankenPhpSymfony\\Runtime}"
+      #APP_RUNTIME: "${APP_RUNTIME:-Symfony\\Component\\Runtime\\Runner\\FrankenPhpWorkerRunner}"
+      APP_RUNTIME: "${APP_RUNTIME:-Symfony\\Component\\Runtime\\SymfonyRuntime}"
       SERVER_NAME: ${SERVER_NAME:-localhost}, :80
       DEFAULT_URI: http://web
       MYSQL_DATABASE:

@@ -41,7 +41,7 @@ class FrameworkTypeRepository extends ServiceEntityRepository
 
         // Sort alphabetically by framework type name
         $distinctTypes = array_values($typesByLowerKey);
-        usort($distinctTypes, fn ($a, $b) => strcasecmp($a->getFrameworkType() ?? '', $b->getFrameworkType() ?? '')
+        usort($distinctTypes, fn ($a, $b) => strcasecmp($a->getFrameworkType(), $b->getFrameworkType())
         );
 
         return $distinctTypes;

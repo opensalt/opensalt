@@ -10,7 +10,6 @@ use App\Command\Framework\DeleteAssociationCommand;
 use App\Command\Framework\UpdateAssociationCommand;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
-use App\Repository\Framework\LsAssociationRepository;
 use App\Security\Permission;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,11 +23,6 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class AssociationController extends AbstractController
 {
     use CommandDispatcherTrait;
-
-    public function __construct(
-        private readonly LsAssociationRepository $associationRepository,
-    ) {
-    }
 
     #[Route(path: '/association/new/{identifier}', name: 'editor_association_new', methods: ['POST'])]
     #[IsGranted(Permission::ASSOCIATION_ADD_TO, 'lsDoc')]

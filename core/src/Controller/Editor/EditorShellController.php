@@ -97,9 +97,9 @@ final class EditorShellController extends AbstractController
     /**
      * @param array<string, mixed> $manifest
      * @param array<string, mixed> $entryData
-     * @param array<string, array<string, mixed>> $imports
+     * @param array<string, array<mixed>> $imports
      *
-     * @return array<string, array<string, mixed>>
+     * @return array<string, array<mixed>>
      */
     private function collectImports(array $manifest, array $entryData, array &$imports = []): array
     {

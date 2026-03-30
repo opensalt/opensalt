@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Vector Search Item Detail{% endblock %}
+
+{% block body %}
+<div class="container">
+    {{ include('vector_search/_nav.html.twig') }}
+
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="mt-5">
+                <h2>Item Detail</h2>
+                <p class="text-muted">Indexed embeddings: {{ vectorCount }}</p>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title">{{ item.humanCodingScheme ?: 'Item #' ~ item.id }}</h5>
+                    <p class="mb-2">{{ item.fullStatement }}</p>
+                    <div class="mb-2">
+                        {% set kindLabel = 'Default' %}
+                        {% for kindName, kindValue in kinds %}
+                            {% if kindValue == item.discriminator %}
+                                {% set kindLabel = kindName|replace({'_': ' '})|capitalize %}
+                            {% endif %}
+                        {% endfor %}
+                        <span class="badge text-bg-info">{{ kindLabel }}</span>
+                        {% if embedding and embedding.isLeafNode %}
+                            <span class="badge text-bg-success">Leaf node embedding</span>
+                        {% endif %}
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a class="btn btn-sm btn-outline-secondary" href="{{ path('admin_vector_search_near_object_item', {itemId: item.id}) }}">Near Search</a>
+                        <a class="btn btn-sm btn-outline-primary" href="{{ nearTextUrl }}">Near Text</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8 overflow-auto vh-100 pt-5 pb-5">
+            {{ include('vector_search/_table.html.twig', {data: itemData}) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

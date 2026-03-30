@@ -1,6 +1,9 @@
 /.env
 /docker/db
 
+/core/config/reference.php
+docker-compose.override.yml
+
 #Temporary files
 .*.sw?
 ~*

@@ -60,6 +60,10 @@ doctrine:
                         dir: "%kernel.project_dir%/vendor/gedmo/doctrine-extensions/src/Tree/Entity"
                         #alias: GedmoTree # (optional) it will default to the name set for the mapping
                         is_bundle: false
+                    VectorSearch:
+                        prefix: App\VectorSearch\Entity
+                        dir: "%kernel.project_dir%/src/VectorSearch/Entity"
+                        is_bundle: false
 
 #when@test:
 #    doctrine:

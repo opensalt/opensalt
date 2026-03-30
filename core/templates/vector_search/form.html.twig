@@ -1,0 +1,80 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block body %}
+<div class="container">
+    {{ include('vector_search/_nav.html.twig') }}
+
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="mt-5">
+                <h2>{{ title }}</h2>
+                <p class="text-muted">Indexed embeddings: {{ vectorCount }}</p>
+            </div>
+
+            {% if sourceItem is defined and sourceItem %}
+                <div class="alert alert-secondary mt-4">
+                    <div><strong>Source Item:</strong> {{ sourceItem.humanCodingScheme ?: 'Item #' ~ sourceItem.id }}</div>
+                    <div class="small">{{ sourceItem.fullStatement }}</div>
+                </div>
+            {% endif %}
+
+            {% if warning is defined and warning %}
+                <div class="alert alert-warning mt-4">{{ warning }}</div>
+            {% endif %}
+
+            {% if currentFilters is defined and (currentFilters.frameworkId or currentFilters.leafOnly or currentFilters.kind is not null) %}
+                <div class="alert alert-light border mt-4">
+                    <div><strong>Active Filters</strong></div>
+                    <div class="small text-muted">
+                        Framework:
+                        {% if currentFilters.frameworkId %}
+                            #{{ currentFilters.frameworkId }}
+                        {% else %}
+                            All frameworks
+                        {% endif %}
+                    </div>
+                    <div class="small text-muted">
+                        Leaf nodes only:
+                        {{ currentFilters.leafOnly ? 'Yes' : 'No' }}
+                    </div>
+                    <div class="small text-muted">
+                        Kind:
+                        {% if currentFilters.kind is not null and kinds is defined %}
+                            {% for kindName, kindValue in kinds %}
+                                {% if kindValue == currentFilters.kind %}
+                                    {{ kindName|replace({'_': ' '})|capitalize }}
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            All kinds
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="mt-4">
+                {{ form(form) }}
+            </div>
+        </div>
+
+        <div class="col-lg-8 overflow-auto vh-100 pt-5 pb-5">
+            {% if results is defined and results is not empty %}
+                {% for result in results %}
+                    <h4>Result #{{ loop.index }}</h4>
+                    {{ include('vector_search/_result.html.twig', {
+                        result: result,
+                        currentFilters: currentFilters|default({frameworkId: null, leafOnly: false, kind: null}),
+                        kinds: kinds|default({})
+                    }) }}
+                {% endfor %}
+            {% elseif form.vars.submitted %}
+                <div class="alert alert-info">No results found.</div>
+            {% else %}
+                <div class="alert alert-info">Submit the form to run this search.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

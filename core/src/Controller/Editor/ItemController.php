@@ -143,28 +143,26 @@ class ItemController extends AbstractController
         // If itemType is provided, try to use specialized DTO
         if (null !== $itemType) {
             $kind = LsItemKind::tryFromName($itemType);
-            if (null !== $kind) {
-                $dtoClass = $kind->dto();
-                if (LsItem::class !== $dtoClass) {
-                    $dto = $dtoClass::fromItem($lsItem);
-                    // Use simple property mapping for now, or mimic form handling
-                    // For now, let's just use applyToItem if we can populate the DTO
-                    // This is a bit complex without the full form system,
-                    // but we can manually set properties on the DTO.
+            $dtoClass = $kind->dto();
+            if (LsItem::class !== $dtoClass) {
+                $dto = $dtoClass::fromItem($lsItem);
+                // Use simple property mapping for now, or mimic form handling
+                // For now, let's just use applyToItem if we can populate the DTO
+                // This is a bit complex without the full form system,
+                // but we can manually set properties on the DTO.
 
-                    // Simple property mapper for the DTO
-                    foreach ($data as $key => $value) {
-                        if (property_exists($dto, $key)) {
-                            $dto->$key = $value;
-                        }
+                // Simple property mapper for the DTO
+                foreach ($data as $key => $value) {
+                    if (property_exists($dto, $key)) {
+                        $dto->$key = $value;
                     }
+                }
 
-                    if ($dto instanceof ItemTypeInterface) {
-                        $lsItem->setDiscriminator($dto::ITEM_TYPE_IDENTIFIER);
-                        $dto->applyToItem($lsItem, $this->htmlSanitizer);
+                if ($dto instanceof ItemTypeInterface) {
+                    $lsItem->setDiscriminator($dto::ITEM_TYPE_IDENTIFIER);
+                    $dto->applyToItem($lsItem, $this->htmlSanitizer);
 
-                        return;
-                    }
+                    return;
                 }
             }
         }

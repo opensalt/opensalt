@@ -44,7 +44,7 @@ final readonly class SessionAuthenticator implements AuthenticatorInterface
      * and no Authorization header with a Bearer token is present.
      */
     #[\Override]
-    public function supports(Request $request): ?bool
+    public function supports(Request $request): bool
     {
         // If there's an Authorization header with a Bearer token, let the
         // access_token handler handle it

@@ -63,7 +63,7 @@ class LsDocRepository extends ServiceEntityRepository
         if (null !== $user) {
             if (!$this->security->isGranted(Permission::FRAMEWORK_EDIT_ALL)) {
                 $isEditor = $this->security->isGranted('ROLE_EDITOR');
-                $qb->leftJoin('d.docAcls', 'acls', 'ON', 'acls.user = :user')
+                $qb->leftJoin('d.docAcls', 'acls', 'WITH', 'acls.user = :user')
                     ->orWhere('(m.visible IS NULL OR m.visible = 1) AND (d.adoptionStatus != :privateDraft)')
                     ->orWhere('(m.visible IS NOT NULL AND 1 = :isEditor)')
                     ->orWhere('(d.org = :org OR d.user = :user OR acls.access = 1) AND (acls.access IS NULL OR acls.access != 0)')
@@ -1186,9 +1186,9 @@ xENDx;
         //   WHERE i2.ls_doc_id = :docId
         $qb = $this->createQueryBuilder('d')
             ->select('DISTINCT d.id')
-            ->join(LsItem::class, 'i', 'ON', 'i.lsDoc = d')
-            ->join(LsAssociation::class, 'a', 'ON', 'a.destinationLsItem = i')
-            ->join(LsItem::class, 'i2', 'ON', 'a.originLsItem = i2')
+            ->join(LsItem::class, 'i', 'WITH', 'i.lsDoc = d')
+            ->join(LsAssociation::class, 'a', 'WITH', 'a.destinationLsItem = i')
+            ->join(LsItem::class, 'i2', 'WITH', 'a.originLsItem = i2')
             ->where('i2.lsDoc = :docId')
             ->setParameter('docId', $docId);
         $this->addAclConditions($qb, $user);
@@ -1208,9 +1208,9 @@ xENDx;
         //   WHERE i2.ls_doc_id = :docId
         $qb = $this->createQueryBuilder('d')
             ->select('DISTINCT d.id')
-            ->join(LsItem::class, 'i', 'ON', 'i.lsDoc = d')
-            ->join(LsAssociation::class, 'a', 'ON', 'a.originLsItem = i')
-            ->join(LsItem::class, 'i2', 'ON', 'a.destinationLsItem = i2')
+            ->join(LsItem::class, 'i', 'WITH', 'i.lsDoc = d')
+            ->join(LsAssociation::class, 'a', 'WITH', 'a.originLsItem = i')
+            ->join(LsItem::class, 'i2', 'WITH', 'a.destinationLsItem = i2')
             ->where('i2.lsDoc = :docId')
             ->setParameter('docId', $docId);
         if (!empty($foundIds)) {
@@ -1231,8 +1231,8 @@ xENDx;
         //   WHERE a.destination_lsdoc_id = :docId
         $qb = $this->createQueryBuilder('d')
             ->select('DISTINCT d.id')
-            ->join(LsItem::class, 'i', 'ON', 'i.lsDoc = d')
-            ->join(LsAssociation::class, 'a', 'ON', 'a.originLsItem = i')
+            ->join(LsItem::class, 'i', 'WITH', 'i.lsDoc = d')
+            ->join(LsAssociation::class, 'a', 'WITH', 'a.originLsItem = i')
             ->where('a.destinationLsDoc = :docId')
             ->setParameter('docId', $docId);
         if (!empty($foundIds)) {
@@ -1253,8 +1253,8 @@ xENDx;
         //   WHERE a.origin_lsdoc_id = :docId
         $qb = $this->createQueryBuilder('d')
             ->select('DISTINCT d.id')
-            ->join(LsItem::class, 'i', 'ON', 'i.lsDoc = d')
-            ->join(LsAssociation::class, 'a', 'ON', 'a.destinationLsItem = i')
+            ->join(LsItem::class, 'i', 'WITH', 'i.lsDoc = d')
+            ->join(LsAssociation::class, 'a', 'WITH', 'a.destinationLsItem = i')
             ->where('a.originLsDoc = :docId')
             ->setParameter('docId', $docId);
         if (!empty($foundIds)) {
@@ -1275,8 +1275,8 @@ xENDx;
         //   WHERE i.ls_doc_id = :docId
         $qb = $this->createQueryBuilder('d')
             ->select('DISTINCT d.id')
-            ->join(LsAssociation::class, 'a', 'ON', 'a.lsDoc = d')
-            ->join(LsItem::class, 'i', 'ON', 'a.destinationLsItem = i')
+            ->join(LsAssociation::class, 'a', 'WITH', 'a.lsDoc = d')
+            ->join(LsItem::class, 'i', 'WITH', 'a.destinationLsItem = i')
             ->where('i.lsDoc = :docId')
             ->setParameter('docId', $docId);
         if (!empty($foundIds)) {
@@ -1297,8 +1297,8 @@ xENDx;
         //   WHERE i.ls_doc_id = :docId
         $qb = $this->createQueryBuilder('d')
             ->select('DISTINCT d.id')
-            ->join(LsAssociation::class, 'a', 'ON', 'a.lsDoc = d')
-            ->join(LsItem::class, 'i', 'ON', 'a.originLsItem = i')
+            ->join(LsAssociation::class, 'a', 'WITH', 'a.lsDoc = d')
+            ->join(LsItem::class, 'i', 'WITH', 'a.originLsItem = i')
             ->where('i.lsDoc = :docId')
             ->setParameter('docId', $docId);
         if (!empty($foundIds)) {
