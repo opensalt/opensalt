@@ -63,6 +63,7 @@
         "ext-json": "*",
         "ext-mbstring": "*",
         "ext-random": "*",
+        "codewithkyrian/transformers": "^0.6.2",
         "colinodell/json5": "^3.0",
         "composer/package-versions-deprecated": "^1.11",
         "doctrine/doctrine-bundle": "^3.0",
@@ -92,7 +93,7 @@
         "nelmio/api-doc-bundle": "^5.5",
         "nelmio/cors-bundle": "^2.0",
         "nelmio/security-bundle": "^3.0",
-        "novaway/feature-flag-bundle": "dev-symfony-7.2",
+        "novaway/feature-flag-bundle": "dev-symfony-8.0",
         "pentatrion/vite-bundle": "^8.0",
         "phpdocumentor/reflection-docblock": "^5.2",
         "phpoffice/phpspreadsheet": "^5.0",
@@ -100,8 +101,7 @@
         "ramsey/uuid": "^4.0",
         "ramsey/uuid-doctrine": "^2.0",
         "root23/php-json-canonicalization": "^1.0",
-        "runtime/frankenphp-symfony": "^0.2.0",
-        "scheb/2fa": "^7.0",
+        "scheb/2fa": "^8.0",
         "stof/doctrine-extensions-bundle": "^1.7",
         "swaggest/json-diff": "^3.11",
         "swaggest/json-schema": "^0.12.20",
@@ -118,16 +118,17 @@
         "symfony/intl": "*",
         "symfony/lock": "*",
         "symfony/mailer": "*",
-        "symfony/mercure-bundle": "^0.3",
+        "symfony/mcp-bundle": "^0.6",
+        "symfony/mercure-bundle": "^0.4",
         "symfony/messenger": "*",
         "symfony/mime": "*",
-        "symfony/monolog-bundle": "^3.3",
+        "symfony/monolog-bundle": "^4.0",
         "symfony/object-mapper": "*",
         "symfony/process": "*",
         "symfony/property-access": "*",
         "symfony/property-info": "*",
-        "symfony/proxy-manager-bridge": "*",
         "symfony/rate-limiter": "*",
+        "symfony/runtime": "*",
         "symfony/scheduler": "*",
         "symfony/security-bundle": "*",
         "symfony/security-csrf": "*",
@@ -158,7 +159,7 @@
         "codeception/codeception": "^5.0",
         "codeception/module-asserts": "^3.0",
         "codeception/module-doctrine": "^3.0",
-        "codeception/module-phpbrowser": "^3.0",
+        "codeception/module-phpbrowser": "^4.0",
         "codeception/module-rest": "^3.0",
         "softcreatr/jsonpath": "dev-main as 0.10.1",
         "codeception/module-sequence": "dev-php-8.4",
@@ -182,13 +183,9 @@
     },
     "replace": {
         "paragonie/random_compat": "2.*",
-        "symfony/polyfill-ctype": "*",
-        "symfony/polyfill-iconv": "*",
         "symfony/polyfill-intl-grapheme": "*",
         "symfony/polyfill-intl-icu": "*",
         "symfony/polyfill-intl-idn": "*",
-        "symfony/polyfill-intl-normalizer": "*",
-        "symfony/polyfill-mbstring": "*",
         "symfony/polyfill-php84": "*",
         "symfony/polyfill-php83": "*",
         "symfony/polyfill-php82": "*",
@@ -229,7 +226,9 @@
         },
         "sort-packages": true,
         "allow-plugins": {
+            "codewithkyrian/platform-package-installer": true,
             "composer/package-versions-deprecated": true,
+            "php-http/discovery": true,
             "symfony/flex": true,
             "symfony/runtime": true
         }
@@ -240,7 +239,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": true,
-            "require": "7.4.*"
+            "require": "8.0.*"
         }
     }
 }

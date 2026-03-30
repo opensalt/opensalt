@@ -206,18 +206,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         return null;
     }
 
-    /**
-     * Removes sensitive data from the user.
-     *
-     * This is important if, at any given point, sensitive information like
-     * the plain-text password is stored on this object.
-     */
-    #[\Override]
-    #[\Deprecated]
-    public function eraseCredentials(): void
-    {
-    }
-
     public function __serialize(): array
     {
         return [
