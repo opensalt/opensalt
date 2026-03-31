@@ -53,6 +53,19 @@ export function useDocumentLoader(options = {}) {
     return Array.isArray(currentDocumentStore.currentDocument?.items);
   }
 
+  async function queueRelatedDocuments(documentId) {
+    if (!documentId) return [];
+
+    console.log('[useDocumentLoader] About to call fetchAndQueueRelatedDocuments for:', documentId);
+    const relatedDocs = await relatedFrameworksQueue.fetchAndQueueRelatedDocuments(documentId);
+    console.log('[useDocumentLoader] fetchAndQueueRelatedDocuments completed');
+
+    relatedFrameworksQueue.startQueue();
+    console.log('[useDocumentLoader] Queue started');
+
+    return relatedDocs;
+  }
+
   /**
    * Transform CASE document data into format expected by application
    * @param {Object} docData - The raw document data from the API
@@ -119,6 +132,7 @@ export function useDocumentLoader(options = {}) {
     if (!documentId) return null;
 
     if (isCurrentDocumentLoaded(documentId)) {
+      await queueRelatedDocuments(documentId);
       return currentDocumentStore.currentDocument;
     }
 
@@ -149,14 +163,7 @@ export function useDocumentLoader(options = {}) {
       onDocumentLoaded(transformedDoc, docData);
     }
 
-    console.log('[useDocumentLoader] About to call fetchAndQueueRelatedDocuments for:', documentId);
-    // Fetch related documents and add to queue
-    await relatedFrameworksQueue.fetchAndQueueRelatedDocuments(documentId);
-    console.log('[useDocumentLoader] fetchAndQueueRelatedDocuments completed');
-
-    // Start queue processing
-    relatedFrameworksQueue.startQueue();
-    console.log('[useDocumentLoader] Queue started');
+    await queueRelatedDocuments(documentId);
 
     return transformedDoc;
   }
@@ -241,6 +248,7 @@ export function useDocumentLoader(options = {}) {
 
       if (frameworkId) {
         if (isCurrentDocumentLoaded(frameworkId)) {
+          await queueRelatedDocuments(frameworkId);
           return;
         }
         await loadDocument(frameworkId);
