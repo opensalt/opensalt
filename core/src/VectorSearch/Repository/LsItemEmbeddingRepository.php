@@ -121,7 +121,7 @@ class LsItemEmbeddingRepository extends ServiceEntityRepository
             ->select(
                 'ls_item_id',
                 'source_hierarchy_updated_at',
-                '(vector IS NOT NULL AND normalized_vector IS NOT NULL AND magnitude IS NOT NULL AND binary_code IS NOT NULL) AS has_vector_data'
+                '(is_indexed = 1 OR (vector IS NOT NULL AND normalized_vector IS NOT NULL AND magnitude IS NOT NULL AND binary_code IS NOT NULL)) AS has_vector_data'
             )
             ->from('ls_item_embedding')
             ->where('ls_item_id IN (:lsItemIds)')

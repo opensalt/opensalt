@@ -7,9 +7,11 @@ namespace App\VectorSearch\Service;
 use App\Entity\Framework\LsItem;
 use App\VectorSearch\Entity\LsItemEmbedding;
 use App\VectorSearch\Repository\LsItemEmbeddingRepository;
+use App\VectorSearch\Store\VectorStoreInterface;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * Service for managing vector search operations.
@@ -22,10 +24,12 @@ readonly class VectorSearchService
 
     public function __construct(
         private EmbeddingService $embeddingService,
-        private VectorTableService $vectorTableService,
+        private VectorStoreInterface $vectorStore,
         private LsItemEmbeddingRepository $embeddingRepository,
         private EntityManagerInterface $entityManager,
         private LoggerInterface $logger,
+        #[Autowire('%env(string:VECTOR_SEARCH_BACKEND)%')]
+        private string $vectorBackend = 'mysql',
     ) {
     }
 
@@ -54,7 +58,9 @@ readonly class VectorSearchService
             $existingEmbedding
         );
 
-        $this->vectorTableService->storeEmbeddingVector($embedding, $vector);
+        $this->vectorStore->storeEmbeddingVector($embedding, $vector);
+        $this->entityManager->flush();
+        $this->vectorStore->finalizeStoredEmbedding($embedding, $vector);
         $this->entityManager->flush();
         if (!$wasCounted) {
             $this->incrementCachedVectorCount(1);
@@ -121,6 +127,8 @@ readonly class VectorSearchService
 
             $batch[] = [
                 'lsItemId' => $lsItemId,
+                'frameworkId' => $frameworkId,
+                'kind' => $this->getFrameworkItemKind($lsItemId, $frameworkGraph),
                 'text' => $this->buildEmbeddingTextFromGraph($lsItemId, $frameworkGraph, $textCache),
                 'isLeafNode' => (bool) $frameworkItem['isLeafNode'],
                 'sourceHierarchyUpdatedAt' => $sourceHierarchyUpdatedAt,
@@ -150,6 +158,47 @@ readonly class VectorSearchService
             'skipped' => $skipped,
             'missing' => $missing,
         ];
+    }
+
+    /**
+     * @param list<int> $lsItemIds
+     * @return list<array{
+     *   lsItemId: int,
+     *   frameworkId: int,
+     *   kind: int,
+     *   text: string,
+     *   isLeafNode: bool,
+     *   sourceHierarchyUpdatedAt: \DateTimeImmutable
+     * }>
+     */
+    public function buildEmbeddingRowsForFramework(int $frameworkId, array $lsItemIds): array
+    {
+        if ([] === $lsItemIds) {
+            return [];
+        }
+
+        $frameworkGraph = $this->loadFrameworkGraph($frameworkId);
+        $textCache = [];
+        $updatedAtCache = [];
+        $rows = [];
+
+        foreach ($lsItemIds as $lsItemId) {
+            $frameworkItem = $frameworkGraph[$lsItemId] ?? null;
+            if (null === $frameworkItem) {
+                continue;
+            }
+
+            $rows[] = [
+                'lsItemId' => $lsItemId,
+                'frameworkId' => $frameworkId,
+                'kind' => $this->getFrameworkItemKind($lsItemId, $frameworkGraph),
+                'text' => $this->buildEmbeddingTextFromGraph($lsItemId, $frameworkGraph, $textCache),
+                'isLeafNode' => (bool) $frameworkItem['isLeafNode'],
+                'sourceHierarchyUpdatedAt' => $this->getSourceHierarchyUpdatedAtFromGraph($lsItemId, $frameworkGraph, $updatedAtCache),
+            ];
+        }
+
+        return $rows;
     }
 
     /**
@@ -193,17 +242,17 @@ readonly class VectorSearchService
         bool $leafOnly = false,
         ?int $kind = null,
     ): array {
-        $vectorResults = $this->vectorTableService->search($vector, $limit, $frameworkId, $leafOnly, $kind);
+        $vectorResults = $this->vectorStore->search($vector, $limit, $frameworkId, $leafOnly, $kind);
 
-        $embeddingIds = array_map(
-            static fn (array $vectorResult): int => (int) $vectorResult['id'],
+        $lsItemIds = array_map(
+            static fn (array $vectorResult): int => (int) $vectorResult['lsItemId'],
             $vectorResults
         );
-        $embeddings = $this->embeddingRepository->findByIdsWithLsItemIndexed($embeddingIds);
+        $embeddings = $this->embeddingRepository->findByLsItemIdsIndexed($lsItemIds);
 
         $results = [];
         foreach ($vectorResults as $vectorResult) {
-            $embedding = $embeddings[(int) $vectorResult['id']] ?? null;
+            $embedding = $embeddings[(int) $vectorResult['lsItemId']] ?? null;
             if (null === $embedding) {
                 continue;
             }
@@ -239,18 +288,17 @@ readonly class VectorSearchService
         ?int $kind = null,
     ): array {
         $embedding = $this->getEmbedding($lsItem);
-        $queryVector = $embedding?->getNormalizedVector();
+        $sourceId = $lsItem->getId();
+        if (null === $embedding || null === $sourceId) {
+            return [];
+        }
 
-        if (null === $embedding || null === $queryVector) {
+        $queryVector = $this->vectorStore->getVectorByLsItemId($sourceId);
+        if (null === $queryVector) {
             return [];
         }
 
         $results = $this->searchByVector($queryVector, $limit + 1, $frameworkId, $leafOnly, $kind);
-
-        $sourceId = $lsItem->getId();
-        if (null === $sourceId) {
-            return array_slice($results, 0, $limit);
-        }
 
         $results = array_values(array_filter(
             $results,
@@ -276,7 +324,12 @@ readonly class VectorSearchService
         }
 
         $wasCounted = $embedding->hasVectorData();
+        $lsItemId = $lsItem->getId();
+        if (null === $lsItemId) {
+            throw new \RuntimeException('Cannot delete a vector embedding for an LsItem without an ID.');
+        }
 
+        $this->vectorStore->deleteByLsItemId($lsItemId);
         $this->entityManager->remove($embedding);
         $this->entityManager->flush();
         if ($wasCounted) {
@@ -322,14 +375,21 @@ readonly class VectorSearchService
      */
     public function getVectorCount(): int
     {
-        $cachedCount = $this->getStateInt(self::VECTOR_COUNT_KEY);
+        if ($this->isQdrantBackend()) {
+            $count = $this->vectorStore->getVectorCount();
+            $this->setStateInt($this->getVectorCountStateKey(), $count);
+
+            return $count;
+        }
+
+        $cachedCount = $this->getStateInt($this->getVectorCountStateKey());
         if (null !== $cachedCount) {
             return $cachedCount;
         }
 
         // Cache miss: compute exact count and cache it
-        $count = $this->vectorTableService->getVectorCount();
-        $this->setStateInt(self::VECTOR_COUNT_KEY, $count);
+        $count = $this->vectorStore->getVectorCount();
+        $this->setStateInt($this->getVectorCountStateKey(), $count);
 
         return $count;
     }
@@ -389,10 +449,15 @@ readonly class VectorSearchService
             WHERE li.id IN (:lsItemIds)
               AND (
                   embedding.id IS NULL
-                  OR embedding.vector IS NULL
-                  OR embedding.normalized_vector IS NULL
-                  OR embedding.magnitude IS NULL
-                  OR embedding.binary_code IS NULL
+                  OR NOT (
+                      embedding.is_indexed = 1
+                      OR (
+                          embedding.vector IS NOT NULL
+                          AND embedding.normalized_vector IS NOT NULL
+                          AND embedding.magnitude IS NOT NULL
+                          AND embedding.binary_code IS NOT NULL
+                      )
+                  )
                   OR embedding.source_hierarchy_updated_at IS NULL
                   OR embedding.source_hierarchy_updated_at < hs.hierarchy_updated_at
               )
@@ -491,6 +556,8 @@ readonly class VectorSearchService
     /**
      * @param array<int, array{
      *   lsItemId: int,
+     *   frameworkId: int,
+     *   kind: int,
      *   text: string,
      *   isLeafNode: bool,
      *   sourceHierarchyUpdatedAt: \DateTimeImmutable
@@ -514,6 +581,8 @@ readonly class VectorSearchService
 
             $rows[] = [
                 'lsItemId' => $entry['lsItemId'],
+                'frameworkId' => $entry['frameworkId'],
+                'kind' => $entry['kind'],
                 'text' => $entry['text'],
                 'isLeafNode' => $entry['isLeafNode'],
                 'sourceHierarchyUpdatedAt' => $entry['sourceHierarchyUpdatedAt'],
@@ -521,7 +590,7 @@ readonly class VectorSearchService
             ];
         }
 
-        $newlyCountedRows = $this->vectorTableService->storeEmbeddingBatch($rows);
+        $newlyCountedRows = $this->vectorStore->storeEmbeddingBatch($rows);
         if ($newlyCountedRows > 0) {
             $this->incrementCachedVectorCount($newlyCountedRows);
         }
@@ -554,14 +623,15 @@ readonly class VectorSearchService
      *   fullStatement: string,
      *   parentId: int|null,
      *   isLeafNode: bool,
-     *   updatedAt: \DateTimeImmutable
+     *   updatedAt: \DateTimeImmutable,
+     *   kind: int
      * }>
      */
     private function loadFrameworkGraph(int $frameworkId): array
     {
         $queryBuilder = $this->entityManager->getConnection()->createQueryBuilder();
         $rows = $queryBuilder
-            ->select('li.id', 'li.full_statement', 'li.updated_at', 'parent_assoc.destination_lsitem_id AS parent_id')
+            ->select('li.id', 'li.full_statement', 'li.updated_at', 'li.discriminator', 'parent_assoc.destination_lsitem_id AS parent_id')
             ->from('ls_item', 'li')
             ->leftJoin(
                 'li',
@@ -583,9 +653,11 @@ readonly class VectorSearchService
                 'parentId' => null,
                 'isLeafNode' => true,
                 'updatedAt' => new \DateTimeImmutable((string) $row['updated_at']),
+                'kind' => (int) $row['discriminator'],
             ];
             $graph[$lsItemId]['fullStatement'] = trim((string) ($row['full_statement'] ?? ''));
             $graph[$lsItemId]['updatedAt'] = new \DateTimeImmutable((string) $row['updated_at']);
+            $graph[$lsItemId]['kind'] = (int) $row['discriminator'];
 
             $parentId = isset($row['parent_id']) ? (int) $row['parent_id'] : null;
             if (null !== $parentId) {
@@ -598,6 +670,7 @@ readonly class VectorSearchService
                         'parentId' => null,
                         'isLeafNode' => false,
                         'updatedAt' => new \DateTimeImmutable('@0'),
+                        'kind' => 0,
                     ];
                 }
             }
@@ -708,6 +781,25 @@ readonly class VectorSearchService
         return trim((string) ($lsItem->getFullStatement() ?? ''));
     }
 
+    /**
+     * @param array<int, array{
+     *   fullStatement: string,
+     *   parentId: int|null,
+     *   isLeafNode: bool,
+     *   updatedAt: \DateTimeImmutable,
+     *   kind?: int
+     * }> $frameworkGraph
+     */
+    private function getFrameworkItemKind(int $lsItemId, array $frameworkGraph): int
+    {
+        $frameworkItem = $frameworkGraph[$lsItemId] ?? null;
+        if (null === $frameworkItem || !array_key_exists('kind', $frameworkItem)) {
+            throw new \RuntimeException(sprintf('Framework graph is missing kind metadata for LsItem %d.', $lsItemId));
+        }
+
+        return (int) $frameworkItem['kind'];
+    }
+
     private function getSourceHierarchyUpdatedAt(LsItem $lsItem, array $visitedIds = []): \DateTimeImmutable
     {
         $maxUpdatedAt = \DateTimeImmutable::createFromInterface($lsItem->getUpdatedAt());
@@ -745,12 +837,22 @@ readonly class VectorSearchService
             return;
         }
 
-        $cachedCount = $this->getStateInt(self::VECTOR_COUNT_KEY);
+        $cachedCount = $this->getStateInt($this->getVectorCountStateKey());
         if (null === $cachedCount) {
             return;
         }
 
-        $this->setStateInt(self::VECTOR_COUNT_KEY, max(0, $cachedCount + $delta));
+        $this->setStateInt($this->getVectorCountStateKey(), max(0, $cachedCount + $delta));
+    }
+
+    private function getVectorCountStateKey(): string
+    {
+        return sprintf('%s_%s', self::VECTOR_COUNT_KEY, strtolower(trim($this->vectorBackend)));
+    }
+
+    private function isQdrantBackend(): bool
+    {
+        return 'qdrant' === strtolower(trim($this->vectorBackend));
     }
 
     private function getStateInt(string $stateKey): ?int

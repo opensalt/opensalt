@@ -58,6 +58,16 @@ parameters:
     env(MERCURE_URL): 'http://web/.well-known/mercure'
     env(MERCURE_PUBLIC_URL): null
     env(ISSUER_SIGNING_KEY): null
+    env(VECTOR_SEARCH_BACKEND): 'qdrant'
+    env(VECTOR_SEARCH_QDRANT_URL): 'http://qdrant:6333'
+    env(VECTOR_SEARCH_QDRANT_COLLECTION): 'ls_item_embeddings'
+    env(VECTOR_SEARCH_QDRANT_ALIAS): 'ls_item_embeddings_active'
+    env(VECTOR_SEARCH_QDRANT_API_KEY): ''
+    env(VECTOR_SEARCH_QDRANT_TIMEOUT): '10'
+    env(VECTOR_SEARCH_EMBEDDING_PROVIDER): 'local'
+    env(VECTOR_SEARCH_EMBEDDING_API_URL): ''
+    env(VECTOR_SEARCH_EMBEDDING_API_KEY): ''
+    env(VECTOR_SEARCH_EMBEDDING_TIMEOUT): '15'
 
     locale: en
     database_type: '%env(DB_TYPE)%'
@@ -175,6 +185,9 @@ services:
     App\Service\Api1RouteMap:
         public: true
 
+    App\VectorSearch\Store\VectorStoreInterface:
+        alias: App\VectorSearch\Store\ConfiguredVectorStore
+
     App\Service\BucketService:
         arguments:
             $attachmentUrlPrefix: '%attachment_url_prefix%'
@@ -210,4 +223,3 @@ services:
     Enqueue\Dbal\DbalConnectionFactory:
         factory: [ 'Ecotone\Dbal\DbalConnection', 'createForManagerRegistry' ]
         arguments: [ "@doctrine","default" ]
-

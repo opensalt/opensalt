@@ -8,26 +8,40 @@ use Codewithkyrian\Transformers\Pipelines\Pipeline;
 use Codewithkyrian\Transformers\Transformers;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 use function Codewithkyrian\Transformers\Pipelines\pipeline;
 
 /**
- * Service for generating text embeddings using TransformersPHP.
+ * Service for generating text embeddings using either local TransformersPHP or a remote API.
  */
 class EmbeddingService
 {
     private const MODEL_NAME = 'Xenova/all-MiniLM-L6-v2';
     private const EMBEDDING_DIMENSION = 384;
     private const MAX_INFERENCE_BATCH_SIZE = 8;
+    private const PROVIDER_LOCAL = 'local';
+    private const PROVIDER_HTTP = 'http';
 
     private ?Pipeline $extractor = null;
 
     public function __construct(
         #[Autowire('%kernel.project_dir%/var/transformers_cache')]
         private string $cacheDir,
+        private HttpClientInterface $httpClient,
         private LoggerInterface $logger,
+        #[Autowire('%env(string:VECTOR_SEARCH_EMBEDDING_PROVIDER)%')]
+        private string $provider = self::PROVIDER_LOCAL,
+        #[Autowire('%env(string:VECTOR_SEARCH_EMBEDDING_API_URL)%')]
+        private string $remoteApiUrl = '',
+        #[Autowire('%env(string:VECTOR_SEARCH_EMBEDDING_API_KEY)%')]
+        private string $remoteApiKey = '',
+        #[Autowire('%env(int:VECTOR_SEARCH_EMBEDDING_TIMEOUT)%')]
+        private int $remoteTimeoutSeconds = 15,
     ) {
-        $this->initializeTransformers();
+        if ($this->usesLocalProvider()) {
+            $this->initializeTransformers();
+        }
     }
 
     private function initializeTransformers(): void
@@ -44,6 +58,12 @@ class EmbeddingService
      */
     public function generateEmbedding(string $text): array
     {
+        if ($this->usesRemoteProvider()) {
+            $embeddings = $this->generateRemoteEmbeddings([$text]);
+
+            return $embeddings[0] ?? throw new \RuntimeException('Remote embedding provider did not return an embedding.');
+        }
+
         $embedding = $this->getExtractor()(
             $text,
             pooling: 'mean',
@@ -58,7 +78,7 @@ class EmbeddingService
             throw new \RuntimeException(sprintf('Expected %d embedding values from %s, got %s.', self::EMBEDDING_DIMENSION, self::MODEL_NAME, is_array($embedding) ? (string) count($embedding) : get_debug_type($embedding)));
         }
 
-        return $embedding;
+        return $this->normalizeEmbeddingVector($embedding);
     }
 
     /**
@@ -71,6 +91,10 @@ class EmbeddingService
     {
         if ([] === $texts) {
             return [];
+        }
+
+        if ($this->usesRemoteProvider()) {
+            return $this->generateRemoteEmbeddings($texts);
         }
 
         $allEmbeddings = [];
@@ -99,6 +123,7 @@ class EmbeddingService
             $this->logger->info('Loading embedding model', [
                 'model' => self::MODEL_NAME,
                 'cache_dir' => $this->cacheDir,
+                'provider' => $this->provider,
             ]);
 
             try {
@@ -125,6 +150,16 @@ class EmbeddingService
         return $this->extractor;
     }
 
+    private function usesLocalProvider(): bool
+    {
+        return self::PROVIDER_HTTP !== strtolower(trim($this->provider));
+    }
+
+    private function usesRemoteProvider(): bool
+    {
+        return !$this->usesLocalProvider();
+    }
+
     /**
      * @return array<string, bool|string>
      */
@@ -142,6 +177,8 @@ class EmbeddingService
             'ffi_extension_loaded' => extension_loaded('FFI'),
             'ffi_enable' => (string) ini_get('ffi.enable'),
             'php_sapi' => PHP_SAPI,
+            'provider' => $this->provider,
+            'remote_api_url' => $this->remoteApiUrl,
         ];
     }
 
@@ -224,5 +261,78 @@ class EmbeddingService
                 static fn (bool $carry, mixed $value): bool => $carry && is_numeric($value),
                 true
             );
+    }
+
+    /**
+     * @param list<string> $texts
+     * @return list<list<float>>
+     */
+    private function generateRemoteEmbeddings(array $texts): array
+    {
+        $remoteApiUrl = trim($this->remoteApiUrl);
+        if ('' === $remoteApiUrl) {
+            throw new \RuntimeException('VECTOR_SEARCH_EMBEDDING_API_URL must be configured when VECTOR_SEARCH_EMBEDDING_PROVIDER=http.');
+        }
+
+        $headers = [
+            'Accept' => 'application/json',
+        ];
+        if ('' !== trim($this->remoteApiKey)) {
+            $headers['Authorization'] = 'Bearer '.trim($this->remoteApiKey);
+        }
+
+        $response = $this->httpClient->request('POST', $remoteApiUrl, [
+            'timeout' => max(1, $this->remoteTimeoutSeconds),
+            'headers' => $headers,
+            'json' => [
+                'model' => self::MODEL_NAME,
+                'input' => $texts,
+            ],
+        ]);
+
+        $statusCode = $response->getStatusCode();
+        $decoded = $response->toArray(false);
+        if ($statusCode >= 400) {
+            $this->logger->error('Remote embedding request failed', [
+                'status_code' => $statusCode,
+                'provider' => $this->provider,
+                'response' => $decoded,
+            ]);
+
+            throw new \RuntimeException(sprintf('Remote embedding request failed with status %d.', $statusCode));
+        }
+
+        if (!is_array($decoded)) {
+            throw new \RuntimeException('Remote embedding response was not a JSON object.');
+        }
+
+        $embeddings = $this->extractEmbeddingsFromRemoteResponse($decoded);
+
+        return $this->normalizeBatchEmbeddings($embeddings, count($texts));
+    }
+
+    /**
+     * @return list<mixed>
+     */
+    private function extractEmbeddingsFromRemoteResponse(array $decoded): array
+    {
+        if (isset($decoded['data']) && is_array($decoded['data'])) {
+            return array_map(
+                static function (mixed $entry): mixed {
+                    if (!is_array($entry)) {
+                        return null;
+                    }
+
+                    return $entry['embedding'] ?? null;
+                },
+                $decoded['data']
+            );
+        }
+
+        if (isset($decoded['embeddings']) && is_array($decoded['embeddings'])) {
+            return $decoded['embeddings'];
+        }
+
+        throw new \RuntimeException('Remote embedding response did not contain "data" or "embeddings".');
     }
 }

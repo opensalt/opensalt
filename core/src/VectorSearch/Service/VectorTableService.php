@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\VectorSearch\Service;
 
 use App\VectorSearch\Entity\LsItemEmbedding;
+use App\VectorSearch\Store\VectorStoreInterface;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
@@ -13,7 +14,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 /**
  * Service for managing vector storage and search inside the vector-search module.
  */
-readonly class VectorTableService
+readonly class VectorTableService implements VectorStoreInterface
 {
     private const TABLE_NAME = 'ls_item_embedding';
     private const TEMP_TABLE_NAME = 'tmp_ls_item_embedding_stage';
@@ -70,9 +71,26 @@ readonly class VectorTableService
         ]);
     }
 
+    public function storeEmbeddingMetadata(LsItemEmbedding $embedding, bool $indexed): void
+    {
+        $embedding
+            ->clearStoredVectorData()
+            ->markIndexed($indexed);
+    }
+
+    /**
+     * @param list<float> $vector
+     */
+    public function finalizeStoredEmbedding(LsItemEmbedding $embedding, array $vector): void
+    {
+        // MySQL-backed storage is persisted by Doctrine flush; no secondary sync is needed.
+    }
+
     /**
      * @param list<array{
      *   lsItemId: int,
+     *   frameworkId: int,
+     *   kind: int,
      *   text: string,
      *   isLeafNode: bool,
      *   sourceHierarchyUpdatedAt: \DateTimeImmutable,
@@ -102,6 +120,7 @@ readonly class VectorTableService
                 'binary_code' => $payload['binaryCode'],
                 'is_leaf_node' => $row['isLeafNode'] ? 1 : 0,
                 'source_hierarchy_updated_at' => $row['sourceHierarchyUpdatedAt']->format('Y-m-d H:i:s'),
+                'is_indexed' => 1,
                 'created_at' => $now->format('Y-m-d H:i:s'),
                 'updated_at' => $now->format('Y-m-d H:i:s'),
             ]);
@@ -113,10 +132,15 @@ readonly class VectorTableService
                 FROM %s stage
                 LEFT JOIN %s embedding
                     ON embedding.ls_item_id = stage.ls_item_id
-                   AND embedding.vector IS NOT NULL
-                   AND embedding.normalized_vector IS NOT NULL
-                   AND embedding.magnitude IS NOT NULL
-                   AND embedding.binary_code IS NOT NULL
+                   AND (
+                        embedding.is_indexed = 1
+                        OR (
+                            embedding.vector IS NOT NULL
+                            AND embedding.normalized_vector IS NOT NULL
+                            AND embedding.magnitude IS NOT NULL
+                            AND embedding.binary_code IS NOT NULL
+                        )
+                   )
                 WHERE embedding.ls_item_id IS NULL
             SQL,
             self::TEMP_TABLE_NAME,
@@ -137,6 +161,7 @@ readonly class VectorTableService
                         binary_code,
                         is_leaf_node,
                         source_hierarchy_updated_at,
+                        is_indexed,
                         created_at,
                         updated_at
                     )
@@ -149,6 +174,7 @@ readonly class VectorTableService
                         binary_code,
                         is_leaf_node,
                         source_hierarchy_updated_at,
+                        is_indexed,
                         created_at,
                         updated_at
                     FROM %s
@@ -160,6 +186,7 @@ readonly class VectorTableService
                         binary_code = VALUES(binary_code),
                         is_leaf_node = VALUES(is_leaf_node),
                         source_hierarchy_updated_at = VALUES(source_hierarchy_updated_at),
+                        is_indexed = VALUES(is_indexed),
                         updated_at = VALUES(updated_at)
                 SQL,
                 self::TABLE_NAME,
@@ -181,8 +208,122 @@ readonly class VectorTableService
     }
 
     /**
+     * @param list<array{
+     *   lsItemId: int,
+     *   frameworkId: int,
+     *   kind: int,
+     *   text: string,
+     *   isLeafNode: bool,
+     *   sourceHierarchyUpdatedAt: \DateTimeImmutable,
+     *   vector: list<float>
+     * }> $rows
+     */
+    public function storeEmbeddingMetadataBatch(array $rows, bool $indexed): int
+    {
+        if ([] === $rows) {
+            return 0;
+        }
+
+        $this->createTemporaryStageTable();
+        $this->connection->executeStatement(sprintf('TRUNCATE TABLE %s', self::TEMP_TABLE_NAME));
+
+        $now = new \DateTimeImmutable();
+
+        foreach ($rows as $row) {
+            $this->connection->insert(self::TEMP_TABLE_NAME, [
+                'ls_item_id' => $row['lsItemId'],
+                'text' => $row['text'],
+                'vector' => null,
+                'normalized_vector' => null,
+                'magnitude' => null,
+                'binary_code' => null,
+                'is_leaf_node' => $row['isLeafNode'] ? 1 : 0,
+                'source_hierarchy_updated_at' => $row['sourceHierarchyUpdatedAt']->format('Y-m-d H:i:s'),
+                'is_indexed' => $indexed ? 1 : 0,
+                'created_at' => $now->format('Y-m-d H:i:s'),
+                'updated_at' => $now->format('Y-m-d H:i:s'),
+            ]);
+        }
+
+        $newlyCountedRows = (int) $this->connection->fetchOne(sprintf(
+            <<<'SQL'
+                SELECT COUNT(*)
+                FROM %s stage
+                LEFT JOIN %s embedding
+                    ON embedding.ls_item_id = stage.ls_item_id
+                   AND (
+                        embedding.is_indexed = 1
+                        OR (
+                            embedding.vector IS NOT NULL
+                            AND embedding.normalized_vector IS NOT NULL
+                            AND embedding.magnitude IS NOT NULL
+                            AND embedding.binary_code IS NOT NULL
+                        )
+                   )
+                WHERE embedding.ls_item_id IS NULL
+            SQL,
+            self::TEMP_TABLE_NAME,
+            self::TABLE_NAME
+        ));
+
+        $this->connection->beginTransaction();
+
+        try {
+            $this->connection->executeStatement(sprintf(
+                <<<'SQL'
+                    INSERT INTO %s (
+                        ls_item_id,
+                        text,
+                        vector,
+                        normalized_vector,
+                        magnitude,
+                        binary_code,
+                        is_leaf_node,
+                        source_hierarchy_updated_at,
+                        is_indexed,
+                        created_at,
+                        updated_at
+                    )
+                    SELECT
+                        ls_item_id,
+                        text,
+                        NULL,
+                        NULL,
+                        NULL,
+                        NULL,
+                        is_leaf_node,
+                        source_hierarchy_updated_at,
+                        is_indexed,
+                        created_at,
+                        updated_at
+                    FROM %s
+                    ON DUPLICATE KEY UPDATE
+                        text = VALUES(text),
+                        vector = NULL,
+                        normalized_vector = NULL,
+                        magnitude = NULL,
+                        binary_code = NULL,
+                        is_leaf_node = VALUES(is_leaf_node),
+                        source_hierarchy_updated_at = VALUES(source_hierarchy_updated_at),
+                        is_indexed = VALUES(is_indexed),
+                        updated_at = VALUES(updated_at)
+                SQL,
+                self::TABLE_NAME,
+                self::TEMP_TABLE_NAME
+            ));
+
+            $this->connection->commit();
+        } catch (\Throwable $exception) {
+            $this->connection->rollBack();
+            throw $exception;
+        }
+
+        return $newlyCountedRows;
+    }
+
+    /**
      * @param list<float> $queryVector
-     * @return list<array{id: int, similarity: float}>
+     * @return list<array{lsItemId: int, similarity: float}>
      */
     public function search(
         array $queryVector,
@@ -213,7 +354,7 @@ readonly class VectorTableService
         $perSegmentLimit = min($candidateLimit * 5, 1000);
 
         // Iteratively increase segment radius until enough candidates are found
-        /** @var array<int, array{id: int, normalized_vector: string, binary_code: string}> $candidates */
+        /** @var array<int, array{ls_item_id: int|string, normalized_vector: string, binary_code: string}> $candidates */
         $candidates = [];
         for ($radius = 0; $radius <= self::MAX_SEGMENT_RADIUS; ++$radius) {
             for ($segIndex = 0; $segIndex < self::SEGMENT_COUNT; ++$segIndex) {
@@ -246,7 +387,7 @@ readonly class VectorTableService
             $candidateBinaryCode = $candidate['binary_code'];
             $hammingDist = $this->computeHammingDistance($binaryBytes, $candidateBinaryCode);
             $scoredCandidates[] = [
-                'id' => $id,
+                'ls_item_id' => (int) $candidate['ls_item_id'],
                 'normalized_vector' => $candidate['normalized_vector'],
                 'hamming_dist' => $hammingDist,
             ];
@@ -255,7 +396,7 @@ readonly class VectorTableService
         usort(
             $scoredCandidates,
             static fn (array $left, array $right): int => $left['hamming_dist'] <=> $right['hamming_dist']
-                ?: $left['id'] <=> $right['id']
+                ?: $left['ls_item_id'] <=> $right['ls_item_id']
         );
 
         // Take top candidates up to candidateLimit
@@ -270,7 +411,7 @@ readonly class VectorTableService
             }
 
             $results[] = [
-                'id' => (int) $candidate['id'],
+                'lsItemId' => (int) $candidate['ls_item_id'],
                 'similarity' => $this->dotProduct($normalizedQueryVector, $normalizedVector),
             ];
         }
@@ -278,7 +419,7 @@ readonly class VectorTableService
         usort(
             $results,
             static fn (array $left, array $right): int => $right['similarity'] <=> $left['similarity']
-                ?: $left['id'] <=> $right['id']
+                ?: $left['lsItemId'] <=> $right['lsItemId']
         );
 
         $results = array_slice($results, 0, $limit);
@@ -318,11 +459,23 @@ readonly class VectorTableService
     public function getVectorCount(): int
     {
         $sql = sprintf(
-            'SELECT COUNT(*) FROM %s WHERE normalized_vector IS NOT NULL AND binary_code IS NOT NULL',
+            'SELECT COUNT(*) FROM %s WHERE is_indexed = 1 OR (normalized_vector IS NOT NULL AND binary_code IS NOT NULL)',
             self::TABLE_NAME
         );
 
         return (int) $this->connection->fetchOne($sql);
+    }
+
+    public function getVectorByLsItemId(int $lsItemId): ?array
+    {
+        $value = $this->connection->fetchOne(
+            sprintf('SELECT normalized_vector FROM %s WHERE ls_item_id = :lsItemId', self::TABLE_NAME),
+            [
+                'lsItemId' => $lsItemId,
+            ]
+        );
+
+        return $this->decodeVector($value);
     }
 
     public function getApproximateVectorCount(): int
@@ -340,6 +493,11 @@ readonly class VectorTableService
         );
 
         return false !== $tableRows && null !== $tableRows ? (int) $tableRows : 0;
+    }
+
+    public function deleteByLsItemId(int $lsItemId): void
+    {
+        // Doctrine entity deletion removes the row for the MySQL-backed implementation.
     }
 
     /**
@@ -360,7 +518,7 @@ readonly class VectorTableService
      * Execute a single per-segment probe query using its dedicated B-tree index.
      *
      * @param list<int> $segmentValues
-     * @return list<array{id: int|string, normalized_vector: string|null, binary_code: string|null}>
+     * @return list<array{id: int|string, ls_item_id: int|string, normalized_vector: string|null, binary_code: string|null}>
      */
     private function probeSegment(
         int $segIndex,
@@ -401,7 +559,7 @@ readonly class VectorTableService
         }
 
         $sql = sprintf(
-            'SELECT embedding.id, embedding.normalized_vector, embedding.binary_code'
+            'SELECT embedding.id, embedding.ls_item_id, embedding.normalized_vector, embedding.binary_code'
             . ' FROM %s embedding'
             . ' INNER JOIN ls_item item ON item.id = embedding.ls_item_id'
             . ' WHERE %s'
@@ -608,6 +766,7 @@ readonly class VectorTableService
                     binary_code BINARY(48) DEFAULT NULL,
                     is_leaf_node TINYINT(1) NOT NULL DEFAULT 0,
                     source_hierarchy_updated_at DATETIME DEFAULT NULL,
+                    is_indexed TINYINT(1) NOT NULL DEFAULT 0,
                     created_at DATETIME NOT NULL,
                     updated_at DATETIME NOT NULL
                 ) ENGINE = InnoDB

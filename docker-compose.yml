@@ -32,6 +32,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      qdrant:
+        condition: service_started
     environment:
       APP_ENV: "${APP_ENV:-prod}"
       #APP_RUNTIME: "${APP_RUNTIME:-Symfony\\Component\\Runtime\\Runner\\FrankenPhpWorkerRunner}"
@@ -81,6 +83,16 @@ services:
       CASE_NETWORK_TOKEN_ENDPOINT:
       CASE_NETWORK_SCOPE:
       ISSUER_SIGNING_KEY:
+      VECTOR_SEARCH_BACKEND: "${VECTOR_SEARCH_BACKEND:-qdrant}"
+      VECTOR_SEARCH_QDRANT_URL: "${VECTOR_SEARCH_QDRANT_URL:-http://qdrant:6333}"
+      VECTOR_SEARCH_QDRANT_COLLECTION: "${VECTOR_SEARCH_QDRANT_COLLECTION:-ls_item_embeddings}"
+      VECTOR_SEARCH_QDRANT_ALIAS: "${VECTOR_SEARCH_QDRANT_ALIAS:-ls_item_embeddings_active}"
+      VECTOR_SEARCH_QDRANT_API_KEY: "${VECTOR_SEARCH_QDRANT_API_KEY:-}"
+      VECTOR_SEARCH_QDRANT_TIMEOUT: "${VECTOR_SEARCH_QDRANT_TIMEOUT:-10}"
+      VECTOR_SEARCH_EMBEDDING_PROVIDER: "${VECTOR_SEARCH_EMBEDDING_PROVIDER:-local}"
+      VECTOR_SEARCH_EMBEDDING_API_URL: "${VECTOR_SEARCH_EMBEDDING_API_URL:-}"
+      VECTOR_SEARCH_EMBEDDING_API_KEY: "${VECTOR_SEARCH_EMBEDDING_API_KEY:-}"
+      VECTOR_SEARCH_EMBEDDING_TIMEOUT: "${VECTOR_SEARCH_EMBEDDING_TIMEOUT:-15}"
     restart: unless-stopped
     sysctls:
       - net.ipv4.ip_unprivileged_port_start=0
@@ -112,8 +124,16 @@ services:
       # you may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
       - "./core/docker/data/mysql:/var/lib/mysql:rw"
 
+  qdrant:
+    image: qdrant/qdrant:v1
+    restart: unless-stopped
+    volumes:
+      #- qdrant_data:/qdrant/storage:rw
+      - "./core/docker/data/qdrant:/qdrant/storage:rw"
+
 volumes:
 #  db_data:
+#  qdrant_data:
   caddy_data:
   caddy_config:
 

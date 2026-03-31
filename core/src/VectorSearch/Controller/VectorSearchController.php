@@ -286,7 +286,7 @@ class VectorSearchController extends AbstractController
 
                 if (!$sourceItem instanceof LsItem) {
                     $warning = sprintf('Item %d was not found.', $data['itemId']);
-                } elseif (null === $this->vectorSearchService->getEmbedding($sourceItem)) {
+                } elseif (!$this->vectorSearchService->hasEmbedding($sourceItem)) {
                     $warning = sprintf('Item %d does not have an embedding yet.', $data['itemId']);
                 } else {
                     $results = $this->vectorSearchService->searchByLsItem(

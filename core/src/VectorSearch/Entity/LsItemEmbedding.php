@@ -88,6 +88,9 @@ class LsItemEmbedding
     #[ORM\Column(name: 'source_hierarchy_updated_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $sourceHierarchyUpdatedAt = null;
 
+    #[ORM\Column(name: 'is_indexed', type: Types::BOOLEAN, options: ['default' => false])]
+    private bool $isIndexed = false;
+
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeImmutable $createdAt;
 
@@ -143,6 +146,26 @@ class LsItemEmbedding
         $this->normalizedVector = $normalizedVector;
         $this->magnitude = $magnitude;
         $this->binaryCode = $binaryCode;
+        $this->isIndexed = true;
+        $this->updatedAt = new \DateTimeImmutable();
+
+        return $this;
+    }
+
+    public function clearStoredVectorData(): self
+    {
+        $this->vector = null;
+        $this->normalizedVector = null;
+        $this->magnitude = null;
+        $this->binaryCode = null;
+        $this->updatedAt = new \DateTimeImmutable();
+
+        return $this;
+    }
+
+    public function markIndexed(bool $indexed = true): self
+    {
+        $this->isIndexed = $indexed;
         $this->updatedAt = new \DateTimeImmutable();
 
         return $this;
@@ -176,10 +199,16 @@ class LsItemEmbedding
 
     public function hasVectorData(): bool
     {
-        return null !== $this->vector
-            && null !== $this->normalizedVector
-            && null !== $this->magnitude
-            && null !== $this->binaryCode;
+        return $this->isIndexed
+            || (null !== $this->vector
+                && null !== $this->normalizedVector
+                && null !== $this->magnitude
+                && null !== $this->binaryCode);
+    }
+
+    public function isIndexed(): bool
+    {
+        return $this->isIndexed;
     }
 
     /**
