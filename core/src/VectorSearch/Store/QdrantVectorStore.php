@@ -34,6 +34,10 @@ readonly class QdrantVectorStore implements VectorStoreInterface
         private string $apiKey,
         #[Autowire('%env(int:VECTOR_SEARCH_QDRANT_TIMEOUT)%')]
         private int $timeoutSeconds,
+        #[Autowire('%env(int:VECTOR_SEARCH_HYBRID_PREFETCH_LIMIT)%')]
+        private int $hybridPrefetchLimit = 20,
+        #[Autowire('%env(int:VECTOR_SEARCH_HYBRID_RRF_K)%')]
+        private int $hybridRrfK = 60,
     ) {
     }
 
@@ -111,7 +115,8 @@ readonly class QdrantVectorStore implements VectorStoreInterface
         }
 
         $payload = [
-            'vector' => array_values($queryVector),
+            'query' => array_values($queryVector),
+            'using' => 'dense',
             'limit' => $limit,
             'with_payload' => false,
             'with_vector' => false,
@@ -124,11 +129,189 @@ readonly class QdrantVectorStore implements VectorStoreInterface
 
         $response = $this->request(
             'POST',
-            sprintf('/collections/%s/points/search', rawurlencode($this->getActiveCollectionReference())),
+            sprintf('/collections/%s/points/query', rawurlencode($this->getActiveCollectionReference())),
             $payload,
             true
         );
-        $results = $response['result'] ?? [];
+        $results = $response['result']['points'] ?? [];
+        if (!is_array($results)) {
+            return [];
+        }
+
+        $matches = [];
+        foreach ($results as $result) {
+            if (!is_array($result)) {
+                continue;
+            }
+
+            $id = $result['id'] ?? null;
+            $score = $result['score'] ?? null;
+            if (!is_numeric($id) || !is_numeric($score)) {
+                continue;
+            }
+
+            $matches[] = [
+                'lsItemId' => (int) $id,
+                'similarity' => (float) $score,
+            ];
+        }
+
+        return $matches;
+    }
+
+    public function searchFullText(
+        string $queryText,
+        int $limit = 10,
+        ?int $frameworkId = null,
+        bool $leafOnly = false,
+        ?int $kind = null,
+    ): array {
+        if ($limit < 1) {
+            return [];
+        }
+
+        $normalizedQuery = trim($queryText);
+        if ('' === $normalizedQuery) {
+            return [];
+        }
+
+        $payload = [
+            'query' => [
+                'text' => $normalizedQuery,
+                'model' => 'qdrant/bm25',
+            ],
+            'using' => 'sparse',
+            'limit' => $limit,
+            'with_payload' => false,
+            'with_vector' => false,
+        ];
+
+        $filter = $this->buildFilter($frameworkId, $leafOnly, $kind);
+        if (null !== $filter) {
+            $payload['filter'] = $filter;
+        }
+
+        try {
+            $response = $this->request(
+                'POST',
+                sprintf('/collections/%s/points/query', rawurlencode($this->getActiveCollectionReference())),
+                $payload,
+                true
+            );
+        } catch (\RuntimeException $e) {
+            $message = $e->getMessage();
+            if (!$this->isSparseVectorError($message)) {
+                throw $e;
+            }
+
+            $this->logger->warning('Qdrant full-text search failed, falling back to database keyword search', [
+                'error' => $message,
+            ]);
+
+            return $this->metadataStore->searchFullText($normalizedQuery, $limit, $frameworkId, $leafOnly, $kind);
+        }
+
+        $results = $response['result']['points'] ?? [];
+        if (!is_array($results)) {
+            return [];
+        }
+
+        $matches = [];
+        foreach ($results as $result) {
+            if (!is_array($result)) {
+                continue;
+            }
+
+            $id = $result['id'] ?? null;
+            $score = $result['score'] ?? null;
+            if (!is_numeric($id) || !is_numeric($score)) {
+                continue;
+            }
+
+            $matches[] = [
+                'lsItemId' => (int) $id,
+                'similarity' => (float) $score,
+            ];
+        }
+
+        return $matches;
+    }
+
+    public function searchHybrid(
+        array $queryVector,
+        string $queryText,
+        int $limit = 10,
+        ?int $frameworkId = null,
+        bool $leafOnly = false,
+        ?int $kind = null,
+        int $prefetchLimit = 0,
+    ): array {
+        if ($limit < 1) {
+            return [];
+        }
+
+        $effectivePrefetchLimit = $prefetchLimit > 0 ? $prefetchLimit : $this->hybridPrefetchLimit;
+        $effectivePrefetchLimit = max($limit, $effectivePrefetchLimit);
+
+        $payload = [
+            'prefetch' => [
+                [
+                    'query' => array_values($queryVector),
+                    'using' => 'dense',
+                    'limit' => $effectivePrefetchLimit,
+                    'with_payload' => false,
+                    'with_vector' => false,
+                ],
+                [
+                    'query' => [
+                        'text' => $queryText,
+                        'model' => 'qdrant/bm25',
+                    ],
+                    'using' => 'sparse',
+                    'limit' => $effectivePrefetchLimit,
+                    'with_payload' => false,
+                    'with_vector' => false,
+                ],
+            ],
+            'query' => [
+                'fusion' => 'rrf',
+                'params' => [
+                    'k' => $this->hybridRrfK,
+                ],
+            ],
+            'limit' => $limit,
+            'with_payload' => false,
+            'with_vector' => false,
+        ];
+
+        $filter = $this->buildFilter($frameworkId, $leafOnly, $kind);
+        if (null !== $filter) {
+            $payload['filter'] = $filter;
+        }
+
+        try {
+            $response = $this->request(
+                'POST',
+                sprintf('/collections/%s/points/query', rawurlencode($this->getActiveCollectionReference())),
+                $payload,
+                true
+            );
+        } catch (\RuntimeException $e) {
+            // Only fallback for sparse-vector-related errors (e.g., old collection
+            // not yet rebuilt with BM25 support). Re-throw genuine server failures.
+            $message = $e->getMessage();
+            if (!$this->isSparseVectorError($message)) {
+                throw $e;
+            }
+
+            $this->logger->warning('Hybrid search failed, falling back to vector-only search', [
+                'error' => $message,
+            ]);
+
+            return $this->search($queryVector, $limit, $frameworkId, $leafOnly, $kind);
+        }
+
+        $results = $response['result']['points'] ?? [];
         if (!is_array($results)) {
             return [];
         }
@@ -169,6 +352,9 @@ readonly class QdrantVectorStore implements VectorStoreInterface
         }
 
         $vector = $result['vector'] ?? null;
+        if (is_array($vector) && isset($vector['dense']) && is_array($vector['dense'])) {
+            $vector = $vector['dense'];
+        }
         if (!is_array($vector)) {
             return null;
         }
@@ -313,13 +499,29 @@ readonly class QdrantVectorStore implements VectorStoreInterface
 
     public function createCollection(string $collectionName, bool $recreate = false): void
     {
-        if ($recreate && $this->collectionExists($collectionName)) {
+        $this->prepareCollection($collectionName, $recreate);
+    }
+
+    public function prepareCollection(string $collectionName, bool $recreate = false, bool $allowExisting = false): bool
+    {
+        $exists = $this->collectionExists($collectionName);
+
+        if ($recreate && $exists) {
             $this->deleteCollection($collectionName);
-        } elseif ($this->collectionExists($collectionName)) {
+            $exists = false;
+        }
+
+        if ($exists) {
+            if ($allowExisting) {
+                return false;
+            }
+
             throw new \RuntimeException(sprintf('Qdrant collection "%s" already exists.', $collectionName));
         }
 
         $this->createCollectionInternal($collectionName);
+
+        return true;
     }
 
     public function deleteCollection(string $collectionName): void
@@ -434,7 +636,7 @@ readonly class QdrantVectorStore implements VectorStoreInterface
     }
 
     /**
-     * @param list<array{id: int, vector: list<float>, payload: array<string, bool|int|string|null>}> $points
+     * @param list<array{id: int, vector: array<string, list<float>>, payload: array<string, bool|int|string|null>}> $points
      */
     private function upsertPoints(array $points, ?string $collectionName = null): void
     {
@@ -489,9 +691,19 @@ readonly class QdrantVectorStore implements VectorStoreInterface
     {
         $this->request('PUT', sprintf('/collections/%s', rawurlencode($collectionName)), [
             'vectors' => [
-                'size' => self::EMBEDDING_DIMENSION,
-                'distance' => 'Cosine',
-                'on_disk' => true,
+                'dense' => [
+                    'size' => self::EMBEDDING_DIMENSION,
+                    'distance' => 'Cosine',
+                    'on_disk' => true,
+                ],
+            ],
+            'sparse_vectors' => [
+                'sparse' => [
+                    'modifier' => 'idf',
+                    'index' => [
+                        'on_disk' => true,
+                    ],
+                ],
             ],
             'hnsw_config' => [
                 'on_disk' => true,
@@ -504,7 +716,7 @@ readonly class QdrantVectorStore implements VectorStoreInterface
     }
 
     /**
-     * @return array{points: list<array{id: int, vector: list<float>, payload: array<string, bool|int|string|null>}>, nextOffset: int|null}
+     * @return array{points: list<array{id: int, vector: array<string, list<float>>, payload: array<string, bool|int|string|null>}>, nextOffset: int|null}
      */
     private function scrollCollection(string $collectionReference, ?int $offset, int $limit): array
     {
@@ -538,6 +750,9 @@ readonly class QdrantVectorStore implements VectorStoreInterface
 
                 $id = $point['id'] ?? null;
                 $vector = $point['vector'] ?? null;
+                if (is_array($vector) && isset($vector['dense']) && is_array($vector['dense'])) {
+                    $vector = $vector['dense'];
+                }
                 $payload = $point['payload'] ?? [];
                 if (!is_numeric($id) || !is_array($vector) || !is_array($payload)) {
                     continue;
@@ -545,7 +760,9 @@ readonly class QdrantVectorStore implements VectorStoreInterface
 
                 $normalizedPoints[] = [
                     'id' => (int) $id,
-                    'vector' => array_map(static fn (mixed $value): float => (float) $value, $vector),
+                    'vector' => [
+                        'dense' => array_map(static fn (mixed $value): float => (float) $value, $vector),
+                    ],
                     'payload' => $payload,
                 ];
             }
@@ -559,7 +776,7 @@ readonly class QdrantVectorStore implements VectorStoreInterface
 
     /**
      * @param list<float> $vector
-     * @return array{id: int, vector: list<float>, payload: array<string, bool|int|string|null>}
+     * @return array{id: int, vector: array<string, mixed>, payload: array<string, bool|int|string|null>}
      */
     private function buildPoint(
         int $lsItemId,
@@ -572,7 +789,13 @@ readonly class QdrantVectorStore implements VectorStoreInterface
     ): array {
         return [
             'id' => $lsItemId,
-            'vector' => array_values($vector),
+            'vector' => [
+                'dense' => array_values($vector),
+                'sparse' => [
+                    'text' => $text,
+                    'model' => 'qdrant/bm25',
+                ],
+            ],
             'payload' => [
                 'ls_item_id' => $lsItemId,
                 'framework_id' => $frameworkId,
@@ -619,6 +842,16 @@ readonly class QdrantVectorStore implements VectorStoreInterface
         }
 
         return [] !== $must ? ['must' => $must] : null;
+    }
+
+    /**
+     * Determine whether a Qdrant error is related to a missing or misconfigured sparse vector.
+     */
+    private function isSparseVectorError(string $message): bool
+    {
+        return str_contains($message, 'sparse')
+            || str_contains($message, '404')
+            || str_contains($message, 'not found');
     }
 
     /**

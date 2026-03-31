@@ -1,14 +1,40 @@
 {% extends 'base.html.twig' %}
+{% form_theme form 'bootstrap_5_layout.html.twig' %}
 
 {% block title %}{{ title }}{% endblock %}
 
+{% block styles %}
+    <style>
+        .vector-search-page .vector-search-form-panel .form-label {
+            display: block;
+            margin-bottom: 0.35rem;
+        }
+
+        .vector-search-page .vector-search-form-panel .form-check {
+            padding-top: 0.35rem;
+        }
+
+        .vector-search-page .vector-search-results-pane {
+            max-height: calc(100vh - 17rem);
+            overflow: auto;
+        }
+
+        @media (max-width: 991.98px) {
+            .vector-search-page .vector-search-results-pane {
+                max-height: none;
+                overflow: visible;
+            }
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
-<div class="container">
+<div class="container vector-search-page">
     {{ include('vector_search/_nav.html.twig') }}
 
-    <div class="row">
+    <div class="row g-4 align-items-start">
         <div class="col-lg-4">
-            <div class="mt-5">
+            <div class="mt-4">
                 <h2>{{ title }}</h2>
                 <p class="text-muted">Indexed embeddings: {{ vectorCount }}</p>
             </div>
@@ -54,26 +80,42 @@
                 </div>
             {% endif %}
 
-            <div class="mt-4">
-                {{ form(form) }}
+            <div class="card mt-4 vector-search-form-panel">
+                <div class="card-body">
+                    <p class="text-muted small mb-3">
+                        {% if mode == 'near_text' %}
+                            Enter a phrase and optional filters to find the most relevant indexed items.
+                        {% elseif mode == 'keyword' %}
+                            Search the indexed text directly with optional framework, leaf-node, and kind filters.
+                        {% elseif mode == 'near_object' %}
+                            Start from an existing item ID and compare it against nearby indexed items.
+                        {% else %}
+                            Configure the search inputs below and submit to see matching items.
+                        {% endif %}
+                    </p>
+                    {{ form(form) }}
+                </div>
             </div>
         </div>
 
-        <div class="col-lg-8 overflow-auto vh-100 pt-5 pb-5">
-            {% if results is defined and results is not empty %}
-                {% for result in results %}
-                    <h4>Result #{{ loop.index }}</h4>
-                    {{ include('vector_search/_result.html.twig', {
-                        result: result,
-                        currentFilters: currentFilters|default({frameworkId: null, leafOnly: false, kind: null}),
-                        kinds: kinds|default({})
-                    }) }}
-                {% endfor %}
-            {% elseif form.vars.submitted %}
-                <div class="alert alert-info">No results found.</div>
-            {% else %}
-                <div class="alert alert-info">Submit the form to run this search.</div>
-            {% endif %}
+        <div class="col-lg-8 pt-lg-4">
+            <div class="vector-search-results-pane pe-lg-2">
+                {% if results is defined and results is not empty %}
+                    {% for result in results %}
+                        <h4>Result #{{ loop.index }}</h4>
+                        {{ include('vector_search/_result.html.twig', {
+                            result: result,
+                            mode: mode,
+                            currentFilters: currentFilters|default({frameworkId: null, leafOnly: false, kind: null}),
+                            kinds: kinds|default({})
+                        }) }}
+                    {% endfor %}
+                {% elseif form.vars.submitted %}
+                    <div class="alert alert-info">No results found.</div>
+                {% else %}
+                    <div class="alert alert-info">Submit the form to run this search.</div>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>

@@ -77,6 +77,7 @@ EOF
         }
 
         $targetCollection = trim((string) $input->getOption('collection'));
+        $hasExplicitCollection = '' !== $targetCollection;
         if ('' === $targetCollection) {
             $targetCollection = $this->qdrantVectorStore->buildShadowCollectionName();
         }
@@ -96,7 +97,13 @@ EOF
             return Command::FAILURE;
         }
 
-        $this->qdrantVectorStore->createCollection($targetCollection, $recreate);
+        $collectionCreated = $this->qdrantVectorStore->prepareCollection($targetCollection, $recreate, $hasExplicitCollection);
+        $startingCollectionCount = $collectionCreated ? 0 : $this->qdrantVectorStore->countCollection($targetCollection);
+
+        $io->text($collectionCreated
+            ? sprintf('Creating target collection: %s', $targetCollection)
+            : sprintf('Resuming existing target collection: %s (%d points already present)', $targetCollection, $startingCollectionCount)
+        );
 
         $frameworks = $this->fetchAllFrameworks($afterFrameworkId, $frameworkId);
         $io->text(sprintf('Frameworks to process: %d', count($frameworks)));
@@ -138,6 +145,23 @@ EOF
 
             if ([] === $rows) {
                 $io->text('  No embedding rows produced — skipping.');
+                continue;
+            }
+
+            $skippedEmptyText = count(array_filter(
+                $rows,
+                static fn (array $row): bool => '' === trim((string) ($row['text'] ?? ''))
+            ));
+            if ($skippedEmptyText > 0) {
+                $rows = array_values(array_filter(
+                    $rows,
+                    static fn (array $row): bool => '' !== trim((string) ($row['text'] ?? ''))
+                ));
+                $io->text(sprintf('  Skipping %d items with empty embedding text.', $skippedEmptyText));
+            }
+
+            if ([] === $rows) {
+                $io->text('  No non-empty embedding rows remain — skipping.');
                 continue;
             }
 
@@ -191,6 +215,7 @@ EOF
         }
 
         $collectionCount = $this->qdrantVectorStore->countCollection($targetCollection);
+        $expectedCollectionCount = $startingCollectionCount + $totalImported;
         $io->section('Validation');
         $io->listing([
             sprintf('Total frameworks processed: %d', $frameworkCount),
@@ -198,11 +223,11 @@ EOF
             sprintf('Target collection count: %d', $collectionCount),
         ]);
 
-        if ($collectionCount !== $totalImported) {
+        if ($collectionCount !== $expectedCollectionCount) {
             $io->warning(sprintf(
-                'Collection count (%d) does not match imported row count (%d). Review before activation.',
+                'Collection count (%d) does not match the expected count after this run (%d). Review before activation.',
                 $collectionCount,
-                $totalImported
+                $expectedCollectionCount
             ));
         }
 

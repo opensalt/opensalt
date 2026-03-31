@@ -190,7 +190,7 @@ class VectorSearchController extends AbstractController
             ];
 
             if ('' !== $data['query']) {
-                $results = $this->searchByKeyword(
+                $results = $this->vectorSearchService->searchByKeyword(
                     $data['query'],
                     $data['limit'],
                     $currentFilters['frameworkId'],
@@ -358,61 +358,6 @@ class VectorSearchController extends AbstractController
     }
 
     /**
-     * @return list<array{lsItem: LsItem, similarity: null, embedding: LsItemEmbedding|null}>
-     */
-    private function searchByKeyword(string $query, int $limit, ?int $frameworkId, bool $leafOnly, ?int $kind = null): array
-    {
-        $normalizedQuery = mb_strtolower(trim($query));
-
-        $queryBuilder = $this->entityManager->getRepository(LsItem::class)->createQueryBuilder('li');
-        $expression = $queryBuilder->expr();
-        $queryBuilder
-            ->addSelect('ld', 'e')
-            ->leftJoin('li.lsDoc', 'ld')
-            ->leftJoin('li.embeddings', 'e')
-            ->where($expression->orX(
-                $expression->like('LOWER(li.fullStatement)', ':query'),
-                $expression->like('LOWER(li.abbreviatedStatement)', ':query'),
-                $expression->like('LOWER(li.humanCodingScheme)', ':query'),
-                $expression->like('LOWER(li.identifier)', ':query')
-            ))
-            ->setParameter('query', '%'.$normalizedQuery.'%')
-            ->setMaxResults($limit)
-            ->orderBy('li.humanCodingScheme', 'ASC')
-            ->addOrderBy('li.id', 'ASC');
-
-        if (null !== $frameworkId) {
-            $queryBuilder
-                ->andWhere('ld.id = :frameworkId')
-                ->setParameter('frameworkId', $frameworkId);
-        }
-
-        if ($leafOnly) {
-            $queryBuilder
-                ->andWhere('e.isLeafNode = :leafOnly')
-                ->setParameter('leafOnly', true);
-        }
-
-        if (null !== $kind) {
-            $queryBuilder
-                ->andWhere('li.discriminator = :kind')
-                ->setParameter('kind', $kind);
-        }
-
-        /** @var list<LsItem> $items */
-        $items = $queryBuilder->getQuery()->getResult();
-
-        return array_map(
-            fn (LsItem $item): array => [
-                'lsItem' => $item,
-                'similarity' => null,
-                'embedding' => $this->extractEmbeddingFromItem($item),
-            ],
-            $items
-        );
-    }
-
-    /**
      * @return array<string, mixed>
      */
     private function buildItemDetailData(LsItem $lsItem, ?LsItemEmbedding $embedding): array
@@ -473,16 +418,6 @@ class VectorSearchController extends AbstractController
         return (int) $frameworkId;
     }
 
-    private function extractEmbeddingFromItem(LsItem $item): ?LsItemEmbedding
-    {
-        $firstEmbedding = $item->getEmbeddings()->first();
-
-        return $firstEmbedding instanceof LsItemEmbedding ? $firstEmbedding : null;
-    }
-
-    /**
-     * @return array<string, int>
-     */
     private function getKindChoices(): array
     {
         $choices = [];

@@ -73,8 +73,10 @@ EOF
         $dropOld = (bool) $input->getOption('drop-old');
         $recreate = (bool) $input->getOption('recreate');
 
-        $targetCollection = trim((string) $input->getOption('collection'));
-        if ('' === $targetCollection) {
+        $requestedCollection = trim((string) $input->getOption('collection'));
+        $hasExplicitCollection = '' !== $requestedCollection;
+        $targetCollection = $requestedCollection;
+        if (!$hasExplicitCollection) {
             $targetCollection = $this->qdrantVectorStore->buildShadowCollectionName();
         }
 
@@ -123,9 +125,16 @@ EOF
             return Command::FAILURE;
         }
 
-        $this->qdrantVectorStore->createCollection($targetCollection, $recreate);
+        $collectionCreated = $this->qdrantVectorStore->prepareCollection($targetCollection, $recreate, $hasExplicitCollection);
+        $startingCollectionCount = $collectionCreated ? 0 : $this->qdrantVectorStore->countCollection($targetCollection);
+
+        $io->text($collectionCreated
+            ? sprintf('Creating target collection: %s', $targetCollection)
+            : sprintf('Resuming existing target collection: %s (%d points already present)', $targetCollection, $startingCollectionCount)
+        );
 
         $rebuilt = 0;
+        $skippedEmptyText = 0;
         $lastLsItemId = $afterId;
 
         if ('qdrant' === $effectiveSource) {
@@ -139,17 +148,18 @@ EOF
             );
 
             $collectionCount = $this->qdrantVectorStore->countCollection($targetCollection);
+            $expectedCollectionCount = $startingCollectionCount + $rebuilt;
             $io->listing([
                 sprintf('Copy source: %s', $currentActiveCollection),
-                sprintf('Copied rows: %d', $rebuilt),
+                sprintf('Copied rows this run: %d', $rebuilt),
                 sprintf('Target collection count: %d', $collectionCount),
             ]);
 
-            if ($collectionCount !== $rebuilt) {
+            if ($collectionCount !== $expectedCollectionCount) {
                 $io->warning(sprintf(
-                    'Collection count (%d) does not match copied row count (%d). Review before activation.',
+                    'Collection count (%d) does not match the expected count after this run (%d). Review before activation.',
                     $collectionCount,
-                    $rebuilt
+                    $expectedCollectionCount
                 ));
             }
 
@@ -170,6 +180,8 @@ EOF
 
                 foreach ($this->groupRequestedItemsByFramework($requestedItems) as $frameworkId => $frameworkItemIds) {
                     $rows = $this->vectorSearchService->buildEmbeddingRowsForFramework($frameworkId, $frameworkItemIds);
+                    ['rows' => $rows, 'skipped' => $batchSkippedEmpty] = $this->partitionEmbeddableRows($rows);
+                    $skippedEmptyText += $batchSkippedEmpty;
                     if ([] === $rows) {
                         continue;
                     }
@@ -203,18 +215,24 @@ EOF
             }
 
             $collectionCount = $this->qdrantVectorStore->countCollection($targetCollection);
+            $expectedCollectionCount = $startingCollectionCount + $rebuilt;
             $io->section('Validation');
-            $io->listing([
-                sprintf('Bootstrapped rows: %d', $rebuilt),
+            $validationItems = [
+                sprintf('Bootstrapped rows this run: %d', $rebuilt),
+                sprintf('Items skipped due to empty embedding text: %d', $skippedEmptyText),
                 sprintf('Target collection count: %d', $collectionCount),
                 sprintf('Last processed LsItem ID: %d', $lastLsItemId),
-            ]);
+            ];
+            if (!$collectionCreated) {
+                $validationItems[] = sprintf('Starting target collection count: %d', $startingCollectionCount);
+            }
+            $io->listing($validationItems);
 
-            if ($collectionCount !== $rebuilt) {
+            if ($collectionCount !== $expectedCollectionCount) {
                 $io->warning(sprintf(
-                    'Collection count (%d) does not match bootstrapped row count (%d). Review before activation.',
+                    'Collection count (%d) does not match the expected count after this run (%d). Review before activation.',
                     $collectionCount,
-                    $rebuilt
+                    $expectedCollectionCount
                 ));
             }
 
@@ -254,8 +272,14 @@ EOF
                     continue;
                 }
 
+                $text = (string) $row['text'];
+                if ('' === trim($text)) {
+                    ++$skippedEmptyText;
+                    continue;
+                }
+
                 $rowsNeedingEmbeddings[$index] = $row;
-                $textsNeedingEmbeddings[] = (string) $row['text'];
+                $textsNeedingEmbeddings[] = $text;
             }
 
             $generatedVectors = [];
@@ -301,22 +325,69 @@ EOF
         }
 
         $collectionCount = $this->qdrantVectorStore->countCollection($targetCollection);
+        $expectedCollectionCount = $startingCollectionCount + $rebuilt;
         $io->section('Validation');
-        $io->listing([
-            sprintf('Rebuilt rows: %d', $rebuilt),
+        $validationItems = [
+            sprintf('Rebuilt rows this run: %d', $rebuilt),
+            sprintf('Items skipped due to empty embedding text: %d', $skippedEmptyText),
             sprintf('Target collection count: %d', $collectionCount),
             sprintf('Last processed LsItem ID: %d', $lastLsItemId),
-        ]);
+        ];
+        if (!$collectionCreated) {
+            $validationItems[] = sprintf('Starting target collection count: %d', $startingCollectionCount);
+        }
+        $io->listing($validationItems);
 
-        if ($collectionCount !== $rebuilt) {
+        if ($collectionCount !== $expectedCollectionCount) {
             $io->warning(sprintf(
-                'Collection count (%d) does not match rebuilt row count (%d). Review before activation.',
+                'Collection count (%d) does not match the expected count after this run (%d). Review before activation.',
                 $collectionCount,
-                $rebuilt
+                $expectedCollectionCount
             ));
         }
 
         return $this->finishExecution($io, $activate, $dropOld, $alias, $targetCollection);
+    }
+
+    /**
+     * @param list<array{
+     *   lsItemId: int,
+     *   frameworkId: int,
+     *   kind: int,
+     *   text: string,
+     *   isLeafNode: bool,
+     *   sourceHierarchyUpdatedAt: \DateTimeImmutable
+     * }> $rows
+     * @return array{
+     *   rows: list<array{
+     *     lsItemId: int,
+     *     frameworkId: int,
+     *     kind: int,
+     *     text: string,
+     *     isLeafNode: bool,
+     *     sourceHierarchyUpdatedAt: \DateTimeImmutable
+     *   }>,
+     *   skipped: int
+     * }
+     */
+    private function partitionEmbeddableRows(array $rows): array
+    {
+        $filteredRows = [];
+        $skipped = 0;
+
+        foreach ($rows as $row) {
+            if ('' === trim($row['text'])) {
+                ++$skipped;
+                continue;
+            }
+
+            $filteredRows[] = $row;
+        }
+
+        return [
+            'rows' => $filteredRows,
+            'skipped' => $skipped,
+        ];
     }
 
     private function resolveSource(string $source, ?string $currentActiveCollection, int $afterId, int $limit): string

@@ -49,6 +49,28 @@ readonly class ConfiguredVectorStore implements VectorStoreInterface
         return $this->getActiveStore()->search($queryVector, $limit, $frameworkId, $leafOnly, $kind);
     }
 
+    public function searchFullText(
+        string $queryText,
+        int $limit = 10,
+        ?int $frameworkId = null,
+        bool $leafOnly = false,
+        ?int $kind = null,
+    ): array {
+        return $this->getActiveStore()->searchFullText($queryText, $limit, $frameworkId, $leafOnly, $kind);
+    }
+
+    public function searchHybrid(
+        array $queryVector,
+        string $queryText,
+        int $limit = 10,
+        ?int $frameworkId = null,
+        bool $leafOnly = false,
+        ?int $kind = null,
+        int $prefetchLimit = 20,
+    ): array {
+        return $this->getActiveStore()->searchHybrid($queryVector, $queryText, $limit, $frameworkId, $leafOnly, $kind, $prefetchLimit);
+    }
+
     public function getVectorByLsItemId(int $lsItemId): ?array
     {
         return $this->getActiveStore()->getVectorByLsItemId($lsItemId);

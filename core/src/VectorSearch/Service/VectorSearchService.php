@@ -252,7 +252,11 @@ readonly class VectorSearchService
     /**
      * Search for similar LsItems by text query.
      *
-     * @return array Array of LsItem entities with similarity scores
+     * Delegates to searchHybridByQuery() so that Qdrant backends automatically
+     * benefit from BM25 + vector fusion while MySQL backends fall back to
+     * vector-only search with a warning.
+     *
+     * @return list<array{lsItem: LsItem, similarity: float, embedding: LsItemEmbedding}>
      */
     public function searchByQuery(
         string $query,
@@ -261,12 +265,26 @@ readonly class VectorSearchService
         bool $leafOnly = false,
         ?int $kind = null,
     ): array {
-        $queryVector = $this->embeddingService->generateEmbedding($query);
+        return $this->searchHybridByQuery($query, $limit, $frameworkId, $leafOnly, $kind);
+    }
 
-        $results = $this->searchByVector($queryVector, $limit, $frameworkId, $leafOnly, $kind);
+    /**
+     * Search for LsItems by backend-native keyword/full-text search.
+     *
+     * @return list<array{lsItem: LsItem, similarity: float, embedding: LsItemEmbedding}>
+     */
+    public function searchByKeyword(
+        string $query,
+        int $limit = 10,
+        ?int $frameworkId = null,
+        bool $leafOnly = false,
+        ?int $kind = null,
+    ): array {
+        $vectorResults = $this->vectorStore->searchFullText($query, $limit, $frameworkId, $leafOnly, $kind);
 
-        $this->logger->debug('Vector query search completed', [
-            'query' => $query,
+        $results = $this->resolveResults($vectorResults);
+
+        $this->logger->debug('Keyword search completed', [
             'limit' => $limit,
             'framework_id' => $frameworkId,
             'leaf_only' => $leafOnly,
@@ -292,25 +310,7 @@ readonly class VectorSearchService
     ): array {
         $vectorResults = $this->vectorStore->search($vector, $limit, $frameworkId, $leafOnly, $kind);
 
-        $lsItemIds = array_map(
-            static fn (array $vectorResult): int => (int) $vectorResult['lsItemId'],
-            $vectorResults
-        );
-        $embeddings = $this->embeddingRepository->findByLsItemIdsIndexed($lsItemIds);
-
-        $results = [];
-        foreach ($vectorResults as $vectorResult) {
-            $embedding = $embeddings[(int) $vectorResult['lsItemId']] ?? null;
-            if (null === $embedding) {
-                continue;
-            }
-
-            $results[] = [
-                'lsItem' => $embedding->getLsItem(),
-                'similarity' => $vectorResult['similarity'],
-                'embedding' => $embedding,
-            ];
-        }
+        $results = $this->resolveResults($vectorResults);
 
         $this->logger->debug('Vector similarity search completed', [
             'limit' => $limit,
@@ -321,6 +321,41 @@ readonly class VectorSearchService
         ]);
 
         return $results;
+    }
+
+    /**
+     * Search for similar LsItems using hybrid BM25 + vector similarity search.
+     *
+     * @param string $query The text query to search for
+     * @param int $limit Maximum number of results to return
+     * @param int|null $frameworkId Optional framework filter
+     * @param bool $leafOnly Whether to restrict results to leaf nodes only
+     * @param int|null $kind Optional item kind filter
+     * @param int $prefetchLimit Number of candidates to fetch per sub-query before fusion
+     *
+     * @return list<array{lsItem: LsItem, similarity: float, embedding: LsItemEmbedding}>
+     */
+    public function searchHybridByQuery(
+        string $query,
+        int $limit = 10,
+        ?int $frameworkId = null,
+        bool $leafOnly = false,
+        ?int $kind = null,
+        int $prefetchLimit = 20,
+    ): array {
+        $queryVector = $this->embeddingService->generateEmbedding($query);
+
+        $vectorResults = $this->vectorStore->searchHybrid(
+            $queryVector,
+            $query,
+            $limit,
+            $frameworkId,
+            $leafOnly,
+            $kind,
+            $prefetchLimit,
+        );
+
+        return $this->resolveResults($vectorResults);
     }
 
     /**
@@ -580,6 +615,38 @@ readonly class VectorSearchService
     public function isLeafNode(LsItem $lsItem, ?array $frameworkItems = null): bool
     {
         return $lsItem->getChildren()->isEmpty();
+    }
+
+    /**
+     * Resolve vector search results to LsItem entities.
+     *
+     * @param list<array{lsItemId: int, similarity: float}> $vectorResults
+     *
+     * @return list<array{lsItem: LsItem, similarity: float, embedding: LsItemEmbedding}>
+     */
+    private function resolveResults(array $vectorResults): array
+    {
+        $lsItemIds = array_map(
+            static fn (array $vectorResult): int => (int) $vectorResult['lsItemId'],
+            $vectorResults
+        );
+        $embeddings = $this->embeddingRepository->findByLsItemIdsIndexed($lsItemIds);
+
+        $results = [];
+        foreach ($vectorResults as $vectorResult) {
+            $embedding = $embeddings[(int) $vectorResult['lsItemId']] ?? null;
+            if (null === $embedding) {
+                continue;
+            }
+
+            $results[] = [
+                'lsItem' => $embedding->getLsItem(),
+                'similarity' => $vectorResult['similarity'],
+                'embedding' => $embedding,
+            ];
+        }
+
+        return $results;
     }
 
     private function resolveManagedLsItem(LsItem $lsItem): LsItem

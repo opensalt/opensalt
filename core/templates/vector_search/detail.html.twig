@@ -2,13 +2,29 @@
 
 {% block title %}Vector Search Item Detail{% endblock %}
 
+{% block styles %}
+    <style>
+        .vector-search-page .vector-search-results-pane {
+            max-height: calc(100vh - 17rem);
+            overflow: auto;
+        }
+
+        @media (max-width: 991.98px) {
+            .vector-search-page .vector-search-results-pane {
+                max-height: none;
+                overflow: visible;
+            }
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
-<div class="container">
+<div class="container vector-search-page">
     {{ include('vector_search/_nav.html.twig') }}
 
-    <div class="row">
+    <div class="row g-4 align-items-start">
         <div class="col-lg-4">
-            <div class="mt-5">
+            <div class="mt-4">
                 <h2>Item Detail</h2>
                 <p class="text-muted">Indexed embeddings: {{ vectorCount }}</p>
             </div>
@@ -37,8 +53,10 @@
             </div>
         </div>
 
-        <div class="col-lg-8 overflow-auto vh-100 pt-5 pb-5">
-            {{ include('vector_search/_table.html.twig', {data: itemData}) }}
+        <div class="col-lg-8 pt-lg-4">
+            <div class="vector-search-results-pane pe-lg-2">
+                {{ include('vector_search/_table.html.twig', {data: itemData}) }}
+            </div>
         </div>
     </div>
 </div>

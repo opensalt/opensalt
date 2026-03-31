@@ -1,6 +1,7 @@
 {% set lsItem = result.lsItem %}
 {% set embedding = result.embedding %}
 {% set similarity = result.similarity %}
+{% set resultMode = mode|default('near_object') %}
 
 {% set kindLabel = 'Default' %}
 {% if kinds is defined %}
@@ -28,7 +29,13 @@
                     <div class="badge text-bg-success mb-1">Leaf node</div>
                 {% endif %}
                 {% if similarity is not null %}
-                    <div class="badge text-bg-primary">{{ (similarity * 100)|number_format(2) }}% similar</div>
+                    {% if resultMode == 'near_object' %}
+                        <div class="badge text-bg-primary">{{ (similarity * 100)|number_format(2) }}% similar</div>
+                    {% elseif resultMode == 'keyword' %}
+                        <div class="badge text-bg-primary">Keyword score {{ similarity|number_format(2) }}</div>
+                    {% else %}
+                        <div class="badge text-bg-primary">Relevance {{ similarity|number_format(3) }}</div>
+                    {% endif %}
                 {% else %}
                     <div class="badge text-bg-secondary">Keyword match</div>
                 {% endif %}

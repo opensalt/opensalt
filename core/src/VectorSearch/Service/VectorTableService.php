@@ -435,6 +435,84 @@ readonly class VectorTableService implements VectorStoreInterface
         return $results;
     }
 
+    public function searchFullText(
+        string $queryText,
+        int $limit = 10,
+        ?int $frameworkId = null,
+        bool $leafOnly = false,
+        ?int $kind = null,
+    ): array {
+        if ($limit < 1) {
+            return [];
+        }
+
+        $normalizedQuery = mb_strtolower(trim($queryText));
+        if ('' === $normalizedQuery) {
+            return [];
+        }
+
+        $queryBuilder = $this->connection->createQueryBuilder();
+        $expression = $queryBuilder->expr();
+        $queryBuilder
+            ->select('DISTINCT li.id')
+            ->from('ls_item', 'li')
+            ->leftJoin('li', 'ls_item_embedding', 'e', 'e.ls_item_id = li.id')
+            ->where($expression->or(
+                'LOWER(li.full_statement) LIKE :query',
+                'LOWER(li.abbreviated_statement) LIKE :query',
+                'LOWER(li.human_coding_scheme) LIKE :query',
+                'LOWER(li.identifier) LIKE :query'
+            ))
+            ->setParameter('query', '%'.$normalizedQuery.'%')
+            ->orderBy('li.human_coding_scheme', 'ASC')
+            ->addOrderBy('li.id', 'ASC')
+            ->setMaxResults($limit);
+
+        if (null !== $frameworkId) {
+            $queryBuilder
+                ->andWhere('li.ls_doc_id = :frameworkId')
+                ->setParameter('frameworkId', $frameworkId);
+        }
+
+        if ($leafOnly) {
+            $queryBuilder
+                ->andWhere('e.is_leaf_node = :leafOnly')
+                ->setParameter('leafOnly', true);
+        }
+
+        if (null !== $kind) {
+            $queryBuilder
+                ->andWhere('li.discriminator = :kind')
+                ->setParameter('kind', $kind);
+        }
+
+        $rows = $queryBuilder->executeQuery()->fetchFirstColumn();
+
+        return array_map(
+            static fn (mixed $lsItemId): array => [
+                'lsItemId' => (int) $lsItemId,
+                'similarity' => 1.0,
+            ],
+            array_values($rows)
+        );
+    }
+
+    public function searchHybrid(
+        array $queryVector,
+        string $queryText,
+        int $limit = 10,
+        ?int $frameworkId = null,
+        bool $leafOnly = false,
+        ?int $kind = null,
+        int $prefetchLimit = 20,
+    ): array {
+        $this->logger->info('MySQL backend does not support hybrid search; using vector-only search.', [
+            'limit' => $limit,
+        ]);
+
+        return $this->search($queryVector, $limit, $frameworkId, $leafOnly, $kind);
+    }
+
     /**
      * @param list<float> $vector1
      * @param list<float> $vector2
