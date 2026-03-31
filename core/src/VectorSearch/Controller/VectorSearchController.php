@@ -28,7 +28,7 @@ class VectorSearchController extends AbstractController
     ) {
     }
 
-    #[Route('/admin/vector-search', name: 'admin_vector_search')]
+    #[Route('/demo/vector-search', name: 'admin_vector_search')]
     #[IsGranted('ROLE_ADMIN')]
     public function index(): Response
     {
@@ -37,7 +37,7 @@ class VectorSearchController extends AbstractController
         ]);
     }
 
-    #[Route('/admin/vector-search/near-text', name: 'admin_vector_search_near_text')]
+    #[Route('/demo/vector-search/near-text', name: 'admin_vector_search_near_text')]
     #[IsGranted('ROLE_ADMIN')]
     public function nearText(Request $request): Response
     {
@@ -124,7 +124,7 @@ class VectorSearchController extends AbstractController
         ]);
     }
 
-    #[Route('/admin/vector-search/keyword', name: 'admin_vector_search_keyword')]
+    #[Route('/demo/vector-search/keyword', name: 'admin_vector_search_keyword')]
     #[IsGranted('ROLE_ADMIN')]
     public function keyword(Request $request): Response
     {
@@ -211,8 +211,8 @@ class VectorSearchController extends AbstractController
         ]);
     }
 
-    #[Route('/admin/vector-search/near-object', name: 'admin_vector_search_near_object')]
-    #[Route('/admin/vector-search/near-object/{itemId}', name: 'admin_vector_search_near_object_item', requirements: ['itemId' => '\d+'])]
+    #[Route('/demo/vector-search/near-object', name: 'admin_vector_search_near_object')]
+    #[Route('/demo/vector-search/near-object/{itemId}', name: 'admin_vector_search_near_object_item', requirements: ['itemId' => '\d+'])]
     #[IsGranted('ROLE_ADMIN')]
     public function nearObject(Request $request, ?int $itemId = null): Response
     {
@@ -313,7 +313,7 @@ class VectorSearchController extends AbstractController
         ]);
     }
 
-    #[Route('/admin/vector-search/item/{id}', name: 'admin_vector_search_detail', requirements: ['id' => '\d+'])]
+    #[Route('/demo/vector-search/item/{id}', name: 'admin_vector_search_detail', requirements: ['id' => '\d+'])]
     #[IsGranted('ROLE_ADMIN')]
     public function detail(int $id): Response
     {
@@ -333,7 +333,7 @@ class VectorSearchController extends AbstractController
         ]);
     }
 
-    #[Route('/admin/vector-search/stats', name: 'admin_vector_search_stats')]
+    #[Route('/demo/vector-search/stats', name: 'admin_vector_search_stats')]
     #[IsGranted('ROLE_ADMIN')]
     public function stats(): Response
     {
