@@ -202,6 +202,54 @@ readonly class VectorSearchService
     }
 
     /**
+     * Build embedding rows for ALL items in a framework.
+     *
+     * Loads the framework graph once and builds the full embedding text
+     * (item fullStatement + all ancestor fullStatements) for every item.
+     *
+     * Unlike buildEmbeddingRowsForFramework() which accepts a filtered list of item IDs,
+     * this method processes every item that belongs to the framework.
+     *
+     * @return list<array{
+     *   lsItemId: int,
+     *   frameworkId: int,
+     *   kind: int,
+     *   text: string,
+     *   isLeafNode: bool,
+     *   sourceHierarchyUpdatedAt: \DateTimeImmutable
+     * }>
+     */
+    public function buildAllEmbeddingRowsForFramework(int $frameworkId): array
+    {
+        $frameworkGraph = $this->loadFrameworkGraph($frameworkId);
+        $textCache = [];
+        $updatedAtCache = [];
+        $rows = [];
+
+        foreach ($frameworkGraph as $lsItemId => $frameworkItem) {
+            // Skip placeholder entries created for cross-framework parent references.
+            // These have epoch updatedAt, empty fullStatement, and kind 0.
+            if (0 === $frameworkItem['updatedAt']->getTimestamp()
+                && '' === $frameworkItem['fullStatement']
+                && 0 === $frameworkItem['kind']
+            ) {
+                continue;
+            }
+
+            $rows[] = [
+                'lsItemId' => $lsItemId,
+                'frameworkId' => $frameworkId,
+                'kind' => $this->getFrameworkItemKind($lsItemId, $frameworkGraph),
+                'text' => $this->buildEmbeddingTextFromGraph($lsItemId, $frameworkGraph, $textCache),
+                'isLeafNode' => (bool) $frameworkItem['isLeafNode'],
+                'sourceHierarchyUpdatedAt' => $this->getSourceHierarchyUpdatedAtFromGraph($lsItemId, $frameworkGraph, $updatedAtCache),
+            ];
+        }
+
+        return $rows;
+    }
+
+    /**
      * Search for similar LsItems by text query.
      *
      * @return array Array of LsItem entities with similarity scores

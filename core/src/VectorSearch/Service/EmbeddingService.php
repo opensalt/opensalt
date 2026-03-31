@@ -20,6 +20,7 @@ class EmbeddingService
     private const MODEL_NAME = 'Xenova/all-MiniLM-L6-v2';
     private const EMBEDDING_DIMENSION = 384;
     private const MAX_INFERENCE_BATCH_SIZE = 8;
+    private const DEFAULT_REMOTE_BATCH_SIZE = 32;
     private const PROVIDER_LOCAL = 'local';
     private const PROVIDER_HTTP = 'http';
 
@@ -38,6 +39,8 @@ class EmbeddingService
         private string $remoteApiKey = '',
         #[Autowire('%env(int:VECTOR_SEARCH_EMBEDDING_TIMEOUT)%')]
         private int $remoteTimeoutSeconds = 15,
+        #[Autowire('%env(int:VECTOR_SEARCH_EMBEDDING_MAX_BATCH_SIZE)%')]
+        private int $remoteMaxBatchSize = self::DEFAULT_REMOTE_BATCH_SIZE,
     ) {
         if ($this->usesLocalProvider()) {
             $this->initializeTransformers();
@@ -274,6 +277,7 @@ class EmbeddingService
             throw new \RuntimeException('VECTOR_SEARCH_EMBEDDING_API_URL must be configured when VECTOR_SEARCH_EMBEDDING_PROVIDER=http.');
         }
 
+        $maxBatchSize = max(1, $this->remoteMaxBatchSize);
         $headers = [
             'Accept' => 'application/json',
         ];
@@ -281,34 +285,42 @@ class EmbeddingService
             $headers['Authorization'] = 'Bearer '.trim($this->remoteApiKey);
         }
 
-        $response = $this->httpClient->request('POST', $remoteApiUrl, [
-            'timeout' => max(1, $this->remoteTimeoutSeconds),
-            'headers' => $headers,
-            'json' => [
-                'model' => self::MODEL_NAME,
-                'input' => $texts,
-            ],
-        ]);
-
-        $statusCode = $response->getStatusCode();
-        $decoded = $response->toArray(false);
-        if ($statusCode >= 400) {
-            $this->logger->error('Remote embedding request failed', [
-                'status_code' => $statusCode,
-                'provider' => $this->provider,
-                'response' => $decoded,
+        $allEmbeddings = [];
+        foreach (array_chunk($texts, $maxBatchSize) as $textChunk) {
+            $response = $this->httpClient->request('POST', $remoteApiUrl, [
+                'timeout' => max(1, $this->remoteTimeoutSeconds),
+                'headers' => $headers,
+                'json' => [
+                    'model' => self::MODEL_NAME,
+                    'input' => $textChunk,
+                ],
             ]);
 
-            throw new \RuntimeException(sprintf('Remote embedding request failed with status %d.', $statusCode));
+            $statusCode = $response->getStatusCode();
+            $decoded = $response->toArray(false);
+            if ($statusCode >= 400) {
+                $this->logger->error('Remote embedding request failed', [
+                    'status_code' => $statusCode,
+                    'provider' => $this->provider,
+                    'response' => $decoded,
+                    'requested_batch_size' => count($textChunk),
+                    'configured_remote_max_batch_size' => $maxBatchSize,
+                ]);
+
+                throw new \RuntimeException(sprintf('Remote embedding request failed with status %d.', $statusCode));
+            }
+
+            if (!is_array($decoded)) {
+                throw new \RuntimeException('Remote embedding response was not a JSON object.');
+            }
+
+            array_push(
+                $allEmbeddings,
+                ...$this->extractEmbeddingsFromRemoteResponse($decoded)
+            );
         }
 
-        if (!is_array($decoded)) {
-            throw new \RuntimeException('Remote embedding response was not a JSON object.');
-        }
-
-        $embeddings = $this->extractEmbeddingsFromRemoteResponse($decoded);
-
-        return $this->normalizeBatchEmbeddings($embeddings, count($texts));
+        return $this->normalizeBatchEmbeddings($allEmbeddings, count($texts));
     }
 
     /**

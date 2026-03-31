@@ -68,6 +68,7 @@ parameters:
     env(VECTOR_SEARCH_EMBEDDING_API_URL): ''
     env(VECTOR_SEARCH_EMBEDDING_API_KEY): ''
     env(VECTOR_SEARCH_EMBEDDING_TIMEOUT): '15'
+    env(VECTOR_SEARCH_EMBEDDING_MAX_BATCH_SIZE): '32'
 
     locale: en
     database_type: '%env(DB_TYPE)%'

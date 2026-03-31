@@ -34,6 +34,8 @@ services:
         condition: service_healthy
       qdrant:
         condition: service_started
+      t2v:
+        condition: service_started
     environment:
       APP_ENV: "${APP_ENV:-prod}"
       #APP_RUNTIME: "${APP_RUNTIME:-Symfony\\Component\\Runtime\\Runner\\FrankenPhpWorkerRunner}"
@@ -89,10 +91,11 @@ services:
       VECTOR_SEARCH_QDRANT_ALIAS: "${VECTOR_SEARCH_QDRANT_ALIAS:-ls_item_embeddings_active}"
       VECTOR_SEARCH_QDRANT_API_KEY: "${VECTOR_SEARCH_QDRANT_API_KEY:-}"
       VECTOR_SEARCH_QDRANT_TIMEOUT: "${VECTOR_SEARCH_QDRANT_TIMEOUT:-10}"
-      VECTOR_SEARCH_EMBEDDING_PROVIDER: "${VECTOR_SEARCH_EMBEDDING_PROVIDER:-local}"
-      VECTOR_SEARCH_EMBEDDING_API_URL: "${VECTOR_SEARCH_EMBEDDING_API_URL:-}"
+      VECTOR_SEARCH_EMBEDDING_PROVIDER: "${VECTOR_SEARCH_EMBEDDING_PROVIDER:-http}"
+      VECTOR_SEARCH_EMBEDDING_API_URL: "${VECTOR_SEARCH_EMBEDDING_API_URL:-http://t2v/v1/embeddings}"
       VECTOR_SEARCH_EMBEDDING_API_KEY: "${VECTOR_SEARCH_EMBEDDING_API_KEY:-}"
       VECTOR_SEARCH_EMBEDDING_TIMEOUT: "${VECTOR_SEARCH_EMBEDDING_TIMEOUT:-15}"
+      VECTOR_SEARCH_EMBEDDING_MAX_BATCH_SIZE: "${VECTOR_SEARCH_EMBEDDING_MAX_BATCH_SIZE:-32}"
     restart: unless-stopped
     sysctls:
       - net.ipv4.ip_unprivileged_port_start=0
@@ -130,6 +133,14 @@ services:
     volumes:
       #- qdrant_data:/qdrant/storage:rw
       - "./core/docker/data/qdrant:/qdrant/storage:rw"
+
+  t2v:
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.9
+    restart: unless-stopped
+    volumes:
+      - "./core/docker/data/t2v:/data"
+    command: --model-id sentence-transformers/all-MiniLM-L6-v2 --served-model-name Xenova/all-MiniLM-L6-v2
+    # The OpenAI-compatible endpoint is available at /v1/embeddings.
 
 volumes:
 #  db_data:
