@@ -48,11 +48,11 @@ class VectorSearchApiController extends AbstractController
             'kind' => $kind,
             'count' => count($results),
             'results' => array_map(fn ($result) => [
-                'ls_item_id' => $result['lsItem']->getId(),
+                'item_identifier' => $result['lsItem']->getIdentifier(),
                 'full_statement' => $result['lsItem']->getFullStatement(),
                 'human_coding_scheme' => $result['lsItem']->getHumanCodingScheme(),
                 'abbreviated_statement' => $result['lsItem']->getAbbreviatedStatement(),
-                'similarity' => $result['similarity'],
+                'relevance' => $result['similarity'],
                 'kind' => $result['lsItem']->getDiscriminator(),
                 'embedding_id' => $result['embedding']->getId(),
                 'is_leaf_node' => $result['embedding']->isLeafNode(),

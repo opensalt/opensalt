@@ -370,6 +370,7 @@ class VectorSearchController extends AbstractController
             'frameworkIdentifier' => $lsItem->getLsDocIdentifier(),
             'humanCodingScheme' => $lsItem->getHumanCodingScheme(),
             'abbreviatedStatement' => $lsItem->getAbbreviatedStatement(),
+            'ancestorContext' => $this->buildAncestorStatements($lsItem),
             'fullStatement' => $lsItem->getFullStatement(),
             'embedding' => [
                 'exists' => null !== $embedding,
@@ -381,6 +382,36 @@ class VectorSearchController extends AbstractController
                 'text' => $embedding?->getText(),
             ],
         ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function buildAncestorStatements(LsItem $lsItem): array
+    {
+        $ancestorStatements = [];
+        $visitedItemIds = [];
+        $currentItem = $lsItem->getParentItem();
+
+        while ($currentItem instanceof LsItem) {
+            $currentItemId = $currentItem->getId();
+            if (null !== $currentItemId) {
+                if (isset($visitedItemIds[$currentItemId])) {
+                    break;
+                }
+
+                $visitedItemIds[$currentItemId] = true;
+            }
+
+            $statement = trim((string) ($currentItem->getFullStatement() ?? ''));
+            if ('' !== $statement) {
+                $ancestorStatements[] = $statement;
+            }
+
+            $currentItem = $currentItem->getParentItem();
+        }
+
+        return array_reverse($ancestorStatements);
     }
 
     /**
