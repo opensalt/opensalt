@@ -30,7 +30,6 @@ readonly class GenerateEmbeddingMessageHandler
         ]);
 
         try {
-            // Fetch LsItem
             $lsItem = $this->entityManager->find(LsItem::class, $lsItemId);
 
             if (null === $lsItem) {
@@ -41,8 +40,17 @@ readonly class GenerateEmbeddingMessageHandler
                 return;
             }
 
-            // Check if embedding already exists (unless force is true)
-            if (!$message->isForce() && $this->vectorSearchService->hasEmbedding($lsItem)) {
+            $frameworkId = $lsItem->getLsDoc()?->getId();
+            if (null === $frameworkId) {
+                $this->logger->warning('LsItem has no framework', [
+                    'ls_item_id' => $lsItemId,
+                ]);
+
+                return;
+            }
+
+            $force = $message->isForce();
+            if (!$force && $this->vectorSearchService->hasEmbedding($lsItem)) {
                 $this->logger->info('Embedding already exists, skipping', [
                     'ls_item_id' => $lsItemId,
                 ]);
@@ -50,15 +58,14 @@ readonly class GenerateEmbeddingMessageHandler
                 return;
             }
 
-            // Generate and store embedding
-            $embedding = $this->vectorSearchService->generateAndStoreEmbedding(
-                $lsItem,
-                $message->getText()
+            $this->vectorSearchService->generateAndStoreEmbeddingsForFramework(
+                $frameworkId,
+                [$lsItemId],
+                $force
             );
 
             $this->logger->info('Embedding generated successfully', [
                 'ls_item_id' => $lsItemId,
-                'embedding_id' => $embedding->getId(),
             ]);
         } catch (\Exception $e) {
             $this->logger->error('Error processing GenerateEmbeddingMessage', [
@@ -66,7 +73,6 @@ readonly class GenerateEmbeddingMessageHandler
                 'error' => $e->getMessage(),
             ]);
 
-            // Re-throw to allow retry logic
             throw $e;
         }
     }

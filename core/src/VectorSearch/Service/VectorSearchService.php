@@ -5,83 +5,72 @@ declare(strict_types=1);
 namespace App\VectorSearch\Service;
 
 use App\Entity\Framework\LsItem;
-use App\VectorSearch\Entity\LsItemEmbedding;
-use App\VectorSearch\Repository\LsItemEmbeddingRepository;
-use App\VectorSearch\Store\VectorStoreInterface;
-use Doctrine\DBAL\ArrayParameterType;
+use App\VectorSearch\Store\HybridQdrantStore;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\AI\Platform\PlatformInterface;
 
-/**
- * Service for managing vector search operations.
- */
 readonly class VectorSearchService
 {
     private const EMBEDDING_TEXT_SEPARATOR = "\n\n";
     private const EMBEDDING_GENERATION_CURSOR_KEY = 'embedding_generation_cursor';
-    private const VECTOR_COUNT_KEY = 'vector_count';
+    private const VECTOR_COUNT_STATE_KEY = 'vector_count_qdrant';
+    private const EMBEDDING_MODEL = 'Xenova/all-MiniLM-L6-v2';
 
     public function __construct(
-        private EmbeddingService $embeddingService,
-        private VectorStoreInterface $vectorStore,
-        private LsItemEmbeddingRepository $embeddingRepository,
+        private PlatformInterface $platform,
+        private HybridQdrantStore $qdrantStore,
         private EntityManagerInterface $entityManager,
         private LoggerInterface $logger,
-        #[Autowire('%env(string:VECTOR_SEARCH_BACKEND)%')]
-        private string $vectorBackend = 'mysql',
     ) {
     }
 
-    /**
-     * Generate and store embedding for an LsItem.
-     *
-     * @param LsItem $lsItem The item to generate embedding for
-     * @param string|null $text Optional text to embed
-     * @return LsItemEmbedding The created embedding entity
-     */
-    public function generateAndStoreEmbedding(LsItem $lsItem, ?string $text = null): LsItemEmbedding
+    public function generateAndStoreEmbedding(LsItem $lsItem, string $text = ''): void
     {
-        $lsItem = $this->resolveManagedLsItem($lsItem);
-        $existingEmbedding = $this->embeddingRepository->findOneBy(['lsItem' => $lsItem]);
-        $wasCounted = $existingEmbedding?->hasVectorData() ?? false;
-        $embeddingText = $text ?? $this->buildEmbeddingText($lsItem);
-        $isLeafNode = $this->isLeafNode($lsItem);
-        $sourceHierarchyUpdatedAt = $this->getSourceHierarchyUpdatedAt($lsItem);
-
-        $vector = $this->embeddingService->generateEmbedding($embeddingText);
-        $embedding = $this->upsertEmbeddingEntity(
-            $lsItem,
-            $embeddingText,
-            $isLeafNode,
-            $sourceHierarchyUpdatedAt,
-            $existingEmbedding
-        );
-
-        $this->vectorStore->storeEmbeddingVector($embedding, $vector);
-        $this->entityManager->flush();
-        $this->vectorStore->finalizeStoredEmbedding($embedding, $vector);
-        $this->entityManager->flush();
-        if (!$wasCounted) {
-            $this->incrementCachedVectorCount(1);
+        $lsItemId = $lsItem->getId();
+        if (null === $lsItemId) {
+            throw new \InvalidArgumentException('Cannot generate embedding for LsItem without ID.');
         }
 
-        $this->logger->info('Embedding generated and stored', [
-            'ls_item_id' => $lsItem->getId(),
-            'embedding_id' => $embedding->getId(),
-            'leaf_node' => $isLeafNode,
-            'source_hierarchy_updated_at' => $sourceHierarchyUpdatedAt->format(\DateTimeInterface::ATOM),
+        $managedLsItem = $this->resolveManagedLsItem($lsItem);
+
+        $frameworkId = $managedLsItem->getLsDoc()->getId();
+        if (null === $frameworkId) {
+            throw new \InvalidArgumentException(sprintf('Cannot generate embedding for LsItem %d without framework ID.', $lsItemId));
+        }
+
+        $embeddingText = trim($text);
+        if ('' === $embeddingText) {
+            $embeddingText = trim((string) ($managedLsItem->getFullStatement() ?? ''));
+        }
+        if ('' === $embeddingText) {
+            $this->logger->warning('Skipping embedding generation for LsItem with empty text.', [
+                'ls_item_id' => $lsItemId,
+            ]);
+
+            return;
+        }
+
+        $vector = $this->generateEmbedding($embeddingText);
+
+        $this->qdrantStore->importEmbeddings([
+            [
+                'lsItemId' => $lsItemId,
+                'frameworkId' => $frameworkId,
+                'kind' => $managedLsItem->getDiscriminator(),
+                'text' => $embeddingText,
+                'isLeafNode' => $this->isLeafNode($managedLsItem),
+                'sourceHierarchyUpdatedAt' => $this->getSourceHierarchyUpdatedAt($managedLsItem),
+                'vector' => $vector,
+            ],
         ]);
 
-        return $embedding;
+        $this->logger->info('Embedding generated and stored.', [
+            'ls_item_id' => $lsItemId,
+            'framework_id' => $frameworkId,
+        ]);
     }
 
-    /**
-     * Generate and store embeddings for a set of items inside a single framework.
-     *
-     * @param list<int> $lsItemIds
-     * @return array{processed: int, skipped: int, missing: int}
-     */
     public function generateAndStoreEmbeddingsForFramework(
         int $frameworkId,
         array $lsItemIds,
@@ -97,7 +86,6 @@ readonly class VectorSearchService
         }
 
         $frameworkGraph = $this->loadFrameworkGraph($frameworkId);
-        $embeddingStatuses = $this->embeddingRepository->getEmbeddingStatusByLsItemIds($lsItemIds);
         $textCache = [];
         $updatedAtCache = [];
 
@@ -113,14 +101,7 @@ readonly class VectorSearchService
                 continue;
             }
 
-            $sourceHierarchyUpdatedAt = $this->getSourceHierarchyUpdatedAtFromGraph($lsItemId, $frameworkGraph, $updatedAtCache);
-            $embeddingStatus = $embeddingStatuses[$lsItemId] ?? null;
-
-            if (
-                !$force
-                && ($embeddingStatus['hasVectorData'] ?? false)
-                && $this->isEmbeddingStatusCurrent($embeddingStatus, $sourceHierarchyUpdatedAt)
-            ) {
+            if (!$force && $this->qdrantStore->pointExists($lsItemId)) {
                 ++$skipped;
                 continue;
             }
@@ -131,7 +112,7 @@ readonly class VectorSearchService
                 'kind' => $this->getFrameworkItemKind($lsItemId, $frameworkGraph),
                 'text' => $this->buildEmbeddingTextFromGraph($lsItemId, $frameworkGraph, $textCache),
                 'isLeafNode' => (bool) $frameworkItem['isLeafNode'],
-                'sourceHierarchyUpdatedAt' => $sourceHierarchyUpdatedAt,
+                'sourceHierarchyUpdatedAt' => $this->getSourceHierarchyUpdatedAtFromGraph($lsItemId, $frameworkGraph, $updatedAtCache),
             ];
 
             if (count($batch) >= max(1, $batchSize)) {
@@ -144,15 +125,6 @@ readonly class VectorSearchService
             $processed += $this->storeFrameworkEmbeddingBatch($batch);
         }
 
-        $this->logger->info('Framework embedding generation completed', [
-            'framework_id' => $frameworkId,
-            'requested_count' => count($lsItemIds),
-            'processed_count' => $processed,
-            'skipped_count' => $skipped,
-            'missing_count' => $missing,
-            'batch_size' => $batchSize,
-        ]);
-
         return [
             'processed' => $processed,
             'skipped' => $skipped,
@@ -160,17 +132,6 @@ readonly class VectorSearchService
         ];
     }
 
-    /**
-     * @param list<int> $lsItemIds
-     * @return list<array{
-     *   lsItemId: int,
-     *   frameworkId: int,
-     *   kind: int,
-     *   text: string,
-     *   isLeafNode: bool,
-     *   sourceHierarchyUpdatedAt: \DateTimeImmutable
-     * }>
-     */
     public function buildEmbeddingRowsForFramework(int $frameworkId, array $lsItemIds): array
     {
         if ([] === $lsItemIds) {
@@ -201,24 +162,6 @@ readonly class VectorSearchService
         return $rows;
     }
 
-    /**
-     * Build embedding rows for ALL items in a framework.
-     *
-     * Loads the framework graph once and builds the full embedding text
-     * (item fullStatement + all ancestor fullStatements) for every item.
-     *
-     * Unlike buildEmbeddingRowsForFramework() which accepts a filtered list of item IDs,
-     * this method processes every item that belongs to the framework.
-     *
-     * @return list<array{
-     *   lsItemId: int,
-     *   frameworkId: int,
-     *   kind: int,
-     *   text: string,
-     *   isLeafNode: bool,
-     *   sourceHierarchyUpdatedAt: \DateTimeImmutable
-     * }>
-     */
     public function buildAllEmbeddingRowsForFramework(int $frameworkId): array
     {
         $frameworkGraph = $this->loadFrameworkGraph($frameworkId);
@@ -227,8 +170,6 @@ readonly class VectorSearchService
         $rows = [];
 
         foreach ($frameworkGraph as $lsItemId => $frameworkItem) {
-            // Skip placeholder entries created for cross-framework parent references.
-            // These have epoch updatedAt, empty fullStatement, and kind 0.
             if (0 === $frameworkItem['updatedAt']->getTimestamp()
                 && '' === $frameworkItem['fullStatement']
                 && 0 === $frameworkItem['kind']
@@ -249,15 +190,6 @@ readonly class VectorSearchService
         return $rows;
     }
 
-    /**
-     * Search for similar LsItems by text query.
-     *
-     * Delegates to searchHybridByQuery() so that Qdrant backends automatically
-     * benefit from BM25 + vector fusion while MySQL backends fall back to
-     * vector-only search with a warning.
-     *
-     * @return list<array{lsItem: LsItem, similarity: float, embedding: LsItemEmbedding}>
-     */
     public function searchByQuery(
         string $query,
         int $limit = 10,
@@ -268,11 +200,6 @@ readonly class VectorSearchService
         return $this->searchHybridByQuery($query, $limit, $frameworkId, $leafOnly, $kind);
     }
 
-    /**
-     * Search for LsItems by backend-native keyword/full-text search.
-     *
-     * @return list<array{lsItem: LsItem, similarity: float, embedding: LsItemEmbedding}>
-     */
     public function searchByKeyword(
         string $query,
         int $limit = 10,
@@ -280,61 +207,11 @@ readonly class VectorSearchService
         bool $leafOnly = false,
         ?int $kind = null,
     ): array {
-        $vectorResults = $this->vectorStore->searchFullText($query, $limit, $frameworkId, $leafOnly, $kind);
+        $vectorResults = $this->qdrantStore->searchFullText($query, $limit, $frameworkId, $leafOnly, $kind);
 
-        $results = $this->resolveResults($vectorResults);
-
-        $this->logger->debug('Keyword search completed', [
-            'limit' => $limit,
-            'framework_id' => $frameworkId,
-            'leaf_only' => $leafOnly,
-            'kind' => $kind,
-            'results_count' => count($results),
-        ]);
-
-        return $results;
+        return $this->resolveResults($vectorResults);
     }
 
-    /**
-     * Search for similar LsItems by vector.
-     *
-     * @param array $vector The query vector (384 dimensions)
-     * @return array Array of LsItem entities with similarity scores
-     */
-    public function searchByVector(
-        array $vector,
-        int $limit = 10,
-        ?int $frameworkId = null,
-        bool $leafOnly = false,
-        ?int $kind = null,
-    ): array {
-        $vectorResults = $this->vectorStore->search($vector, $limit, $frameworkId, $leafOnly, $kind);
-
-        $results = $this->resolveResults($vectorResults);
-
-        $this->logger->debug('Vector similarity search completed', [
-            'limit' => $limit,
-            'framework_id' => $frameworkId,
-            'leaf_only' => $leafOnly,
-            'kind' => $kind,
-            'results_count' => count($results),
-        ]);
-
-        return $results;
-    }
-
-    /**
-     * Search for similar LsItems using hybrid BM25 + vector similarity search.
-     *
-     * @param string $query The text query to search for
-     * @param int $limit Maximum number of results to return
-     * @param int|null $frameworkId Optional framework filter
-     * @param bool $leafOnly Whether to restrict results to leaf nodes only
-     * @param int|null $kind Optional item kind filter
-     * @param int $prefetchLimit Number of candidates to fetch per sub-query before fusion
-     *
-     * @return list<array{lsItem: LsItem, similarity: float, embedding: LsItemEmbedding}>
-     */
     public function searchHybridByQuery(
         string $query,
         int $limit = 10,
@@ -343,9 +220,9 @@ readonly class VectorSearchService
         ?int $kind = null,
         int $prefetchLimit = 20,
     ): array {
-        $queryVector = $this->embeddingService->generateEmbedding($query);
+        $queryVector = $this->generateEmbedding($query);
 
-        $vectorResults = $this->vectorStore->searchHybrid(
+        $vectorResults = $this->qdrantStore->searchHybrid(
             $queryVector,
             $query,
             $limit,
@@ -358,11 +235,18 @@ readonly class VectorSearchService
         return $this->resolveResults($vectorResults);
     }
 
-    /**
-     * Search for items similar to an existing LsItem.
-     *
-     * @return array Array of LsItem entities with similarity scores
-     */
+    public function searchByVector(
+        array $vector,
+        int $limit = 10,
+        ?int $frameworkId = null,
+        bool $leafOnly = false,
+        ?int $kind = null,
+    ): array {
+        $vectorResults = $this->qdrantStore->search($vector, $limit, $frameworkId, $leafOnly, $kind);
+
+        return $this->resolveResults($vectorResults);
+    }
+
     public function searchByLsItem(
         LsItem $lsItem,
         int $limit = 10,
@@ -370,18 +254,19 @@ readonly class VectorSearchService
         bool $leafOnly = false,
         ?int $kind = null,
     ): array {
-        $embedding = $this->getEmbedding($lsItem);
         $sourceId = $lsItem->getId();
-        if (null === $embedding || null === $sourceId) {
+        if (null === $sourceId) {
             return [];
         }
 
-        $queryVector = $this->vectorStore->getVectorByLsItemId($sourceId);
+        $queryVector = $this->qdrantStore->getVectorByLsItemId($sourceId);
         if (null === $queryVector) {
             return [];
         }
 
-        $results = $this->searchByVector($queryVector, $limit + 1, $frameworkId, $leafOnly, $kind);
+        $vectorResults = $this->qdrantStore->search($queryVector, $limit + 1, $frameworkId, $leafOnly, $kind);
+
+        $results = $this->resolveResults($vectorResults);
 
         $results = array_values(array_filter(
             $results,
@@ -391,88 +276,49 @@ readonly class VectorSearchService
         return array_slice($results, 0, $limit);
     }
 
-    /**
-     * Delete embedding for an LsItem.
-     *
-     * @param LsItem $lsItem The item to delete embedding for
-     * @return bool True if deleted, false otherwise
-     */
-    public function deleteEmbedding(LsItem $lsItem): bool
+    public function deleteEmbedding(LsItem $lsItem): void
     {
-        $lsItem = $this->resolveManagedLsItem($lsItem);
-        $embedding = $this->embeddingRepository->findOneBy(['lsItem' => $lsItem]);
+        $lsItemId = $lsItem->getId();
+        if (null === $lsItemId) {
+            return;
+        }
 
-        if (null === $embedding) {
+        $this->qdrantStore->deleteByLsItemId($lsItemId);
+    }
+
+    public function hasEmbedding(LsItem $lsItem): bool
+    {
+        $lsItemId = $lsItem->getId();
+        if (null === $lsItemId) {
             return false;
         }
 
-        $wasCounted = $embedding->hasVectorData();
+        return $this->qdrantStore->pointExists($lsItemId);
+    }
+
+    public function getEmbedding(LsItem $lsItem): ?array
+    {
         $lsItemId = $lsItem->getId();
         if (null === $lsItemId) {
-            throw new \RuntimeException('Cannot delete a vector embedding for an LsItem without an ID.');
+            return null;
         }
 
-        $this->vectorStore->deleteByLsItemId($lsItemId);
-        $this->entityManager->remove($embedding);
-        $this->entityManager->flush();
-        if ($wasCounted) {
-            $this->incrementCachedVectorCount(-1);
+        $vector = $this->qdrantStore->getVectorByLsItemId($lsItemId);
+        if (null === $vector) {
+            return null;
         }
 
-        $this->logger->info('Embedding deleted', [
-            'ls_item_id' => $lsItem->getId(),
-            'embedding_id' => $embedding->getId(),
-        ]);
-
-        return true;
+        return [
+            'lsItemId' => $lsItemId,
+            'hasVectorData' => true,
+            'vectorDimensions' => count($vector),
+        ];
     }
 
-    /**
-     * Get embedding for an LsItem.
-     *
-     * @param LsItem $lsItem The item to get embedding for
-     * @return LsItemEmbedding|null The embedding entity or null if not found
-     */
-    public function getEmbedding(LsItem $lsItem): ?LsItemEmbedding
-    {
-        $lsItem = $this->resolveManagedLsItem($lsItem);
-
-        return $this->embeddingRepository->findOneBy(['lsItem' => $lsItem]);
-    }
-
-    /**
-     * Check if an LsItem has an embedding.
-     *
-     * @param LsItem $lsItem The item to check
-     * @return bool True if embedding exists, false otherwise
-     */
-    public function hasEmbedding(LsItem $lsItem): bool
-    {
-        return $this->getEmbedding($lsItem)?->hasVectorData() ?? false;
-    }
-
-    /**
-     * Get vector count.
-     *
-     * @return int Number of vectors in the table
-     */
     public function getVectorCount(): int
     {
-        if ($this->isQdrantBackend()) {
-            $count = $this->vectorStore->getVectorCount();
-            $this->setStateInt($this->getVectorCountStateKey(), $count);
-
-            return $count;
-        }
-
-        $cachedCount = $this->getStateInt($this->getVectorCountStateKey());
-        if (null !== $cachedCount) {
-            return $cachedCount;
-        }
-
-        // Cache miss: compute exact count and cache it
-        $count = $this->vectorStore->getVectorCount();
-        $this->setStateInt($this->getVectorCountStateKey(), $count);
+        $count = $this->qdrantStore->getVectorCount();
+        $this->setStateInt(self::VECTOR_COUNT_STATE_KEY, $count);
 
         return $count;
     }
@@ -492,70 +338,16 @@ readonly class VectorSearchService
         $this->saveEmbeddingGenerationCursor(null);
     }
 
-    /**
-     * @param list<int> $lsItemIds
-     * @return array<int, list<int>>
-     */
     public function getStaleLsItemIdsGroupedByFramework(array $lsItemIds): array
     {
         if ([] === $lsItemIds) {
             return [];
         }
 
-        $sql = <<<'SQL'
-            WITH RECURSIVE item_ancestry AS (
-                SELECT li.id AS target_id, li.id AS ancestor_id, li.updated_at AS ancestor_updated_at
-                FROM ls_item li
-                WHERE li.id IN (:lsItemIds)
-
-                UNION ALL
-
-                SELECT item_ancestry.target_id, parent.id AS ancestor_id, parent.updated_at AS ancestor_updated_at
-                FROM item_ancestry
-                INNER JOIN ls_association parent_assoc
-                    ON parent_assoc.origin_lsitem_id = item_ancestry.ancestor_id
-                   AND parent_assoc.type = :childOfType
-                INNER JOIN ls_item parent
-                    ON parent.id = parent_assoc.destination_lsitem_id
-            ),
-            hierarchy_state AS (
-                SELECT target_id, MAX(ancestor_updated_at) AS hierarchy_updated_at
-                FROM item_ancestry
-                GROUP BY target_id
-            )
-            SELECT li.id, li.ls_doc_id AS framework_id
-            FROM ls_item li
-            INNER JOIN hierarchy_state hs
-                ON hs.target_id = li.id
-            LEFT JOIN ls_item_embedding embedding
-                ON embedding.ls_item_id = li.id
-            WHERE li.id IN (:lsItemIds)
-              AND (
-                  embedding.id IS NULL
-                  OR NOT (
-                      embedding.is_indexed = 1
-                      OR (
-                          embedding.vector IS NOT NULL
-                          AND embedding.normalized_vector IS NOT NULL
-                          AND embedding.magnitude IS NOT NULL
-                          AND embedding.binary_code IS NOT NULL
-                      )
-                  )
-                  OR embedding.source_hierarchy_updated_at IS NULL
-                  OR embedding.source_hierarchy_updated_at < hs.hierarchy_updated_at
-              )
-            ORDER BY framework_id ASC, li.id ASC
-        SQL;
-
         $rows = $this->entityManager->getConnection()->fetchAllAssociative(
-            $sql,
-            [
-                'lsItemIds' => $lsItemIds,
-                'childOfType' => 'isChildOf',
-            ],
-            [
-                'lsItemIds' => ArrayParameterType::INTEGER,
-            ]
+            'SELECT li.id, li.ls_doc_id AS framework_id FROM ls_item li WHERE li.id IN (:lsItemIds) ORDER BY framework_id ASC, li.id ASC',
+            ['lsItemIds' => $lsItemIds],
+            ['lsItemIds' => \Doctrine\DBAL\ArrayParameterType::INTEGER],
         );
 
         $grouped = [];
@@ -568,11 +360,6 @@ readonly class VectorSearchService
         return $grouped;
     }
 
-    /**
-     * @param array<int, LsItem>|null $frameworkItems
-     * @param array<int, string> $textCache
-     * @param list<int> $visited IDs already traversed (cycle detection)
-     */
     public function buildEmbeddingText(LsItem $lsItem, ?array $frameworkItems = null, array &$textCache = [], array $visited = []): string
     {
         $lsItemId = $lsItem->getId();
@@ -609,40 +396,48 @@ readonly class VectorSearchService
         return $text;
     }
 
-    /**
-     * @param array<int, LsItem>|null $frameworkItems
-     */
     public function isLeafNode(LsItem $lsItem, ?array $frameworkItems = null): bool
     {
         return $lsItem->getChildren()->isEmpty();
     }
 
-    /**
-     * Resolve vector search results to LsItem entities.
-     *
-     * @param list<array{lsItemId: int, similarity: float}> $vectorResults
-     *
-     * @return list<array{lsItem: LsItem, similarity: float, embedding: LsItemEmbedding}>
-     */
+    private function generateEmbedding(string $text): array
+    {
+        $deferredResult = $this->platform->invoke(self::EMBEDDING_MODEL, $text);
+        $vectors = $deferredResult->asVectors();
+        if ([] === $vectors) {
+            throw new \RuntimeException(sprintf('Platform did not return an embedding vector for model %s.', self::EMBEDDING_MODEL));
+        }
+
+        return $vectors[0]->getData();
+    }
+
     private function resolveResults(array $vectorResults): array
     {
         $lsItemIds = array_map(
             static fn (array $vectorResult): int => (int) $vectorResult['lsItemId'],
             $vectorResults
         );
-        $embeddings = $this->embeddingRepository->findByLsItemIdsIndexed($lsItemIds);
+
+        $lsItems = $this->entityManager->getRepository(LsItem::class)->findBy(['id' => $lsItemIds]);
+        $indexed = [];
+        foreach ($lsItems as $lsItem) {
+            $id = $lsItem->getId();
+            if (null !== $id) {
+                $indexed[$id] = $lsItem;
+            }
+        }
 
         $results = [];
         foreach ($vectorResults as $vectorResult) {
-            $embedding = $embeddings[(int) $vectorResult['lsItemId']] ?? null;
-            if (null === $embedding) {
+            $lsItem = $indexed[(int) $vectorResult['lsItemId']] ?? null;
+            if (null === $lsItem) {
                 continue;
             }
 
             $results[] = [
-                'lsItem' => $embedding->getLsItem(),
+                'lsItem' => $lsItem,
                 'similarity' => $vectorResult['similarity'],
-                'embedding' => $embedding,
             ];
         }
 
@@ -668,26 +463,30 @@ readonly class VectorSearchService
         return $managedLsItem;
     }
 
-    /**
-     * @param array<int, array{
-     *   lsItemId: int,
-     *   frameworkId: int,
-     *   kind: int,
-     *   text: string,
-     *   isLeafNode: bool,
-     *   sourceHierarchyUpdatedAt: \DateTimeImmutable
-     * }> $batch
-     */
     private function storeFrameworkEmbeddingBatch(array $batch): int
     {
         $texts = array_map(
             static fn (array $entry): string => $entry['text'],
             $batch
         );
-        $vectors = $this->embeddingService->generateBatchEmbeddings($texts);
+
+        $vectors = [];
+        foreach (array_chunk($texts, 8) as $textChunk) {
+            $chunkInput = implode("\n", $textChunk);
+            $deferredResult = $this->platform->invoke(self::EMBEDDING_MODEL, $chunkInput);
+            $chunkVectors = $deferredResult->asVectors();
+
+            if (count($chunkVectors) !== count($textChunk)) {
+                $deferredResult = $this->platform->invoke(self::EMBEDDING_MODEL, $textChunk);
+                $chunkVectors = $deferredResult->asVectors();
+            }
+
+            foreach ($chunkVectors as $vector) {
+                $vectors[] = $vector->getData();
+            }
+        }
 
         $rows = [];
-
         foreach ($batch as $index => $entry) {
             $vector = $vectors[$index] ?? null;
             if (!is_array($vector)) {
@@ -705,43 +504,12 @@ readonly class VectorSearchService
             ];
         }
 
-        $newlyCountedRows = $this->vectorStore->storeEmbeddingBatch($rows);
-        if ($newlyCountedRows > 0) {
-            $this->incrementCachedVectorCount($newlyCountedRows);
-        }
-        $this->entityManager->clear();
+        $this->qdrantStore->importEmbeddings($rows);
         gc_collect_cycles();
 
         return count($batch);
     }
 
-    private function upsertEmbeddingEntity(
-        LsItem $lsItem,
-        string $embeddingText,
-        bool $isLeafNode,
-        \DateTimeImmutable $sourceHierarchyUpdatedAt,
-        ?LsItemEmbedding $embedding = null,
-    ): LsItemEmbedding {
-        if (null === $embedding) {
-            $embedding = new LsItemEmbedding($lsItem, $embeddingText);
-            $this->entityManager->persist($embedding);
-        }
-
-        return $embedding
-            ->setText($embeddingText)
-            ->setIsLeafNode($isLeafNode)
-            ->setSourceHierarchyUpdatedAt($sourceHierarchyUpdatedAt);
-    }
-
-    /**
-     * @return array<int, array{
-     *   fullStatement: string,
-     *   parentId: int|null,
-     *   isLeafNode: bool,
-     *   updatedAt: \DateTimeImmutable,
-     *   kind: int
-     * }>
-     */
     private function loadFrameworkGraph(int $frameworkId): array
     {
         $queryBuilder = $this->entityManager->getConnection()->createQueryBuilder();
@@ -794,15 +562,6 @@ readonly class VectorSearchService
         return $graph;
     }
 
-    /**
-     * @param array<int, array{
-     *   fullStatement: string,
-     *   parentId: int|null,
-     *   isLeafNode: bool,
-     *   updatedAt: \DateTimeImmutable
-     * }> $frameworkGraph
-     * @param array<int, string> $textCache
-     */
     private function buildEmbeddingTextFromGraph(int $lsItemId, array $frameworkGraph, array &$textCache): string
     {
         if (isset($textCache[$lsItemId])) {
@@ -831,15 +590,6 @@ readonly class VectorSearchService
         return $textCache[$lsItemId];
     }
 
-    /**
-     * @param array<int, array{
-     *   fullStatement: string,
-     *   parentId: int|null,
-     *   isLeafNode: bool,
-     *   updatedAt: \DateTimeImmutable
-     * }> $frameworkGraph
-     * @param array<int, \DateTimeImmutable> $updatedAtCache
-     */
     private function getSourceHierarchyUpdatedAtFromGraph(int $lsItemId, array $frameworkGraph, array &$updatedAtCache): \DateTimeImmutable
     {
         if (isset($updatedAtCache[$lsItemId])) {
@@ -869,9 +619,6 @@ readonly class VectorSearchService
         return $maxUpdatedAt;
     }
 
-    /**
-     * @param array<int, LsItem>|null $frameworkItems
-     */
     private function resolveParentItem(LsItem $lsItem, ?array $frameworkItems): ?LsItem
     {
         $parentItem = $lsItem->getParentItem();
@@ -896,15 +643,6 @@ readonly class VectorSearchService
         return trim((string) ($lsItem->getFullStatement() ?? ''));
     }
 
-    /**
-     * @param array<int, array{
-     *   fullStatement: string,
-     *   parentId: int|null,
-     *   isLeafNode: bool,
-     *   updatedAt: \DateTimeImmutable,
-     *   kind?: int
-     * }> $frameworkGraph
-     */
     private function getFrameworkItemKind(int $lsItemId, array $frameworkGraph): int
     {
         $frameworkItem = $frameworkGraph[$lsItemId] ?? null;
@@ -930,44 +668,6 @@ readonly class VectorSearchService
         $parentUpdatedAt = $this->getSourceHierarchyUpdatedAt($parentItem, $visitedIds);
 
         return $parentUpdatedAt > $maxUpdatedAt ? $parentUpdatedAt : $maxUpdatedAt;
-    }
-
-    /**
-     * @param array{hasVectorData: bool, sourceHierarchyUpdatedAt: \DateTimeImmutable|null}|null $embeddingStatus
-     */
-    private function isEmbeddingStatusCurrent(?array $embeddingStatus, \DateTimeImmutable $sourceHierarchyUpdatedAt): bool
-    {
-        if (null === $embeddingStatus || true !== $embeddingStatus['hasVectorData']) {
-            return false;
-        }
-
-        $embeddedThrough = $embeddingStatus['sourceHierarchyUpdatedAt'];
-
-        return null !== $embeddedThrough && $embeddedThrough >= $sourceHierarchyUpdatedAt;
-    }
-
-    private function incrementCachedVectorCount(int $delta): void
-    {
-        if (0 === $delta) {
-            return;
-        }
-
-        $cachedCount = $this->getStateInt($this->getVectorCountStateKey());
-        if (null === $cachedCount) {
-            return;
-        }
-
-        $this->setStateInt($this->getVectorCountStateKey(), max(0, $cachedCount + $delta));
-    }
-
-    private function getVectorCountStateKey(): string
-    {
-        return sprintf('%s_%s', self::VECTOR_COUNT_KEY, strtolower(trim($this->vectorBackend)));
-    }
-
-    private function isQdrantBackend(): bool
-    {
-        return 'qdrant' === strtolower(trim($this->vectorBackend));
     }
 
     private function getStateInt(string $stateKey): ?int

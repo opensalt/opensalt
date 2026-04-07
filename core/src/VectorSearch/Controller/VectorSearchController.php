@@ -6,7 +6,6 @@ namespace App\VectorSearch\Controller;
 
 use App\Entity\Framework\LsItem;
 use App\Entity\Framework\LsItemKind;
-use App\VectorSearch\Entity\LsItemEmbedding;
 use App\VectorSearch\Service\VectorSearchService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -322,12 +321,11 @@ class VectorSearchController extends AbstractController
             throw $this->createNotFoundException(sprintf('LsItem %d was not found.', $id));
         }
 
-        $embedding = $this->vectorSearchService->getEmbedding($lsItem);
+        $hasEmbedding = $this->vectorSearchService->hasEmbedding($lsItem);
 
         return $this->render('vector_search/detail.html.twig', $this->buildNavigationContext() + [
             'item' => $lsItem,
-            'embedding' => $embedding,
-            'itemData' => $this->buildItemDetailData($lsItem, $embedding),
+            'itemData' => $this->buildItemDetailData($lsItem, $hasEmbedding),
             'vectorCount' => $this->vectorSearchService->getVectorCount(),
             'kinds' => LsItemKind::TYPES,
         ]);
@@ -360,7 +358,7 @@ class VectorSearchController extends AbstractController
     /**
      * @return array<string, mixed>
      */
-    private function buildItemDetailData(LsItem $lsItem, ?LsItemEmbedding $embedding): array
+    private function buildItemDetailData(LsItem $lsItem, bool $hasEmbedding): array
     {
         return [
             'itemId' => $lsItem->getId(),
@@ -373,13 +371,7 @@ class VectorSearchController extends AbstractController
             'ancestorContext' => $this->buildAncestorStatements($lsItem),
             'fullStatement' => $lsItem->getFullStatement(),
             'embedding' => [
-                'exists' => null !== $embedding,
-                'embeddingId' => $embedding?->getId(),
-                'isLeafNode' => $embedding?->isLeafNode(),
-                'sourceHierarchyUpdatedAt' => $embedding?->getSourceHierarchyUpdatedAt()?->format('Y-m-d H:i:s'),
-                'createdAt' => $embedding?->getCreatedAt()?->format('Y-m-d H:i:s'),
-                'updatedAt' => $embedding?->getUpdatedAt()?->format('Y-m-d H:i:s'),
-                'text' => $embedding?->getText(),
+                'exists' => $hasEmbedding,
             ],
         ];
     }

@@ -54,10 +54,6 @@ class VectorSearchApiController extends AbstractController
                 'abbreviated_statement' => $result['lsItem']->getAbbreviatedStatement(),
                 'relevance' => $result['similarity'],
                 'kind' => $result['lsItem']->getDiscriminator(),
-                'embedding_id' => $result['embedding']->getId(),
-                'is_leaf_node' => $result['embedding']->isLeafNode(),
-                'source_hierarchy_updated_at' => $result['embedding']->getSourceHierarchyUpdatedAt()?->format('Y-m-d H:i:s'),
-                'created_at' => $result['embedding']->getCreatedAt()->format('Y-m-d H:i:s'),
             ], $results),
         ];
 

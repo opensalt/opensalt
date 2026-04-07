@@ -5,14 +5,15 @@ declare(strict_types=1);
 namespace Tests\Unit\App\VectorSearch\Command;
 
 use App\VectorSearch\Command\RebuildQdrantIndexByFrameworkCommand;
-use App\VectorSearch\Service\EmbeddingService;
 use App\VectorSearch\Service\VectorSearchService;
-use App\VectorSearch\Service\VectorTableService;
-use App\VectorSearch\Store\QdrantVectorStore;
+use App\VectorSearch\Store\HybridQdrantStore;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\TestCase;
+use Symfony\AI\Platform\PlatformInterface;
+use Symfony\AI\Platform\Result\DeferredResult;
+use Symfony\AI\Platform\Vector\Vector;
 use Symfony\Component\Console\Tester\CommandTester;
 
 final class RebuildQdrantIndexByFrameworkCommandTest extends TestCase
@@ -20,34 +21,32 @@ final class RebuildQdrantIndexByFrameworkCommandTest extends TestCase
     public function testExecuteResumesSpecifiedExistingCollection(): void
     {
         $connection = $this->createMock(Connection::class);
-        $embeddingService = $this->createMock(EmbeddingService::class);
+        $platform = $this->createMock(PlatformInterface::class);
         $vectorSearchService = $this->createMock(VectorSearchService::class);
-        $vectorTableService = $this->createMock(VectorTableService::class);
-        $qdrantVectorStore = $this->createMock(QdrantVectorStore::class);
+        $qdrantStore = $this->createMock(HybridQdrantStore::class);
 
         $this->mockFrameworkQuery($connection, []);
 
-        $qdrantVectorStore->expects(self::once())
+        $qdrantStore->expects(self::once())
             ->method('getCollectionAlias')
             ->willReturn('framework_alias');
-        $qdrantVectorStore->expects(self::once())
+        $qdrantStore->expects(self::once())
             ->method('getResolvedActiveCollectionName')
             ->willReturn('framework_alias__active');
-        $qdrantVectorStore->expects(self::once())
+        $qdrantStore->expects(self::once())
             ->method('prepareCollection')
             ->with('resume_collection', false, true)
             ->willReturn(false);
-        $qdrantVectorStore->expects(self::exactly(2))
+        $qdrantStore->expects(self::exactly(2))
             ->method('countCollection')
             ->with('resume_collection')
             ->willReturn(5);
 
         $command = new RebuildQdrantIndexByFrameworkCommand(
             $connection,
-            $embeddingService,
+            $platform,
             $vectorSearchService,
-            $vectorTableService,
-            $qdrantVectorStore,
+            $qdrantStore,
         );
 
         $tester = new CommandTester($command);
@@ -63,10 +62,9 @@ final class RebuildQdrantIndexByFrameworkCommandTest extends TestCase
     public function testExecuteSkipsEmptyRowsBeforeEmbeddingGeneration(): void
     {
         $connection = $this->createMock(Connection::class);
-        $embeddingService = $this->createMock(EmbeddingService::class);
+        $platform = $this->createMock(PlatformInterface::class);
         $vectorSearchService = $this->createMock(VectorSearchService::class);
-        $vectorTableService = $this->createMock(VectorTableService::class);
-        $qdrantVectorStore = $this->createMock(QdrantVectorStore::class);
+        $qdrantStore = $this->createMock(HybridQdrantStore::class);
 
         $frameworks = [[
             'id' => '10',
@@ -103,21 +101,21 @@ final class RebuildQdrantIndexByFrameworkCommandTest extends TestCase
             ],
         ];
 
-        $qdrantVectorStore->expects(self::once())
+        $qdrantStore->expects(self::once())
             ->method('getCollectionAlias')
             ->willReturn('framework_alias');
-        $qdrantVectorStore->expects(self::once())
+        $qdrantStore->expects(self::once())
             ->method('getResolvedActiveCollectionName')
             ->willReturn('framework_alias__active');
-        $qdrantVectorStore->expects(self::once())
+        $qdrantStore->expects(self::once())
             ->method('prepareCollection')
             ->with('resume_collection', false, true)
             ->willReturn(true);
-        $qdrantVectorStore->expects(self::once())
+        $qdrantStore->expects(self::once())
             ->method('countCollection')
             ->with('resume_collection')
             ->willReturn(1);
-        $qdrantVectorStore->expects(self::once())
+        $qdrantStore->expects(self::once())
             ->method('importEmbeddings')
             ->with(
                 self::callback(static function (array $rows): bool {
@@ -135,26 +133,24 @@ final class RebuildQdrantIndexByFrameworkCommandTest extends TestCase
             ->with(10)
             ->willReturn($vectorRows);
 
-        $embeddingService->expects(self::once())
-            ->method('generateBatchEmbeddings')
-            ->with(['Valid statement'])
-            ->willReturn([[0.1, 0.2, 0.3]]);
+        $rawResult = $this->createMock(\Symfony\AI\Platform\Result\RawResultInterface::class);
+        $vectorResult = new \Symfony\AI\Platform\Result\VectorResult(new Vector([0.1, 0.2, 0.3]));
+        $resultConverter = $this->createMock(\Symfony\AI\Platform\ResultConverterInterface::class);
+        $resultConverter->expects(self::once())
+            ->method('convert')
+            ->willReturn($vectorResult);
+        $deferredResult = new \Symfony\AI\Platform\Result\DeferredResult($resultConverter, $rawResult);
 
-        $vectorTableService->expects(self::once())
-            ->method('storeEmbeddingMetadataBatch')
-            ->with(
-                self::callback(static function (array $rows): bool {
-                    return 1 === count($rows) && 101 === $rows[0]['lsItemId'];
-                }),
-                true
-            );
+        $platform->expects(self::once())
+            ->method('invoke')
+            ->with('Xenova/all-MiniLM-L6-v2', ['Valid statement'])
+            ->willReturn($deferredResult);
 
         $command = new RebuildQdrantIndexByFrameworkCommand(
             $connection,
-            $embeddingService,
+            $platform,
             $vectorSearchService,
-            $vectorTableService,
-            $qdrantVectorStore,
+            $qdrantStore,
         );
 
         $tester = new CommandTester($command);
