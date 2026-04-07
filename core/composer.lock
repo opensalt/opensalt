@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b384484377e4247374178662e86105e6",
+    "content-hash": "ef37d883039577d68a80d08b9d291031",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -338,193 +338,6 @@
                 }
             ],
             "time": "2026-02-10T14:33:43+00:00"
-        },
-        {
-            "name": "codewithkyrian/jinja-php",
-            "version": "2.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/CodeWithKyrian/jinja-php.git",
-                "reference": "17e61211ab00b81c81238791e6b86374715466f8"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/CodeWithKyrian/jinja-php/zipball/17e61211ab00b81c81238791e6b86374715466f8",
-                "reference": "17e61211ab00b81c81238791e6b86374715466f8",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^8.1"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.89",
-                "pestphp/pest": "^2.36.0|^3.5.0",
-                "phpstan/phpstan": "^2.1",
-                "symfony/var-dumper": "^6.3|^7.0"
-            },
-            "type": "library",
-            "autoload": {
-                "files": [
-                    "src/Core/Utils.php"
-                ],
-                "psr-4": {
-                    "Codewithkyrian\\Jinja\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Kyrian Obikwelu",
-                    "email": "koshnawaza@gmail.com"
-                }
-            ],
-            "description": "A minimalistic PHP implementation of the Jinja templating engine, specifically designed for parsing and rendering ML chat templates.",
-            "support": {
-                "issues": "https://github.com/CodeWithKyrian/jinja-php/issues",
-                "source": "https://github.com/CodeWithKyrian/jinja-php/tree/2.1.0"
-            },
-            "time": "2025-10-27T11:28:00+00:00"
-        },
-        {
-            "name": "codewithkyrian/platform-package-installer",
-            "version": "1.1.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/CodeWithKyrian/platform-package-installer.git",
-                "reference": "5f1b64d1d38b0e3f57668d7994a26e7a03beb1e4"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/CodeWithKyrian/platform-package-installer/zipball/5f1b64d1d38b0e3f57668d7994a26e7a03beb1e4",
-                "reference": "5f1b64d1d38b0e3f57668d7994a26e7a03beb1e4",
-                "shasum": ""
-            },
-            "require": {
-                "composer-plugin-api": "^1.1 || ^2.0",
-                "composer-runtime-api": "*",
-                "php": "^8.1",
-                "symfony/yaml": "^6.4 || ^7.2 || ^8.0"
-            },
-            "require-dev": {
-                "composer/composer": "~1.0 || ~2.0",
-                "pestphp/pest": "^2.36.0|^3.5.0",
-                "symfony/var-dumper": "^6.0|^7.0|^8.0"
-            },
-            "type": "composer-plugin",
-            "extra": {
-                "class": "Codewithkyrian\\PlatformPackageInstaller\\Plugin",
-                "plugin-modifies-downloads": true,
-                "plugin-modifies-install-path": true
-            },
-            "autoload": {
-                "psr-4": {
-                    "Codewithkyrian\\PlatformPackageInstaller\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Kyrian Obikwelu",
-                    "email": "koshnawaza@gmail.com"
-                }
-            ],
-            "description": "A Composer plugin that provides fine-grained control over platform-specific package distribution for PHP projects",
-            "support": {
-                "issues": "https://github.com/CodeWithKyrian/platform-package-installer/issues",
-                "source": "https://github.com/CodeWithKyrian/platform-package-installer/tree/1.1.4"
-            },
-            "time": "2025-09-17T11:10:46+00:00"
-        },
-        {
-            "name": "codewithkyrian/transformers",
-            "version": "0.6.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/CodeWithKyrian/transformers-php.git",
-                "reference": "8b7f37cf0c8efab892d47530aa0026feb45d0145"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/CodeWithKyrian/transformers-php/zipball/8b7f37cf0c8efab892d47530aa0026feb45d0145",
-                "reference": "8b7f37cf0c8efab892d47530aa0026feb45d0145",
-                "shasum": ""
-            },
-            "require": {
-                "codewithkyrian/jinja-php": "^2.0",
-                "codewithkyrian/platform-package-installer": "^1.0",
-                "ext-ffi": "*",
-                "imagine/imagine": "^1.3",
-                "php": "^8.1",
-                "psr/log": "^1.1 || ^2.0 || ^3.0",
-                "rindow/rindow-math-matrix": "^2.1",
-                "rindow/rindow-matlib-ffi": "^1.1",
-                "rindow/rindow-openblas-ffi": "^1.0",
-                "rokka/imagine-vips": "^0.40",
-                "symfony/console": "^6.4|^7.0|^8.0"
-            },
-            "require-dev": {
-                "ffi/var-dumper": "^1.0",
-                "pestphp/pest": "^2.36.0|^3.5.0",
-                "symfony/var-dumper": "^6.4.11|^7.1.5|^8.0"
-            },
-            "suggest": {
-                "ext-gd": "Required to use the GD Driver for image processing",
-                "ext-imagick": "Required to use the Imagick Driver for image processing"
-            },
-            "bin": [
-                "bin/transformers"
-            ],
-            "type": "platform-package",
-            "extra": {
-                "platform-urls": {
-                    "linux-arm64": "https://github.com/codewithkyrian/transformers-php/releases/download/{version}/dist-linux-arm64.tar.gz",
-                    "darwin-arm64": "https://github.com/codewithkyrian/transformers-php/releases/download/{version}/dist-darwin-arm64.tar.gz",
-                    "linux-x86_64": "https://github.com/codewithkyrian/transformers-php/releases/download/{version}/dist-linux-x86_64.tar.gz",
-                    "darwin-x86_64": "https://github.com/codewithkyrian/transformers-php/releases/download/{version}/dist-darwin-x86_64.tar.gz",
-                    "windows-x86_64": "https://github.com/codewithkyrian/transformers-php/releases/download/{version}/dist-windows-x86_64.zip"
-                }
-            },
-            "autoload": {
-                "files": [
-                    "src/Pipelines/Pipeline.php",
-                    "src/Utils/Helpers.php"
-                ],
-                "psr-4": {
-                    "Codewithkyrian\\Transformers\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Kyrian Obikwelu",
-                    "email": "koshnawaza@gmail.com"
-                }
-            ],
-            "description": "State-of-the-art Machine Learning for PHP. Run Transformers in PHP",
-            "keywords": [
-                "CodeWithKyrian",
-                "ai",
-                "machine learning",
-                "natural language processing",
-                "nlp",
-                "php",
-                "transformers",
-                "transformers-php"
-            ],
-            "support": {
-                "issues": "https://github.com/CodeWithKyrian/transformers-php/issues",
-                "source": "https://github.com/CodeWithKyrian/transformers-php/tree/0.6.2"
-            },
-            "time": "2025-09-15T15:17:33+00:00"
         },
         {
             "name": "colinodell/json5",
@@ -3697,168 +3510,6 @@
             "time": "2026-03-10T16:41:02+00:00"
         },
         {
-            "name": "imagine/imagine",
-            "version": "1.5.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/php-imagine/Imagine.git",
-                "reference": "f9ed796eefb77c2f0f2167e1d4e36bc2b5ed6b0c"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/php-imagine/Imagine/zipball/f9ed796eefb77c2f0f2167e1d4e36bc2b5ed6b0c",
-                "reference": "f9ed796eefb77c2f0f2167e1d4e36bc2b5ed6b0c",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.1"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^4.8 || ^5.7 || ^6.5 || ^7.5 || ^8.4 || ^9.3"
-            },
-            "suggest": {
-                "ext-exif": "to read EXIF metadata",
-                "ext-gd": "to use the GD implementation",
-                "ext-gmagick": "to use the Gmagick implementation",
-                "ext-imagick": "to use the Imagick implementation"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-develop": "1.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Imagine\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Bulat Shakirzyanov",
-                    "email": "mallluhuct@gmail.com",
-                    "homepage": "http://avalanche123.com"
-                }
-            ],
-            "description": "Image processing for PHP",
-            "homepage": "http://imagine.readthedocs.org/",
-            "keywords": [
-                "drawing",
-                "graphics",
-                "image manipulation",
-                "image processing"
-            ],
-            "support": {
-                "issues": "https://github.com/php-imagine/Imagine/issues",
-                "source": "https://github.com/php-imagine/Imagine/tree/1.5.2"
-            },
-            "time": "2026-01-09T10:45:12+00:00"
-        },
-        {
-            "name": "interop-phpobjects/polite-math",
-            "version": "1.0.7",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/interop-phpobjects/polite-math.git",
-                "reference": "621246cdc108b1388307097e06361ca5b9259467"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/interop-phpobjects/polite-math/zipball/621246cdc108b1388307097e06361ca5b9259467",
-                "reference": "621246cdc108b1388307097e06361ca5b9259467",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.2"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Interop\\Polite\\Math\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "Interoperability of interfaces around the Math",
-            "keywords": [
-                "interop",
-                "interoperability",
-                "math"
-            ],
-            "support": {
-                "issues": "https://github.com/interop-phpobjects/polite-math/issues",
-                "source": "https://github.com/interop-phpobjects/polite-math/tree/1.0.7"
-            },
-            "time": "2024-04-07T07:10:27+00:00"
-        },
-        {
-            "name": "jcupitt/vips",
-            "version": "v2.6.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/libvips/php-vips.git",
-                "reference": "6dbba1bb3a4ba1e39edb71016a2aa6da5bff32ee"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/libvips/php-vips/zipball/6dbba1bb3a4ba1e39edb71016a2aa6da5bff32ee",
-                "reference": "6dbba1bb3a4ba1e39edb71016a2aa6da5bff32ee",
-                "shasum": ""
-            },
-            "require": {
-                "ext-ffi": "*",
-                "php": ">=7.4",
-                "psr/log": "^1.1.3|^2.0|^3.0"
-            },
-            "require-dev": {
-                "php-parallel-lint/php-parallel-lint": "^1.3",
-                "phpdocumentor/shim": "^3.3",
-                "phpunit/phpunit": "^9.5",
-                "squizlabs/php_codesniffer": "^3.7"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Jcupitt\\Vips\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "John Cupitt",
-                    "email": "jcupitt@gmail.com",
-                    "homepage": "https://github.com/jcupitt",
-                    "role": "Developer"
-                }
-            ],
-            "description": "A high-level interface to the libvips image processing library.",
-            "homepage": "https://github.com/libvips/php-vips",
-            "keywords": [
-                "image",
-                "libvips",
-                "processing"
-            ],
-            "support": {
-                "issues": "https://github.com/libvips/php-vips/issues",
-                "source": "https://github.com/libvips/php-vips/tree/v2.6.1"
-            },
-            "time": "2025-12-10T14:03:20+00:00"
-        },
-        {
             "name": "jms/metadata",
             "version": "2.9.0",
             "source": {
@@ -6525,6 +6176,58 @@
             "time": "2021-05-22T15:57:08+00:00"
         },
         {
+            "name": "oskarstark/enum-helper",
+            "version": "1.8.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/OskarStark/enum-helper.git",
+                "reference": "14e185f1cc259d7cd3f61eea17f9b174a886a6da"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/OskarStark/enum-helper/zipball/14e185f1cc259d7cd3f61eea17f9b174a886a6da",
+                "reference": "14e185f1cc259d7cd3f61eea17f9b174a886a6da",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1"
+            },
+            "conflict": {
+                "phpunit/phpunit": "<10"
+            },
+            "require-dev": {
+                "ergebnis/php-cs-fixer-config": "^6.58",
+                "phpstan/phpstan": "^2.1",
+                "phpunit/phpunit": "^10.5",
+                "rector/rector": "^2.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "OskarStark\\Enum\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Oskar Stark",
+                    "email": "oskarstark@googlemail.com"
+                }
+            ],
+            "description": "This library provides helpers for several enum operations",
+            "keywords": [
+                "enum"
+            ],
+            "support": {
+                "issues": "https://github.com/OskarStark/enum-helper/issues",
+                "source": "https://github.com/OskarStark/enum-helper/tree/1.8.4"
+            },
+            "time": "2026-02-05T08:59:09+00:00"
+        },
+        {
             "name": "paragonie/constant_time_encoding",
             "version": "v3.1.3",
             "source": {
@@ -6653,51 +6356,6 @@
                 "source": "https://github.com/lhapaipai/vite-bundle/tree/v8.2.4"
             },
             "time": "2026-03-22T11:41:50+00:00"
-        },
-        {
-            "name": "phenx/php-font-lib",
-            "version": "1.0.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/dompdf/php-font-lib.git",
-                "reference": "a6e9a688a2a80016ac080b97be73d3e10c444c9a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/dompdf/php-font-lib/zipball/a6e9a688a2a80016ac080b97be73d3e10c444c9a",
-                "reference": "a6e9a688a2a80016ac080b97be73d3e10c444c9a",
-                "shasum": ""
-            },
-            "require": {
-                "ext-mbstring": "*",
-                "php": "^7.1 || ^8.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^7.5 || ^8 || ^9 || ^10 || ^11 || ^12"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "FontLib\\": "src/FontLib"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "LGPL-2.1-or-later"
-            ],
-            "authors": [
-                {
-                    "name": "The FontLib Community",
-                    "homepage": "https://github.com/dompdf/php-font-lib/blob/master/AUTHORS.md"
-                }
-            ],
-            "description": "A library to read, parse, export and make subsets of different types of font files.",
-            "homepage": "https://github.com/dompdf/php-font-lib",
-            "support": {
-                "issues": "https://github.com/dompdf/php-font-lib/issues",
-                "source": "https://github.com/dompdf/php-font-lib/tree/1.0.2"
-            },
-            "time": "2026-01-20T14:10:26+00:00"
         },
         {
             "name": "php-http/discovery",
@@ -8495,208 +8153,6 @@
             "time": "2024-05-27T00:00:21+00:00"
         },
         {
-            "name": "rindow/rindow-math-matrix",
-            "version": "2.1.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/rindow/rindow-math-matrix.git",
-                "reference": "6d6622b4495d6325e4065430d143d6f4c3b5f0c4"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/rindow/rindow-math-matrix/zipball/6d6622b4495d6325e4065430d143d6f4c3b5f0c4",
-                "reference": "6d6622b4495d6325e4065430d143d6f4c3b5f0c4",
-                "shasum": ""
-            },
-            "require": {
-                "interop-phpobjects/polite-math": "^1.0.7",
-                "php": "^8.1"
-            },
-            "suggest": {
-                "rindow/math-plot": "for OpenCL tunning",
-                "rindow/rindow-math-matrix-matlibffi": "^1.0.4"
-            },
-            "bin": [
-                "bin/rindow-math-matrix"
-            ],
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Rindow\\Math\\Matrix\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "description": "The fundamental package for scientific matrix operation",
-            "keywords": [
-                "N-dimension",
-                "math",
-                "matrix",
-                "operation",
-                "rindow"
-            ],
-            "support": {
-                "issues": "https://github.com/rindow/rindow-math-matrix/issues",
-                "source": "https://github.com/rindow/rindow-math-matrix/tree/2.1.2"
-            },
-            "time": "2025-04-13T13:08:33+00:00"
-        },
-        {
-            "name": "rindow/rindow-matlib-ffi",
-            "version": "1.1.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/rindow/rindow-matlib-ffi.git",
-                "reference": "b5eddacc8a0fbc640cfdb90d6a40414ba6c76529"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/rindow/rindow-matlib-ffi/zipball/b5eddacc8a0fbc640cfdb90d6a40414ba6c76529",
-                "reference": "b5eddacc8a0fbc640cfdb90d6a40414ba6c76529",
-                "shasum": ""
-            },
-            "require": {
-                "interop-phpobjects/polite-math": "^1.0.7",
-                "php": "^8.1"
-            },
-            "require-dev": {
-                "ext-ffi": "*",
-                "rindow/rindow-math-buffer-ffi": "^1.0.5"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Rindow\\Matlib\\FFI\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "description": "The math matrix library for FFI on PHP",
-            "keywords": [
-                "ffi",
-                "math",
-                "matrix",
-                "rindow"
-            ],
-            "support": {
-                "issues": "https://github.com/rindow/rindow-matlib-ffi/issues",
-                "source": "https://github.com/rindow/rindow-matlib-ffi/tree/1.1.3"
-            },
-            "time": "2025-04-13T12:19:57+00:00"
-        },
-        {
-            "name": "rindow/rindow-openblas-ffi",
-            "version": "1.0.6",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/rindow/rindow-openblas-ffi.git",
-                "reference": "efcddb9b24ac9d2d2f3a7d1092fbd5f66dccbb5e"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/rindow/rindow-openblas-ffi/zipball/efcddb9b24ac9d2d2f3a7d1092fbd5f66dccbb5e",
-                "reference": "efcddb9b24ac9d2d2f3a7d1092fbd5f66dccbb5e",
-                "shasum": ""
-            },
-            "require": {
-                "interop-phpobjects/polite-math": "^1.0.7",
-                "php": "^8.1"
-            },
-            "require-dev": {
-                "ext-ffi": "*",
-                "rindow/rindow-math-buffer-ffi": "^1.0.5"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Rindow\\OpenBLAS\\FFI\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "description": "The Openblas library for FFI on PHP",
-            "keywords": [
-                "ffi",
-                "math",
-                "openblas",
-                "rindow"
-            ],
-            "support": {
-                "issues": "https://github.com/rindow/rindow-openblas-ffi/issues",
-                "source": "https://github.com/rindow/rindow-openblas-ffi/tree/1.0.6"
-            },
-            "time": "2025-04-13T12:42:45+00:00"
-        },
-        {
-            "name": "rokka/imagine-vips",
-            "version": "0.40.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/rokka-io/imagine-vips.git",
-                "reference": "c1ad61d63fad5e83adf8ff10a40b2ceeace3132a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/rokka-io/imagine-vips/zipball/c1ad61d63fad5e83adf8ff10a40b2ceeace3132a",
-                "reference": "c1ad61d63fad5e83adf8ff10a40b2ceeace3132a",
-                "shasum": ""
-            },
-            "require": {
-                "imagine/imagine": "^1.0",
-                "jcupitt/vips": "^2.1.1 || ^1.0.3",
-                "phenx/php-font-lib": "^0.5.2 || ^1.0",
-                "php": "^7.2 || ^8.0"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.4",
-                "phpstan/phpstan": "^1.8",
-                "phpunit/phpunit": "^8 || ^9"
-            },
-            "suggest": {
-                "ext-gd": "to use the GD implementation fallback for saving unsupported file formats",
-                "ext-imagick": "to use the Imagick implementation fallback for saving unsupported file formats"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Imagine": "lib/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "rokka",
-                    "email": "rokka@rokka.io",
-                    "homepage": "https://rokka.io"
-                }
-            ],
-            "description": "libvips adapter for imagine",
-            "homepage": "https://github.com/rokka-io/imagine-vips",
-            "keywords": [
-                "drawing",
-                "graphics",
-                "image manipulation",
-                "image processing",
-                "libvips",
-                "php-vips",
-                "vips"
-            ],
-            "support": {
-                "issues": "https://github.com/rokka-io/imagine-vips/issues",
-                "source": "https://github.com/rokka-io/imagine-vips/tree/0.40.0"
-            },
-            "time": "2025-01-16T08:04:03+00:00"
-        },
-        {
             "name": "root23/php-json-canonicalization",
             "version": "1.0.1",
             "source": {
@@ -9180,6 +8636,372 @@
                 "source": "https://github.com/swaggest/php-json-schema/tree/v0.12.43"
             },
             "time": "2024-12-22T21:18:27+00:00"
+        },
+        {
+            "name": "symfony/ai-bundle",
+            "version": "v0.6.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/ai-bundle.git",
+                "reference": "e7af82dbe2c88d13865d27b35ad3363ca2fef43d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/ai-bundle/zipball/e7af82dbe2c88d13865d27b35ad3363ca2fef43d",
+                "reference": "e7af82dbe2c88d13865d27b35ad3363ca2fef43d",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.2",
+                "symfony/ai-platform": "^0.6",
+                "symfony/clock": "^7.3|^8.0",
+                "symfony/config": "^7.3|^8.0",
+                "symfony/console": "^7.3|^8.0",
+                "symfony/dependency-injection": "^7.3|^8.0",
+                "symfony/framework-bundle": "^7.3|^8.0",
+                "symfony/service-contracts": "^2.5|^3",
+                "symfony/string": "^7.3|^8.0"
+            },
+            "require-dev": {
+                "google/auth": "^1.47",
+                "phpstan/phpstan": "^2.1",
+                "phpstan/phpstan-phpunit": "^2.0",
+                "phpstan/phpstan-strict-rules": "^2.0",
+                "phpunit/phpunit": "^11.5.53",
+                "symfony/ai-agent": "^0.6",
+                "symfony/ai-ai-ml-api-platform": "^0.6",
+                "symfony/ai-albert-platform": "^0.6",
+                "symfony/ai-anthropic-platform": "^0.6",
+                "symfony/ai-azure-platform": "^0.6",
+                "symfony/ai-azure-search-store": "^0.6",
+                "symfony/ai-bedrock-platform": "^0.6",
+                "symfony/ai-cache-message-store": "^0.6",
+                "symfony/ai-cache-platform": "^0.6",
+                "symfony/ai-cache-store": "^0.6",
+                "symfony/ai-cartesia-platform": "^0.6",
+                "symfony/ai-cerebras-platform": "^0.6",
+                "symfony/ai-chat": "^0.6",
+                "symfony/ai-chroma-db-store": "^0.6",
+                "symfony/ai-click-house-store": "^0.6",
+                "symfony/ai-cloudflare-message-store": "^0.6",
+                "symfony/ai-cloudflare-store": "^0.6",
+                "symfony/ai-decart-platform": "^0.6",
+                "symfony/ai-deep-seek-platform": "^0.6",
+                "symfony/ai-docker-model-runner-platform": "^0.6",
+                "symfony/ai-doctrine-message-store": "^0.6",
+                "symfony/ai-elasticsearch-store": "^0.6",
+                "symfony/ai-eleven-labs-platform": "^0.6",
+                "symfony/ai-failover-platform": "^0.6",
+                "symfony/ai-gemini-platform": "^0.6",
+                "symfony/ai-generic-platform": "^0.6",
+                "symfony/ai-hugging-face-platform": "^0.6",
+                "symfony/ai-lm-studio-platform": "^0.6",
+                "symfony/ai-manticore-search-store": "^0.6",
+                "symfony/ai-maria-db-store": "^0.6",
+                "symfony/ai-meilisearch-message-store": "^0.6",
+                "symfony/ai-meilisearch-store": "^0.6",
+                "symfony/ai-meta-platform": "^0.6",
+                "symfony/ai-milvus-store": "^0.6",
+                "symfony/ai-mistral-platform": "^0.6",
+                "symfony/ai-mongo-db-message-store": "^0.6",
+                "symfony/ai-mongo-db-store": "^0.6",
+                "symfony/ai-neo4j-store": "^0.6",
+                "symfony/ai-ollama-platform": "^0.6",
+                "symfony/ai-open-ai-platform": "^0.6",
+                "symfony/ai-open-responses-platform": "^0.6",
+                "symfony/ai-open-router-platform": "^0.6",
+                "symfony/ai-open-search-store": "^0.6",
+                "symfony/ai-perplexity-platform": "^0.6",
+                "symfony/ai-pinecone-store": "^0.6",
+                "symfony/ai-pogocache-message-store": "^0.6",
+                "symfony/ai-postgres-store": "^0.6",
+                "symfony/ai-qdrant-store": "^0.6",
+                "symfony/ai-redis-message-store": "^0.6",
+                "symfony/ai-redis-store": "^0.6",
+                "symfony/ai-replicate-platform": "^0.6",
+                "symfony/ai-s3vectors-store": "^0.6",
+                "symfony/ai-scaleway-platform": "^0.6",
+                "symfony/ai-session-message-store": "^0.6",
+                "symfony/ai-store": "^0.6",
+                "symfony/ai-supabase-store": "^0.6",
+                "symfony/ai-surreal-db-message-store": "^0.6",
+                "symfony/ai-surreal-db-store": "^0.6",
+                "symfony/ai-transformers-php-platform": "^0.6",
+                "symfony/ai-typesense-store": "^0.6",
+                "symfony/ai-vektor-store": "^0.6",
+                "symfony/ai-vertex-ai-platform": "^0.6",
+                "symfony/ai-voyage-platform": "^0.6",
+                "symfony/ai-weaviate-store": "^0.6",
+                "symfony/expression-language": "^7.3|^8.0",
+                "symfony/security-core": "^7.3|^8.0",
+                "symfony/translation": "^7.3|^8.0"
+            },
+            "type": "symfony-bundle",
+            "extra": {
+                "thanks": {
+                    "url": "https://github.com/symfony/ai",
+                    "name": "symfony/ai"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\AI\\AiBundle\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Christopher Hertel",
+                    "email": "mail@christopher-hertel.de"
+                },
+                {
+                    "name": "Oskar Stark",
+                    "email": "oskarstark@googlemail.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Integration bundle for Symfony AI components",
+            "support": {
+                "source": "https://github.com/symfony/ai-bundle/tree/v0.6.0"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2026-03-04T23:27:55+00:00"
+        },
+        {
+            "name": "symfony/ai-generic-platform",
+            "version": "v0.6.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/ai-generic-platform.git",
+                "reference": "48af9248584e82c3a76b11c758fff4e5da21d54e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/ai-generic-platform/zipball/48af9248584e82c3a76b11c758fff4e5da21d54e",
+                "reference": "48af9248584e82c3a76b11c758fff4e5da21d54e",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.2",
+                "symfony/ai-platform": "^0.6",
+                "symfony/http-client": "^7.3|^8.0"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^2.1",
+                "phpstan/phpstan-phpunit": "^2.0",
+                "phpstan/phpstan-strict-rules": "^2.0",
+                "phpunit/phpunit": "^11.5.53"
+            },
+            "type": "symfony-ai-platform",
+            "extra": {
+                "thanks": {
+                    "url": "https://github.com/symfony/ai",
+                    "name": "symfony/ai"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\AI\\Platform\\Bridge\\Generic\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Christopher Hertel",
+                    "email": "mail@christopher-hertel.de"
+                },
+                {
+                    "name": "Oskar Stark",
+                    "email": "oskarstark@googlemail.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Generic platform bridge for Symfony AI",
+            "keywords": [
+                "Bridge",
+                "ai",
+                "generic",
+                "platform"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/ai-generic-platform/tree/v0.6.0"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2026-03-04T23:27:55+00:00"
+        },
+        {
+            "name": "symfony/ai-platform",
+            "version": "v0.6.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/ai-platform.git",
+                "reference": "01d383270c470bd46ab73da9d8e6e83ff0670999"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/ai-platform/zipball/01d383270c470bd46ab73da9d8e6e83ff0670999",
+                "reference": "01d383270c470bd46ab73da9d8e6e83ff0670999",
+                "shasum": ""
+            },
+            "require": {
+                "ext-fileinfo": "*",
+                "oskarstark/enum-helper": "^1.5",
+                "php": ">=8.2",
+                "phpdocumentor/reflection-docblock": "^5.4",
+                "phpstan/phpdoc-parser": "^2.1",
+                "psr/log": "^3.0",
+                "symfony/clock": "^7.3|^8.0",
+                "symfony/event-dispatcher": "^7.3|^8.0",
+                "symfony/property-access": "^7.3|^8.0",
+                "symfony/property-info": "^7.3|^8.0",
+                "symfony/serializer": "^7.3|^8.0",
+                "symfony/type-info": "^7.3|^8.0",
+                "symfony/uid": "^7.3|^8.0"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^2.1",
+                "phpstan/phpstan-phpunit": "^2.0",
+                "phpstan/phpstan-strict-rules": "^2.0",
+                "phpunit/phpunit": "^11.5.53",
+                "symfony/cache": "^7.3|^8.0",
+                "symfony/console": "^7.3|^8.0",
+                "symfony/dotenv": "^7.3|^8.0",
+                "symfony/expression-language": "^7.3|^8.0",
+                "symfony/finder": "^7.3|^8.0",
+                "symfony/http-client": "^7.3|^8.0",
+                "symfony/http-client-contracts": "^3.5",
+                "symfony/process": "^7.3|^8.0",
+                "symfony/var-dumper": "^7.3|^8.0"
+            },
+            "type": "library",
+            "extra": {
+                "thanks": {
+                    "url": "https://github.com/symfony/ai",
+                    "name": "symfony/ai"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\AI\\Platform\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Christopher Hertel",
+                    "email": "mail@christopher-hertel.de"
+                },
+                {
+                    "name": "Oskar Stark",
+                    "email": "oskarstark@googlemail.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "PHP library for interacting with AI platform provider.",
+            "keywords": [
+                "Gemini",
+                "OpenRouter",
+                "ai",
+                "aimlapi",
+                "albert",
+                "amazeeai",
+                "anthropic",
+                "azure",
+                "bedrock",
+                "cerebras",
+                "dockermodelrunner",
+                "elevenlabs",
+                "huggingface",
+                "inference",
+                "litellm",
+                "llama",
+                "lmstudio",
+                "meta",
+                "mistral",
+                "nova",
+                "ollama",
+                "openai",
+                "ovh",
+                "perplexity",
+                "replicate",
+                "transformers",
+                "vertexai",
+                "voyage"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/ai-platform/tree/v0.6.0"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2026-03-04T23:00:13+00:00"
         },
         {
             "name": "symfony/asset",

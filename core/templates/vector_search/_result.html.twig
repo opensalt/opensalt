@@ -1,5 +1,4 @@
 {% set lsItem = result.lsItem %}
-{% set embedding = result.embedding %}
 {% set similarity = result.similarity %}
 {% set resultMode = mode|default('near_object') %}
 
@@ -25,9 +24,6 @@
             </div>
             <div class="text-end">
                 <div class="badge text-bg-info mb-1">{{ kindLabel }}</div>
-                {% if embedding and embedding.isLeafNode %}
-                    <div class="badge text-bg-success mb-1">Leaf node</div>
-                {% endif %}
                 {% if similarity is not null %}
                     {% if resultMode == 'near_object' %}
                         <div class="badge text-bg-primary">{{ (similarity * 100)|number_format(2) }}% similar</div>
@@ -61,12 +57,12 @@
             <dt class="col-sm-3">URI</dt>
             <dd class="col-sm-9">{{ lsItem.uri }}</dd>
 
-            <dt class="col-sm-3">Embedding</dt>
+            <dt class="col-sm-3">Vector</dt>
             <dd class="col-sm-9">
-                {% if embedding %}
-                    #{{ embedding.id }} created {{ embedding.createdAt|date('Y-m-d H:i:s') }}
+                {% if similarity is not null %}
+                    Available in Qdrant
                 {% else %}
-                    Not generated
+                    Not indexed
                 {% endif %}
             </dd>
         </dl>

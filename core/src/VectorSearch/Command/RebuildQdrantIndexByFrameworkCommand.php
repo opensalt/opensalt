@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\VectorSearch\Command;
 
-use App\VectorSearch\Service\EmbeddingService;
 use App\VectorSearch\Service\VectorSearchService;
-use App\VectorSearch\Service\VectorTableService;
-use App\VectorSearch\Store\QdrantVectorStore;
+use App\VectorSearch\Store\HybridQdrantStore;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
+use Symfony\AI\Platform\PlatformInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -25,10 +24,9 @@ class RebuildQdrantIndexByFrameworkCommand extends Command
 {
     public function __construct(
         private readonly Connection $connection,
-        private readonly EmbeddingService $embeddingService,
+        private readonly PlatformInterface $platform,
         private readonly VectorSearchService $vectorSearchService,
-        private readonly VectorTableService $vectorTableService,
-        private readonly QdrantVectorStore $qdrantVectorStore,
+        private readonly HybridQdrantStore $qdrantStore,
     ) {
         parent::__construct();
     }
@@ -79,11 +77,11 @@ EOF
         $targetCollection = trim((string) $input->getOption('collection'));
         $hasExplicitCollection = '' !== $targetCollection;
         if ('' === $targetCollection) {
-            $targetCollection = $this->qdrantVectorStore->buildShadowCollectionName();
+            $targetCollection = $this->qdrantStore->buildShadowCollectionName();
         }
 
-        $alias = $this->qdrantVectorStore->getCollectionAlias();
-        $currentActiveCollection = $this->qdrantVectorStore->getResolvedActiveCollectionName();
+        $alias = $this->qdrantStore->getCollectionAlias();
+        $currentActiveCollection = $this->qdrantStore->getResolvedActiveCollectionName();
 
         $io->title('Qdrant Rebuild By Framework');
         $io->text(sprintf('Target shadow collection: %s', $targetCollection));
@@ -97,8 +95,8 @@ EOF
             return Command::FAILURE;
         }
 
-        $collectionCreated = $this->qdrantVectorStore->prepareCollection($targetCollection, $recreate, $hasExplicitCollection);
-        $startingCollectionCount = $collectionCreated ? 0 : $this->qdrantVectorStore->countCollection($targetCollection);
+        $collectionCreated = $this->qdrantStore->prepareCollection($targetCollection, $recreate, $hasExplicitCollection);
+        $startingCollectionCount = $collectionCreated ? 0 : $this->qdrantStore->countCollection($targetCollection);
 
         $io->text($collectionCreated
             ? sprintf('Creating target collection: %s', $targetCollection)
@@ -174,7 +172,29 @@ EOF
                     $chunk
                 );
 
-                $vectors = $this->embeddingService->generateBatchEmbeddings($texts);
+                $parallelism = min(12, count($texts));
+                if ($parallelism < 2) {
+                    $deferredResult = $this->platform->invoke('Xenova/all-MiniLM-L6-v2', $texts);
+                    $vectors = array_map(
+                        static fn (\Symfony\AI\Platform\Vector\Vector $v): array => $v->getData(),
+                        $deferredResult->asVectors()
+                    );
+                } else {
+                    $subBatches = array_chunk($texts, (int) ceil(count($texts) / $parallelism));
+                    $deferredResults = array_map(
+                        fn (array $subTexts): \Symfony\AI\Platform\Result\DeferredResult
+                            => $this->platform->invoke('Xenova/all-MiniLM-L6-v2', $subTexts),
+                        $subBatches,
+                    );
+                    $vectors = [];
+                    foreach ($deferredResults as $subVectors) {
+                        $vectors = array_merge($vectors, array_map(
+                            static fn (\Symfony\AI\Platform\Vector\Vector $v): array => $v->getData(),
+                            $subVectors->asVectors(),
+                        ));
+                    }
+                    unset($subBatches, $deferredResults);
+                }
 
                 $payloadRows = [];
                 foreach ($chunk as $index => $row) {
@@ -193,8 +213,7 @@ EOF
                     ];
                 }
 
-                $imported = $this->qdrantVectorStore->importEmbeddings($payloadRows, $targetCollection);
-                $this->vectorTableService->storeEmbeddingMetadataBatch($payloadRows, true);
+                $imported = $this->qdrantStore->importEmbeddings($payloadRows, $targetCollection);
                 $frameworkImported += $imported;
 
                 $io->text(sprintf(
@@ -214,7 +233,7 @@ EOF
             gc_collect_cycles();
         }
 
-        $collectionCount = $this->qdrantVectorStore->countCollection($targetCollection);
+        $collectionCount = $this->qdrantStore->countCollection($targetCollection);
         $expectedCollectionCount = $startingCollectionCount + $totalImported;
         $io->section('Validation');
         $io->listing([
@@ -286,7 +305,7 @@ EOF
         string $targetCollection,
     ): int {
         if ($activate) {
-            $previousCollection = $this->qdrantVectorStore->activateCollection($targetCollection, $alias);
+            $previousCollection = $this->qdrantStore->activateCollection($targetCollection, $alias);
             $io->success(sprintf(
                 'Alias %s now points to %s. Previous collection: %s',
                 $alias,
@@ -296,12 +315,12 @@ EOF
 
             if ($dropOld) {
                 $deletedCollections = [];
-                foreach ($this->qdrantVectorStore->listCollections() as $collectionName) {
+                foreach ($this->qdrantStore->listCollections() as $collectionName) {
                     if ($collectionName === $targetCollection) {
                         continue;
                     }
 
-                    $this->qdrantVectorStore->deleteCollection($collectionName);
+                    $this->qdrantStore->deleteCollection($collectionName);
                     $deletedCollections[] = $collectionName;
                 }
 

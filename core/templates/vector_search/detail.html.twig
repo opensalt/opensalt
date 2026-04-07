@@ -41,8 +41,8 @@
                             {% endif %}
                         {% endfor %}
                         <span class="badge text-bg-info">{{ kindLabel }}</span>
-                        {% if embedding and embedding.isLeafNode %}
-                            <span class="badge text-bg-success">Leaf node embedding</span>
+                        {% if itemData.embedding is defined and itemData.embedding.exists %}
+                            <span class="badge text-bg-success">Indexed</span>
                         {% endif %}
                     </div>
                     <div class="d-flex gap-2 flex-wrap">

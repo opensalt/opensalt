@@ -87,14 +87,7 @@ EOF
         }
 
         $total = count($requestedItems);
-        $requestedItemIds = array_map(
-            static fn (array $requestedItem): int => $requestedItem['id'],
-            $requestedItems
-        );
-        $frameworkGroups = $force
-            ? $this->groupRequestedItemsByFramework($requestedItems)
-            : $this->vectorSearchService->getStaleLsItemIdsGroupedByFramework($requestedItemIds);
-        $prefilterSkipped = max(0, $total - array_sum(array_map('count', $frameworkGroups)));
+        $frameworkGroups = $this->groupRequestedItemsByFramework($requestedItems);
         $cursorAfter = $useCursor ? $requestedItems[array_key_last($requestedItems)]['id'] : null;
 
         if (null !== $lsItemId) {
@@ -109,19 +102,13 @@ EOF
             $io->text(sprintf('Processing up to %d items starting from offset %d', $limit, $offset));
         }
         $io->text(sprintf('Found %d requested LsItems.', $total));
-        if (!$force) {
-            $io->text(sprintf('%d LsItems need regeneration after freshness prefilter.', $total - $prefilterSkipped));
-        }
         $io->newLine();
 
         $progressBar = $io->createProgressBar($total);
         $progressBar->start();
-        if ($prefilterSkipped > 0) {
-            $progressBar->advance($prefilterSkipped);
-        }
 
         $processed = 0;
-        $skipped = $prefilterSkipped;
+        $skipped = 0;
         $errors = 0;
 
         foreach ($frameworkGroups as $frameworkId => $frameworkItemIds) {

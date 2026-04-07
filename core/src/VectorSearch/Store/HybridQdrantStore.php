@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\VectorSearch\Store;
 
-use App\VectorSearch\Entity\LsItemEmbedding;
-use App\VectorSearch\Service\VectorTableService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
@@ -15,68 +13,24 @@ use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-readonly class QdrantVectorStore implements VectorStoreInterface
+readonly class HybridQdrantStore
 {
     private const EMBEDDING_DIMENSION = 384;
     private const DEFAULT_BATCH_SIZE = 250;
 
     public function __construct(
         private HttpClientInterface $httpClient,
-        private VectorTableService $metadataStore,
         private LoggerInterface $logger,
         #[Autowire('%env(string:VECTOR_SEARCH_QDRANT_URL)%')]
         private string $baseUrl,
-        #[Autowire('%env(string:VECTOR_SEARCH_QDRANT_COLLECTION)%')]
-        private string $collectionName,
-        #[Autowire('%env(string:VECTOR_SEARCH_QDRANT_ALIAS)%')]
-        private string $collectionAlias,
         #[Autowire('%env(string:VECTOR_SEARCH_QDRANT_API_KEY)%')]
         private string $apiKey,
-        #[Autowire('%env(int:VECTOR_SEARCH_QDRANT_TIMEOUT)%')]
+        private string $collectionName,
+        private string $collectionAlias,
         private int $timeoutSeconds,
-        #[Autowire('%env(int:VECTOR_SEARCH_HYBRID_PREFETCH_LIMIT)%')]
         private int $hybridPrefetchLimit = 20,
-        #[Autowire('%env(int:VECTOR_SEARCH_HYBRID_RRF_K)%')]
         private int $hybridRrfK = 60,
     ) {
-    }
-
-    /**
-     * @param list<float> $vector
-     */
-    public function storeEmbeddingVector(LsItemEmbedding $embedding, array $vector): void
-    {
-        $this->metadataStore->storeEmbeddingMetadata($embedding, false);
-    }
-
-    /**
-     * @param list<float> $vector
-     */
-    public function finalizeStoredEmbedding(LsItemEmbedding $embedding, array $vector): void
-    {
-        $lsItemId = $embedding->getLsItem()->getId();
-        if (null === $lsItemId) {
-            throw new \InvalidArgumentException('Cannot sync a Qdrant point without an LsItem ID.');
-        }
-
-        $frameworkId = $embedding->getLsItem()->getLsDoc()->getId();
-        if (null === $frameworkId) {
-            throw new \InvalidArgumentException(sprintf('Cannot sync LsItem %d without a framework ID.', $lsItemId));
-        }
-
-        $this->upsertPoints([
-            $this->buildPoint(
-                $lsItemId,
-                $frameworkId,
-                $embedding->getLsItem()->getDiscriminator(),
-                $embedding->getText() ?? '',
-                $embedding->isLeafNode(),
-                $embedding->getSourceHierarchyUpdatedAt(),
-                $vector
-            ),
-        ]);
-
-        $embedding->markIndexed();
     }
 
     public function storeEmbeddingBatch(array $rows): int
@@ -100,7 +54,7 @@ readonly class QdrantVectorStore implements VectorStoreInterface
 
         $this->upsertPoints($points);
 
-        return $this->metadataStore->storeEmbeddingMetadataBatch($rows, true);
+        return count($points);
     }
 
     public function search(
@@ -127,34 +81,28 @@ readonly class QdrantVectorStore implements VectorStoreInterface
             $payload['filter'] = $filter;
         }
 
-        $response = $this->request(
-            'POST',
-            sprintf('/collections/%s/points/query', rawurlencode($this->getActiveCollectionReference())),
-            $payload,
-            true
-        );
-        $results = $response['result']['points'] ?? [];
-        if (!is_array($results)) {
-            return [];
+        try {
+            $response = $this->request(
+                'POST',
+                sprintf('/collections/%s/points/query', rawurlencode($this->getActiveCollectionReference())),
+                $payload,
+                true
+            );
+        } catch (\RuntimeException $e) {
+            $this->logger->error('Error processing vector search', [
+                'error' => $e->getMessage(),
+            ]);
+
+            throw $e;
         }
 
-        $matches = [];
-        foreach ($results as $result) {
-            if (!is_array($result)) {
-                continue;
-            }
+        $matches = $this->parseQueryResults($response['result']['points'] ?? []);
 
-            $id = $result['id'] ?? null;
-            $score = $result['score'] ?? null;
-            if (!is_numeric($id) || !is_numeric($score)) {
-                continue;
-            }
-
-            $matches[] = [
-                'lsItemId' => (int) $id,
-                'similarity' => (float) $score,
-            ];
-        }
+        $this->logger->debug('Vector search completed', [
+            'limit' => $limit,
+            'framework_id' => $frameworkId,
+            'results_count' => count($matches),
+        ]);
 
         return $matches;
     }
@@ -208,33 +156,10 @@ readonly class QdrantVectorStore implements VectorStoreInterface
                 'error' => $message,
             ]);
 
-            return $this->metadataStore->searchFullText($normalizedQuery, $limit, $frameworkId, $leafOnly, $kind);
-        }
-
-        $results = $response['result']['points'] ?? [];
-        if (!is_array($results)) {
             return [];
         }
 
-        $matches = [];
-        foreach ($results as $result) {
-            if (!is_array($result)) {
-                continue;
-            }
-
-            $id = $result['id'] ?? null;
-            $score = $result['score'] ?? null;
-            if (!is_numeric($id) || !is_numeric($score)) {
-                continue;
-            }
-
-            $matches[] = [
-                'lsItemId' => (int) $id,
-                'similarity' => (float) $score,
-            ];
-        }
-
-        return $matches;
+        return $this->parseQueryResults($response['result']['points'] ?? []);
     }
 
     public function searchHybrid(
@@ -297,8 +222,6 @@ readonly class QdrantVectorStore implements VectorStoreInterface
                 true
             );
         } catch (\RuntimeException $e) {
-            // Only fallback for sparse-vector-related errors (e.g., old collection
-            // not yet rebuilt with BM25 support). Re-throw genuine server failures.
             $message = $e->getMessage();
             if (!$this->isSparseVectorError($message)) {
                 throw $e;
@@ -311,40 +234,29 @@ readonly class QdrantVectorStore implements VectorStoreInterface
             return $this->search($queryVector, $limit, $frameworkId, $leafOnly, $kind);
         }
 
-        $results = $response['result']['points'] ?? [];
-        if (!is_array($results)) {
-            return [];
-        }
-
-        $matches = [];
-        foreach ($results as $result) {
-            if (!is_array($result)) {
-                continue;
-            }
-
-            $id = $result['id'] ?? null;
-            $score = $result['score'] ?? null;
-            if (!is_numeric($id) || !is_numeric($score)) {
-                continue;
-            }
-
-            $matches[] = [
-                'lsItemId' => (int) $id,
-                'similarity' => (float) $score,
-            ];
-        }
-
-        return $matches;
+        return $this->parseQueryResults($response['result']['points'] ?? []);
     }
 
     public function getVectorByLsItemId(int $lsItemId): ?array
     {
-        $response = $this->request(
-            'GET',
-            sprintf('/collections/%s/points/%d?with_vector=true&with_payload=false', rawurlencode($this->getActiveCollectionReference()), $lsItemId),
-            null,
-            true
-        );
+        try {
+            $response = $this->request(
+                'GET',
+                sprintf(
+                    '/collections/%s/points/%d?with_vector=true&with_payload=false',
+                    rawurlencode($this->getActiveCollectionReference()),
+                    $lsItemId
+                ),
+                null,
+                true
+            );
+        } catch (\RuntimeException $e) {
+            if ($this->isNotFoundError($e->getMessage())) {
+                return null;
+            }
+
+            throw $e;
+        }
 
         $result = $response['result'] ?? null;
         if (!is_array($result)) {
@@ -364,9 +276,28 @@ readonly class QdrantVectorStore implements VectorStoreInterface
 
     public function deleteByLsItemId(int $lsItemId): void
     {
+        $alias = $this->getCollectionAlias();
+        if (null === $alias) {
+            $this->request(
+                'POST',
+                sprintf('/collections/%s/points/delete?wait=true', rawurlencode($this->collectionName)),
+                [
+                    'points' => [$lsItemId],
+                ],
+                true
+            );
+
+            return;
+        }
+
+        $targetCollection = $this->getAliasTarget($alias);
+        if (null === $targetCollection) {
+            return;
+        }
+
         $this->request(
             'POST',
-            sprintf('/collections/%s/points/delete?wait=true', rawurlencode($this->getActiveCollectionReference())),
+            sprintf('/collections/%s/points/delete?wait=true', rawurlencode($targetCollection)),
             [
                 'points' => [$lsItemId],
             ],
@@ -377,6 +308,22 @@ readonly class QdrantVectorStore implements VectorStoreInterface
     public function getVectorCount(): int
     {
         return $this->countCollection($this->getActiveCollectionReference());
+    }
+
+    public function pointExists(int $lsItemId): bool
+    {
+        $response = $this->request(
+            'GET',
+            sprintf(
+                '/collections/%s/points/%d?with_vector=false&with_payload=false',
+                rawurlencode($this->getActiveCollectionReference()),
+                $lsItemId
+            ),
+            null,
+            true
+        );
+
+        return [] !== $response && isset($response['result']['id']);
     }
 
     /**
@@ -753,8 +700,8 @@ readonly class QdrantVectorStore implements VectorStoreInterface
                 if (is_array($vector) && isset($vector['dense']) && is_array($vector['dense'])) {
                     $vector = $vector['dense'];
                 }
-                $payload = $point['payload'] ?? [];
-                if (!is_numeric($id) || !is_array($vector) || !is_array($payload)) {
+                $pointPayload = $point['payload'] ?? [];
+                if (!is_numeric($id) || !is_array($vector) || !is_array($pointPayload)) {
                     continue;
                 }
 
@@ -763,7 +710,7 @@ readonly class QdrantVectorStore implements VectorStoreInterface
                     'vector' => [
                         'dense' => array_map(static fn (mixed $value): float => (float) $value, $vector),
                     ],
-                    'payload' => $payload,
+                    'payload' => $pointPayload,
                 ];
             }
         }
@@ -845,13 +792,47 @@ readonly class QdrantVectorStore implements VectorStoreInterface
     }
 
     /**
-     * Determine whether a Qdrant error is related to a missing or misconfigured sparse vector.
+     * @param list<mixed> $results
+     * @return list<array{lsItemId: int, similarity: float}>
      */
+    private function parseQueryResults(array $results): array
+    {
+        if (!is_array($results)) {
+            return [];
+        }
+
+        $matches = [];
+        foreach ($results as $result) {
+            if (!is_array($result)) {
+                continue;
+            }
+
+            $id = $result['id'] ?? null;
+            $score = $result['score'] ?? null;
+            if (!is_numeric($id) || !is_numeric($score)) {
+                continue;
+            }
+
+            $matches[] = [
+                'lsItemId' => (int) $id,
+                'similarity' => (float) $score,
+            ];
+        }
+
+        return $matches;
+    }
+
     private function isSparseVectorError(string $message): bool
     {
         return str_contains($message, 'sparse')
             || str_contains($message, '404')
             || str_contains($message, 'not found');
+    }
+
+    private function isNotFoundError(string $message): bool
+    {
+        return str_contains($message, '404')
+            || str_contains($message, 'Not found');
     }
 
     /**
