@@ -195,14 +195,14 @@ function collectCurrentItemIds() {
   return currentItemIds;
 }
 
-function getRegistryAssociations(currentItemIds) {
+ function getRegistryAssociations(currentItemIds) {
   const result = [];
   const seenIds = new Set();
 
   contextStore.associationRegistry.forEach((regAssoc) => {
     const assoc = regAssoc.association;
-    const originId = assoc.originNodeURI?.identifier;
-    const destId = assoc.destinationNodeURI?.identifier;
+    const originId = assoc.originNodeURI?.identifier || assoc.originNodeIdentifier;
+    const destId = assoc.destinationNodeURI?.identifier || assoc.destinationNodeIdentifier;
 
     if ((currentItemIds.has(originId) || currentItemIds.has(destId)) && !seenIds.has(assoc.identifier)) {
       seenIds.add(assoc.identifier);
@@ -228,7 +228,7 @@ async function refreshDbAssociations() {
 
   if (await localFrameworkDb.hasPersistentClient()) {
     for (const itemId of currentItemIds) {
-      const related = await localFrameworkDb.getItemAssociations(itemId, null, null);
+      const related = await localFrameworkDb.getItemAssociations(itemId, null);
       (related || []).forEach((entry) => {
         const assoc = entry?.association;
         if (!assoc?.identifier || seenIds.has(assoc.identifier)) return;
@@ -489,7 +489,7 @@ async function handleDeleteConfirmed(assoc) {
   // Use the correct ID property - associations can have either id or identifier
   const associationId = assoc.id || assoc.identifier;
   if (!associationId) {
-    console.error('Association has no id or identifier:', assoc);
+    logger.error('Association has no id or identifier:', assoc);
     return;
   }
   try {
@@ -497,7 +497,7 @@ async function handleDeleteConfirmed(assoc) {
     logger.debug('Association deleted successfully:', associationId);
     showDeleteModal.value = false;
   } catch (e) {
-    console.error('Failed to delete association', e);
+    logger.error('Failed to delete association', e);
   }
 }
 

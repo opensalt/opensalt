@@ -8,6 +8,7 @@
 import { ref } from 'vue';
 import { useDocumentStore } from '../stores/documentStore';
 import { useCurrentDocumentStore } from '../stores/currentDocumentStore';
+import { logger } from '../utils/logger.js';
 
 /**
  * @param {Object} options - Configuration options
@@ -137,7 +138,7 @@ export function useCrossTreeOperations(options = {}) {
 
       return true;
     } catch (error) {
-      console.error('Failed to copy item:', error);
+      logger.error('Failed to copy item:', error);
       // TODO: Show error toast
       return false;
     }

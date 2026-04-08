@@ -4,6 +4,7 @@ import { useEditorContextStore } from '../stores/editorContextStore';
 import { useDocumentStore } from '../stores/documentStore';
 import { useViewStore } from '../stores/viewStore';
 import { logger } from '../utils/logger.js';
+import { findItem as findItemInTree } from '../utils/tree.js';
 
 
 // Cross-framework item cache is now handled by editorContextStore registries
@@ -16,14 +17,13 @@ import { logger } from '../utils/logger.js';
  */
 export function findItemById(items, identifier) {
   if (!items || !Array.isArray(items)) return null;
-
+  const found = findItemInTree(items, identifier);
+  if (found) return found;
   for (const item of items) {
-    if (item.identifier === identifier || item.id === identifier) {
-      return item;
-    }
+    if (item.id === identifier) return item;
     if (item.children) {
-      const found = findItemById(item.children, identifier);
-      if (found) return found;
+      const childFound = findItemById(item.children, identifier);
+      if (childFound) return childFound;
     }
   }
   return null;
@@ -570,7 +570,7 @@ export function useCrossFrameworkItem(options) {
         };
       }
     } catch (error) {
-      console.warn(`Unexpected error in loadExternalItem:`, error);
+      logger.warn(`Unexpected error in loadExternalItem:`, error);
       fetchError.value = {
         type: error?.status === 403 ? 'permission' :
           error?.status === 404 ? 'not_found' : 'network',
@@ -636,16 +636,14 @@ export function useCrossFrameworkItem(options) {
  * Clear the cross-framework item cache (now handled by editorContextStore)
  */
 export function clearCrossFrameworkItemCache() {
-  // Cache is now handled by editorContextStore, so this is a no-op
-  console.warn('crossFrameworkItemCache is now handled by editorContextStore registries');
+  logger.warn('crossFrameworkItemCache is now handled by editorContextStore registries');
 }
 
 /**
  * Get cache size (now handled by editorContextStore)
  */
 export function getCrossFrameworkItemCacheSize() {
-  // Cache is now handled by editorContextStore, so we return 0 for compatibility
-  console.warn('crossFrameworkItemCache is now handled by editorContextStore registries');
+  logger.warn('crossFrameworkItemCache is now handled by editorContextStore registries');
   return 0;
 }
 

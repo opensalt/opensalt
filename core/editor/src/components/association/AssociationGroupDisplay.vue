@@ -28,6 +28,7 @@
 
 <script setup>
 import AssociationItem from './AssociationItem.vue';
+import { formatAssociationType, getAssociationIcon } from '../../utils/associationHelpers.js';
 
 const props = defineProps({
   associationType: {
@@ -61,36 +62,7 @@ const emit = defineEmits([
   'delete-association'
 ]);
 
-function formatAssociationType(type) {
-  if (!type) return 'Unknown';
 
-  if (type.match(/^ext:/)) {
-    type = type.replace(/^ext:/, '');
-  }
-
-  // Convert camelCase to readable format
-  return type
-    .replace(/([A-Z])/g, ' $1') // Add space before capital letters
-    .replace(/^./, str => str.toUpperCase()) // Capitalize first letter
-    .trim();
-}
-
-function getAssociationIcon(type) {
-  const iconMap = {
-    'isChildOf': 'bi bi-diagram-3',
-    'isPeerOf': 'bi bi-share',
-    'isPartOf': 'bi bi-puzzle',
-    'exactMatchOf': 'bi bi-check-circle',
-    'precedes': 'bi bi-arrow-right',
-    'isRelatedTo': 'bi bi-link',
-    'replacedBy': 'bi bi-arrow-clockwise',
-    'exemplar': 'bi bi-star',
-    'hasSkillLevel': 'bi bi-bar-chart',
-    'isTranslationOf': 'bi bi-translate'
-  };
-
-  return iconMap[type] || 'bi bi-link-45deg';
-}
 </script>
 
 <style scoped>

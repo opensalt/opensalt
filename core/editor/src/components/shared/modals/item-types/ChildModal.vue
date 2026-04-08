@@ -167,10 +167,12 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch, computed } from 'vue';
+import { ref, reactive, watch } from 'vue';
 import EasyMDE from '../../EasyMDE.vue';
 import MultiSelect from '../../MultiSelect.vue';
 import SingleSelect from '../../SingleSelect.vue';
+import { logger } from '../../../../utils/logger.js';
+import { useItemTypeModal } from '../../../../composables/useItemTypeModal';
 
 const props = defineProps({
   parentItem: Object,
@@ -181,11 +183,7 @@ const props = defineProps({
 
 const emit = defineEmits(['created', 'updated', 'hidden']);
 
-const loading = ref(false);
-const error = ref('');
-const saving = ref(false);
-
-const isEdit = computed(() => !!props.item);
+const { loading, error, saving, isEdit, closeModal } = useItemTypeModal(props, emit, { typeName: 'child' });
 
 const formData = reactive({
   fullStatement: '',
@@ -213,7 +211,7 @@ async function fetchSubjects() {
 
   loadingSubjects.value = true;
   try {
-    console.log('Fetching subjects from API...');
+    logger.debug('Fetching subjects from API...');
     // Use direct fetch to handle the response properly
     // The API endpoint returns JSON but may have text/html content-type due to Twig template
     const response = await fetch('/cfdef/subject/list?field_name=subjects&page=1&page_limit=50', {
@@ -231,21 +229,21 @@ async function fetchSubjects() {
 
     // Try to parse as JSON regardless of content-type
     const text = await response.text();
-    console.log('Raw subjects response:', text);
+    logger.debug('Raw subjects response:', text);
 
     // Parse the JSON
     const data = JSON.parse(text);
-    console.log('Parsed subjects response:', data);
+    logger.debug('Parsed subjects response:', data);
 
     if (data) {
       availableSubjects.value = data;
-      console.log('Loaded subjects:', availableSubjects.value);
+      logger.debug('Loaded subjects:', availableSubjects.value);
     } else {
-      console.warn('Unexpected response format for subjects:', data);
+      logger.warn('Unexpected response format for subjects:', data);
       throw new Error('Invalid response format');
     }
   } catch (err) {
-    console.error('Failed to fetch subjects:', err);
+    logger.error('Failed to fetch subjects:', err);
     // Fallback to default subjects if API fails
     availableSubjects.value = [
       { id: 'math', title: 'Mathematics' },
@@ -253,7 +251,7 @@ async function fetchSubjects() {
       { id: 'english', title: 'English Language Arts' },
       { id: 'history', title: 'History' }
     ];
-    console.log('Using fallback subjects:', availableSubjects.value);
+    logger.debug('Using fallback subjects:', availableSubjects.value);
   } finally {
     loadingSubjects.value = false;
   }
@@ -312,7 +310,7 @@ async function fetchItemTypes() {
 
   loadingItemTypes.value = true;
   try {
-    console.log('Fetching item types from API...');
+    logger.debug('Fetching item types from API...');
     // Use direct fetch to handle the response properly
     // The API endpoint returns JSON but may have text/html content-type due to Twig template
     const response = await fetch('/cfdef/item_type/list?field_name=itemType&page=1&page_limit=1000', {
@@ -330,21 +328,21 @@ async function fetchItemTypes() {
 
     // Try to parse as JSON regardless of content-type
     const text = await response.text();
-    console.log('Raw response:', text);
+    logger.debug('Raw response:', text);
 
     // Parse the JSON
     const data = JSON.parse(text);
-    console.log('Parsed response:', data);
+    logger.debug('Parsed response:', data);
 
     if (data && data.results) {
       availableItemTypes.value = data.results;
-      console.log('Loaded item types:', availableItemTypes.value);
+      logger.debug('Loaded item types:', availableItemTypes.value);
     } else {
-      console.warn('Unexpected response format:', data);
+      logger.warn('Unexpected response format:', data);
       throw new Error('Invalid response format');
     }
   } catch (err) {
-    console.error('Failed to fetch item types:', err);
+    logger.error('Failed to fetch item types:', err);
     // Fallback to default item types if API fails
     availableItemTypes.value = [
       { id: 'general', text: 'General Item' },
@@ -354,7 +352,7 @@ async function fetchItemTypes() {
       { id: 'job', text: 'Job' },
       { id: 'organization', text: 'Organization' }
     ];
-    console.log('Using fallback item types:', availableItemTypes.value);
+    logger.debug('Using fallback item types:', availableItemTypes.value);
   } finally {
     loadingItemTypes.value = false;
   }
@@ -394,8 +392,8 @@ function loadFormData() {
     );
     formData.itemType = matchingType ? matchingType.id : '';
     // Read from subjectURI and match by title to get IDs
-    console.log('Available subjects:', availableSubjects.value);
-    console.log('Item subjects:', props.item.subjectURI);
+    logger.debug('Available subjects:', availableSubjects.value);
+    logger.debug('Item subjects:', props.item.subjectURI);
     const subjectIds = (props.item.subjectURI || []).map(uri => {
       const match = availableSubjects.value.find(opt => opt.title === uri.title);
       return match ? match.id : null;
@@ -492,10 +490,6 @@ function saveItem() {
   } finally {
     saving.value = false;
   }
-}
-
-function closeModal() {
-  emit('hidden');
 }
 </script>
 

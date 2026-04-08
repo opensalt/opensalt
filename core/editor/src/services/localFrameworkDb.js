@@ -40,6 +40,20 @@ class LocalFrameworkDbService {
     return this.client !== null;
   }
 
+  isReady() {
+    return this.initialized && this.client !== null;
+  }
+
+  onReady(callback) {
+    if (this.initialized) {
+      if (this.client) callback();
+      return;
+    }
+    this.initPromise?.then(() => {
+      if (this.client) callback();
+    });
+  }
+
   async callWithFallback(methodName, fallback, ...args) {
     await this.initialize();
 
@@ -108,27 +122,25 @@ class LocalFrameworkDbService {
     );
   }
 
-  getItemAssociations(itemId, displayedFrameworkId = null, groupId = null) {
+  getItemAssociations(itemId, groupId = null) {
     return this.callWithFallback(
       'getItemAssociations',
       async () => [],
       itemId,
-      displayedFrameworkId,
       groupId
     );
   }
 
-  getDocumentAssociations(documentId, displayedFrameworkId = null, groupId = null) {
+  getDocumentAssociations(documentId, groupId = null) {
     return this.callWithFallback(
       'getDocumentAssociations',
       async () => [],
       documentId,
-      displayedFrameworkId,
       groupId
     );
   }
 
-  subscribeItemAssociations(itemId, displayedFrameworkId = null, groupId = null, onData = () => {}) {
+  subscribeItemAssociations(itemId, groupId = null, onData = () => {}) {
     return this.callWithFallback(
       'subscribeItemAssociations',
       async () => {
@@ -138,13 +150,12 @@ class LocalFrameworkDbService {
         };
       },
       itemId,
-      displayedFrameworkId,
       groupId,
       onData
     );
   }
 
-  subscribeDocumentAssociations(documentId, displayedFrameworkId = null, groupId = null, onData = () => {}) {
+  subscribeDocumentAssociations(documentId, groupId = null, onData = () => {}) {
     return this.callWithFallback(
       'subscribeDocumentAssociations',
       async () => {
@@ -154,7 +165,6 @@ class LocalFrameworkDbService {
         };
       },
       documentId,
-      displayedFrameworkId,
       groupId,
       onData
     );

@@ -119,7 +119,7 @@ describe('CurrentDocumentStore transformCASEItems', () => {
       })
     ];
 
-    const transformed = currentDocumentStore.transformCASEItems(items, associations, 'doc-1');
+    const transformed = currentDocumentStore.transformCASEItemsSync(items, associations, 'doc-1');
     const filtered = filterStore.filterItemsRecursively(
       transformed,
       '',
@@ -150,7 +150,7 @@ describe('CurrentDocumentStore transformCASEItems', () => {
       })
     ];
 
-    const transformed = currentDocumentStore.transformCASEItems(items, associations, 'doc-1');
+    const transformed = currentDocumentStore.transformCASEItemsSync(items, associations, 'doc-1');
     const external1 = findNode(transformed, 'external-1');
     const external2 = findNode(transformed, 'external-2');
 
@@ -169,7 +169,7 @@ describe('CurrentDocumentStore transformCASEItems', () => {
       })
     ];
 
-    const transformed = currentDocumentStore.transformCASEItems(items, associations, 'doc-1');
+    const transformed = currentDocumentStore.transformCASEItemsSync(items, associations, 'doc-1');
     const external1 = findNode(transformed, 'external-1');
     const external2 = findNode(transformed, 'external-2');
 
@@ -194,7 +194,7 @@ describe('CurrentDocumentStore transformCASEItems', () => {
       })
     ];
 
-    const transformed = currentDocumentStore.transformCASEItems(items, associations, 'doc-1');
+    const transformed = currentDocumentStore.transformCASEItemsSync(items, associations, 'doc-1');
 
     const defaultFiltered = filterStore.filterItemsRecursively(
       transformed,
@@ -235,7 +235,7 @@ describe('CurrentDocumentStore transformCASEItems', () => {
       }
     ];
 
-    const transformed = currentDocumentStore.transformCASEItems(items, associations, 'doc-1');
+    const transformed = currentDocumentStore.transformCASEItemsSync(items, associations, 'doc-1');
     const external = findNode(transformed, 'external-1');
 
     expect(external).toBeTruthy();
@@ -264,7 +264,7 @@ describe('CurrentDocumentStore transformCASEItems', () => {
       ]
     });
 
-    const transformed = currentDocumentStore.transformCASEItems(
+    const transformed = currentDocumentStore.transformCASEItemsSync(
       [makeItemForDocument('doc-1', 'itemA', 'Item A')],
       [
         makeChildOfAssociation({
@@ -322,7 +322,7 @@ describe('CurrentDocumentStore transformCASEItems', () => {
       ]
     });
 
-    const transformed = currentDocumentStore.transformCASEItems(
+    const transformed = currentDocumentStore.transformCASEItemsSync(
       [makeItemForDocument('doc-1', 'itemA', 'Item A')],
       [
         makeChildOfAssociation({
@@ -345,7 +345,7 @@ describe('CurrentDocumentStore transformCASEItems', () => {
   });
 
   it('shows a viewed-framework child under an external parent when the association uses legacy node identifier fields', () => {
-    const transformed = currentDocumentStore.transformCASEItems(
+    const transformed = currentDocumentStore.transformCASEItemsSync(
       [makeItemForDocument('doc-1', 'itemA', 'Viewed Framework Child')],
       [
         {
@@ -402,7 +402,7 @@ describe('CurrentDocumentStore transformCASEItems', () => {
       ]
     });
 
-    const transformed = currentDocumentStore.transformCASEItems(
+    const transformed = currentDocumentStore.transformCASEItemsSync(
       [makeItemForDocument('doc-1', 'itemA', 'Item A')],
       [],
       'doc-1'

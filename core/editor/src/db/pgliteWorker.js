@@ -3,31 +3,17 @@ import { PGlite } from '@electric-sql/pglite';
 import { live } from '@electric-sql/pglite/live';
 import { worker } from '@electric-sql/pglite/worker';
 import { ensureWebLocks } from './webLocksShim.js';
+import { logger } from '../utils/logger.js';
+import {
+  PGLITE_INDEXEDDB_DATA_DIR,
+  PGLITE_MEMORY_DATA_DIR,
+  cleanupStaleDatabases,
+  resetIndexedDbDataDir,
+} from './pgliteDataDir.js';
 
 ensureWebLocks();
 
-const PGLITE_INDEXEDDB_DATA_DIR = 'idb://opensalt-framework-db-v2';
-const PGLITE_MEMORY_DATA_DIR = 'memory://opensalt-framework-db-v2';
-
 const migrations = import.meta.glob('./migrations/*.sql', { query: '?raw', import: 'default', eager: true });
-
-function getIndexedDbName(dataDir) {
-  if (typeof dataDir !== 'string' || !dataDir.startsWith('idb://')) return null;
-  return dataDir.slice(6) || null;
-}
-
-async function resetIndexedDbDataDir(dataDir) {
-  const databaseName = getIndexedDbName(dataDir);
-  if (!databaseName) return false;
-  if (typeof indexedDB === 'undefined') return false;
-
-  return new Promise((resolve) => {
-    const request = indexedDB.deleteDatabase(databaseName);
-    request.onsuccess = () => resolve(true);
-    request.onerror = () => resolve(false);
-    request.onblocked = () => resolve(false);
-  });
-}
 
 worker({
   async init(options = {}) {
@@ -39,31 +25,33 @@ worker({
       // debug: 1,
     };
 
+    await cleanupStaleDatabases();
+
     const requestedDataDir = options.dataDir || PGLITE_INDEXEDDB_DATA_DIR;
     let db;
 
     try {
       db = await PGlite.create(requestedDataDir, pgliteOptions);
     } catch (error) {
-      console.warn('[PGliteWorker] Persistent init failed:', error);
+      logger.warn('[PGliteWorker] Persistent init failed:', error);
 
       const resetApplied = await resetIndexedDbDataDir(requestedDataDir);
       if (resetApplied) {
-        console.warn('[PGliteWorker] Reset persistent data, retrying...');
+        logger.warn('[PGliteWorker] Reset persistent data, retrying...');
         try {
           db = await PGlite.create(requestedDataDir, pgliteOptions);
         } catch (retryError) {
-          console.warn('[PGliteWorker] Retry failed:', retryError);
+          logger.warn('[PGliteWorker] Retry failed:', retryError);
         }
       }
 
       if (!db) {
-        console.warn('[PGliteWorker] Falling back to in-memory mode.');
+        logger.warn('[PGliteWorker] Falling back to in-memory mode.');
         db = await PGlite.create(PGLITE_MEMORY_DATA_DIR, pgliteOptions);
       }
     }
 
-    try {
+    async function runMigrations(db) {
       await db.exec(`
         CREATE TABLE IF NOT EXISTS schema_migrations (
           version TEXT PRIMARY KEY,
@@ -78,13 +66,47 @@ worker({
       for (const file of migrationFiles) {
         const version = file.split('/').pop();
         if (!appliedMigrations.has(version)) {
-          console.log(`[PGliteWorker] Applying migration: ${version}`);
+          logger.debug(`[PGliteWorker] Applying migration: ${version}`);
           await db.exec(migrations[file]);
           await db.query('INSERT INTO schema_migrations (version) VALUES ($1)', [version]);
         }
       }
+    }
+
+    try {
+      await runMigrations(db);
     } catch (error) {
-      console.error('[PGliteWorker] Migration failed:', error);
+      const msg = error?.message || String(error);
+      const isStructuralError = /constraint|duplicate|already exists|syntax|column|relation/i.test(msg);
+
+      if (!isStructuralError) {
+        logger.error('[PGliteWorker] Transient migration error (not resetting):', error);
+      } else {
+        logger.error('[PGliteWorker] Structural migration error, resetting database:', error);
+
+        try {
+          await db.close();
+        } catch (_) { /* ignore */ }
+
+        const resetApplied = await resetIndexedDbDataDir(requestedDataDir);
+        if (resetApplied) {
+          logger.warn('[PGliteWorker] Database reset, recreating from scratch...');
+          try {
+            db = await PGlite.create(requestedDataDir, pgliteOptions);
+            await runMigrations(db);
+          } catch (retryError) {
+            logger.error('[PGliteWorker] Migration failed after reset:', retryError);
+          }
+        }
+
+        if (!db) {
+          logger.warn('[PGliteWorker] Falling back to in-memory mode after migration failure.');
+          db = await PGlite.create(PGLITE_MEMORY_DATA_DIR, pgliteOptions);
+          try {
+            await runMigrations(db);
+          } catch (_) { /* in-memory migration failures are non-fatal */ }
+        }
+      }
     }
 
     return db;

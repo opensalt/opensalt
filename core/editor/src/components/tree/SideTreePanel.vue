@@ -61,10 +61,11 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue';
+import { ref, watch } from 'vue';
 import TreeView from './TreeView.vue';
 import DocumentSelector from '../shared/common/DocumentSelector.vue';
 import { useEditorContextStore } from '../../stores/editorContextStore';
+import { useSideTreePanel } from '../../composables/useSideTreePanel';
 
 const editorContextStore = useEditorContextStore();
 
@@ -105,22 +106,13 @@ const emit = defineEmits([
   'side-select'
 ]);
 
-const selectedDocumentId = ref('');
+const { selectedDocumentId, currentDocForSelector, onDocumentSelected } = useSideTreePanel(props);
 const sideSelectedId = ref(null);
-
-// Track current document for DocumentSelector
-const currentDocForSelector = computed(() => {
-  // If sideDocument is set, it's the current selected document for this panel
-  if (selectedDocumentId.value && props.availableDocuments) {
-    return props.availableDocuments.find(doc => doc.id === selectedDocumentId.value) || props.currentDocument;
-  }
-  return props.currentDocument;
-});
 
 function onDocumentChanged(event) {
   const { documentId } = event;
   if (documentId) {
-    selectedDocumentId.value = documentId;
+    onDocumentSelected(documentId);
     emit('document-select', documentId);
 
     // Save framework selection to centralized state

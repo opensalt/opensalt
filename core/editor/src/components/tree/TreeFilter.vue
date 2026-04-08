@@ -38,7 +38,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onUnmounted } from 'vue';
 
 const props = defineProps({
   modelValue: {
@@ -75,6 +75,13 @@ function onClear() {
   emit('clear');
   searchInput.value?.focus();
 }
+
+// Clean up debounce timer on unmount
+onUnmounted(() => {
+  if (debounceTimer) {
+    clearTimeout(debounceTimer);
+  }
+});
 
 // Expose focus method for external use
 defineExpose({

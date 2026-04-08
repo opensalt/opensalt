@@ -123,7 +123,8 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch, computed } from 'vue';
+import { reactive, watch } from 'vue';
+import { useItemTypeModal } from '../../../../composables/useItemTypeModal';
 
 const props = defineProps({
   parentItem: Object,
@@ -134,11 +135,7 @@ const props = defineProps({
 
 const emit = defineEmits(['created', 'updated', 'hidden']);
 
-const loading = ref(false);
-const error = ref('');
-const saving = ref(false);
-
-const isEdit = computed(() => !!props.item);
+const { loading, error, saving, isEdit, saveItem: doSaveItem, closeModal } = useItemTypeModal(props, emit, { typeName: 'course' });
 
 const formData = reactive({
   name: '',
@@ -209,55 +206,20 @@ function saveItem() {
     return;
   }
 
-  saving.value = true;
-  error.value = '';
+  const fields = {
+    name: formData.name,
+    description: formData.description,
+    codedNotation: formData.codedNotation,
+    inLanguage: formData.inLanguage,
+    deliveryType: formData.deliveryType,
+    webpage: formData.webpage
+  };
 
-  try {
-    let savedItem;
-    if (isEdit.value) {
-      // Map form fields back to CASE structure
-      savedItem = {
-        ...props.item,
-        name: formData.name,
-        description: formData.description,
-        codedNotation: formData.codedNotation,
-        inLanguage: formData.inLanguage,
-        deliveryType: formData.deliveryType,
-        webpage: formData.webpage,
-        extensions: {
-          ...(props.item?.extensions || {}),
-          'salt:type': 'course'
-        },
-        updated: new Date().toISOString()
-      };
-      emit('updated', savedItem);
-    } else {
-      savedItem = {
-        identifier: 'item_' + Date.now(),
-        name: formData.name,
-        description: formData.description,
-        codedNotation: formData.codedNotation,
-        inLanguage: formData.inLanguage,
-        deliveryType: formData.deliveryType,
-        webpage: formData.webpage,
-        extensions: {
-          'salt:type': 'course'
-        },
-        parentId: props.parentItem?.identifier || null,
-        created: new Date().toISOString(),
-        children: []
-      };
-      emit('created', savedItem);
-    }
-  } catch (e) {
-    error.value = 'Failed to save item: ' + e.message;
-  } finally {
-    saving.value = false;
+  if (!isEdit.value) {
+    fields.identifier = 'item_' + Date.now();
   }
-}
 
-function closeModal() {
- emit('hidden');
+  doSaveItem(fields);
 }
 </script>
 

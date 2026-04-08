@@ -18,10 +18,11 @@
 import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
 import '@electric-sql/pglite-repl/webcomponent';
 import { createPgliteClient } from '../../db/pgliteClient.js';
+import { DEFAULT_DATA_DIR } from '../../db/pgliteDataDir.js';
 
 const replElement = ref(null);
 const errorMessage = ref('');
-const databasePath = 'idb://opensalt-framework-db';
+const databasePath = DEFAULT_DATA_DIR;
 
 let pg = null;
 const client = createPgliteClient();

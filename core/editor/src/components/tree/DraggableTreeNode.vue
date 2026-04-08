@@ -78,6 +78,7 @@
 <script setup>
 import { ref, computed, inject } from 'vue';
 import { useAnnouncer } from '../../composables/useAnnouncer.js';
+import { logger } from '../../utils/logger.js';
 
 const props = defineProps({
   item: Object,
@@ -315,7 +316,7 @@ function onDrop(e) {
       });
     }
   } catch (error) {
-    console.error('Error handling drop:', error);
+    logger.error('Error handling drop:', error);
   }
 }
 

@@ -58,8 +58,7 @@
 
 <script setup>
 import { computed } from 'vue';
-import { useEditorContextStore } from '@/stores/editorContextStore';
-import { useCurrentDocumentStore } from '@/stores/currentDocumentStore';
+import { useViewedDoc } from '../../composables/useViewedDoc';
 import DocumentSelector from '../shared/common/DocumentSelector.vue';
 import TreeFilter from './TreeFilter.vue';
 import SearchFilter from '../shared/common/SearchFilter.vue';
@@ -171,28 +170,7 @@ const treeSearchQueryModel = computed({
   set: (value) => emit('update:treeSearchQuery', value)
 });
 
-const contextStore = useEditorContextStore();
-const currentDocumentStore = useCurrentDocumentStore();
-
-const isViewingDifferentFramework = computed(() => contextStore.isViewingDifferentFramework);
-
-const viewedDoc = computed(() => {
-  const registryVersion = contextStore.registryVersion;
-  void registryVersion;
-  const id = contextStore.viewedDocumentId;
-  if (!id) return null;
-  const doc = contextStore.documentRegistry.get(id);
-  if (!doc) return null;
-
-  const pkg = contextStore.loadedPackages.get(id);
-  let items = [];
-  if (pkg && pkg.CFItems) {
-    const transformed = currentDocumentStore.transformCASEItems(pkg.CFItems, pkg.CFAssociations || [], id);
-    items = transformed.items || transformed;
-  }
-
-  return { ...doc, id: doc.identifier, items };
-});
+const { viewedDoc, isViewingDifferentFramework } = useViewedDoc({ transformItems: true });
 
 // NEW: Compute the document to display based on view mode
 // When viewing a different framework, use viewed document; otherwise use filtered document

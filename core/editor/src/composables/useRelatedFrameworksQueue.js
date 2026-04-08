@@ -468,7 +468,6 @@ export function useRelatedFrameworksQueue() {
     if (await localFrameworkDb.hasPersistentClient()) {
       associations = await localFrameworkDb.getItemAssociations(
         currentItem.identifier,
-        contextStore.isViewingDifferentFramework ? contextStore.viewedDocumentId : contextStore.activeWriteDocumentId,
         null
       );
     }
@@ -638,6 +637,19 @@ function setSessionRelatedDocuments(identifier, docs) {
     }
   }
 
+  /**
+   * Clean up session caches and pending requests.
+   * Should be called on framework switch or when the composable is no longer needed.
+   */
+  function cleanup() {
+    clearQueue();
+    sessionRelatedDocumentsCache.clear();
+    pendingRelatedDocumentRequests.clear();
+    // Note: sessionFetchedFrameworks is intentionally NOT cleared here
+    // as it tracks what has been fetched from the API this session
+    // and should persist across framework switches.
+  }
+
   return {
     // State
     queue,
@@ -652,6 +664,7 @@ function setSessionRelatedDocuments(identifier, docs) {
     pauseQueue,
     resumeQueue,
     clearQueue,
+    cleanup,
     addToQueue,
     updateItemPriority,
     setHighPriorityForAssociatedFrameworks,

@@ -2,7 +2,7 @@
 import underline from 'markdown-it-underline';
 import mkModule from '@vscode/markdown-it-katex';
 import markdown from 'markdown-it';
-// import sanitizeHtml from 'sanitize-html';
+import sanitizeHtml from 'sanitize-html';
 
 const mk = mkModule?.default || mkModule;
 
@@ -34,32 +34,41 @@ const render = (function () {
         });
 
     function sanitizerBlock(dirty) {
-        return dirty;
-        /*
         return sanitizeHtml(dirty, {
             allowedTags: [
                 'ul', 'ol', 'li',
                 'u', 'b', 'i',
                 'br', 'p',
                 'sup', 'sub',
-                'img'
+                'img',
+                'span', 'div',
+                'strong', 'em',
+                'a',
+                'table', 'thead', 'tbody', 'tr', 'th', 'td',
+                'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+                'blockquote', 'pre', 'code'
             ],
             allowedAttributes: {
+                'a': ['href', 'title', 'target'],
                 'ol': ['type'],
-                'img': ['src', 'alt', 'title']
-            }
+                'img': ['src', 'alt', 'title'],
+                'span': ['class', 'style'],
+                '*': ['class']
+            },
+            allowedSchemes: ['http', 'https', 'mailto', 'data']
         });
-        */
     }
 
     function sanitizerInline(dirty) {
-        return dirty;
-        /*
         return sanitizeHtml(dirty, {
-            allowedTags: ['img'],
-            allowedAttributes: {'img': ['alt', 'title']}
+            allowedTags: ['img', 'span', 'strong', 'em', 'b', 'i', 'u', 'a', 'code', 'sup', 'sub', 'br'],
+            allowedAttributes: {
+                'a': ['href', 'title', 'target'],
+                'img': ['src', 'alt', 'title'],
+                'span': ['class', 'style']
+            },
+            allowedSchemes: ['http', 'https', 'mailto', 'data']
         });
-        */
     }
 
     const render = {

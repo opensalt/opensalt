@@ -1,15 +1,4 @@
 <template>
-  <!-- DEBUG: Log props when component renders -->
-  <div v-if="true" style="display: none;">
-    {{ console.log('[ItemActionsCard] Props:', {
-      canEditItem,
-      isItemFromViewedFramework,
-      isReadOnly,
-      'First condition (canEditItem)': canEditItem,
-      'Second condition (isItemFromViewedFramework && !isReadOnly)': isItemFromViewedFramework && !isReadOnly
-    }) }}
-  </div>
-
   <!-- Actions - Only available for editable items -->
   <div v-if="canEditItem" class="card mt-0 border-0">
     <div class="card-body py-0 ms-auto">

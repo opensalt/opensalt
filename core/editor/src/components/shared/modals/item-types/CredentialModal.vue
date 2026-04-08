@@ -40,11 +40,12 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
+import { ref, reactive, watch, onMounted, onBeforeUnmount, nextTick } from 'vue';
 
-// Import the ob3-definer widget
 import '@opensalt/ob3-definer/dist/ob3-definer.js';
 import '@opensalt/ob3-definer/dist/ob3-definer.css';
+import { logger } from '../../../../utils/logger.js';
+import { useItemTypeModal } from '../../../../composables/useItemTypeModal';
 
 const props = defineProps({
   parentItem: Object,
@@ -55,11 +56,7 @@ const props = defineProps({
 
 const emit = defineEmits(['created', 'updated', 'hidden']);
 
-const loading = ref(false);
-const error = ref('');
-const saving = ref(false);
-
-const isEdit = computed(() => !!props.item);
+const { loading, error, saving, isEdit, resetState } = useItemTypeModal(props, emit, { typeName: 'credential' });
 
 // Store the achievement definition JSON from the widget
 const achievementData = ref(null);
@@ -110,7 +107,7 @@ async function openWidget() {
 
   const element = document.querySelector('#ob3-definer');
   if (!element) {
-    console.error('[AddNewCredentialModal] #ob3-definer element NOT FOUND in DOM!');
+    logger.error('[AddNewCredentialModal] #ob3-definer element NOT FOUND in DOM!');
     return;
   }
 
@@ -244,6 +241,7 @@ async function saveItem() {
 }
 
 function closeModal() {
+  resetState();
   window.dispatchEvent(new CustomEvent('ob3-close'));
   emit('hidden');
 }

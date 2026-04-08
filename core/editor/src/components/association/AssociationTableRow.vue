@@ -126,9 +126,9 @@
 
 <script setup>
 import { computed, ref, onMounted, toRef } from 'vue';
-import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
-import { useEditorContextStore } from '../../stores/editorContextStore';
 import { useCrossFrameworkItem } from '../../composables/useCrossFrameworkItem';
+import { useAssociationPermissions } from '../../composables/useAssociationPermissions';
+import { formatAssociationType, getAssociationIcon } from '../../utils/associationHelpers.js';
 
 // Lazy-loaded markdown renderer with caching
 let markdownRendererPromise = null;
@@ -177,85 +177,11 @@ const props = defineProps({
 
 const emit = defineEmits(['edit', 'delete']);
 
-const currentDocumentStore = useCurrentDocumentStore();
-const contextStore = useEditorContextStore();
-
-const displayedFrameworkId = computed(() => (
-  contextStore.isViewingDifferentFramework
-    ? (
-      contextStore.viewedDocumentId ||
-      currentDocumentStore.currentDocument?.identifier ||
-      currentDocumentStore.currentDocument?.id ||
-      null
-    )
-    : (
-      contextStore.activeWriteDocumentId ||
-      currentDocumentStore.currentDocument?.identifier ||
-      currentDocumentStore.currentDocument?.id ||
-      null
-    )
-));
-
-const activeFrameworkId = computed(() => (
-  contextStore.activeWriteDocumentId ||
-  currentDocumentStore.currentDocument?.identifier ||
-  currentDocumentStore.currentDocument?.id ||
-  null
-));
-
-const associationSourceFrameworkId = computed(() => (
-  props.association._sourceFrameworkId
-  || props.association.CFDocumentURI?.identifier
-  || (typeof props.association.CFDocumentURI === 'string' ? props.association.CFDocumentURI : null)
-  || null
-));
-
-const resolvedAssociationSourceDocumentId = computed(() => {
-  const sourceId = associationSourceFrameworkId.value;
-  if (!sourceId) return null;
-
-  if (contextStore.documentRegistry.has(sourceId)) {
-    return sourceId;
-  }
-
-  for (const doc of contextStore.documentRegistry.values()) {
-    if (doc.frameworkId === sourceId) {
-      return doc.identifier;
-    }
-  }
-
-  return sourceId;
-});
-
-const isAssociationFromDifferentDisplayedFramework = computed(() => {
-  if (!resolvedAssociationSourceDocumentId.value) return false;
-  return displayedFrameworkId.value != null && resolvedAssociationSourceDocumentId.value !== displayedFrameworkId.value;
-});
-
-const associationTypeForPermissions = computed(() => (
-  props.association.associationType || props.association.type || 'unknown'
-));
-
-const isAssociationSourceEditable = computed(() => {
-  if (!resolvedAssociationSourceDocumentId.value || !activeFrameworkId.value) return true;
-  return contextStore.isEditable(resolvedAssociationSourceDocumentId.value);
-});
-
-const canManageAssociation = computed(() => {
-  if (props.isReadOnly || associationTypeForPermissions.value === 'isChildOf') return false;
-  return isAssociationSourceEditable.value;
-});
-
-// Resolve the source framework title from the centralized document registry
-const sourceFrameworkTitle = computed(() => {
-  if (!isAssociationFromDifferentDisplayedFramework.value) return null;
-
-  const frameworkId = resolvedAssociationSourceDocumentId.value;
-  if (!frameworkId) return null;
-
-  const doc = contextStore.documentRegistry.get(frameworkId);
-  return doc?.title || null;
-});
+const {
+  isAssociationFromDifferentDisplayedFramework,
+  canManageAssociation,
+  sourceFrameworkTitle
+} = useAssociationPermissions(toRef(props, 'association'), { isReadOnly: toRef(props, 'isReadOnly') });
 
 // Use cross-framework item composable for origin (reversed direction)
 const {
@@ -390,39 +316,7 @@ const isExtendedType = computed(() => {
 const hasAnnotation = computed(() => !!props.association.notes);
 const annotation = computed(() => props.association.notes || '');
 
-// Helper functions
-function formatAssociationType(type) {
-  if (!type) return 'Unknown';
 
-  // Remove ext: prefix for display
-  let displayType = type;
-  if (type.match(/^ext:/)) {
-    displayType = type.replace(/^ext:/, '');
-  }
-
-  // Convert camelCase to readable format
-  return displayType
-    .replace(/([A-Z])/g, ' $1') // Add space before capital letters
-    .replace(/^./, str => str.toUpperCase()) // Capitalize first letter
-    .trim();
-}
-
-function getAssociationIcon(type) {
-  const iconMap = {
-    'isChildOf': 'bi bi-diagram-3',
-    'isPeerOf': 'bi bi-share',
-    'isPartOf': 'bi bi-puzzle',
-    'exactMatchOf': 'bi bi-check-circle',
-    'precedes': 'bi bi-arrow-right',
-    'isRelatedTo': 'bi bi-link',
-    'replacedBy': 'bi bi-arrow-clockwise',
-    'exemplar': 'bi bi-star',
-    'hasSkillLevel': 'bi bi-bar-chart',
-    'isTranslationOf': 'bi bi-translate'
-  };
-
-  return iconMap[type] || 'bi bi-link-45deg';
-}
 </script>
 
 <style scoped>

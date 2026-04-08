@@ -83,8 +83,7 @@
 import { computed, ref, onMounted, toRef, watch } from 'vue';
 import { useCrossFrameworkItem } from '../../composables/useCrossFrameworkItem';
 import { useRelatedFrameworksQueue } from '../../composables/useRelatedFrameworksQueue.js';
-import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
-import { useEditorContextStore } from '@/stores/editorContextStore';
+import { useAssociationPermissions } from '../../composables/useAssociationPermissions';
 
 // Lazy-loaded markdown renderer with caching
 let markdownRendererPromise = null;
@@ -139,86 +138,11 @@ const emit = defineEmits(['edit', 'delete']);
 // Use the related frameworks queue composable
 const { getQueueStatus } = useRelatedFrameworksQueue();
 
-// Access stores for resolving source framework titles
-const currentDocumentStore = useCurrentDocumentStore();
-const contextStore = useEditorContextStore();
-
-const displayedFrameworkId = computed(() => (
-  contextStore.isViewingDifferentFramework
-    ? (
-      contextStore.viewedDocumentId ||
-      currentDocumentStore.currentDocument?.identifier ||
-      currentDocumentStore.currentDocument?.id ||
-      null
-    )
-    : (
-      contextStore.activeWriteDocumentId ||
-      currentDocumentStore.currentDocument?.identifier ||
-      currentDocumentStore.currentDocument?.id ||
-      null
-    )
-));
-
-const activeFrameworkId = computed(() => (
-  contextStore.activeWriteDocumentId ||
-  currentDocumentStore.currentDocument?.identifier ||
-  currentDocumentStore.currentDocument?.id ||
-  null
-));
-
-const associationSourceFrameworkId = computed(() => (
-  props.association._sourceFrameworkId
-  || props.association.CFDocumentURI?.identifier
-  || (typeof props.association.CFDocumentURI === 'string' ? props.association.CFDocumentURI : null)
-  || null
-));
-
-const resolvedAssociationSourceDocumentId = computed(() => {
-  const sourceId = associationSourceFrameworkId.value;
-  if (!sourceId) return null;
-
-  if (contextStore.documentRegistry.has(sourceId)) {
-    return sourceId;
-  }
-
-  for (const doc of contextStore.documentRegistry.values()) {
-    if (doc.frameworkId === sourceId) {
-      return doc.identifier;
-    }
-  }
-
-  return sourceId;
-});
-
-const isAssociationFromDifferentDisplayedFramework = computed(() => {
-  if (!resolvedAssociationSourceDocumentId.value) return false;
-  return displayedFrameworkId.value != null && resolvedAssociationSourceDocumentId.value !== displayedFrameworkId.value;
-});
-
-const associationTypeForPermissions = computed(() => (
-  props.association.associationType || props.association.type || 'unknown'
-));
-
-const isAssociationSourceEditable = computed(() => {
-  if (!resolvedAssociationSourceDocumentId.value || !activeFrameworkId.value) return true;
-  return contextStore.isEditable(resolvedAssociationSourceDocumentId.value);
-});
-
-const canManageAssociation = computed(() => {
-  if (props.isReadOnly || associationTypeForPermissions.value === 'isChildOf') return false;
-  return isAssociationSourceEditable.value;
-});
-
-// Resolve the source framework title from the centralized document registry
-const sourceFrameworkTitle = computed(() => {
-  if (!isAssociationFromDifferentDisplayedFramework.value) return null;
-
-  const frameworkId = resolvedAssociationSourceDocumentId.value;
-  if (!frameworkId) return null;
-
-  const doc = contextStore.documentRegistry.get(frameworkId);
-  return doc?.title || null;
-});
+const {
+  isAssociationFromDifferentDisplayedFramework,
+  canManageAssociation,
+  sourceFrameworkTitle
+} = useAssociationPermissions(toRef(props, 'association'), { isReadOnly: toRef(props, 'isReadOnly') });
 
 // Use the cross-framework item composable
 const {

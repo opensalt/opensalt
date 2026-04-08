@@ -9,6 +9,7 @@ import { ref, computed, nextTick } from 'vue';
 import { useDocumentStore } from '../stores/documentStore';
 import { useCurrentDocumentStore } from '../stores/currentDocumentStore';
 import { useEditorContextStore } from '../stores/editorContextStore';
+import { logger } from '../utils/logger.js';
 
 /**
  * @param {Object} options - Configuration options
@@ -85,7 +86,7 @@ export function useSideDocument(options = {}) {
 
       return sideDocument.value;
     } catch (error) {
-      console.error('[onSideDocumentSelect] Error loading side document:', error);
+      logger.error('[onSideDocumentSelect] Error loading side document:', error);
       sideDocument.value = null;
       return null;
     } finally {

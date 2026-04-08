@@ -1,6 +1,10 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const manualChunkGroups = [
   ['vendor-vue', ['vue', 'vue-router', 'pinia']],
@@ -45,9 +49,18 @@ export default defineConfig({
     },
   },
   resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
+    alias: [
+      // Preserve the @ alias
+      { find: '@', replacement: path.resolve(__dirname, './src') },
+      // Browser-compatible shims for Node.js built-ins pulled in transitively
+      // by sanitize-html → postcss.  Prevents Vite's browser-externalization
+      // warnings in the dev console.  Use RegExp aliases to match exact bare
+      // specifiers only (e.g. "fs" but NOT "fs/promises").
+      { find: /^path$/, replacement: path.resolve(__dirname, './src/shims/path.js') },
+      { find: /^fs$/, replacement: path.resolve(__dirname, './src/shims/fs.js') },
+      { find: /^url$/, replacement: path.resolve(__dirname, './src/shims/url.js') },
+      { find: /^source-map-js$/, replacement: path.resolve(__dirname, './src/shims/source-map-js.js') },
+    ],
     tsconfigPaths: true
   },
   server: {

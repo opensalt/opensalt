@@ -18,7 +18,7 @@
         <div class="p-4 flex-grow-1 d-flex flex-column overflow-hidden" style="min-height: 0;">
           <div class="d-flex justify-content-between align-items-center mb-4 flex-shrink-0">
             <h3 class="mb-0">Activity Log</h3>
-            <div class="btn-group" role="group">
+            <div class="btn-group" role="group" v-if="false">
               <button
                 type="button"
                 class="btn btn-sm"
@@ -191,6 +191,7 @@
   import { ref, computed, onMounted, watch } from 'vue';
   import { useDocumentStore } from '../../stores/documentStore';
   import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
+  import { logger } from '../../utils/logger.js';
 
   const documentStore = useDocumentStore();
   const currentDocumentStore = useCurrentDocumentStore();
@@ -381,13 +382,13 @@
         logs.value = [];
       } else {
         error.value = err.message;
-        console.error('Failed to fetch logs:', err);
+        logger.error('Failed to fetch logs:', err);
       }
 
       // Retry logic for network errors (but not for login errors)
       if (!isNotLoggedIn.value && retryCount.value < maxRetries && (err.message.includes('network') || err.message.includes('fetch'))) {
         retryCount.value++;
-        console.log(`Retrying... (${retryCount.value}/${maxRetries})`);
+        logger.debug(`Retrying... (${retryCount.value}/${maxRetries})`);
         setTimeout(() => fetchLogs(), 1000 * retryCount.value);
         return;
       }

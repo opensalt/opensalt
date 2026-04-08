@@ -113,11 +113,12 @@
 </template>
 
 <script setup>
-import { ref, watch, computed, onMounted, inject } from 'vue';
+import { ref, watch, onMounted, inject } from 'vue';
 import TreeView from './TreeView.vue';
 import DocumentSelector from '../shared/common/DocumentSelector.vue';
 import { logger } from '@/utils/logger.js';
 import { useEditorContextStore } from '@/stores/editorContextStore';
+import { useSideTreePanel } from '../../composables/useSideTreePanel';
 
 const props = defineProps({
   mode: {
@@ -158,7 +159,7 @@ const emit = defineEmits([
 ]);
 
 const editorContextStore = useEditorContextStore();
-const selectedDocumentId = ref('');
+const { selectedDocumentId, currentDocForSelector, onDocumentSelected } = useSideTreePanel(props);
 const sideSelectedId = ref(null);
 
 // Inject tree navigation context for expansion state management
@@ -168,19 +169,10 @@ const navigation = inject('treeNavigation', {
   isItemExpanded: () => false
 });
 
-// Track current document for DocumentSelector
-const currentDocForSelector = computed(() => {
-  // If sideDocument is set, it's the current selected document for this panel
-  if (selectedDocumentId.value && props.availableDocuments) {
-    return props.availableDocuments.find(doc => doc.identifier === selectedDocumentId.value) || props.currentDocument;
-  }
-  return props.currentDocument;
-});
-
 function onDocumentChanged(event) {
   const { side, documentId } = event;
   if (documentId) {
-    selectedDocumentId.value = documentId;
+    onDocumentSelected(documentId);
     emit('document-select', documentId);
     // Save framework selection to centralized state
     if (props.mode === 'copyItems' || props.mode === 'createAssociations') {

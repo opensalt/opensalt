@@ -51,7 +51,6 @@ export function useAssociationList({ mode, item = null, displayItem = null, docu
 
   let activeSubscription = null;
   let subscriptionVersion = 0;
-  const LOCAL_QUERY_TIMEOUT_MS = 1500;
 
   const displayedFrameworkId = computed(() => (
     contextStore.isViewingDifferentFramework
@@ -86,6 +85,39 @@ export function useAssociationList({ mode, item = null, displayItem = null, docu
   function getItemAssociationsFromRegistry(identifier, uri) {
     if (!identifier) return [];
     return contextStore.getAssociations(identifier, uri);
+  }
+
+  function getItemAssociationsFromItemData() {
+    const source = toValue(displayItem) || toValue(item);
+    const associations = source?.associations;
+    if (!Array.isArray(associations) || associations.length === 0) return [];
+
+    const sourceFrameworkId =
+      source?.documentId ||
+      source?.CFDocumentURI?.identifier ||
+      displayedFrameworkId.value ||
+      null;
+
+    return associations.map((association) => ({
+      association,
+      frameworkId: sourceFrameworkId,
+    }));
+  }
+
+  function mergeAndDedupeEntries(...entryGroups) {
+    const merged = [];
+    const seenIds = new Set();
+
+    entryGroups.forEach((entries) => {
+      (entries || []).forEach((entry) => {
+        const assocId = entry?.association?.identifier;
+        if (!assocId || seenIds.has(assocId)) return;
+        seenIds.add(assocId);
+        merged.push(entry);
+      });
+    });
+
+    return merged;
   }
 
   function getDocumentAssociationsFromRegistry(docId, docItemIds) {
@@ -173,8 +205,9 @@ export function useAssociationList({ mode, item = null, displayItem = null, docu
   }
 
   function getRegistryEntries() {
+    const itemDataEntries = mode === 'item' ? getItemAssociationsFromItemData() : [];
     return mode === 'item'
-      ? getItemAssociationsFromRegistry(itemIdentifier.value, itemUri.value)
+      ? mergeAndDedupeEntries(itemDataEntries, getItemAssociationsFromRegistry(itemIdentifier.value, itemUri.value))
       : getDocumentAssociationsFromRegistry(documentIdentifier.value, documentItemIds.value);
   }
 
@@ -193,44 +226,43 @@ export function useAssociationList({ mode, item = null, displayItem = null, docu
         ]);
       }
     } catch (error) {
-      console.warn('[useAssociationList] Failed to stop association subscription:', error);
+      logger.warn('[useAssociationList] Failed to stop association subscription:', error);
     }
   }
 
   async function fetchSnapshotEntries() {
-    const hasPersistentClient = await localFrameworkDb.hasPersistentClient();
-    if (!hasPersistentClient) {
-      return getRegistryEntries();
+    if (!localFrameworkDb.isReady()) {
+      return null;
     }
 
     if (mode === 'item') {
       return localFrameworkDb.getItemAssociations(
         itemIdentifier.value,
-        displayedFrameworkId.value,
         null
       );
     }
 
     return localFrameworkDb.getDocumentAssociations(
       documentIdentifier.value,
-      displayedFrameworkId.value,
       null
     );
   }
 
-  async function fetchEntriesWithFallback() {
+  async function fetchEntriesWithFallback(currentVersion) {
+    const snapshotPromise = fetchSnapshotEntries();
+
     try {
-      return await Promise.race([
-        fetchSnapshotEntries(),
-        new Promise((_, reject) => {
-          setTimeout(() => reject(new Error(`Association query timed out after ${LOCAL_QUERY_TIMEOUT_MS}ms`)), LOCAL_QUERY_TIMEOUT_MS);
-        })
-      ]);
+      const result = await snapshotPromise;
+
+      if (result !== null && result !== undefined) {
+        return result;
+      }
+
+      return getRegistryEntries();
     } catch (error) {
       const fallbackEntries = getRegistryEntries();
 
       if (Array.isArray(fallbackEntries) && fallbackEntries.length > 0) {
-        logger.debug('[useAssociationList] Falling back to registry-backed associations:', error);
         return fallbackEntries;
       }
 
@@ -238,7 +270,7 @@ export function useAssociationList({ mode, item = null, displayItem = null, docu
     }
   }
 
-  async function start() {
+  async function loadEntries({ clearEntries = true, setLoading = true } = {}) {
     subscriptionVersion += 1;
     const currentVersion = subscriptionVersion;
 
@@ -257,18 +289,26 @@ export function useAssociationList({ mode, item = null, displayItem = null, docu
     }
 
     // Prevent stale association rows from staying visible while switching context.
-    rawEntries.value = [];
-    isProcessingAssociations.value = true;
+    if (clearEntries) {
+      rawEntries.value = [];
+    }
+    if (setLoading) {
+      isProcessingAssociations.value = true;
+    }
 
     try {
-      const snapshotEntries = await fetchEntriesWithFallback();
+      const snapshotEntries = await fetchEntriesWithFallback(currentVersion);
       if (currentVersion !== subscriptionVersion) return;
       rawEntries.value = Array.isArray(snapshotEntries) ? snapshotEntries : [];
-      isProcessingAssociations.value = false;
+      if (setLoading) {
+        isProcessingAssociations.value = false;
+      }
     } catch (error) {
-      console.error('[useAssociationList] Failed to load associations:', error);
+      logger.error('[useAssociationList] Failed to load associations:', error);
       lastError.value = error;
-      isProcessingAssociations.value = false;
+      if (setLoading) {
+        isProcessingAssociations.value = false;
+      }
       if (rawEntries.value.length > 0) return;
 
       // Final fallback so we still show current-item associations if local DB calls stall/fail.
@@ -278,7 +318,7 @@ export function useAssociationList({ mode, item = null, displayItem = null, docu
           : getDocumentAssociationsFromRegistry(documentIdentifier.value, documentItemIds.value);
         rawEntries.value = Array.isArray(fallbackEntries) ? fallbackEntries : [];
       } catch (fallbackError) {
-        console.warn('[useAssociationList] Registry fallback failed:', fallbackError);
+        logger.warn('[useAssociationList] Registry fallback failed:', fallbackError);
       }
     }
   }
@@ -288,36 +328,49 @@ export function useAssociationList({ mode, item = null, displayItem = null, docu
       try {
         await activeSubscription.refresh();
       } catch (error) {
-        console.warn('[useAssociationList] Failed to refresh subscription, restarting:', error);
-        await start();
+        logger.warn('[useAssociationList] Failed to refresh subscription, restarting:', error);
+        await loadEntries({ clearEntries: false, setLoading: false });
       }
       return;
     }
-    await start();
+    await loadEntries({ clearEntries: false, setLoading: false });
   }
 
-  watch(
-    () => (
-      mode === 'item'
-        ? [
-          itemIdentifier.value,
-          itemUri.value,
-          displayedFrameworkId.value,
-          toValue(item),
-          contextStore.registryVersion
-        ]
-        : [
-          documentIdentifier.value,
-          displayedFrameworkId.value,
-          toValue(document),
-          contextStore.registryVersion
-        ]
-    ),
-    () => {
-      void start();
-    },
-    { immediate: true }
-  );
+  const watchKey = computed(() => {
+    if (mode === 'item') {
+      const itemAssociations = toValue(displayItem)?.associations || toValue(item)?.associations || [];
+      const assocFingerprint = Array.isArray(itemAssociations)
+        ? itemAssociations.map(a => `${a?.identifier}:${a?.associationType}:${a?.groupId}`).join(',')
+        : '';
+      return [
+        itemIdentifier.value || '',
+        itemUri.value || '',
+        displayedFrameworkId.value || '',
+        assocFingerprint,
+      ].join('|');
+    }
+
+    return [
+      documentIdentifier.value || '',
+      displayedFrameworkId.value || '',
+      Array.from(documentItemIds.value).join('|'),
+    ].join('|');
+  });
+
+  watch(watchKey, () => {
+    void loadEntries({ clearEntries: true, setLoading: true });
+  }, { immediate: true });
+
+  localFrameworkDb.onReady(() => {
+    if (itemIdentifier.value || documentIdentifier.value) {
+      void loadEntries({ clearEntries: true, setLoading: false });
+    }
+  });
+
+  watch(() => contextStore.registryVersion, () => {
+    if (!itemIdentifier.value && !documentIdentifier.value) return;
+    void refresh();
+  });
 
   const mergedAssociations = computed(() => groupAssociations(rawEntries.value));
 

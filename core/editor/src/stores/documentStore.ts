@@ -160,7 +160,7 @@ export const useDocumentStore = defineStore('documents', () => {
       });
     } catch (err) {
       error.value = (err as Error).message || 'Failed to fetch documents';
-      console.error('Error fetching documents:', err);
+      logger.error('Error fetching documents:', err);
       // Keep any previously loaded documents if there was an error
       if (documents.value.length === 0) {
         documents.value = [];
@@ -558,7 +558,7 @@ export const useDocumentStore = defineStore('documents', () => {
 
     } catch (err) {
       error.value = (err as Error).message || 'Failed to load external document';
-      console.error('Error loading external document:', err);
+      logger.error('Error loading external document:', err);
       throw err;
     } finally {
       loading.value = false;
@@ -585,7 +585,7 @@ export const useDocumentStore = defineStore('documents', () => {
    * This should be called from components after all processing is complete
    */
   function resetLoadingSideDocument(): void {
-    console.log('[resetLoadingSideDocument] Setting loadingSideDocument = false');
+    logger.debug('[resetLoadingSideDocument] Setting loadingSideDocument = false');
     loadingSideDocument.value = false;
   }
 

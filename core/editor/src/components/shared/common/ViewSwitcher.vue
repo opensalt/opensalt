@@ -43,6 +43,7 @@ import { useCurrentDocumentStore } from '../../../stores/currentDocumentStore';
 import { useSessionStore } from '../../../stores/sessionStore';
 import { useViewStore } from '../../../stores/viewStore';
 import { useEditorContextStore } from '../../../stores/editorContextStore';
+import { logger } from '../../../utils/logger.js';
 
 const router = useRouter();
 const route = useRoute();
@@ -62,7 +63,7 @@ const currentView = computed(() => {
 
 async function switchView(view) {
   if (!currentFrameworkId.value) {
-    console.warn('No framework ID available for navigation');
+    logger.warn('No framework ID available for navigation');
     return;
   }
 
@@ -80,7 +81,7 @@ async function switchView(view) {
       } else {
         path = `/${treeViewSelection.documentId}`;
       }
-      console.log('[ViewSwitcher] Using saved treeView framework:', treeViewSelection.documentId);
+      logger.debug('[ViewSwitcher] Using saved treeView framework:', treeViewSelection.documentId);
     } else {
       // Use current framework
       const lastItemId = viewStore.getLastItemIdForDocument(currentFrameworkId.value);

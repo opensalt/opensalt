@@ -2,8 +2,8 @@ import { logger } from '../utils/logger.js';
 import { live } from '@electric-sql/pglite/live';
 import { PGliteWorker } from '@electric-sql/pglite/worker';
 import { ensureWebLocks } from './webLocksShim.js';
+import { DEFAULT_DATA_DIR, cleanupStaleDatabases } from './pgliteDataDir.js';
 
-const DEFAULT_DATA_DIR = 'idb://opensalt-framework-db';
 const CACHE_MAX_AGE_MS = 86400000;
 
 ensureWebLocks();
@@ -48,6 +48,33 @@ function toSearchText(item) {
   ].join(' ').toLowerCase();
 }
 
+async function batchUpsert(tx, table, columns, rows, conflictColumns, updateColumns, batchSize = 500) {
+  if (rows.length === 0) return;
+
+  for (let i = 0; i < rows.length; i += batchSize) {
+    const batch = rows.slice(i, i + batchSize);
+    const params = [];
+    const valuePlaceholders = [];
+
+    for (let j = 0; j < batch.length; j++) {
+      const row = batch[j];
+      const offset = j * columns.length;
+      const placeholders = columns.map((_, k) => `$${offset + k + 1}`);
+      valuePlaceholders.push(`(${placeholders.join(', ')})`);
+      params.push(...row);
+    }
+
+    const updateSet = updateColumns
+      .filter(col => !conflictColumns.includes(col))
+      .map(col => `${col} = excluded.${col}`)
+      .join(', ');
+
+    const sql = `INSERT INTO ${table} (${columns.join(', ')}) VALUES ${valuePlaceholders.join(', ')} ON CONFLICT (${conflictColumns.join(', ')}) DO UPDATE SET ${updateSet}`;
+
+    await tx.query(sql, params);
+  }
+}
+
 function isCacheValidEntry(entry, serverLastChangeDateTime) {
   if (!entry) return false;
   if (serverLastChangeDateTime && entry.lastChangeDateTime) {
@@ -67,7 +94,7 @@ function mapAssociationRows(rows) {
   }));
 }
 
-function buildItemAssociationsQuery(itemId, displayedFrameworkId = null, groupId = null) {
+function buildItemAssociationsQuery(itemId, groupId = null) {
   const params = [itemId];
   let sql = `
     SELECT a.json_data, e.source_document_id
@@ -79,11 +106,6 @@ function buildItemAssociationsQuery(itemId, displayedFrameworkId = null, groupId
   if (groupId && groupId !== 'all') {
     params.push(groupId);
     sql += ` AND COALESCE(e.group_id, 'default') = $${params.length}`;
-  }
-
-  if (displayedFrameworkId) {
-    params.push(displayedFrameworkId);
-    sql += ` AND NOT (e.association_type = 'isChildOf' AND e.source_document_id = $${params.length})`;
   }
 
   return { sql, params };
@@ -166,6 +188,8 @@ class PgliteClient {
     if (this.pgliteWorkerPromise) {
       return this.pgliteWorkerPromise;
     }
+
+    await cleanupStaleDatabases();
 
     const workerOptions = {
       dataDir: DEFAULT_DATA_DIR,
@@ -278,74 +302,70 @@ class PgliteClient {
           [documentId, cfDocument.uri || null, cfDocument.title || null, cfDocument.lastChangeDateTime || null, JSON.stringify(cfDocument || {})]
         );
 
+        // FK ON DELETE CASCADE on documents would cascade to items/associations/edges/search,
+        // but explicit deletes are kept as safety net for databases without FK constraints
         await tx.query(`DELETE FROM items WHERE document_id = $1`, [documentId]);
         await tx.query(`DELETE FROM associations WHERE document_id = $1`, [documentId]);
         await tx.query(`DELETE FROM item_association_edges WHERE source_document_id = $1`, [documentId]);
         await tx.query(`DELETE FROM item_search WHERE document_id = $1`, [documentId]);
 
-        for (const item of cfItems) {
-          await tx.query(
-            `INSERT INTO items (item_id, document_id, uri, full_statement, abbreviated_statement, human_coding_scheme, item_type, last_change_datetime, json_data)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::json)
-             ON CONFLICT (item_id) DO UPDATE SET
-               document_id = excluded.document_id,
-               uri = excluded.uri,
-               full_statement = excluded.full_statement,
-               abbreviated_statement = excluded.abbreviated_statement,
-               human_coding_scheme = excluded.human_coding_scheme,
-               item_type = excluded.item_type,
-               last_change_datetime = excluded.last_change_datetime,
-               json_data = excluded.json_data`,
-            [
-              item.identifier,
-              documentId,
-              item.uri || null,
-              item.fullStatement || null,
-              item.abbreviatedStatement || null,
-              item.humanCodingScheme || null,
-              item.CFItemType || null,
-              item.lastChangeDateTime || null,
-              JSON.stringify(item || {})
-            ]
-          );
+        const itemRows = cfItems.map(item => [
+          item.identifier,
+          documentId,
+          item.uri || null,
+          item.fullStatement || null,
+          item.abbreviatedStatement || null,
+          item.humanCodingScheme || null,
+          item.CFItemType || null,
+          item.lastChangeDateTime || null,
+          JSON.stringify(item || {})
+        ]);
 
-          await tx.query(
-            `INSERT INTO item_search (item_id, document_id, search_text)
-             VALUES ($1, $2, $3)
-             ON CONFLICT (item_id) DO UPDATE SET
-               document_id = excluded.document_id,
-               search_text = excluded.search_text`,
-            [item.identifier, documentId, toSearchText(item)]
-          );
-        }
+        await batchUpsert(tx, 'items',
+          ['item_id', 'document_id', 'uri', 'full_statement', 'abbreviated_statement', 'human_coding_scheme', 'item_type', 'last_change_datetime', 'json_data'],
+          itemRows,
+          ['item_id'],
+          ['item_id', 'document_id', 'uri', 'full_statement', 'abbreviated_statement', 'human_coding_scheme', 'item_type', 'last_change_datetime', 'json_data']
+        );
 
-        for (const association of cfAssociations) {
-          const { originId, destinationId } = associationEndpoints(association);
-          const groupId = toGroupId(association);
+        const searchRows = cfItems.map(item => [
+          item.identifier,
+          documentId,
+          toSearchText(item)
+        ]);
 
-          await tx.query(
-            `INSERT INTO associations (association_id, document_id, association_type, origin_item_id, destination_item_id, group_id, sequence_number, json_data)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8::json)
-             ON CONFLICT (association_id) DO UPDATE SET
-               document_id = excluded.document_id,
-               association_type = excluded.association_type,
-               origin_item_id = excluded.origin_item_id,
-               destination_item_id = excluded.destination_item_id,
-               group_id = excluded.group_id,
-               sequence_number = excluded.sequence_number,
-               json_data = excluded.json_data`,
-            [
-              association.identifier,
-              documentId,
-              association.associationType || 'unknown',
-              originId,
-              destinationId,
-              groupId,
-              association.sequenceNumber || null,
-              JSON.stringify(association || {})
-            ]
-          );
+        await batchUpsert(tx, 'item_search',
+          ['item_id', 'document_id', 'search_text'],
+          searchRows,
+          ['item_id'],
+          ['item_id', 'document_id', 'search_text']
+        );
 
+        const assocDataList = cfAssociations.map(assoc => {
+          const { originId, destinationId } = associationEndpoints(assoc);
+          const groupId = toGroupId(assoc);
+          return { assoc, originId, destinationId, groupId };
+        });
+
+        const assocRows = assocDataList.map(({ assoc, originId, destinationId, groupId }) => [
+          assoc.identifier,
+          documentId,
+          assoc.associationType || 'unknown',
+          originId,
+          destinationId,
+          groupId,
+          assoc.sequenceNumber || null,
+          JSON.stringify(assoc || {})
+        ]);
+
+        await batchUpsert(tx, 'associations',
+          ['association_id', 'document_id', 'association_type', 'origin_item_id', 'destination_item_id', 'group_id', 'sequence_number', 'json_data'],
+          assocRows,
+          ['association_id'],
+          ['association_id', 'document_id', 'association_type', 'origin_item_id', 'destination_item_id', 'group_id', 'sequence_number', 'json_data']
+        );
+
+        for (const { assoc, originId, destinationId, groupId } of assocDataList) {
           if (originId) {
             await tx.query(
               `INSERT INTO item_association_edges (item_id, association_id, direction, association_type, other_item_id, group_id, source_document_id)
@@ -355,7 +375,7 @@ class PgliteClient {
                  other_item_id = excluded.other_item_id,
                  group_id = excluded.group_id,
                  source_document_id = excluded.source_document_id`,
-              [originId, association.identifier, association.associationType || 'unknown', destinationId, groupId, documentId]
+              [originId, assoc.identifier, assoc.associationType || 'unknown', destinationId, groupId, documentId]
             );
           }
 
@@ -368,7 +388,7 @@ class PgliteClient {
                  other_item_id = excluded.other_item_id,
                  group_id = excluded.group_id,
                  source_document_id = excluded.source_document_id`,
-              [destinationId, association.identifier, association.associationType || 'unknown', originId, groupId, documentId]
+              [destinationId, assoc.identifier, assoc.associationType || 'unknown', originId, groupId, documentId]
             );
           }
         }
@@ -444,29 +464,29 @@ class PgliteClient {
     };
   }
 
-  getItemAssociations(itemId, displayedFrameworkId = null, groupId = null) {
+  getItemAssociations(itemId, groupId = null) {
     return this.getPGliteWorker().then(async (pgWorker) => {
-      const { sql, params } = buildItemAssociationsQuery(itemId, displayedFrameworkId, groupId);
+      const { sql, params } = buildItemAssociationsQuery(itemId, groupId);
       const rows = getRows(await pgWorker.query(sql, params));
       return mapAssociationRows(rows);
     });
   }
 
-  getDocumentAssociations(documentId, displayedFrameworkId = null, groupId = null) {
+  getDocumentAssociations(documentId, groupId = null) {
     return this.getPGliteWorker().then(async (pgWorker) => {
-      const { sql, params } = buildDocumentAssociationsQuery(documentId, displayedFrameworkId, groupId);
+      const { sql, params } = buildDocumentAssociationsQuery(documentId, null, groupId);
       const rows = getRows(await pgWorker.query(sql, params));
       return mapAssociationRows(rows);
     });
   }
 
-  subscribeItemAssociations(itemId, displayedFrameworkId = null, groupId = null, onData = () => {}) {
-    const { sql, params } = buildItemAssociationsQuery(itemId, displayedFrameworkId, groupId);
+  subscribeItemAssociations(itemId, groupId = null, onData = () => {}) {
+    const { sql, params } = buildItemAssociationsQuery(itemId, groupId);
     return this.runLiveAssociationSubscription(sql, params, onData);
   }
 
-  subscribeDocumentAssociations(documentId, displayedFrameworkId = null, groupId = null, onData = () => {}) {
-    const { sql, params } = buildDocumentAssociationsQuery(documentId, displayedFrameworkId, groupId);
+  subscribeDocumentAssociations(documentId, groupId = null, onData = () => {}) {
+    const { sql, params } = buildDocumentAssociationsQuery(documentId, null, groupId);
     return this.runLiveAssociationSubscription(sql, params, onData);
   }
 
@@ -491,12 +511,16 @@ class PgliteClient {
 
   deleteFramework(documentId) {
     return this.getPGliteWorker().then(async (pgWorker) => {
-      await pgWorker.query(`DELETE FROM frameworks WHERE id = $1`, [documentId]);
-      await pgWorker.query(`DELETE FROM documents WHERE document_id = $1`, [documentId]);
-      await pgWorker.query(`DELETE FROM items WHERE document_id = $1`, [documentId]);
-      await pgWorker.query(`DELETE FROM associations WHERE document_id = $1`, [documentId]);
-      await pgWorker.query(`DELETE FROM item_association_edges WHERE source_document_id = $1`, [documentId]);
-      await pgWorker.query(`DELETE FROM item_search WHERE document_id = $1`, [documentId]);
+      await pgWorker.transaction(async (tx) => {
+        await tx.query(`DELETE FROM frameworks WHERE id = $1`, [documentId]);
+        await tx.query(`DELETE FROM documents WHERE document_id = $1`, [documentId]);
+        // FK ON DELETE CASCADE handles items, associations, item_association_edges, item_search
+        // Explicit deletes kept as safety net for databases without FK constraints applied
+        await tx.query(`DELETE FROM items WHERE document_id = $1`, [documentId]);
+        await tx.query(`DELETE FROM associations WHERE document_id = $1`, [documentId]);
+        await tx.query(`DELETE FROM item_association_edges WHERE source_document_id = $1`, [documentId]);
+        await tx.query(`DELETE FROM item_search WHERE document_id = $1`, [documentId]);
+      });
       return true;
     });
   }

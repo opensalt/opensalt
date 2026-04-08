@@ -112,6 +112,7 @@ import { ref, computed, watch, onMounted } from 'vue';
 import Modal from 'bootstrap/js/dist/modal';
 import { useDocumentStore } from '../../../stores/documentStore';
 import { useRoute } from 'vue-router';
+import { logger } from '../../../utils/logger.js';
 
 const props = defineProps({
   show: Boolean
@@ -327,7 +328,7 @@ async function importChildren() {
       await importCsvFile(fileContent);
     }
   } catch (error) {
-    console.error('Error importing children:', error);
+    logger.error('Error importing children:', error);
     errorMessage.value = 'An error occurred while importing. Please check your file and try again.';
     isLoading.value = false;
   }
@@ -389,7 +390,7 @@ async function importCsvFile(fileContent) {
       window.location.reload();
     }, 1500);
   } catch (error) {
-    console.error('Error sending import request:', error);
+    logger.error('Error sending import request:', error);
     errorMessage.value = 'An error occurred while importing. Please check your file format and try again.';
     isLoading.value = false;
   }

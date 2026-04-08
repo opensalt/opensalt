@@ -3,6 +3,8 @@ import { createPinia, setActivePinia } from 'pinia';
 import App from './App.vue';
 import router from './router/index.js';
 import { localFrameworkDb } from './services/localFrameworkDb.js';
+import { cleanupStaleDatabases } from './db/pgliteDataDir.js';
+import { logger } from './utils/logger.js';
 import { useDocumentStore } from './stores/documentStore.ts';
 import { useCurrentDocumentStore } from './stores/currentDocumentStore.ts';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -14,7 +16,17 @@ const app = createApp(App);
 const pinia = createPinia();
 setActivePinia(pinia);
 
-void localFrameworkDb.initialize();
+// Remove legacy PGlite databases as early as possible so page reloads can clear them.
+await cleanupStaleDatabases();
+
+// Initialize database before mounting the app to prevent race conditions
+try {
+  await localFrameworkDb.initialize();
+} catch (error) {
+  logger.error('Failed to initialize database:', error);
+  // Mount anyway - the app can still function for viewing, 
+  // but framework operations may fail gracefully
+}
 
 router.beforeEach(async (to) => {
   if (to.name === 'DbReplView') {
@@ -43,7 +55,7 @@ router.beforeEach(async (to) => {
       const docData = await documentStore.fetchDocument(frameworkId);
       // Transform and set the current document
       const cfDoc = docData.CFDocument || {};
-      const items = currentDocumentStore.transformCASEItems(docData.CFItems || [], docData.CFAssociations || [], cfDoc.identifier);
+      const items = await currentDocumentStore.transformCASEItems(docData.CFItems || [], docData.CFAssociations || [], cfDoc.identifier);
       const definitions = docData.CFDefinitions || {};
       const associationGroupings = definitions.CFAssociationGroupings || docData.CFAssociationGroupings || [];
 
@@ -73,7 +85,7 @@ router.beforeEach(async (to) => {
         items: items
       }, associationGroupings, docData.CFAssociations || [], definitions);
     } catch (error) {
-      console.error('Failed to load framework:', error);
+      logger.error('Failed to load framework:', error);
       // Redirect to root or error page
       return '/';
     }

@@ -79,6 +79,7 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue';
 import Modal from 'bootstrap/js/dist/modal';
+import { logger } from '../../../utils/logger.js';
 
 const props = defineProps({
   show: Boolean
@@ -173,7 +174,7 @@ async function importFramework() {
       window.location.reload();
     }, 1500);
   } catch (error) {
-    console.error('Error importing framework:', error);
+    logger.error('Error importing framework:', error);
     errorMessage.value =
       "We're sorry, we cannot load this document. Please ensure this document is not already on the server, or see the Spreadsheet loading guide at docs.opensalt.org";
     isLoading.value = false;

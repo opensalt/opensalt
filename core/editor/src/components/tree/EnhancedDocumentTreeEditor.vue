@@ -172,6 +172,7 @@ import { useFilterStore } from '../../stores/filterStore';
 import { useItemStore } from '../../stores/itemStore';
 import { useViewStore } from '../../stores/viewStore';
 import { useEditorContextStore } from '@/stores/editorContextStore';
+import { useViewedDoc } from '../../composables/useViewedDoc';
 import { useTreeNavigation } from '../../composables/useTreeNavigation.js';
 import { useAnnouncer } from '../../composables/useAnnouncer.js';
 import { useDynamicEditModal } from '../../composables/useDynamicEditModal.js';
@@ -182,6 +183,7 @@ import { useDocumentLoader } from '../../composables/useDocumentLoader.js';
 import { useFrameworkSearch } from '../../composables/useFrameworkSearch.js';
 import { useTreeEditorHandlers } from '../../composables/useTreeEditorHandlers.js';
 import { logger } from '../../utils/logger.js';
+import { findItem, findItemPath } from '../../utils/tree.js';
 
 // Components
 import DualFrameworkHeader from './DualFrameworkHeader.vue';
@@ -220,22 +222,7 @@ const selectedId = ref(route.params.itemId || null);
 const currentDoc = computed(() => currentDocumentStore.currentDocument);
 const rightPanelMode = ref('itemDetails');
 
-const viewedDoc = computed(() => {
-  const registryVersion = contextStore.registryVersion;
-  void registryVersion;
-  const id = contextStore.viewedDocumentId;
-  if (!id) return null;
-  const docMeta = contextStore.documentRegistry.get(id);
-  if (!docMeta) return null;
-  const pkg = contextStore.loadedPackages.get(id);
-  let items = [];
-  if (pkg?.CFItems) {
-    const transformed = currentDocumentStore.transformCASEItems(pkg.CFItems, pkg.CFAssociations || [], id);
-    items = transformed.items || transformed;
-  }
-  return { ...docMeta, id: docMeta.identifier, items };
-});
-const isViewingDifferentFramework = computed(() => contextStore.isViewingDifferentFramework);
+const { viewedDoc, isViewingDifferentFramework } = useViewedDoc({ transformItems: true });
 
 // ---------------------------------------------------------------------------
 // Item selection
@@ -250,17 +237,6 @@ const selectedItem = computed(() => {
   }
   return null;
 });
-
-function findItem(items, id) {
-  for (const item of items) {
-    if (item.identifier === id) return item;
-    if (item.children) {
-      const found = findItem(item.children, id);
-      if (found) return found;
-    }
-  }
-  return null;
-}
 
 // ---------------------------------------------------------------------------
 // Filtered doc + tree items
@@ -328,12 +304,12 @@ provide('treeNavigation', {
 // Dynamic edit modal
 // ---------------------------------------------------------------------------
 const onItemUpdate = async (updatedItem) => {
-  console.log('onItemUpdate triggered with:', updatedItem);
+  logger.debug('onItemUpdate triggered with:', updatedItem);
   try {
     if (updatedItem && updatedItem.identifier) {
-      console.log('Sending update to backend for:', updatedItem.identifier);
+      logger.debug('Sending update to backend for:', updatedItem.identifier);
       const result = await currentDocumentStore.updateItem(updatedItem.identifier, updatedItem);
-      console.log('Backend response:', result);
+      logger.debug('Backend response:', result);
       // Local update
       itemStore.updateItem(currentDoc.value, updatedItem);
       // Force revalidation to update cached data
@@ -342,11 +318,11 @@ const onItemUpdate = async (updatedItem) => {
       }
       currentDocumentStore.reloadActiveDocument();
     } else {
-      console.warn('updatedItem is missing identifier:', updatedItem);
+      logger.warn('updatedItem is missing identifier:', updatedItem);
     }
   } catch (error) {
     logger.error('Failed to update item:', error);
-    console.error('Update item error detail:', error);
+    logger.error('Update item error detail:', error);
   }
 };
 
@@ -611,17 +587,6 @@ function onCloneFrameworkModalHidden() {
 // ---------------------------------------------------------------------------
 // Scroll to selected item
 // ---------------------------------------------------------------------------
-function findItemPath(items, targetId, path = []) {
-  for (const item of items) {
-    if (item.identifier === targetId) return [...path, item.identifier];
-    if (item.children?.length) {
-      const childPath = findItemPath(item.children, targetId, [...path, item.identifier]);
-      if (childPath) return childPath;
-    }
-  }
-  return null;
-}
-
 async function scrollToSelectedItem() {
   if (!selectedId.value || !doc.value?.items) return;
   const path = findItemPath(doc.value.items, selectedId.value);

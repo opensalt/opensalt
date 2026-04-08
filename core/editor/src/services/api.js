@@ -6,6 +6,8 @@
 /**
  * Custom API Error class for better error handling
  */
+import { logger } from '../utils/logger.js';
+
 class ApiError extends Error {
   constructor(message, status, response) {
     super(message);
@@ -26,6 +28,7 @@ class ApiService {
       'Content-Type': 'application/json',
       'Accept': 'application/json'
     };
+    this.abortControllers = new Set();
   }
 
   /**
@@ -69,6 +72,23 @@ class ApiService {
    * @throws {ApiError} - If   request fails
    */
   async request(endpoint, options = {}) {
+    const timeout = options.timeout || 30000;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+    if (options.signal) {
+      if (options.signal.aborted) {
+        clearTimeout(timeoutId);
+        throw new Error('Request already aborted');
+      }
+      options.signal.addEventListener('abort', () => {
+        controller.abort();
+        clearTimeout(timeoutId);
+      }, { once: true });
+    }
+
+    this.abortControllers.add(controller);
+
     const token = this.getAuthToken();
     const headers = {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -76,15 +96,16 @@ class ApiService {
     };
 
     const url = `${this.baseUrl}${endpoint}`;
-    const requestOptions = {
+    const fetchOptions = {
       ...options,
-      headers
+      method: options.method || 'GET',
+      headers,
+      signal: controller.signal
     };
 
     try {
-      const response = await fetch(url, requestOptions);
+      const response = await fetch(url, fetchOptions);
 
-      // Handle 304 Not Modified correctly for caching
       if (response.status === 304) {
         if (options.fullResponse) {
           return { data: null, status: 304, headers: response.headers };
@@ -96,7 +117,6 @@ class ApiService {
         throw this.createApiError(response);
       }
 
-      // Handle empty responses
       const contentType = response.headers.get('content-type');
       let data = null;
       if (contentType && contentType.includes('application/json')) {
@@ -113,12 +133,17 @@ class ApiService {
 
       return data;
     } catch (error) {
-      // Re-throw ApiError as-is, wrap other errors
+      if (error.name === 'AbortError') {
+        logger.debug('Request aborted:', endpoint);
+        const abortErr = new ApiError('Request was cancelled', 0, null);
+        abortErr.name = 'AbortError';
+        throw abortErr;
+      }
+
       if (error instanceof ApiError) {
         throw error;
       }
 
-      // Handle network errors
       if (error.name === 'TypeError' && error.message.includes('fetch')) {
         throw new ApiError(
           'Network error. Please check your connection.',
@@ -127,14 +152,24 @@ class ApiService {
         );
       }
 
-      // Handle other unexpected errors
-      console.error('Unexpected API error:', error);
+      logger.error('Unexpected API error:', error);
       throw new ApiError(
         'An unexpected error occurred. Please try again.',
         0,
         null
       );
+    } finally {
+      clearTimeout(timeoutId);
+      this.abortControllers.delete(controller);
     }
+  }
+
+  cancelAll() {
+    for (const controller of this.abortControllers) {
+      try { controller.abort(); } catch (e) { /* ignore */ }
+    }
+    this.abortControllers.clear();
+    logger.debug('All pending requests cancelled');
   }
 
   /**
@@ -243,9 +278,9 @@ class ApiService {
    */
   async getRelatedDocuments(identifier) {
     const endpoint = `/ims/case/v1p1/CFDocuments/${identifier}/related`;
-    console.log('[api.getRelatedDocuments] Calling endpoint:', endpoint);
+    logger.debug('[api.getRelatedDocuments] Calling endpoint:', endpoint);
     const result = await this.get(endpoint);
-    console.log('[api.getRelatedDocuments] Response:', result);
+    logger.debug('[api.getRelatedDocuments] Response:', result);
     return result;
   }
 }

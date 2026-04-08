@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import { logger } from '../utils/logger.js';
 
 export const useSessionStore = defineStore('session', () => {
     const isAuthenticated = ref(false);
@@ -50,7 +51,7 @@ export const useSessionStore = defineStore('session', () => {
             }
 
         } catch (error) {
-            console.warn('Session check failed', error);
+            logger.warn('Session check failed', error);
             handleExpired();
         }
     }
@@ -121,7 +122,14 @@ export const useSessionStore = defineStore('session', () => {
             await fetch('/session/renew');
             checkSession();
         } catch (error) {
-            console.error('Failed to renew session', error);
+            logger.error('Failed to renew session', error);
+        }
+    }
+
+    function cleanup() {
+        if (checkInterval.value) {
+            clearTimeout(checkInterval.value);
+            checkInterval.value = null;
         }
     }
 
@@ -134,6 +142,7 @@ export const useSessionStore = defineStore('session', () => {
         init,
         checkSession,
         renewSession,
-        clearWarning
+        clearWarning,
+        cleanup
     };
 });

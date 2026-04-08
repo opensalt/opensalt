@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Entity\Framework\LsDoc;
 use App\Repository\ChangeEntryRepository;
 use App\Security\Permission;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -22,7 +23,11 @@ class DocRevisionController extends AbstractController
     #[Route(path: '/cfdoc/{id}/revisions/{offset}/{limit}', name: 'doc_revisions_json', requirements: ['offset' => '\d+', 'limit' => '\d+'], defaults: ['offset' => 0, 'limit' => 0], methods: ['GET'])]
     #[Route(path: '/cfdoc/identifier/{identifier}/revisions/{offset}/{limit}', name: 'doc_revisions_json_by_identifier', requirements: ['offset' => '\d+', 'limit' => '\d+'], defaults: ['offset' => 0, 'limit' => 0], methods: ['GET'])]
     #[IsGranted(Permission::FRAMEWORK_EDIT, 'doc')]
-    public function listDocRevisions(LsDoc $doc, int $offset, int $limit): Response
+    public function listDocRevisions(
+        #[MapEntity(expr: '((id ?? null) == null) ? repository.findOneByIdentifier(identifier ?? null) : repository.find(id ?? null)')] LsDoc $doc,
+        int $offset,
+        int $limit,
+    ): Response
     {
         $response = new StreamedResponse();
         $response->headers->set('Content-type', 'application/json');
@@ -57,7 +62,9 @@ class DocRevisionController extends AbstractController
     #[Route(path: '/cfdoc/{id}/revisions/export', name: 'doc_revisions_csv', methods: ['GET'])]
     #[Route(path: '/cfdoc/identifier/{identifier}/revisions/export', name: 'doc_revisions_csv_by_identifier', methods: ['GET'])]
     #[IsGranted(Permission::FRAMEWORK_EDIT, 'doc')]
-    public function exportDocRevisions(LsDoc $doc): Response
+    public function exportDocRevisions(
+        #[MapEntity(expr: '((id ?? null) == null) ? repository.findOneByIdentifier(identifier ?? null) : repository.find(id ?? null)')] LsDoc $doc,
+    ): Response
     {
         $response = new StreamedResponse();
         $response->headers->set('Content-type', 'text/csv; charset=utf-8');

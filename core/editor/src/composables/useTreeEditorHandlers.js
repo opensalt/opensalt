@@ -1,4 +1,5 @@
 import { nextTick } from 'vue';
+import { findItem, findItemPath } from '../utils/tree.js';
 import { logger } from '../utils/logger.js';
 
 /**
@@ -70,20 +71,6 @@ export function useTreeEditorHandlers({
     // Mercure
     connectMercure,
 }) {
-    // ---------------------------------------------------------------------------
-    // Item lookup helper
-    // ---------------------------------------------------------------------------
-    function findItem(items, id) {
-        for (const item of items) {
-            if (item.identifier === id) return item;
-            if (item.children) {
-                const found = findItem(item.children, id);
-                if (found) return found;
-            }
-        }
-        return null;
-    }
-
     // ---------------------------------------------------------------------------
     // Selection
     // ---------------------------------------------------------------------------
@@ -224,7 +211,7 @@ export function useTreeEditorHandlers({
                 contextStore.setFrameworkSelection('treeView', documentId);
             }
         } catch (err) {
-            console.error('Failed to switch viewed document:', err);
+            logger.error('Failed to switch viewed document:', err);
         }
     }
 
@@ -509,16 +496,6 @@ export function useTreeEditorHandlers({
     // ---------------------------------------------------------------------------
     // Document init & scroll
     // ---------------------------------------------------------------------------
-    function findItemPath(items, targetId, path = []) {
-        for (const item of items) {
-            if (item.identifier === targetId) return [...path, item.identifier];
-            if (item.children?.length) {
-                const childPath = findItemPath(item.children, targetId, [...path, item.identifier]);
-                if (childPath) return childPath;
-            }
-        }
-        return null;
-    }
 
     // Exposed for the parent component to call
     function getScrollTarget() {

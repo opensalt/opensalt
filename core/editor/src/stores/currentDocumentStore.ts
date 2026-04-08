@@ -278,7 +278,50 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
 
   // viewedDocument actions moved to contextStore
 
-  function transformCASEItems(
+  function buildContextSnapshot() {
+    const toRaw = (obj: any): any => {
+      if (obj === null || typeof obj !== 'object') return obj;
+      return JSON.parse(JSON.stringify(obj));
+    };
+
+    const itemRegistryObj: Record<string, { item: any; frameworkId: UUID }> = {};
+    for (const [key, value] of contextStore.itemRegistry.entries()) {
+      itemRegistryObj[key] = toRaw(value);
+    }
+
+    const loadedPackagesArr: [UUID, { CFItems: any[]; CFAssociations: any[]; CFDocument?: any }][] = [];
+    for (const [frameworkId, pkg] of contextStore.loadedPackages.entries()) {
+      loadedPackagesArr.push([frameworkId, {
+        CFItems: toRaw(pkg.CFItems || []),
+        CFAssociations: toRaw(pkg.CFAssociations || []),
+        CFDocument: toRaw(pkg.CFDocument)
+      }]);
+    }
+
+    const endpointResolutions: Record<string, { entityType: string; entity: any; frameworkId: UUID | null }> = {};
+    for (const [key] of contextStore.itemRegistry.entries()) {
+      const resolved = contextStore.resolveEndpoint(key);
+      if (resolved) endpointResolutions[key] = toRaw(resolved);
+    }
+    for (const [key] of contextStore.documentRegistry.entries()) {
+      const resolved = contextStore.resolveEndpoint(key);
+      if (resolved) endpointResolutions[key] = toRaw(resolved);
+    }
+    for (const [fwId, pkg] of contextStore.loadedPackages.entries()) {
+      const docUri = pkg.CFDocument?.uri || fwId;
+      const docResolve = contextStore.resolveEndpoint(docUri);
+      if (docResolve) endpointResolutions[docUri] = toRaw(docResolve);
+      for (const item of (pkg.CFItems || [])) {
+        const itemUri = item.uri || item.identifier;
+        const itemResolve = contextStore.resolveEndpoint(itemUri);
+        if (itemResolve) endpointResolutions[itemUri] = toRaw(itemResolve);
+      }
+    }
+
+    return { itemRegistry: itemRegistryObj, loadedPackages: loadedPackagesArr, endpointResolutions };
+  }
+
+  function transformCASEItemsSync(
     cfItems: CFPckgItem[],
     cfAssociations: CaseAssociation[],
     docId: UUID | null = null
@@ -917,6 +960,68 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
 
     return rootItems;
   }
+
+  let transformWorker: Worker | null = null;
+
+  function getTransformWorker(): Worker {
+    if (!transformWorker) {
+      transformWorker = new Worker(
+        new URL('../workers/transformWorker.js', import.meta.url),
+        { type: 'module' }
+      );
+    }
+    return transformWorker;
+  }
+
+  async function transformCASEItems(
+    cfItems: CFPckgItem[],
+    cfAssociations: CaseAssociation[],
+    docId: UUID | null = null
+  ): Promise<EditorItemNode[]> {
+    return new Promise((resolve) => {
+      try {
+        const worker = getTransformWorker();
+        const contextSnapshot = buildContextSnapshot();
+
+        const timeout = setTimeout(() => {
+          logger.warn('[transformCASEItems] Worker timeout, falling back to sync');
+          resolve(transformCASEItemsSync(cfItems, cfAssociations, docId));
+        }, 30000);
+
+        worker.onmessage = (e: MessageEvent) => {
+          clearTimeout(timeout);
+          if (e.data.success) {
+            resolve(e.data.data);
+          } else {
+            logger.error('[transformCASEItems] Worker error:', e.data.error);
+            resolve(transformCASEItemsSync(cfItems, cfAssociations, docId));
+          }
+        };
+
+        worker.onerror = (error: ErrorEvent) => {
+          clearTimeout(timeout);
+          logger.error('[transformCASEItems] Worker error:', error);
+          resolve(transformCASEItemsSync(cfItems, cfAssociations, docId));
+        };
+
+        const serializable = (obj: any): any => {
+          if (obj === null || typeof obj !== 'object') return obj;
+          return JSON.parse(JSON.stringify(obj));
+        };
+
+        worker.postMessage({
+          cfItems: serializable(cfItems),
+          cfAssociations: serializable(cfAssociations),
+          docId,
+          contextSnapshot
+        });
+      } catch (error) {
+        logger.error('[transformCASEItems] Worker setup error:', error);
+        resolve(transformCASEItemsSync(cfItems, cfAssociations, docId));
+      }
+    });
+  }
+
   async function updateItems(documentIdentifier: UUID, lsItems: Record<string, unknown>) {
     try {
       // Use API service for consistent error handling
@@ -1058,7 +1163,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
    * Reload the active document from the central registry
    * and re-run transformations (used after background revalidation)
    */
-  function reloadActiveDocument() {
+  async function reloadActiveDocument() {
     const id = contextStore.activeWriteDocumentId;
     if (!id) return;
 
@@ -1067,8 +1172,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
 
     logger.debug('[currentDocumentStore] Reloading active document from fresh registry data');
 
-    // 1. Transform items using fresh package data
-    const items = transformCASEItems(
+    const items = await transformCASEItems(
       pkg.CFItems || [],
       pkg.CFAssociations || [],
       pkg.CFDocument.identifier
@@ -1137,6 +1241,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     reloadActiveDocument,
     clearCurrentDocument,
     transformCASEItems,
+    transformCASEItemsSync,
     updateItems,
     addAssociation,
     removeAssociation,

@@ -11,10 +11,11 @@ import { useCurrentDocumentStore } from '../stores/currentDocumentStore';
 import { useFilterStore } from '../stores/filterStore';
 import { useRelatedFrameworksQueue } from './useRelatedFrameworksQueue';
 import { localFrameworkDb } from '../services/localFrameworkDb.js';
+import { logger } from '../utils/logger.js';
 
 
 // Log when this composable is instantiated
-console.log('[useDocumentLoader] Composable instantiated');
+logger.debug('[useDocumentLoader] Composable instantiated');
 
 /**
  * @param {Object} options - Configuration options
@@ -56,12 +57,12 @@ export function useDocumentLoader(options = {}) {
   async function queueRelatedDocuments(documentId) {
     if (!documentId) return [];
 
-    console.log('[useDocumentLoader] About to call fetchAndQueueRelatedDocuments for:', documentId);
+    logger.debug('[useDocumentLoader] About to call fetchAndQueueRelatedDocuments for:', documentId);
     const relatedDocs = await relatedFrameworksQueue.fetchAndQueueRelatedDocuments(documentId);
-    console.log('[useDocumentLoader] fetchAndQueueRelatedDocuments completed');
+    logger.debug('[useDocumentLoader] fetchAndQueueRelatedDocuments completed');
 
     relatedFrameworksQueue.startQueue();
-    console.log('[useDocumentLoader] Queue started');
+    logger.debug('[useDocumentLoader] Queue started');
 
     return relatedDocs;
   }
@@ -86,7 +87,7 @@ export function useDocumentLoader(options = {}) {
           };
         }
       } catch (error) {
-        console.warn('[useDocumentLoader] Failed to use DB-backed package for tree read:', error);
+        logger.warn('[useDocumentLoader] Failed to use DB-backed package for tree read:', error);
       }
     }
 
@@ -136,7 +137,7 @@ export function useDocumentLoader(options = {}) {
       return currentDocumentStore.currentDocument;
     }
 
-    console.log('[useDocumentLoader] loadDocument called with documentId:', documentId);
+    logger.debug('[useDocumentLoader] loadDocument called with documentId:', documentId);
 
     const docData = await documentStore.fetchDocument(documentId);
     const transformedDoc = await transformDocumentData(docData, documentId);
@@ -180,7 +181,7 @@ export function useDocumentLoader(options = {}) {
         await loadDocument(documentId);
       }
     } catch (error) {
-      console.error('Error loading document:', error);
+      logger.error('Error loading document:', error);
     }
   }
 
@@ -230,7 +231,7 @@ export function useDocumentLoader(options = {}) {
 
       return sideDoc;
     } catch (error) {
-      console.error('Error loading external document:', error);
+      logger.error('Error loading external document:', error);
       if (sideDocument) {
         sideDocument.value = null;
       }
@@ -261,7 +262,7 @@ export function useDocumentLoader(options = {}) {
         }
       }
     } catch (e) {
-      console.error('Error initializing data:', e);
+      logger.error('Error initializing data:', e);
     }
   }
 

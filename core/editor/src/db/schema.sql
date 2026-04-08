@@ -30,7 +30,8 @@ CREATE TABLE IF NOT EXISTS items (
   human_coding_scheme TEXT,
   item_type TEXT,
   last_change_datetime TEXT,
-  json_data JSON
+  json_data JSON,
+  CONSTRAINT fk_items_document FOREIGN KEY (document_id) REFERENCES documents(document_id) ON DELETE CASCADE
 );
 
 CREATE INDEX IF NOT EXISTS idx_items_document ON items(document_id);
@@ -43,7 +44,8 @@ CREATE TABLE IF NOT EXISTS associations (
   destination_item_id TEXT,
   group_id TEXT,
   sequence_number INTEGER,
-  json_data JSON
+  json_data JSON,
+  CONSTRAINT fk_associations_document FOREIGN KEY (document_id) REFERENCES documents(document_id) ON DELETE CASCADE
 );
 
 CREATE INDEX IF NOT EXISTS idx_associations_document ON associations(document_id);
@@ -58,7 +60,8 @@ CREATE TABLE IF NOT EXISTS item_association_edges (
   other_item_id TEXT,
   group_id TEXT,
   source_document_id TEXT NOT NULL,
-  PRIMARY KEY (item_id, association_id, direction)
+  PRIMARY KEY (item_id, association_id, direction),
+  CONSTRAINT fk_edges_document FOREIGN KEY (source_document_id) REFERENCES documents(document_id) ON DELETE CASCADE
 );
 
 CREATE INDEX IF NOT EXISTS idx_item_assoc_item ON item_association_edges(item_id);
@@ -67,7 +70,9 @@ CREATE INDEX IF NOT EXISTS idx_item_assoc_item_type ON item_association_edges(it
 CREATE TABLE IF NOT EXISTS item_search (
   item_id TEXT PRIMARY KEY,
   document_id TEXT NOT NULL,
-  search_text TEXT NOT NULL
+  search_text TEXT NOT NULL,
+  CONSTRAINT fk_search_document FOREIGN KEY (document_id) REFERENCES documents(document_id) ON DELETE CASCADE,
+  CONSTRAINT fk_search_item FOREIGN KEY (item_id) REFERENCES items(item_id) ON DELETE CASCADE
 );
 
 CREATE INDEX IF NOT EXISTS idx_item_search_doc ON item_search(document_id);
