@@ -755,7 +755,7 @@ readonly class HybridQdrantStore
     }
 
     /**
-     * @return array{must: list<array<string, array{value: bool|int}>>}|null
+     * @return array{must: list<array{key: string, match: array{value: bool|int}}>}|null
      */
     private function buildFilter(?int $frameworkId, bool $leafOnly, ?int $kind): ?array
     {
@@ -797,10 +797,6 @@ readonly class HybridQdrantStore
      */
     private function parseQueryResults(array $results): array
     {
-        if (!is_array($results)) {
-            return [];
-        }
-
         $matches = [];
         foreach ($results as $result) {
             if (!is_array($result)) {
@@ -879,10 +875,6 @@ readonly class HybridQdrantStore
             ]);
 
             throw new \RuntimeException(sprintf('Qdrant request to %s failed with status %d.', $path, $statusCode));
-        }
-
-        if (!is_array($decoded)) {
-            throw new \RuntimeException(sprintf('Qdrant response for %s was not a JSON object.', $path));
         }
 
         return $decoded;

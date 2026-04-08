@@ -40,7 +40,7 @@ readonly class GenerateEmbeddingMessageHandler
                 return;
             }
 
-            $frameworkId = $lsItem->getLsDoc()?->getId();
+            $frameworkId = $lsItem->getLsDoc()->getId();
             if (null === $frameworkId) {
                 $this->logger->warning('LsItem has no framework', [
                     'ls_item_id' => $lsItemId,

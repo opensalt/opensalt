@@ -90,7 +90,7 @@ services:
       VECTOR_SEARCH_QDRANT_ALIAS: "${VECTOR_SEARCH_QDRANT_ALIAS:-ls_item_embeddings_active}"
       VECTOR_SEARCH_QDRANT_API_KEY: "${VECTOR_SEARCH_QDRANT_API_KEY:-}"
       VECTOR_SEARCH_QDRANT_TIMEOUT: "${VECTOR_SEARCH_QDRANT_TIMEOUT:-10}"
-      VECTOR_SEARCH_EMBEDDING_API_URL: "${VECTOR_SEARCH_EMBEDDING_API_URL:-http://t2v/v1/embeddings}"
+      VECTOR_SEARCH_EMBEDDING_API_URL: "${VECTOR_SEARCH_EMBEDDING_API_URL:-http://t2v}"
       VECTOR_SEARCH_EMBEDDING_API_KEY: "${VECTOR_SEARCH_EMBEDDING_API_KEY:-}"
       VECTOR_SEARCH_HYBRID_PREFETCH_LIMIT: "${VECTOR_SEARCH_HYBRID_PREFETCH_LIMIT:-20}"
       VECTOR_SEARCH_HYBRID_RRF_K: "${VECTOR_SEARCH_HYBRID_RRF_K:-60}"
@@ -136,7 +136,8 @@ services:
     image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.9
     restart: unless-stopped
     volumes:
-      - "./core/docker/data/t2v:/data"
+      #- t2v_data:/data:rw
+      - "./core/docker/data/t2v:/data:rw"
     command: --model-id sentence-transformers/all-MiniLM-L6-v2 --served-model-name Xenova/all-MiniLM-L6-v2
     # The OpenAI-compatible endpoint is available at /v1/embeddings.
 
