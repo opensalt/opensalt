@@ -1,7 +1,6 @@
 import { ref, computed, watch, onUnmounted, toValue } from 'vue';
 import { useEditorContextStore } from '../stores/editorContextStore';
 import { useCurrentDocumentStore } from '../stores/currentDocumentStore';
-import { localFrameworkDb } from '../services/localFrameworkDb.js';
 import { logger } from '../utils/logger.js';
 
 function normalizeGroupId(association) {
@@ -231,43 +230,16 @@ export function useAssociationList({ mode, item = null, displayItem = null, docu
   }
 
   async function fetchSnapshotEntries() {
-    if (!localFrameworkDb.isReady()) {
-      return null;
-    }
-
-    if (mode === 'item') {
-      return localFrameworkDb.getItemAssociations(
-        itemIdentifier.value,
-        null
-      );
-    }
-
-    return localFrameworkDb.getDocumentAssociations(
-      documentIdentifier.value,
-      null
-    );
+    // Skip Pglite entirely — the in-memory registry already has the
+    // associations that were loaded with the document.  Falling back to
+    // getRegistryEntries() is fast and reliable.
+    return null;
   }
 
-  async function fetchEntriesWithFallback(currentVersion) {
-    const snapshotPromise = fetchSnapshotEntries();
-
-    try {
-      const result = await snapshotPromise;
-
-      if (result !== null && result !== undefined) {
-        return result;
-      }
-
-      return getRegistryEntries();
-    } catch (error) {
-      const fallbackEntries = getRegistryEntries();
-
-      if (Array.isArray(fallbackEntries) && fallbackEntries.length > 0) {
-        return fallbackEntries;
-      }
-
-      throw error;
-    }
+  async function fetchEntriesWithFallback() {
+    // fetchSnapshotEntries always returns null (Pglite bypassed), so
+    // we go straight to the in-memory registry which is fast and reliable.
+    return getRegistryEntries();
   }
 
   async function loadEntries({ clearEntries = true, setLoading = true } = {}) {
@@ -297,8 +269,13 @@ export function useAssociationList({ mode, item = null, displayItem = null, docu
     }
 
     try {
-      const snapshotEntries = await fetchEntriesWithFallback(currentVersion);
-      if (currentVersion !== subscriptionVersion) return;
+      const snapshotEntries = await fetchEntriesWithFallback();
+      if (currentVersion !== subscriptionVersion) {
+        if (setLoading) {
+          isProcessingAssociations.value = false;
+        }
+        return;
+      }
       rawEntries.value = Array.isArray(snapshotEntries) ? snapshotEntries : [];
       if (setLoading) {
         isProcessingAssociations.value = false;
@@ -360,12 +337,6 @@ export function useAssociationList({ mode, item = null, displayItem = null, docu
   watch(watchKey, () => {
     void loadEntries({ clearEntries: true, setLoading: true });
   }, { immediate: true });
-
-  localFrameworkDb.onReady(() => {
-    if (itemIdentifier.value || documentIdentifier.value) {
-      void loadEntries({ clearEntries: true, setLoading: false });
-    }
-  });
 
   watch(() => contextStore.registryVersion, () => {
     if (!itemIdentifier.value && !documentIdentifier.value) return;

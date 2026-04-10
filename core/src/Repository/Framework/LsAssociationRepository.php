@@ -151,7 +151,66 @@ class LsAssociationRepository extends ServiceEntityRepository
         $qb->andWhere('t.lsDoc = :docId')
             ->setParameter('docId', $doc->getId())
         ;
+        $qb->orderBy('t.sequenceNumber', 'ASC');
 
         return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * @phpstan-return array{total: int, items: array<int, array{0: LsAssociation, origin_human_coding_scheme: string|null, origin_abbreviated_statement: string|null, origin_full_statement: string|null, destination_human_coding_scheme: string|null, destination_abbreviated_statement: string|null, destination_full_statement: string|null}>}
+     */
+    public function findForItem(
+        string $itemIdentifier,
+        ?string $frameworkId = null,
+        int $limit = 1000,
+        int $offset = 0
+    ): array {
+        $qb = $this->createQueryBuilder('a')
+            ->leftJoin('a.originLsItem', 'i1')
+            ->leftJoin('a.destinationLsItem', 'i2')
+            ->where('a.originNodeIdentifier = :itemId OR a.destinationNodeIdentifier = :itemId')
+            ->setParameter('itemId', $itemIdentifier)
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->orderBy('a.sequenceNumber', 'ASC');
+
+        if ($frameworkId) {
+            $qb->andWhere('a.lsDocIdentifier = :frameworkId')
+               ->setParameter('frameworkId', $frameworkId);
+        }
+
+        $qb->select('a, i1.humanCodingScheme as origin_human_coding_scheme, i1.abbreviatedStatement as origin_abbreviated_statement, i1.fullStatement as origin_full_statement,
+                          i2.humanCodingScheme as destination_human_coding_scheme, i2.abbreviatedStatement as destination_abbreviated_statement, i2.fullStatement as destination_full_statement');
+
+        $total = (clone $qb)->select('COUNT(DISTINCT a.id)')->getQuery()->getSingleScalarResult();
+        $items = $qb->getQuery()->getResult();
+
+        return ['total' => $total, 'items' => $items];
+    }
+
+    /**
+     * @phpstan-return array{total: int, items: array<int, array{0: LsAssociation, origin_human_coding_scheme: string|null, origin_abbreviated_statement: string|null, origin_full_statement: string|null, destination_human_coding_scheme: string|null, destination_abbreviated_statement: string|null, destination_full_statement: string|null}>}
+     */
+    public function findByDocument(
+        string $docId,
+        int $limit = 1000,
+        int $offset = 0
+    ): array {
+        $qb = $this->createQueryBuilder('a')
+            ->leftJoin('a.originLsItem', 'i1')
+            ->leftJoin('a.destinationLsItem', 'i2')
+            ->where('a.lsDocIdentifier = :docId')
+            ->setParameter('docId', $docId)
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->orderBy('a.sequenceNumber', 'ASC');
+
+        $qb->select('a, i1.humanCodingScheme as origin_human_coding_scheme, i1.abbreviatedStatement as origin_abbreviated_statement, i1.fullStatement as origin_full_statement,
+                          i2.humanCodingScheme as destination_human_coding_scheme, i2.abbreviatedStatement as destination_abbreviated_statement, i2.fullStatement as destination_full_statement');
+
+        $total = (clone $qb)->select('COUNT(DISTINCT a.id)')->getQuery()->getSingleScalarResult();
+        $items = $qb->getQuery()->getResult();
+
+        return ['total' => $total, 'items' => $items];
     }
 }
