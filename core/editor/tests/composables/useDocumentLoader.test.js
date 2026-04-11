@@ -4,7 +4,7 @@ import { createPinia, setActivePinia } from 'pinia';
 const {
   routeState,
   currentDocumentStoreState,
-  fetchDocumentMock,
+  fetchTreeMock,
   fetchDocumentsMock,
   clearSideDocErrorMock,
   fetchAndQueueRelatedDocumentsMock,
@@ -15,10 +15,11 @@ const {
   },
   currentDocumentStoreState: {
     currentDocument: null,
+    currentDocumentTree: [],
     selectDocument: vi.fn(),
     transformCASEItems: vi.fn(() => []),
   },
-  fetchDocumentMock: vi.fn(),
+  fetchTreeMock: vi.fn(),
   fetchDocumentsMock: vi.fn(),
   clearSideDocErrorMock: vi.fn(),
   fetchAndQueueRelatedDocumentsMock: vi.fn(),
@@ -34,7 +35,7 @@ vi.mock('@/stores/documentStore', () => ({
     loading: false,
     error: null,
     documents: [],
-    fetchDocument: fetchDocumentMock,
+    fetchTree: fetchTreeMock,
     fetchDocuments: fetchDocumentsMock,
     clearSideDocError: clearSideDocErrorMock,
   })
@@ -57,12 +58,6 @@ vi.mock('@/composables/useRelatedFrameworksQueue', () => ({
   })
 }));
 
-vi.mock('@/services/localFrameworkDb.js', () => ({
-  localFrameworkDb: {
-    getPackage: vi.fn()
-  }
-}));
-
 import { useDocumentLoader } from '@/composables/useDocumentLoader.js';
 
 describe('useDocumentLoader', () => {
@@ -71,6 +66,7 @@ describe('useDocumentLoader', () => {
     vi.clearAllMocks();
     routeState.params = {};
     currentDocumentStoreState.currentDocument = null;
+    currentDocumentStoreState.currentDocumentTree = [];
   });
 
   it('queues related documents even when loadDocument short-circuits on an already loaded document', async () => {
@@ -78,13 +74,14 @@ describe('useDocumentLoader', () => {
       identifier: 'doc-1',
       items: []
     };
+    currentDocumentStoreState.currentDocumentTree = [{}];
     fetchAndQueueRelatedDocumentsMock.mockResolvedValue([]);
 
     const { loadDocument } = useDocumentLoader();
     const result = await loadDocument('doc-1');
 
     expect(result).toBe(currentDocumentStoreState.currentDocument);
-    expect(fetchDocumentMock).not.toHaveBeenCalled();
+    expect(fetchTreeMock).not.toHaveBeenCalled();
     expect(fetchAndQueueRelatedDocumentsMock).toHaveBeenCalledWith('doc-1');
     expect(startQueueMock).toHaveBeenCalledTimes(1);
   });
@@ -95,14 +92,33 @@ describe('useDocumentLoader', () => {
       identifier: 'doc-2',
       items: []
     };
+    currentDocumentStoreState.currentDocumentTree = [{}];
     fetchAndQueueRelatedDocumentsMock.mockResolvedValue([]);
 
     const { initializeDocument } = useDocumentLoader();
     await initializeDocument();
 
     expect(fetchDocumentsMock).not.toHaveBeenCalled();
-    expect(fetchDocumentMock).not.toHaveBeenCalled();
+    expect(fetchTreeMock).not.toHaveBeenCalled();
     expect(fetchAndQueueRelatedDocumentsMock).toHaveBeenCalledWith('doc-2');
     expect(startQueueMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('fetches tree and selects document when not already loaded', async () => {
+    const mockTreeResponse = {
+      document: { identifier: 'doc-1', title: 'Test Doc' },
+      tree: [],
+      definitions: {}
+    };
+    fetchTreeMock.mockResolvedValueOnce(mockTreeResponse);
+    fetchAndQueueRelatedDocumentsMock.mockResolvedValue([]);
+
+    const { loadDocument } = useDocumentLoader();
+    const result = await loadDocument('doc-1');
+
+    expect(fetchTreeMock).toHaveBeenCalledWith('doc-1');
+    expect(currentDocumentStoreState.selectDocument).toHaveBeenCalledWith(mockTreeResponse);
+    expect(fetchAndQueueRelatedDocumentsMock).toHaveBeenCalledWith('doc-1');
+    expect(result).toBe(mockTreeResponse.document);
   });
 });

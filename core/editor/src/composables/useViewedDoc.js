@@ -1,9 +1,9 @@
 import { ref, computed, watch } from 'vue';
-import { useCurrentDocumentStore } from '../stores/currentDocumentStore';
+import { useDocumentStore } from '../stores/documentStore';
 import { useEditorContextStore } from '../stores/editorContextStore';
 
 export function useViewedDoc(options = {}) {
-  const currentDocumentStore = useCurrentDocumentStore();
+  const documentStore = useDocumentStore();
   const contextStore = useEditorContextStore();
 
   const isViewingDifferentFramework = computed(() => contextStore.isViewingDifferentFramework);
@@ -20,16 +20,8 @@ export function useViewedDoc(options = {}) {
     watch(
       () => {
         const id = contextStore.viewedDocumentId;
-        const registryVersion = contextStore.registryVersion;
-        void registryVersion;
         if (!id) return null;
-        const pkg = contextStore.loadedPackages.get(id);
-        return {
-          id,
-          hasItems: !!pkg?.CFItems?.length,
-          itemCount: pkg?.CFItems?.length || 0,
-          assocCount: pkg?.CFAssociations?.length || 0,
-        };
+        return { id };
       },
       async (snapshot) => {
         if (!snapshot?.id) {
@@ -39,17 +31,11 @@ export function useViewedDoc(options = {}) {
         }
 
         const seq = ++transformSequence;
-        const pkg = contextStore.loadedPackages.get(snapshot.id);
-        if (!pkg?.CFItems) return;
 
-        const result = await currentDocumentStore.transformCASEItems(
-          pkg.CFItems,
-          pkg.CFAssociations || [],
-          snapshot.id
-        );
+        const treeResponse = await documentStore.fetchTree(snapshot.id);
         if (seq !== transformSequence) return;
 
-        transformedItems.value = Array.isArray(result) ? result : (result.items || []);
+        transformedItems.value = treeResponse.tree || [];
         transformedDocId.value = snapshot.id;
         transformVersion.value++;
       },

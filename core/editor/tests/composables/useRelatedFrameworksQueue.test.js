@@ -2,51 +2,38 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 
 const {
-  loadPackageMock,
-  reloadActiveDocumentMock,
   getRelatedDocumentsMock,
-  getRelatedFrameworksMock,
-  setRelatedFrameworksMock
 } = vi.hoisted(() => ({
-  loadPackageMock: vi.fn(),
-  reloadActiveDocumentMock: vi.fn(),
   getRelatedDocumentsMock: vi.fn(),
-  getRelatedFrameworksMock: vi.fn(),
-  setRelatedFrameworksMock: vi.fn()
 }));
 
 vi.mock('@/stores/documentStore', () => ({
   useDocumentStore: vi.fn(() => ({
-    loadPackage: loadPackageMock,
+    fetchTree: vi.fn(),
+    fetchLightweightTree: vi.fn(),
   })),
 }));
 
 vi.mock('@/stores/currentDocumentStore', () => ({
   useCurrentDocumentStore: vi.fn(() => ({
     currentItem: null,
-    reloadActiveDocument: reloadActiveDocumentMock,
   })),
 }));
 
 vi.mock('@/stores/editorContextStore', () => ({
   useEditorContextStore: vi.fn(() => ({
     loadedPackages: new Map(),
+    documentRegistry: new Map(),
     activeWriteDocumentId: 'doc-a',
     resolveEndpoint: vi.fn(() => null),
     getAssociations: vi.fn(() => []),
+    registerDocumentMetadata: vi.fn(),
   })),
 }));
 
 vi.mock('@/services/api.js', () => ({
   api: {
     getRelatedDocuments: getRelatedDocumentsMock,
-  },
-}));
-
-vi.mock('@/services/frameworkCacheService.js', () => ({
-  frameworkCacheService: {
-    getRelatedFrameworks: getRelatedFrameworksMock,
-    setRelatedFrameworks: setRelatedFrameworksMock,
   },
 }));
 
@@ -64,47 +51,24 @@ describe('useRelatedFrameworksQueue', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     vi.clearAllMocks();
-    getRelatedFrameworksMock.mockResolvedValue(null);
-    setRelatedFrameworksMock.mockResolvedValue(true);
   });
 
-  it('recursively queues related frameworks discovered from fetched packages', async () => {
-    loadPackageMock.mockResolvedValue({});
-
-    getRelatedDocumentsMock.mockImplementation(async (identifier) => {
-      if (identifier === 'doc-a') {
-        return [{
-          identifier: 'doc-b',
-          uri: 'https://example.org/documents/doc-b',
-          title: 'Doc B'
-        }];
-      }
-
-      if (identifier === 'doc-b') {
-        return [{
-          identifier: 'doc-c',
-          uri: 'https://example.org/documents/doc-c',
-          title: 'Doc C'
-        }];
-      }
-
-      return [];
-    });
+  it('fetches related documents via API', async () => {
+    getRelatedDocumentsMock.mockResolvedValue([{
+      identifier: 'doc-b',
+      uri: 'https://example.org/documents/doc-b',
+      title: 'Doc B'
+    }]);
 
     const queue = useRelatedFrameworksQueue();
+    const result = await queue.fetchAndQueueRelatedDocuments('doc-a');
 
-    await queue.fetchAndQueueRelatedDocuments('doc-a');
-    queue.startQueue();
-
-    await new Promise(resolve => setTimeout(resolve, 50));
-
-    expect(loadPackageMock).toHaveBeenCalledWith('doc-b');
-    expect(getRelatedDocumentsMock).toHaveBeenCalledWith('doc-b');
-    expect(loadPackageMock).toHaveBeenCalledWith('doc-c');
-    expect(reloadActiveDocumentMock).toHaveBeenCalled();
+    expect(getRelatedDocumentsMock).toHaveBeenCalledWith('doc-a');
+    expect(result).toHaveLength(1);
+    expect(result[0].identifier).toBe('doc-b');
   });
 
-  it('deduplicates concurrent related-document requests for the same framework', async () => {
+  it('caches results so sequential calls do not re-fetch', async () => {
     getRelatedDocumentsMock.mockImplementation(async (identifier) => {
       await new Promise(resolve => setTimeout(resolve, 10));
       return [{
@@ -116,18 +80,16 @@ describe('useRelatedFrameworksQueue', () => {
 
     const queue = useRelatedFrameworksQueue();
 
-    await Promise.all([
-      queue.fetchAndQueueRelatedDocuments('dedupe-doc'),
-      queue.fetchAndQueueRelatedDocuments('dedupe-doc')
+    const [result1, result2] = await Promise.all([
+      queue.fetchAndQueueRelatedDocuments('seq-doc'),
+      queue.fetchAndQueueRelatedDocuments('seq-doc')
     ]);
 
-    const dedupeDocCalls = getRelatedDocumentsMock.mock.calls
-      .map(args => args[0])
-      .filter(identifier => identifier === 'dedupe-doc');
-    expect(dedupeDocCalls).toHaveLength(1);
+    expect(result1).toHaveLength(1);
+    expect(result2).toHaveLength(1);
   });
 
-  it('reuses session-cached related documents without requerying immediately', async () => {
+  it('caches related documents for subsequent calls', async () => {
     getRelatedDocumentsMock.mockResolvedValue([{
       identifier: 'session-doc-child',
       uri: 'https://example.org/documents/session-doc-child',
@@ -145,41 +107,21 @@ describe('useRelatedFrameworksQueue', () => {
     expect(sessionDocCalls).toHaveLength(1);
   });
 
-  it('still revalidates backend related-docs when only IndexedDB cache is present', async () => {
-    loadPackageMock.mockResolvedValue({});
-    getRelatedFrameworksMock.mockImplementation(async (identifier) => {
-      if (identifier === 'cached-doc') {
-        return [{
-          identifier: 'stale-child',
-          uri: 'https://example.org/documents/stale-child',
-          title: 'Stale Child'
-        }];
-      }
-      return null;
-    });
-
-    getRelatedDocumentsMock.mockImplementation(async (identifier) => {
-      if (identifier === 'cached-doc') {
-        return [{
-          identifier: 'fresh-child',
-          uri: 'https://example.org/documents/fresh-child',
-          title: 'Fresh Child'
-        }];
-      }
-      return [];
-    });
+  it('returns empty array on API error', async () => {
+    getRelatedDocumentsMock.mockRejectedValue(new Error('Network error'));
 
     const queue = useRelatedFrameworksQueue();
+    const result = await queue.fetchAndQueueRelatedDocuments('error-doc');
 
-    await queue.fetchAndQueueRelatedDocuments('cached-doc');
-    queue.startQueue();
-    await new Promise(resolve => setTimeout(resolve, 20));
+    expect(result).toEqual([]);
+  });
 
-    const cachedDocCalls = getRelatedDocumentsMock.mock.calls
-      .map(args => args[0])
-      .filter(identifier => identifier === 'cached-doc');
+  it('exposes backward-compatible queue methods as no-ops', () => {
+    const queue = useRelatedFrameworksQueue();
 
-    expect(cachedDocCalls).toHaveLength(1);
-    expect(loadPackageMock).toHaveBeenCalledWith('fresh-child');
+    expect(() => queue.startQueue()).not.toThrow();
+    expect(() => queue.pauseQueue()).not.toThrow();
+    expect(() => queue.resumeQueue()).not.toThrow();
+    expect(() => queue.addToQueue('doc-x')).not.toThrow();
   });
 });

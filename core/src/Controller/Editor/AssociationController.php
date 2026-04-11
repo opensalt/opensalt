@@ -32,11 +32,11 @@ class AssociationController extends AbstractController
     }
 
     #[Route(path: '/associations/item/{identifier}', name: 'editor_api_item_associations', methods: ['GET'])]
-    #[IsGranted(Permission::FRAMEWORK_VIEW, 'item')]
     public function getItemAssociations(
         #[MapEntity(mapping: ['identifier' => 'identifier'])] LsItem $item,
         Request $request,
     ): Response {
+        $this->denyAccessUnlessGranted(Permission::FRAMEWORK_VIEW, $item->getLsDoc());
         $frameworkId = $request->query->get('frameworkId');
         $limit = (int)$request->query->get('limit', 1000);
         $offset = (int)$request->query->get('offset', 0);
@@ -51,32 +51,15 @@ class AssociationController extends AbstractController
         $response = [
             'data' => [],
             'total' => $associations['total'],
-            'frameworkId' => $frameworkId,
             'itemIdentifier' => $item->getIdentifier(),
         ];
 
         foreach ($associations['items'] as $assoc) {
             $assocEntity = $assoc[0];
-            $response['data'][] = [
-                'associationId' => $assocEntity->getId(),
-                'associationType' => $assocEntity->getType(),
-                'groupId' => $assocEntity->getGroup()?->getIdentifier(),
-                'sequenceNumber' => $assocEntity->getSequenceNumber(),
-                'origin' => [
-                    'identifier' => $assocEntity->getOriginNodeIdentifier(),
-                    'humanCodingScheme' => $assoc['origin_human_coding_scheme'],
-                    'abbreviatedStatement' => $assoc['origin_abbreviated_statement'],
-                    'fullStatement' => $assoc['origin_full_statement'],
-                ],
-                'destination' => [
-                    'identifier' => $assocEntity->getDestinationNodeIdentifier(),
-                    'humanCodingScheme' => $assoc['destination_human_coding_scheme'],
-                    'abbreviatedStatement' => $assoc['destination_abbreviated_statement'],
-                    'fullStatement' => $assoc['destination_full_statement'],
-                ],
-                'canView' => true,
-                'canEdit' => $this->isGranted(Permission::ASSOCIATION_EDIT, $assocEntity),
-            ];
+            $assocData = $this->buildAssociationResponse($assocEntity, $assoc);
+            if (null !== $assocData) {
+                $response['data'][] = $assocData;
+            }
         }
 
         return new JsonResponse($response);
@@ -100,34 +83,128 @@ class AssociationController extends AbstractController
         $response = [
             'data' => [],
             'total' => $associations['total'],
-            'documentId' => $doc->getIdentifier(),
+            'documentIdentifier' => $doc->getIdentifier(),
         ];
 
         foreach ($associations['items'] as $assoc) {
             $assocEntity = $assoc[0];
-            $response['data'][] = [
-                'associationId' => $assocEntity->getId(),
-                'associationType' => $assocEntity->getType(),
-                'groupId' => $assocEntity->getGroup()?->getIdentifier(),
-                'sequenceNumber' => $assocEntity->getSequenceNumber(),
-                'origin' => [
-                    'identifier' => $assocEntity->getOriginNodeIdentifier(),
-                    'humanCodingScheme' => $assoc['origin_human_coding_scheme'],
-                    'abbreviatedStatement' => $assoc['origin_abbreviated_statement'],
-                    'fullStatement' => $assoc['origin_full_statement'],
-                ],
-                'destination' => [
-                    'identifier' => $assocEntity->getDestinationNodeIdentifier(),
-                    'humanCodingScheme' => $assoc['destination_human_coding_scheme'],
-                    'abbreviatedStatement' => $assoc['destination_abbreviated_statement'],
-                    'fullStatement' => $assoc['destination_full_statement'],
-                ],
-                'canView' => true,
-                'canEdit' => $this->isGranted(Permission::ASSOCIATION_EDIT, $assocEntity),
-            ];
+            $assocData = $this->buildAssociationResponse($assocEntity, $assoc);
+            if (null !== $assocData) {
+                $response['data'][] = $assocData;
+            }
         }
 
         return new JsonResponse($response);
+    }
+
+    private function buildAssociationResponse(LsAssociation $assocEntity, array $assoc): ?array
+    {
+        $originItem = $assocEntity->getOriginLsItem();
+        $originDoc = $assocEntity->getOriginLsDoc();
+        $destItem = $assocEntity->getDestinationLsItem();
+        $destDoc = $assocEntity->getDestinationLsDoc();
+
+        $originFrameworkDoc = $originItem?->getLsDoc() ?? $originDoc;
+        $destFrameworkDoc = $destItem?->getLsDoc() ?? $destDoc;
+
+        if (null !== $originFrameworkDoc && !$this->isGranted(Permission::FRAMEWORK_VIEW, $originFrameworkDoc)) {
+            return null;
+        }
+        if (null !== $destFrameworkDoc && !$this->isGranted(Permission::FRAMEWORK_VIEW, $destFrameworkDoc)) {
+            return null;
+        }
+
+        $originDocumentIdentifier = $originItem?->getLsDoc()?->getIdentifier()
+            ?? $originDoc?->getIdentifier();
+        $destDocumentIdentifier = $destItem?->getLsDoc()?->getIdentifier()
+            ?? $destDoc?->getIdentifier();
+
+        $originTargetType = 'item';
+        if (null !== $originDoc) {
+            $originTargetType = 'document';
+        } elseif (null === $originItem) {
+            $originTargetType = 'uri';
+        }
+
+        $destTargetType = 'item';
+        if (null !== $destDoc) {
+            $destTargetType = 'document';
+        } elseif (null === $destItem) {
+            $destTargetType = 'uri';
+        }
+
+        $originHcs = $assoc['origin_human_coding_scheme'] ?? null ?? $originItem?->getHumanCodingScheme();
+        $originFs = $assoc['origin_full_statement'] ?? null ?? $originItem?->getFullStatement();
+        $originAbs = $assoc['origin_abbreviated_statement'] ?? null ?? $originItem?->getAbbreviatedStatement();
+        if (null === $originFs && null !== $originDoc) {
+            $originFs = $originDoc->getTitle();
+        }
+
+        $destHcs = $assoc['destination_human_coding_scheme'] ?? null ?? $destItem?->getHumanCodingScheme();
+        $destFs = $assoc['destination_full_statement'] ?? null ?? $destItem?->getFullStatement();
+        $destAbs = $assoc['destination_abbreviated_statement'] ?? null ?? $destItem?->getAbbreviatedStatement();
+        if (null === $destFs && null !== $destDoc) {
+            $destFs = $destDoc->getTitle();
+        }
+
+        $group = $assocEntity->getGroup();
+        $groupObj = null;
+        if (null !== $group) {
+            $groupObj = [
+                'identifier' => $group->getIdentifier(),
+                'title' => $group->getTitle(),
+            ];
+        }
+
+        return [
+            'identifier' => $assocEntity->getIdentifier(),
+            'associationType' => $assocEntity->getType(),
+            'associationDocumentIdentifier' => $assocEntity->getLsDoc()?->getIdentifier(),
+            'originNodeURI' => [
+                'identifier' => $assocEntity->getOriginNodeIdentifier(),
+                'title' => $this->buildNodeTitle(
+                    $originHcs,
+                    $originFs,
+                    $originAbs,
+                    $assocEntity->getOriginNodeIdentifier(),
+                ),
+                'uri' => $assocEntity->getOriginNodeUri(),
+                'documentIdentifier' => $originDocumentIdentifier,
+                'humanCodingScheme' => $originHcs,
+                'fullStatement' => $originFs,
+                'abbreviatedStatement' => $originAbs,
+            ],
+            'destinationNodeURI' => [
+                'identifier' => $assocEntity->getDestinationNodeIdentifier(),
+                'title' => $this->buildNodeTitle(
+                    $destHcs,
+                    $destFs,
+                    $destAbs,
+                    $assocEntity->getDestinationNodeIdentifier(),
+                ),
+                'uri' => $assocEntity->getDestinationNodeUri(),
+                'documentIdentifier' => $destDocumentIdentifier,
+                'humanCodingScheme' => $destHcs,
+                'fullStatement' => $destFs,
+                'abbreviatedStatement' => $destAbs,
+            ],
+            'targetType' => $destTargetType,
+            'sequenceNumber' => $assocEntity->getSequenceNumber(),
+            'annotation' => $assocEntity->getNotes(),
+            'CFAssociationGroupingURI' => $groupObj,
+            'canEdit' => $this->isGranted(Permission::ASSOCIATION_EDIT, $assocEntity),
+        ];
+    }
+
+    private function buildNodeTitle(?string $hcs, ?string $fullStatement, ?string $abbreviatedStatement, ?string $fallback = null): ?string
+    {
+        $displayStatement = $abbreviatedStatement ?? $fullStatement;
+
+        if (('' !== ($hcs ?? '')) && null !== $displayStatement) {
+            return $hcs.' - '.$displayStatement;
+        }
+
+        return $displayStatement ?? $fallback;
     }
 
     #[Route(path: '/association/new/{identifier}', name: 'editor_association_new', methods: ['POST'])]

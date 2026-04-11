@@ -243,33 +243,25 @@ const contextStore = useEditorContextStore();
 const resolvedItem = computed(() => {
   if (!isCrossFrameworkItem.value) return props.item;
   const registered = contextStore.itemRegistry.get(props.item.identifier);
-  const resolvedByUri = !registered
-    ? contextStore.resolveEndpoint(props.item.crossFrameworkUri || props.item.uri || '')
-    : null;
-  const resolvedItemEntity = resolvedByUri?.entityType === 'item' ? resolvedByUri.entity : null;
+
+  const docId = props.item.documentId || props.item.CFDocumentURI?.identifier || null;
+  const registeredDoc = docId ? contextStore.documentRegistry.get(docId) : null;
+  const docTitle = props.item.externalFrameworkTitle || registeredDoc?.title || frameworkTitle.value || null;
 
   if (registered?.item) {
     return {
       ...props.item,
       ...registered.item,
       ...(itemData.value || {}),
-      externalFrameworkTitle: props.item.externalFrameworkTitle || frameworkTitle.value,
-    };
-  }
-
-  if (resolvedItemEntity) {
-    return {
-      ...props.item,
-      ...resolvedItemEntity,
-      ...(itemData.value || {}),
-      externalFrameworkTitle: props.item.externalFrameworkTitle || frameworkTitle.value,
+      externalFrameworkTitle: props.item.externalFrameworkTitle || docTitle,
     };
   }
 
   return {
     ...props.item,
     ...(itemData.value || {}),
-    externalFrameworkTitle: props.item.externalFrameworkTitle || frameworkTitle.value,
+    documentIdentifier: docId,
+    externalFrameworkTitle: props.item.externalFrameworkTitle || docTitle,
   };
 });
 
@@ -322,15 +314,18 @@ const displayHumanCodingScheme = computed(
 );
 
 const displayTitle = computed(() => {
-  if (isCrossFrameworkItem.value && itemTitle.value && itemTitle.value !== 'Unknown' && itemTitle.value !== 'Loading...') {
-    return itemTitle.value;
-  }
-  return (
+  const localTitle =
     resolvedItem.value.abbreviatedStatement ||
     resolvedItem.value.fullStatement ||
-    resolvedItem.value.title ||
-    resolvedItem.value.identifier
-  );
+    resolvedItem.value.title;
+
+  if (isCrossFrameworkItem.value && itemTitle.value && itemTitle.value !== 'Unknown' && itemTitle.value !== 'Loading...') {
+    if (!localTitle || localTitle === 'Untitled Item') {
+      return itemTitle.value;
+    }
+  }
+
+  return localTitle || resolvedItem.value.identifier;
 });
 
 // ---------------------------------------------------------------------------

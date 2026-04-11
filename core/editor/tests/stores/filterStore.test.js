@@ -14,15 +14,15 @@ describe('FilterStore', () => {
     expect(filterStore.selectedAssociationGroup).toBe('default');
   });
 
-  it('selects default on framework switch when at least one association is ungrouped', () => {
+  it('selects default on framework switch when at least one node has null group', () => {
     filterStore.setSelectedAssociationGroup('group-1');
 
     filterStore.syncSelectedAssociationGroup({
       frameworkId: 'framework-1',
-      associations: [
-        { identifier: 'assoc-1' }
-      ],
-      realGroupIds: ['group-1']
+      definedGroupIds: ['group-1'],
+      treeNodes: [
+        { identifier: 'item-1', associationGroupIdentifier: null }
+      ]
     });
 
     expect(filterStore.selectedAssociationGroup).toBe('default');
@@ -31,13 +31,10 @@ describe('FilterStore', () => {
   it('selects the sole real group when there are no default-group associations', () => {
     filterStore.syncSelectedAssociationGroup({
       frameworkId: 'framework-1',
-      associations: [
-        {
-          identifier: 'assoc-1',
-          CFAssociationGroupingURI: { identifier: 'group-1', uri: '/groups/group-1', title: 'Group 1' }
-        }
-      ],
-      realGroupIds: ['group-1']
+      definedGroupIds: ['group-1'],
+      treeNodes: [
+        { identifier: 'item-1', associationGroupIdentifier: 'group-1' }
+      ]
     });
 
     expect(filterStore.selectedAssociationGroup).toBe('group-1');
@@ -46,13 +43,10 @@ describe('FilterStore', () => {
   it('keeps default when no default-group associations and multiple real groups exist', () => {
     filterStore.syncSelectedAssociationGroup({
       frameworkId: 'framework-1',
-      associations: [
-        {
-          identifier: 'assoc-1',
-          CFAssociationGroupingURI: { identifier: 'group-1', uri: '/groups/group-1', title: 'Group 1' }
-        }
-      ],
-      realGroupIds: ['group-1', 'group-2']
+      definedGroupIds: ['group-1', 'group-2'],
+      treeNodes: [
+        { identifier: 'item-1', associationGroupIdentifier: 'group-1' }
+      ]
     });
 
     expect(filterStore.selectedAssociationGroup).toBe('default');
@@ -61,16 +55,16 @@ describe('FilterStore', () => {
   it('preserves current selection on same-framework reload when still valid', () => {
     filterStore.syncSelectedAssociationGroup({
       frameworkId: 'framework-1',
-      associations: [],
-      realGroupIds: ['group-1', 'group-2']
+      definedGroupIds: ['group-1', 'group-2'],
+      treeNodes: []
     });
 
     filterStore.setSelectedAssociationGroup('group-2');
 
     filterStore.syncSelectedAssociationGroup({
       frameworkId: 'framework-1',
-      associations: [],
-      realGroupIds: ['group-1', 'group-2']
+      definedGroupIds: ['group-1', 'group-2'],
+      treeNodes: []
     });
 
     expect(filterStore.selectedAssociationGroup).toBe('group-2');

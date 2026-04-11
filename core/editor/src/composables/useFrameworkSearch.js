@@ -1,11 +1,11 @@
-import { computed, ref, watch } from 'vue';
-import { localFrameworkDb } from '../services/localFrameworkDb.js';
-import { localSearchService } from '../services/localSearchService.js';
+import { computed } from 'vue';
 import { countMatches as countTreeMatches } from '../utils/tree.js';
 
 /**
  * Composable that provides framework-level search count and matching-ID set
  * for the main tree editor.
+ *
+ * All search is performed client-side on the in-memory tree data.
  *
  * @param {Object} options
  * @param {import('vue').Ref} options.treeSearchQuery - The current search string
@@ -14,48 +14,6 @@ import { countMatches as countTreeMatches } from '../utils/tree.js';
  * @param {import('vue').ComputedRef} options.isViewingDifferentFramework
  */
 export function useFrameworkSearch({ treeSearchQuery, doc, viewedDoc, isViewingDifferentFramework }) {
-    const dbMatchingIds = ref(new Set());
-    const dbMatchCount = ref(null);
-    const useLocalSearchResults = ref(false);
-
-    watch(
-        [treeSearchQuery, () => doc.value?.identifier, () => viewedDoc.value?.identifier, isViewingDifferentFramework],
-        async () => {
-            const query = treeSearchQuery.value?.trim();
-            if (!query) {
-                dbMatchingIds.value = new Set();
-                dbMatchCount.value = null;
-                return;
-            }
-
-            const targetDocId = isViewingDifferentFramework.value
-                ? viewedDoc.value?.identifier
-                : doc.value?.identifier;
-
-            if (!targetDocId) {
-                dbMatchingIds.value = new Set();
-                dbMatchCount.value = 0;
-                return;
-            }
-
-            useLocalSearchResults.value = await localFrameworkDb.hasPersistentClient();
-            if (!useLocalSearchResults.value) {
-                dbMatchingIds.value = new Set();
-                dbMatchCount.value = null;
-                return;
-            }
-
-            const matchedIds = await localSearchService.searchItems({
-                documentId: targetDocId,
-                query,
-                limit: 5000
-            });
-            dbMatchingIds.value = new Set(matchedIds || []);
-            dbMatchCount.value = dbMatchingIds.value.size;
-        },
-        { immediate: true }
-    );
-
     function countMatches(items, query) {
         return countTreeMatches(items, item => {
             const searchableText = [
@@ -90,9 +48,6 @@ export function useFrameworkSearch({ treeSearchQuery, doc, viewedDoc, isViewingD
     }
 
     const matchCount = computed(() => {
-        if (useLocalSearchResults.value) {
-            return dbMatchCount.value;
-        }
         if (!treeSearchQuery.value) return null;
         const query = treeSearchQuery.value.toLowerCase();
         const itemsToSearch = isViewingDifferentFramework.value
@@ -102,9 +57,6 @@ export function useFrameworkSearch({ treeSearchQuery, doc, viewedDoc, isViewingD
     });
 
     const matchingItemIds = computed(() => {
-        if (useLocalSearchResults.value) {
-            return dbMatchingIds.value;
-        }
         if (!treeSearchQuery.value) return new Set();
         const query = treeSearchQuery.value.toLowerCase();
         const matches = new Set();

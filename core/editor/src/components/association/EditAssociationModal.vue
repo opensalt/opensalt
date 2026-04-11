@@ -251,22 +251,12 @@ const allowIsChildOf = computed(() => {
   const source = leftSideItemData.value;
   if (!source) return false;
 
-  let sourceFrameworkId = null;
-
-  if (source.identifier) {
-    const resolved = contextStore.resolveEndpoint(source.identifier);
-    if (resolved?.frameworkId) {
-      sourceFrameworkId = resolved.frameworkId;
-    }
-  }
-
-  if (!sourceFrameworkId) {
-    sourceFrameworkId =
-      source.CFDocumentURI?.identifier ||
-      (typeof source.CFDocumentURI === 'string' ? source.CFDocumentURI : null) ||
-      source.documentId ||
-      null;
-  }
+  const sourceFrameworkId =
+    source.documentIdentifier ||
+    source.CFDocumentURI?.identifier ||
+    (typeof source.CFDocumentURI === 'string' ? source.CFDocumentURI : null) ||
+    source.documentId ||
+    null;
 
   if (!sourceFrameworkId || !contextStore.activeWriteDocumentId) return false;
   return sourceFrameworkId !== contextStore.activeWriteDocumentId;

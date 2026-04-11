@@ -150,9 +150,7 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useDocumentStore } from '../../stores/documentStore';
 import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
-import { useEditorContextStore } from '../../stores/editorContextStore';
 import { useSessionStore } from '../../stores/sessionStore';
-import { localFrameworkDb } from '../../services/localFrameworkDb.js';
 import { logger } from '../../utils/logger.js';
 import AssociationTableView from './AssociationTableView.vue';
 import EditAssociationModal from './EditAssociationModal.vue';
@@ -160,7 +158,6 @@ import DeleteAssociationModal from './DeleteAssociationModal.vue';
 
 const documentStore = useDocumentStore();
 const currentDocumentStore = useCurrentDocumentStore();
-const contextStore = useEditorContextStore();
 const sessionStore = useSessionStore();
 
 // Modal state
@@ -195,27 +192,6 @@ function collectCurrentItemIds() {
   return currentItemIds;
 }
 
- function getRegistryAssociations(currentItemIds) {
-  const result = [];
-  const seenIds = new Set();
-
-  contextStore.associationRegistry.forEach((regAssoc) => {
-    const assoc = regAssoc.association;
-    const originId = assoc.originNodeURI?.identifier || assoc.originNodeIdentifier;
-    const destId = assoc.destinationNodeURI?.identifier || assoc.destinationNodeIdentifier;
-
-    if ((currentItemIds.has(originId) || currentItemIds.has(destId)) && !seenIds.has(assoc.identifier)) {
-      seenIds.add(assoc.identifier);
-      result.push({
-        ...assoc,
-        _sourceFrameworkId: regAssoc.frameworkId
-      });
-    }
-  });
-
-  return result;
-}
-
 async function refreshDbAssociations() {
   const currentItemIds = collectCurrentItemIds();
   if (currentItemIds.size === 0) {
@@ -226,26 +202,27 @@ async function refreshDbAssociations() {
   const seenIds = new Set();
   const result = [];
 
-  if (await localFrameworkDb.hasPersistentClient()) {
-    for (const itemId of currentItemIds) {
-      const related = await localFrameworkDb.getItemAssociations(itemId, null);
-      (related || []).forEach((entry) => {
-        const assoc = entry?.association;
+  for (const itemId of currentItemIds) {
+    try {
+      const related = await currentDocumentStore.fetchItemAssociations(itemId);
+      (related || []).forEach((assoc) => {
         if (!assoc?.identifier || seenIds.has(assoc.identifier)) return;
         seenIds.add(assoc.identifier);
         result.push({
           ...assoc,
-          _sourceFrameworkId: entry.frameworkId
+          _sourceFrameworkId: assoc.associationDocumentIdentifier || null
         });
       });
+    } catch (err) {
+      logger.error('[AssociationView] Failed to fetch associations for item:', itemId, err);
     }
   }
 
-  dbAssociations.value = result.length > 0 ? result : getRegistryAssociations(currentItemIds);
+  dbAssociations.value = result;
 }
 
 watch(
-  () => [currentDocumentStore.currentDocument?.identifier, contextStore.registryVersion],
+  () => currentDocumentStore.currentDocument?.identifier,
   () => {
     void refreshDbAssociations();
   },

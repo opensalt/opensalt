@@ -47,23 +47,25 @@ export const useFilterStore = defineStore('filters', () => {
       'default';
   }
 
-  function syncSelectedAssociationGroup({ frameworkId, associations = [], realGroupIds = [] }) {
+  function syncSelectedAssociationGroup({ frameworkId, definedGroupIds = [], treeNodes = [] }) {
     if (!frameworkId) return;
 
-    const normalizedRealGroupIds = realGroupIds
-      .filter(Boolean)
-      .filter(groupId => groupId !== 'all' && groupId !== 'default');
-    const hasDefaultAssociations = associations.some(assoc => normalizeAssociationGroupId(assoc) === 'default');
+    const normalizedGroupIds = definedGroupIds
+      .filter(Boolean);
+    const hasDefaultGroupItems = treeNodes.some(
+      node => !node.associationGroupIdentifier
+    );
 
     const getPreferredGroup = () => {
-      if (hasDefaultAssociations) return 'default';
-      if (normalizedRealGroupIds.length === 1) return normalizedRealGroupIds[0];
+      if (hasDefaultGroupItems) return 'default';
+      if (normalizedGroupIds.length === 1) return normalizedGroupIds[0];
       return 'default';
     };
 
     const hasValidCurrentSelection =
       selectedAssociationGroup.value === 'default' ||
-      normalizedRealGroupIds.includes(selectedAssociationGroup.value);
+      selectedAssociationGroup.value === 'all' ||
+      normalizedGroupIds.includes(selectedAssociationGroup.value);
 
     const frameworkChanged = lastFrameworkId.value !== frameworkId;
     if (frameworkChanged) {
@@ -98,8 +100,8 @@ export const useFilterStore = defineStore('filters', () => {
       // Apply search filter
       if (hasSearch) {
         const query = searchQuery.toLowerCase();
-        const title = (item.title || '').toLowerCase();
-        const abbreviatedTitle = (item.abbreviatedTitle || '').toLowerCase();
+        const title = (item.fullStatement || item.title || '').toLowerCase();
+        const abbreviatedTitle = (item.abbreviatedStatement || item.abbreviatedTitle || '').toLowerCase();
         const humanCodingScheme = (item.humanCodingScheme || '').toLowerCase();
 
         if (!title.includes(query) && !abbreviatedTitle.includes(query) && !humanCodingScheme.includes(query)) {
@@ -156,8 +158,15 @@ export const useFilterStore = defineStore('filters', () => {
 
       // Apply association group filter - Use pre-calculated groupIds Set
       if (matches && hasGroupFilter) {
-        if (!item.groupIds?.has(selectedAssociationGroup)) {
-          matches = false;
+        const nodeGroup = item.associationGroupIdentifier || null;
+        if (selectedAssociationGroup === 'default') {
+          if (nodeGroup !== null) {
+            matches = false;
+          }
+        } else {
+          if (nodeGroup !== selectedAssociationGroup) {
+            matches = false;
+          }
         }
       }
 

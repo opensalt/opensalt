@@ -1,14 +1,13 @@
 import { defineStore } from 'pinia';
-import { ref, computed, type Ref, type ComputedRef, nextTick } from 'vue';
+import { ref, computed } from 'vue';
 import { api } from '../services/api.js';
 import { logger } from '../utils/logger.js';
-import { useRelatedFrameworksQueue } from '../composables/useRelatedFrameworksQueue.js';
-import { useDocumentStore } from './documentStore';
+import { useDocumentStore, type TreeResponse, type TreeNode, type ItemDetailsResponse, type AssociationDetails } from './documentStore';
 import { useViewStore } from './viewStore';
 import { useEditorContextStore } from './editorContextStore';
-import { localFrameworkDb } from '../services/localFrameworkDb.js';
 import type {
   CFDocument,
+  CFDocumentNode,
   CFDefinitions,
   CFRubric,
   CFAssociation,
@@ -21,91 +20,50 @@ import type {
   LinkURI,
   LinkGenURI,
   CFPackage,
-  CFPckgDocument,
   ExtensionObject
 } from '../types/case';
 
-/**
- * Tree node type with additional runtime properties for the editor
- */
 export interface EditorItemNode extends CFItemNode {
-  /** Salt database ID */
   id: number;
-  /** Display title (fullStatement or abbreviatedStatement) */
   title: string;
-  /** Abbreviated title for display */
   abbreviatedTitle: string;
-  /** Human coding scheme */
   humanCodingScheme: string | undefined;
-  /** Last changed timestamp */
   lastChanged: string;
-  /** Last change timestamp from CASE data */
   lastChangeDateTime: string;
-  /** Item type */
   itemType: string | undefined;
-  /** Item type URI */
   CFItemTypeURI: LinkURI | undefined;
-  /** Concept keywords */
   conceptKeywords: string[];
-  /** Concept keywords URI */
   conceptKeywordsURI: LinkURI | undefined;
-  /** Notes */
   notes: string | undefined;
-  /** Language */
   language: string | undefined;
-  /** Education level */
   educationLevel: string[];
-  /** License URI */
   licenseURI: LinkURI | undefined;
-  /** Status start date */
   statusStartDate: string | undefined;
-  /** Status end date */
   statusEndDate: string | undefined;
-  /** Subject */
   subject: string[];
-  /** Subject URI */
   subjectURI: LinkURI[];
-  /** Extensions */
   extensions: ExtensionObject | undefined;
-  /** Document ID */
+  discriminator?: number;
   documentId: UUID | null;
-  /** Children */
+  externalFrameworkTitle?: string;
   children: EditorItemNode[];
-  /** Sequence number */
   sequenceNumber: number;
-  /** Associations */
   associations?: EditorAssociation[];
-  /** Pre-calculated group IDs for faster filtering */
   groupIds?: Set<string>;
-  /** Child of association ID for reordering */
   childOfAssocId?: number;
-  /** Flag indicating this is a cross-framework item (not in current document) */
   isCrossFramework?: boolean;
-  /** URI of the cross-framework item for lazy loading */
   crossFrameworkUri?: string;
 }
 
-/**
- * Association type with additional runtime properties
- */
 export interface EditorAssociation extends CaseAssociation {
-  /** Salt database ID */
   id?: number;
-  /** Group ID for filtering */
   groupId: UUID | null;
 }
 
-/**
- * Association group with additional runtime properties
- */
 export interface EditorAssociationGrouping extends CFAssociationGrouping {
-  /** Group ID (same as identifier) */
   id: UUID;
 }
 
-/**
- * Associated document data for cross-document references
- */
 export interface AssociatedDocument {
   id: UUID;
   title: string;
@@ -134,25 +92,52 @@ function isUnresolvedCrossFrameworkPlaceholder(
   return !displayValue || displayValue === 'Loading...';
 }
 
-/**
- * Document store type for API calls
- */
-export interface DocumentStore {
-  fetchDocument: (identifier: UUID) => Promise<CFPackage>;
+function mapTreeNodeToEditorNode(node: TreeNode): EditorItemNode {
+  return {
+    id: 0,
+    identifier: node.identifier,
+    uri: node.uri || '',
+    title: node.fullStatement || node.abbreviatedStatement || 'Untitled Item',
+    fullStatement: node.fullStatement || '',
+    abbreviatedTitle: node.abbreviatedStatement || node.fullStatement || 'Untitled Item',
+    abbreviatedStatement: node.abbreviatedStatement || undefined,
+    alternativeLabel: '',
+    humanCodingScheme: node.humanCodingScheme || undefined,
+    listEnumeration: node.listEnumeration || undefined,
+    lastChanged: node.lastChangeDateTime || '',
+    lastChangeDateTime: node.lastChangeDateTime || '',
+    itemType: node.itemType || undefined,
+    CFItemTypeURI: undefined,
+    conceptKeywords: [],
+    conceptKeywordsURI: undefined,
+    notes: undefined,
+    language: undefined,
+    educationLevel: [],
+    licenseURI: undefined,
+    statusStartDate: undefined,
+    statusEndDate: undefined,
+    subject: [],
+    subjectURI: [],
+    extensions: (node.extensions as ExtensionObject | undefined) || undefined,
+    discriminator: node.discriminator,
+    CFDocumentURI: node.documentIdentifier ? { identifier: node.documentIdentifier, title: node.documentTitle || '', uri: '' } : undefined,
+    documentId: (node.documentIdentifier as UUID) || null,
+    externalFrameworkTitle: node.isCrossFramework ? (node.documentTitle || undefined) : undefined,
+    children: node.children ? node.children.map(mapTreeNodeToEditorNode) : [],
+    sequenceNumber: node.sequenceNumber ?? 0,
+    groupIds: node.associationGroupIdentifier ? new Set([node.associationGroupIdentifier]) : new Set(),
+    childOfAssocId: undefined,
+    isCrossFramework: node.isCrossFramework,
+    associations: []
+  };
 }
 
 export const useCurrentDocumentStore = defineStore('currentDocument', () => {
-  // Initialize queuing system for related frameworks
-  // Type as any since it's a JavaScript composable
-  const queue: any = useRelatedFrameworksQueue();
-
-  // Access document store for cached frameworks
   const documentStore = useDocumentStore();
   const viewStore = useViewStore();
   const contextStore = useEditorContextStore();
 
-  // State
-  const currentDocument = ref<CFDocument | null>(null);
+  const currentDocument = ref<CFDocumentNode | null>(null);
   const currentDocumentDefinitions = ref<CFDefinitions | null>({
     CFConcepts: [],
     CFSubjects: [],
@@ -162,10 +147,14 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
   });
   const currentDocumentRubrics = ref<CFRubric[]>([]);
   const currentDocumentAssociationGroupings = ref<EditorAssociationGrouping[]>([]);
+  const currentDocumentTree = ref<TreeNode[]>([]);
 
-  // viewedDocument state moved to contextStore.viewedDocumentId
+  const itemDetailsCache = new Map<string, { data: ItemDetailsResponse; timestamp: number }>();
+  const pendingItemDetailsRequests = new Map<string, Promise<ItemDetailsResponse>>();
+  const itemAssociationsCache = new Map<string, { data: AssociationDetails[]; timestamp: number }>();
+  const pendingItemAssociationsRequests = new Map<string, Promise<AssociationDetails[]>>();
 
-  // Actions
+  const ITEM_DETAILS_CACHE_TTL = 5 * 60 * 1000;
 
   const associationGroups = computed(() => {
     const defaultGroups: EditorAssociationGrouping[] = [
@@ -173,7 +162,6 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
       { id: 'default', title: 'Default Group', description: 'Default association group', identifier: 'default', uri: '', lastChangeDateTime: '', extensions: undefined }
     ];
 
-    // Add groups from the current document's CFAssociationGroupings
     const packageGroups = currentDocumentAssociationGroupings.value.map(grouping => ({
       ...grouping,
       id: grouping.identifier || grouping.uri
@@ -182,80 +170,83 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     return [...defaultGroups, ...packageGroups];
   });
 
-  // isViewingDifferentFramework moved to contextStore
+  function selectDocument(response: TreeResponse | null) {
+    if (!response) {
+      clearCurrentDocument();
+      return;
+    }
 
-  // Actions
-  function selectDocument(
-    document: CFDocument | null,
-    associationGroupings: CFAssociationGrouping[] = [],
-    associations: CaseAssociation[] = [],
-    definitions: CFDefinitions | null = null
-  ) {
-    const normalizedDocument = document
-      ? ({
-        ...document,
-        identifier: document.identifier || (document as any).id || null,
-        id: (document as any).id || document.identifier || null
-      } as CFDocument & { id?: UUID | null })
-      : null;
-    const documentIdentifier = normalizedDocument?.identifier || normalizedDocument?.id || null;
+    const doc = response.document;
+    const mappedItems = (response.tree || []).map(mapTreeNodeToEditorNode);
 
-    currentDocument.value = normalizedDocument as CFDocument | null;
+    const normalizedDocument = {
+      ...doc,
+      identifier: doc.identifier || null,
+      id: doc.identifier || null,
+      uri: doc.uri || '',
+      title: doc.title || '',
+      description: doc.description || '',
+      lastChangeDateTime: doc.lastChangeDateTime || '',
+      items: mappedItems,
+    } as CFDocumentNode;
+
+    const documentIdentifier = normalizedDocument.identifier;
+
+    currentDocument.value = normalizedDocument;
     contextStore.activeWriteDocumentId = documentIdentifier;
 
-    currentDocumentDefinitions.value = definitions || {
-      CFAssociationGroupings: [],
-      CFConcepts: [],
-      CFSubjects: [],
-      CFLicenses: [],
-      CFItemTypes: [],
-      extensions: undefined
-    };
-    currentDocumentAssociationGroupings.value = associationGroupings.map(group => ({
+    currentDocumentDefinitions.value = response.definitions
+      ? {
+          CFAssociationGroupings: response.definitions.CFAssociationGroupings || [],
+          CFConcepts: response.definitions.CFConcepts || [],
+          CFSubjects: response.definitions.CFSubjects || [],
+          CFLicenses: response.definitions.CFLicenses || [],
+          CFItemTypes: response.definitions.CFItemTypes || [],
+          extensions: undefined
+        }
+      : {
+          CFAssociationGroupings: [],
+          CFConcepts: [],
+          CFSubjects: [],
+          CFLicenses: [],
+          CFItemTypes: [],
+          extensions: undefined
+        };
+
+    const groupings = response.definitions?.CFAssociationGroupings || [];
+    currentDocumentAssociationGroupings.value = groupings.map((group: any) => ({
       ...group,
       id: group.identifier || group.uri
     }));
 
-    // If viewed document matches the new current document, clear it
+    currentDocumentTree.value = response.tree || [];
+
+    function registerForeignDocs(nodes: TreeNode[]) {
+      for (const node of nodes) {
+        if (node.isCrossFramework && node.documentIdentifier && !contextStore.documentRegistry.has(node.documentIdentifier)) {
+          contextStore.registerDocumentMetadata({
+            identifier: node.documentIdentifier,
+            uri: '',
+            title: node.documentTitle || node.documentIdentifier,
+            frameworkId: node.documentIdentifier,
+          });
+        }
+        if (node.children) registerForeignDocs(node.children);
+      }
+    }
+    registerForeignDocs(currentDocumentTree.value);
+
     if (contextStore.viewedDocumentId === documentIdentifier) {
       contextStore.viewedDocumentId = null;
     }
 
-    // Ensure main framework data is in contextStore registries
-    if (normalizedDocument && documentIdentifier) {
+    if (documentIdentifier) {
       contextStore.registerDocumentMetadata({
         identifier: documentIdentifier,
         uri: normalizedDocument.uri,
         title: normalizedDocument.title,
         frameworkId: documentIdentifier
       });
-
-      associations.forEach(assoc => {
-        contextStore.associationRegistry.set(assoc.identifier, {
-          association: assoc,
-          frameworkId: documentIdentifier
-        });
-      });
-
-      // Register items in global registry for cross-framework lookup
-      if ((normalizedDocument as any).items) {
-        (function registerItems(items: any[]) {
-          items.forEach(item => {
-            if (isUnresolvedCrossFrameworkPlaceholder(item)) {
-              if (item.children) registerItems(item.children);
-              return;
-            }
-
-            const registeredFrameworkId =
-              item.documentId ||
-              item.CFDocumentURI?.identifier ||
-              contextStore.resolveEndpoint(item.CFDocumentURI?.uri || item.crossFrameworkUri || item.uri || item.identifier)?.frameworkId ||
-              documentIdentifier;
-            contextStore.registerItem(item as any, registeredFrameworkId);
-            if (item.children) registerItems(item.children);
-          });
-        })((normalizedDocument as any).items);
-      }
     }
   }
 
@@ -272,99 +263,26 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     };
     currentDocumentRubrics.value = [];
     currentDocumentAssociationGroupings.value = [];
-    // Also clear viewed document when clearing current document
+    currentDocumentTree.value = [];
     contextStore.viewedDocumentId = null;
   }
 
-  // viewedDocument actions moved to contextStore
-
-  function buildContextSnapshot() {
-    const toRaw = (obj: any): any => {
-      if (obj === null || typeof obj !== 'object') return obj;
-      return JSON.parse(JSON.stringify(obj));
-    };
-
-    const itemRegistryObj: Record<string, { item: any; frameworkId: UUID }> = {};
-    for (const [key, value] of contextStore.itemRegistry.entries()) {
-      itemRegistryObj[key] = toRaw(value);
-    }
-
-    const loadedPackagesArr: [UUID, { CFItems: any[]; CFAssociations: any[]; CFDocument?: any }][] = [];
-    for (const [frameworkId, pkg] of contextStore.loadedPackages.entries()) {
-      loadedPackagesArr.push([frameworkId, {
-        CFItems: toRaw(pkg.CFItems || []),
-        CFAssociations: toRaw(pkg.CFAssociations || []),
-        CFDocument: toRaw(pkg.CFDocument)
-      }]);
-    }
-
-    const endpointResolutions: Record<string, { entityType: string; entity: any; frameworkId: UUID | null }> = {};
-    for (const [key] of contextStore.itemRegistry.entries()) {
-      const resolved = contextStore.resolveEndpoint(key);
-      if (resolved) endpointResolutions[key] = toRaw(resolved);
-    }
-    for (const [key] of contextStore.documentRegistry.entries()) {
-      const resolved = contextStore.resolveEndpoint(key);
-      if (resolved) endpointResolutions[key] = toRaw(resolved);
-    }
-    for (const [fwId, pkg] of contextStore.loadedPackages.entries()) {
-      const docUri = pkg.CFDocument?.uri || fwId;
-      const docResolve = contextStore.resolveEndpoint(docUri);
-      if (docResolve) endpointResolutions[docUri] = toRaw(docResolve);
-      for (const item of (pkg.CFItems || [])) {
-        const itemUri = item.uri || item.identifier;
-        const itemResolve = contextStore.resolveEndpoint(itemUri);
-        if (itemResolve) endpointResolutions[itemUri] = toRaw(itemResolve);
-      }
-    }
-
-    return { itemRegistry: itemRegistryObj, loadedPackages: loadedPackagesArr, endpointResolutions };
-  }
-
-  function transformCASEItemsSync(
+  /**
+   * @deprecated Only used for external document loading. Will be removed when
+   * external document handling is migrated to API-first.
+   */
+  async function transformCASEItems(
     cfItems: CFPckgItem[],
     cfAssociations: CaseAssociation[],
     docId: UUID | null = null
-  ): EditorItemNode[] {
+  ): Promise<EditorItemNode[]> {
     const items = new Map<string, EditorItemNode>();
     const inDocumentIds = new Set<string>();
     const parentByChild = new Map<string, string>();
-    const itemsWithParentItem = new Set<string>(); // items that are children of another ITEM (not document)
+    const itemsWithParentItem = new Set<string>();
 
     function normalizeAssociationGroupId(assoc: CaseAssociation): string {
       return assoc.CFAssociationGroupingURI?.identifier || assoc.CFAssociationGroupingURI?.uri || 'default';
-    }
-
-    function normalizeAssociationNodeLink(
-      rawLink: LinkGenURI | string | undefined,
-      fallbackIdentifier?: string
-    ): LinkGenURI | undefined {
-      if (!rawLink && !fallbackIdentifier) return undefined;
-
-      if (rawLink && typeof rawLink === 'object') {
-        return {
-          ...rawLink,
-          identifier: rawLink.identifier || fallbackIdentifier || '',
-          title: rawLink.title || '',
-          uri: rawLink.uri || ''
-        };
-      }
-
-      if (typeof rawLink === 'string') {
-        return {
-          identifier: fallbackIdentifier || rawLink,
-          title: '',
-          uri: rawLink
-        };
-      }
-
-      return fallbackIdentifier
-        ? {
-            identifier: fallbackIdentifier,
-            title: '',
-            uri: ''
-          }
-        : undefined;
     }
 
     function getAssociationOriginId(assoc: CaseAssociation | any): string | undefined {
@@ -375,149 +293,10 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
       return assoc.destinationNodeURI?.identifier || assoc.destinationNodeIdentifier;
     }
 
-    function getAssociationOriginLink(assoc: CaseAssociation | any): LinkGenURI | undefined {
-      return normalizeAssociationNodeLink(assoc.originNodeURI, getAssociationOriginId(assoc));
-    }
-
-    function getAssociationDestinationLink(assoc: CaseAssociation | any): LinkGenURI | undefined {
-      return normalizeAssociationNodeLink(assoc.destinationNodeURI, getAssociationDestinationId(assoc));
-    }
-
-    function resolveRegisteredItem(
-      identifier: string,
-      link?: LinkGenURI
-    ): { item: Partial<CFItem> | null; frameworkId: UUID | null } {
-      const registered = contextStore.itemRegistry.get(identifier);
-      if (registered?.item && !isUnresolvedCrossFrameworkPlaceholder(registered.item as Partial<EditorItemNode>)) {
-        return {
-          item: registered.item as Partial<CFItem>,
-          frameworkId: registered.frameworkId as UUID
-        };
-      }
-
-      const resolved = contextStore.resolveEndpoint(link?.uri || identifier);
-      if (resolved?.entityType === 'item' && !isUnresolvedCrossFrameworkPlaceholder(resolved.entity as Partial<EditorItemNode>)) {
-        return {
-          item: resolved.entity as Partial<CFItem>,
-          frameworkId: resolved.frameworkId as UUID | null
-        };
-      }
-
-      return { item: null, frameworkId: null };
-    }
-
-    function resolveItemFrameworkId(
-      item: Partial<CFItem> | null | undefined,
-      fallbackFrameworkId: UUID | null = null
-    ): UUID | null {
-      if (!item) return fallbackFrameworkId;
-
-      return (
-        item.CFDocumentURI?.identifier ||
-        contextStore.resolveEndpoint(item.CFDocumentURI?.uri || '')?.frameworkId ||
-        contextStore.itemRegistry.get(item.identifier as UUID)?.frameworkId ||
-        contextStore.resolveEndpoint(item.uri || item.identifier || '')?.frameworkId ||
-        fallbackFrameworkId
-      ) as UUID | null;
-    }
-
-    function applyAuthoritativeItemData(
-      node: EditorItemNode,
-      sourceItem: Partial<CFItem> | Partial<CFPckgItem> | null | undefined,
-      sourceFrameworkId: UUID | null = null
-    ) {
-      if (!sourceItem) return;
-
-      const authoritativeTitle =
-        sourceItem.fullStatement?.trim() ||
-        sourceItem.abbreviatedStatement?.trim() ||
-        (sourceItem as any).title?.trim() ||
-        node.title ||
-        node.identifier;
-      const resolvedFrameworkId = resolveItemFrameworkId(sourceItem as Partial<CFItem>, sourceFrameworkId);
-
-      node.id = (sourceItem as any).id ?? node.id;
-      node.identifier = sourceItem.identifier || node.identifier;
-      node.uri = sourceItem.uri || node.uri || '';
-      node.title = authoritativeTitle;
-      node.fullStatement = sourceItem.fullStatement ?? node.fullStatement ?? authoritativeTitle;
-      node.abbreviatedTitle = sourceItem.abbreviatedStatement ?? sourceItem.fullStatement ?? node.abbreviatedTitle ?? authoritativeTitle;
-      node.abbreviatedStatement = sourceItem.abbreviatedStatement ?? node.abbreviatedStatement;
-      node.alternativeLabel = sourceItem.alternativeLabel ?? node.alternativeLabel ?? '';
-      node.humanCodingScheme = sourceItem.humanCodingScheme ?? node.humanCodingScheme;
-      node.listEnumeration = (sourceItem as any).listEnumeration ?? (sourceItem as any).listEnumInSource ?? node.listEnumeration;
-      node.lastChanged = sourceItem.lastChangeDateTime ?? node.lastChanged;
-      node.lastChangeDateTime = sourceItem.lastChangeDateTime ?? node.lastChangeDateTime;
-      node.itemType = sourceItem.CFItemType ?? (sourceItem as any).itemType ?? node.itemType;
-      node.CFItemTypeURI = sourceItem.CFItemTypeURI ?? node.CFItemTypeURI;
-      node.conceptKeywords = sourceItem.conceptKeywords ?? node.conceptKeywords;
-      node.conceptKeywordsURI = sourceItem.conceptKeywordsURI ?? node.conceptKeywordsURI;
-      node.notes = sourceItem.notes ?? node.notes;
-      node.language = sourceItem.language ?? node.language;
-      node.educationLevel = sourceItem.educationLevel ?? node.educationLevel;
-      node.licenseURI = sourceItem.licenseURI ?? node.licenseURI;
-      node.statusStartDate = sourceItem.statusStartDate ?? node.statusStartDate;
-      node.statusEndDate = sourceItem.statusEndDate ?? node.statusEndDate;
-      node.subject = sourceItem.subject ?? node.subject;
-      node.subjectURI = sourceItem.subjectURI ?? node.subjectURI;
-      node.extensions = sourceItem.extensions ?? node.extensions;
-
-      if (resolvedFrameworkId) {
-        node.documentId = resolvedFrameworkId;
-        node.isCrossFramework = resolvedFrameworkId !== docId;
-        if (node.isCrossFramework) {
-          node.crossFrameworkUri = sourceItem.uri || node.crossFrameworkUri || node.uri;
-        } else {
-          node.crossFrameworkUri = undefined;
-        }
-      }
-    }
-
-    function isGenericAssociationNodeTitle(title?: string): boolean {
-      if (!title) return true;
-      const normalized = title.trim().toLowerCase();
-      return normalized === 'origin node' || normalized === 'destination node';
-    }
-
-    function getRegistryTitle(identifier: string): string | null {
-      const registered = resolveRegisteredItem(identifier);
-      if (registered.item) {
-        const item = registered.item as any;
-        return item.fullStatement || item.abbreviatedStatement || item.title || item.humanCodingScheme || null;
-      }
-
-      const resolved = contextStore.resolveEndpoint(identifier);
-      if (!resolved) return null;
-
-      if (resolved.entityType === 'item') {
-        const item = resolved.entity as any;
-        return item.fullStatement || item.abbreviatedStatement || item.title || item.humanCodingScheme || null;
-      }
-
-      if (resolved.entityType === 'document') {
-        const doc = resolved.entity as any;
-        return doc.title || null;
-      }
-
-      return null;
-    }
-
-    function getPlaceholderTitle(identifier: string, link: LinkGenURI | undefined): string {
-      const registryTitle = getRegistryTitle(identifier);
-      if (registryTitle) return registryTitle;
-
-      if (link?.title && !isGenericAssociationNodeTitle(link.title)) {
-        return link.title;
-      }
-
-      return 'Loading...';
-    }
-
-    // First pass: create all items
     cfItems.forEach(item => {
       inDocumentIds.add(item.identifier);
       items.set(item.identifier, {
-        id: 0, // Will be set by backend
+        id: 0,
         identifier: item.identifier,
         uri: item.uri || '',
         title: item.fullStatement || item.abbreviatedStatement || 'Untitled Item',
@@ -542,7 +321,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
         subject: item.subject || [],
         subjectURI: item.subjectURI || [],
         extensions: item.extensions || undefined,
-        CFDocumentURI: undefined, // Not in CFPckgItem
+        CFDocumentURI: undefined,
         documentId: docId || null,
         children: [],
         sequenceNumber: 0,
@@ -564,89 +343,15 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
       item.groupIds.add(groupId);
     }
 
-    function getOrCreatePlaceholder(
-      link: LinkGenURI | undefined,
-      groupId: string,
-      assoc: CaseAssociation,
-      sourceItem: Partial<CFItem> | Partial<CFPckgItem> | null = null,
-      sourceFrameworkId: UUID | null = null
-    ): EditorItemNode | null {
-      const identifier = link?.identifier;
-      if (!identifier) return null;
-      const placeholderTitle = getPlaceholderTitle(identifier, link);
-      const registered = resolveRegisteredItem(identifier, link);
-      const authoritativeItem = sourceItem || registered.item;
-      const authoritativeFrameworkId = sourceFrameworkId || registered.frameworkId;
-
-      let node = items.get(identifier);
-      if (!node) {
-        node = {
-          id: 0,
-          identifier,
-          uri: link?.uri || '',
-          title: placeholderTitle,
-          fullStatement: placeholderTitle,
-          abbreviatedTitle: placeholderTitle,
-          abbreviatedStatement: undefined,
-          alternativeLabel: '',
-          humanCodingScheme: undefined,
-          listEnumeration: undefined,
-          lastChanged: '',
-          lastChangeDateTime: '',
-          itemType: undefined,
-          CFItemTypeURI: undefined,
-          conceptKeywords: [],
-          conceptKeywordsURI: undefined,
-          notes: undefined,
-          language: undefined,
-          educationLevel: [],
-          licenseURI: undefined,
-          statusStartDate: undefined,
-          statusEndDate: undefined,
-          subject: [],
-          subjectURI: [],
-          extensions: undefined,
-          CFDocumentURI: assoc.CFDocumentURI,
-          documentId: null,
-          children: [],
-          sequenceNumber: 0,
-          isCrossFramework: true,
-          crossFrameworkUri: link?.uri,
-          groupIds: new Set(),
-          associations: []
-        };
-        items.set(identifier, node);
-      }
-
-      if (authoritativeItem) {
-        applyAuthoritativeItemData(node, authoritativeItem, authoritativeFrameworkId);
-      } else {
-        if (!node.crossFrameworkUri && link?.uri) node.crossFrameworkUri = link.uri;
-        const resolvedTitle = getPlaceholderTitle(identifier, link);
-        if ((!node.title || node.title === 'Loading...' || isGenericAssociationNodeTitle(node.title)) && resolvedTitle !== 'Loading...') {
-          node.title = resolvedTitle;
-          node.fullStatement = resolvedTitle;
-          node.abbreviatedTitle = resolvedTitle;
-        }
-      }
-
-      if (!node.groupIds) node.groupIds = new Set();
-      node.groupIds.add(groupId);
-      return node;
-    }
-
     function wouldCreateCycle(childId: string, parentId: string): boolean {
       if (childId === parentId) return true;
-
       const visited = new Set<string>();
       let currentParentId: string | undefined = parentId;
-
       while (currentParentId && !visited.has(currentParentId)) {
         if (currentParentId === childId) return true;
         visited.add(currentParentId);
         currentParentId = parentByChild.get(currentParentId);
       }
-
       return false;
     }
 
@@ -659,18 +364,14 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     ): boolean {
       const existingParentId = parentByChild.get(child.identifier);
       if (existingParentId && existingParentId !== parentId) {
-        // Keep the first discovered parent to avoid duplicate/ambiguous attachment.
         return false;
       }
-
       if (wouldCreateCycle(child.identifier, parentId)) {
         return false;
       }
-
       child.sequenceNumber = assoc.sequenceNumber ?? child.sequenceNumber ?? 0;
       child.childOfAssocId = 0;
       ensureEditorAssociation(child, assoc, groupId);
-
       if (parent && parentId !== docId) {
         if (!parent.children.some(node => node.identifier === child.identifier)) {
           parent.children.push(child);
@@ -679,110 +380,10 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
       } else if (parentId === docId) {
         itemsWithParentItem.delete(child.identifier);
       }
-
       parentByChild.set(child.identifier, parentId);
       return true;
     }
 
-    function markAnchoredBranch(
-      item: EditorItemNode,
-      anchoredIds: Set<string>,
-      visited: Set<string> = new Set()
-    ) {
-      if (visited.has(item.identifier) || anchoredIds.has(item.identifier)) return;
-
-      visited.add(item.identifier);
-      anchoredIds.add(item.identifier);
-      item.children.forEach(child => markAnchoredBranch(child, anchoredIds, visited));
-      visited.delete(item.identifier);
-    }
-
-    function buildAnchoredIdSet(): Set<string> {
-      const anchoredIds = new Set<string>();
-      const roots = Array.from(items.values()).filter(item => !itemsWithParentItem.has(item.identifier));
-      roots.forEach(root => markAnchoredBranch(root, anchoredIds));
-      return anchoredIds;
-    }
-
-    function enrichAnchoredExternalBranches() {
-      const loadedPackages = Array.from(contextStore.loadedPackages.entries())
-        .filter(([frameworkId]) => frameworkId !== docId);
-
-      if (loadedPackages.length === 0) return;
-
-      const anchoredIds = buildAnchoredIdSet();
-      let progressed = true;
-
-      while (progressed) {
-        progressed = false;
-
-        loadedPackages.forEach(([frameworkId, pkg]) => {
-          const packageItems = new Map((pkg.CFItems || []).map(item => [item.identifier, item]));
-
-          (pkg.CFAssociations || []).forEach(assoc => {
-            if (assoc.associationType !== 'isChildOf') return;
-
-            const originId = getAssociationOriginId(assoc);
-            const destinationId = getAssociationDestinationId(assoc);
-            if (!originId || !destinationId) return;
-
-            const destinationIsDoc = docId !== null && destinationId === docId;
-            if (!destinationIsDoc && !anchoredIds.has(destinationId) && !inDocumentIds.has(destinationId)) {
-              return;
-            }
-
-            const groupId = normalizeAssociationGroupId(assoc);
-            const destinationLink = getAssociationDestinationLink(assoc);
-            const originLink = getAssociationOriginLink(assoc);
-            const destinationRegistry = resolveRegisteredItem(destinationId, destinationLink);
-            const destinationSource =
-              packageItems.get(destinationId) ||
-              destinationRegistry.item;
-            const destinationFrameworkId =
-              resolveItemFrameworkId(destinationSource as Partial<CFItem>, frameworkId as UUID) ||
-              destinationRegistry.frameworkId;
-
-            let parent: EditorItemNode | null = null;
-            if (!destinationIsDoc) {
-              parent = items.get(destinationId) || getOrCreatePlaceholder(
-                destinationLink,
-                groupId,
-                assoc,
-                destinationSource,
-                destinationFrameworkId
-              );
-              if (!parent) return;
-              applyAuthoritativeItemData(parent, destinationSource, destinationFrameworkId);
-            }
-
-            const originRegistry = resolveRegisteredItem(originId, originLink);
-            const originSource =
-              packageItems.get(originId) ||
-              originRegistry.item;
-            const originFrameworkId =
-              resolveItemFrameworkId(originSource as Partial<CFItem>, frameworkId as UUID) ||
-              originRegistry.frameworkId;
-            const child = items.get(originId) || getOrCreatePlaceholder(
-              originLink,
-              groupId,
-              assoc,
-              originSource,
-              originFrameworkId
-            );
-            if (!child) return;
-
-            applyAuthoritativeItemData(child, originSource, originFrameworkId);
-
-            if (attachChildToParent(child, destinationId, parent, assoc, groupId) && !anchoredIds.has(originId)) {
-              markAnchoredBranch(child, anchoredIds);
-              progressed = true;
-            }
-          });
-        });
-      }
-    }
-
-    // Associate everything (including non-isChildOf) with local origin items for filtering.
     cfAssociations.forEach(assoc => {
       const originId = getAssociationOriginId(assoc);
       if (originId && items.has(originId)) {
@@ -800,28 +401,21 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     };
 
     const immediateEdges: ChildEdge[] = [];
-    const deferredEdges: ChildEdge[] = [];
 
     cfAssociations.forEach(assoc => {
       if (assoc.associationType !== 'isChildOf') return;
-
       const originId = getAssociationOriginId(assoc);
       const destinationId = getAssociationDestinationId(assoc);
       if (!originId || !destinationId) return;
       const groupId = normalizeAssociationGroupId(assoc);
-
       const originInDoc = inDocumentIds.has(originId);
       const destInDoc = inDocumentIds.has(destinationId);
       const destinationIsDoc = docId !== null && destinationId === docId;
-
       if (originInDoc || destInDoc || destinationIsDoc) {
         immediateEdges.push({ assoc, originId, destinationId, groupId });
-      } else {
-        deferredEdges.push({ assoc, originId, destinationId, groupId });
       }
     });
 
-    // Pass 1: process all edges that directly touch the viewed framework.
     immediateEdges.forEach(({ assoc, originId, destinationId, groupId }) => {
       const originInDoc = inDocumentIds.has(originId);
       const destInDoc = inDocumentIds.has(destinationId);
@@ -835,74 +429,22 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
         const child = items.get(originId)!;
         if (destinationIsDoc) {
           attachChildToParent(child, destinationId, null, assoc, groupId);
-        } else {
-          const parent = getOrCreatePlaceholder(getAssociationDestinationLink(assoc), groupId, assoc);
-          if (parent) {
-            attachChildToParent(child, destinationId, parent, assoc, groupId);
-          }
         }
       } else if (!originInDoc && destInDoc) {
         const parent = items.get(destinationId)!;
-        const child = getOrCreatePlaceholder(getAssociationOriginLink(assoc), groupId, assoc);
-        if (child) {
-          attachChildToParent(child, destinationId, parent, assoc, groupId);
-        }
-      } else if (!originInDoc && !destInDoc && destinationIsDoc) {
-        // Cross-framework item directly attached to document root.
-        const child = getOrCreatePlaceholder(getAssociationOriginLink(assoc), groupId, assoc);
-        if (child) {
-          attachChildToParent(child, destinationId, null, assoc, groupId);
-        }
+        // For external docs, only process simple child-of relationships
       }
     });
-
-    // Pass 2: resolve deferred external->external edges only when destination is anchored.
-    let unresolved = deferredEdges;
-    let progressed = true;
-    while (progressed && unresolved.length > 0) {
-      progressed = false;
-      const nextUnresolved: ChildEdge[] = [];
-
-      unresolved.forEach(edge => {
-        const destinationIsAnchored =
-          edge.destinationId === docId ||
-          parentByChild.has(edge.destinationId) ||
-          inDocumentIds.has(edge.destinationId);
-
-        if (!destinationIsAnchored) {
-          nextUnresolved.push(edge);
-          return;
-        }
-
-        const parent = items.get(edge.destinationId) ||
-          getOrCreatePlaceholder(getAssociationDestinationLink(edge.assoc), edge.groupId, edge.assoc);
-        const child = getOrCreatePlaceholder(getAssociationOriginLink(edge.assoc), edge.groupId, edge.assoc);
-
-        if (!parent || !child) {
-          nextUnresolved.push(edge);
-          return;
-        }
-
-        attachChildToParent(child, edge.destinationId, parent, edge.assoc, edge.groupId);
-        progressed = true;
-      });
-
-      unresolved = nextUnresolved;
-    }
-
-    enrichAnchoredExternalBranches();
 
     function compareBySegment(a: string, b: string): number {
       const segmentsA = a.split(/[^a-zA-Z0-9]+/).filter(s => s !== '');
       const segmentsB = b.split(/[^a-zA-Z0-9]+/).filter(s => s !== '');
       const maxLen = Math.max(segmentsA.length, segmentsB.length);
-
       for (let i = 0; i < maxLen; i++) {
         const segA = segmentsA[i] || '';
         const segB = segmentsB[i] || '';
         const isNumA = /^\d+$/.test(segA);
         const isNumB = /^\d+$/.test(segB);
-
         if (isNumA && isNumB) {
           const numA = parseInt(segA, 10);
           const numB = parseInt(segB, 10);
@@ -915,117 +457,105 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
       return 0;
     }
 
-    // Sort comparator: sequenceNumber → humanCodingScheme (by segments) → listEnumeration → abbreviatedTitle → fullStatement
     function itemSortComparator(a: EditorItemNode, b: EditorItemNode): number {
-      // 1. sequenceNumber
       const seqA = a.sequenceNumber ?? 0;
       const seqB = b.sequenceNumber ?? 0;
       if (seqA !== seqB) return seqA - seqB;
-
-      // 2. humanCodingScheme (by segments)
       const schemeA = a.humanCodingScheme || '';
       const schemeB = b.humanCodingScheme || '';
       const schemeCmp = compareBySegment(schemeA, schemeB);
       if (schemeCmp !== 0) return schemeCmp;
-
-      // 3. listEnumeration
       const enumA = a.listEnumeration || '';
       const enumB = b.listEnumeration || '';
       if (enumA !== enumB) return enumA.localeCompare(enumB);
-
-      // 4. abbreviatedStatement / abbreviatedTitle
       const abbrA = a.abbreviatedStatement || a.abbreviatedTitle || '';
       const abbrB = b.abbreviatedStatement || b.abbreviatedTitle || '';
       if (abbrA !== abbrB) return abbrA.localeCompare(abbrB);
-
-      // 5. fullStatement
       const fullA = a.fullStatement || '';
       const fullB = b.fullStatement || '';
       return fullA.localeCompare(fullB);
     }
 
-    // Third pass: sort children
     items.forEach(item => {
       if (item.children && item.children.length > 0) {
         item.children.sort(itemSortComparator);
       }
     });
 
-    // Get root items: items NOT placed into another item's children array
-    // This includes both document-children (isChildOf -> document) and orphans
     const rootItems = Array.from(items.values()).filter(item => !itemsWithParentItem.has(item.identifier));
-
-    // Sort root items
     rootItems.sort(itemSortComparator);
-
     return rootItems;
   }
 
-  let transformWorker: Worker | null = null;
-
-  function getTransformWorker(): Worker {
-    if (!transformWorker) {
-      transformWorker = new Worker(
-        new URL('../workers/transformWorker.js', import.meta.url),
-        { type: 'module' }
-      );
+  async function fetchItemDetails(identifier: UUID): Promise<ItemDetailsResponse> {
+    const cached = itemDetailsCache.get(identifier);
+    if (cached && Date.now() - cached.timestamp < ITEM_DETAILS_CACHE_TTL) {
+      return cached.data;
     }
-    return transformWorker;
+
+    if (pendingItemDetailsRequests.has(identifier)) {
+      return pendingItemDetailsRequests.get(identifier)!;
+    }
+
+    const promise = (async (): Promise<ItemDetailsResponse> => {
+      try {
+        const data = await api.get(`/framework/editor/item/${identifier}/details`) as ItemDetailsResponse;
+        itemDetailsCache.set(identifier, { data, timestamp: Date.now() });
+        return data;
+      } finally {
+        pendingItemDetailsRequests.delete(identifier);
+      }
+    })();
+
+    pendingItemDetailsRequests.set(identifier, promise);
+    return promise;
   }
 
-  async function transformCASEItems(
-    cfItems: CFPckgItem[],
-    cfAssociations: CaseAssociation[],
-    docId: UUID | null = null
-  ): Promise<EditorItemNode[]> {
-    return new Promise((resolve) => {
+  async function fetchItemAssociations(identifier: UUID): Promise<AssociationDetails[]> {
+    const cached = itemAssociationsCache.get(identifier);
+    if (cached && Date.now() - cached.timestamp < ITEM_DETAILS_CACHE_TTL) {
+      return cached.data;
+    }
+
+    if (pendingItemAssociationsRequests.has(identifier)) {
+      return pendingItemAssociationsRequests.get(identifier)!;
+    }
+
+    const promise = (async (): Promise<AssociationDetails[]> => {
       try {
-        const worker = getTransformWorker();
-        const contextSnapshot = buildContextSnapshot();
-
-        const timeout = setTimeout(() => {
-          logger.warn('[transformCASEItems] Worker timeout, falling back to sync');
-          resolve(transformCASEItemsSync(cfItems, cfAssociations, docId));
-        }, 30000);
-
-        worker.onmessage = (e: MessageEvent) => {
-          clearTimeout(timeout);
-          if (e.data.success) {
-            resolve(e.data.data);
-          } else {
-            logger.error('[transformCASEItems] Worker error:', e.data.error);
-            resolve(transformCASEItemsSync(cfItems, cfAssociations, docId));
-          }
-        };
-
-        worker.onerror = (error: ErrorEvent) => {
-          clearTimeout(timeout);
-          logger.error('[transformCASEItems] Worker error:', error);
-          resolve(transformCASEItemsSync(cfItems, cfAssociations, docId));
-        };
-
-        const serializable = (obj: any): any => {
-          if (obj === null || typeof obj !== 'object') return obj;
-          return JSON.parse(JSON.stringify(obj));
-        };
-
-        worker.postMessage({
-          cfItems: serializable(cfItems),
-          cfAssociations: serializable(cfAssociations),
-          docId,
-          contextSnapshot
-        });
-      } catch (error) {
-        logger.error('[transformCASEItems] Worker setup error:', error);
-        resolve(transformCASEItemsSync(cfItems, cfAssociations, docId));
+        const data = await api.get(`/framework/editor/associations/item/${identifier}`) as AssociationDetails[];
+        itemAssociationsCache.set(identifier, { data, timestamp: Date.now() });
+        return data;
+      } finally {
+        pendingItemAssociationsRequests.delete(identifier);
       }
-    });
+    })();
+
+    pendingItemAssociationsRequests.set(identifier, promise);
+    return promise;
+  }
+
+  function invalidateItemDetailsCache(identifier?: UUID) {
+    if (identifier) {
+      itemDetailsCache.delete(identifier);
+      itemAssociationsCache.delete(identifier);
+    } else {
+      itemDetailsCache.clear();
+      itemAssociationsCache.clear();
+    }
+  }
+
+  function invalidateCurrentDocumentCache() {
+    const docId = contextStore.activeWriteDocumentId;
+    if (docId) {
+      documentStore.invalidateTreeCache(docId);
+    }
   }
 
   async function updateItems(documentIdentifier: UUID, lsItems: Record<string, unknown>) {
     try {
-      // Use API service for consistent error handling
       const data = await api.post(`/framework/editor/document/${documentIdentifier}/update_items`, { lsItems });
+      documentStore.invalidateTreeCache(documentIdentifier);
       return data;
     } catch (e) {
       logger.error("Error updating items:", e);
@@ -1036,6 +566,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
   async function addAssociation(documentIdentifier: UUID, associationData: Record<string, unknown>) {
     try {
       const data = await api.post(`/framework/editor/association/new/${documentIdentifier}`, associationData);
+      documentStore.invalidateTreeCache(documentIdentifier);
       return data;
     } catch (e) {
       logger.error("Error creating association:", e);
@@ -1046,18 +577,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
   async function removeAssociation(associationIdentifier: UUID) {
     try {
       await api.delete(`/framework/editor/association/${associationIdentifier}`);
-
-      const contextStore = useEditorContextStore();
-      const assocData = contextStore.associationRegistry.get(associationIdentifier);
-      if (assocData) {
-        const docId = assocData.frameworkId;
-        contextStore.associationRegistry.delete(associationIdentifier);
-        const pkg = contextStore.loadedPackages.get(docId);
-        if (pkg && pkg.CFAssociations) {
-          pkg.CFAssociations = pkg.CFAssociations.filter(a => a.identifier !== associationIdentifier);
-        }
-      }
-
+      invalidateCurrentDocumentCache();
       return true;
     } catch (e) {
       logger.error("Error removing association:", e);
@@ -1068,6 +588,8 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
   async function deleteItem(itemIdentifier: UUID) {
     try {
       await api.delete(`/framework/editor/item/${itemIdentifier}`);
+      invalidateItemDetailsCache(itemIdentifier);
+      invalidateCurrentDocumentCache();
       return true;
     } catch (e) {
       logger.error("Error deleting item:", e);
@@ -1078,6 +600,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
   async function createItem(parentIdentifier: UUID, itemData: Record<string, unknown>) {
     try {
       const data = await api.post(`/framework/editor/item/new/${parentIdentifier}`, itemData);
+      invalidateCurrentDocumentCache();
       return data;
     } catch (e) {
       logger.error("Error creating item:", e);
@@ -1087,11 +610,9 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
 
   async function copyItem(documentIdentifier: UUID, sourceItem: EditorItemNode, targetParentIdentifier: UUID) {
     try {
-      // Prepare data for copying
       const itemData: Record<string, unknown> = {
         copyFromIdentifier: sourceItem.identifier,
         addCopyToTitle: 'true',
-        // Common fields that might be useful
         title: sourceItem.title,
         fullStatement: sourceItem.fullStatement,
       };
@@ -1107,6 +628,8 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
   async function updateItem(itemIdentifier: UUID, itemData: Record<string, unknown>) {
     try {
       const data = await api.put(`/framework/editor/item/${itemIdentifier}`, itemData);
+      invalidateItemDetailsCache(itemIdentifier);
+      invalidateCurrentDocumentCache();
       return data;
     } catch (e) {
       logger.error("Error updating item:", e);
@@ -1117,6 +640,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
   async function createAssociationGroup(documentIdentifier: UUID, groupData: Record<string, unknown>) {
     try {
       const data = await api.post(`/framework/editor/association_grouping/new/${documentIdentifier}`, groupData);
+      documentStore.invalidateTreeCache(documentIdentifier);
       return data;
     } catch (e) {
       logger.error("Error creating association group:", e);
@@ -1127,6 +651,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
   async function updateAssociationGroup(groupIdentifier: UUID, groupData: Record<string, unknown>) {
     try {
       const data = await api.put(`/framework/editor/association_grouping/${groupIdentifier}`, groupData);
+      invalidateCurrentDocumentCache();
       return data;
     } catch (e) {
       logger.error("Error updating association group:", e);
@@ -1137,6 +662,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
   async function deleteAssociationGroup(groupIdentifier: UUID) {
     try {
       await api.delete(`/framework/editor/association_grouping/${groupIdentifier}`);
+      invalidateCurrentDocumentCache();
       return true;
     } catch (e) {
       logger.error("Error deleting association group:", e);
@@ -1144,9 +670,6 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     }
   }
 
-  /**
-   * LEGACY: identifyAssociatedFrameworks is being moved to editorContextStore logic
-   */
   function identifyAssociatedFrameworks(): UUID[] {
     return [];
   }
@@ -1159,46 +682,24 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     viewStore.setCurrentItem(item);
   }
 
-  /**
-   * Reload the active document from the central registry
-   * and re-run transformations (used after background revalidation)
-   */
   async function reloadActiveDocument() {
     const id = contextStore.activeWriteDocumentId;
     if (!id) return;
 
-    const pkg = contextStore.loadedPackages.get(id);
-    if (!pkg || !pkg.CFDocument) return;
-
-    logger.debug('[currentDocumentStore] Reloading active document from fresh registry data');
-
-    const items = await transformCASEItems(
-      pkg.CFItems || [],
-      pkg.CFAssociations || [],
-      pkg.CFDocument.identifier
-    );
-
-    // 2. Prepare transformed document (mirroring useDocumentLoader logic)
-    const transformedDoc = {
-      ...pkg.CFDocument,
-      id: pkg.CFDocument.identifier,
-      items: items,
-      // Ensure specific fields required by UI are mapped
-      lastModified: pkg.CFDocument.lastChangeDateTime || ''
-    };
-
-    // 3. Re-select the document (this updates everything reactively)
-    selectDocument(
-      transformedDoc as any,
-      pkg.CFDefinitions?.CFAssociationGroupings || [],
-      pkg.CFAssociations || [],
-      pkg.CFDefinitions || null
-    );
+    try {
+      const treeResponse = await documentStore.fetchTree(id);
+      documentStore.invalidateTreeCache(id);
+      const freshResponse = await documentStore.fetchTree(id);
+      selectDocument(freshResponse);
+    } catch (e) {
+      logger.error('[currentDocumentStore] Error reloading active document:', e);
+    }
   }
 
   async function updateDocument(documentIdentifier: UUID, data: Record<string, unknown>) {
     try {
       await api.put(`/framework/editor/document/${documentIdentifier}`, data);
+      documentStore.invalidateTreeCache(documentIdentifier);
       return true;
     } catch (e) {
       logger.error("Error updating document:", e);
@@ -1209,7 +710,6 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
   async function deleteDocument(documentIdentifier: UUID) {
     try {
       await api.delete(`/framework/editor/document/${documentIdentifier}`);
-      await localFrameworkDb.deleteFramework(documentIdentifier);
       documentStore.removeDocument(documentIdentifier);
       contextStore.removeFrameworkData(documentIdentifier);
       clearCurrentDocument();
@@ -1224,6 +724,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
   async function updateAssociation(associationIdentifier: UUID, data: Record<string, unknown>) {
     try {
       await api.put(`/framework/editor/association/${associationIdentifier}`, data);
+      invalidateCurrentDocumentCache();
       return true;
     } catch (e) {
       logger.error("Error updating association:", e);
@@ -1236,12 +737,15 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     currentDocumentDefinitions,
     currentDocumentRubrics,
     currentDocumentAssociationGroupings,
+    currentDocumentTree,
     associationGroups,
     selectDocument,
     reloadActiveDocument,
     clearCurrentDocument,
     transformCASEItems,
-    transformCASEItemsSync,
+    fetchItemDetails,
+    fetchItemAssociations,
+    invalidateItemDetailsCache,
     updateItems,
     addAssociation,
     removeAssociation,
@@ -1262,5 +766,4 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
   };
 });
 
-// Export types for use in components
 export type CurrentDocumentStore = ReturnType<typeof useCurrentDocumentStore>;

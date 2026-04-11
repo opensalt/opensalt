@@ -2,7 +2,8 @@
  * useDocumentLoader Composable
  *
  * Handles document fetching and initialization logic for EnhancedDocumentTreeEditor.
- * Extracts document loading, transformation, and management concerns.
+ * Extracts document loading and management concerns.
+ * Uses API-first architecture: fetchTree returns a pre-built tree.
  */
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
@@ -10,11 +11,9 @@ import { useDocumentStore } from '../stores/documentStore';
 import { useCurrentDocumentStore } from '../stores/currentDocumentStore';
 import { useFilterStore } from '../stores/filterStore';
 import { useRelatedFrameworksQueue } from './useRelatedFrameworksQueue';
-import { localFrameworkDb } from '../services/localFrameworkDb.js';
 import { logger } from '../utils/logger.js';
 
 
-// Log when this composable is instantiated
 logger.debug('[useDocumentLoader] Composable instantiated');
 
 /**
@@ -35,11 +34,9 @@ export function useDocumentLoader(options = {}) {
   const filterStore = useFilterStore();
   const relatedFrameworksQueue = useRelatedFrameworksQueue();
 
-  // Loading and error states
   const loading = computed(() => documentStore.loading);
   const error = computed(() => documentStore.error);
 
-  // Available documents list
   const availableDocuments = computed(() => documentStore.documents);
 
   function isCurrentDocumentLoaded(documentId) {
@@ -51,7 +48,7 @@ export function useDocumentLoader(options = {}) {
 
     if (currentId !== documentId) return false;
 
-    return Array.isArray(currentDocumentStore.currentDocument?.items);
+    return Array.isArray(currentDocumentStore.currentDocumentTree);
   }
 
   async function queueRelatedDocuments(documentId) {
@@ -68,64 +65,7 @@ export function useDocumentLoader(options = {}) {
   }
 
   /**
-   * Transform CASE document data into format expected by application
-   * @param {Object} docData - The raw document data from the API
-   * @returns {Object} The transformed document object
-   */
-  async function transformDocumentData(docData, requestedDocumentId = null) {
-    const cfDoc = docData.CFDocument || {};
-    let treeSource = docData;
-
-    if (requestedDocumentId || cfDoc.identifier) {
-      try {
-        const dbPackage = await localFrameworkDb.getPackage(requestedDocumentId || cfDoc.identifier);
-        if (dbPackage?.CFItems && dbPackage?.CFAssociations) {
-          treeSource = {
-            ...docData,
-            CFItems: dbPackage.CFItems,
-            CFAssociations: dbPackage.CFAssociations
-          };
-        }
-      } catch (error) {
-        logger.warn('[useDocumentLoader] Failed to use DB-backed package for tree read:', error);
-      }
-    }
-
-    const items = currentDocumentStore.transformCASEItems(
-      treeSource.CFItems || [],
-      treeSource.CFAssociations || [],
-      cfDoc.identifier
-    );
-
-    return {
-      id: cfDoc.identifier,
-      identifier: cfDoc.identifier,
-      uri: cfDoc.uri || '',
-      title: cfDoc.title || 'Untitled',
-      description: cfDoc.description || null,
-      creator: cfDoc.creator || '',
-      subject: cfDoc.subject || null,
-      subjectURI: cfDoc.subjectURI || [],
-      status: cfDoc.adoptionStatus || 'Draft',
-      statusStartDate: cfDoc.statusStartDate || null,
-      statusEndDate: cfDoc.statusEndDate || null,
-      lastModified: cfDoc.lastChangeDateTime || '',
-      language: cfDoc.language || null,
-      version: cfDoc.version || null,
-      officialSourceURL: cfDoc.officialSourceURL || null,
-      publisher: cfDoc.publisher || null,
-      licenseURI: cfDoc.licenseURI || null,
-      notes: cfDoc.notes || null,
-      frameworkType: cfDoc.frameworkType || null,
-      caseVersion: cfDoc.caseVersion || null,
-      extensions: cfDoc.extensions || null,
-      CFPackageURI: cfDoc.CFPackageURI || null,
-      items: items
-    };
-  }
-
-  /**
-   * Load a document by its ID
+   * Load a document by its ID using the API tree endpoint.
    * @param {string} documentId - The document identifier
    * @returns {Promise<Object>} The loaded document data
    */
@@ -139,34 +79,28 @@ export function useDocumentLoader(options = {}) {
 
     logger.debug('[useDocumentLoader] loadDocument called with documentId:', documentId);
 
-    const docData = await documentStore.fetchDocument(documentId);
-    const transformedDoc = await transformDocumentData(docData, documentId);
+    const treeResponse = await documentStore.fetchTree(documentId);
 
-    const definitions = docData.CFDefinitions || {};
-    const associationGroupings = definitions.CFAssociationGroupings || docData.CFAssociationGroupings || [];
+    currentDocumentStore.selectDocument(treeResponse);
 
-    currentDocumentStore.selectDocument(
-      transformedDoc,
-      associationGroupings,
-      docData.CFAssociations || [],
-      definitions
-    );
+    const definitions = treeResponse.definitions || {};
+    const associationGroupings = definitions.CFAssociationGroupings || [];
 
     filterStore.syncSelectedAssociationGroup({
-      frameworkId: transformedDoc.identifier || documentId,
-      associations: docData.CFAssociations || [],
-      realGroupIds: associationGroupings
+      frameworkId: treeResponse.document.identifier || documentId,
+      definedGroupIds: associationGroupings
         .map(group => group.identifier || group.uri)
-        .filter(Boolean)
+        .filter(Boolean),
+      treeNodes: treeResponse.tree || []
     });
 
     if (onDocumentLoaded) {
-      onDocumentLoaded(transformedDoc, docData);
+      onDocumentLoaded(treeResponse.document, treeResponse);
     }
 
     await queueRelatedDocuments(documentId);
 
-    return transformedDoc;
+    return treeResponse.document;
   }
 
   /**
@@ -201,16 +135,14 @@ export function useDocumentLoader(options = {}) {
   async function onExternalDocumentUrlLoaded(url) {
     if (!url) return null;
 
-    // Clear any previous error
     documentStore.clearSideDocError();
 
     try {
       const { data, finalUrl } = await documentStore.loadExternalDocument(url);
 
-      // Transform and set side document
       const cfDoc = data.CFDocument || {};
-      // Use a unique ID for external docs if identifier is missing or clashes
       const externalId = cfDoc.identifier || 'external-' + Date.now();
+
       const items = currentDocumentStore.transformCASEItems(
         data.CFItems || [],
         data.CFAssociations || [],
@@ -267,17 +199,14 @@ export function useDocumentLoader(options = {}) {
   }
 
   return {
-    // State
     loading,
     error,
     availableDocuments,
 
-    // Methods
     loadDocument,
     onDocumentChanged,
     onExternalDocumentRequested,
     onExternalDocumentUrlLoaded,
-    initializeDocument,
-    transformDocumentData
+    initializeDocument
   };
 }

@@ -1,6 +1,7 @@
 import { ref, computed, watch, onUnmounted, toValue } from 'vue';
 import { useEditorContextStore } from '../stores/editorContextStore';
 import { useCurrentDocumentStore } from '../stores/currentDocumentStore';
+import { api } from '../services/api.js';
 import { logger } from '../utils/logger.js';
 
 function normalizeGroupId(association) {
@@ -48,8 +49,7 @@ export function useAssociationList({ mode, item = null, displayItem = null, docu
   const isProcessingAssociations = ref(false);
   const lastError = ref(null);
 
-  let activeSubscription = null;
-  let subscriptionVersion = 0;
+  let loadVersion = 0;
 
   const displayedFrameworkId = computed(() => (
     contextStore.isViewingDifferentFramework
@@ -81,68 +81,22 @@ export function useAssociationList({ mode, item = null, displayItem = null, docu
   ));
   const documentItemIds = computed(() => collectDocumentItemIds(toValue(document)));
 
-  function getItemAssociationsFromRegistry(identifier, uri) {
-    if (!identifier) return [];
-    return contextStore.getAssociations(identifier, uri);
-  }
+  function mapApiAssociationsToEntries(apiData, queryDocId) {
+    if (!Array.isArray(apiData)) return [];
 
-  function getItemAssociationsFromItemData() {
-    const source = toValue(displayItem) || toValue(item);
-    const associations = source?.associations;
-    if (!Array.isArray(associations) || associations.length === 0) return [];
+    return apiData.map((assoc) => {
+      const entry = {
+        association: assoc,
+        frameworkId: assoc.associationDocumentIdentifier || null,
+      };
 
-    const sourceFrameworkId =
-      source?.documentId ||
-      source?.CFDocumentURI?.identifier ||
-      displayedFrameworkId.value ||
-      null;
+      if (mode === 'document' && queryDocId) {
+        entry.originInDocument = assoc.originNodeURI?.documentIdentifier === queryDocId;
+        entry.destinationInDocument = assoc.destinationNodeURI?.documentIdentifier === queryDocId;
+      }
 
-    return associations.map((association) => ({
-      association,
-      frameworkId: sourceFrameworkId,
-    }));
-  }
-
-  function mergeAndDedupeEntries(...entryGroups) {
-    const merged = [];
-    const seenIds = new Set();
-
-    entryGroups.forEach((entries) => {
-      (entries || []).forEach((entry) => {
-        const assocId = entry?.association?.identifier;
-        if (!assocId || seenIds.has(assocId)) return;
-        seenIds.add(assocId);
-        merged.push(entry);
-      });
+      return entry;
     });
-
-    return merged;
-  }
-
-  function getDocumentAssociationsFromRegistry(docId, docItemIds) {
-    if (!docId || !docItemIds?.size) return [];
-
-    const result = [];
-    const seenIds = new Set();
-
-    contextStore.associationRegistry.forEach((entry) => {
-      const assoc = entry.association;
-      const assocId = assoc?.identifier;
-      if (!assocId || seenIds.has(assocId)) return;
-
-      const originId = getOriginId(assoc);
-      const destinationId = getDestinationId(assoc);
-      if (!originId || !destinationId) return;
-
-      const originInDoc = docItemIds.has(originId);
-      const destinationInDoc = docItemIds.has(destinationId);
-      if (originInDoc === destinationInDoc) return;
-
-      seenIds.add(assocId);
-      result.push(entry);
-    });
-
-    return result;
   }
 
   function groupAssociations(entries) {
@@ -203,50 +157,32 @@ export function useAssociationList({ mode, item = null, displayItem = null, docu
     return Object.values(grouped);
   }
 
-  function getRegistryEntries() {
-    const itemDataEntries = mode === 'item' ? getItemAssociationsFromItemData() : [];
-    return mode === 'item'
-      ? mergeAndDedupeEntries(itemDataEntries, getItemAssociationsFromRegistry(itemIdentifier.value, itemUri.value))
-      : getDocumentAssociationsFromRegistry(documentIdentifier.value, documentItemIds.value);
-  }
-
-  async function stop({ timeoutMs = 250 } = {}) {
-    if (!activeSubscription) return;
-
-    const subscriptionToStop = activeSubscription;
-    activeSubscription = null;
-
-    try {
-      const unsubscribePromise = subscriptionToStop.unsubscribe?.();
-      if (unsubscribePromise && typeof unsubscribePromise.then === 'function') {
-        await Promise.race([
-          unsubscribePromise,
-          new Promise((resolve) => setTimeout(resolve, timeoutMs))
-        ]);
-      }
-    } catch (error) {
-      logger.warn('[useAssociationList] Failed to stop association subscription:', error);
+  async function fetchAssociationsFromApi() {
+    if (mode === 'item' && itemIdentifier.value) {
+      const response = await api.get(`/framework/editor/associations/item/${itemIdentifier.value}`);
+      const associations = response?.data;
+      if (!Array.isArray(associations)) return [];
+      return mapApiAssociationsToEntries(associations, null);
     }
+
+    if (mode === 'document' && documentIdentifier.value) {
+      const response = await api.get(`/framework/editor/associations/document/${documentIdentifier.value}`);
+      const associations = response?.data;
+      if (!Array.isArray(associations)) return [];
+      return mapApiAssociationsToEntries(associations, documentIdentifier.value);
+    }
+
+    return [];
   }
 
-  async function fetchSnapshotEntries() {
-    // Skip Pglite entirely — the in-memory registry already has the
-    // associations that were loaded with the document.  Falling back to
-    // getRegistryEntries() is fast and reliable.
-    return null;
-  }
-
-  async function fetchEntriesWithFallback() {
-    // fetchSnapshotEntries always returns null (Pglite bypassed), so
-    // we go straight to the in-memory registry which is fast and reliable.
-    return getRegistryEntries();
+  async function stop() {
+    loadVersion++;
   }
 
   async function loadEntries({ clearEntries = true, setLoading = true } = {}) {
-    subscriptionVersion += 1;
-    const currentVersion = subscriptionVersion;
+    loadVersion++;
+    const currentVersion = loadVersion;
 
-    await stop();
     lastError.value = null;
 
     if (mode === 'item' && !itemIdentifier.value) {
@@ -260,7 +196,6 @@ export function useAssociationList({ mode, item = null, displayItem = null, docu
       return;
     }
 
-    // Prevent stale association rows from staying visible while switching context.
     if (clearEntries) {
       rawEntries.value = [];
     }
@@ -269,68 +204,37 @@ export function useAssociationList({ mode, item = null, displayItem = null, docu
     }
 
     try {
-      const snapshotEntries = await fetchEntriesWithFallback();
-      if (currentVersion !== subscriptionVersion) {
-        if (setLoading) {
-          isProcessingAssociations.value = false;
-        }
+      const entries = await fetchAssociationsFromApi();
+      if (currentVersion !== loadVersion) {
+        if (setLoading) isProcessingAssociations.value = false;
         return;
       }
-      rawEntries.value = Array.isArray(snapshotEntries) ? snapshotEntries : [];
-      if (setLoading) {
-        isProcessingAssociations.value = false;
-      }
+      rawEntries.value = Array.isArray(entries) ? entries : [];
+      if (setLoading) isProcessingAssociations.value = false;
     } catch (error) {
       logger.error('[useAssociationList] Failed to load associations:', error);
       lastError.value = error;
-      if (setLoading) {
-        isProcessingAssociations.value = false;
-      }
-      if (rawEntries.value.length > 0) return;
-
-      // Final fallback so we still show current-item associations if local DB calls stall/fail.
-      try {
-        const fallbackEntries = mode === 'item'
-          ? getItemAssociationsFromRegistry(itemIdentifier.value, itemUri.value)
-          : getDocumentAssociationsFromRegistry(documentIdentifier.value, documentItemIds.value);
-        rawEntries.value = Array.isArray(fallbackEntries) ? fallbackEntries : [];
-      } catch (fallbackError) {
-        logger.warn('[useAssociationList] Registry fallback failed:', fallbackError);
-      }
+      if (currentVersion !== loadVersion) return;
+      rawEntries.value = [];
+      if (setLoading) isProcessingAssociations.value = false;
     }
   }
 
   async function refresh() {
-    if (activeSubscription?.refresh) {
-      try {
-        await activeSubscription.refresh();
-      } catch (error) {
-        logger.warn('[useAssociationList] Failed to refresh subscription, restarting:', error);
-        await loadEntries({ clearEntries: false, setLoading: false });
-      }
-      return;
-    }
     await loadEntries({ clearEntries: false, setLoading: false });
   }
 
   const watchKey = computed(() => {
     if (mode === 'item') {
-      const itemAssociations = toValue(displayItem)?.associations || toValue(item)?.associations || [];
-      const assocFingerprint = Array.isArray(itemAssociations)
-        ? itemAssociations.map(a => `${a?.identifier}:${a?.associationType}:${a?.groupId}`).join(',')
-        : '';
       return [
         itemIdentifier.value || '',
-        itemUri.value || '',
         displayedFrameworkId.value || '',
-        assocFingerprint,
       ].join('|');
     }
 
     return [
       documentIdentifier.value || '',
       displayedFrameworkId.value || '',
-      Array.from(documentItemIds.value).join('|'),
     ].join('|');
   });
 
@@ -338,16 +242,10 @@ export function useAssociationList({ mode, item = null, displayItem = null, docu
     void loadEntries({ clearEntries: true, setLoading: true });
   }, { immediate: true });
 
-  watch(() => contextStore.registryVersion, () => {
-    if (!itemIdentifier.value && !documentIdentifier.value) return;
-    void refresh();
-  });
-
   const mergedAssociations = computed(() => groupAssociations(rawEntries.value));
 
   onUnmounted(() => {
-    subscriptionVersion += 1;
-    void stop();
+    loadVersion++;
   });
 
   return {

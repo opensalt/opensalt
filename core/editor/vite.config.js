@@ -32,19 +32,10 @@ function manualChunks(id) {
 export default defineConfig({
   base: '/editor/',
   plugins: [
-    vue({
-      template: {
-        compilerOptions: {
-          isCustomElement: (tag) => tag === 'pglite-repl',
-        },
-      },
-    }),
+    vue(),
   ],
   optimizeDeps: {
-    exclude: ['@electric-sql/pglite'],
     esbuildOptions: {
-      // Avoid remote source-map lookups from prebundled deps (for example
-      // markdown-it -> entities) that get blocked by the app CSP in dev.
       sourcemap: false,
     },
   },
@@ -68,10 +59,6 @@ export default defineConfig({
     allowedHosts: true,
     hmr: {
       path: '/@vite-hmr',
-    },
-    headers: {
-      'Cross-Origin-Opener-Policy': 'same-origin',
-      'Cross-Origin-Embedder-Policy': 'credentialless',
     },
   },
   worker: {

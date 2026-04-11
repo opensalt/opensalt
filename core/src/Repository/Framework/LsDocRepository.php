@@ -291,6 +291,449 @@ class LsDocRepository extends ServiceEntityRepository
     }
 
     /**
+     * Build a hierarchical tree for a document, including cross-framework items.
+     *
+     * Returns an array with:
+     * - 'tree': array of root-level tree nodes (each with nested 'children')
+     * - 'definitions': metadata about association groups, item types, subjects, etc.
+     *
+     * Each tree node contains:
+     * - identifier, uri, documentIdentifier, humanCodingScheme, fullStatement,
+     *   abbreviatedStatement, listEnumeration, itemType, sequenceNumber,
+     *   lastChangeDateTime, childOfAssociationIdentifier, associationGroupIdentifier,
+     *   isCrossFramework, isUnresolved, children
+     */
+    public function findTreeForDocument(LsDoc $lsDoc, bool $lightweight = false): array
+    {
+        $em = $this->getEntityManager();
+        $viewedDocId = $lsDoc->getId();
+        $viewedDocIdentifier = $lsDoc->getIdentifier();
+
+        $query = $em->createQuery('
+            SELECT a.identifier as assocIdentifier, a.sequenceNumber,
+                   g.identifier as groupIdentifier,
+                   oi.identifier as originIdentifier, oi.uri as originUri,
+                   oi.humanCodingScheme as originHcs, oi.fullStatement as originFs,
+                   oi.abbreviatedStatement as originAbs, oi.listEnumInSource as originLe,
+                   IDENTITY(oi.lsDoc) as originDocId,
+                   IDENTITY(oi.itemType) as originItemTypeId,
+                   oi.changedAt as originChangedAt,
+                   a.destinationNodeIdentifier as destNodeIdentifier,
+                   di.identifier as destIdentifier, di.uri as destUri,
+                   IDENTITY(di.lsDoc) as destDocId
+            FROM '.LsAssociation::class.' a
+            LEFT JOIN a.group g
+            JOIN a.originLsItem oi
+            LEFT JOIN a.destinationLsItem di
+            WHERE a.lsDoc = :viewedDocId
+              AND a.type = :childOfType
+        ');
+        $query->setParameter('viewedDocId', $viewedDocId);
+        $query->setParameter('childOfType', LsAssociation::CHILD_OF);
+
+        $childOfAssocs = $query->getResult(Query::HYDRATE_ARRAY);
+
+        $query = $em->createQuery('
+            SELECT a.identifier as assocIdentifier, a.sequenceNumber,
+                   g.identifier as groupIdentifier,
+                   oi.identifier as originIdentifier, oi.uri as originUri,
+                   oi.humanCodingScheme as originHcs, oi.fullStatement as originFs,
+                   oi.abbreviatedStatement as originAbs, oi.listEnumInSource as originLe,
+                   IDENTITY(oi.lsDoc) as originDocId,
+                   IDENTITY(oi.itemType) as originItemTypeId,
+                   oi.changedAt as originChangedAt
+            FROM '.LsAssociation::class.' a
+            LEFT JOIN a.group g
+            JOIN a.originLsItem oi
+            JOIN a.destinationLsDoc dd WITH dd.id = :viewedDocId
+            WHERE a.lsDoc = :viewedDocId
+              AND a.type = :childOfType
+        ');
+        $query->setParameter('viewedDocId', $viewedDocId);
+        $query->setParameter('childOfType', LsAssociation::CHILD_OF);
+
+        $docChildAssocs = $query->getResult(Query::HYDRATE_ARRAY);
+
+        $itemRepo = $em->getRepository(LsItem::class);
+
+        $allItemsQuery = $em->createQuery('
+            SELECT i.identifier, i.uri, i.humanCodingScheme, i.fullStatement,
+                   i.abbreviatedStatement, i.listEnumInSource, i.changedAt,
+                   i.discriminator, i.extensions,
+                   IDENTITY(i.lsDoc) as lsDoc,
+                   IDENTITY(i.itemType) as itemType
+            FROM '.LsItem::class.' i
+            WHERE i.lsDoc = :docId
+        ');
+        $allItemsQuery->setParameter('docId', $viewedDocId);
+        $allItems = $allItemsQuery->getResult(Query::HYDRATE_ARRAY);
+
+        $itemDataMap = [];
+        foreach ($allItems as $item) {
+            $itemDataMap[$item['identifier']] = $item;
+        }
+
+        $parentMap = [];
+        $assocMap = [];
+        $childIds = [];
+        $foreignItemIdentifiers = [];
+
+        foreach ($childOfAssocs as $row) {
+            $originId = $row['originIdentifier'];
+            $destId = $row['destIdentifier'] ?? $row['destNodeIdentifier'];
+
+            $parentMap[$originId] = $destId;
+            $assocMap[$originId] = [
+                'assocIdentifier' => $row['assocIdentifier'],
+                'sequenceNumber' => $row['sequenceNumber'],
+                'groupIdentifier' => $row['groupIdentifier'],
+                'originFs' => $row['originFs'],
+                'originHcs' => $row['originHcs'],
+                'originAbs' => $row['originAbs'],
+            ];
+            $childIds[$originId] = true;
+
+            if (null !== $destId && null !== $row['destDocId'] && (int) $row['destDocId'] !== $viewedDocId) {
+                $foreignItemIdentifiers[$destId] = true;
+            }
+            if (null !== $row['originDocId'] && (int) $row['originDocId'] !== $viewedDocId) {
+                $foreignItemIdentifiers[$originId] = true;
+            }
+        }
+
+        foreach ($docChildAssocs as $row) {
+            $originId = $row['originIdentifier'];
+
+            $parentMap[$originId] = $viewedDocIdentifier;
+            $assocMap[$originId] = [
+                'assocIdentifier' => $row['assocIdentifier'],
+                'sequenceNumber' => $row['sequenceNumber'],
+                'groupIdentifier' => $row['groupIdentifier'],
+                'originFs' => $row['originFs'],
+                'originHcs' => $row['originHcs'],
+                'originAbs' => $row['originAbs'],
+            ];
+            $childIds[$originId] = true;
+
+            if (null !== $row['originDocId'] && (int) $row['originDocId'] !== $viewedDocId) {
+                $foreignItemIdentifiers[$originId] = true;
+            }
+        }
+
+        $foreignItems = [];
+        if ([] !== $foreignItemIdentifiers) {
+            $foreignQuery = $em->createQuery('
+                SELECT i.identifier, i.uri, i.humanCodingScheme, i.fullStatement,
+                       i.abbreviatedStatement, i.listEnumInSource, i.changedAt,
+                       i.discriminator, i.extensions,
+                       IDENTITY(i.lsDoc) as lsDoc,
+                       IDENTITY(i.itemType) as itemType
+                FROM '.LsItem::class.' i
+                WHERE i.identifier IN (:ids)
+            ');
+            $foreignQuery->setParameter('ids', array_keys($foreignItemIdentifiers));
+            $foreignResult = $foreignQuery->getResult(Query::HYDRATE_ARRAY);
+
+            foreach ($foreignResult as $fi) {
+                $foreignItems[$fi['identifier']] = $fi;
+            }
+        }
+
+        $itemTypeRepo = $em->getRepository(LsDefItemType::class);
+        $itemTypeCache = [];
+
+        $buildNode = function (string $identifier, bool $isCrossFramework = false) use (
+            &$buildNode, $itemDataMap, $foreignItems, $parentMap, $assocMap,
+            $viewedDocId, $viewedDocIdentifier, $childIds, $lightweight,
+            $itemTypeRepo, &$itemTypeCache, $em
+        ): ?array {
+            static $visited = [];
+            if (isset($visited[$identifier])) {
+                return null;
+            }
+            $visited[$identifier] = true;
+
+            $isForeign = $isCrossFramework;
+            $docId = $viewedDocIdentifier;
+
+            if (isset($itemDataMap[$identifier])) {
+                $item = $itemDataMap[$identifier];
+                $itemDocId = $item['lsDoc'] ?? null;
+                if (null !== $itemDocId && (int) $itemDocId !== $viewedDocId) {
+                    $isForeign = true;
+                }
+            } elseif (isset($foreignItems[$identifier])) {
+                $item = $foreignItems[$identifier];
+                $isForeign = true;
+            } else {
+                $assoc = $assocMap[$identifier] ?? [];
+                $node = [
+                    'identifier' => $identifier,
+                    'uri' => null,
+                    'documentIdentifier' => null,
+                    'humanCodingScheme' => $assoc['originHcs'] ?? null,
+                    'fullStatement' => $assoc['originFs'] ?? null,
+                    'isCrossFramework' => true,
+                    'isUnresolved' => true,
+                    'children' => [],
+                ];
+                if (!$lightweight) {
+                    $node['abbreviatedStatement'] = $assoc['originAbs'] ?? null;
+                    $node['listEnumeration'] = null;
+                    $node['itemType'] = null;
+                    $node['sequenceNumber'] = null;
+                    $node['lastChangeDateTime'] = null;
+                    $node['childOfAssociationIdentifier'] = $assoc['assocIdentifier'] ?? null;
+                    $node['associationGroupIdentifier'] = $assoc['groupIdentifier'] ?? null;
+                    $node['discriminator'] = 0;
+                    $node['extensions'] = [];
+                } else {
+                    $node['discriminator'] = 0;
+                    $node['extensions'] = [];
+                }
+
+                return $node;
+            }
+
+            $itemDoc = $item['lsDoc'] ?? null;
+            $docTitle = null;
+            if (null !== $itemDoc && (int) $itemDoc !== $viewedDocId) {
+                $docEntity = $em->getRepository(LsDoc::class)->find($itemDoc);
+                if (null !== $docEntity) {
+                    $docId = $docEntity->getIdentifier();
+                    $docTitle = $docEntity->getTitle();
+                }
+            }
+
+            if ($lightweight) {
+                $node = [
+                    'identifier' => $identifier,
+                    'documentIdentifier' => $docId,
+                    'documentTitle' => $docTitle,
+                    'humanCodingScheme' => $item['humanCodingScheme'] ?? null,
+                    'fullStatement' => $item['fullStatement'] ?? null,
+                    'abbreviatedStatement' => $item['abbreviatedStatement'] ?? null,
+                    'isCrossFramework' => $isForeign,
+                    'discriminator' => $item['discriminator'] ?? 0,
+                    'extensions' => $item['extensions'] ?? [],
+                    'children' => [],
+                ];
+            } else {
+                $itemTypeName = null;
+                if (isset($item['itemType'])) {
+                    $itId = $item['itemType'];
+                    if (!isset($itemTypeCache[$itId])) {
+                        $itEntity = $itemTypeRepo->find($itId);
+                        $itemTypeCache[$itId] = $itEntity?->getTitle();
+                    }
+                    $itemTypeName = $itemTypeCache[$itId];
+                }
+
+                $node = [
+                    'identifier' => $identifier,
+                    'uri' => $item['uri'] ?? null,
+                    'documentIdentifier' => $docId,
+                    'documentTitle' => $docTitle,
+                    'humanCodingScheme' => $item['humanCodingScheme'] ?? null,
+                    'fullStatement' => $item['fullStatement'] ?? null,
+                    'abbreviatedStatement' => $item['abbreviatedStatement'] ?? null,
+                    'listEnumeration' => $item['listEnumInSource'] ?? null,
+                    'itemType' => $itemTypeName,
+                    'sequenceNumber' => $assocMap[$identifier]['sequenceNumber'] ?? null,
+                    'lastChangeDateTime' => ($item['changedAt'] ?? null) instanceof \DateTime
+                        ? $item['changedAt']->format('c')
+                        : $item['changedAt'],
+                    'childOfAssociationIdentifier' => $assocMap[$identifier]['assocIdentifier'] ?? null,
+                    'associationGroupIdentifier' => $assocMap[$identifier]['groupIdentifier'] ?? null,
+                    'isCrossFramework' => $isForeign,
+                    'isUnresolved' => false,
+                    'discriminator' => $item['discriminator'] ?? 0,
+                    'extensions' => $item['extensions'] ?? [],
+                    'children' => [],
+                ];
+            }
+
+            return $node;
+        };
+
+        $childrenMap = [];
+        foreach ($parentMap as $childId => $parentId) {
+            if (!isset($childrenMap[$parentId])) {
+                $childrenMap[$parentId] = [];
+            }
+            $seq = $assocMap[$childId]['sequenceNumber'] ?? null;
+            $childrenMap[$parentId][] = ['id' => $childId, 'seq' => $seq];
+        }
+
+        foreach ($childrenMap as $parentId => &$children) {
+            usort($children, static function (array $a, array $b): int {
+                if (null !== $a['seq'] && null !== $b['seq']) {
+                    return (int) $a['seq'] <=> (int) $b['seq'];
+                }
+                if (null !== $a['seq']) {
+                    return -1;
+                }
+                if (null !== $b['seq']) {
+                    return 1;
+                }
+
+                return 0;
+            });
+        }
+        unset($children);
+
+        $buildTree = function (string $parentId) use (&$buildTree, &$buildNode, $childrenMap, $itemDataMap, $foreignItems, $viewedDocId): array {
+            $result = [];
+            if (!isset($childrenMap[$parentId])) {
+                return $result;
+            }
+
+            foreach ($childrenMap[$parentId] as $childInfo) {
+                $childId = $childInfo['id'];
+                $isForeign = false;
+                if (isset($itemDataMap[$childId])) {
+                    $itemDocId = $itemDataMap[$childId]['lsDoc'] ?? null;
+                    if (null !== $itemDocId && (int) $itemDocId !== $viewedDocId) {
+                        $isForeign = true;
+                    }
+                } elseif (isset($foreignItems[$childId])) {
+                    $isForeign = true;
+                }
+
+                $node = $buildNode($childId, $isForeign);
+                if (null === $node) {
+                    continue;
+                }
+
+                $node['children'] = $buildTree($childId);
+                $result[] = $node;
+            }
+
+            return $result;
+        };
+
+        $tree = $buildTree($viewedDocIdentifier);
+
+        $orphanItemIds = [];
+        foreach ($itemDataMap as $identifier => $item) {
+            if (!isset($childIds[$identifier])) {
+                $orphanItemIds[] = $identifier;
+            }
+        }
+
+        foreach ($orphanItemIds as $orphanId) {
+            $item = $itemDataMap[$orphanId];
+            $itemTypeName = null;
+            if (isset($item['itemType'])) {
+                $itId = $item['itemType'];
+                if (!isset($itemTypeCache[$itId])) {
+                    $itEntity = $itemTypeRepo->find($itId);
+                    $itemTypeCache[$itId] = $itEntity?->getTitle();
+                }
+                $itemTypeName = $itemTypeCache[$itId];
+            }
+
+            if ($lightweight) {
+                $tree[] = [
+                    'identifier' => $orphanId,
+                    'documentIdentifier' => $viewedDocIdentifier,
+                    'humanCodingScheme' => $item['humanCodingScheme'] ?? null,
+                    'fullStatement' => $item['fullStatement'] ?? null,
+                    'abbreviatedStatement' => $item['abbreviatedStatement'] ?? null,
+                    'isCrossFramework' => false,
+                    'discriminator' => $item['discriminator'] ?? 0,
+                    'extensions' => $item['extensions'] ?? [],
+                    'children' => [],
+                ];
+            } else {
+                $tree[] = [
+                    'identifier' => $orphanId,
+                    'uri' => $item['uri'] ?? null,
+                    'documentIdentifier' => $viewedDocIdentifier,
+                    'humanCodingScheme' => $item['humanCodingScheme'] ?? null,
+                    'fullStatement' => $item['fullStatement'] ?? null,
+                    'abbreviatedStatement' => $item['abbreviatedStatement'] ?? null,
+                    'listEnumeration' => $item['listEnumInSource'] ?? null,
+                    'itemType' => $itemTypeName,
+                    'sequenceNumber' => null,
+                    'lastChangeDateTime' => ($item['changedAt'] ?? null) instanceof \DateTime
+                        ? $item['changedAt']->format('c')
+                        : $item['changedAt'],
+                    'childOfAssociationIdentifier' => null,
+                    'associationGroupIdentifier' => null,
+                    'isCrossFramework' => false,
+                    'isUnresolved' => false,
+                    'discriminator' => $item['discriminator'] ?? 0,
+                    'extensions' => $item['extensions'] ?? [],
+                    'children' => [],
+                ];
+            }
+        }
+
+        $definitions = [];
+        if (!$lightweight) {
+            $groupings = $this->findAllDocAssociationGroups($lsDoc, Query::HYDRATE_ARRAY);
+            $definitions['CFAssociationGroupings'] = array_map(static function (array $g): array {
+                return [
+                    'identifier' => $g['identifier'] ?? null,
+                    'uri' => $g['uri'] ?? null,
+                    'title' => $g['title'] ?? null,
+                    'description' => $g['description'] ?? null,
+                ];
+            }, $groupings);
+
+            $itemTypes = $this->findAllUsedItemTypes($lsDoc, Query::HYDRATE_ARRAY);
+            $definitions['CFItemTypes'] = array_map(static function (array $t): array {
+                return [
+                    'identifier' => $t['identifier'] ?? null,
+                    'uri' => $t['uri'] ?? null,
+                    'title' => $t['title'] ?? null,
+                    'description' => $t['description'] ?? null,
+                ];
+            }, $itemTypes);
+
+            $concepts = $this->findAllUsedConcepts($lsDoc, Query::HYDRATE_ARRAY);
+            $definitions['CFConcepts'] = array_map(static function (array $c): array {
+                return [
+                    'identifier' => $c['identifier'] ?? null,
+                    'uri' => $c['uri'] ?? null,
+                    'title' => $c['title'] ?? null,
+                    'keywords' => $c['keywords'] ?? null,
+                ];
+            }, $concepts);
+
+            $subjects = $lsDoc->getSubjects();
+            $definitions['CFSubjects'] = array_map(static function ($s): array {
+                if (is_array($s)) {
+                    return $s;
+                }
+
+                return [
+                    'identifier' => method_exists($s, 'getIdentifier') ? $s->getIdentifier() : null,
+                    'uri' => method_exists($s, 'getUri') ? $s->getUri() : null,
+                    'title' => method_exists($s, 'getTitle') ? $s->getTitle() : null,
+                ];
+            }, is_array($subjects) ? $subjects : $subjects->toArray());
+
+            $licences = $this->findAllUsedLicences($lsDoc, Query::HYDRATE_ARRAY);
+            $definitions['CFLicenses'] = array_map(static function (array $l): array {
+                return [
+                    'identifier' => $l['identifier'] ?? null,
+                    'uri' => $l['uri'] ?? null,
+                    'title' => $l['title'] ?? null,
+                    'description' => $l['description'] ?? null,
+                    'licenseText' => $l['licenseText'] ?? null,
+                ];
+            }, $licences);
+        }
+
+        return [
+            'tree' => $tree,
+            'definitions' => $definitions,
+        ];
+    }
+
+    /**
      * Delete an LsDoc and all associated items and associations.
      *
      * @throws Exception
@@ -759,9 +1202,14 @@ xENDx;
 
         $docResults = $query->getResult($format);
 
-        // merge the results so a licence only appears once
-        foreach ($docResults as $result) {
-            $results[$result->getId()] = $result;
+        if (AbstractQuery::HYDRATE_ARRAY === $format) {
+            foreach ($docResults as $id => $result) {
+                $results[$id] = $result;
+            }
+        } else {
+            foreach ($docResults as $result) {
+                $results[$result->getId()] = $result;
+            }
         }
 
         return $results;

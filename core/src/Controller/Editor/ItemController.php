@@ -11,14 +11,18 @@ use App\Command\Framework\DeleteItemWithChildrenCommand;
 use App\Command\Framework\UpdateItemCommand;
 use App\DTO\ItemType\ItemTypeInterface;
 use App\Entity\Framework\LsAssociation;
+use App\Entity\Framework\LsDefAssociationGrouping;
+use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Entity\Framework\LsItemKind;
+use App\Repository\Framework\LsAssociationRepository;
 use App\Repository\Framework\LsDocRepository;
 use App\Repository\Framework\LsItemRepository;
 use App\Security\Permission;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -37,6 +41,8 @@ class ItemController extends AbstractController
         private readonly HtmlSanitizerInterface $htmlSanitizer,
         private readonly LsDocRepository $docRepository,
         private readonly LsItemRepository $itemRepository,
+        private readonly LsAssociationRepository $associationRepository,
+        private readonly Security $security,
     ) {
     }
 
@@ -136,6 +142,305 @@ class ItemController extends AbstractController
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
+    }
+
+    #[Route(path: '/item/{identifier}/details', name: 'editor_item_details', methods: ['GET'])]
+    public function getItemDetails(
+        #[MapEntity(mapping: ['identifier' => 'identifier'])] LsItem $lsItem,
+    ): Response {
+        $doc = $lsItem->getLsDoc();
+        if (!$this->isGranted(Permission::FRAMEWORK_VIEW, $doc)) {
+            return new JsonResponse(['error' => 'Access Denied.'], Response::HTTP_FORBIDDEN);
+        }
+
+        $itemType = $lsItem->getItemType();
+        $itemTypeObj = null;
+        if (null !== $itemType) {
+            $itemTypeObj = [
+                'title' => $itemType->getTitle(),
+                'identifier' => $itemType->getIdentifier(),
+                'uri' => $itemType->getUri(),
+            ];
+        }
+
+        $licence = $lsItem->getLicence();
+        $licenceObj = null;
+        if (null !== $licence) {
+            $licenceObj = [
+                'identifier' => $licence->getIdentifier(),
+                'uri' => $licence->getUri(),
+                'title' => $licence->getTitle(),
+            ];
+        }
+
+        $response = [
+            'identifier' => $lsItem->getIdentifier(),
+            'uri' => $lsItem->getUri(),
+            'fullStatement' => $lsItem->getFullStatement(),
+            'abbreviatedStatement' => $lsItem->getAbbreviatedStatement(),
+            'humanCodingScheme' => $lsItem->getHumanCodingScheme(),
+            'listEnumeration' => $lsItem->getListEnumInSource(),
+            'notes' => $lsItem->getNotes(),
+            'language' => $lsItem->getLanguage(),
+            'educationLevel' => $lsItem->getEducationalAlignment(),
+            'conceptKeywords' => $lsItem->getConceptKeywordsString(),
+            'itemType' => $itemType?->getTitle(),
+            'CFItemTypeURI' => $itemTypeObj,
+            'statusStartDate' => $lsItem->getStatusStart()?->format('Y-m-d'),
+            'statusEndDate' => $lsItem->getStatusEnd()?->format('Y-m-d'),
+            'subject' => $lsItem->getSubject(),
+            'licenseURI' => $licenceObj,
+            'extensions' => $lsItem->getExtra() ?? [],
+            'lastChangeDateTime' => $lsItem->getChangedAt()?->format('c'),
+            'documentIdentifier' => $doc->getIdentifier(),
+            'permissions' => [
+                'canEdit' => $this->isGranted(Permission::ITEM_EDIT, $lsItem),
+            ],
+            'associations' => $this->buildItemAssociationList($lsItem),
+        ];
+
+        return new JsonResponse($response);
+    }
+
+    private function buildItemAssociationList(LsItem $item): array
+    {
+        $associations = [];
+
+        $qb = $this->associationRepository->createQueryBuilder('a')
+            ->leftJoin('a.originLsItem', 'oi')
+            ->leftJoin('a.originLsDoc', 'od')
+            ->leftJoin('a.destinationLsItem', 'di')
+            ->leftJoin('a.destinationLsDoc', 'dd')
+            ->leftJoin('a.group', 'g')
+            ->where('a.originLsItem = :item OR a.destinationLsItem = :item')
+            ->setParameter('item', $item->getId())
+            ->orderBy('a.sequenceNumber', 'ASC');
+
+        $results = $qb->getQuery()->getResult();
+
+        foreach ($results as $assoc) {
+            $originDoc = $assoc->getOriginLsItem()?->getLsDoc() ?? $assoc->getOriginLsDoc();
+            $destDoc = $assoc->getDestinationLsItem()?->getLsDoc() ?? $assoc->getDestinationLsDoc();
+
+            if (null !== $originDoc && !$this->isGranted(Permission::FRAMEWORK_VIEW, $originDoc)) {
+                continue;
+            }
+            if (null !== $destDoc && !$this->isGranted(Permission::FRAMEWORK_VIEW, $destDoc)) {
+                continue;
+            }
+
+            $originItem = $assoc->getOriginLsItem();
+            $originDocItem = $assoc->getOriginLsDoc();
+            $destItem = $assoc->getDestinationLsItem();
+            $destDoc = $assoc->getDestinationLsDoc();
+
+            $originTitle = null;
+            $originIdentifier = $assoc->getOriginNodeIdentifier();
+            $originDocumentIdentifier = null;
+            $originTargetType = 'item';
+            if (null !== $originItem) {
+                $hcs = $originItem->getHumanCodingScheme();
+                $originTitle = ($hcs ? $hcs.' - ' : '').$originItem->getFullStatement();
+                $originDocumentIdentifier = $originItem->getLsDoc()->getIdentifier();
+                $originTargetType = 'item';
+            } elseif (null !== $originDocItem) {
+                $originTitle = $originDocItem->getTitle();
+                $originDocumentIdentifier = $originDocItem->getIdentifier();
+                $originTargetType = 'document';
+            }
+
+            $destTitle = null;
+            $destIdentifier = $assoc->getDestinationNodeIdentifier();
+            $destDocumentIdentifier = null;
+            $destTargetType = 'item';
+            if (null !== $destItem) {
+                $hcs = $destItem->getHumanCodingScheme();
+                $destTitle = ($hcs ? $hcs.' - ' : '').$destItem->getFullStatement();
+                $destDocumentIdentifier = $destItem->getLsDoc()->getIdentifier();
+                $destTargetType = 'item';
+            } elseif (null !== $destDoc) {
+                $destTitle = $destDoc->getTitle();
+                $destDocumentIdentifier = $destDoc->getIdentifier();
+                $destTargetType = 'document';
+            }
+
+            $group = $assoc->getGroup();
+            $groupObj = null;
+            if (null !== $group) {
+                $groupObj = [
+                    'identifier' => $group->getIdentifier(),
+                    'title' => $group->getTitle(),
+                ];
+            }
+
+            $assocDoc = $assoc->getLsDoc();
+            $canEdit = null !== $assocDoc && $this->isGranted(Permission::ASSOCIATION_EDIT, $assoc);
+
+            $associations[] = [
+                'identifier' => $assoc->getIdentifier(),
+                'associationType' => $assoc->getType(),
+                'associationDocumentIdentifier' => $assocDoc?->getIdentifier(),
+                'originNodeURI' => [
+                    'identifier' => $originIdentifier,
+                    'title' => $originTitle,
+                    'uri' => $assoc->getOriginNodeUri(),
+                    'documentIdentifier' => $originDocumentIdentifier,
+                ],
+                'destinationNodeURI' => [
+                    'identifier' => $destIdentifier,
+                    'title' => $destTitle,
+                    'uri' => $assoc->getDestinationNodeUri(),
+                    'documentIdentifier' => $destDocumentIdentifier,
+                ],
+                'targetType' => $destTargetType,
+                'sequenceNumber' => $assoc->getSequenceNumber(),
+                'annotation' => $assoc->getNotes(),
+                'CFAssociationGroupingURI' => $groupObj,
+                'canEdit' => $canEdit,
+            ];
+        }
+
+        return $associations;
+    }
+
+    #[Route(path: '/item/{identifier}/move', name: 'editor_item_move', methods: ['POST'])]
+    public function moveItem(
+        Request $request,
+        #[MapEntity(mapping: ['identifier' => 'identifier'])] LsItem $lsItem,
+    ): Response {
+        $doc = $lsItem->getLsDoc();
+        if (!$this->isGranted(Permission::FRAMEWORK_EDIT, $doc)) {
+            return new JsonResponse(['error' => 'Access Denied.'], Response::HTTP_FORBIDDEN);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        if (null === $data) {
+            return new JsonResponse(['error' => 'Invalid JSON.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $newParentIdentifier = $data['newParentIdentifier'] ?? null;
+        $targetItemIdentifier = $data['targetItemIdentifier'] ?? null;
+        $position = $data['position'] ?? 'inside';
+        $oldChildOfAssocIdentifier = $data['childOfAssociationIdentifier'] ?? null;
+
+        if (null === $newParentIdentifier) {
+            return new JsonResponse(['error' => 'newParentIdentifier is required.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        try {
+            $em = $this->managerRegistry->getManager();
+
+            if (null !== $oldChildOfAssocIdentifier) {
+                $oldAssoc = $this->associationRepository->findOneBy(['identifier' => $oldChildOfAssocIdentifier]);
+                if (null !== $oldAssoc) {
+                    $this->associationRepository->removeAssociation($oldAssoc);
+                    $em->flush();
+                }
+            } else {
+                $deleted = $this->associationRepository->removeAllAssociationsOfType($lsItem, LsAssociation::CHILD_OF);
+                $em->flush();
+            }
+
+            $newParent = $this->itemRepository->findOneBy(['identifier' => $newParentIdentifier]);
+            if (null === $newParent) {
+                $newParent = $this->docRepository->findOneBy(['identifier' => $newParentIdentifier]);
+            }
+
+            if (null === $newParent) {
+                return new JsonResponse(['error' => 'Parent not found.'], Response::HTTP_NOT_FOUND);
+            }
+
+            $sequenceNumber = 1;
+            if (null !== $targetItemIdentifier && 'inside' !== $position) {
+                $sequenceNumber = $this->calculateSequenceNumber(
+                    $newParent, $targetItemIdentifier, $position
+                );
+            } else {
+                $sequenceNumber = $this->getNextSequenceNumber($newParent);
+            }
+
+            $newAssoc = $lsItem->addParent($newParent, $sequenceNumber);
+            $em->persist($newAssoc);
+            $em->flush();
+
+            return new JsonResponse([
+                'childOfAssociationIdentifier' => $newAssoc->getIdentifier(),
+                'sequenceNumber' => $newAssoc->getSequenceNumber(),
+            ], Response::HTTP_OK);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    private function calculateSequenceNumber(
+        LsItem|LsDoc $parent,
+        string $targetItemIdentifier,
+        string $position,
+    ): int {
+        $em = $this->managerRegistry->getManager();
+        $parentIdentifier = $parent->getIdentifier();
+
+        $childAssocs = $this->associationRepository->findAllChildAssociationsFor($parentIdentifier);
+
+        $siblings = [];
+        foreach ($childAssocs as $assoc) {
+            $childItem = $assoc->getOriginLsItem();
+            if (null !== $childItem) {
+                $siblings[] = [
+                    'identifier' => $childItem->getIdentifier(),
+                    'seq' => $assoc->getSequenceNumber() ?? 0,
+                ];
+            }
+        }
+
+        usort($siblings, static fn (array $a, array $b) => $a['seq'] <=> $b['seq']);
+
+        $targetIndex = null;
+        foreach ($siblings as $i => $s) {
+            if ($s['identifier'] === $targetItemIdentifier) {
+                $targetIndex = $i;
+                break;
+            }
+        }
+
+        if (null === $targetIndex) {
+            $lastSeq = [] !== $siblings ? (int) end($siblings)['seq'] : 0;
+
+            return $lastSeq + 1;
+        }
+
+        if ('before' === $position) {
+            $targetSeq = (int) $siblings[$targetIndex]['seq'];
+            $prevSeq = $targetIndex > 0 ? (int) $siblings[$targetIndex - 1]['seq'] : 0;
+
+            return (int) floor(($prevSeq + $targetSeq) / 2);
+        }
+
+        $targetSeq = (int) $siblings[$targetIndex]['seq'];
+        $nextIndex = $targetIndex + 1;
+        if ($nextIndex < count($siblings)) {
+            $nextSeq = (int) $siblings[$nextIndex]['seq'];
+
+            return (int) floor(($targetSeq + $nextSeq) / 2);
+        }
+
+        return $targetSeq + 1;
+    }
+
+    private function getNextSequenceNumber(LsItem|LsDoc $parent): int
+    {
+        $parentIdentifier = $parent->getIdentifier();
+        $childAssocs = $this->associationRepository->findAllChildAssociationsFor($parentIdentifier);
+
+        $maxSeq = 0;
+        foreach ($childAssocs as $assoc) {
+            $seq = $assoc->getSequenceNumber();
+            if (null !== $seq && $seq > $maxSeq) {
+                $maxSeq = $seq;
+            }
+        }
+
+        return $maxSeq + 1;
     }
 
     private function applyDataToItem(LsItem $lsItem, array $data, ?string $itemType): void
