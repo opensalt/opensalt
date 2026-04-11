@@ -51,6 +51,53 @@
           </small>
         </div>
 
+        <!-- Action Bar -->
+        <div v-if="sideDocument" class="action-bar mb-2 p-2 border rounded bg-light d-flex flex-column align-items-center">
+          <small class="text-muted mb-2">
+            <span v-if="!sideSelectedId">Select an item below to act on it.</span>
+            <span v-else>Item selected. Switch to main tree to select target.</span>
+          </small>
+          <div class="d-flex gap-2 ms-auto">
+            <button
+              type="button"
+              class="btn btn-outline-primary"
+              :disabled="!sideSelectedId"
+              @click="$emit('action', { type: 'associate', itemId: sideSelectedId })"
+            >
+              <i class="bi bi-link-45deg"></i> Associate
+            </button>
+            <div class="btn-group">
+              <button
+                id="copyDropdownBtnSide"
+                type="button"
+                class="btn btn-outline-primary dropdown-toggle"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+                :disabled="!sideSelectedId"
+              >
+                <i class="bi bi-copy"></i> Copy...
+              </button>
+              <ul class="dropdown-menu shadow-sm" aria-labelledby="copyDropdownBtnSide">
+                <li>
+                  <button class="dropdown-item py-2" @click="$emit('action', { type: 'copy', position: 'before', itemId: sideSelectedId })">
+                    <i class="bi bi-arrow-bar-up text-muted me-2"></i> Before Target
+                  </button>
+                </li>
+                <li>
+                  <button class="dropdown-item py-2" @click="$emit('action', { type: 'copy', position: 'after', itemId: sideSelectedId })">
+                    <i class="bi bi-arrow-bar-down text-muted me-2"></i> After Target
+                  </button>
+                </li>
+                <li>
+                  <button class="dropdown-item py-2" @click="$emit('action', { type: 'copy', position: 'inside', itemId: sideSelectedId })">
+                    <i class="bi bi-arrow-bar-right text-muted me-2"></i> As Child
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         <!-- Side Tree -->
         <!-- Show spinner when loading, regardless of sideDocument state -->
         <div v-if="selectedDocumentId && loadingSideDoc" class="side-tree flex-grow-1 d-flex justify-content-center align-items-center border rounded p-2">
@@ -80,52 +127,6 @@
           <div class="text-muted text-center">
             <i class="bi bi-file-earmark-text fs-1 d-block mb-2"></i>
             <span>Select a document to view</span>
-          </div>
-        </div>
-
-        <!-- Action Bar -->
-        <div v-if="sideDocument" class="action-bar mt-2 p-2 border rounded bg-light d-flex flex-column align-items-center">
-          <small class="text-muted mb-2">
-            <span v-if="!sideSelectedId">Select an item above to act on it.</span>
-            <span v-else>Item selected. Switch to main tree to select target.</span>
-          </small>
-          <div class="btn-group w-100" role="group">
-            <button
-              class="btn btn-outline-primary btn-sm"
-              :disabled="!sideSelectedId"
-              @click="$emit('action', { type: 'associate', itemId: sideSelectedId })"
-            >
-              <i class="bi bi-link-45deg"></i> Associate
-            </button>
-            <div class="btn-group w-100" role="group">
-              <button
-                id="copyDropdownBtnSide"
-                type="button"
-                class="btn btn-outline-primary btn-sm dropdown-toggle"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-                :disabled="!sideSelectedId"
-              >
-                <i class="bi bi-copy"></i> Copy...
-              </button>
-              <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="copyDropdownBtnSide">
-                <li>
-                  <button class="dropdown-item py-2" @click="$emit('action', { type: 'copy', position: 'before', itemId: sideSelectedId })">
-                    <i class="bi bi-arrow-bar-up text-muted me-2"></i> Before Target
-                  </button>
-                </li>
-                <li>
-                  <button class="dropdown-item py-2" @click="$emit('action', { type: 'copy', position: 'after', itemId: sideSelectedId })">
-                    <i class="bi bi-arrow-bar-down text-muted me-2"></i> After Target
-                  </button>
-                </li>
-                <li>
-                  <button class="dropdown-item py-2" @click="$emit('action', { type: 'copy', position: 'inside', itemId: sideSelectedId })">
-                    <i class="bi bi-arrow-bar-right text-muted me-2"></i> As Child
-                  </button>
-                </li>
-              </ul>
-            </div>
           </div>
         </div>
       </div>
