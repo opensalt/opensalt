@@ -153,6 +153,8 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
   const pendingItemDetailsRequests = new Map<string, Promise<ItemDetailsResponse>>();
   const itemAssociationsCache = new Map<string, { data: AssociationDetails[]; timestamp: number }>();
   const pendingItemAssociationsRequests = new Map<string, Promise<AssociationDetails[]>>();
+  const documentAssociationsCache = new Map<string, { data: AssociationDetails[]; timestamp: number }>();
+  const pendingDocumentAssociationsRequests = new Map<string, Promise<AssociationDetails[]>>();
 
   const ITEM_DETAILS_CACHE_TTL = 5 * 60 * 1000;
 
@@ -554,7 +556,8 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
 
     const promise = (async (): Promise<AssociationDetails[]> => {
       try {
-        const data = await api.get(`/framework/editor/associations/item/${identifier}`) as AssociationDetails[];
+        const response = await api.get(`/framework/editor/associations/item/${identifier}`) as { data: AssociationDetails[] };
+        const data = Array.isArray(response?.data) ? response.data : (Array.isArray(response) ? response : []);
         itemAssociationsCache.set(identifier, { data, timestamp: Date.now() });
         return data;
       } finally {
@@ -566,13 +569,40 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     return promise;
   }
 
+  async function fetchDocumentAssociations(identifier: UUID): Promise<AssociationDetails[]> {
+    const cached = documentAssociationsCache.get(identifier);
+    if (cached && Date.now() - cached.timestamp < ITEM_DETAILS_CACHE_TTL) {
+      return cached.data;
+    }
+
+    if (pendingDocumentAssociationsRequests.has(identifier)) {
+      return pendingDocumentAssociationsRequests.get(identifier)!;
+    }
+
+    const promise = (async (): Promise<AssociationDetails[]> => {
+      try {
+        const response = await api.get(`/framework/editor/associations/document/${identifier}`) as { data: AssociationDetails[] };
+        const data = Array.isArray(response?.data) ? response.data : (Array.isArray(response) ? response : []);
+        documentAssociationsCache.set(identifier, { data, timestamp: Date.now() });
+        return data;
+      } finally {
+        pendingDocumentAssociationsRequests.delete(identifier);
+      }
+    })();
+
+    pendingDocumentAssociationsRequests.set(identifier, promise);
+    return promise;
+  }
+
   function invalidateItemDetailsCache(identifier?: UUID) {
     if (identifier) {
       itemDetailsCache.delete(identifier);
       itemAssociationsCache.delete(identifier);
+      documentAssociationsCache.delete(identifier);
     } else {
       itemDetailsCache.clear();
       itemAssociationsCache.clear();
+      documentAssociationsCache.clear();
     }
   }
 
@@ -776,6 +806,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     transformCASEItems,
     fetchItemDetails,
     fetchItemAssociations,
+    fetchDocumentAssociations,
     invalidateItemDetailsCache,
     updateItems,
     addAssociation,

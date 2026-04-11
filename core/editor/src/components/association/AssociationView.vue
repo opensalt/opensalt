@@ -202,7 +202,26 @@ async function refreshDbAssociations() {
   const seenIds = new Set();
   const result = [];
 
+  const currentDocId = currentDocumentStore.currentDocument?.identifier;
+
+  if (currentDocId) {
+    try {
+      const related = await currentDocumentStore.fetchDocumentAssociations(currentDocId);
+      (related || []).forEach((assoc) => {
+        if (!assoc?.identifier || seenIds.has(assoc.identifier)) return;
+        seenIds.add(assoc.identifier);
+        result.push({
+          ...assoc,
+          _sourceFrameworkId: assoc.associationDocumentIdentifier || null
+        });
+      });
+    } catch (err) {
+      logger.error('[AssociationView] Failed to fetch associations for document:', currentDocId, err);
+    }
+  }
+
   for (const itemId of currentItemIds) {
+    if (itemId === currentDocId) continue;
     try {
       const related = await currentDocumentStore.fetchItemAssociations(itemId);
       (related || []).forEach((assoc) => {
