@@ -302,6 +302,14 @@ export const useDocumentStore = defineStore('documents', () => {
     treeCache.delete(`lw:${identifier}`);
   }
 
+  async function revalidatePackage(identifier: UUID, refetch = false): Promise<TreeResponse | null> {
+    invalidateTreeCache(identifier);
+    if (refetch) {
+      return await fetchTree(identifier);
+    }
+    return null;
+  }
+
   function clearError(): void { error.value = null; }
   function clearSideDocError(): void { sideDocError.value = null; }
   function clearViewedDocError(): void { viewedDocError.value = null; }
@@ -353,6 +361,7 @@ export const useDocumentStore = defineStore('documents', () => {
     clearViewedDocError,
     resetLoadingSideDocument,
     invalidateTreeCache,
+    revalidatePackage,
     isDocumentCached,
     removeDocument,
   };
