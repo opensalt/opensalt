@@ -10,8 +10,10 @@
           <i class="bi bi-lock" aria-hidden="true"></i> Read-only
         </span>
       </h6>
-      <div class="btn-group btn-group-sm" v-if="canEditItem">
-        <button
+      <div class="d-flex align-items-center gap-2">
+        <slot name="header-actions" />
+        <div class="btn-group btn-group-sm" v-if="canEditItem">
+          <button
           type="button"
           class="btn btn-outline-primary"
           @click="$emit('edit', item)"
@@ -28,6 +30,7 @@
           <i class="bi bi-trash"></i>
         </button>
       </div>
+    </div>
     </div>
 
     <div class="card-body">

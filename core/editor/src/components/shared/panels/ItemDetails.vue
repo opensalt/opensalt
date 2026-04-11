@@ -42,13 +42,15 @@
       @add-exemplar="$emit('add-exemplar', item)"
     />
 
-    <ItemMovementCard
-      :item="item"
-      :current-document="currentDocument"
-      :can-edit-item="canEditItem"
-      :is-item-from-viewed-framework="isItemFromViewedFramework"
-      :is-read-only="isReadOnly"
-    />
+    <template #header-actions>
+      <ItemMovementCard
+        :item="item"
+        :current-document="currentDocument"
+        :can-edit-item="canEditItem"
+        :is-item-from-viewed-framework="isItemFromViewedFramework"
+        :is-read-only="isReadOnly"
+      />
+    </template>
     </ItemHeaderCard>
 
 

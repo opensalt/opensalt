@@ -1,55 +1,46 @@
 <template>
-  <div class="card mt-3" v-if="canEditItem && !isItemFromViewedFramework && !isReadOnly">
-    <div class="card-header bg-light py-2 px-3 border-bottom-0">
-      <h6 class="mb-0 text-muted" style="font-size: 0.85rem; font-weight: 600; text-transform: uppercase;">
-        <i class="bi bi-arrows-move me-1"></i> Reorder Item
-      </h6>
-    </div>
-    <div class="card-body p-3">
-      <div class="d-flex flex-wrap gap-2">
-        <button 
-          v-if="canMoveUp"
-          type="button" 
-          class="btn btn-sm btn-outline-secondary d-flex align-items-center"
-          @click="move('up')"
-          title="Move Up"
-        >
-          <i class="bi bi-arrow-up me-1"></i> Move Up
-        </button>
-        <button 
-          v-if="canMoveDown"
-          type="button" 
-          class="btn btn-sm btn-outline-secondary d-flex align-items-center"
-          @click="move('down')"
-          title="Move Down"
-        >
-          <i class="bi bi-arrow-down me-1"></i> Move Down
-        </button>
-        <button 
-          v-if="canIndent"
-          type="button" 
-          class="btn btn-sm btn-outline-secondary d-flex align-items-center"
-          @click="move('indent')"
-          title="Indent (Make child of previous sibling)"
-        >
-          <i class="bi bi-arrow-right me-1"></i> Indent
-        </button>
-        <button 
-          v-if="canOutdent"
-          type="button" 
-          class="btn btn-sm btn-outline-secondary d-flex align-items-center"
-          @click="move('outdent')"
-          title="Outdent (Move to parent level)"
-        >
-          <i class="bi bi-arrow-left me-1"></i> Outdent
-        </button>
-      </div>
-    </div>
+  <div class="btn-group btn-group-sm me-2" v-if="canEditItem && !isItemFromViewedFramework && !isReadOnly">
+    <button 
+      v-if="canMoveUp"
+      type="button" 
+      class="btn btn-outline-secondary"
+      @click="move('up')"
+      title="Move Up"
+    >
+      <i class="bi bi-arrow-up"></i>
+    </button>
+    <button 
+      v-if="canMoveDown"
+      type="button" 
+      class="btn btn-outline-secondary"
+      @click="move('down')"
+      title="Move Down"
+    >
+      <i class="bi bi-arrow-down"></i>
+    </button>
+    <button 
+      v-if="canIndent"
+      type="button" 
+      class="btn btn-outline-secondary"
+      @click="move('indent')"
+      title="Indent (Make child of previous sibling)"
+    >
+      <i class="bi bi-arrow-right"></i>
+    </button>
+    <button 
+      v-if="canOutdent"
+      type="button" 
+      class="btn btn-outline-secondary"
+      @click="move('outdent')"
+      title="Outdent (Move to parent level)"
+    >
+      <i class="bi bi-arrow-left"></i>
+    </button>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, inject } from 'vue';
 import { useItemStore } from '../../../stores/itemStore';
 import { findItemPath } from '../../../utils/tree';
 import { logger } from '../../../utils/logger';
@@ -154,6 +145,10 @@ const canOutdent = computed(() => {
 const emit = defineEmits(['tree-change']);
 const itemStore = useItemStore();
 
+const navigation = inject('treeNavigation', {
+  expandItem: () => {},
+});
+
 async function move(direction) {
   if (!isMoveable.value) return;
   const ctx = parentLevelContext.value;
@@ -192,6 +187,9 @@ async function move(direction) {
         position: position
       });
       // The store modifies the tree reactively
+      if (direction === 'indent') {
+        navigation.expandItem(targetItem.identifier);
+      }
     } catch (e) {
       logger.error('Error during internal move:', e);
     }
