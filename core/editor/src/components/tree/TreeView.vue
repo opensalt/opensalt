@@ -31,6 +31,7 @@
           :matching-item-ids="props.matchingItemIds"
           :is-view-mode="isViewMode"
           :disable-drop="disableDrop"
+          :disable-drag="disableDrag"
           @select="onSelect"
           @dblclick="onDblClick"
           @move="onMove"
@@ -74,6 +75,10 @@ const props = defineProps({
     default: false
   },
   disableDrop: {
+    type: Boolean,
+    default: false
+  },
+  disableDrag: {
     type: Boolean,
     default: false
   }

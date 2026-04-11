@@ -118,6 +118,7 @@
             :doc="sideDocument"
             :selected-id="sideSelectedId"
             :disable-drop="true"
+            :disable-drag="true"
             @select="onSideSelect"
             @tree-change="$emit('tree-change', $event)"
           />

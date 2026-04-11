@@ -22,7 +22,7 @@
       class="expand-control"
       :style="{ marginLeft: (level * 20) + 'px' }"
       @click="onSummaryClick"
-      :draggable="!isViewMode && !isCrossFrameworkItem"
+      :draggable="!isViewMode && !isCrossFrameworkItem && !disableDrag"
       @dragstart="onDragStart"
       @dragover="onDragOver"
       @dragleave="onDragLeave"
@@ -79,6 +79,7 @@
           :matching-item-ids="matchingItemIds"
           :is-view-mode="isViewMode"
           :disable-drop="disableDrop"
+          :disable-drag="disableDrag"
           @select="$emit('select', $event)"
           @dblclick="$emit('dblclick', $event)"
           @move="$emit('move', $event)"
@@ -112,7 +113,7 @@
     <div
       class="tree-node-content"
       :style="{ marginLeft: (level * 20) + 'px' }"
-      :draggable="!isViewMode && !isCrossFrameworkItem"
+      :draggable="!isViewMode && !isCrossFrameworkItem && !disableDrag"
       @dragstart="onDragStart"
       @dragover="onDragOver"
       @dragleave="onDragLeave"
@@ -209,6 +210,7 @@ const props = defineProps({
   matchingItemIds: { type: Set, default: () => new Set() },
   isViewMode: { type: Boolean, default: false },
   disableDrop: { type: Boolean, default: false },
+  disableDrag: { type: Boolean, default: false },
 });
 const emit = defineEmits(['select', 'dblclick', 'move', 'item-change', 'focus']);
 
