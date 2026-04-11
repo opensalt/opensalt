@@ -248,9 +248,30 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
         frameworkId: documentIdentifier
       });
     }
+
+    function registerTreeItemsInContext(nodes: EditorItemNode[]) {
+      for (const node of nodes) {
+        if (!contextStore.itemDetailsCache.has(node.identifier)) {
+          contextStore.itemDetailsCache.set(node.identifier, {
+            identifier: node.identifier,
+            uri: node.uri,
+            fullStatement: node.fullStatement,
+            abbreviatedStatement: node.abbreviatedStatement,
+            humanCodingScheme: node.humanCodingScheme,
+            listEnumeration: node.listEnumeration,
+            documentIdentifier: documentIdentifier ?? undefined,
+          });
+        }
+        if (node.children?.length) {
+          registerTreeItemsInContext(node.children);
+        }
+      }
+    }
+    registerTreeItemsInContext(mappedItems);
   }
 
   function clearCurrentDocument() {
+    const prevDocId = contextStore.activeWriteDocumentId;
     currentDocument.value = null;
     contextStore.activeWriteDocumentId = null;
     currentDocumentDefinitions.value = {
@@ -265,6 +286,16 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     currentDocumentAssociationGroupings.value = [];
     currentDocumentTree.value = [];
     contextStore.viewedDocumentId = null;
+
+    if (prevDocId) {
+      const entriesToRemove: string[] = [];
+      for (const [key, val] of contextStore.itemDetailsCache) {
+        if (val.documentIdentifier === prevDocId) {
+          entriesToRemove.push(key);
+        }
+      }
+      entriesToRemove.forEach(key => contextStore.itemDetailsCache.delete(key));
+    }
   }
 
   /**
