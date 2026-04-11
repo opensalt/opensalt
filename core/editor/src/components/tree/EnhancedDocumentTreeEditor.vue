@@ -82,6 +82,7 @@
           @side-document-select="onSideDocumentSelect"
           @external-document-requested="onExternalDocumentRequested"
           @side-select="onSideSelect"
+          @action="onExternalAction"
         />
         <SideBySideTreePanel
           v-else
@@ -96,6 +97,7 @@
           @external-document-requested="onExternalDocumentRequested"
           @side-select="onSideSelect"
           @tree-change="onTreeChange"
+          @action="onExternalAction"
         />
       </section>
     </main>
@@ -439,6 +441,7 @@ const {
   onViewedDocumentChanged,
   onExternalDocumentRequested,
   onExternalDocumentUrlLoaded,
+  onExternalAction,
   onSearch,
   onFilter,
   onClearSearch,

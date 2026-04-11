@@ -41,6 +41,14 @@
       @add-child="handleDropdownClick"
       @add-exemplar="$emit('add-exemplar', item)"
     />
+
+    <ItemMovementCard
+      :item="item"
+      :current-document="currentDocument"
+      :can-edit-item="canEditItem"
+      :is-item-from-viewed-framework="isItemFromViewedFramework"
+      :is-read-only="isReadOnly"
+    />
     </ItemHeaderCard>
 
 
@@ -83,6 +91,7 @@ import ItemCrossFrameworkBanner from './ItemCrossFrameworkBanner.vue';
 import ItemHeaderCard from './ItemHeaderCard.vue';
 import ItemDefaultDetails from './ItemDefaultDetails.vue';
 import ItemActionsCard from './ItemActionsCard.vue';
+import ItemMovementCard from './ItemMovementCard.vue';
 import ItemAssociationsCard from './ItemAssociationsCard.vue';
 import CommentModule from '../CommentModule.vue';
 import DeleteAssociationModal from '@/components/association/DeleteAssociationModal.vue';

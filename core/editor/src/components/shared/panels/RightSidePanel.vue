@@ -16,21 +16,11 @@
           v-if="sessionStore.isAuthenticated"
           type="button"
           class="btn btn-sm"
-          :class="{ 'btn-primary': currentMode === 'copyItems', 'btn-outline-primary': currentMode !== 'copyItems' }"
-          @click="setMode('copyItems')"
+          :class="{ 'btn-primary': currentMode === 'externalDocument', 'btn-outline-primary': currentMode !== 'externalDocument' }"
+          @click="setMode('externalDocument')"
         >
-          <i class="bi bi-copy me-1"></i>
-          Copy Items
-        </button>
-        <button
-          v-if="sessionStore.isAuthenticated"
-          type="button"
-          class="btn btn-sm"
-          :class="{ 'btn-primary': currentMode === 'createAssociations', 'btn-outline-primary': currentMode !== 'createAssociations' }"
-          @click="setMode('createAssociations')"
-        >
-          <i class="bi bi-link-45deg me-1"></i>
-          Create Associations
+          <i class="bi bi-box-arrow-in-right me-1"></i>
+          Copy / Associate
         </button>
       </div>
     </div>
@@ -72,6 +62,7 @@
         @document-select="$emit('side-document-select', $event)"
         @external-document-requested="$emit('external-document-requested')"
         @side-select="$emit('side-select', $event)"
+        @action="$emit('action', $event)"
       />
     </div>
   </div>
@@ -135,7 +126,8 @@ const emit = defineEmits([
   'clone-framework',
   'side-document-select',
   'external-document-requested',
-  'side-select'
+  'side-select',
+  'action'
 ]);
 
 const currentMode = ref(props.initialMode);

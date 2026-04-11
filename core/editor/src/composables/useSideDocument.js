@@ -2,7 +2,7 @@
  * useSideDocument Composable
  *
  * Handles side document loading and management for the EnhancedDocumentTreeEditor.
- * Used for Copy Items and Create Associations modes where a second document
+ * Used for the External Document mode where a second document
  * is displayed alongside the main document.
  * Uses API-first architecture: fetchLightweightTree returns a pre-built tree.
  */
@@ -92,7 +92,7 @@ export function useSideDocument(options = {}) {
 
   /**
    * Restore side document from centralized framework selection state
-   * @param {string} mode - The mode to restore selection for ('copyItems' or 'createAssociations')
+   * @param {string} mode - The mode to restore selection for ('externalDocument' or 'treeView')
    * @returns {Promise<Object|null>} The restored side document or null
    */
   async function restoreSideDocumentFromState(mode) {

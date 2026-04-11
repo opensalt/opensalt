@@ -15,20 +15,11 @@
         <button
           type="button"
           class="btn btn-sm"
-          :class="{ 'btn-primary': mode === 'copyItems', 'btn-outline-primary': mode !== 'copyItems' }"
-          @click="$emit('mode-changed', 'copyItems')"
+          :class="{ 'btn-primary': mode === 'externalDocument', 'btn-outline-primary': mode !== 'externalDocument' }"
+          @click="$emit('mode-changed', 'externalDocument')"
         >
-          <i class="bi bi-copy me-1"></i>
-          Copy Items
-        </button>
-        <button
-          type="button"
-          class="btn btn-sm"
-          :class="{ 'btn-primary': mode === 'createAssociations', 'btn-outline-primary': mode !== 'createAssociations' }"
-          @click="$emit('mode-changed', 'createAssociations')"
-        >
-          <i class="bi bi-link-45deg me-1"></i>
-          Create Associations
+          <i class="bi bi-box-arrow-in-right me-1"></i>
+          Copy / Associate
         </button>
       </div>
     </div>
@@ -44,7 +35,7 @@
         <DocumentSelector
           :current-doc="currentDocForSelector"
           :available-documents="availableDocuments"
-          :label="mode === 'copyItems' ? 'Source Document' : 'Target Document'"
+          :label="'External Document'"
           side="right"
           @viewed-document-changed="onDocumentChanged"
           @external-document-requested="onExternalDocumentRequested"
@@ -54,11 +45,8 @@
         <div v-if="!selectedDocumentId" class="instructions alert alert-info py-2 mb-2">
           <small>
             <i class="bi bi-info-circle me-1"></i>
-            <span v-if="mode === 'copyItems'">
-              Select a document above to copy items from it to current document.
-            </span>
-            <span v-else>
-              Select a document above to create associations between its items and items in current document.
+            <span>
+              Select an external document above to view and act on its items.
             </span>
           </small>
         </div>
@@ -95,17 +83,50 @@
           </div>
         </div>
 
-        <!-- Drag Instructions -->
-        <div v-if="sideDocument" class="drag-instructions mt-2 alert alert-secondary py-2">
-          <small>
-            <i class="bi bi-grip-vertical me-1"></i>
-            <span v-if="mode === 'copyItems'">
-              Drag items from here to the left tree to copy them.
-            </span>
-            <span v-else>
-              Drag items from here to items in the left tree to create associations.
-            </span>
+        <!-- Action Bar -->
+        <div v-if="sideDocument" class="action-bar mt-2 p-2 border rounded bg-light d-flex flex-column align-items-center">
+          <small class="text-muted mb-2">
+            <span v-if="!sideSelectedId">Select an item above to act on it.</span>
+            <span v-else>Item selected. Switch to main tree to select target.</span>
           </small>
+          <div class="btn-group w-100" role="group">
+            <button
+              class="btn btn-outline-primary btn-sm"
+              :disabled="!sideSelectedId"
+              @click="$emit('action', { type: 'associate', itemId: sideSelectedId })"
+            >
+              <i class="bi bi-link-45deg"></i> Associate
+            </button>
+            <div class="btn-group w-100" role="group">
+              <button
+                id="copyDropdownBtnSide"
+                type="button"
+                class="btn btn-outline-primary btn-sm dropdown-toggle"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+                :disabled="!sideSelectedId"
+              >
+                <i class="bi bi-copy"></i> Copy...
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="copyDropdownBtnSide">
+                <li>
+                  <button class="dropdown-item py-2" @click="$emit('action', { type: 'copy', position: 'before', itemId: sideSelectedId })">
+                    <i class="bi bi-arrow-bar-up text-muted me-2"></i> Before Target
+                  </button>
+                </li>
+                <li>
+                  <button class="dropdown-item py-2" @click="$emit('action', { type: 'copy', position: 'after', itemId: sideSelectedId })">
+                    <i class="bi bi-arrow-bar-down text-muted me-2"></i> After Target
+                  </button>
+                </li>
+                <li>
+                  <button class="dropdown-item py-2" @click="$emit('action', { type: 'copy', position: 'inside', itemId: sideSelectedId })">
+                    <i class="bi bi-arrow-bar-right text-muted me-2"></i> As Child
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -123,8 +144,8 @@ import { useSideTreePanel } from '../../composables/useSideTreePanel';
 const props = defineProps({
   mode: {
     type: String,
-    default: 'itemDetails', // 'itemDetails', 'copyItems', 'createAssociations'
-    validator: (value) => ['itemDetails', 'copyItems', 'createAssociations'].includes(value)
+    default: 'itemDetails', // 'itemDetails', 'externalDocument'
+    validator: (value) => ['itemDetails', 'externalDocument'].includes(value)
   },
   currentDocument: {
     type: Object,
@@ -154,8 +175,7 @@ const emit = defineEmits([
   'external-document-requested',
   'side-select',
   'tree-change',
-  'copy-item',
-  'create-association'
+  'action'
 ]);
 
 const editorContextStore = useEditorContextStore();
@@ -175,7 +195,7 @@ function onDocumentChanged(event) {
     onDocumentSelected(documentId);
     emit('document-select', documentId);
     // Save framework selection to centralized state
-    if (props.mode === 'copyItems' || props.mode === 'createAssociations') {
+    if (props.mode === 'externalDocument') {
       editorContextStore.setFrameworkSelection(props.mode, documentId);
     }
   }

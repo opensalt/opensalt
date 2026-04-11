@@ -40,8 +40,7 @@ export interface FrameworkSelectionMode {
 
 export type FrameworkSelectionMap = {
     itemDetails: null;
-    copyItems: FrameworkSelectionMode;
-    createAssociations: FrameworkSelectionMode;
+    externalDocument: FrameworkSelectionMode;
     treeView: FrameworkSelectionMode;
     associationView: null;
     logView: null;
@@ -96,8 +95,7 @@ export const useEditorContextStore = defineStore('editorContext', () => {
 
     const frameworkSelectionState = reactive<FrameworkSelectionMap>({
         itemDetails: null,
-        copyItems: { documentId: null, lastSelectedAt: null, isLoaded: false },
-        createAssociations: { documentId: null, lastSelectedAt: null, isLoaded: false },
+        externalDocument: { documentId: null, lastSelectedAt: null, isLoaded: false },
         treeView: { documentId: null, lastSelectedAt: null, isLoaded: false },
         associationView: null,
         logView: null
@@ -139,12 +137,12 @@ export const useEditorContextStore = defineStore('editorContext', () => {
         touchRegistry();
     }
 
-    function getFrameworkSelection(mode: 'copyItems' | 'createAssociations' | 'treeView'): FrameworkSelectionMode {
+    function getFrameworkSelection(mode: 'externalDocument' | 'treeView'): FrameworkSelectionMode {
         const selection = frameworkSelectionState[mode];
         return selection;
     }
 
-    function setFrameworkSelection(mode: 'copyItems' | 'createAssociations' | 'treeView', documentId: UUID | null) {
+    function setFrameworkSelection(mode: 'externalDocument' | 'treeView', documentId: UUID | null) {
         const modeState = frameworkSelectionState[mode];
         if (!modeState) {
             return;
@@ -161,18 +159,17 @@ export const useEditorContextStore = defineStore('editorContext', () => {
         touchRegistry();
     }
 
-    function clearFrameworkSelection(mode: 'copyItems' | 'createAssociations' | 'treeView') {
+    function clearFrameworkSelection(mode: 'externalDocument' | 'treeView') {
         setFrameworkSelection(mode, null);
     }
 
     function clearAllFrameworkSelections() {
-        setFrameworkSelection('copyItems', null);
-        setFrameworkSelection('createAssociations', null);
+        setFrameworkSelection('externalDocument', null);
         setFrameworkSelection('treeView', null);
     }
 
     function getMostRecentFramework(): UUID | null {
-        const modes: Array<keyof FrameworkSelectionMap> = ['copyItems', 'createAssociations', 'treeView'];
+        const modes: Array<keyof FrameworkSelectionMap> = ['externalDocument', 'treeView'];
         let mostRecent: { documentId: UUID | null; timestamp: string | null } = {
             documentId: null,
             timestamp: null
@@ -193,7 +190,7 @@ export const useEditorContextStore = defineStore('editorContext', () => {
         return mostRecent.documentId;
     }
 
-    async function validateFrameworkSelection(mode: 'copyItems' | 'createAssociations' | 'treeView'): Promise<boolean> {
+    async function validateFrameworkSelection(mode: 'externalDocument' | 'treeView'): Promise<boolean> {
         const modeState = frameworkSelectionState[mode];
         if (!modeState?.documentId) return false;
 
