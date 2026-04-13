@@ -167,7 +167,8 @@
       :association-actions-read-only="!sessionStore.isAuthenticated"
       :is-viewing-different-framework="isViewingDifferentFramework"
       :current-document="document"
-      :show-add-button="false"
+      :show-add-button="true"
+      @add-association="$emit('add-association', document)"
       @edit-association="$emit('edit-association', $event)"
       @delete-association="$emit('delete-association', $event)"
     />
@@ -281,6 +282,7 @@ const emit = defineEmits([
   'clone-framework',
   'edit-association',
   'delete-association',
+  'add-association'
 ]);
 
 const availableTypes = ['general', 'assessment', 'course', 'credential', 'job', 'organization', 'public_key', 'identifier'];

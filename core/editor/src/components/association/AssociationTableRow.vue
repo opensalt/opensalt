@@ -13,15 +13,32 @@
           </template>
           <template v-else>
             <div class="d-flex align-items-center flex-wrap gap-1">
-              <span v-if="originDisplay.humanCodingScheme" class="item-human-coding-scheme">
-                {{ originDisplay.humanCodingScheme }}
-              </span>
-              <span v-if="originDisplay.statement" class="item-statement">
-                {{ originDisplay.truncatedStatement }}
-              </span>
-              <span v-if="!originDisplay.humanCodingScheme && !originDisplay.statement" class="text-muted">
-                Unknown
-              </span>
+              <a v-if="originLinkInfo.type === 'same-framework'" href="#" class="association-title-link" @click.prevent="onOriginClick">
+                <span v-if="originDisplay.humanCodingScheme" class="item-human-coding-scheme">{{ originDisplay.humanCodingScheme }}</span>
+                <span v-if="originDisplay.statement" class="item-statement">{{ originDisplay.truncatedStatement }}</span>
+                <span v-if="!originDisplay.humanCodingScheme && !originDisplay.statement" class="text-muted">Unknown</span>
+              </a>
+              <a v-else-if="originLinkInfo.type === 'cross-framework'" :href="originLinkInfo.href" target="_blank" rel="noopener noreferrer" class="association-title-link">
+                <span v-if="originDisplay.humanCodingScheme" class="item-human-coding-scheme">{{ originDisplay.humanCodingScheme }}</span>
+                <span v-if="originDisplay.statement" class="item-statement">{{ originDisplay.truncatedStatement }}</span>
+                <span v-if="!originDisplay.humanCodingScheme && !originDisplay.statement" class="text-muted">Unknown</span>
+              </a>
+              <a v-else-if="originLinkInfo.type === 'external'" :href="originLinkInfo.href" target="_blank" rel="noopener noreferrer" class="association-title-link">
+                <span v-if="originDisplay.humanCodingScheme" class="item-human-coding-scheme">{{ originDisplay.humanCodingScheme }}</span>
+                <span v-if="originDisplay.statement" class="item-statement">{{ originDisplay.truncatedStatement }}</span>
+                <span v-if="!originDisplay.humanCodingScheme && !originDisplay.statement" class="text-muted">Unknown</span>
+              </a>
+              <template v-else>
+                <span v-if="originDisplay.humanCodingScheme" class="item-human-coding-scheme">
+                  {{ originDisplay.humanCodingScheme }}
+                </span>
+                <span v-if="originDisplay.statement" class="item-statement">
+                  {{ originDisplay.truncatedStatement }}
+                </span>
+                <span v-if="!originDisplay.humanCodingScheme && !originDisplay.statement" class="text-muted">
+                  Unknown
+                </span>
+              </template>
               <!-- Framework badge for cross-framework CASE items -->
               <span v-if="originFrameworkTitle && !isOriginLoading && originTargetTypeInfo.isCase" class="badge framework-badge" :title="`From: ${originFrameworkTitle}`">
                 <i class="bi bi-box-arrow-up-right me-1"></i>{{ originFrameworkTitle }}
@@ -65,15 +82,32 @@
         </template>
         <template v-else>
           <div class="d-flex align-items-center flex-wrap gap-1">
-            <span v-if="destinationDisplay.humanCodingScheme" class="item-human-coding-scheme">
-              {{ destinationDisplay.humanCodingScheme }}
-            </span>
-            <span v-if="destinationDisplay.statement" class="item-statement">
-              {{ destinationDisplay.truncatedStatement }}
-            </span>
-            <span v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement" class="text-muted">
-              Unknown
-            </span>
+            <a v-if="destinationLinkInfo.type === 'same-framework'" href="#" class="association-title-link" @click.prevent="onDestinationClick">
+              <span v-if="destinationDisplay.humanCodingScheme" class="item-human-coding-scheme">{{ destinationDisplay.humanCodingScheme }}</span>
+              <span v-if="destinationDisplay.statement" class="item-statement">{{ destinationDisplay.truncatedStatement }}</span>
+              <span v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement" class="text-muted">Unknown</span>
+            </a>
+            <a v-else-if="destinationLinkInfo.type === 'cross-framework'" :href="destinationLinkInfo.href" target="_blank" rel="noopener noreferrer" class="association-title-link">
+              <span v-if="destinationDisplay.humanCodingScheme" class="item-human-coding-scheme">{{ destinationDisplay.humanCodingScheme }}</span>
+              <span v-if="destinationDisplay.statement" class="item-statement">{{ destinationDisplay.truncatedStatement }}</span>
+              <span v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement" class="text-muted">Unknown</span>
+            </a>
+            <a v-else-if="destinationLinkInfo.type === 'external'" :href="destinationLinkInfo.href" target="_blank" rel="noopener noreferrer" class="association-title-link">
+              <span v-if="destinationDisplay.humanCodingScheme" class="item-human-coding-scheme">{{ destinationDisplay.humanCodingScheme }}</span>
+              <span v-if="destinationDisplay.statement" class="item-statement">{{ destinationDisplay.truncatedStatement }}</span>
+              <span v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement" class="text-muted">Unknown</span>
+            </a>
+            <template v-else>
+              <span v-if="destinationDisplay.humanCodingScheme" class="item-human-coding-scheme">
+                {{ destinationDisplay.humanCodingScheme }}
+              </span>
+              <span v-if="destinationDisplay.statement" class="item-statement">
+                {{ destinationDisplay.truncatedStatement }}
+              </span>
+              <span v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement" class="text-muted">
+                Unknown
+              </span>
+            </template>
             <!-- Framework badge for cross-framework CASE items -->
             <span v-if="destinationFrameworkTitle && !isDestinationLoading && destinationTargetTypeInfo.isCase" class="badge framework-badge" :title="`From: ${destinationFrameworkTitle}`">
               <i class="bi bi-box-arrow-up-right me-1"></i>{{ destinationFrameworkTitle }}
@@ -125,7 +159,8 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted, toRef } from 'vue';
+import { computed, ref, onMounted, toRef, inject } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useCrossFrameworkItem } from '../../composables/useCrossFrameworkItem';
 import { useAssociationPermissions } from '../../composables/useAssociationPermissions';
 import { formatAssociationType, getAssociationIcon } from '../../utils/associationHelpers.js';
@@ -177,6 +212,10 @@ const props = defineProps({
 
 const emit = defineEmits(['edit', 'delete']);
 
+const route = useRoute();
+const router = useRouter();
+const treeNavigation = inject('treeNavigation', null);
+
 const {
   isAssociationFromDifferentDisplayedFramework,
   canManageAssociation,
@@ -191,7 +230,10 @@ const {
   targetTypeInfo: originTargetTypeInfo,
   nodeURI: originNodeURI,
   frameworkTitle: originFrameworkTitle,
-  isCrossFramework: isOriginCrossFramework
+  isCrossFramework: isOriginCrossFramework,
+  resolvedFrameworkId: originResolvedFrameworkId,
+  displayedFrameworkId: originDisplayedFrameworkId,
+  itemIdentifier: originItemIdentifier
 } = useCrossFrameworkItem({
   association: toRef(props, 'association'),
   direction: 'reversed'
@@ -205,11 +247,92 @@ const {
   targetTypeInfo: destinationTargetTypeInfo,
   nodeURI: destinationNodeURI,
   frameworkTitle: destinationFrameworkTitle,
-  isCrossFramework: isDestinationCrossFramework
+  isCrossFramework: isDestinationCrossFramework,
+  resolvedFrameworkId: destinationResolvedFrameworkId,
+  displayedFrameworkId: destinationDisplayedFrameworkId,
+  itemIdentifier: destinationItemIdentifier
 } = useCrossFrameworkItem({
   association: toRef(props, 'association'),
   direction: 'normal'
 });
+
+function computeLinkInfo({ isLoading, targetTypeInfo, nodeURI, isCrossFramework, resolvedFrameworkId, displayedFrameworkId, itemIdentifier }) {
+  if (isLoading.value) return { type: 'none' };
+
+  const uri = nodeURI.value?.uri;
+  const itemId = itemIdentifier.value;
+  const nodeFwId = nodeURI.value?.documentIdentifier;
+  const targetFwId = nodeFwId || resolvedFrameworkId.value;
+  const currentFwId = displayedFrameworkId.value;
+
+  if (targetTypeInfo.value.isCase) {
+    if (!itemId) return { type: 'none' };
+
+    const isSameFw = (targetFwId && currentFwId && targetFwId === currentFwId) || !isCrossFramework.value;
+
+    if (isSameFw) {
+      return { type: 'same-framework', itemId };
+    }
+
+    if (targetFwId) {
+      if (itemId === targetFwId) {
+        return { type: 'cross-framework', href: `/editor/${targetFwId}` };
+      }
+      return { type: 'cross-framework', href: `/editor/${targetFwId}/${itemId}` };
+    }
+
+    return { type: 'none' };
+  }
+
+  if (uri && /^https?:\/\//i.test(uri)) {
+    return { type: 'external', href: uri };
+  }
+
+  return { type: 'none' };
+}
+
+const originLinkInfo = computed(() => computeLinkInfo({
+  isLoading: isOriginLoading,
+  targetTypeInfo: originTargetTypeInfo,
+  nodeURI: originNodeURI,
+  isCrossFramework: isOriginCrossFramework,
+  resolvedFrameworkId: originResolvedFrameworkId,
+  displayedFrameworkId: originDisplayedFrameworkId,
+  itemIdentifier: originItemIdentifier,
+}));
+
+const destinationLinkInfo = computed(() => computeLinkInfo({
+  isLoading: isDestinationLoading,
+  targetTypeInfo: destinationTargetTypeInfo,
+  nodeURI: destinationNodeURI,
+  isCrossFramework: isDestinationCrossFramework,
+  resolvedFrameworkId: destinationResolvedFrameworkId,
+  displayedFrameworkId: destinationDisplayedFrameworkId,
+  itemIdentifier: destinationItemIdentifier,
+}));
+
+function navigateToItem(itemId) {
+  if (treeNavigation?.navigateToItem) {
+    treeNavigation.navigateToItem(itemId);
+  } else {
+    const frameworkId = route.params.frameworkId;
+    if (frameworkId && itemId) {
+      router.push(`/${frameworkId}/${itemId}`);
+    }
+  }
+}
+
+function onOriginClick() {
+  if (originLinkInfo.value.type === 'same-framework') {
+    navigateToItem(originLinkInfo.value.itemId);
+  }
+}
+
+function onDestinationClick() {
+  if (destinationLinkInfo.value.type === 'same-framework') {
+    navigateToItem(destinationLinkInfo.value.itemId);
+  }
+}
 
 // Helper function to truncate text
 function truncateText(text, maxLength = 50) {
@@ -420,5 +543,20 @@ const annotation = computed(() => props.association.notes || '');
 
 .gap-1 {
   gap: 0.25rem;
+}
+
+.association-title-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.association-title-link:hover {
+  text-decoration: underline;
+  color: #0c63e4;
+}
+
+.association-title-link:hover .item-human-coding-scheme,
+.association-title-link:hover .item-statement {
+  color: #0c63e4;
 }
 </style>

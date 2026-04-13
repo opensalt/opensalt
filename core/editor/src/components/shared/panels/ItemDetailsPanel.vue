@@ -16,6 +16,7 @@
       @clone-framework="$emit('clone-framework')"
       @edit-association="$emit('edit-association', $event)"
       @delete-association="$emit('delete-association', $event)"
+      @add-association="$emit('add-association', $event)"
     />
 
     <!-- No Document Loaded -->

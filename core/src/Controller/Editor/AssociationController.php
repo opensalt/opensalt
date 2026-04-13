@@ -201,7 +201,7 @@ class AssociationController extends AbstractController
         $displayStatement = $abbreviatedStatement ?? $fullStatement;
 
         if (('' !== ($hcs ?? '')) && null !== $displayStatement) {
-            return $hcs.' - '.$displayStatement;
+            return $hcs.': '.$displayStatement;
         }
 
         return $displayStatement ?? $fallback;

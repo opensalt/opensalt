@@ -20,7 +20,30 @@
           </template>
           <!-- Show display title when not loading -->
           <template v-else>
-            <span class="ms-2" v-html="displayTitle"></span>
+            <a
+              v-if="linkInfo.type === 'external'"
+              :href="linkInfo.href"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="ms-2 association-title-link"
+              v-html="displayTitle"
+            ></a>
+            <a
+              v-else-if="linkInfo.type === 'cross-framework'"
+              :href="linkInfo.href"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="ms-2 association-title-link"
+              v-html="displayTitle"
+            ></a>
+            <a
+              v-else-if="linkInfo.type === 'same-framework'"
+              href="#"
+              class="ms-2 association-title-link"
+              @click.prevent="onNavigateToItem"
+              v-html="displayTitle"
+            ></a>
+            <span v-else class="ms-2" v-html="displayTitle"></span>
           </template>
           <!-- Framework badge for cross-framework CASE items -->
           <span v-if="frameworkTitle && !isLoading && targetTypeInfo.isCase" class="badge framework-badge ms-2">
@@ -80,7 +103,7 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted, toRef, watch } from 'vue';
+import { computed, ref, onMounted, toRef, watch, inject } from 'vue';
 import { useCrossFrameworkItem } from '../../composables/useCrossFrameworkItem';
 import { useRelatedFrameworksQueue } from '../../composables/useRelatedFrameworksQueue.js';
 import { useAssociationPermissions } from '../../composables/useAssociationPermissions';
@@ -135,6 +158,8 @@ const props = defineProps({
 
 const emit = defineEmits(['edit', 'delete']);
 
+const treeNavigation = inject('treeNavigation', null);
+
 // Use the related frameworks queue composable
 const { getQueueStatus } = useRelatedFrameworksQueue();
 
@@ -153,7 +178,10 @@ const {
   isCrossFramework,
   targetTypeInfo,
   fetchError,
-  nodeURI
+  nodeURI,
+  resolvedFrameworkId,
+  displayedFrameworkId,
+  itemIdentifier: resolvedItemIdentifier
 } = useCrossFrameworkItem({
   association: toRef(props, 'association'),
   direction: toRef(props, 'direction')
@@ -163,6 +191,47 @@ const {
 const isReversed = computed(() => {
     return props.direction === 'reversed';
 });
+
+const linkInfo = computed(() => {
+  if (isLoading.value) return { type: 'none' };
+
+  const uri = nodeURI.value?.uri;
+  const itemId = resolvedItemIdentifier.value;
+  const nodeFwId = nodeURI.value?.documentIdentifier;
+  const targetFwId = nodeFwId || resolvedFrameworkId.value;
+  const currentFwId = displayedFrameworkId.value;
+
+  if (targetTypeInfo.value.isCase) {
+    if (!itemId) return { type: 'none' };
+
+    const isSameFw = (targetFwId && currentFwId && targetFwId === currentFwId) || !isCrossFramework.value;
+
+    if (isSameFw && treeNavigation?.navigateToItem) {
+      return { type: 'same-framework', itemId };
+    }
+
+    if (targetFwId) {
+      if (itemId === targetFwId) {
+        return { type: 'cross-framework', href: `/editor/${targetFwId}` };
+      }
+      return { type: 'cross-framework', href: `/editor/${targetFwId}/${itemId}` };
+    }
+
+    return { type: 'none' };
+  }
+
+  if (uri && /^https?:\/\//i.test(uri)) {
+    return { type: 'external', href: uri };
+  }
+
+  return { type: 'none' };
+});
+
+function onNavigateToItem() {
+  if (linkInfo.value.type === 'same-framework' && treeNavigation?.navigateToItem) {
+    treeNavigation.navigateToItem(linkInfo.value.itemId);
+  }
+}
 
 // Display title with markdown rendering support
 const displayTitle = computed(() => {
@@ -342,6 +411,16 @@ watch(
   font-family: monospace;
   font-size: 0.85em;
   word-break: break-all;
+}
+
+.association-title-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.association-title-link:hover {
+  text-decoration: underline;
+  color: #0c63e4;
 }
 
 </style>

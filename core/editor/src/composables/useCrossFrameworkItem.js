@@ -359,7 +359,6 @@ export function useCrossFrameworkItem(options) {
 
   const frameworkTitle = computed(() => {
     if (!isCrossFramework.value) return null;
-    if (hasNonLoadableUri.value) return null;
 
     if (!targetTypeInfo.value.isCase) return null;
 
@@ -373,6 +372,14 @@ export function useCrossFrameworkItem(options) {
     if (documentTitle) {
       return documentTitle;
     }
+
+    const nodeFwId = nodeURI.value?.documentIdentifier;
+    if (nodeFwId) {
+      const doc = contextStore.documentRegistry.get(nodeFwId);
+      if (doc?.title) return doc.title;
+    }
+
+    if (hasNonLoadableUri.value) return null;
 
     return isLoading.value || (itemIdentifier.value && viewStore.getViewState(itemIdentifier.value).loading) ? 'Loading...' : 'External Framework';
   });
@@ -503,6 +510,8 @@ export function useCrossFrameworkItem(options) {
     itemIdentifier,
     targetTypeInfo,
     nodeURI,
+    resolvedFrameworkId,
+    displayedFrameworkId,
 
     loadExternalItem,
     reload

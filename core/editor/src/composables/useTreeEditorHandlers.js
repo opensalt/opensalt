@@ -173,11 +173,34 @@ export function useTreeEditorHandlers({
     async function onExternalAction(event) {
         const { type, position, itemId } = event;
         // Find source item from right panel
-        const sourceItem = sideDocument.value?.items ? findItem(sideDocument.value.items, itemId) : null;
+        const itemsToSearch = sideDocument.value?.items || sideDocument.value?.children || [];
+        let sourceItem = findItem(itemsToSearch, itemId);
+
+        // If the item selected is not in the items tree, must be the document root
+        if (!sourceItem && sideDocument.value) {
+            sourceItem = {
+                identifier: sideDocument.value.identifier || sideDocument.value.id || 'document-root',
+                title: sideDocument.value.title || 'Document Root',
+                itemType: 'document',
+                ...sideDocument.value
+            };
+        }
+
         if (!sourceItem) return;
 
         // Target item is current selection in main tree
-        const targetItem = viewStore.currentItem;
+        let targetItem = viewStore.currentItem;
+
+        // If nothing is selected, check if we can use the document root
+        if (!targetItem && currentDoc.value) {
+            targetItem = {
+                identifier: currentDoc.value.identifier || currentDoc.value.id || 'document-root',
+                title: currentDoc.value.title || 'Document Root',
+                itemType: 'document',
+                ...currentDoc.value
+            };
+        }
+
         if (!targetItem) return;
 
         if (type === 'associate') {

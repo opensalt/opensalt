@@ -35,30 +35,30 @@
         >
           <i class="bi bi-link-45deg"></i> Associate
         </button>
-        <div class="btn-group">
+        <div class="btn-group" v-click-outside="() => copyMenuOpen = false">
           <button
             id="copyDropdownBtn"
             type="button"
             class="btn btn-outline-primary dropdown-toggle"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-            :disabled="!sideSelectedId"
+            :disabled="copyDisabled"
+            :aria-expanded="copyMenuOpen"
+            @click="toggleCopyMenu"
           >
             <i class="bi bi-copy"></i> Copy...
           </button>
-          <ul class="dropdown-menu shadow-sm" aria-labelledby="copyDropdownBtn">
+          <ul v-if="copyMenuOpen" class="dropdown-menu show shadow-sm" aria-labelledby="copyDropdownBtn">
             <li>
-              <button class="dropdown-item py-2" @click="emit('action', { type: 'copy', position: 'before', itemId: sideSelectedId })">
+              <button class="dropdown-item py-2" @click="onCopyAction('before')">
                 <i class="bi bi-arrow-bar-up text-muted me-2"></i> Before Target
               </button>
             </li>
             <li>
-              <button class="dropdown-item py-2" @click="emit('action', { type: 'copy', position: 'after', itemId: sideSelectedId })">
+              <button class="dropdown-item py-2" @click="onCopyAction('after')">
                 <i class="bi bi-arrow-bar-down text-muted me-2"></i> After Target
               </button>
             </li>
             <li>
-              <button class="dropdown-item py-2" @click="emit('action', { type: 'copy', position: 'inside', itemId: sideSelectedId })">
+              <button class="dropdown-item py-2" @click="onCopyAction('inside')">
                 <i class="bi bi-arrow-bar-right text-muted me-2"></i> As Child
               </button>
             </li>
@@ -94,11 +94,28 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import TreeView from './TreeView.vue';
 import DocumentSelector from '../shared/common/DocumentSelector.vue';
 import { useEditorContextStore } from '../../stores/editorContextStore';
 import { useSideTreePanel } from '../../composables/useSideTreePanel';
+import { findItem } from '../../utils/tree';
+
+// Custom directive to detect clicks outside an element
+const vClickOutside = {
+  mounted(el, binding) {
+    el.__clickOutsideHandler = (event) => {
+      if (!el.contains(event.target)) {
+        binding.value(event);
+      }
+    };
+    document.addEventListener('click', el.__clickOutsideHandler);
+  },
+  unmounted(el) {
+    document.removeEventListener('click', el.__clickOutsideHandler);
+    delete el.__clickOutsideHandler;
+  }
+};
 
 const editorContextStore = useEditorContextStore();
 
@@ -142,6 +159,35 @@ const emit = defineEmits([
 
 const { selectedDocumentId, currentDocForSelector, onDocumentSelected } = useSideTreePanel(props);
 const sideSelectedId = ref(null);
+const copyMenuOpen = ref(false);
+
+const isSideSelectedDocument = computed(() => {
+  if (!sideSelectedId.value || !props.sideDocument) return false;
+  
+  if (sideSelectedId.value === props.sideDocument.id || 
+      sideSelectedId.value === props.sideDocument.identifier || 
+      sideSelectedId.value === 'document-root') {
+    return true;
+  }
+  
+  const itemsToSearch = props.sideDocument.items || props.sideDocument.children || [];
+  const found = findItem(itemsToSearch, sideSelectedId.value);
+  
+  // If the selected item is not in the tree, it must be the document root itself
+  return !found;
+});
+
+const copyDisabled = computed(() => !sideSelectedId.value || isSideSelectedDocument.value);
+
+function toggleCopyMenu() {
+  if (copyDisabled.value) return;
+  copyMenuOpen.value = !copyMenuOpen.value;
+}
+
+function onCopyAction(position) {
+  copyMenuOpen.value = false;
+  emit('action', { type: 'copy', position, itemId: sideSelectedId.value });
+}
 
 function onDocumentChanged(event) {
   const { documentId } = event;
@@ -162,6 +208,7 @@ function onExternalDocumentRequested() {
 
 function onSideSelect(id) {
   sideSelectedId.value = id;
+  copyMenuOpen.value = false;
   emit('side-select', id);
 }
 

@@ -279,6 +279,7 @@ const {
   expandItem,
   collapseItem,
   toggleExpanded,
+  expandToItem,
   initializeFocus,
 } = useTreeNavigation({
   items: treeItems,
@@ -291,6 +292,26 @@ const {
   externalExpandedState: computed(() => viewStore.itemViewState),
 });
 
+async function navigateToItem(itemId) {
+  if (!itemId) return;
+  const frameworkId = currentDoc.value?.id;
+  if (!frameworkId) return;
+
+  const item =
+    findItem(doc.value?.items || [], itemId) ||
+    (viewedDoc.value ? findItem(viewedDoc.value.items, itemId) : null);
+  if (!item) return;
+
+  expandToItem(itemId);
+  viewStore.setCurrentItem(item);
+  router.push(`/${frameworkId}/${itemId}`);
+  viewStore.setLastSelectedItem(frameworkId, itemId);
+
+  await nextTick();
+  const el = document.querySelector(`[data-tree-node-id="${itemId}"]`);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+}
+
 provide('treeNavigation', {
   focusedItemId,
   setFocus,
@@ -299,6 +320,7 @@ provide('treeNavigation', {
   expandItem,
   collapseItem,
   toggleExpanded,
+  navigateToItem,
 });
 
 
