@@ -155,6 +155,8 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
   const pendingItemAssociationsRequests = new Map<string, Promise<AssociationDetails[]>>();
   const documentAssociationsCache = new Map<string, { data: AssociationDetails[]; timestamp: number }>();
   const pendingDocumentAssociationsRequests = new Map<string, Promise<AssociationDetails[]>>();
+  const frameworkAssociationsCache = new Map<string, { data: AssociationDetails[]; timestamp: number }>();
+  const pendingFrameworkAssociationsRequests = new Map<string, Promise<AssociationDetails[]>>();
 
   const ITEM_DETAILS_CACHE_TTL = 5 * 60 * 1000;
 
@@ -594,15 +596,42 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     return promise;
   }
 
+  async function fetchFrameworkAssociations(identifier: UUID): Promise<AssociationDetails[]> {
+    const cached = frameworkAssociationsCache.get(identifier);
+    if (cached && Date.now() - cached.timestamp < ITEM_DETAILS_CACHE_TTL) {
+      return cached.data;
+    }
+
+    if (pendingFrameworkAssociationsRequests.has(identifier)) {
+      return pendingFrameworkAssociationsRequests.get(identifier)!;
+    }
+
+    const promise = (async (): Promise<AssociationDetails[]> => {
+      try {
+        const response = await api.get(`/framework/editor/associations/framework/${identifier}`) as { data: AssociationDetails[] };
+        const data = Array.isArray(response?.data) ? response.data : (Array.isArray(response) ? response : []);
+        frameworkAssociationsCache.set(identifier, { data, timestamp: Date.now() });
+        return data;
+      } finally {
+        pendingFrameworkAssociationsRequests.delete(identifier);
+      }
+    })();
+
+    pendingFrameworkAssociationsRequests.set(identifier, promise);
+    return promise;
+  }
+
   function invalidateItemDetailsCache(identifier?: UUID) {
     if (identifier) {
       itemDetailsCache.delete(identifier);
       itemAssociationsCache.delete(identifier);
       documentAssociationsCache.delete(identifier);
+      frameworkAssociationsCache.delete(identifier);
     } else {
       itemDetailsCache.clear();
       itemAssociationsCache.clear();
       documentAssociationsCache.clear();
+      frameworkAssociationsCache.clear();
     }
   }
 
@@ -807,6 +836,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     fetchItemDetails,
     fetchItemAssociations,
     fetchDocumentAssociations,
+    fetchFrameworkAssociations,
     invalidateItemDetailsCache,
     updateItems,
     addAssociation,

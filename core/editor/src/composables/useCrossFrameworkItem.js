@@ -22,12 +22,19 @@ export function findItemById(items, identifier) {
 }
 
 export function determineTargetType(targetType, associationType) {
-  if (associationType === 'exemplar' && !targetType) {
+  if (targetType) {
+    return {
+      isCase: targetType === 'item' || targetType === 'document' || targetType === 'CASE',
+      isUnknown: false
+    };
+  }
+
+  if (associationType === 'exemplar') {
     return { isCase: false, isUnknown: true };
   }
 
   return {
-    isCase: !targetType || targetType === 'CASE',
+    isCase: true,
     isUnknown: false
   };
 }

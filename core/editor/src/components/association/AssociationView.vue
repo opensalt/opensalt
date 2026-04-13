@@ -73,7 +73,15 @@
 
       <!-- Main Content -->
       <main class="col-md-9 col-lg-10 p-4 d-flex flex-column" style="min-height: 0;">
-        <div v-if="filteredAssociations.length === 0" class="text-center py-5 text-muted">
+        <div v-if="associationsLoading" class="d-flex justify-content-center align-items-center flex-grow-1">
+          <div class="text-center text-muted">
+            <div class="spinner-border text-primary mb-3" role="status">
+              <span class="visually-hidden">Loading associations...</span>
+            </div>
+            <p>Loading associations...</p>
+          </div>
+        </div>
+        <div v-else-if="filteredAssociations.length === 0" class="text-center py-5 text-muted">
           <i class="bi bi-inbox fs-1 mb-3"></i>
           <p>No associations found matching your filters.</p>
         </div>
@@ -174,70 +182,30 @@ const error = computed(() => documentStore.error);
 const currentDocument = computed(() => currentDocumentStore.currentDocument);
 const associationGroups = computed(() => currentDocumentStore.associationGroups);
 const dbAssociations = ref([]);
+const associationsLoading = ref(true);
 const associationActionsReadOnly = computed(() => !sessionStore.isAuthenticated);
 
-function collectCurrentItemIds() {
-  const currentDocId = currentDocumentStore.currentDocument?.identifier;
-  const currentItemIds = new Set();
-
-  if (currentDocumentStore.currentDocument?.items) {
-    (function collectIds(items) {
-      for (const item of items) {
-        currentItemIds.add(item.identifier);
-        if (item.children) collectIds(item.children);
-      }
-    })(currentDocumentStore.currentDocument.items);
-  }
-  if (currentDocId) currentItemIds.add(currentDocId);
-  return currentItemIds;
-}
-
 async function refreshDbAssociations() {
-  const currentItemIds = collectCurrentItemIds();
-  if (currentItemIds.size === 0) {
+  const currentDocId = currentDocumentStore.currentDocument?.identifier;
+  if (!currentDocId) {
     dbAssociations.value = [];
+    associationsLoading.value = false;
     return;
   }
 
-  const seenIds = new Set();
-  const result = [];
-
-  const currentDocId = currentDocumentStore.currentDocument?.identifier;
-
-  if (currentDocId) {
-    try {
-      const related = await currentDocumentStore.fetchDocumentAssociations(currentDocId);
-      (related || []).forEach((assoc) => {
-        if (!assoc?.identifier || seenIds.has(assoc.identifier)) return;
-        seenIds.add(assoc.identifier);
-        result.push({
-          ...assoc,
-          _sourceFrameworkId: assoc.associationDocumentIdentifier || null
-        });
-      });
-    } catch (err) {
-      logger.error('[AssociationView] Failed to fetch associations for document:', currentDocId, err);
-    }
+  associationsLoading.value = true;
+  try {
+    const data = await currentDocumentStore.fetchFrameworkAssociations(currentDocId);
+    dbAssociations.value = data.map((assoc) => ({
+      ...assoc,
+      _sourceFrameworkId: assoc.associationDocumentIdentifier || null,
+    }));
+  } catch (err) {
+    logger.error('[AssociationView] Failed to fetch associations for framework:', currentDocId, err);
+    dbAssociations.value = [];
+  } finally {
+    associationsLoading.value = false;
   }
-
-  for (const itemId of currentItemIds) {
-    if (itemId === currentDocId) continue;
-    try {
-      const related = await currentDocumentStore.fetchItemAssociations(itemId);
-      (related || []).forEach((assoc) => {
-        if (!assoc?.identifier || seenIds.has(assoc.identifier)) return;
-        seenIds.add(assoc.identifier);
-        result.push({
-          ...assoc,
-          _sourceFrameworkId: assoc.associationDocumentIdentifier || null
-        });
-      });
-    } catch (err) {
-      logger.error('[AssociationView] Failed to fetch associations for item:', itemId, err);
-    }
-  }
-
-  dbAssociations.value = result;
 }
 
 watch(

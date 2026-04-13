@@ -97,6 +97,38 @@ class AssociationController extends AbstractController
         return new JsonResponse($response);
     }
 
+    #[Route(path: '/associations/framework/{identifier}', name: 'editor_api_framework_associations', methods: ['GET'])]
+    #[IsGranted(Permission::FRAMEWORK_VIEW, 'doc')]
+    public function getFrameworkAssociations(
+        #[MapEntity(mapping: ['identifier' => 'identifier'])] LsDoc $doc,
+        Request $request,
+    ): Response {
+        $limit = (int)$request->query->get('limit', 1000);
+        $offset = (int)$request->query->get('offset', 0);
+
+        $associations = $this->associationRepository->findAllForFramework(
+            $doc->getIdentifier(),
+            $limit,
+            $offset
+        );
+
+        $response = [
+            'data' => [],
+            'total' => $associations['total'],
+            'frameworkIdentifier' => $doc->getIdentifier(),
+        ];
+
+        foreach ($associations['items'] as $assoc) {
+            $assocEntity = $assoc[0];
+            $assocData = $this->buildAssociationResponse($assocEntity, $assoc);
+            if (null !== $assocData) {
+                $response['data'][] = $assocData;
+            }
+        }
+
+        return new JsonResponse($response);
+    }
+
     private function buildAssociationResponse(LsAssociation $assocEntity, array $assoc): ?array
     {
         $originItem = $assocEntity->getOriginLsItem();
@@ -173,6 +205,7 @@ class AssociationController extends AbstractController
                 'humanCodingScheme' => $originHcs,
                 'fullStatement' => $originFs,
                 'abbreviatedStatement' => $originAbs,
+                'targetType' => $originTargetType,
             ],
             'destinationNodeURI' => [
                 'identifier' => $assocEntity->getDestinationNodeIdentifier(),
@@ -187,6 +220,7 @@ class AssociationController extends AbstractController
                 'humanCodingScheme' => $destHcs,
                 'fullStatement' => $destFs,
                 'abbreviatedStatement' => $destAbs,
+                'targetType' => $destTargetType,
             ],
             'targetType' => $destTargetType,
             'sequenceNumber' => $assocEntity->getSequenceNumber(),

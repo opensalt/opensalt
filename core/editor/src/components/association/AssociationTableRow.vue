@@ -14,23 +14,23 @@
           <template v-else>
             <div class="d-flex align-items-center flex-wrap gap-1">
               <a v-if="originLinkInfo.type === 'same-framework'" href="#" class="association-title-link" @click.prevent="onOriginClick">
-                <span v-if="originDisplay.humanCodingScheme" class="item-human-coding-scheme">{{ originDisplay.humanCodingScheme }}</span>
+                <span v-if="originDisplay.humanCodingScheme" class="item-human-coding-scheme">{{ originDisplay.humanCodingScheme }}:</span>
                 <span v-if="originDisplay.statement" class="item-statement">{{ originDisplay.truncatedStatement }}</span>
                 <span v-if="!originDisplay.humanCodingScheme && !originDisplay.statement" class="text-muted">Unknown</span>
               </a>
               <a v-else-if="originLinkInfo.type === 'cross-framework'" :href="originLinkInfo.href" target="_blank" rel="noopener noreferrer" class="association-title-link">
-                <span v-if="originDisplay.humanCodingScheme" class="item-human-coding-scheme">{{ originDisplay.humanCodingScheme }}</span>
+                <span v-if="originDisplay.humanCodingScheme" class="item-human-coding-scheme">{{ originDisplay.humanCodingScheme }}:</span>
                 <span v-if="originDisplay.statement" class="item-statement">{{ originDisplay.truncatedStatement }}</span>
                 <span v-if="!originDisplay.humanCodingScheme && !originDisplay.statement" class="text-muted">Unknown</span>
               </a>
               <a v-else-if="originLinkInfo.type === 'external'" :href="originLinkInfo.href" target="_blank" rel="noopener noreferrer" class="association-title-link">
-                <span v-if="originDisplay.humanCodingScheme" class="item-human-coding-scheme">{{ originDisplay.humanCodingScheme }}</span>
+                <span v-if="originDisplay.humanCodingScheme" class="item-human-coding-scheme">{{ originDisplay.humanCodingScheme }}:</span>
                 <span v-if="originDisplay.statement" class="item-statement">{{ originDisplay.truncatedStatement }}</span>
                 <span v-if="!originDisplay.humanCodingScheme && !originDisplay.statement" class="text-muted">Unknown</span>
               </a>
               <template v-else>
                 <span v-if="originDisplay.humanCodingScheme" class="item-human-coding-scheme">
-                  {{ originDisplay.humanCodingScheme }}
+                  {{ originDisplay.humanCodingScheme }}:
                 </span>
                 <span v-if="originDisplay.statement" class="item-statement">
                   {{ originDisplay.truncatedStatement }}
@@ -83,23 +83,23 @@
         <template v-else>
           <div class="d-flex align-items-center flex-wrap gap-1">
             <a v-if="destinationLinkInfo.type === 'same-framework'" href="#" class="association-title-link" @click.prevent="onDestinationClick">
-              <span v-if="destinationDisplay.humanCodingScheme" class="item-human-coding-scheme">{{ destinationDisplay.humanCodingScheme }}</span>
+              <span v-if="destinationDisplay.humanCodingScheme" class="item-human-coding-scheme">{{ destinationDisplay.humanCodingScheme }}:</span>
               <span v-if="destinationDisplay.statement" class="item-statement">{{ destinationDisplay.truncatedStatement }}</span>
               <span v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement" class="text-muted">Unknown</span>
             </a>
             <a v-else-if="destinationLinkInfo.type === 'cross-framework'" :href="destinationLinkInfo.href" target="_blank" rel="noopener noreferrer" class="association-title-link">
-              <span v-if="destinationDisplay.humanCodingScheme" class="item-human-coding-scheme">{{ destinationDisplay.humanCodingScheme }}</span>
+              <span v-if="destinationDisplay.humanCodingScheme" class="item-human-coding-scheme">{{ destinationDisplay.humanCodingScheme }}:</span>
               <span v-if="destinationDisplay.statement" class="item-statement">{{ destinationDisplay.truncatedStatement }}</span>
               <span v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement" class="text-muted">Unknown</span>
             </a>
             <a v-else-if="destinationLinkInfo.type === 'external'" :href="destinationLinkInfo.href" target="_blank" rel="noopener noreferrer" class="association-title-link">
-              <span v-if="destinationDisplay.humanCodingScheme" class="item-human-coding-scheme">{{ destinationDisplay.humanCodingScheme }}</span>
+              <span v-if="destinationDisplay.humanCodingScheme" class="item-human-coding-scheme">{{ destinationDisplay.humanCodingScheme }}:</span>
               <span v-if="destinationDisplay.statement" class="item-statement">{{ destinationDisplay.truncatedStatement }}</span>
               <span v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement" class="text-muted">Unknown</span>
             </a>
             <template v-else>
               <span v-if="destinationDisplay.humanCodingScheme" class="item-human-coding-scheme">
-                {{ destinationDisplay.humanCodingScheme }}
+                {{ destinationDisplay.humanCodingScheme }}:
               </span>
               <span v-if="destinationDisplay.statement" class="item-statement">
                 {{ destinationDisplay.truncatedStatement }}
@@ -288,6 +288,10 @@ function computeLinkInfo({ isLoading, targetTypeInfo, nodeURI, isCrossFramework,
     return { type: 'external', href: uri };
   }
 
+  if (!isCrossFramework.value && itemId) {
+    return { type: 'same-framework', itemId };
+  }
+
   return { type: 'none' };
 }
 
@@ -462,6 +466,7 @@ const annotation = computed(() => props.association.notes || '');
   font-weight: 600;
   color: #495057;
   font-size: 0.875rem;
+  margin-right: 0.25rem;
 }
 
 .item-statement {
