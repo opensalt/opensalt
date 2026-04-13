@@ -38,7 +38,7 @@
             ></a>
             <a
               v-else-if="linkInfo.type === 'same-framework'"
-              href="#"
+              :href="linkInfo.href"
               class="ms-2 association-title-link"
               @click.prevent="onNavigateToItem"
               v-html="displayTitle"
@@ -207,7 +207,7 @@ const linkInfo = computed(() => {
     const isSameFw = (targetFwId && currentFwId && targetFwId === currentFwId) || !isCrossFramework.value;
 
     if (isSameFw && treeNavigation?.navigateToItem) {
-      return { type: 'same-framework', itemId };
+      return { type: 'same-framework', itemId, href: currentFwId ? `/${currentFwId}/${itemId}` : `#item-${itemId}` };
     }
 
     if (targetFwId) {

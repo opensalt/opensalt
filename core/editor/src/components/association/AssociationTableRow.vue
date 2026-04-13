@@ -13,7 +13,7 @@
           </template>
           <template v-else>
             <div class="d-flex align-items-center flex-wrap gap-1">
-              <a v-if="originLinkInfo.type === 'same-framework'" href="#" class="association-title-link" @click.prevent="onOriginClick">
+              <a v-if="originLinkInfo.type === 'same-framework'" :href="originLinkInfo.href" class="association-title-link" @click.prevent="onOriginClick">
                 <span v-if="originDisplay.humanCodingScheme" class="item-human-coding-scheme">{{ originDisplay.humanCodingScheme }}:</span>
                 <span v-if="originDisplay.statement" class="item-statement">{{ originDisplay.truncatedStatement }}</span>
                 <span v-if="!originDisplay.humanCodingScheme && !originDisplay.statement" class="text-muted">Unknown</span>
@@ -82,7 +82,7 @@
         </template>
         <template v-else>
           <div class="d-flex align-items-center flex-wrap gap-1">
-            <a v-if="destinationLinkInfo.type === 'same-framework'" href="#" class="association-title-link" @click.prevent="onDestinationClick">
+            <a v-if="destinationLinkInfo.type === 'same-framework'" :href="destinationLinkInfo.href" class="association-title-link" @click.prevent="onDestinationClick">
               <span v-if="destinationDisplay.humanCodingScheme" class="item-human-coding-scheme">{{ destinationDisplay.humanCodingScheme }}:</span>
               <span v-if="destinationDisplay.statement" class="item-statement">{{ destinationDisplay.truncatedStatement }}</span>
               <span v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement" class="text-muted">Unknown</span>
@@ -271,7 +271,7 @@ function computeLinkInfo({ isLoading, targetTypeInfo, nodeURI, isCrossFramework,
     const isSameFw = (targetFwId && currentFwId && targetFwId === currentFwId) || !isCrossFramework.value;
 
     if (isSameFw) {
-      return { type: 'same-framework', itemId };
+      return { type: 'same-framework', itemId, href: currentFwId ? `/${currentFwId}/${itemId}` : `#item-${itemId}` };
     }
 
     if (targetFwId) {
@@ -289,7 +289,7 @@ function computeLinkInfo({ isLoading, targetTypeInfo, nodeURI, isCrossFramework,
   }
 
   if (!isCrossFramework.value && itemId) {
-    return { type: 'same-framework', itemId };
+    return { type: 'same-framework', itemId, href: currentFwId ? `/${currentFwId}/${itemId}` : `#item-${itemId}` };
   }
 
   return { type: 'none' };
