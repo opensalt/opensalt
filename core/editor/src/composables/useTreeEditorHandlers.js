@@ -256,8 +256,8 @@ export function useTreeEditorHandlers({
         }
 
         try {
-            const pkg = await documentStore.loadPackage(documentId);
-            if (pkg?.CFDocument) {
+            const response = await documentStore.fetchTree(documentId);
+            if (response?.document) {
                 contextStore.viewedDocumentId = documentId;
                 // Save framework selection for treeView mode
                 contextStore.setFrameworkSelection('treeView', documentId);
