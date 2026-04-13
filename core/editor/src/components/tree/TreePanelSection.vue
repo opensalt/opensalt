@@ -233,5 +233,6 @@ function onClearSearch() {
 /* Component-specific styles */
 .tree-panel {
   min-height: 0;
+  padding-top: 0.75rem;
 }
 </style>

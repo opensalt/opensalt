@@ -146,11 +146,11 @@ async function restoreFrameworkSelection(mode) {
   }
 
   const selection = editorContextStore.getFrameworkSelection(mode);
-  
+
   if (!selection?.documentId) {
     // Try to get the most recently used framework as a fallback
     const mostRecent = editorContextStore.getMostRecentFramework();
-    
+
     if (mostRecent) {
       emit('side-document-select', mostRecent);
     }
@@ -182,6 +182,7 @@ watch(() => props.initialMode, async (newMode) => {
 .right-side-panel {
   height: 100%;
   overflow: hidden;
+  padding-top: 0.75rem;
 }
 
 .mode-tabs .btn {
