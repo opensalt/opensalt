@@ -70,18 +70,44 @@ class ItemController extends AbstractController
             return new JsonResponse(['error' => 'Access Denied.'], Response::HTTP_FORBIDDEN);
         }
 
-        $lsItem = new LsItem();
-        $lsItem->setLsDoc($doc);
-        $lsItem->setLsDocUri($doc->getUri());
-
         // Parse request body
         $data = json_decode($request->getContent(), true);
 
-        // Extract itemType from extensions.salt:type, fall back to query parameter
-        $itemType = $data['extensions']['salt:type'] ?? $request->query->get('itemType');
+        if (null !== $data && isset($data['copyFromIdentifier'])) {
+            $sourceItem = $this->itemRepository->findOneBy(['identifier' => $data['copyFromIdentifier']]);
+            if (null === $sourceItem) {
+                return new JsonResponse(['error' => 'Source item for copy not found.'], Response::HTTP_NOT_FOUND);
+            }
 
-        if (null !== $data) {
-            $this->applyDataToItem($lsItem, $data, $itemType);
+            $lsItem = $sourceItem->copyToLsDoc($doc, null, false);
+
+            if (!empty($data['addCopyToTitle'])) {
+                $lsItem->setFullStatement('Copy of '.$lsItem->getFullStatement());
+                $abbreviatedStatement = $lsItem->getAbbreviatedStatement();
+                if (null !== $abbreviatedStatement) {
+                    $lsItem->setAbbreviatedStatement('Copy of '.$abbreviatedStatement);
+                }
+            }
+
+            unset($data['copyFromIdentifier'], $data['addCopyToTitle'], $data['title'], $data['fullStatement']);
+
+            // Extract itemType from extensions.salt:type, fall back to query parameter
+            $itemType = $data['extensions']['salt:type'] ?? $request->query->get('itemType');
+
+            if (!empty($data)) {
+                $this->applyDataToItem($lsItem, $data, $itemType);
+            }
+        } else {
+            $lsItem = new LsItem();
+            $lsItem->setLsDoc($doc);
+            $lsItem->setLsDocUri($doc->getUri());
+
+            // Extract itemType from extensions.salt:type, fall back to query parameter
+            $itemType = $data['extensions']['salt:type'] ?? $request->query->get('itemType');
+
+            if (null !== $data) {
+                $this->applyDataToItem($lsItem, $data, $itemType);
+            }
         }
 
         try {

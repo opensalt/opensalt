@@ -7,6 +7,7 @@
 
     <!-- Document Selector -->
     <DocumentSelector
+      v-if="false /* Removed for now */"
       :current-doc="currentDoc"
       :available-documents="availableDocuments"
       :viewed-doc="viewedDoc"

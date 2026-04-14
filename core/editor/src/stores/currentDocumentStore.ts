@@ -711,8 +711,6 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
       const itemData: Record<string, unknown> = {
         copyFromIdentifier: sourceItem.identifier,
         addCopyToTitle: 'true',
-        title: sourceItem.title,
-        fullStatement: sourceItem.fullStatement,
       };
 
       const newItem = await createItem(targetParentIdentifier, itemData);

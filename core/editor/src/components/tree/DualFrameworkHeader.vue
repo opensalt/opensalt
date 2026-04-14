@@ -1,5 +1,5 @@
 <template>
-  <header class="dual-framework-header p-2 border-bottom bg-light">
+  <header v-if="false /* TODO */" class="dual-framework-header p-2 border-bottom bg-light">
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
       <div class="edited-framework">
         <span class="badge bg-primary">
