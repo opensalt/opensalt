@@ -123,8 +123,9 @@
 
     <!-- Actions Column -->
     <td class="py-3 text-end">
-      <div v-if="canManageAssociation" class="btn-group btn-group-sm" role="group">
+      <div v-if="canManageAssociation || canDeleteAssociation" class="btn-group btn-group-sm" role="group">
         <button
+          v-if="canManageAssociation"
           type="button"
           class="btn btn-outline-primary"
           @click="$emit('edit', association)"
@@ -134,6 +135,7 @@
           <i class="bi bi-pencil" aria-hidden="true"></i>
         </button>
         <button
+          v-if="canDeleteAssociation"
           type="button"
           class="btn btn-outline-danger"
           @click="$emit('delete', association)"
@@ -219,6 +221,7 @@ const treeNavigation = inject('treeNavigation', null);
 const {
   isAssociationFromDifferentDisplayedFramework,
   canManageAssociation,
+  canDeleteAssociation,
   sourceFrameworkTitle
 } = useAssociationPermissions(toRef(props, 'association'), { isReadOnly: toRef(props, 'isReadOnly') });
 

@@ -75,6 +75,11 @@ export function useAssociationPermissions(association, options = {}) {
     return isAssociationSourceEditable.value;
   });
 
+  const canDeleteAssociation = computed(() => {
+    if (isReadOnlyRef.value) return false;
+    return isAssociationSourceEditable.value;
+  });
+
   const sourceFrameworkTitle = computed(() => {
     if (!isAssociationFromDifferentDisplayedFramework.value) return null;
     const frameworkId = resolvedAssociationSourceDocumentId.value;
@@ -92,6 +97,7 @@ export function useAssociationPermissions(association, options = {}) {
     associationTypeForPermissions,
     isAssociationSourceEditable,
     canManageAssociation,
+    canDeleteAssociation,
     sourceFrameworkTitle,
     isReadOnly: isReadOnlyRef
   };
