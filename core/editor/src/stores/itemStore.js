@@ -194,6 +194,12 @@ export const useItemStore = defineStore('items', () => {
         itemToMove.sequenceNumber = response.sequenceNumber;
       }
 
+      if (position === 'inside') {
+        itemToMove.parentIdentifier = targetItem.identifier;
+      } else {
+        itemToMove.parentIdentifier = targetItem.parentIdentifier || currentDocument.id;
+      }
+
       invalidateCache();
       return true;
     } catch (error) {

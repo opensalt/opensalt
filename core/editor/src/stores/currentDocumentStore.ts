@@ -50,7 +50,9 @@ export interface EditorItemNode extends CFItemNode {
   sequenceNumber: number;
   associations?: EditorAssociation[];
   groupIds?: Set<string>;
-  childOfAssocId?: number;
+  childOfAssocId?: string;
+  childOfAssociationIdentifier?: string;
+  parentIdentifier?: string;
   isCrossFramework?: boolean;
   crossFrameworkUri?: string;
 }
@@ -92,7 +94,7 @@ function isUnresolvedCrossFrameworkPlaceholder(
   return !displayValue || displayValue === 'Loading...';
 }
 
-function mapTreeNodeToEditorNode(node: TreeNode): EditorItemNode {
+function mapTreeNodeToEditorNode(node: TreeNode, parentIdentifier?: string): EditorItemNode {
   return {
     id: 0,
     identifier: node.identifier,
@@ -123,10 +125,12 @@ function mapTreeNodeToEditorNode(node: TreeNode): EditorItemNode {
     CFDocumentURI: node.documentIdentifier ? { identifier: node.documentIdentifier, title: node.documentTitle || '', uri: '' } : undefined,
     documentId: (node.documentIdentifier as UUID) || null,
     externalFrameworkTitle: node.isCrossFramework ? (node.documentTitle || undefined) : undefined,
-    children: node.children ? node.children.map(mapTreeNodeToEditorNode) : [],
+    children: node.children ? node.children.map(child => mapTreeNodeToEditorNode(child, node.identifier)) : [],
     sequenceNumber: node.sequenceNumber ?? 0,
     groupIds: node.associationGroupIdentifier ? new Set([node.associationGroupIdentifier]) : new Set(),
-    childOfAssocId: undefined,
+    childOfAssocId: node.childOfAssociationIdentifier || undefined,
+    childOfAssociationIdentifier: node.childOfAssociationIdentifier || undefined,
+    parentIdentifier: parentIdentifier || undefined,
     isCrossFramework: node.isCrossFramework,
     associations: []
   };
@@ -181,7 +185,8 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     }
 
     const doc = response.document;
-    const mappedItems = (response.tree || []).map(mapTreeNodeToEditorNode);
+    const docIdentifier = doc.identifier || null;
+    const mappedItems = (response.tree || []).map(node => mapTreeNodeToEditorNode(node, docIdentifier || undefined));
 
     const normalizedDocument = {
       ...doc,
@@ -405,7 +410,9 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
         return false;
       }
       child.sequenceNumber = assoc.sequenceNumber ?? child.sequenceNumber ?? 0;
-      child.childOfAssocId = 0;
+      child.childOfAssocId = assoc.identifier || undefined;
+      child.childOfAssociationIdentifier = assoc.identifier || undefined;
+      child.parentIdentifier = parentId;
       ensureEditorAssociation(child, assoc, groupId);
       if (parent && parentId !== docId) {
         if (!parent.children.some(node => node.identifier === child.identifier)) {
