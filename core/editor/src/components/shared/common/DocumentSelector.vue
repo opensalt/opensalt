@@ -1,5 +1,5 @@
 <template>
-  <div class="document-selector card mt-0 mb-3">
+  <div v-if="false" class="document-selector card mt-0 mb-3">
     <div class="card-header d-flex justify-content-between align-items-center">
       <h6 class="mb-0">{{ label }}</h6>
       <!-- Visual indicator when viewing a different framework -->
