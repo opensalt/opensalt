@@ -39,6 +39,7 @@ class TreeController extends AbstractController
             'uri' => $lsDoc->getUri(),
             'title' => $lsDoc->getTitle(),
             'description' => $lsDoc->getDescription(),
+            'creator' => $lsDoc->getCreator(),
             'lastChangeDateTime' => $lsDoc->getChangedAt()?->format('c'),
             'adoptionStatus' => $lsDoc->getAdoptionStatus(),
             'language' => $lsDoc->getLanguage(),
