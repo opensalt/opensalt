@@ -113,8 +113,8 @@ class LsDocController extends AbstractController
                 $this->sendCommand($command);
 
                 return $this->redirectToRoute(
-                    'doc_tree_view',
-                    ['slug' => $lsDoc->getSlug()]
+                    'editor_shell_path',
+                    ['path' => $lsDoc->getIdentifier()]
                 );
             } catch (\Exception $e) {
                 $form->addError(new FormError('Error adding new document: '.$e->getMessage()));
