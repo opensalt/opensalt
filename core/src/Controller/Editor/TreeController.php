@@ -43,6 +43,8 @@ class TreeController extends AbstractController
             'adoptionStatus' => $lsDoc->getAdoptionStatus(),
             'language' => $lsDoc->getLanguage(),
             'version' => $lsDoc->getVersion(),
+            'org' => $lsDoc->getOrg()?->getId(),
+            'orgName' => $lsDoc->getOrg()?->getName(),
         ];
 
         $response = [
@@ -54,6 +56,7 @@ class TreeController extends AbstractController
             $response['definitions'] = $result['definitions'];
             $response['permissions'] = [
                 'canEdit' => $this->isGranted(Permission::FRAMEWORK_EDIT, $lsDoc),
+                'isAdmin' => $this->isGranted('ROLE_ADMIN'),
             ];
         }
 

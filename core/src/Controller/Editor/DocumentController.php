@@ -8,7 +8,9 @@ use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\DeleteDocumentCommand;
 use App\Command\Framework\UpdateDocumentCommand;
 use App\Entity\Framework\LsDoc;
+use App\Entity\User\AccessGroup;
 use App\Security\Permission;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,6 +23,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class DocumentController extends AbstractController
 {
     use CommandDispatcherTrait;
+
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+    ) {
+    }
 
     #[Route(path: '/document/{identifier}', name: 'editor_document_update', methods: ['PUT', 'PATCH'])]
     #[IsGranted(Permission::FRAMEWORK_EDIT, 'lsDoc')]
@@ -59,6 +66,20 @@ class DocumentController extends AbstractController
             }
             if (isset($data['note'])) {
                 $lsDoc->setNote($data['note']);
+            }
+            if (array_key_exists('org', $data)) {
+                if (!$this->isGranted('ROLE_ADMIN')) {
+                    return new JsonResponse(['error' => 'Only admins can change the owning organization'], Response::HTTP_FORBIDDEN);
+                }
+                if (null === $data['org']) {
+                    $lsDoc->setOrg(null);
+                } else {
+                    $accessGroup = $this->em->getRepository(AccessGroup::class)->find($data['org']);
+                    if (null === $accessGroup) {
+                        return new JsonResponse(['error' => 'Access group not found'], Response::HTTP_BAD_REQUEST);
+                    }
+                    $lsDoc->setOrg($accessGroup);
+                }
             }
         }
 
@@ -102,5 +123,19 @@ class DocumentController extends AbstractController
         // Actually, we should probably implement a command similar to the one in DocTreeController.
 
         return new JsonResponse(['status' => 'OK'], Response::HTTP_OK);
+    }
+
+    #[Route(path: '/access-groups', name: 'editor_access_groups', methods: ['GET'])]
+    #[IsGranted('ROLE_ADMIN')]
+    public function getAccessGroups(): Response
+    {
+        $groups = $this->em->getRepository(AccessGroup::class)->findAll();
+
+        $data = array_map(fn (AccessGroup $group) => [
+            'id' => $group->getId(),
+            'name' => $group->getName(),
+        ], $groups);
+
+        return new JsonResponse($data);
     }
 }

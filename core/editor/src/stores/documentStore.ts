@@ -30,6 +30,8 @@ export interface TreeResponse {
     adoptionStatus?: string;
     language?: string;
     version?: string;
+    org?: number | null;
+    orgName?: string | null;
   };
   tree: TreeNode[];
   definitions?: {
@@ -41,6 +43,7 @@ export interface TreeResponse {
   };
   permissions?: {
     canEdit: boolean;
+    isAdmin?: boolean;
   };
 }
 

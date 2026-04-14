@@ -9,6 +9,7 @@
     <EditDocModal
       :document="currentDoc"
       :show="showEditDocModal"
+      :is-admin="contextStore.isAdmin"
       @saved="onDocSaved"
       @hidden="onEditDocModalHidden"
     />
@@ -118,6 +119,9 @@
 
 <script setup>
 import { defineAsyncComponent } from 'vue';
+import { useEditorContextStore } from '../../stores/editorContextStore';
+
+const contextStore = useEditorContextStore();
 
 // Lazy-loaded modal components
 const EditDocModal = defineAsyncComponent(() => import('../shared/modals/EditDocModal.vue'));

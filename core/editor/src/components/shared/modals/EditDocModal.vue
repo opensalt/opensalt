@@ -172,6 +172,19 @@
           <small class="text-muted">The type of framework this document represents.</small>
         </div>
       </div>
+
+      <div v-if="isAdmin" class="row mb-3">
+        <label for="ls_doc_org" class="col-sm-2 col-form-label">Owning Access Group</label>
+        <div class="col-sm-10">
+          <select class="form-select" id="ls_doc_org" name="ls_doc[org]" v-model="formData.org">
+            <option :value="null">None</option>
+            <option v-for="group in availableAccessGroups" :key="group.id" :value="group.id">
+              {{ group.name }}
+            </option>
+          </select>
+          <small class="text-muted">The organization that owns this document. Only administrators can change this.</small>
+        </div>
+      </div>
     </form>
 
     <template #footer>
@@ -193,7 +206,11 @@ import { logger } from '../../../utils/logger.js';
 
 const props = defineProps({
   document: Object,
-  show: Boolean
+  show: Boolean,
+  isAdmin: {
+    type: Boolean,
+    default: false
+  }
 });
 
 const emit = defineEmits(['saved', 'hidden', 'update:show']);
@@ -217,12 +234,14 @@ const formData = reactive({
   statusEnd: '',
   note: '',
   licence: '',
-  frameworkType: ''
+  frameworkType: '',
+  org: null
 });
 
 const availableSubjects = ref([]);
 const availableLicenses = ref([]);
 const availableFrameworkTypes = ref([]);
+const availableAccessGroups = ref([]);
 
 async function fetchSubjects() {
   if (availableSubjects.value.length > 0) return;
@@ -351,9 +370,37 @@ async function fetchFrameworkTypes() {
   }
 }
 
+async function fetchAccessGroups() {
+  if (availableAccessGroups.value.length > 0) return;
+
+  try {
+    const response = await fetch('/framework/editor/access-groups', {
+      method: 'GET',
+      credentials: 'same-origin',
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    availableAccessGroups.value = await response.json();
+  } catch (err) {
+    logger.error('Failed to fetch access groups:', err);
+    availableAccessGroups.value = [];
+  }
+}
+
 watch(() => props.show, async (newVal) => {
   if (newVal && props.document) {
-    await Promise.all([fetchSubjects(), fetchLicenses(), fetchFrameworkTypes()]);
+    const fetches = [fetchSubjects(), fetchLicenses(), fetchFrameworkTypes()];
+    if (props.isAdmin) {
+      fetches.push(fetchAccessGroups());
+    }
+    await Promise.all(fetches);
     loadDocumentData();
   }
 });
@@ -385,6 +432,7 @@ function loadDocumentData() {
   formData.note = props.document.note || '';
   formData.licence = props.document.licence || '';
   formData.frameworkType = props.document.frameworkType || '';
+  formData.org = props.document.org || null;
 
   loading.value = false;
 }

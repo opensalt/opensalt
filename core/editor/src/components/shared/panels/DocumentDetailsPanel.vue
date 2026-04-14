@@ -76,6 +76,10 @@
           <strong>Publisher:</strong> {{ document.publisher }}
         </div>
 
+        <div v-if="false && isAdmin && document.orgName" class="mt-2">
+          <strong>Owning Access Group:</strong> {{ document.orgName }}
+        </div>
+
         <div v-if="document.licenseURI" class="mt-2 text-truncate">
             <strong>License:</strong> <span class="ms-1">{{ licenseName }}</span>
         </div>
@@ -227,6 +231,7 @@ import { useEditorContextStore } from '../../../stores/editorContextStore';
 const sessionStore = useSessionStore();
 const contextStore = useEditorContextStore();
 const isReadOnly = computed(() => props.isViewingDifferentFramework || props.document?.isReadOnly || !sessionStore.isAuthenticated);
+const isAdmin = computed(() => contextStore.isAdmin);
 const commentsEnabled = editorConfig.features.comments;
 
 // Get license name from definitions
