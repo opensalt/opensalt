@@ -41,6 +41,11 @@
       <strong>Jurisdiction:</strong>
       <p class="mt-1">{{ item.extensions['ceterms:jurisdiction'] }}</p>
     </div>
+
+    <div v-if="item.notes" class="mb-3">
+      <strong>Notes:</strong>
+      <p class="mt-1">{{ item.notes }}</p>
+    </div>
   </div>
 </template>
 

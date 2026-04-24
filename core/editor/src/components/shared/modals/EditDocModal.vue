@@ -429,7 +429,7 @@ function loadDocumentData() {
   formData.adoptionStatus = props.document.adoptionStatus || 'Draft';
   formData.statusStart = props.document.statusStart || '';
   formData.statusEnd = props.document.statusEnd || '';
-  formData.note = props.document.note || '';
+  formData.note = props.document.notes || props.document.note || '';
   formData.licence = props.document.licence || '';
   formData.frameworkType = props.document.frameworkType || '';
   formData.org = props.document.org || null;

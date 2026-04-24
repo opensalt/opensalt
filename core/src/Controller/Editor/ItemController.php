@@ -6,6 +6,7 @@ namespace App\Controller\Editor;
 
 use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\AddItemCommand;
+use App\Command\Framework\CopyItemToDocCommand;
 use App\Command\Framework\DeleteItemCommand;
 use App\Command\Framework\DeleteItemWithChildrenCommand;
 use App\Command\Framework\UpdateItemCommand;
@@ -15,6 +16,7 @@ use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Entity\Framework\LsItemKind;
+use App\Form\DTO\CopyToLsDocDTO;
 use App\Repository\Framework\LsAssociationRepository;
 use App\Repository\Framework\LsDocRepository;
 use App\Repository\Framework\LsItemRepository;
@@ -73,44 +75,48 @@ class ItemController extends AbstractController
         // Parse request body
         $data = json_decode($request->getContent(), true);
 
-        if (null !== $data && isset($data['copyFromIdentifier'])) {
-            $sourceItem = $this->itemRepository->findOneBy(['identifier' => $data['copyFromIdentifier']]);
-            if (null === $sourceItem) {
-                return new JsonResponse(['error' => 'Source item for copy not found.'], Response::HTTP_NOT_FOUND);
-            }
+        try {
+            if (null !== $data && isset($data['copyFromIdentifier'])) {
+                $sourceItem = $this->itemRepository->findOneBy(['identifier' => $data['copyFromIdentifier']]);
+                if (null === $sourceItem) {
+                    return new JsonResponse(['error' => 'Source item for copy not found.'], Response::HTTP_NOT_FOUND);
+                }
 
-            $lsItem = $sourceItem->copyToLsDoc($doc, null, false);
+                $dto = new CopyToLsDocDTO();
+                $dto->lsItem = $sourceItem;
+                $dto->lsDoc = $doc;
 
-            if (!empty($data['addCopyToTitle'])) {
-                $lsItem->setFullStatement('Copy of '.$lsItem->getFullStatement());
-                $abbreviatedStatement = $lsItem->getAbbreviatedStatement();
-                if (null !== $abbreviatedStatement) {
-                    $lsItem->setAbbreviatedStatement('Copy of '.$abbreviatedStatement);
+                $copyCommand = new CopyItemToDocCommand($dto);
+                $this->sendCommand($copyCommand);
+                $lsItem = $copyCommand->getNewItem();
+
+                if (!empty($data['addCopyToTitle'])) {
+                    $lsItem->setFullStatement('Copy of '.$lsItem->getFullStatement());
+                    $abbreviatedStatement = $lsItem->getAbbreviatedStatement();
+                    if (null !== $abbreviatedStatement) {
+                        $lsItem->setAbbreviatedStatement('Copy of '.$abbreviatedStatement);
+                    }
+                }
+
+                unset($data['copyFromIdentifier'], $data['addCopyToTitle'], $data['title'], $data['fullStatement']);
+
+                $itemType = $data['extensions']['salt:type'] ?? $request->query->get('itemType');
+
+                if (!empty($data)) {
+                    $this->applyDataToItem($lsItem, $data, $itemType);
+                }
+            } else {
+                $lsItem = new LsItem();
+                $lsItem->setLsDoc($doc);
+                $lsItem->setLsDocUri($doc->getUri());
+
+                $itemType = $data['extensions']['salt:type'] ?? $request->query->get('itemType');
+
+                if (null !== $data) {
+                    $this->applyDataToItem($lsItem, $data, $itemType);
                 }
             }
 
-            unset($data['copyFromIdentifier'], $data['addCopyToTitle'], $data['title'], $data['fullStatement']);
-
-            // Extract itemType from extensions.salt:type, fall back to query parameter
-            $itemType = $data['extensions']['salt:type'] ?? $request->query->get('itemType');
-
-            if (!empty($data)) {
-                $this->applyDataToItem($lsItem, $data, $itemType);
-            }
-        } else {
-            $lsItem = new LsItem();
-            $lsItem->setLsDoc($doc);
-            $lsItem->setLsDocUri($doc->getUri());
-
-            // Extract itemType from extensions.salt:type, fall back to query parameter
-            $itemType = $data['extensions']['salt:type'] ?? $request->query->get('itemType');
-
-            if (null !== $data) {
-                $this->applyDataToItem($lsItem, $data, $itemType);
-            }
-        }
-
-        try {
             $command = new AddItemCommand($lsItem, $doc, $parent);
             $this->sendCommand($command);
 
@@ -492,6 +498,10 @@ class ItemController extends AbstractController
                 if ($dto instanceof ItemTypeInterface) {
                     $lsItem->setDiscriminator($dto::ITEM_TYPE_IDENTIFIER);
                     $dto->applyToItem($lsItem, $this->htmlSanitizer);
+
+                    if (isset($data['notes'])) {
+                        $lsItem->setNotes($data['notes']);
+                    }
 
                     return;
                 }

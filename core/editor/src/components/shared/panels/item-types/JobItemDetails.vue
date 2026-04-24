@@ -35,6 +35,11 @@
       <strong>Webpage:</strong>
       <a :href="item.uri" target="_blank" class="ms-1">{{ item.uri }}</a>
     </div>
+
+    <div v-if="item.notes" class="mb-3">
+      <strong>Notes:</strong>
+      <p class="mt-1">{{ item.notes }}</p>
+    </div>
   </div>
 </template>
 

@@ -67,6 +67,9 @@ class DocumentController extends AbstractController
             if (isset($data['note'])) {
                 $lsDoc->setNote($data['note']);
             }
+            if (isset($data['notes'])) {
+                $lsDoc->setNote($data['notes']);
+            }
             if (array_key_exists('org', $data)) {
                 if (!$this->isGranted('ROLE_ADMIN')) {
                     return new JsonResponse(['error' => 'Only admins can change the owning organization'], Response::HTTP_FORBIDDEN);

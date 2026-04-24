@@ -13,6 +13,11 @@
         <code class="d-block p-2 bg-light border rounded">{{ item.fullStatement }}</code>
       </div>
     </div>
+
+    <div v-if="item.notes" class="mb-3">
+      <strong>Notes:</strong>
+      <p class="mt-1">{{ item.notes }}</p>
+    </div>
   </div>
 </template>
 
