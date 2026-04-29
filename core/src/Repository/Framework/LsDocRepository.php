@@ -587,7 +587,7 @@ class LsDocRepository extends ServiceEntityRepository
                     'listEnumeration' => $item['listEnumInSource'] ?? null,
                     'itemType' => $itemTypeName,
                     'sequenceNumber' => $assocMap[$identifier]['sequenceNumber'] ?? null,
-                    'lastChangeDateTime' => ($item['changedAt'] ?? null) instanceof \DateTime
+                    'lastChangeDateTime' => ($item['changedAt'] ?? null) instanceof \DateTimeInterface
                         ? $item['changedAt']->format('c')
                         : $item['changedAt'],
                     'childOfAssociationIdentifier' => $assocMap[$identifier]['assocIdentifier'] ?? null,
@@ -705,7 +705,7 @@ class LsDocRepository extends ServiceEntityRepository
                     'listEnumeration' => $item['listEnumInSource'] ?? null,
                     'itemType' => $itemTypeName,
                     'sequenceNumber' => null,
-                    'lastChangeDateTime' => ($item['changedAt'] ?? null) instanceof \DateTime
+                    'lastChangeDateTime' => ($item['changedAt'] ?? null) instanceof \DateTimeInterface
                         ? $item['changedAt']->format('c')
                         : $item['changedAt'],
                     'childOfAssociationIdentifier' => null,
