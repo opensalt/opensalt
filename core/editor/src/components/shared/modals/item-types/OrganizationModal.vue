@@ -63,9 +63,10 @@
                   v-model="formData.type"
                 >
                   <option value="">Select Organization Type</option>
+                  <option value="orgType:AccreditationBody">Accreditation Body</option>
                   <option value="orgType:AssessmentBody">Assessment Body</option>
                   <option value="orgType:Business">Business</option>
-                  <option value="orgType:BusinessAssociation">Business Association</option>
+                  <option value="orgType:BusinessAssociation">Business or Industry Association</option>
                   <option value="orgType:CertificationBody">Certification Body</option>
                   <option value="orgType:Collaborative">Collaborative</option>
                   <option value="orgType:CoordinatingBody">Coordinating Body</option>
@@ -73,17 +74,21 @@
                   <option value="orgType:Government">Government Agency</option>
                   <option value="orgType:HighSchool">High School</option>
                   <option value="orgType:LaborUnion">Labor Union</option>
+                  <option value="orgType:LowerSecondarySchool">Lower Secondary School</option>
                   <option value="orgType:Magnet">Magnet/Competitive Admissions School</option>
                   <option value="orgType:Military">Military</option>
                   <option value="orgType:NonTraditional">Alternative/Non-Traditional School</option>
                   <option value="orgType:Postsecondary">Postsecondary Educational Institution</option>
                   <option value="orgType:PrimarilyOnline">Primarily Online</option>
+                  <option value="orgType:PrimarySchool">Primary School</option>
                   <option value="orgType:ProfessionalAssociation">Professional Association</option>
                   <option value="orgType:QualityAssurance">Quality Assurance Body</option>
+                  <option value="orgType:Regulator">Regulator</option>
                   <option value="orgType:SecondarySchool">Secondary School</option>
                   <option value="orgType:Technical">Career and Technical School</option>
                   <option value="orgType:TrainingProvider">Education and Training Provider</option>
                   <option value="orgType:TwoYear">Two-Year College</option>
+                  <option value="orgType:UpperSecondarySchool">Upper Secondary School</option>
                   <option value="orgType:Vendor">Vendor</option>
                 </select>
                 <small class="text-muted">The type of organization.</small>
