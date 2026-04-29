@@ -10,11 +10,6 @@ const FETCH_STATUS = {
   ERROR: 'error'
 };
 
-const PRIORITY = {
-  HIGH: 'HIGH',
-  NORMAL: 'NORMAL'
-};
-
 const relatedDocumentsCache = new Map();
 
 export function useRelatedFrameworksQueue() {
@@ -131,5 +126,3 @@ export function useRelatedFrameworksQueue() {
     getQueueStatus: getFetchStatus
   };
 }
-
-export { PRIORITY, FETCH_STATUS };
