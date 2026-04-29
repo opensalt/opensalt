@@ -11,7 +11,7 @@
           class="spinner-border spinner-border-sm ms-2"
           role="status"
           aria-hidden="true"
-        ></span>
+        />
       </h6>
       <button
         v-if="showAddButton && !isReadOnly"
@@ -19,7 +19,7 @@
         class="btn btn-sm btn-outline-primary"
         @click="$emit('add-association')"
       >
-        <i class="bi bi-plus"></i> Add
+        <i class="bi bi-plus" /> Add
       </button>
     </div>
 
@@ -29,7 +29,10 @@
       class="card-header bg-light border-top-0 pt-0 pb-2"
     >
       <small class="text-muted">
-        <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
+        <i
+          class="bi bi-info-circle me-1"
+          aria-hidden="true"
+        />
         Associations created from this item will be saved in
         <strong>{{ currentDocument?.title || 'the edited framework' }}</strong>
       </small>
@@ -41,7 +44,11 @@
         v-if="isProcessingAssociations && mergedAssociations.length === 0"
         class="text-center py-3"
       >
-        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+        <span
+          class="spinner-border spinner-border-sm me-2"
+          role="status"
+          aria-hidden="true"
+        />
         <span class="text-muted">Loading associations...</span>
       </div>
       <div
@@ -70,7 +77,7 @@
 <script setup>
 import AssociationGroupDisplay from '../../association/AssociationGroupDisplay.vue';
 
-const props = defineProps({
+const _props = defineProps({
   mergedAssociations: { type: Array, default: () => [] },
   isProcessingAssociations: { type: Boolean, default: false },
   isCrossFrameworkItem: { type: Boolean, default: false },

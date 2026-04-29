@@ -1,29 +1,56 @@
 <template>
-  <div v-if="props.show" class="modal-backdrop fade show" @click="closeModal"></div>
+  <div
+    v-if="props.show"
+    class="modal-backdrop fade show"
+    @click="closeModal"
+  />
 
   <div
+    :id="modalId"
     class="modal fade"
     :class="{ 'show d-block': props.show }"
-    :id="modalId"
     tabindex="-1"
     role="dialog"
     :aria-labelledby="modalLabel"
     :aria-hidden="!props.show"
     :style="{ display: props.show ? 'block' : 'none' }"
   >
-    <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content" @click.stop>
+    <div
+      class="modal-dialog modal-lg"
+      role="document"
+    >
+      <div
+        class="modal-content"
+        @click.stop
+      >
         <div class="modal-header">
-          <h5 class="modal-title" :id="modalLabel">{{ modalTitle }}</h5>
-          <button type="button" class="btn-close" aria-label="Close" @click="closeModal"></button>
+          <h5
+            :id="modalLabel"
+            class="modal-title"
+          >
+            {{ modalTitle }}
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            aria-label="Close"
+            @click="closeModal"
+          />
         </div>
         <div class="modal-body">
-          <div v-if="error" class="alert alert-danger mb-3" role="alert">
+          <div
+            v-if="error"
+            class="alert alert-danger mb-3"
+            role="alert"
+          >
             {{ error }}
           </div>
 
           <div v-if="isDeleteFramework">
-            <div class="alert alert-danger" role="alert">
+            <div
+              class="alert alert-danger"
+              role="alert"
+            >
               <strong>DANGER:</strong> Are you sure you want to delete this framework?
             </div>
             <form>
@@ -31,9 +58,9 @@
                 <label for="deleteFrameworkAcknowledgement">If yes, please type "DELETE" into the text box:</label>
                 <input
                   id="deleteFrameworkAcknowledgement"
+                  v-model="deleteConfirmation"
                   type="text"
                   class="form-control"
-                  v-model="deleteConfirmation"
                   @input="checkDeleteConfirmation"
                 >
               </div>
@@ -45,8 +72,15 @@
             <div class="mt-3">
               <strong>Items to be deleted:</strong>
               <ul class="list-group mt-2">
-                <li v-for="item in itemsToDelete" :key="item.identifier" class="list-group-item">
-                  <span v-if="item.humanCodingScheme" class="badge bg-secondary me-2">{{ item.humanCodingScheme }}</span>
+                <li
+                  v-for="item in itemsToDelete"
+                  :key="item.identifier"
+                  class="list-group-item"
+                >
+                  <span
+                    v-if="item.humanCodingScheme"
+                    class="badge bg-secondary me-2"
+                  >{{ item.humanCodingScheme }}</span>
                   {{ item.title || item.abbreviatedTitle || item.identifier }}
                 </li>
               </ul>
@@ -54,7 +88,10 @@
           </div>
 
           <div v-else-if="isDeleteWithChildren">
-            <div class="alert alert-warning" role="alert">
+            <div
+              class="alert alert-warning"
+              role="alert"
+            >
               <strong>Warning:</strong> This item has children.
             </div>
             <p>Are you sure you want to delete this item <strong>and</strong> all its children?</p>
@@ -63,12 +100,18 @@
               <div class="card mt-2">
                 <div class="card-body">
                   <h6 class="card-title">
-                    <span v-if="itemsToDelete[0]?.humanCodingScheme" class="badge bg-secondary me-2">
+                    <span
+                      v-if="itemsToDelete[0]?.humanCodingScheme"
+                      class="badge bg-secondary me-2"
+                    >
                       {{ itemsToDelete[0].humanCodingScheme }}
                     </span>
                     {{ itemsToDelete[0]?.title || itemsToDelete[0]?.abbreviatedTitle || itemsToDelete[0]?.identifier }}
                   </h6>
-                  <div v-if="itemsToDelete[0]?.children && itemsToDelete[0].children.length > 0" class="mt-2">
+                  <div
+                    v-if="itemsToDelete[0]?.children && itemsToDelete[0].children.length > 0"
+                    class="mt-2"
+                  >
                     <small class="text-muted">This will also delete {{ itemsToDelete[0].children.length }} child items.</small>
                   </div>
                 </div>
@@ -83,7 +126,10 @@
               <div class="card mt-2">
                 <div class="card-body">
                   <h6 class="card-title">
-                    <span v-if="itemsToDelete[0]?.humanCodingScheme" class="badge bg-secondary me-2">
+                    <span
+                      v-if="itemsToDelete[0]?.humanCodingScheme"
+                      class="badge bg-secondary me-2"
+                    >
                       {{ itemsToDelete[0].humanCodingScheme }}
                     </span>
                     {{ itemsToDelete[0]?.title || itemsToDelete[0]?.abbreviatedTitle || itemsToDelete[0]?.identifier }}
@@ -94,15 +140,25 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            @click="closeModal"
+          >
+            Cancel
+          </button>
           <button
             type="button"
             class="btn"
             :class="buttonClass"
-            @click="confirmDelete"
             :disabled="!canDelete"
+            @click="confirmDelete"
           >
-            <span v-if="deleting" class="spinner-border spinner-border-sm me-2" role="status"></span>
+            <span
+              v-if="deleting"
+              class="spinner-border spinner-border-sm me-2"
+              role="status"
+            />
             {{ buttonText }}
           </button>
         </div>
@@ -115,12 +171,18 @@
 import { ref, computed, watch } from 'vue';
 
 const props = defineProps({
-  items: Array,
+  items: {
+    type: Array,
+    default: () => []
+  },
   deleteType: {
     type: String,
     default: 'single' // 'single', 'multiple', 'with-children', 'framework'
   },
-  show: Boolean
+  show: {
+    type: Boolean,
+    default: false
+  }
 });
 
 const emit = defineEmits(['confirmed', 'hidden']);

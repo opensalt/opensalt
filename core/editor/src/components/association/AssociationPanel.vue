@@ -1,7 +1,7 @@
 <template>
   <div class="association-panel">
     <div class="alert alert-info">
-      <i class="bi bi-info-circle"></i>
+      <i class="bi bi-info-circle" />
       Drag items from the right tree to create associations with items in the left tree
     </div>
     <div class="card">

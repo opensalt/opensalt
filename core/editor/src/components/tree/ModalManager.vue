@@ -137,7 +137,7 @@ const CloneFrameworkModal = defineAsyncComponent(() => import('../shared/modals/
 const DeleteAssociationModal = defineAsyncComponent(() => import('../association/DeleteAssociationModal.vue'));
 
 // Props
-const props = defineProps({
+const _props = defineProps({
   /**
    * Current document being edited
    */

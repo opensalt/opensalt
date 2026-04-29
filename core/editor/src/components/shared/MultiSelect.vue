@@ -1,11 +1,23 @@
 <template>
-  <div class="multiselect" :class="{ 'multiselect--active': isOpen }">
-    <div class="multiselect__tags" @click="toggleDropdown">
+  <div
+    class="multiselect"
+    :class="{ 'multiselect--active': isOpen }"
+  >
+    <div
+      class="multiselect__tags"
+      @click="toggleDropdown"
+    >
       <div class="multiselect__tags-wrap">
-        <span v-if="selectedItems.length === 0" class="multiselect__placeholder">
+        <span
+          v-if="selectedItems.length === 0"
+          class="multiselect__placeholder"
+        >
           {{ placeholder }}
         </span>
-        <div v-else class="multiselect__selected-values">
+        <div
+          v-else
+          class="multiselect__selected-values"
+        >
           <span
             v-for="value in selectedItems.slice(0, showCount)"
             :key="value"
@@ -13,32 +25,50 @@
           >
             {{ getSelectedLabel(value) }}
           </span>
-          <span v-if="selectedItems.length > showCount" class="multiselect__more">
+          <span
+            v-if="selectedItems.length > showCount"
+            class="multiselect__more"
+          >
             +{{ selectedItems.length - showCount }} more
           </span>
         </div>
       </div>
-      <div class="multiselect__spinner" v-if="isLoading"></div>
-      <div class="multiselect__select"></div>
+      <div
+        v-if="isLoading"
+        class="multiselect__spinner"
+      />
+      <div class="multiselect__select" />
     </div>
 
-    <div class="multiselect__content" v-show="isOpen">
+    <div
+      v-show="isOpen"
+      class="multiselect__content"
+    >
       <div class="multiselect__content-wrapper">
         <div class="multiselect__search">
           <input
+            v-model="searchQuery"
             type="text"
             class="multiselect__input"
-            v-model="searchQuery"
             :placeholder="searchPlaceholder"
             @input="filterOptions"
-          />
+          >
         </div>
 
         <div class="multiselect__actions">
-          <button v-if="showSelectAll" type="button" class="multiselect__action" @click="selectAll">
+          <button
+            v-if="showSelectAll"
+            type="button"
+            class="multiselect__action"
+            @click="selectAll"
+          >
             Select All
           </button>
-          <button type="button" class="multiselect__action" @click="selectNone">
+          <button
+            type="button"
+            class="multiselect__action"
+            @click="selectNone"
+          >
             Select None
           </button>
         </div>
@@ -54,9 +84,9 @@
             <input
               type="checkbox"
               :checked="isSelected(option)"
-              @change="toggleOption(option)"
               class="multiselect__checkbox"
-            />
+              @change="toggleOption(option)"
+            >
             <span class="multiselect__option-text">{{ getOptionLabel(option) }}</span>
           </li>
         </ul>

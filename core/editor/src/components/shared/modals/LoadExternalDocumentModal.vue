@@ -1,19 +1,44 @@
 <template>
-  <div class="modal fade" id="loadExternalDocumentModal" tabindex="-1" role="dialog" aria-labelledby="loadExternalDocumentModalLabel" aria-hidden="true" ref="modalElement">
-    <div class="modal-dialog" role="document">
+  <div
+    id="loadExternalDocumentModal"
+    ref="modalElement"
+    class="modal fade"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="loadExternalDocumentModalLabel"
+    aria-hidden="true"
+  >
+    <div
+      class="modal-dialog"
+      role="document"
+    >
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="loadExternalDocumentModalLabel">Load External Document</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @click="hide"></button>
+          <h5
+            id="loadExternalDocumentModalLabel"
+            class="modal-title"
+          >
+            Load External Document
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+            @click="hide"
+          />
         </div>
         <div class="modal-body">
           <div class="form-group">
-            <label for="externalDocumentUrl" class="form-label">Document URL</label>
+            <label
+              for="externalDocumentUrl"
+              class="form-label"
+            >Document URL</label>
             <input
-              type="url"
               id="externalDocumentUrl"
-              class="form-control"
               v-model="externalUrl"
+              type="url"
+              class="form-control"
               placeholder="https://example.com/api/document.json"
               @keyup.enter="loadDocument"
             >
@@ -23,8 +48,20 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="hide">Cancel</button>
-          <button type="button" class="btn btn-primary" @click="loadDocument" :disabled="!externalUrl">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+            @click="hide"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            :disabled="!externalUrl"
+            @click="loadDocument"
+          >
             Load Document
           </button>
         </div>
@@ -34,7 +71,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import Modal from 'bootstrap/js/dist/modal';
 
 const props = defineProps({

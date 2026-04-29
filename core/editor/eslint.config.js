@@ -7,7 +7,7 @@ export default [
     ignores: ['dist/**', 'node_modules/**', 'playwright-report/**', 'test-results/**']
   },
   js.configs.recommended,
-  ...vue.configs['flat/essential'],
+  ...vue.configs['flat/recommended'],
   {
     languageOptions: {
       ecmaVersion: 'latest',
@@ -22,7 +22,7 @@ export default [
     rules: {
       'vue/multi-word-component-names': 'off',
       'vue/no-unused-vars': 'warn',
-      'no-unused-vars': 'warn',
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
       'no-redeclare': 'off', // allow redundant global comments
       'no-useless-assignment': 'warn',
     }

@@ -1,10 +1,29 @@
 <template>
-  <div v-if="visible" class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true" style="background-color: rgba(0,0,0,0.5);">
-    <div class="modal-dialog modal-lg" role="document">
+  <div
+    v-if="visible"
+    class="modal fade show d-block"
+    tabindex="-1"
+    role="dialog"
+    aria-modal="true"
+    style="background-color: rgba(0,0,0,0.5);"
+  >
+    <div
+      class="modal-dialog modal-lg"
+      role="document"
+    >
       <div class="modal-content">
-        <div class="modal-body text-center text-black" :class="bgClass">
+        <div
+          class="modal-body text-center text-black"
+          :class="bgClass"
+        >
           <h3>{{ message }}</h3>
-          <button v-if="canRenew" class="btn btn-md btn-primary" @click="renew">Renew Session</button>
+          <button
+            v-if="canRenew"
+            class="btn btn-md btn-primary"
+            @click="renew"
+          >
+            Renew Session
+          </button>
         </div>
       </div>
     </div>

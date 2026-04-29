@@ -41,12 +41,6 @@ export const useFilterStore = defineStore('filters', () => {
     selectedAssociationGroup.value = groupId;
   }
 
-  function normalizeAssociationGroupId(association) {
-    return association?.CFAssociationGroupingURI?.identifier ||
-      association?.CFAssociationGroupingURI?.uri ||
-      'default';
-  }
-
   function syncSelectedAssociationGroup({ frameworkId, definedGroupIds = [], treeNodes = [] }) {
     if (!frameworkId) return;
 

@@ -1,40 +1,78 @@
 <template>
   <div class="association-editor card">
     <div class="card-header">
-      <i class="bi bi-link-45deg"></i> Create Association
+      <i class="bi bi-link-45deg" /> Create Association
     </div>
     <div class="card-body">
       <form @submit.prevent="onSubmit">
         <div class="mb-2">
           <label class="form-label">Origin Item</label>
-          <div class="form-control-plaintext">{{ origin?.title || origin?.identifier }}</div>
+          <div class="form-control-plaintext">
+            {{ origin?.title || origin?.identifier }}
+          </div>
         </div>
         <div class="mb-2">
           <label class="form-label">Destination Item</label>
-          <div class="form-control-plaintext">{{ dest?.title || dest?.identifier }}</div>
+          <div class="form-control-plaintext">
+            {{ dest?.title || dest?.identifier }}
+          </div>
         </div>
         <div class="mb-2">
           <label class="form-label">Association Type</label>
-          <Multiselect v-model="type" :options="typeOptions" placeholder="Select type" />
+          <Multiselect
+            v-model="type"
+            :options="typeOptions"
+            placeholder="Select type"
+          />
         </div>
-        <div v-if="type === 'other'" class="mb-2">
+        <div
+          v-if="type === 'other'"
+          class="mb-2"
+        >
           <label class="form-label">Custom Association Type</label>
-          <input v-model="customType" class="form-control" placeholder="ext:custom.type" />
-          <div v-if="!isValidCustomType" class="text-danger">Custom type must start with "ext:" and match the regex /^ext:[a-zA-Z0-9._-]+$/.</div>
+          <input
+            v-model="customType"
+            class="form-control"
+            placeholder="ext:custom.type"
+          >
+          <div
+            v-if="!isValidCustomType"
+            class="text-danger"
+          >
+            Custom type must start with "ext:" and match the regex /^ext:[a-zA-Z0-9._-]+$/.
+          </div>
         </div>
         <div class="mb-2">
           <label class="form-label">Annotation</label>
-          <input v-model="annotation" class="form-control" />
+          <input
+            v-model="annotation"
+            class="form-control"
+          >
         </div>
         <div class="mb-2">
           <label class="form-label">Association Group</label>
-          <Multiselect v-model="groupId" :options="groupOptions" label="title" track-by="id" placeholder="Select group" />
+          <Multiselect
+            v-model="groupId"
+            :options="groupOptions"
+            label="title"
+            track-by="id"
+            placeholder="Select group"
+          />
         </div>
-        <button :disabled="!isValidCustomType" class="btn btn-primary" type="submit">Create</button>
+        <button
+          :disabled="!isValidCustomType"
+          class="btn btn-primary"
+          type="submit"
+        >
+          Create
+        </button>
       </form>
     </div>
     <div class="card-footer">
-      <span v-if="groupId" class="badge bg-dark bg-opacity-75">{{ groupTitle }}</span>
+      <span
+        v-if="groupId"
+        class="badge bg-dark bg-opacity-75"
+      >{{ groupTitle }}</span>
     </div>
   </div>
 </template>
@@ -43,8 +81,14 @@
 import { ref, computed } from 'vue';
 import Multiselect from 'vue-multiselect';
 const props = defineProps({
-  origin: Object,
-  dest: Object,
+  origin: {
+    type: Object,
+    default: null
+  },
+  dest: {
+    type: Object,
+    default: null
+  },
   groups: {
     type: Array,
     default: () => []

@@ -1,35 +1,79 @@
 
 <template>
   <!-- Backdrop -->
-  <div v-if="props.show" class="modal-backdrop fade" :class="{ 'show': props.show }" @click="closeModal"></div>
+  <div
+    v-if="props.show"
+    class="modal-backdrop fade"
+    :class="{ 'show': props.show }"
+    @click="closeModal"
+  />
 
   <!-- Modal -->
-  <div class="modal fade" :class="{ 'show d-block': props.show }" tabindex="-1" id="addNewAssessmentModal" aria-hidden="true" :style="{ display: props.show ? 'block' : 'none' }">
-    <div class="modal-dialog modal-xl" role="document" style="width:99%" @click.stop>
+  <div
+    id="addNewAssessmentModal"
+    class="modal fade"
+    :class="{ 'show d-block': props.show }"
+    tabindex="-1"
+    aria-hidden="true"
+    :style="{ display: props.show ? 'block' : 'none' }"
+  >
+    <div
+      class="modal-dialog modal-xl"
+      role="document"
+      style="width:99%"
+      @click.stop
+    >
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="addNewAssessmentModalLabel"><span>{{ isEdit ? 'Edit Assessment' : 'Add New Assessment' }}</span></h5>
-          <button type="button" class="btn-close" @click="closeModal" aria-label="Close"></button>
+          <h5
+            id="addNewAssessmentModalLabel"
+            class="modal-title"
+          >
+            <span>{{ isEdit ? 'Edit Assessment' : 'Add New Assessment' }}</span>
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            aria-label="Close"
+            @click="closeModal"
+          />
         </div>
         <div class="modal-body">
-          <div v-if="loading" class="d-flex justify-content-center align-items-center p-4">
-            <div class="spinner-border text-primary" role="status">
+          <div
+            v-if="loading"
+            class="d-flex justify-content-center align-items-center p-4"
+          >
+            <div
+              class="spinner-border text-primary"
+              role="status"
+            >
               <span class="visually-hidden">Loading form...</span>
             </div>
           </div>
-          <div v-else-if="error" class="alert alert-danger" role="alert">
+          <div
+            v-else-if="error"
+            class="alert alert-danger"
+            role="alert"
+          >
             <span>{{ error }}</span>
           </div>
-          <form v-else @submit.prevent="createItem" name="assessment_form">
+          <form
+            v-else
+            name="assessment_form"
+            @submit.prevent="createItem"
+          >
             <div class="row mb-3">
-              <label for="assessment_name" class="col-sm-2 col-form-label required-label">Name</label>
+              <label
+                for="assessment_name"
+                class="col-sm-2 col-form-label required-label"
+              >Name</label>
               <div class="col-sm-10">
                 <input
+                  id="assessment_name"
+                  v-model="formData.name"
                   type="text"
                   class="form-control"
-                  id="assessment_name"
                   name="assessment[name]"
-                  v-model="formData.name"
                   placeholder="Enter the name of the assessment"
                   required
                 >
@@ -37,65 +81,93 @@
             </div>
 
             <div class="row mb-3">
-              <label for="assessment_description" class="col-sm-2 col-form-label required-label">Description</label>
+              <label
+                for="assessment_description"
+                class="col-sm-2 col-form-label required-label"
+              >Description</label>
               <div class="col-sm-10">
                 <textarea
-                  class="form-control"
                   id="assessment_description"
+                  v-model="formData.description"
+                  class="form-control"
                   name="assessment[description]"
                   rows="4"
-                  v-model="formData.description"
                   placeholder="Enter a description"
                   required
-                ></textarea>
+                />
               </div>
             </div>
 
             <div class="row mb-3">
-              <label for="assessment_deliveryType" class="col-sm-2 col-form-label">Delivery Type</label>
+              <label
+                for="assessment_deliveryType"
+                class="col-sm-2 col-form-label"
+              >Delivery Type</label>
               <div class="col-sm-10">
                 <select
-                  class="form-select"
                   id="assessment_deliveryType"
-                  name="assessment[deliveryType]"
                   v-model="formData.deliveryType"
+                  class="form-select"
+                  name="assessment[deliveryType]"
                 >
-                  <option value="">Select Delivery Type</option>
-                  <option value="in-person">In Person</option>
-                  <option value="online">Online</option>
-                  <option value="hybrid">Hybrid</option>
+                  <option value="">
+                    Select Delivery Type
+                  </option>
+                  <option value="in-person">
+                    In Person
+                  </option>
+                  <option value="online">
+                    Online
+                  </option>
+                  <option value="hybrid">
+                    Hybrid
+                  </option>
                 </select>
                 <small class="text-muted">The method of delivering this course</small>
               </div>
             </div>
 
             <div class="row mb-3">
-              <label for="assessment_inLanguage" class="col-sm-2 col-form-label">Language</label>
+              <label
+                for="assessment_inLanguage"
+                class="col-sm-2 col-form-label"
+              >Language</label>
               <div class="col-sm-10">
                 <select
-                  class="form-select"
                   id="assessment_inLanguage"
-                  name="assessment[inLanguage]"
                   v-model="formData.inLanguage"
+                  class="form-select"
+                  name="assessment[inLanguage]"
                 >
-                  <option value="">Select Language</option>
-                  <option value="en">English</option>
-                  <option value="es">Spanish</option>
-                  <option value="fr">French</option>
+                  <option value="">
+                    Select Language
+                  </option>
+                  <option value="en">
+                    English
+                  </option>
+                  <option value="es">
+                    Spanish
+                  </option>
+                  <option value="fr">
+                    French
+                  </option>
                 </select>
                 <small class="text-muted">Language used to teach this course</small>
               </div>
             </div>
 
             <div class="row mb-3">
-              <label for="assessment_keywords" class="col-sm-2 col-form-label">Keywords</label>
+              <label
+                for="assessment_keywords"
+                class="col-sm-2 col-form-label"
+              >Keywords</label>
               <div class="col-sm-10">
                 <input
+                  id="assessment_keywords"
+                  v-model="formData.keywords"
                   type="text"
                   class="form-control"
-                  id="assessment_keywords"
                   name="assessment[keywords]"
-                  v-model="formData.keywords"
                   placeholder="Enter keywords separated by commas"
                 >
                 <small class="text-muted">Separate keywords with a comma (,)</small>
@@ -103,14 +175,17 @@
             </div>
 
             <div class="row mb-3">
-              <label for="assessment_webpage" class="col-sm-2 col-form-label">Webpage</label>
+              <label
+                for="assessment_webpage"
+                class="col-sm-2 col-form-label"
+              >Webpage</label>
               <div class="col-sm-10">
                 <input
+                  id="assessment_webpage"
+                  v-model="formData.webpage"
                   type="url"
                   class="form-control"
-                  id="assessment_webpage"
                   name="assessment[webpage]"
-                  v-model="formData.webpage"
                   placeholder="Enter webpage URL"
                 >
                 <small class="text-muted">Webpage that describes this job</small>
@@ -119,9 +194,24 @@
           </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
-          <button type="button" class="btn btn-primary" @click="saveItem" :disabled="saving">
-            <span v-if="saving" class="spinner-border spinner-border-sm me-2" role="status"></span>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            @click="closeModal"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            :disabled="saving"
+            @click="saveItem"
+          >
+            <span
+              v-if="saving"
+              class="spinner-border spinner-border-sm me-2"
+              role="status"
+            />
             <span>{{ isEdit ? 'Update' : 'Create' }}</span>
           </button>
         </div>
@@ -134,10 +224,22 @@
 import { ref, reactive, watch, computed } from 'vue';
 
 const props = defineProps({
-  parentItem: Object,
-  itemType: String,
-  show: Boolean,
-  item: Object
+  parentItem: {
+    type: Object,
+    default: null
+  },
+  itemType: {
+    type: String,
+    default: ''
+  },
+  show: {
+    type: Boolean,
+    default: false
+  },
+  item: {
+    type: Object,
+    default: null
+  }
 });
 
 const emit = defineEmits(['created', 'updated', 'hidden']);

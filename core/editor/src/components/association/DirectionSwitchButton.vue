@@ -4,17 +4,20 @@
     <button
       type="button"
       class="btn btn-outline-secondary direction-switch-btn"
-      @click="$emit('switch')"
       :title="title"
       :aria-label="ariaLabel"
       :disabled="disabled"
+      @click="$emit('switch')"
     >
       <span class="direction-side direction-left">
         <span class="direction-label">From:</span>
         <span class="direction-item-name">{{ leftSideText }}</span>
       </span>
       <span class="direction-arrow">
-        <i :class="directionIcon" class="bi fs-5"></i>
+        <i
+          :class="directionIcon"
+          class="bi fs-5"
+        />
       </span>
       <span class="direction-side direction-right">
         <span class="direction-label">To:</span>

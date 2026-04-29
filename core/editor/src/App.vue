@@ -1,16 +1,32 @@
 <template>
-  <div id="editor" class="d-flex flex-column h-100 overflow-hidden">
-    <div class="container-fluid d-flex flex-column flex-grow-1 overflow-hidden" style="min-height: 0;">
+  <div
+    id="editor"
+    class="d-flex flex-column h-100 overflow-hidden"
+  >
+    <div
+      class="container-fluid d-flex flex-column flex-grow-1 overflow-hidden"
+      style="min-height: 0;"
+    >
       <!-- Header row: document name (left), status (right) -->
       <header class="d-flex align-items-center justify-content-between my-2 header-section flex-shrink-0">
-        <h1 class="fs-4 fw-bold mb-0 doc-title">{{ docTitle }}</h1>
+        <h1 class="fs-4 fw-bold mb-0 doc-title">
+          {{ docTitle }}
+        </h1>
         <ViewSwitcher />
         <div>
-          <span class="badge bg-warning text-dark fs-5 px-4 py-2 doc-status" :class="{ draft: docStatus === 'Draft', deprecated: docStatus === 'Deprecated' }" role="status" aria-live="polite">{{ docStatus }}</span>
+          <span
+            class="badge bg-warning text-dark fs-5 px-4 py-2 doc-status"
+            :class="{ draft: docStatus === 'Draft', deprecated: docStatus === 'Deprecated' }"
+            role="status"
+            aria-live="polite"
+          >{{ docStatus }}</span>
         </div>
       </header>
 
-      <div class="flex-grow-1 overflow-hidden d-flex flex-column" style="min-height: 0;">
+      <div
+        class="flex-grow-1 overflow-hidden d-flex flex-column"
+        style="min-height: 0;"
+      >
         <router-view />
       </div>
     </div>
@@ -18,9 +34,12 @@
     <SessionTimeoutModal />
 
     <!-- Toast notifications -->
-    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100">
+    <div
+      class="toast-container position-fixed top-0 end-0 p-3"
+      style="z-index: 1100"
+    >
       <div
-        v-for="(toast, idx) in toasts"
+        v-for="toast in toasts"
         :key="toast.id"
         class="toast align-items-center border-0 show mb-2"
         :class="`text-bg-${toast.type}`"
@@ -30,12 +49,25 @@
       >
         <div class="d-flex">
           <div class="toast-body">
-            <i v-if="toast.type === 'success'" class="bi bi-check-circle-fill me-2"></i>
-            <i v-else-if="toast.type === 'danger'" class="bi bi-x-circle-fill me-2"></i>
-            <i v-else class="bi bi-info-circle-fill me-2"></i>
+            <i
+              v-if="toast.type === 'success'"
+              class="bi bi-check-circle-fill me-2"
+            />
+            <i
+              v-else-if="toast.type === 'danger'"
+              class="bi bi-x-circle-fill me-2"
+            />
+            <i
+              v-else
+              class="bi bi-info-circle-fill me-2"
+            />
             {{ toast.message }}
           </div>
-          <button type="button" class="btn-close btn-close-white me-2 m-auto" @click="removeToast(toast.id)"></button>
+          <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            @click="removeToast(toast.id)"
+          />
         </div>
       </div>
     </div>

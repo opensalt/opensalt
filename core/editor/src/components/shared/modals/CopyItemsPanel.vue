@@ -1,7 +1,7 @@
 <template>
   <div class="copy-items-panel">
     <div class="alert alert-info">
-      <i class="bi bi-info-circle"></i>
+      <i class="bi bi-info-circle" />
       Drag items from the right tree to copy them to the left tree
     </div>
     <div class="card">

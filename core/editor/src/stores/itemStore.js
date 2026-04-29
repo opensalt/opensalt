@@ -2,7 +2,6 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { api } from '../services/api.js';
 import { logger } from '../utils/logger.js';
-import { useEditorContextStore } from './editorContextStore';
 
 export const useItemStore = defineStore('items', () => {
   // Internal item lookup map for fast access

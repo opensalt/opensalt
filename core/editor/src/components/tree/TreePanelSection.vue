@@ -3,7 +3,12 @@
     class="tree-panel d-flex flex-column h-100 overflow-hidden"
     aria-labelledby="tree-heading"
   >
-    <h2 id="tree-heading" class="visually-hidden">Document Tree</h2>
+    <h2
+      id="tree-heading"
+      class="visually-hidden"
+    >
+      Document Tree
+    </h2>
 
     <!-- Document Selector -->
     <DocumentSelector
@@ -20,8 +25,8 @@
     <TreeFilter
       v-model="treeSearchQueryModel"
       :match-count="matchCount"
-      @clear="onClearTreeFilter"
       class="mx-2"
+      @clear="onClearTreeFilter"
     />
 
     <!-- Search and Filter (legacy, hidden) -->

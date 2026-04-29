@@ -1,4 +1,3 @@
-import { nextTick } from 'vue';
 import { findItem, findItemPath } from '../utils/tree.js';
 import { logger } from '../utils/logger.js';
 
@@ -12,29 +11,21 @@ import { logger } from '../utils/logger.js';
  * @param {Object} ctx - Context object with refs, stores, and utility functions
  */
 export function useTreeEditorHandlers({
-    // Stores
     documentStore,
     currentDocumentStore,
     filterStore,
     itemStore,
     viewStore,
     contextStore,
-    // Router
     router,
-    route,
-    // Reactive state
     currentDoc,
-    doc,
     viewedDoc,
-    selectedId,
     isViewingDifferentFramework,
     rightPanelMode,
     filteredDoc,
-    // Modal state (from useModalState)
     showEditDocModal,
     showEditAssociationModal,
     showDeleteModal,
-    showExemplarModal,
     editingAssociation,
     itemsToDelete,
     deleteType,
@@ -43,33 +34,20 @@ export function useTreeEditorHandlers({
     addingAssociationOrigin,
     addingAssociationDestination,
     closeEditAssociationModal,
-    openCrossTreeModal,
     closeCrossTreeModal,
     crossTreeSource,
     crossTreeTarget,
     showAssocGroupModal,
     showLoadExternalModal,
-    // Dynamic edit modal
     showEditModal,
-    // Document loader composable fns
     documentLoaderOnExternalDocumentRequested,
     documentLoaderOnExternalDocumentUrlLoaded,
-    // Side document
     sideDocument,
     onSideDocumentSelect,
-    // Navigation helpers
-    expandItem,
-    initializeFocus,
-    setFocus,
-    scrollToSelectedItem,
-    // Announcer
     announcer,
-    showDeleteAssociationModal,
-    associationToDelete,
     openDeleteAssociationModal,
     closeDeleteAssociationModal,
-    // Mercure
-    connectMercure,
+    _connectMercure,
 }) {
     // ---------------------------------------------------------------------------
     // Selection

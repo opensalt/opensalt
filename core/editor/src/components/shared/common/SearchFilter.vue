@@ -2,35 +2,44 @@
   <div class="search-filter">
     <div class="input-group">
       <span class="input-group-text">
-        <i class="bi bi-search"></i>
+        <i class="bi bi-search" />
       </span>
       <input
+        ref="searchInput"
+        v-model="searchQuery"
         type="text"
         class="form-control"
         :placeholder="placeholder"
-        v-model="searchQuery"
         @input="onSearchInput"
         @keydown="onKeyDown"
-        ref="searchInput"
       >
       <button
         v-if="searchQuery"
         type="button"
         class="btn btn-outline-secondary"
-        @click="clearSearch"
         title="Clear search"
+        @click="clearSearch"
       >
-        <i class="bi bi-x"></i>
+        <i class="bi bi-x" />
       </button>
     </div>
 
     <!-- Advanced filters -->
-    <div v-if="showAdvancedFilters" class="mt-3">
+    <div
+      v-if="showAdvancedFilters"
+      class="mt-3"
+    >
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <h6 class="mb-0">Advanced Filters</h6>
-          <button type="button" class="btn btn-sm btn-outline-secondary" @click="toggleAdvancedFilters">
-            <i class="bi bi-chevron-up"></i>
+          <h6 class="mb-0">
+            Advanced Filters
+          </h6>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline-secondary"
+            @click="toggleAdvancedFilters"
+          >
+            <i class="bi bi-chevron-up" />
           </button>
         </div>
         <div class="card-body">
@@ -38,24 +47,54 @@
             <!-- Filter by item type -->
             <div class="col-md-6">
               <label class="form-label">Item Type</label>
-              <select class="form-select" v-model="filters.itemType" @change="applyFilters">
-                <option value="">All Types</option>
-                <option value="assessment">Assessment</option>
-                <option value="course">Course</option>
-                <option value="credential">Credential</option>
-                <option value="job">Job</option>
-                <option value="organization">Organization</option>
-                <option value="identifier">Identifier</option>
-                <option value="public_key">Public Key</option>
+              <select
+                v-model="filters.itemType"
+                class="form-select"
+                @change="applyFilters"
+              >
+                <option value="">
+                  All Types
+                </option>
+                <option value="assessment">
+                  Assessment
+                </option>
+                <option value="course">
+                  Course
+                </option>
+                <option value="credential">
+                  Credential
+                </option>
+                <option value="job">
+                  Job
+                </option>
+                <option value="organization">
+                  Organization
+                </option>
+                <option value="identifier">
+                  Identifier
+                </option>
+                <option value="public_key">
+                  Public Key
+                </option>
               </select>
             </div>
 
             <!-- Filter by subject -->
             <div class="col-md-6">
               <label class="form-label">Subject</label>
-              <select class="form-select" v-model="filters.subject" @change="applyFilters">
-                <option value="">All Subjects</option>
-                <option v-for="subject in availableSubjects" :key="subject.id" :value="subject.id">
+              <select
+                v-model="filters.subject"
+                class="form-select"
+                @change="applyFilters"
+              >
+                <option value="">
+                  All Subjects
+                </option>
+                <option
+                  v-for="subject in availableSubjects"
+                  :key="subject.id"
+                  :value="subject.id"
+                >
                   {{ subject.title }}
                 </option>
               </select>
@@ -64,22 +103,46 @@
             <!-- Filter by association status -->
             <div class="col-md-6">
               <label class="form-label">Association Status</label>
-              <select class="form-select" v-model="filters.associationStatus" @change="applyFilters">
-                <option value="">All Items</option>
-                <option value="has-associations">Has Associations</option>
-                <option value="no-associations">No Associations</option>
+              <select
+                v-model="filters.associationStatus"
+                class="form-select"
+                @change="applyFilters"
+              >
+                <option value="">
+                  All Items
+                </option>
+                <option value="has-associations">
+                  Has Associations
+                </option>
+                <option value="no-associations">
+                  No Associations
+                </option>
               </select>
             </div>
 
             <!-- Filter by last changed date -->
             <div class="col-md-6">
               <label class="form-label">Modified Since</label>
-              <select class="form-select" v-model="filters.modifiedSince" @change="applyFilters">
-                <option value="">Any Time</option>
-                <option value="today">Today</option>
-                <option value="week">This Week</option>
-                <option value="month">This Month</option>
-                <option value="year">This Year</option>
+              <select
+                v-model="filters.modifiedSince"
+                class="form-select"
+                @change="applyFilters"
+              >
+                <option value="">
+                  Any Time
+                </option>
+                <option value="today">
+                  Today
+                </option>
+                <option value="week">
+                  This Week
+                </option>
+                <option value="month">
+                  This Month
+                </option>
+                <option value="year">
+                  This Year
+                </option>
               </select>
             </div>
           </div>
@@ -87,20 +150,31 @@
           <div class="mt-3 d-flex justify-content-between align-items-center">
             <div class="form-check">
               <input
-                type="checkbox"
-                class="form-check-input"
                 id="caseSensitive"
                 v-model="filters.caseSensitive"
+                type="checkbox"
+                class="form-check-input"
                 @change="applyFilters"
               >
-              <label class="form-check-label" for="caseSensitive">Case Sensitive</label>
+              <label
+                class="form-check-label"
+                for="caseSensitive"
+              >Case Sensitive</label>
             </div>
 
             <div class="btn-group btn-group-sm">
-              <button type="button" class="btn btn-outline-secondary" @click="clearAllFilters">
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                @click="clearAllFilters"
+              >
                 Clear All
               </button>
-              <button type="button" class="btn btn-primary" @click="applyFilters">
+              <button
+                type="button"
+                class="btn btn-primary"
+                @click="applyFilters"
+              >
                 Apply Filters
               </button>
             </div>
@@ -110,18 +184,33 @@
     </div>
 
     <!-- Filter summary -->
-    <div v-if="hasActiveFilters" class="mt-2">
+    <div
+      v-if="hasActiveFilters"
+      class="mt-2"
+    >
       <small class="text-muted">
         <strong>Active filters:</strong>
-        <span v-for="(value, key) in activeFilters" :key="key" class="badge bg-secondary me-1">
+        <span
+          v-for="(value, key) in activeFilters"
+          :key="key"
+          class="badge bg-secondary me-1"
+        >
           {{ getFilterLabel(key) }}: {{ getFilterValueLabel(key, value) }}
-          <button type="button" class="btn-close btn-close-white ms-1" @click="removeFilter(key)" style="font-size: 10px;"></button>
+          <button
+            type="button"
+            class="btn-close btn-close-white ms-1"
+            style="font-size: 10px;"
+            @click="removeFilter(key)"
+          />
         </span>
       </small>
     </div>
 
     <!-- Search results summary -->
-    <div v-if="searchQuery && searchResults" class="mt-2">
+    <div
+      v-if="searchQuery && searchResults"
+      class="mt-2"
+    >
       <small class="text-muted">
         Found {{ searchResults.matchedCount }} of {{ searchResults.totalCount }} items
         <span v-if="searchResults.hiddenCount > 0">
@@ -133,7 +222,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, nextTick, onUnmounted } from 'vue';
+import { ref, reactive, computed, nextTick, onUnmounted } from 'vue';
 
 const props = defineProps({
   placeholder: {

@@ -192,7 +192,7 @@ export function useCrossTreeOperations(options = {}) {
    * @param {Object} targetItem - The target item
    * @returns {boolean} True if this is a cross-tree operation
    */
-  function isCrossTreeOperation(draggedItem, targetItem) {
+  function isCrossTreeOperation(draggedItem, _targetItem) {
     const draggedDocId = draggedItem.CFDocumentURI?.identifier || draggedItem.documentId;
     const targetDocId = currentDoc?.value?.id;
     return draggedDocId !== targetDocId;

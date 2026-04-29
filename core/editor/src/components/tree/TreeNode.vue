@@ -3,7 +3,6 @@
   <details
     v-if="hasChildren"
     :open="isExpanded"
-    @toggle="onToggle"
     class="tree-node"
     :class="{ 'tree-node--hidden': !isVisible, 'view-mode': isViewMode }"
     role="treeitem"
@@ -15,18 +14,14 @@
     :aria-hidden="!isVisible"
     :tabindex="isFocused ? '0' : '-1'"
     :data-tree-node-id="item.identifier"
-    @keydown="handleKeyDown"
     :aria-readonly="isViewMode"
+    @toggle="onToggle"
+    @keydown="handleKeyDown"
   >
     <summary
       class="expand-control"
       :style="{ marginLeft: (level * 20) + 'px' }"
-      @click="onSummaryClick"
       :draggable="!isViewMode && !isCrossFrameworkItem && !disableDrag"
-      @dragstart="onDragStart"
-      @dragover="onDragOver"
-      @dragleave="onDragLeave"
-      @drop="onDrop"
       tabindex="-1"
       :class="{
         'drop-before': dropPosition === 'before',
@@ -35,21 +30,33 @@
         'tree-node--ancestor-match': isAncestorOnlyMatch,
         'view-mode': isViewMode
       }"
+      @click="onSummaryClick"
+      @dragstart="onDragStart"
+      @dragover="onDragOver"
+      @dragleave="onDragLeave"
+      @drop="onDrop"
     >
-      <span class="expand-indicator" aria-hidden="true">
-        <i :class="isExpanded ? 'bi bi-caret-down-fill' : 'bi bi-caret-right-fill'"></i>
+      <span
+        class="expand-indicator"
+        aria-hidden="true"
+      >
+        <i :class="isExpanded ? 'bi bi-caret-down-fill' : 'bi bi-caret-right-fill'" />
       </span>
-      <img :src="iconSrc" class="tree-icon" aria-hidden="true" />
+      <img
+        :src="iconSrc"
+        class="tree-icon"
+        aria-hidden="true"
+      >
       <div
         class="tree-node-label"
         :class="{ 'selected': selectedId === item.identifier, 'focused': isFocused, 'cross-framework': isCrossFrameworkItem }"
+        style="cursor:pointer"
+        role="button"
+        :aria-expanded="isExpanded"
         @click.stop.prevent="select"
         @dblclick.stop="dblClick"
         @mouseenter="onMouseEnter"
         @mouseleave="onMouseLeave"
-        style="cursor:pointer"
-        role="button"
-        :aria-expanded="isExpanded"
       >
         <TreeNodeLabel
           :is-cross-framework-item="isCrossFrameworkItem"
@@ -64,17 +71,27 @@
           :full-statement-html="fullStatementHtml"
         />
       </div>
-      <slot name="actions" :item="item" />
+      <slot
+        name="actions"
+        :item="item"
+      />
     </summary>
 
-    <div v-if="hasChildren && isExpanded" class="children-container" role="group">
-      <div v-for="(child, index) in item.children" :key="child.identifier">
+    <div
+      v-if="hasChildren && isExpanded"
+      class="children-container"
+      role="group"
+    >
+      <div
+        v-for="(child, childIndex) in item.children"
+        :key="child.identifier"
+      >
         <TreeNode
           :item="child"
           :level="level + 1"
           :selected-id="selectedId"
           :parent-items="item.children"
-          :index="index"
+          :index="childIndex"
           :search-query="searchQuery"
           :matching-item-ids="matchingItemIds"
           :is-view-mode="isViewMode"
@@ -87,7 +104,10 @@
           @focus="$emit('focus', $event)"
         >
           <template #actions="slotProps">
-            <slot name="actions" v-bind="slotProps" />
+            <slot
+              name="actions"
+              v-bind="slotProps"
+            />
           </template>
         </TreeNode>
       </div>
@@ -107,17 +127,13 @@
     :aria-hidden="!isVisible"
     :tabindex="isFocused ? '0' : '-1'"
     :data-tree-node-id="item.identifier"
-    @keydown="handleKeyDown"
     :aria-readonly="isViewMode"
+    @keydown="handleKeyDown"
   >
     <div
       class="tree-node-content"
       :style="{ marginLeft: (level * 20) + 'px' }"
       :draggable="!isViewMode && !isCrossFrameworkItem && !disableDrag"
-      @dragstart="onDragStart"
-      @dragover="onDragOver"
-      @dragleave="onDragLeave"
-      @drop="onDrop"
       :tabindex="isFocused ? '0' : '-1'"
       :class="{
         'drop-before': dropPosition === 'before',
@@ -126,18 +142,29 @@
         'tree-node--ancestor-match': isAncestorOnlyMatch,
         'view-mode': isViewMode
       }"
+      @dragstart="onDragStart"
+      @dragover="onDragOver"
+      @dragleave="onDragLeave"
+      @drop="onDrop"
     >
-      <span class="no-children-spacer" aria-hidden="true"></span>
-      <img :src="iconSrc" class="tree-icon" aria-hidden="true" />
+      <span
+        class="no-children-spacer"
+        aria-hidden="true"
+      />
+      <img
+        :src="iconSrc"
+        class="tree-icon"
+        aria-hidden="true"
+      >
       <div
         class="tree-node-label"
         :class="{ 'selected': selectedId === item.identifier, 'focused': isFocused, 'cross-framework': isCrossFrameworkItem }"
+        style="cursor:pointer"
+        role="button"
         @click="select"
         @dblclick="dblClick"
         @mouseenter="onMouseEnter"
         @mouseleave="onMouseLeave"
-        style="cursor:pointer"
-        role="button"
       >
         <TreeNodeLabel
           :is-cross-framework-item="isCrossFrameworkItem"
@@ -152,7 +179,10 @@
           :full-statement-html="fullStatementHtml"
         />
       </div>
-      <slot name="actions" :item="item" />
+      <slot
+        name="actions"
+        :item="item"
+      />
     </div>
   </div>
 </template>
@@ -200,11 +230,26 @@ async function getMarkdownRenderer() {
 // Props / emits
 // ---------------------------------------------------------------------------
 const props = defineProps({
-  item: Object,
-  level: Number,
-  selectedId: String,
-  parentItems: Array,
-  index: Number,
+  item: {
+    type: Object,
+    default: null
+  },
+  level: {
+    type: Number,
+    default: 0
+  },
+  selectedId: {
+    type: String,
+    default: null
+  },
+  parentItems: {
+    type: Array,
+    default: () => []
+  },
+  index: {
+    type: Number,
+    default: 0
+  },
   startExpanded: { type: Boolean, default: false },
   searchQuery: { type: String, default: '' },
   matchingItemIds: { type: Set, default: () => new Set() },

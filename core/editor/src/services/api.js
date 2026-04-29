@@ -166,7 +166,7 @@ class ApiService {
 
   cancelAll() {
     for (const controller of this.abortControllers) {
-      try { controller.abort(); } catch (e) { /* ignore */ }
+      try { controller.abort(); } catch (_e) { /* ignore */ }
     }
     this.abortControllers.clear();
     logger.debug('All pending requests cancelled');

@@ -2,10 +2,21 @@
   <div class="association-group mb-3">
     <div class="association-group-header d-flex justify-content-between align-items-center mb-0">
       <h6 class="mb-0 text-capitalize">
-        <i :class="getAssociationIcon(associationType)" class="me-2"></i>
+        <i
+          :class="getAssociationIcon(associationType)"
+          class="me-2"
+        />
         {{ formatAssociationType(associationType) }}
-        <span v-if="associationType.match(/^ext:/i)" class="badge bg-warning text-dark ms-2" title="This is an extended association type">Extended</span>
-        <span v-if="direction === 'reversed'" class="badge bg-warning text-dark ms-2" title="Reversed (item is destination)">Reversed</span>
+        <span
+          v-if="associationType.match(/^ext:/i)"
+          class="badge bg-warning text-dark ms-2"
+          title="This is an extended association type"
+        >Extended</span>
+        <span
+          v-if="direction === 'reversed'"
+          class="badge bg-warning text-dark ms-2"
+          title="Reversed (item is destination)"
+        >Reversed</span>
         <span class="badge ms-2 count-badge">{{ associations.length }}</span>
       </h6>
     </div>
@@ -30,7 +41,7 @@
 import AssociationItem from './AssociationItem.vue';
 import { formatAssociationType, getAssociationIcon } from '../../utils/associationHelpers.js';
 
-const props = defineProps({
+const _props = defineProps({
   associationType: {
     type: String,
     required: true
@@ -57,7 +68,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits([
+const _emit = defineEmits([
   'edit-association',
   'delete-association'
 ]);

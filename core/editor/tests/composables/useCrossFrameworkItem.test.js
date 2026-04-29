@@ -7,7 +7,7 @@ const createMockCurrentDocumentStore = () => {
     associatedDocuments: new Map(),
     fetchAssociatedDocument: vi.fn(),
     getAssociatedDocument: vi.fn(),
-    transformCASEItems: vi.fn((items, associations, docId) => items)
+    transformCASEItems: vi.fn((items, _associations, _docId) => items)
   };
   return store;
 };
@@ -92,7 +92,7 @@ import {
   findInCachedFrameworks,
   findItemById,
   clearCrossFrameworkItemCache,
-  getCrossFrameworkItemCacheSize
+  _getCrossFrameworkItemCacheSize
 } from '@/composables/useCrossFrameworkItem.js';
 
 describe('useCrossFrameworkItem', () => {

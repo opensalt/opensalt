@@ -1,11 +1,18 @@
 <template>
   <!-- Actions - Only available for editable items -->
-  <div v-if="canEditItem" class="card mt-0 border-0">
+  <div
+    v-if="canEditItem"
+    class="card mt-0 border-0"
+  >
     <div class="card-body py-0 ms-auto">
       <div class="d-flex gap-2">
         <div class="btn-group">
-          <button type="button" class="btn btn-outline-primary" @click="$emit('add-child', 'general')">
-            <i class="bi bi-plus-circle"></i> Add Child Item
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            @click="$emit('add-child', 'general')"
+          >
+            <i class="bi bi-plus-circle" /> Add Child Item
           </button>
           <button
             type="button"
@@ -16,33 +23,48 @@
             <span class="visually-hidden">Toggle Dropdown</span>
           </button>
           <ul class="dropdown-menu">
-            <li v-for="type in availableTypes" :key="type">
+            <li
+              v-for="type in availableTypes"
+              :key="type"
+            >
               <a
                 class="dropdown-item"
-                @click.prevent="$emit('add-child', type)"
                 href="#"
                 :aria-label="`Add ${getTypeLabel(type)}`"
+                @click.prevent="$emit('add-child', type)"
               >
                 Add {{ getTypeLabel(type) }}
               </a>
             </li>
           </ul>
         </div>
-        <button type="button" class="btn btn-outline-secondary" @click="$emit('add-exemplar')">
-          <i class="bi bi-link-45deg"></i> Add Exemplar
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          @click="$emit('add-exemplar')"
+        >
+          <i class="bi bi-link-45deg" /> Add Exemplar
         </button>
       </div>
     </div>
   </div>
 
   <!-- Actions Note for Viewed Framework Items -->
-  <div v-else-if="isItemFromViewedFramework && !isReadOnly" class="card mt-3">
+  <div
+    v-else-if="isItemFromViewedFramework && !isReadOnly"
+    class="card mt-3"
+  >
     <div class="card-header">
-      <h6 class="mb-0">Actions</h6>
+      <h6 class="mb-0">
+        Actions
+      </h6>
     </div>
     <div class="card-body">
       <p class="text-muted mb-0">
-        <i class="bi bi-info-circle me-2" aria-hidden="true"></i>
+        <i
+          class="bi bi-info-circle me-2"
+          aria-hidden="true"
+        />
         Actions are not available for viewed framework items. Switch to the edited framework to add child items or exemplars.
       </p>
     </div>

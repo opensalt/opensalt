@@ -9,46 +9,63 @@
       <table class="table align-middle mb-0 border-0 custom-hover-table">
         <thead class="table-light sticky-top">
           <tr>
-            <th scope="col" class="py-3 border-0 text-muted small text-uppercase">
+            <th
+              scope="col"
+              class="py-3 border-0 text-muted small text-uppercase"
+            >
               Origin
             </th>
-            <th scope="col" class="py-3 border-0 text-muted small text-uppercase">
+            <th
+              scope="col"
+              class="py-3 border-0 text-muted small text-uppercase"
+            >
               Type
             </th>
-            <th scope="col" class="py-3 border-0 text-muted small text-uppercase">
+            <th
+              scope="col"
+              class="py-3 border-0 text-muted small text-uppercase"
+            >
               Destination
             </th>
-            <th scope="col" class="py-3 border-0 text-muted small text-uppercase text-end">
+            <th
+              scope="col"
+              class="py-3 border-0 text-muted small text-uppercase text-end"
+            >
               Actions
             </th>
           </tr>
         </thead>
-          <!-- Empty state -->
-          <tbody v-if="associations.length === 0">
-            <tr>
-              <td colspan="4" class="text-center py-5 text-muted border-0">
-                <div class="py-4">
-                  <i class="bi bi-link-45deg fs-1 d-block mb-3 opacity-25"></i>
-                  <p class="mb-0">No associations found.</p>
-                  <small>Associations will appear here when added.</small>
-                </div>
-              </td>
-            </tr>
-          </tbody>
+        <!-- Empty state -->
+        <tbody v-if="associations.length === 0">
+          <tr>
+            <td
+              colspan="4"
+              class="text-center py-5 text-muted border-0"
+            >
+              <div class="py-4">
+                <i class="bi bi-link-45deg fs-1 d-block mb-3 opacity-25" />
+                <p class="mb-0">
+                  No associations found.
+                </p>
+                <small>Associations will appear here when added.</small>
+              </div>
+            </td>
+          </tr>
+        </tbody>
 
-          <!-- Association rows as tbody elements -->
-          <template v-else>
-            <AssociationTableRow
-              v-for="assoc in associations"
-              :key="assoc.identifier || assoc.id"
-              :association="assoc"
-              :association-groups="associationGroups"
-              :item-identifier="itemIdentifier"
-              :is-read-only="isReadOnly"
-              @edit="$emit('edit-association', $event)"
-              @delete="$emit('delete-association', $event)"
-            />
-          </template>
+        <!-- Association rows as tbody elements -->
+        <template v-else>
+          <AssociationTableRow
+            v-for="assoc in associations"
+            :key="assoc.identifier || assoc.id"
+            :association="assoc"
+            :association-groups="associationGroups"
+            :item-identifier="itemIdentifier"
+            :is-read-only="isReadOnly"
+            @edit="$emit('edit-association', $event)"
+            @delete="$emit('delete-association', $event)"
+          />
+        </template>
       </table>
     </div>
   </div>
@@ -57,7 +74,7 @@
 <script setup>
 import AssociationTableRow from './AssociationTableRow.vue';
 
-const props = defineProps({
+const _props = defineProps({
   associations: {
     type: Array,
     required: true
@@ -76,7 +93,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['edit-association', 'delete-association']);
+const _emit = defineEmits(['edit-association', 'delete-association']);
 </script>
 
 <style scoped>

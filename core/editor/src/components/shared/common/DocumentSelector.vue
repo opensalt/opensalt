@@ -1,32 +1,36 @@
 <template>
   <div class="document-selector card mt-0 mb-3">
     <div class="card-header d-flex justify-content-between align-items-center">
-      <h6 class="mb-0">{{ label }}</h6>
+      <h6 class="mb-0">
+        {{ label }}
+      </h6>
       <!-- Visual indicator when viewing a different framework -->
       <span
         v-if="isViewingDifferentFramework"
         class="badge bg-warning text-dark"
         title="You are viewing a different framework than the one being edited"
       >
-        <i class="bi bi-eye me-1"></i>Viewing
+        <i class="bi bi-eye me-1" />Viewing
       </span>
       <button
         type="button"
         class="btn btn-sm btn-outline-primary"
-        @click="changeDocument"
         title="Change document"
+        @click="changeDocument"
       >
-        <i class="bi bi-arrow-repeat"></i>
+        <i class="bi bi-arrow-repeat" />
       </button>
     </div>
     <div class="card-body">
       <select
-        class="form-select"
         v-model="selectedDoc"
-        @change="onDocumentChange"
+        class="form-select"
         :class="{ 'viewing-different-framework': isViewingDifferentFramework }"
+        @change="onDocumentChange"
       >
-        <option value="">Select a document...</option>
+        <option value="">
+          Select a document...
+        </option>
         <optgroup
           v-for="group in groupedDocuments"
           :key="group.creator"
@@ -44,12 +48,17 @@
           </option>
         </optgroup>
         <optgroup label="External Documents">
-          <option value="external">Load external document...</option>
+          <option value="external">
+            Load external document...
+          </option>
         </optgroup>
       </select>
       <!-- Viewing indicator text -->
-      <div v-if="isViewingDifferentFramework && viewedDoc" class="mt-2 small text-muted">
-        <i class="bi bi-info-circle me-1"></i>
+      <div
+        v-if="isViewingDifferentFramework && viewedDoc"
+        class="mt-2 small text-muted"
+      >
+        <i class="bi bi-info-circle me-1" />
         Viewing: <strong>{{ viewedDoc.title || 'Untitled' }}</strong>
       </div>
     </div>
@@ -64,8 +73,14 @@ import { ref, watch, computed } from 'vue';
 import { useDocumentStore } from '@/stores/documentStore';
 
 const props = defineProps({
-  currentDoc: Object,
-  availableDocuments: Array,
+  currentDoc: {
+    type: Object,
+    default: null
+  },
+  availableDocuments: {
+    type: Array,
+    default: () => []
+  },
   label: {
     type: String,
     default: 'Document'

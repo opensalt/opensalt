@@ -1,14 +1,20 @@
 <template>
   <div class="col">
     <div
-      class="ls-association-item-display border p-3 rounded"
       :id="elementId"
+      class="ls-association-item-display border p-3 rounded"
       :class="{ 'selected-item-highlight': isSelected }"
     >
-      <div v-if="itemData" class="d-flex align-items-start flex-wrap gap-2">
+      <div
+        v-if="itemData"
+        class="d-flex align-items-start flex-wrap gap-2"
+      >
         <div class="flex-grow-1">
           <strong>{{ displayText }}</strong>
-          <div v-if="itemData.humanCodingScheme" class="text-muted small">
+          <div
+            v-if="itemData.humanCodingScheme"
+            class="text-muted small"
+          >
             {{ itemData.humanCodingScheme }}
           </div>
         </div>
@@ -18,20 +24,20 @@
           class="spinner-border spinner-border-sm text-secondary"
           role="status"
           aria-label="Loading"
-        ></span>
+        />
         <!-- Framework badge for cross-framework CASE items -->
         <span
           v-if="frameworkTitle && !isLoading && targetTypeInfo.isCase"
           class="badge framework-badge"
         >
-          <i class="bi bi-box-arrow-up-right me-1"></i>{{ frameworkTitle }}
+          <i class="bi bi-box-arrow-up-right me-1" />{{ frameworkTitle }}
         </span>
         <!-- Non-CASE item indicator -->
         <span
           v-if="!targetTypeInfo.isCase && itemData"
           class="badge external-uri-badge"
         >
-          <i class="bi bi-link-45deg me-1"></i>External URI
+          <i class="bi bi-link-45deg me-1" />External URI
         </span>
         <!-- Error indicator for failed fetches -->
         <span
@@ -39,11 +45,14 @@
           class="badge error-badge"
           :title="fetchError.message"
         >
-          <i class="bi bi-exclamation-triangle me-1"></i>
+          <i class="bi bi-exclamation-triangle me-1" />
           {{ errorLabel }}
         </span>
       </div>
-      <div v-else class="text-muted">
+      <div
+        v-else
+        class="text-muted"
+      >
         {{ fallbackText }}
       </div>
     </div>

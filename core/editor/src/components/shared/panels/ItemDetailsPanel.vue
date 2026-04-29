@@ -20,8 +20,11 @@
     />
 
     <!-- No Document Loaded -->
-    <div v-else-if="!selectedItem && !currentDocument" class="text-center text-muted p-4">
-      <i class="bi bi-file-earmark fs-1 mb-3"></i>
+    <div
+      v-else-if="!selectedItem && !currentDocument"
+      class="text-center text-muted p-4"
+    >
+      <i class="bi bi-file-earmark fs-1 mb-3" />
       <p>No document loaded</p>
     </div>
 
@@ -50,15 +53,21 @@ import DocumentDetailsPanel from './DocumentDetailsPanel.vue';
 import ItemDetails from './ItemDetails.vue';
 
 const props = defineProps({
-  selectedItem: Object,
-  currentDocument: Object,
+  selectedItem: {
+    type: Object,
+    default: null
+  },
+  currentDocument: {
+    type: Object,
+    default: null
+  },
   associationGroups: {
     type: Array,
     default: () => []
   }
 });
 
-const emit = defineEmits([
+const _emit = defineEmits([
   'edit-item',
   'delete-item',
   'add-child',

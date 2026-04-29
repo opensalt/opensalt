@@ -1,35 +1,79 @@
 
 <template>
   <!-- Backdrop -->
-  <div v-if="props.show" class="modal-backdrop fade" :class="{ 'show': props.show }" @click="closeModal"></div>
+  <div
+    v-if="props.show"
+    class="modal-backdrop fade"
+    :class="{ 'show': props.show }"
+    @click="closeModal"
+  />
 
   <!-- Modal -->
-  <div class="modal fade" :class="{ 'show d-block': props.show }" tabindex="-1" id="addNewOrganizationModal" aria-hidden="true" :style="{ display: props.show ? 'block' : 'none' }">
-    <div class="modal-dialog modal-xl" role="document" style="width:99%" @click.stop>
+  <div
+    id="addNewOrganizationModal"
+    class="modal fade"
+    :class="{ 'show d-block': props.show }"
+    tabindex="-1"
+    aria-hidden="true"
+    :style="{ display: props.show ? 'block' : 'none' }"
+  >
+    <div
+      class="modal-dialog modal-xl"
+      role="document"
+      style="width:99%"
+      @click.stop
+    >
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="addNewOrganizationModalLabel">{{ isEdit ? 'Edit Organization' : 'Add New Organization' }}</h5>
-          <button type="button" class="btn-close" @click="closeModal" aria-label="Close"></button>
+          <h5
+            id="addNewOrganizationModalLabel"
+            class="modal-title"
+          >
+            {{ isEdit ? 'Edit Organization' : 'Add New Organization' }}
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            aria-label="Close"
+            @click="closeModal"
+          />
         </div>
         <div class="modal-body">
-          <div v-if="loading" class="d-flex justify-content-center align-items-center p-4">
-            <div class="spinner-border text-primary" role="status">
+          <div
+            v-if="loading"
+            class="d-flex justify-content-center align-items-center p-4"
+          >
+            <div
+              class="spinner-border text-primary"
+              role="status"
+            >
               <span class="visually-hidden">Loading form...</span>
             </div>
           </div>
-          <div v-else-if="error" class="alert alert-danger" role="alert">
+          <div
+            v-else-if="error"
+            class="alert alert-danger"
+            role="alert"
+          >
             {{ error }}
           </div>
-          <form v-else @submit.prevent="createItem" name="org_form">
+          <form
+            v-else
+            name="org_form"
+            @submit.prevent="createItem"
+          >
             <div class="row mb-3">
-              <label for="org_name" class="col-sm-2 col-form-label required-label">Name</label>
+              <label
+                for="org_name"
+                class="col-sm-2 col-form-label required-label"
+              >Name</label>
               <div class="col-sm-10">
                 <input
+                  id="org_name"
+                  v-model="formData.name"
                   type="text"
                   class="form-control"
-                  id="org_name"
                   name="org[name]"
-                  v-model="formData.name"
                   required
                   placeholder="Enter organization name"
                 >
@@ -38,72 +82,137 @@
             </div>
 
             <div class="row mb-3">
-              <label for="org_description" class="col-sm-2 col-form-label required-label">Description</label>
+              <label
+                for="org_description"
+                class="col-sm-2 col-form-label required-label"
+              >Description</label>
               <div class="col-sm-10">
                 <textarea
-                  class="form-control"
                   id="org_description"
+                  v-model="formData.description"
+                  class="form-control"
                   name="org[description]"
                   rows="3"
-                  v-model="formData.description"
                   placeholder="Enter description"
                   required
-                ></textarea>
+                />
                 <small class="text-muted">Description of the organization.</small>
               </div>
             </div>
 
             <div class="row mb-3">
-              <label for="org_type" class="col-sm-2 col-form-label">Organization Type</label>
+              <label
+                for="org_type"
+                class="col-sm-2 col-form-label"
+              >Organization Type</label>
               <div class="col-sm-10">
                 <select
-                  class="form-select"
                   id="org_type"
-                  name="org[type]"
                   v-model="formData.type"
+                  class="form-select"
+                  name="org[type]"
                 >
-                  <option value="">Select Organization Type</option>
-                  <option value="orgType:AccreditationBody">Accreditation Body</option>
-                  <option value="orgType:AssessmentBody">Assessment Body</option>
-                  <option value="orgType:Business">Business</option>
-                  <option value="orgType:BusinessAssociation">Business or Industry Association</option>
-                  <option value="orgType:CertificationBody">Certification Body</option>
-                  <option value="orgType:Collaborative">Collaborative</option>
-                  <option value="orgType:CoordinatingBody">Coordinating Body</option>
-                  <option value="orgType:FourYear">Four-Year College</option>
-                  <option value="orgType:Government">Government Agency</option>
-                  <option value="orgType:HighSchool">High School</option>
-                  <option value="orgType:LaborUnion">Labor Union</option>
-                  <option value="orgType:LowerSecondarySchool">Lower Secondary School</option>
-                  <option value="orgType:Magnet">Magnet/Competitive Admissions School</option>
-                  <option value="orgType:Military">Military</option>
-                  <option value="orgType:NonTraditional">Alternative/Non-Traditional School</option>
-                  <option value="orgType:Postsecondary">Postsecondary Educational Institution</option>
-                  <option value="orgType:PrimarilyOnline">Primarily Online</option>
-                  <option value="orgType:PrimarySchool">Primary School</option>
-                  <option value="orgType:ProfessionalAssociation">Professional Association</option>
-                  <option value="orgType:QualityAssurance">Quality Assurance Body</option>
-                  <option value="orgType:Regulator">Regulator</option>
-                  <option value="orgType:SecondarySchool">Secondary School</option>
-                  <option value="orgType:Technical">Career and Technical School</option>
-                  <option value="orgType:TrainingProvider">Education and Training Provider</option>
-                  <option value="orgType:TwoYear">Two-Year College</option>
-                  <option value="orgType:UpperSecondarySchool">Upper Secondary School</option>
-                  <option value="orgType:Vendor">Vendor</option>
+                  <option value="">
+                    Select Organization Type
+                  </option>
+                  <option value="orgType:AccreditationBody">
+                    Accreditation Body
+                  </option>
+                  <option value="orgType:AssessmentBody">
+                    Assessment Body
+                  </option>
+                  <option value="orgType:Business">
+                    Business
+                  </option>
+                  <option value="orgType:BusinessAssociation">
+                    Business or Industry Association
+                  </option>
+                  <option value="orgType:CertificationBody">
+                    Certification Body
+                  </option>
+                  <option value="orgType:Collaborative">
+                    Collaborative
+                  </option>
+                  <option value="orgType:CoordinatingBody">
+                    Coordinating Body
+                  </option>
+                  <option value="orgType:FourYear">
+                    Four-Year College
+                  </option>
+                  <option value="orgType:Government">
+                    Government Agency
+                  </option>
+                  <option value="orgType:HighSchool">
+                    High School
+                  </option>
+                  <option value="orgType:LaborUnion">
+                    Labor Union
+                  </option>
+                  <option value="orgType:LowerSecondarySchool">
+                    Lower Secondary School
+                  </option>
+                  <option value="orgType:Magnet">
+                    Magnet/Competitive Admissions School
+                  </option>
+                  <option value="orgType:Military">
+                    Military
+                  </option>
+                  <option value="orgType:NonTraditional">
+                    Alternative/Non-Traditional School
+                  </option>
+                  <option value="orgType:Postsecondary">
+                    Postsecondary Educational Institution
+                  </option>
+                  <option value="orgType:PrimarilyOnline">
+                    Primarily Online
+                  </option>
+                  <option value="orgType:PrimarySchool">
+                    Primary School
+                  </option>
+                  <option value="orgType:ProfessionalAssociation">
+                    Professional Association
+                  </option>
+                  <option value="orgType:QualityAssurance">
+                    Quality Assurance Body
+                  </option>
+                  <option value="orgType:Regulator">
+                    Regulator
+                  </option>
+                  <option value="orgType:SecondarySchool">
+                    Secondary School
+                  </option>
+                  <option value="orgType:Technical">
+                    Career and Technical School
+                  </option>
+                  <option value="orgType:TrainingProvider">
+                    Education and Training Provider
+                  </option>
+                  <option value="orgType:TwoYear">
+                    Two-Year College
+                  </option>
+                  <option value="orgType:UpperSecondarySchool">
+                    Upper Secondary School
+                  </option>
+                  <option value="orgType:Vendor">
+                    Vendor
+                  </option>
                 </select>
                 <small class="text-muted">The type of organization.</small>
               </div>
             </div>
 
             <div class="row mb-3">
-              <label for="org_logo" class="col-sm-2 col-form-label">Logo URI</label>
+              <label
+                for="org_logo"
+                class="col-sm-2 col-form-label"
+              >Logo URI</label>
               <div class="col-sm-10">
                 <input
+                  id="org_logo"
+                  v-model="formData.logo"
                   type="text"
                   class="form-control"
-                  id="org_logo"
                   name="org[logo]"
-                  v-model="formData.logo"
                   placeholder="Enter logo URL"
                 >
                 <small class="text-muted">The organization's logo.</small>
@@ -111,14 +220,17 @@
             </div>
 
             <div class="row mb-3">
-              <label for="org_legalName" class="col-sm-2 col-form-label">Legal Name</label>
+              <label
+                for="org_legalName"
+                class="col-sm-2 col-form-label"
+              >Legal Name</label>
               <div class="col-sm-10">
                 <input
+                  id="org_legalName"
+                  v-model="formData.legalName"
                   type="text"
                   class="form-control"
-                  id="org_legalName"
                   name="org[legalName]"
-                  v-model="formData.legalName"
                   placeholder="Enter legal name"
                 >
                 <small class="text-muted">The organization's legal name.</small>
@@ -126,14 +238,17 @@
             </div>
 
             <div class="row mb-3">
-              <label for="org_ctid" class="col-sm-2 col-form-label">CTID</label>
+              <label
+                for="org_ctid"
+                class="col-sm-2 col-form-label"
+              >CTID</label>
               <div class="col-sm-10">
                 <input
+                  id="org_ctid"
+                  v-model="formData.ctid"
                   type="text"
                   class="form-control"
-                  id="org_ctid"
                   name="org[ctid]"
-                  v-model="formData.ctid"
                   placeholder="Enter CTID"
                 >
                 <small class="text-muted">The organization's CTID.</small>
@@ -141,14 +256,17 @@
             </div>
 
             <div class="row mb-3">
-              <label for="org_webpage" class="col-sm-2 col-form-label">Webpage</label>
+              <label
+                for="org_webpage"
+                class="col-sm-2 col-form-label"
+              >Webpage</label>
               <div class="col-sm-10">
                 <input
+                  id="org_webpage"
+                  v-model="formData.webpage"
                   type="url"
                   class="form-control"
-                  id="org_webpage"
                   name="org[webpage]"
-                  v-model="formData.webpage"
                   placeholder="Enter webpage URL"
                 >
                 <small class="text-muted">Webpage that describes this organization.</small>
@@ -156,14 +274,17 @@
             </div>
 
             <div class="row mb-3">
-              <label for="org_jurisdiction" class="col-sm-2 col-form-label">Jurisdiction</label>
+              <label
+                for="org_jurisdiction"
+                class="col-sm-2 col-form-label"
+              >Jurisdiction</label>
               <div class="col-sm-10">
                 <input
+                  id="org_jurisdiction"
+                  v-model="formData.jurisdiction"
                   type="text"
                   class="form-control"
-                  id="org_jurisdiction"
                   name="org[jurisdiction]"
-                  v-model="formData.jurisdiction"
                   placeholder="e.g., Province, Country"
                 >
                 <small class="text-muted">Geographic or political region of the organization.</small>
@@ -172,9 +293,24 @@
           </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
-          <button type="button" class="btn btn-primary" @click="saveItem" :disabled="saving">
-            <span v-if="saving" class="spinner-border spinner-border-sm me-2" role="status"></span>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            @click="closeModal"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            :disabled="saving"
+            @click="saveItem"
+          >
+            <span
+              v-if="saving"
+              class="spinner-border spinner-border-sm me-2"
+              role="status"
+            />
             {{ isEdit ? 'Update' : 'Create' }}
           </button>
         </div>
@@ -187,10 +323,22 @@
 import { ref, reactive, watch, computed } from 'vue';
 
 const props = defineProps({
-  parentItem: Object,
-  itemType: String,
-  show: Boolean,
-  item: Object
+  parentItem: {
+    type: Object,
+    default: null
+  },
+  itemType: {
+    type: String,
+    default: ''
+  },
+  show: {
+    type: Boolean,
+    default: false
+  },
+  item: {
+    type: Object,
+    default: null
+  }
 });
 
 const emit = defineEmits(['created', 'updated', 'hidden']);

@@ -9,15 +9,15 @@
       </div>
       <div
         v-else
+        ref="treeContainer"
         role="tree"
         :aria-label="treeLabel"
         :aria-multiselectable="false"
         :aria-setsize="totalItems"
         tabindex="-1"
-        ref="treeContainer"
-        @keydown="handleTreeKeyDown"
         class="tree-container"
         :class="{ 'view-mode': isViewMode }"
+        @keydown="handleTreeKeyDown"
       >
         <TreeNode
           :key="documentRoot.identifier"
@@ -26,7 +26,7 @@
           :selected-id="props.selectedId"
           :parent-items="[documentRoot]"
           :index="0"
-          :startExpanded="true"
+          :start-expanded="true"
           :search-query="props.searchQuery || props.search"
           :matching-item-ids="props.matchingItemIds"
           :is-view-mode="isViewMode"
@@ -49,7 +49,10 @@ import TreeNode from './TreeNode.vue';
 import { useTreeNavigation } from '../../composables/useTreeNavigation';
 
 const props = defineProps({
-  doc: Object,
+  doc: {
+    type: Object,
+    default: null
+  },
   selectedId: {
     type: String,
     default: null

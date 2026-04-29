@@ -1,34 +1,77 @@
 <template>
   <!-- Backdrop -->
-  <div v-if="props.show" class="modal-backdrop fade" :class="{ 'show': props.show }" @click="closeModal"></div>
+  <div
+    v-if="props.show"
+    class="modal-backdrop fade"
+    :class="{ 'show': props.show }"
+    @click="closeModal"
+  />
 
   <!-- Modal -->
-  <div class="modal fade" :class="{ 'show d-block': props.show }" tabindex="-1" id="addNewIdentifierModal" aria-hidden="true" :style="{ display: props.show ? 'block' : 'none' }">
-    <div class="modal-dialog" role="document" @click.stop>
+  <div
+    id="addNewIdentifierModal"
+    class="modal fade"
+    :class="{ 'show d-block': props.show }"
+    tabindex="-1"
+    aria-hidden="true"
+    :style="{ display: props.show ? 'block' : 'none' }"
+  >
+    <div
+      class="modal-dialog"
+      role="document"
+      @click.stop
+    >
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="addNewIdentifierModalLabel">{{ isEdit ? 'Edit Identifier' : 'Add New Identifier' }}</h5>
-          <button type="button" class="btn-close" @click="closeModal" aria-label="Close"></button>
+          <h5
+            id="addNewIdentifierModalLabel"
+            class="modal-title"
+          >
+            {{ isEdit ? 'Edit Identifier' : 'Add New Identifier' }}
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            aria-label="Close"
+            @click="closeModal"
+          />
         </div>
         <div class="modal-body">
-          <div v-if="loading" class="d-flex justify-content-center align-items-center p-4">
-            <div class="spinner-border text-primary" role="status">
+          <div
+            v-if="loading"
+            class="d-flex justify-content-center align-items-center p-4"
+          >
+            <div
+              class="spinner-border text-primary"
+              role="status"
+            >
               <span class="visually-hidden">Loading form...</span>
             </div>
           </div>
-          <div v-else-if="error" class="alert alert-danger" role="alert">
+          <div
+            v-else-if="error"
+            class="alert alert-danger"
+            role="alert"
+          >
             {{ error }}
           </div>
-          <form v-else @submit.prevent="createItem" name="ls_identifier">
+          <form
+            v-else
+            name="ls_identifier"
+            @submit.prevent="createItem"
+          >
             <div class="row mb-3">
-              <label for="ls_identifier_identifier" class="col-sm-3 col-form-label required-label">Identifier</label>
+              <label
+                for="ls_identifier_identifier"
+                class="col-sm-3 col-form-label required-label"
+              >Identifier</label>
               <div class="col-sm-9">
                 <input
+                  id="ls_identifier_identifier"
+                  v-model="formData.identifier"
                   type="text"
                   class="form-control"
-                  id="ls_identifier_identifier"
                   name="ls_identifier[identifier]"
-                  v-model="formData.identifier"
                   placeholder="Enter identifier (unique URI)"
                   spellcheck="false"
                   required
@@ -37,29 +80,38 @@
               </div>
             </div>
             <div class="row mb-3">
-              <label for="ls_identifier_description" class="col-sm-3 col-form-label required-label">Description</label>
+              <label
+                for="ls_identifier_description"
+                class="col-sm-3 col-form-label required-label"
+              >Description</label>
               <div class="col-sm-9">
                 <textarea
-                  class="form-control"
                   id="ls_identifier_description"
-                  name="ls_identifier[description]"
                   v-model="formData.description"
+                  class="form-control"
+                  name="ls_identifier[description]"
                   rows="3"
                   placeholder="Enter description"
                   required
-                ></textarea>
+                />
                 <small class="text-muted">Description of the identifier.</small>
               </div>
             </div>
-            <div class="row mb-3" v-if="false">
-              <label for="ls_identifier_type" class="col-sm-3 col-form-label">Type</label>
+            <div
+              v-if="false"
+              class="row mb-3"
+            >
+              <label
+                for="ls_identifier_type"
+                class="col-sm-3 col-form-label"
+              >Type</label>
               <div class="col-sm-9">
                 <input
+                  id="ls_identifier_type"
+                  v-model="formData.type"
                   type="text"
                   class="form-control"
-                  id="ls_identifier_type"
                   name="ls_identifier[type]"
-                  v-model="formData.type"
                   placeholder="Enter identifier type"
                 >
               </div>
@@ -67,9 +119,24 @@
           </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
-          <button type="button" class="btn btn-primary" @click="saveItem" :disabled="saving">
-            <span v-if="saving" class="spinner-border spinner-border-sm me-2" role="status"></span>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            @click="closeModal"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            :disabled="saving"
+            @click="saveItem"
+          >
+            <span
+              v-if="saving"
+              class="spinner-border spinner-border-sm me-2"
+              role="status"
+            />
             {{ isEdit ? 'Update' : 'Create' }}
           </button>
         </div>
@@ -82,10 +149,22 @@
 import { ref, reactive, watch, computed } from 'vue';
 
 const props = defineProps({
-  parentItem: Object,
-  itemType: String,
-  show: Boolean,
-  item: Object
+  parentItem: {
+    type: Object,
+    default: null
+  },
+  itemType: {
+    type: String,
+    default: ''
+  },
+  show: {
+    type: Boolean,
+    default: false
+  },
+  item: {
+    type: Object,
+    default: null
+  }
 });
 
 const emit = defineEmits(['created', 'updated', 'hidden']);

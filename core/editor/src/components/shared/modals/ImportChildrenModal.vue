@@ -1,77 +1,147 @@
 <template>
-  <div class="modal fade" id="importChildrenModal" tabindex="-1" role="dialog"
-       aria-labelledby="importChildrenModalLabel" aria-hidden="true" ref="modalElement">
-    <div class="modal-dialog modal-lg" role="document">
+  <div
+    id="importChildrenModal"
+    ref="modalElement"
+    class="modal fade"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="importChildrenModalLabel"
+    aria-hidden="true"
+  >
+    <div
+      class="modal-dialog modal-lg"
+      role="document"
+    >
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="importChildrenModalLabel">Import Items</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <h5
+            id="importChildrenModalLabel"
+            class="modal-title"
+          >
+            Import Items
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          />
         </div>
         <div class="modal-body">
           <p class="text-muted small">
             Note: The CSV importer does not import all CASE fields but is intended as a simple
             statement importer. Questions about fields?
-            <a href="http://docs.opensalt.org/en/latest/#h5777746416576973633711c4a42414c"
-               rel="noopener noreferrer" target="_blank">See this guide</a>.
+            <a
+              href="http://docs.opensalt.org/en/latest/#h5777746416576973633711c4a42414c"
+              rel="noopener noreferrer"
+              target="_blank"
+            >See this guide</a>.
           </p>
 
           <!-- Error Messages -->
-          <div v-if="errorMessage" class="alert alert-danger" role="alert">
+          <div
+            v-if="errorMessage"
+            class="alert alert-danger"
+            role="alert"
+          >
             {{ errorMessage }}
           </div>
 
           <!-- Success Message -->
-          <div v-if="successMessage" class="alert alert-success" role="alert">
+          <div
+            v-if="successMessage"
+            class="alert alert-success"
+            role="alert"
+          >
             <strong>Success!</strong> {{ successMessage }}
           </div>
 
           <!-- Missing Fields Warnings -->
-          <div v-for="(warning, index) in missingFieldWarnings" :key="index"
-               class="alert alert-warning alert-dismissible" role="alert">
-            <button type="button" class="btn-close" @click="missingFieldWarnings.splice(index, 1)"
-                    aria-label="close"></button>
+          <div
+            v-for="(warning, index) in missingFieldWarnings"
+            :key="index"
+            class="alert alert-warning alert-dismissible"
+            role="alert"
+          >
+            <button
+              type="button"
+              class="btn-close"
+              aria-label="close"
+              @click="missingFieldWarnings.splice(index, 1)"
+            />
             <strong>Missing field "{{ warning }}"</strong>, if you did not list a column
             {{ warning.toLowerCase() }} in your CSV ignore this message! If you meant to,
             please take a look at the import template and try again!
           </div>
 
           <!-- Import Form -->
-          <div v-show="!isLoading" id="importChildrenForm">
-            <ul class="nav nav-tabs" role="tablist">
+          <div
+            v-show="!isLoading"
+            id="importChildrenForm"
+          >
+            <ul
+              class="nav nav-tabs"
+              role="tablist"
+            >
               <li class="nav-item">
-                <a href="#icLocalFile" class="nav-link active" data-bs-toggle="tab">
+                <a
+                  href="#icLocalFile"
+                  class="nav-link active"
+                  data-bs-toggle="tab"
+                >
                   Import local file
                 </a>
               </li>
             </ul>
-            <br />
+            <br>
 
             <div class="tab-content">
-              <div class="tab-pane fade show active" id="icLocalFile">
+              <div
+                id="icLocalFile"
+                class="tab-pane fade show active"
+              >
                 <div class="row align-items-end">
                   <div class="col-5">
-                    <label for="importChildrenFile" class="form-label">
+                    <label
+                      for="importChildrenFile"
+                      class="form-label"
+                    >
                       Select a CSV or JSON file
                     </label>
                     <input
                       id="importChildrenFile"
+                      ref="fileInput"
                       type="file"
                       class="form-control"
                       accept=".csv,.json"
-                      ref="fileInput"
                       @change="onFileSelected"
-                    />
+                    >
                   </div>
-                  <div class="col-3 text-end" style="line-height: 34px;">
+                  <div
+                    class="col-3 text-end"
+                    style="line-height: 34px;"
+                  >
                     <label for="importChildrenAssocFramework">Framework to be associated</label>
                   </div>
                   <div class="col-4">
-                    <select id="importChildrenAssocFramework"
-                            class="form-select" v-model="selectedAssociationFramework">
-                      <option value="all">All</option>
-                      <optgroup v-for="group in groupedDocuments" :key="group.creator"
-                                :label="group.creator || 'No Creator'">
-                        <option v-for="doc in group.docs" :key="doc.id" :value="doc.id">
+                    <select
+                      id="importChildrenAssocFramework"
+                      v-model="selectedAssociationFramework"
+                      class="form-select"
+                    >
+                      <option value="all">
+                        All
+                      </option>
+                      <optgroup
+                        v-for="group in groupedDocuments"
+                        :key="group.creator"
+                        :label="group.creator || 'No Creator'"
+                      >
+                        <option
+                          v-for="doc in group.docs"
+                          :key="doc.id"
+                          :value="doc.id"
+                        >
                           {{ doc.title }}
                         </option>
                       </optgroup>
@@ -84,7 +154,11 @@
                   :disabled="!selectedFile || isLoading"
                   @click="importChildren"
                 >
-                  <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+                  <span
+                    v-if="isLoading"
+                    class="spinner-border spinner-border-sm me-2"
+                    role="status"
+                  />
                   Import Children
                 </button>
               </div>
@@ -92,15 +166,29 @@
           </div>
 
           <!-- Loading Spinner -->
-          <div v-if="isLoading" class="text-center py-4">
-            <div class="spinner-border text-primary" role="status">
+          <div
+            v-if="isLoading"
+            class="text-center py-4"
+          >
+            <div
+              class="spinner-border text-primary"
+              role="status"
+            >
               <span class="visually-hidden">Loading file...</span>
             </div>
-            <p class="mt-2 text-muted">Importing items, please wait...</p>
+            <p class="mt-2 text-muted">
+              Importing items, please wait...
+            </p>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Close
+          </button>
         </div>
       </div>
     </div>

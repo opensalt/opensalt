@@ -3,47 +3,90 @@
     <!-- Identifier link -->
     <div class="mb-3">
       <strong>Identifier:</strong>
-      <a :href="`/uri/${item.identifier}`" target="_blank" class="ms-1">{{ item.identifier }}</a>
+      <a
+        :href="`/uri/${item.identifier}`"
+        target="_blank"
+        class="ms-1"
+      >{{ item.identifier }}</a>
     </div>
 
     <!-- Assessment-specific fields -->
-    <div v-if="item.fullStatement" class="mb-3">
+    <div
+      v-if="item.fullStatement"
+      class="mb-3"
+    >
       <strong>Assessment Name:</strong>
-      <p class="mt-1">{{ item.fullStatement }}</p>
+      <p class="mt-1">
+        {{ item.fullStatement }}
+      </p>
     </div>
 
-    <div v-if="item.description" class="mb-3">
+    <div
+      v-if="item.description"
+      class="mb-3"
+    >
       <strong>Description:</strong>
-      <p class="mt-1">{{ item.description }}</p>
+      <p class="mt-1">
+        {{ item.description }}
+      </p>
     </div>
 
-    <div v-if="item.extensions && item.extensions['salt:deliveryType']" class="mb-3">
+    <div
+      v-if="item.extensions && item.extensions['salt:deliveryType']"
+      class="mb-3"
+    >
       <strong>Delivery Type:</strong>
-      <p class="mt-1 capitalize">{{ item.extensions['salt:deliveryType'] }}</p>
+      <p class="mt-1 capitalize">
+        {{ item.extensions['salt:deliveryType'] }}
+      </p>
     </div>
 
-    <div v-if="item.extensions && item.extensions['salt:inLanguage']" class="mb-3">
+    <div
+      v-if="item.extensions && item.extensions['salt:inLanguage']"
+      class="mb-3"
+    >
       <strong>Language:</strong>
-      <p class="mt-1">{{ item.extensions['salt:inLanguage'] }}</p>
+      <p class="mt-1">
+        {{ item.extensions['salt:inLanguage'] }}
+      </p>
     </div>
 
-    <div v-if="item.keywords" class="mb-3">
+    <div
+      v-if="item.keywords"
+      class="mb-3"
+    >
       <strong>Keywords:</strong>
       <div class="mt-1">
-        <span v-for="keyword in parsedKeywords" :key="keyword" class="badge bg-secondary me-1">
+        <span
+          v-for="keyword in parsedKeywords"
+          :key="keyword"
+          class="badge bg-secondary me-1"
+        >
           {{ keyword }}
         </span>
       </div>
     </div>
 
-    <div v-if="item.uri" class="mb-3 text-truncate">
+    <div
+      v-if="item.uri"
+      class="mb-3 text-truncate"
+    >
       <strong>Webpage:</strong>
-      <a :href="item.uri" target="_blank" class="ms-1">{{ item.uri }}</a>
+      <a
+        :href="item.uri"
+        target="_blank"
+        class="ms-1"
+      >{{ item.uri }}</a>
     </div>
 
-    <div v-if="item.notes" class="mb-3">
+    <div
+      v-if="item.notes"
+      class="mb-3"
+    >
       <strong>Notes:</strong>
-      <p class="mt-1">{{ item.notes }}</p>
+      <p class="mt-1">
+        {{ item.notes }}
+      </p>
     </div>
   </div>
 </template>

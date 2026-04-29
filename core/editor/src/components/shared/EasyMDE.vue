@@ -1,14 +1,14 @@
 <template>
   <div class="easymde-wrapper">
     <textarea
+      :id="id"
       ref="textareaRef"
       :value="modelValue"
-      @input="handleInput"
       :placeholder="placeholder"
       :required="required"
-      :id="id"
       :name="name"
-    ></textarea>
+      @input="handleInput"
+    />
   </div>
 </template>
 

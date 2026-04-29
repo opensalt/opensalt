@@ -1,18 +1,21 @@
 <template>
   <div class="destination-fields">
     <div class="row mb-3">
-      <label for="editAssociationFormDestinationUri" class="col-sm-3 col-form-label required text-end">
+      <label
+        for="editAssociationFormDestinationUri"
+        class="col-sm-3 col-form-label required text-end"
+      >
         {{ sideLabel }} URI *
       </label>
       <div class="col-sm-9">
         <input
-          type="url"
           id="editAssociationFormDestinationUri"
+          type="url"
           class="form-control"
           :value="uri"
-          @input="$emit('update:uri', $event.target.value)"
           placeholder="https://example.com/item"
           required
+          @input="$emit('update:uri', $event.target.value)"
         >
         <div class="form-text">
           Enter the full URI of the {{ sideLabelLower }} item
@@ -21,17 +24,20 @@
     </div>
 
     <div class="row mb-3">
-      <label for="editAssociationFormDestinationIdentifier" class="col-sm-3 col-form-label text-end">
+      <label
+        for="editAssociationFormDestinationIdentifier"
+        class="col-sm-3 col-form-label text-end"
+      >
         {{ sideLabel }} Identifier
       </label>
       <div class="col-sm-9">
         <input
-          type="text"
           id="editAssociationFormDestinationIdentifier"
+          type="text"
           class="form-control"
           :value="identifier"
-          @input="$emit('update:identifier', $event.target.value)"
           placeholder="e.g. 12345678-1234-1234-1234-123456789012"
+          @input="$emit('update:identifier', $event.target.value)"
         >
         <div class="form-text">
           Optional identifier (UUID) for the {{ sideLabelLower }} item
@@ -40,33 +46,39 @@
     </div>
     
     <div class="row mb-3">
-      <label for="editAssociationFormDestinationTitle" class="col-sm-3 col-form-label text-end">
+      <label
+        for="editAssociationFormDestinationTitle"
+        class="col-sm-3 col-form-label text-end"
+      >
         {{ sideLabel }} Title
       </label>
       <div class="col-sm-9">
         <input
-          type="text"
           id="editAssociationFormDestinationTitle"
+          type="text"
           class="form-control"
           :value="title"
-          @input="$emit('update:title', $event.target.value)"
           :placeholder="`Title of the ${sideLabelLower} item`"
+          @input="$emit('update:title', $event.target.value)"
         >
       </div>
     </div>
 
     <div class="row mb-3">
-      <label for="editAssociationFormDestinationTargetType" class="col-sm-3 col-form-label text-end">
+      <label
+        for="editAssociationFormDestinationTargetType"
+        class="col-sm-3 col-form-label text-end"
+      >
         Target Type
       </label>
       <div class="col-sm-9">
         <input
-          type="text"
           id="editAssociationFormDestinationTargetType"
+          type="text"
           class="form-control"
           :value="targetType"
-          @input="$emit('update:targetType', $event.target.value)"
           placeholder="e.g. CASE"
+          @input="$emit('update:targetType', $event.target.value)"
         >
         <div class="form-text">
           Target Type is usually 'CASE' for CASE items. Leave blank for unknown/other target types.

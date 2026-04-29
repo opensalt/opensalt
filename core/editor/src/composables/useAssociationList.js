@@ -41,7 +41,7 @@ function collectDocumentItemIds(document) {
   return ids;
 }
 
-export function useAssociationList({ mode, item = null, displayItem = null, document = null }) {
+export function useAssociationList({ mode, item = null, displayItem: _displayItem = null, document = null }) {
   const contextStore = useEditorContextStore();
   const currentDocumentStore = useCurrentDocumentStore();
 
@@ -68,12 +68,6 @@ export function useAssociationList({ mode, item = null, displayItem = null, docu
   ));
 
   const itemIdentifier = computed(() => toValue(item)?.identifier || null);
-  const itemUri = computed(() => (
-    toValue(item)?.uri ||
-    toValue(item)?.crossFrameworkUri ||
-    toValue(displayItem)?.uri ||
-    null
-  ));
   const documentIdentifier = computed(() => (
     toValue(document)?.identifier ||
     toValue(document)?.id ||

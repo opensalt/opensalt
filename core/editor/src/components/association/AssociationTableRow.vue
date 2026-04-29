@@ -1,5 +1,8 @@
 <template>
-  <tbody class="association-tbody" :class="{ 'cross-framework-tbody': isAssociationFromDifferentDisplayedFramework }">
+  <tbody
+    class="association-tbody"
+    :class="{ 'cross-framework-tbody': isAssociationFromDifferentDisplayedFramework }"
+  >
     <!-- Main row -->
     <tr class="association-row">
       <!-- Origin Column -->
@@ -7,151 +10,308 @@
         <div class="item-display">
           <template v-if="originDisplay.isLoading">
             <span class="text-muted uri-display">{{ originDisplay.truncatedStatement }}</span>
-            <span class="spinner-border spinner-border-sm text-secondary ms-2" role="status" aria-label="Loading item information">
+            <span
+              class="spinner-border spinner-border-sm text-secondary ms-2"
+              role="status"
+              aria-label="Loading item information"
+            >
               <span class="visually-hidden">Loading...</span>
             </span>
           </template>
           <template v-else>
             <div class="d-flex align-items-center flex-wrap gap-1">
-              <a v-if="originLinkInfo.type === 'same-framework'" :href="originLinkInfo.href" class="association-title-link" @click.prevent="onOriginClick">
-                <span v-if="originDisplay.humanCodingScheme" class="item-human-coding-scheme">{{ originDisplay.humanCodingScheme }}:</span>
-                <span v-if="originDisplay.statement" class="item-statement">{{ originDisplay.truncatedStatement }}</span>
-                <span v-if="!originDisplay.humanCodingScheme && !originDisplay.statement" class="text-muted">Unknown</span>
+              <a
+                v-if="originLinkInfo.type === 'same-framework'"
+                :href="originLinkInfo.href"
+                class="association-title-link"
+                @click.prevent="onOriginClick"
+              >
+                <span
+                  v-if="originDisplay.humanCodingScheme"
+                  class="item-human-coding-scheme"
+                >{{ originDisplay.humanCodingScheme }}:</span>
+                <span
+                  v-if="originDisplay.statement"
+                  class="item-statement"
+                >{{ originDisplay.truncatedStatement }}</span>
+                <span
+                  v-if="!originDisplay.humanCodingScheme && !originDisplay.statement"
+                  class="text-muted"
+                >Unknown</span>
               </a>
-              <a v-else-if="originLinkInfo.type === 'cross-framework'" :href="originLinkInfo.href" target="_blank" rel="noopener noreferrer" class="association-title-link">
-                <span v-if="originDisplay.humanCodingScheme" class="item-human-coding-scheme">{{ originDisplay.humanCodingScheme }}:</span>
-                <span v-if="originDisplay.statement" class="item-statement">{{ originDisplay.truncatedStatement }}</span>
-                <span v-if="!originDisplay.humanCodingScheme && !originDisplay.statement" class="text-muted">Unknown</span>
+              <a
+                v-else-if="originLinkInfo.type === 'cross-framework'"
+                :href="originLinkInfo.href"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="association-title-link"
+              >
+                <span
+                  v-if="originDisplay.humanCodingScheme"
+                  class="item-human-coding-scheme"
+                >{{ originDisplay.humanCodingScheme }}:</span>
+                <span
+                  v-if="originDisplay.statement"
+                  class="item-statement"
+                >{{ originDisplay.truncatedStatement }}</span>
+                <span
+                  v-if="!originDisplay.humanCodingScheme && !originDisplay.statement"
+                  class="text-muted"
+                >Unknown</span>
               </a>
-              <a v-else-if="originLinkInfo.type === 'external'" :href="originLinkInfo.href" target="_blank" rel="noopener noreferrer" class="association-title-link">
-                <span v-if="originDisplay.humanCodingScheme" class="item-human-coding-scheme">{{ originDisplay.humanCodingScheme }}:</span>
-                <span v-if="originDisplay.statement" class="item-statement">{{ originDisplay.truncatedStatement }}</span>
-                <span v-if="!originDisplay.humanCodingScheme && !originDisplay.statement" class="text-muted">Unknown</span>
+              <a
+                v-else-if="originLinkInfo.type === 'external'"
+                :href="originLinkInfo.href"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="association-title-link"
+              >
+                <span
+                  v-if="originDisplay.humanCodingScheme"
+                  class="item-human-coding-scheme"
+                >{{ originDisplay.humanCodingScheme }}:</span>
+                <span
+                  v-if="originDisplay.statement"
+                  class="item-statement"
+                >{{ originDisplay.truncatedStatement }}</span>
+                <span
+                  v-if="!originDisplay.humanCodingScheme && !originDisplay.statement"
+                  class="text-muted"
+                >Unknown</span>
               </a>
               <template v-else>
-                <span v-if="originDisplay.humanCodingScheme" class="item-human-coding-scheme">
+                <span
+                  v-if="originDisplay.humanCodingScheme"
+                  class="item-human-coding-scheme"
+                >
                   {{ originDisplay.humanCodingScheme }}:
                 </span>
-                <span v-if="originDisplay.statement" class="item-statement">
+                <span
+                  v-if="originDisplay.statement"
+                  class="item-statement"
+                >
                   {{ originDisplay.truncatedStatement }}
                 </span>
-                <span v-if="!originDisplay.humanCodingScheme && !originDisplay.statement" class="text-muted">
+                <span
+                  v-if="!originDisplay.humanCodingScheme && !originDisplay.statement"
+                  class="text-muted"
+                >
                   Unknown
                 </span>
               </template>
               <!-- Framework badge for cross-framework CASE items -->
-              <span v-if="originFrameworkTitle && !isOriginLoading && originTargetTypeInfo.isCase" class="badge framework-badge" :title="`From: ${originFrameworkTitle}`">
-                <i class="bi bi-box-arrow-up-right me-1"></i>{{ originFrameworkTitle }}
+              <span
+                v-if="originFrameworkTitle && !isOriginLoading && originTargetTypeInfo.isCase"
+                class="badge framework-badge"
+                :title="`From: ${originFrameworkTitle}`"
+              >
+                <i class="bi bi-box-arrow-up-right me-1" />{{ originFrameworkTitle }}
               </span>
               <!-- Non-CASE item indicator -->
-              <span v-if="!originTargetTypeInfo.isCase && isOriginCrossFramework" class="badge external-uri-badge" title="External URI">
-                <i class="bi bi-link-45deg me-1"></i>External
+              <span
+                v-if="!originTargetTypeInfo.isCase && isOriginCrossFramework"
+                class="badge external-uri-badge"
+                title="External URI"
+              >
+                <i class="bi bi-link-45deg me-1" />External
               </span>
             </div>
             <!-- Source framework tag moved to Origin column -->
-            <div v-if="sourceFrameworkTitle" class="mt-2 text-muted small border-top pt-1 border-opacity-25" style="max-width: 250px;">
-              <i class="bi bi-folder2-open me-1"></i>Source: {{ sourceFrameworkTitle }}
+            <div
+              v-if="sourceFrameworkTitle"
+              class="mt-2 text-muted small border-top pt-1 border-opacity-25"
+              style="max-width: 250px;"
+            >
+              <i class="bi bi-folder2-open me-1" />Source: {{ sourceFrameworkTitle }}
             </div>
           </template>
         </div>
       </td>
 
-    <!-- Association Type Column -->
-    <td class="py-3">
-      <div class="association-type-badge">
-        <i :class="typeDisplay.icon" class="me-1" aria-hidden="true"></i>
-        <span class="text-capitalize">{{ typeDisplay.formatted }}</span>
-        <span
-          v-if="isExtendedType"
-          class="badge bg-warning text-dark ms-2"
-          title="This is an extended association type"
-        >
-          Extended
-        </span>
-      </div>
-    </td>
-
-    <!-- Destination Column -->
-    <td class="py-3">
-      <div class="item-display">
-        <template v-if="destinationDisplay.isLoading">
-          <span class="text-muted uri-display">{{ destinationDisplay.truncatedStatement }}</span>
-          <span class="spinner-border spinner-border-sm text-secondary ms-2" role="status" aria-label="Loading item information">
-            <span class="visually-hidden">Loading...</span>
+      <!-- Association Type Column -->
+      <td class="py-3">
+        <div class="association-type-badge">
+          <i
+            :class="typeDisplay.icon"
+            class="me-1"
+            aria-hidden="true"
+          />
+          <span class="text-capitalize">{{ typeDisplay.formatted }}</span>
+          <span
+            v-if="isExtendedType"
+            class="badge bg-warning text-dark ms-2"
+            title="This is an extended association type"
+          >
+            Extended
           </span>
-        </template>
-        <template v-else>
-          <div class="d-flex align-items-center flex-wrap gap-1">
-            <a v-if="destinationLinkInfo.type === 'same-framework'" :href="destinationLinkInfo.href" class="association-title-link" @click.prevent="onDestinationClick">
-              <span v-if="destinationDisplay.humanCodingScheme" class="item-human-coding-scheme">{{ destinationDisplay.humanCodingScheme }}:</span>
-              <span v-if="destinationDisplay.statement" class="item-statement">{{ destinationDisplay.truncatedStatement }}</span>
-              <span v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement" class="text-muted">Unknown</span>
-            </a>
-            <a v-else-if="destinationLinkInfo.type === 'cross-framework'" :href="destinationLinkInfo.href" target="_blank" rel="noopener noreferrer" class="association-title-link">
-              <span v-if="destinationDisplay.humanCodingScheme" class="item-human-coding-scheme">{{ destinationDisplay.humanCodingScheme }}:</span>
-              <span v-if="destinationDisplay.statement" class="item-statement">{{ destinationDisplay.truncatedStatement }}</span>
-              <span v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement" class="text-muted">Unknown</span>
-            </a>
-            <a v-else-if="destinationLinkInfo.type === 'external'" :href="destinationLinkInfo.href" target="_blank" rel="noopener noreferrer" class="association-title-link">
-              <span v-if="destinationDisplay.humanCodingScheme" class="item-human-coding-scheme">{{ destinationDisplay.humanCodingScheme }}:</span>
-              <span v-if="destinationDisplay.statement" class="item-statement">{{ destinationDisplay.truncatedStatement }}</span>
-              <span v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement" class="text-muted">Unknown</span>
-            </a>
-            <template v-else>
-              <span v-if="destinationDisplay.humanCodingScheme" class="item-human-coding-scheme">
-                {{ destinationDisplay.humanCodingScheme }}:
-              </span>
-              <span v-if="destinationDisplay.statement" class="item-statement">
-                {{ destinationDisplay.truncatedStatement }}
-              </span>
-              <span v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement" class="text-muted">
-                Unknown
-              </span>
-            </template>
-            <!-- Framework badge for cross-framework CASE items -->
-            <span v-if="destinationFrameworkTitle && !isDestinationLoading && destinationTargetTypeInfo.isCase" class="badge framework-badge" :title="`From: ${destinationFrameworkTitle}`">
-              <i class="bi bi-box-arrow-up-right me-1"></i>{{ destinationFrameworkTitle }}
-            </span>
-            <!-- Non-CASE item indicator -->
-            <span v-if="!destinationTargetTypeInfo.isCase && isDestinationCrossFramework" class="badge external-uri-badge" title="External URI">
-              <i class="bi bi-link-45deg me-1"></i>External
-            </span>
-          </div>
-        </template>
-      </div>
-    </td>
+        </div>
+      </td>
 
-    <!-- Actions Column -->
-    <td class="py-3 text-end">
-      <div v-if="canManageAssociation || canDeleteAssociation" class="btn-group btn-group-sm" role="group">
-        <button
-          v-if="canManageAssociation"
-          type="button"
-          class="btn btn-outline-primary"
-          @click="$emit('edit', association)"
-          :aria-label="`Edit association from ${originDisplay.humanCodingScheme || 'Unknown'} to ${destinationDisplay.humanCodingScheme || 'Unknown'}`"
-          title="Edit association"
-        >
-          <i class="bi bi-pencil" aria-hidden="true"></i>
-        </button>
-        <button
-          v-if="canDeleteAssociation"
-          type="button"
-          class="btn btn-outline-danger"
-          @click="$emit('delete', association)"
-          :aria-label="`Delete association from ${originDisplay.humanCodingScheme || 'Unknown'} to ${destinationDisplay.humanCodingScheme || 'Unknown'}`"
-          title="Delete association"
-        >
-          <i class="bi bi-trash" aria-hidden="true"></i>
-        </button>
-      </div>
-    </td>
-  </tr>
+      <!-- Destination Column -->
+      <td class="py-3">
+        <div class="item-display">
+          <template v-if="destinationDisplay.isLoading">
+            <span class="text-muted uri-display">{{ destinationDisplay.truncatedStatement }}</span>
+            <span
+              class="spinner-border spinner-border-sm text-secondary ms-2"
+              role="status"
+              aria-label="Loading item information"
+            >
+              <span class="visually-hidden">Loading...</span>
+            </span>
+          </template>
+          <template v-else>
+            <div class="d-flex align-items-center flex-wrap gap-1">
+              <a
+                v-if="destinationLinkInfo.type === 'same-framework'"
+                :href="destinationLinkInfo.href"
+                class="association-title-link"
+                @click.prevent="onDestinationClick"
+              >
+                <span
+                  v-if="destinationDisplay.humanCodingScheme"
+                  class="item-human-coding-scheme"
+                >{{ destinationDisplay.humanCodingScheme }}:</span>
+                <span
+                  v-if="destinationDisplay.statement"
+                  class="item-statement"
+                >{{ destinationDisplay.truncatedStatement }}</span>
+                <span
+                  v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement"
+                  class="text-muted"
+                >Unknown</span>
+              </a>
+              <a
+                v-else-if="destinationLinkInfo.type === 'cross-framework'"
+                :href="destinationLinkInfo.href"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="association-title-link"
+              >
+                <span
+                  v-if="destinationDisplay.humanCodingScheme"
+                  class="item-human-coding-scheme"
+                >{{ destinationDisplay.humanCodingScheme }}:</span>
+                <span
+                  v-if="destinationDisplay.statement"
+                  class="item-statement"
+                >{{ destinationDisplay.truncatedStatement }}</span>
+                <span
+                  v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement"
+                  class="text-muted"
+                >Unknown</span>
+              </a>
+              <a
+                v-else-if="destinationLinkInfo.type === 'external'"
+                :href="destinationLinkInfo.href"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="association-title-link"
+              >
+                <span
+                  v-if="destinationDisplay.humanCodingScheme"
+                  class="item-human-coding-scheme"
+                >{{ destinationDisplay.humanCodingScheme }}:</span>
+                <span
+                  v-if="destinationDisplay.statement"
+                  class="item-statement"
+                >{{ destinationDisplay.truncatedStatement }}</span>
+                <span
+                  v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement"
+                  class="text-muted"
+                >Unknown</span>
+              </a>
+              <template v-else>
+                <span
+                  v-if="destinationDisplay.humanCodingScheme"
+                  class="item-human-coding-scheme"
+                >
+                  {{ destinationDisplay.humanCodingScheme }}:
+                </span>
+                <span
+                  v-if="destinationDisplay.statement"
+                  class="item-statement"
+                >
+                  {{ destinationDisplay.truncatedStatement }}
+                </span>
+                <span
+                  v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement"
+                  class="text-muted"
+                >
+                  Unknown
+                </span>
+              </template>
+              <!-- Framework badge for cross-framework CASE items -->
+              <span
+                v-if="destinationFrameworkTitle && !isDestinationLoading && destinationTargetTypeInfo.isCase"
+                class="badge framework-badge"
+                :title="`From: ${destinationFrameworkTitle}`"
+              >
+                <i class="bi bi-box-arrow-up-right me-1" />{{ destinationFrameworkTitle }}
+              </span>
+              <!-- Non-CASE item indicator -->
+              <span
+                v-if="!destinationTargetTypeInfo.isCase && isDestinationCrossFramework"
+                class="badge external-uri-badge"
+                title="External URI"
+              >
+                <i class="bi bi-link-45deg me-1" />External
+              </span>
+            </div>
+          </template>
+        </div>
+      </td>
 
-    <tr v-if="hasAnnotation" class="annotation-row">
-      <td colspan="4" class="py-2 px-3">
+      <!-- Actions Column -->
+      <td class="py-3 text-end">
+        <div
+          v-if="canManageAssociation || canDeleteAssociation"
+          class="btn-group btn-group-sm"
+          role="group"
+        >
+          <button
+            v-if="canManageAssociation"
+            type="button"
+            class="btn btn-outline-primary"
+            :aria-label="`Edit association from ${originDisplay.humanCodingScheme || 'Unknown'} to ${destinationDisplay.humanCodingScheme || 'Unknown'}`"
+            title="Edit association"
+            @click="$emit('edit', association)"
+          >
+            <i
+              class="bi bi-pencil"
+              aria-hidden="true"
+            />
+          </button>
+          <button
+            v-if="canDeleteAssociation"
+            type="button"
+            class="btn btn-outline-danger"
+            :aria-label="`Delete association from ${originDisplay.humanCodingScheme || 'Unknown'} to ${destinationDisplay.humanCodingScheme || 'Unknown'}`"
+            title="Delete association"
+            @click="$emit('delete', association)"
+          >
+            <i
+              class="bi bi-trash"
+              aria-hidden="true"
+            />
+          </button>
+        </div>
+      </td>
+    </tr>
+
+    <tr
+      v-if="hasAnnotation"
+      class="annotation-row"
+    >
+      <td
+        colspan="4"
+        class="py-2 px-3"
+      >
         <div class="annotation-content">
-          <i class="bi bi-sticky me-2 text-muted" aria-hidden="true"></i>
+          <i
+            class="bi bi-sticky me-2 text-muted"
+            aria-hidden="true"
+          />
           <strong class="text-muted small">Annotation:</strong>
           <span class="ms-2 text-muted small">{{ annotation }}</span>
         </div>
@@ -212,7 +372,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['edit', 'delete']);
+const _emit = defineEmits(['edit', 'delete']);
 
 const route = useRoute();
 const router = useRouter();

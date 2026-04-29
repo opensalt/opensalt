@@ -414,7 +414,7 @@ describe('ItemDetails.vue - isReadOnly computed property logic', () => {
       let isReadOnly;
       try {
         isReadOnly = !docId || !mockContextStore.isEditable(docId) || !mockSessionStore.isAuthenticated;
-      } catch (error) {
+      } catch (_error) {
         // If isEditable throws, treat as read-only
         isReadOnly = true;
       }

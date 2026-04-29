@@ -2,14 +2,18 @@
   <div class="right-side-panel ms-3 h-100 d-flex flex-column">
     <!-- Mode Tabs -->
     <div class="mode-tabs mb-2 flex-shrink-0">
-      <div class="btn-group w-100" role="group" aria-label="Panel mode selection">
+      <div
+        class="btn-group w-100"
+        role="group"
+        aria-label="Panel mode selection"
+      >
         <button
           type="button"
           class="btn btn-sm"
           :class="{ 'btn-primary': currentMode === 'itemDetails', 'btn-outline-primary': currentMode !== 'itemDetails' }"
           @click="setMode('itemDetails')"
         >
-          <i class="bi bi-info-circle me-1"></i>
+          <i class="bi bi-info-circle me-1" />
           Item Details
         </button>
         <button
@@ -19,7 +23,7 @@
           :class="{ 'btn-primary': currentMode === 'externalDocument', 'btn-outline-primary': currentMode !== 'externalDocument' }"
           @click="setMode('externalDocument')"
         >
-          <i class="bi bi-box-arrow-in-right me-1"></i>
+          <i class="bi bi-box-arrow-in-right me-1" />
           Copy / Associate
         </button>
       </div>
@@ -79,8 +83,14 @@ const sessionStore = useSessionStore();
 const editorContextStore = useEditorContextStore();
 
 const props = defineProps({
-  selectedItem: Object,
-  currentDocument: Object,
+  selectedItem: {
+    type: Object,
+    default: null
+  },
+  currentDocument: {
+    type: Object,
+    default: null
+  },
   initialMode: {
     type: String,
     default: 'itemDetails'

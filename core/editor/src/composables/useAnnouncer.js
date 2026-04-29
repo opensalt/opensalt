@@ -1,4 +1,4 @@
-import { ref, inject, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { logger } from '../utils/logger.js';
 
 /**

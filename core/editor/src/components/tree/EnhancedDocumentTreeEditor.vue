@@ -16,15 +16,27 @@
       role="status"
       aria-live="polite"
     >
-      <div class="spinner-border text-primary" role="status">
+      <div
+        class="spinner-border text-primary"
+        role="status"
+      >
         <span class="visually-hidden">Loading document...</span>
       </div>
     </div>
-    <div v-else-if="error && !currentDoc" class="alert alert-danger my-4" role="alert" aria-live="assertive">
+    <div
+      v-else-if="error && !currentDoc"
+      class="alert alert-danger my-4"
+      role="alert"
+      aria-live="assertive"
+    >
       {{ error }}
     </div>
 
-    <main v-else class="row g-0 flex-grow-1" style="min-height: 0;">
+    <main
+      v-else
+      class="row g-0 flex-grow-1"
+      style="min-height: 0;"
+    >
       <!-- Tree panel -->
       <TreePanelSection
         :class="['col-5', { 'viewing-different-framework': isViewingDifferentFramework }]"
@@ -399,8 +411,7 @@ const {
 // ---------------------------------------------------------------------------
 const { sideDocument, loadingSideDoc, sideDocError, onSideDocumentSelect, onSideSelect } =
   useSideDocument({
-    onDocumentLoaded: (sideDoc, docData) => {
-      // Save framework selection when document is loaded
+    onDocumentLoaded: (sideDoc, _docData) => {
       if (sideDoc?.id) {
         contextStore.setFrameworkSelection(rightPanelMode.value, sideDoc.id);
       }
@@ -411,7 +422,6 @@ const { sideDocument, loadingSideDoc, sideDocError, onSideDocumentSelect, onSide
 // Document loader
 // ---------------------------------------------------------------------------
 const {
-  onDocumentChanged: documentLoaderOnDocumentChanged,
   onExternalDocumentRequested: documentLoaderOnExternalDocumentRequested,
   onExternalDocumentUrlLoaded: documentLoaderOnExternalDocumentUrlLoaded,
   initializeDocument,
@@ -578,7 +588,6 @@ async function onCloneFrameworkConfirmed() {
   }
 
   try {
-    // Make a POST request to the clone endpoint
     const response = await fetch(`/clone/framework/${frameworkIdentifier}`, {
       method: 'POST',
       headers: {
@@ -591,27 +600,15 @@ async function onCloneFrameworkConfirmed() {
       throw new Error(`Failed to clone framework: ${response.statusText} (${response.status})`);
     }
 
-    // The backend returns a 302 redirect to /editor/{newFrameworkIdentifier}
-    // Since fetch follows redirects automatically, response.url will be the final URL
-    // Navigate to the new framework using browser navigation
     window.location.href = response.url;
 
   } catch (error) {
     logger.error('Failed to clone framework:', error);
-    // TODO: Show error message to user
   } finally {
     showCloneFrameworkModal.value = false;
   }
 }
 
-function onCloneFrameworkModalHidden() {
-  // Hide the clone framework modal
-  showCloneFrameworkModal.value = false;
-}
-
-// ---------------------------------------------------------------------------
-// Scroll to selected item
-// ---------------------------------------------------------------------------
 async function scrollToSelectedItem() {
   if (!selectedId.value || !doc.value?.items) return;
   const path = findItemPath(doc.value.items, selectedId.value);

@@ -2,14 +2,18 @@
   <div class="side-by-side-panel h-100 d-flex flex-column">
     <!-- Mode Tabs -->
     <div class="mode-tabs mb-2">
-      <div class="btn-group w-100" role="group" aria-label="Panel mode selection">
+      <div
+        class="btn-group w-100"
+        role="group"
+        aria-label="Panel mode selection"
+      >
         <button
           type="button"
           class="btn btn-sm"
           :class="{ 'btn-primary': mode === 'itemDetails', 'btn-outline-primary': mode !== 'itemDetails' }"
           @click="$emit('mode-changed', 'itemDetails')"
         >
-          <i class="bi bi-info-circle me-1"></i>
+          <i class="bi bi-info-circle me-1" />
           Item Details
         </button>
         <button
@@ -18,7 +22,7 @@
           :class="{ 'btn-primary': mode === 'externalDocument', 'btn-outline-primary': mode !== 'externalDocument' }"
           @click="$emit('mode-changed', 'externalDocument')"
         >
-          <i class="bi bi-box-arrow-in-right me-1"></i>
+          <i class="bi bi-box-arrow-in-right me-1" />
           Copy / Associate
         </button>
       </div>
@@ -27,10 +31,16 @@
     <!-- Content Area -->
     <div class="panel-content flex-grow-1 overflow-hidden">
       <!-- Item Details Mode -->
-      <slot v-if="mode === 'itemDetails'" name="item-details"></slot>
+      <slot
+        v-if="mode === 'itemDetails'"
+        name="item-details"
+      />
 
       <!-- Copy Items or Create Associations Mode -->
-      <div v-else class="side-tree-container h-100 d-flex flex-column">
+      <div
+        v-else
+        class="side-tree-container h-100 d-flex flex-column"
+      >
         <!-- Document Selector -->
         <DocumentSelector
           :current-doc="currentDocForSelector"
@@ -42,9 +52,12 @@
         />
 
         <!-- Instructions -->
-        <div v-if="!selectedDocumentId" class="instructions alert alert-info py-2 mb-2">
+        <div
+          v-if="!selectedDocumentId"
+          class="instructions alert alert-info py-2 mb-2"
+        >
           <small>
-            <i class="bi bi-info-circle me-1"></i>
+            <i class="bi bi-info-circle me-1" />
             <span>
               Select an external document above to view and act on its items.
             </span>
@@ -52,7 +65,10 @@
         </div>
 
         <!-- Action Bar -->
-        <div v-if="sideDocument" class="action-bar mb-2 p-2 border rounded bg-light d-flex flex-column align-items-center">
+        <div
+          v-if="sideDocument"
+          class="action-bar mb-2 p-2 border rounded bg-light d-flex flex-column align-items-center"
+        >
           <small class="text-muted mb-2">
             <span v-if="!sideSelectedId">Select an item below to act on it.</span>
             <span v-else>Item selected. Switch to main tree to select target.</span>
@@ -64,7 +80,7 @@
               :disabled="!sideSelectedId"
               @click="$emit('action', { type: 'associate', itemId: sideSelectedId })"
             >
-              <i class="bi bi-link-45deg"></i> Associate
+              <i class="bi bi-link-45deg" /> Associate
             </button>
             <div class="btn-group">
               <button
@@ -75,22 +91,34 @@
                 aria-expanded="false"
                 :disabled="!sideSelectedId"
               >
-                <i class="bi bi-copy"></i> Copy...
+                <i class="bi bi-copy" /> Copy...
               </button>
-              <ul class="dropdown-menu shadow-sm" aria-labelledby="copyDropdownBtnSide">
+              <ul
+                class="dropdown-menu shadow-sm"
+                aria-labelledby="copyDropdownBtnSide"
+              >
                 <li>
-                  <button class="dropdown-item py-2" @click="$emit('action', { type: 'copy', position: 'before', itemId: sideSelectedId })">
-                    <i class="bi bi-arrow-bar-up text-muted me-2"></i> Before Target
+                  <button
+                    class="dropdown-item py-2"
+                    @click="$emit('action', { type: 'copy', position: 'before', itemId: sideSelectedId })"
+                  >
+                    <i class="bi bi-arrow-bar-up text-muted me-2" /> Before Target
                   </button>
                 </li>
                 <li>
-                  <button class="dropdown-item py-2" @click="$emit('action', { type: 'copy', position: 'after', itemId: sideSelectedId })">
-                    <i class="bi bi-arrow-bar-down text-muted me-2"></i> After Target
+                  <button
+                    class="dropdown-item py-2"
+                    @click="$emit('action', { type: 'copy', position: 'after', itemId: sideSelectedId })"
+                  >
+                    <i class="bi bi-arrow-bar-down text-muted me-2" /> After Target
                   </button>
                 </li>
                 <li>
-                  <button class="dropdown-item py-2" @click="$emit('action', { type: 'copy', position: 'inside', itemId: sideSelectedId })">
-                    <i class="bi bi-arrow-bar-right text-muted me-2"></i> As Child
+                  <button
+                    class="dropdown-item py-2"
+                    @click="$emit('action', { type: 'copy', position: 'inside', itemId: sideSelectedId })"
+                  >
+                    <i class="bi bi-arrow-bar-right text-muted me-2" /> As Child
                   </button>
                 </li>
               </ul>
@@ -100,20 +128,32 @@
 
         <!-- Side Tree -->
         <!-- Show spinner when loading, regardless of sideDocument state -->
-        <div v-if="selectedDocumentId && loadingSideDoc" class="side-tree flex-grow-1 d-flex justify-content-center align-items-center border rounded p-2">
-          <div class="spinner-border text-primary" role="status">
+        <div
+          v-if="selectedDocumentId && loadingSideDoc"
+          class="side-tree flex-grow-1 d-flex justify-content-center align-items-center border rounded p-2"
+        >
+          <div
+            class="spinner-border text-primary"
+            role="status"
+          >
             <span class="visually-hidden">Loading document...</span>
           </div>
         </div>
         <!-- Show error if there's an error -->
-        <div v-else-if="selectedDocumentId && sideDocError" class="side-tree flex-grow-1 d-flex align-items-center justify-content-center border rounded p-2">
+        <div
+          v-else-if="selectedDocumentId && sideDocError"
+          class="side-tree flex-grow-1 d-flex align-items-center justify-content-center border rounded p-2"
+        >
           <div class="alert alert-danger py-2 w-100">
             {{ sideDocError }}
           </div>
         </div>
         <!-- Show tree when document is loaded AND the ID matches the selected document -->
         <!-- This prevents showing stale content when re-selecting a different document -->
-        <div v-else-if="selectedDocumentId && sideDocument && sideDocument.id === selectedDocumentId" class="side-tree flex-grow-1 d-flex flex-column overflow-hidden border rounded p-2">
+        <div
+          v-else-if="selectedDocumentId && sideDocument && sideDocument.id === selectedDocumentId"
+          class="side-tree flex-grow-1 d-flex flex-column overflow-hidden border rounded p-2"
+        >
           <TreeView
             :doc="sideDocument"
             :selected-id="sideSelectedId"
@@ -124,9 +164,12 @@
           />
         </div>
         <!-- Show placeholder when no document is selected -->
-        <div v-else-if="selectedDocumentId && !sideDocument" class="side-tree flex-grow-1 d-flex align-items-center justify-content-center border rounded">
+        <div
+          v-else-if="selectedDocumentId && !sideDocument"
+          class="side-tree flex-grow-1 d-flex align-items-center justify-content-center border rounded"
+        >
           <div class="text-muted text-center">
-            <i class="bi bi-file-earmark-text fs-1 d-block mb-2"></i>
+            <i class="bi bi-file-earmark-text fs-1 d-block mb-2" />
             <span>Select a document to view</span>
           </div>
         </div>
@@ -136,7 +179,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, inject } from 'vue';
+import { ref, watch, inject } from 'vue';
 import TreeView from './TreeView.vue';
 import DocumentSelector from '../shared/common/DocumentSelector.vue';
 import { logger } from '@/utils/logger.js';
@@ -192,7 +235,7 @@ const navigation = inject('treeNavigation', {
 });
 
 function onDocumentChanged(event) {
-  const { side, documentId } = event;
+  const { side: _side, documentId } = event;
   if (documentId) {
     onDocumentSelected(documentId);
     emit('document-select', documentId);
@@ -203,7 +246,7 @@ function onDocumentChanged(event) {
   }
 }
 
-function onExternalDocumentRequested(event) {
+function onExternalDocumentRequested() {
   emit('external-document-requested');
 }
 

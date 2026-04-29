@@ -1,51 +1,93 @@
 <template>
   <div>
-    <div v-if="item.fullStatement" class="mb-3">
+    <div
+      v-if="item.fullStatement"
+      class="mb-3"
+    >
       <strong>Full Statement:</strong>
-      <div class="mt-1 markdown-content" v-html="renderedFullStatement"></div>
+      <div
+        class="mt-1 markdown-content"
+        v-html="renderedFullStatement"
+      />
     </div>
 
     <div class="mt-2">
-      <strong>Identifier:</strong> <a :href="`/uri/${item.identifier}`" target="_blank" class="ms-1">{{ item.identifier }}</a>
+      <strong>Identifier:</strong> <a
+        :href="`/uri/${item.identifier}`"
+        target="_blank"
+        class="ms-1"
+      >{{ item.identifier }}</a>
     </div>
 
     <div class="row mt-2">
-      <div v-if="item.itemType" class="col-sm-6">
+      <div
+        v-if="item.itemType"
+        class="col-sm-6"
+      >
         <strong>Item Type:</strong> {{ item.itemType || 'General' }}
       </div>
-      <div v-if="item.language" class="col-sm-6">
+      <div
+        v-if="item.language"
+        class="col-sm-6"
+      >
         <strong>Language:</strong> {{ item.language || 'en' }}
       </div>
     </div>
 
-    <div v-if="item.educationLevel && item.educationLevel.length > 0" class="mt-2">
+    <div
+      v-if="item.educationLevel && item.educationLevel.length > 0"
+      class="mt-2"
+    >
       <strong>Education Level:</strong>
       <span class="ms-1">
-        <span v-for="level in item.educationLevel" :key="level" class="badge bg-info text-dark me-1">
+        <span
+          v-for="level in item.educationLevel"
+          :key="level"
+          class="badge bg-info text-dark me-1"
+        >
           {{ level }}
         </span>
       </span>
     </div>
 
-    <div v-if="item.conceptKeywords && item.conceptKeywords.length > 0" class="mt-2">
+    <div
+      v-if="item.conceptKeywords && item.conceptKeywords.length > 0"
+      class="mt-2"
+    >
       <strong>Keywords:</strong>
       <span class="ms-1">
-        <span v-for="keyword in item.conceptKeywords" :key="keyword" class="badge bg-secondary me-1">
+        <span
+          v-for="keyword in item.conceptKeywords"
+          :key="keyword"
+          class="badge bg-secondary me-1"
+        >
           {{ keyword }}
         </span>
       </span>
     </div>
 
-    <div v-if="item.licenseURI" class="mt-2 text-truncate">
+    <div
+      v-if="item.licenseURI"
+      class="mt-2 text-truncate"
+    >
       <strong>License:</strong> <span class="ms-1">{{ licenseName }}</span>
     </div>
 
-    <div v-if="item.notes" class="mt-3">
+    <div
+      v-if="item.notes"
+      class="mt-3"
+    >
       <strong>Notes:</strong>
-      <p class="mt-1 markdown-content" v-html="renderedNotes"></p>
+      <p
+        class="mt-1 markdown-content"
+        v-html="renderedNotes"
+      />
     </div>
 
-    <div v-if="item.lastChanged" class="mt-2">
+    <div
+      v-if="item.lastChanged"
+      class="mt-2"
+    >
       <small class="text-muted">
         Last changed: {{ formatDate(item.lastChanged) }}
       </small>

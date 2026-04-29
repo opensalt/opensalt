@@ -1,4 +1,4 @@
-import { ref, computed, watch, onUnmounted } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { logger } from '../utils/logger.js';
 
 export function useItemTypeModal(props, emit, options = {}) {

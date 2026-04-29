@@ -1,13 +1,37 @@
 <template>
-  <div class="modal fade" id="editAssociationModal" tabindex="-1" role="dialog" aria-labelledby="editAssociationModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl" role="document">
+  <div
+    id="editAssociationModal"
+    class="modal fade"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="editAssociationModalLabel"
+    aria-hidden="true"
+  >
+    <div
+      class="modal-dialog modal-xl"
+      role="document"
+    >
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="editAssociationModalLabel">{{ modalTitle }}</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <h5
+            id="editAssociationModalLabel"
+            class="modal-title"
+          >
+            {{ modalTitle }}
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          />
         </div>
         <div class="modal-body">
-          <div v-if="error" class="alert alert-danger mb-3" role="alert">
+          <div
+            v-if="error"
+            class="alert alert-danger mb-3"
+            role="alert"
+          >
             {{ error }}
           </div>
 
@@ -16,35 +40,35 @@
             <div class="row vcenter">
               <!-- Left Side Item Display -->
               <AssociationItemDisplay
-                :itemData="leftSideItemData"
-                :isLoading="leftSideIsLoading"
-                :frameworkTitle="leftSideFrameworkTitle"
-                :targetTypeInfo="leftSideTargetTypeInfo"
-                :fetchError="leftSideFetchError"
-                :isSelected="isLeftSideSelected"
-                :fallbackText="leftSideFallbackText"
-                :displayText="leftSideDisplayText"
+                :item-data="leftSideItemData"
+                :is-loading="leftSideIsLoading"
+                :framework-title="leftSideFrameworkTitle"
+                :target-type-info="leftSideTargetTypeInfo"
+                :fetch-error="leftSideFetchError"
+                :is-selected="isLeftSideSelected"
+                :fallback-text="leftSideFallbackText"
+                :display-text="leftSideDisplayText"
                 side="origin"
               />
 
               <!-- Direction Switch Button -->
               <DirectionSwitchButton
-                :leftSideText="leftSideShortText"
-                :rightSideText="rightSideShortText"
-                :directionIcon="directionIcon"
+                :left-side-text="leftSideShortText"
+                :right-side-text="rightSideShortText"
+                :direction-icon="directionIcon"
                 @switch="switchDirection"
               />
 
               <!-- Right Side Item Display -->
               <AssociationItemDisplay
-                :itemData="rightSideItemData"
-                :isLoading="rightSideIsLoading"
-                :frameworkTitle="rightSideFrameworkTitle"
-                :targetTypeInfo="rightSideTargetTypeInfo"
-                :fetchError="rightSideFetchError"
-                :isSelected="isRightSideSelected"
-                :fallbackText="rightSideFallbackText"
-                :displayText="rightSideDisplayText"
+                :item-data="rightSideItemData"
+                :is-loading="rightSideIsLoading"
+                :framework-title="rightSideFrameworkTitle"
+                :target-type-info="rightSideTargetTypeInfo"
+                :fetch-error="rightSideFetchError"
+                :is-selected="isRightSideSelected"
+                :fallback-text="rightSideFallbackText"
+                :display-text="rightSideDisplayText"
                 side="destination"
               />
             </div>
@@ -55,35 +79,38 @@
             <!-- Type Selector -->
             <AssociationTypeSelector
               v-model="formData.type"
-              v-model:customType="customType"
-              :isDisabled="isTypeDropdownDisabled"
-              :isValidCustomType="isValidCustomType"
+              v-model:custom-type="customType"
+              :is-disabled="isTypeDropdownDisabled"
+              :is-valid-custom-type="isValidCustomType"
               :types="prioritizedTypes"
               @change="onTypeChange"
             />
 
             <!-- Annotation Field -->
             <div class="row mb-3">
-               <label for="editAssociationFormAnnotation" class="col-sm-3 col-form-label text-end">
-                 Annotation
-               </label>
-               <div class="col-sm-9">
-                 <textarea
-                   id="editAssociationFormAnnotation"
-                   class="form-control"
-                   rows="3"
-                   v-model="formData.annotation"
-                   placeholder="Optional annotation or description for this association"
-                 ></textarea>
-               </div>
-             </div>
+              <label
+                for="editAssociationFormAnnotation"
+                class="col-sm-3 col-form-label text-end"
+              >
+                Annotation
+              </label>
+              <div class="col-sm-9">
+                <textarea
+                  id="editAssociationFormAnnotation"
+                  v-model="formData.annotation"
+                  class="form-control"
+                  rows="3"
+                  placeholder="Optional annotation or description for this association"
+                />
+              </div>
+            </div>
 
-             <!-- Exemplar-specific fields -->
-             <ExemplarFields
-               v-if="isExemplarType"
-               v-model:url="formData.exemplarUrl"
-               :urlError="exemplarUrlError"
-             />
+            <!-- Exemplar-specific fields -->
+            <ExemplarFields
+              v-if="isExemplarType"
+              v-model:url="formData.exemplarUrl"
+              :url-error="exemplarUrlError"
+            />
             
             <!-- Manual Destination Fields -->
             <DestinationFields
@@ -91,26 +118,45 @@
               v-model:uri="formData.destinationUri"
               v-model:identifier="formData.destinationIdentifier"
               v-model:title="formData.destinationTitle"
-              v-model:targetType="formData.destinationTargetType"
-              :isOrigin="isReversed"
+              v-model:target-type="formData.destinationTargetType"
+              :is-origin="isReversed"
             />
-            <div v-if="destinationUriError" class="text-danger small mt-1 ms-3 mb-3">
+            <div
+              v-if="destinationUriError"
+              class="text-danger small mt-1 ms-3 mb-3"
+            >
               {{ destinationUriError }}
             </div>
 
-             <!-- Group Selector -->
-             <div v-if="showGroupSelector && availableGroups.length > 0" class="row mb-3" id="editAssociationFormGroupHolderOuter">
-              <label for="editAssociationFormGroup" class="col-sm-3 col-form-label required text-end">
+            <!-- Group Selector -->
+            <div
+              v-if="showGroupSelector && availableGroups.length > 0"
+              id="editAssociationFormGroupHolderOuter"
+              class="row mb-3"
+            >
+              <label
+                for="editAssociationFormGroup"
+                class="col-sm-3 col-form-label required text-end"
+              >
                 Association Group
               </label>
-              <div class="col-sm-9" id="editAssociationFormGroupHolder">
+              <div
+                id="editAssociationFormGroupHolder"
+                class="col-sm-9"
+              >
                 <select
                   id="editAssociationFormGroup"
-                  class="form-select"
                   v-model="formData.groupId"
+                  class="form-select"
                 >
-                  <option value="default">None</option>
-                  <option v-for="group in availableGroups" :key="group.id" :value="group.id">
+                  <option value="default">
+                    None
+                  </option>
+                  <option
+                    v-for="group in availableGroups"
+                    :key="group.id"
+                    :value="group.id"
+                  >
                     {{ group.title }}
                   </option>
                 </select>
@@ -119,9 +165,24 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-primary" @click="saveAssociation" :disabled="saving || !isFormValid">
-            <span v-if="saving" class="spinner-border spinner-border-sm me-2" role="status"></span>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            :disabled="saving || !isFormValid"
+            @click="saveAssociation"
+          >
+            <span
+              v-if="saving"
+              class="spinner-border spinner-border-sm me-2"
+              role="status"
+            />
             {{ saveButtonText }}
           </button>
         </div>
@@ -148,9 +209,18 @@ import { getOrderedAssociationTypes } from '../../composables/useAssociationType
 import { useEditorContextStore } from '../../stores/editorContextStore';
 
 const props = defineProps({
-  association: Object,
-  availableGroups: Array,
-  show: Boolean,
+  association: {
+    type: Object,
+    default: null
+  },
+  availableGroups: {
+    type: Array,
+    default: () => []
+  },
+  show: {
+    type: Boolean,
+    default: false
+  },
   selectedItemIdentifier: {
     type: String,
     default: null
@@ -214,7 +284,6 @@ const {
 // Use the direction composable
 const {
   isAddMode,
-  isEditMode,
   isReversed,
   leftSideItemData,
   rightSideItemData,

@@ -91,7 +91,7 @@ const render = (function () {
                     img.parentNode.replaceChild(textNode, img);
                 });
                 return div.innerHTML;
-            } catch (e) {
+            } catch (_e) {
                 return htmlString;
             }
         },
@@ -110,7 +110,7 @@ const render = (function () {
                     img.parentNode.replaceChild(textNode, img);
                 });
                 return div.innerHTML;
-            } catch (e) {
+            } catch (_e) {
                 return htmlString;
             }
         },

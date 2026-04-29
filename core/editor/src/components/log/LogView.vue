@@ -1,24 +1,54 @@
 <template>
   <div class="log-view h-100 d-flex flex-column bg-light">
-    <div v-if="loading" class="d-flex justify-content-center align-items-center flex-grow-1">
-      <div class="spinner-border text-primary" role="status">
+    <div
+      v-if="loading"
+      class="d-flex justify-content-center align-items-center flex-grow-1"
+    >
+      <div
+        class="spinner-border text-primary"
+        role="status"
+      >
         <span class="visually-hidden">Loading logs...</span>
       </div>
     </div>
-    <div v-else-if="isNotLoggedIn" class="alert alert-info m-4" role="alert">
-      <i class="bi bi-info-circle me-2"></i>
+    <div
+      v-else-if="isNotLoggedIn"
+      class="alert alert-info m-4"
+      role="alert"
+    >
+      <i class="bi bi-info-circle me-2" />
       You must be logged in to view the activity log.
     </div>
-    <div v-else-if="error" class="alert alert-danger m-4" role="alert">
+    <div
+      v-else-if="error"
+      class="alert alert-danger m-4"
+      role="alert"
+    >
       {{ error }}
     </div>
-    <div v-else class="d-flex flex-grow-1 overflow-hidden" style="min-height: 0;">
+    <div
+      v-else
+      class="d-flex flex-grow-1 overflow-hidden"
+      style="min-height: 0;"
+    >
       <!-- Log Entries Panel -->
-      <section class="col-8 log-entries-panel d-flex flex-column overflow-hidden" style="min-height: 0;">
-        <div class="p-4 flex-grow-1 d-flex flex-column overflow-hidden" style="min-height: 0;">
+      <section
+        class="col-8 log-entries-panel d-flex flex-column overflow-hidden"
+        style="min-height: 0;"
+      >
+        <div
+          class="p-4 flex-grow-1 d-flex flex-column overflow-hidden"
+          style="min-height: 0;"
+        >
           <div class="d-flex justify-content-between align-items-center mb-4 flex-shrink-0">
-            <h3 class="mb-0">Activity Log</h3>
-            <div class="btn-group" role="group" v-if="false">
+            <h3 class="mb-0">
+              Activity Log
+            </h3>
+            <div
+              v-if="false"
+              class="btn-group"
+              role="group"
+            >
               <button
                 type="button"
                 class="btn btn-sm"
@@ -46,39 +76,78 @@
             </div>
           </div>
 
-          <div class="table-responsive border rounded-3 bg-white shadow-sm flex-grow-1 overflow-auto log-table-wrapper" style="min-height: 0;">
+          <div
+            class="table-responsive border rounded-3 bg-white shadow-sm flex-grow-1 overflow-auto log-table-wrapper"
+            style="min-height: 0;"
+          >
             <table class="table table-hover align-middle mb-0 border-0">
               <thead class="table-light sticky-top shadow-sm z-index-1">
                 <tr>
-                  <th scope="col" class="ps-4 py-3 border-0 text-muted small text-uppercase font-weight-bold">Time</th>
-                  <th scope="col" class="py-3 border-0 text-muted small text-uppercase font-weight-bold">Action</th>
-                  <th scope="col" class="py-3 border-0 text-muted small text-uppercase font-weight-bold">Activity</th>
-                  <th scope="col" class="py-3 border-0 text-muted small text-uppercase font-weight-bold">User</th>
+                  <th
+                    scope="col"
+                    class="ps-4 py-3 border-0 text-muted small text-uppercase font-weight-bold"
+                  >
+                    Time
+                  </th>
+                  <th
+                    scope="col"
+                    class="py-3 border-0 text-muted small text-uppercase font-weight-bold"
+                  >
+                    Action
+                  </th>
+                  <th
+                    scope="col"
+                    class="py-3 border-0 text-muted small text-uppercase font-weight-bold"
+                  >
+                    Activity
+                  </th>
+                  <th
+                    scope="col"
+                    class="py-3 border-0 text-muted small text-uppercase font-weight-bold"
+                  >
+                    User
+                  </th>
                 </tr>
               </thead>
               <tbody class="border-0">
                 <tr v-if="paginatedLogs.length === 0">
-                  <td colspan="5" class="text-center py-5 text-muted border-0">
+                  <td
+                    colspan="5"
+                    class="text-center py-5 text-muted border-0"
+                  >
                     <div class="py-4">
-                      <i class="bi bi-list-check fs-1 d-block mb-3 opacity-25"></i>
-                      <p class="mb-0">No log entries found.</p>
+                      <i class="bi bi-list-check fs-1 d-block mb-3 opacity-25" />
+                      <p class="mb-0">
+                        No log entries found.
+                      </p>
                       <small>Log entries will appear here as you make changes to the document.</small>
                     </div>
                   </td>
                 </tr>
-                <tr v-for="log in paginatedLogs" :key="log.id" class="log-row border-bottom transition-all">
+                <tr
+                  v-for="log in paginatedLogs"
+                  :key="log.id"
+                  class="log-row border-bottom transition-all"
+                >
                   <td class="ps-4 py-3">
                     <small class="text-muted">{{ formatTimestamp(log.timestamp) }}</small>
                   </td>
                   <td class="py-3">
                     <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-3 py-1 fw-medium">
-                      <i :class="getLogIcon(log.type)" class="me-1"></i>
+                      <i
+                        :class="getLogIcon(log.type)"
+                        class="me-1"
+                      />
                       {{ log.type }}
                     </span>
                   </td>
                   <td class="py-3">
                     <div class="activity-content">
-                      <div class="text-muted small text-truncate" style="max-width: 500px;" :title="log.description">
+                      <div
+                        class="text-muted small text-truncate"
+                        style="max-width: 500px;"
+                        :title="log.description"
+                      >
                         {{ log.description }}
                       </div>
                     </div>
@@ -92,25 +161,56 @@
           </div>
 
           <!-- Pagination Controls -->
-          <div v-if="totalPages > 1" class="d-flex justify-content-between align-items-center mt-3 bg-white p-3 border rounded shadow-sm flex-shrink-0">
+          <div
+            v-if="totalPages > 1"
+            class="d-flex justify-content-between align-items-center mt-3 bg-white p-3 border rounded shadow-sm flex-shrink-0"
+          >
             <div class="text-muted small">
               Showing {{ startItem + 1 }} to {{ endItem }} of {{ filteredLogs.length }} log entries
             </div>
             <nav aria-label="Log pagination">
               <ul class="pagination pagination-sm mb-0">
-                <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                  <button class="page-link" @click="currentPage--" aria-label="Previous">
+                <li
+                  class="page-item"
+                  :class="{ disabled: currentPage === 1 }"
+                >
+                  <button
+                    class="page-link"
+                    aria-label="Previous"
+                    @click="currentPage--"
+                  >
                     <span aria-hidden="true">&laquo;</span>
                   </button>
                 </li>
 
-                <li v-for="pageNum in displayedPages" :key="pageNum" class="page-item" :class="{ active: currentPage === pageNum, disabled: pageNum === '...' }">
-                  <button v-if="pageNum !== '...'" class="page-link" @click="currentPage = pageNum">{{ pageNum }}</button>
-                  <span v-else class="page-link border-0">...</span>
+                <li
+                  v-for="pageNum in displayedPages"
+                  :key="pageNum"
+                  class="page-item"
+                  :class="{ active: currentPage === pageNum, disabled: pageNum === '...' }"
+                >
+                  <button
+                    v-if="pageNum !== '...'"
+                    class="page-link"
+                    @click="currentPage = pageNum"
+                  >
+                    {{ pageNum }}
+                  </button>
+                  <span
+                    v-else
+                    class="page-link border-0"
+                  >...</span>
                 </li>
 
-                <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                  <button class="page-link" @click="currentPage++" aria-label="Next">
+                <li
+                  class="page-item"
+                  :class="{ disabled: currentPage === totalPages }"
+                >
+                  <button
+                    class="page-link"
+                    aria-label="Next"
+                    @click="currentPage++"
+                  >
                     <span aria-hidden="true">&raquo;</span>
                   </button>
                 </li>
@@ -118,11 +218,23 @@
             </nav>
             <div class="d-flex align-items-center gap-2">
               <label class="small text-muted mb-0">Per page:</label>
-              <select v-model="pageSize" class="form-select form-select-sm" style="width: auto;">
-                <option :value="10">10</option>
-                <option :value="25">25</option>
-                <option :value="50">50</option>
-                <option :value="100">100</option>
+              <select
+                v-model="pageSize"
+                class="form-select form-select-sm"
+                style="width: auto;"
+              >
+                <option :value="10">
+                  10
+                </option>
+                <option :value="25">
+                  25
+                </option>
+                <option :value="50">
+                  50
+                </option>
+                <option :value="100">
+                  100
+                </option>
               </select>
             </div>
           </div>
@@ -130,35 +242,67 @@
       </section>
 
       <!-- Log Summary Panel -->
-      <section class="col-4 log-summary-panel d-flex flex-column overflow-hidden border-start" style="min-height: 0;">
-        <div class="p-4 flex-grow-1 d-flex flex-column overflow-hidden" style="min-height: 0;">
-          <h4 class="mb-3">Log Summary</h4>
+      <section
+        class="col-4 log-summary-panel d-flex flex-column overflow-hidden border-start"
+        style="min-height: 0;"
+      >
+        <div
+          class="p-4 flex-grow-1 d-flex flex-column overflow-hidden"
+          style="min-height: 0;"
+        >
+          <h4 class="mb-3">
+            Log Summary
+          </h4>
           <div class="summary-container flex-grow-1 overflow-auto">
             <div class="summary-item mb-3">
-              <div class="summary-label">Total Entries</div>
-              <div class="summary-value h3 text-primary">{{ logs.length }}</div>
+              <div class="summary-label">
+                Total Entries
+              </div>
+              <div class="summary-value h3 text-primary">
+                {{ logs.length }}
+              </div>
             </div>
 
             <div class="summary-item mb-3">
-              <div class="summary-label">Activity Types</div>
+              <div class="summary-label">
+                Activity Types
+              </div>
               <div class="activity-breakdown mt-2">
-                <div v-for="[type, count] in activityTypes" :key="type" class="activity-item d-flex justify-content-between align-items-center mb-2">
+                <div
+                  v-for="[type, count] in activityTypes"
+                  :key="type"
+                  class="activity-item d-flex justify-content-between align-items-center mb-2"
+                >
                   <div class="d-flex align-items-center">
-                    <i :class="getLogIcon(type)" class="me-2"></i>
+                    <i
+                      :class="getLogIcon(type)"
+                      class="me-2"
+                    />
                     <span class="text-capitalize">{{ type }}</span>
                   </div>
-                  <span class="badge" :class="getActivityBadgeClass(type)">{{ count }}</span>
+                  <span
+                    class="badge"
+                    :class="getActivityBadgeClass(type)"
+                  >{{ count }}</span>
                 </div>
               </div>
             </div>
 
             <div class="summary-item mb-3">
-              <div class="summary-label">Recent Activity</div>
+              <div class="summary-label">
+                Recent Activity
+              </div>
               <div class="recent-activity mt-2">
-                <div v-if="logs.length === 0" class="text-muted small">
+                <div
+                  v-if="logs.length === 0"
+                  class="text-muted small"
+                >
                   No recent activity
                 </div>
-                <div v-else class="small">
+                <div
+                  v-else
+                  class="small"
+                >
                   <div class="mb-1">
                     <strong>Last activity:</strong> {{ formatTimestamp(logs[0]?.timestamp) }}
                   </div>
@@ -170,13 +314,21 @@
             </div>
 
             <div class="summary-item">
-              <div class="summary-label">Export Options</div>
+              <div class="summary-label">
+                Export Options
+              </div>
               <div class="export-options mt-2">
-                <button class="btn btn-sm btn-outline-primary me-2" @click="exportLogs('json')">
-                  <i class="bi bi-download me-1"></i>JSON
+                <button
+                  class="btn btn-sm btn-outline-primary me-2"
+                  @click="exportLogs('json')"
+                >
+                  <i class="bi bi-download me-1" />JSON
                 </button>
-                <button class="btn btn-sm btn-outline-primary" @click="exportLogs('csv')">
-                  <i class="bi bi-file-earmark-spreadsheet me-1"></i>CSV
+                <button
+                  class="btn btn-sm btn-outline-primary"
+                  @click="exportLogs('csv')"
+                >
+                  <i class="bi bi-file-earmark-spreadsheet me-1" />CSV
                 </button>
               </div>
             </div>
@@ -189,11 +341,9 @@
 
   <script setup>
   import { ref, computed, onMounted, watch } from 'vue';
-  import { useDocumentStore } from '../../stores/documentStore';
   import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
   import { logger } from '../../utils/logger.js';
 
-  const documentStore = useDocumentStore();
   const currentDocumentStore = useCurrentDocumentStore();
 
   const loading = ref(false);
@@ -238,7 +388,6 @@
   const totalPages = computed(() => Math.ceil(filteredLogs.value.length / pageSize.value));
 
   const displayedPages = computed(() => {
-    const pages = [];
     const delta = 2; // Number of pages to show before and after current page
     const left = currentPage.value - delta;
     const right = currentPage.value + delta + 1;
@@ -275,16 +424,6 @@
       associate: 'bi bi-link text-info'
     };
     return icons[type] || 'bi bi-circle text-secondary';
-  }
-
-  function getLogEntryClass(type) {
-    const classes = {
-      create: 'border-success',
-      update: 'border-primary',
-      delete: 'border-danger',
-      associate: 'border-info'
-    };
-    return classes[type] || 'border-secondary';
   }
 
   function getActivityBadgeClass(type) {
@@ -397,21 +536,6 @@
     } finally {
       loading.value = false;
     }
-  }
-
-  function setFilter(filterType) {
-    logFilter.value = filterType;
-    currentPage.value = 1; // Reset to first page when filtering
-  }
-
-  function goToPage(page) {
-    if (page >= 1 && page <= totalPages.value) {
-      currentPage.value = page;
-    }
-  }
-
-  function onPageSizeChange() {
-    currentPage.value = 1; // Reset to first page when page size changes
   }
 
   function exportLogs(format) {

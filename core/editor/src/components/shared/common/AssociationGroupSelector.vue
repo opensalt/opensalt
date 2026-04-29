@@ -1,6 +1,12 @@
 <template>
-  <div class="mb-3" v-if="associationGroups.length > 2">
-    <label for="associationGroupSelect" class="form-label fw-bold">Association Group</label>
+  <div
+    v-if="associationGroups.length > 2"
+    class="mb-3"
+  >
+    <label
+      for="associationGroupSelect"
+      class="form-label fw-bold"
+    >Association Group</label>
     <select
       id="associationGroupSelect"
       class="form-select"

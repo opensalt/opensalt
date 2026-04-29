@@ -4,23 +4,35 @@
     :is-open="show"
     title="Delete Association"
     aria-labelledby="deleteAssociationModalLabel"
-    @update:isOpen="(val) => $emit('update:show', val)"
+    @update:is-open="(val) => $emit('update:show', val)"
     @hidden="handleHidden"
   >
-    <div v-if="error" class="alert alert-danger mb-3" role="alert">
+    <div
+      v-if="error"
+      class="alert alert-danger mb-3"
+      role="alert"
+    >
       {{ error }}
     </div>
 
-    <div class="alert alert-warning" role="alert">
+    <div
+      class="alert alert-warning"
+      role="alert"
+    >
       <strong>Warning:</strong> This action cannot be undone.
     </div>
 
     <p>Are you sure you want to delete this association?</p>
 
-    <div v-if="association" class="mt-3">
+    <div
+      v-if="association"
+      class="mt-3"
+    >
       <div class="card">
         <div class="card-body">
-          <h6 class="card-title text-muted mb-3">Association Details</h6>
+          <h6 class="card-title text-muted mb-3">
+            Association Details
+          </h6>
 
           <div class="mb-3">
             <strong class="d-block small text-muted">Type</strong>
@@ -29,26 +41,44 @@
 
           <div class="mb-3">
             <strong class="d-block small text-muted">From (Origin)</strong>
-            <div v-if="originItemData" class="mt-1">
-              <span v-if="originItemData.humanCodingScheme" class="badge bg-secondary me-2">
+            <div
+              v-if="originItemData"
+              class="mt-1"
+            >
+              <span
+                v-if="originItemData.humanCodingScheme"
+                class="badge bg-secondary me-2"
+              >
                 {{ originItemData.humanCodingScheme }}
               </span>
               <span>{{ originDisplayText }}</span>
             </div>
-            <div v-else class="text-muted mt-1">
+            <div
+              v-else
+              class="text-muted mt-1"
+            >
               {{ originFallbackText }}
             </div>
           </div>
 
           <div class="mb-0">
             <strong class="d-block small text-muted">To (Destination)</strong>
-            <div v-if="destinationItemData" class="mt-1">
-              <span v-if="destinationItemData.humanCodingScheme" class="badge bg-secondary me-2">
+            <div
+              v-if="destinationItemData"
+              class="mt-1"
+            >
+              <span
+                v-if="destinationItemData.humanCodingScheme"
+                class="badge bg-secondary me-2"
+              >
                 {{ destinationItemData.humanCodingScheme }}
               </span>
               <span>{{ destinationDisplayText }}</span>
             </div>
-            <div v-else class="text-muted mt-1">
+            <div
+              v-else
+              class="text-muted mt-1"
+            >
               {{ destinationFallbackText }}
             </div>
           </div>
@@ -57,9 +87,25 @@
     </div>
 
     <template #footer>
-      <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
-      <button type="button" class="btn btn-danger" @click="confirmDelete" :disabled="deleting">
-        <span v-if="deleting" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+      <button
+        type="button"
+        class="btn btn-secondary"
+        @click="closeModal"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        class="btn btn-danger"
+        :disabled="deleting"
+        @click="confirmDelete"
+      >
+        <span
+          v-if="deleting"
+          class="spinner-border spinner-border-sm me-2"
+          role="status"
+          aria-hidden="true"
+        />
         Delete
       </button>
     </template>

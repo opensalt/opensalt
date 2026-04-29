@@ -1,22 +1,59 @@
 <template>
   <!-- Backdrop -->
-  <div v-if="props.show" class="modal-backdrop fade" :class="{ 'show': props.show }" @click="closeModal"></div>
+  <div
+    v-if="props.show"
+    class="modal-backdrop fade"
+    :class="{ 'show': props.show }"
+    @click="closeModal"
+  />
 
   <!-- Modal -->
-  <div class="modal fade" :class="{ 'show d-block': props.show }" tabindex="-1" id="addNewCredentialModal" aria-hidden="true" :style="{ display: props.show ? 'block' : 'none' }">
-    <div class="modal-dialog modal-xl" role="document" style="width:99%" @click.stop>
+  <div
+    id="addNewCredentialModal"
+    class="modal fade"
+    :class="{ 'show d-block': props.show }"
+    tabindex="-1"
+    aria-hidden="true"
+    :style="{ display: props.show ? 'block' : 'none' }"
+  >
+    <div
+      class="modal-dialog modal-xl"
+      role="document"
+      style="width:99%"
+      @click.stop
+    >
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="addNewCredentialModalLabel">{{ isEdit ? 'Edit Credential' : 'Add New Credential' }}</h5>
-          <button type="button" class="btn-close" @click="closeModal" aria-label="Close"></button>
+          <h5
+            id="addNewCredentialModalLabel"
+            class="modal-title"
+          >
+            {{ isEdit ? 'Edit Credential' : 'Add New Credential' }}
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            aria-label="Close"
+            @click="closeModal"
+          />
         </div>
         <div class="modal-body overflow-y-auto">
-          <div v-if="loading" class="d-flex justify-content-center align-items-center p-4">
-            <div class="spinner-border text-primary" role="status">
+          <div
+            v-if="loading"
+            class="d-flex justify-content-center align-items-center p-4"
+          >
+            <div
+              class="spinner-border text-primary"
+              role="status"
+            >
               <span class="visually-hidden">Loading form...</span>
             </div>
           </div>
-          <div v-else-if="error" class="alert alert-danger" role="alert">
+          <div
+            v-else-if="error"
+            class="alert alert-danger"
+            role="alert"
+          >
             {{ error }}
           </div>
           <div v-else>
@@ -24,13 +61,28 @@
             <div
               id="ob3-definer"
               data-submit-text="Save"
-            ></div>
+            />
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
-          <button type="button" class="btn btn-primary" @click="saveItem" :disabled="saving">
-            <span v-if="saving" class="spinner-border spinner-border-sm me-2" role="status"></span>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            @click="closeModal"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            :disabled="saving"
+            @click="saveItem"
+          >
+            <span
+              v-if="saving"
+              class="spinner-border spinner-border-sm me-2"
+              role="status"
+            />
             {{ isEdit ? 'Update' : 'Create' }}
           </button>
         </div>
@@ -48,10 +100,22 @@ import { logger } from '../../../../utils/logger.js';
 import { useItemTypeModal } from '../../../../composables/useItemTypeModal';
 
 const props = defineProps({
-  parentItem: Object,
-  itemType: String,
-  show: Boolean,
-  item: Object
+  parentItem: {
+    type: Object,
+    default: null
+  },
+  itemType: {
+    type: String,
+    default: ''
+  },
+  show: {
+    type: Boolean,
+    default: false
+  },
+  item: {
+    type: Object,
+    default: null
+  }
 });
 
 const emit = defineEmits(['created', 'updated', 'hidden']);

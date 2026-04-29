@@ -11,9 +11,12 @@
     />
 
     <!-- Instructions -->
-    <div v-if="!selectedDocumentId" class="instructions alert alert-info py-2 mb-2">
+    <div
+      v-if="!selectedDocumentId"
+      class="instructions alert alert-info py-2 mb-2"
+    >
       <small>
-        <i class="bi bi-info-circle me-1"></i>
+        <i class="bi bi-info-circle me-1" />
         <span>
           Select a document to act on its items.
         </span>
@@ -21,7 +24,10 @@
     </div>
 
     <!-- Action Bar -->
-    <div v-if="sideDocument" class="mb-2 p-2 border rounded bg-light d-flex flex-column align-items-center">
+    <div
+      v-if="sideDocument"
+      class="mb-2 p-2 border rounded bg-light d-flex flex-column align-items-center"
+    >
       <small class="text-muted mb-2">
         <span v-if="!sideSelectedId">Select an item below to act on it.</span>
         <span v-else>Item selected. Switch to main tree to select target.</span>
@@ -33,9 +39,12 @@
           :disabled="!sideSelectedId"
           @click="emit('action', { type: 'associate', itemId: sideSelectedId })"
         >
-          <i class="bi bi-link-45deg"></i> Associate
+          <i class="bi bi-link-45deg" /> Associate
         </button>
-        <div class="btn-group" v-click-outside="() => copyMenuOpen = false">
+        <div
+          v-click-outside="() => copyMenuOpen = false"
+          class="btn-group"
+        >
           <button
             id="copyDropdownBtn"
             type="button"
@@ -44,22 +53,35 @@
             :aria-expanded="copyMenuOpen"
             @click="toggleCopyMenu"
           >
-            <i class="bi bi-copy"></i> Copy...
+            <i class="bi bi-copy" /> Copy...
           </button>
-          <ul v-if="copyMenuOpen" class="dropdown-menu show shadow-sm" aria-labelledby="copyDropdownBtn">
+          <ul
+            v-if="copyMenuOpen"
+            class="dropdown-menu show shadow-sm"
+            aria-labelledby="copyDropdownBtn"
+          >
             <li>
-              <button class="dropdown-item py-2" @click="onCopyAction('before')">
-                <i class="bi bi-arrow-bar-up text-muted me-2"></i> Before Target
+              <button
+                class="dropdown-item py-2"
+                @click="onCopyAction('before')"
+              >
+                <i class="bi bi-arrow-bar-up text-muted me-2" /> Before Target
               </button>
             </li>
             <li>
-              <button class="dropdown-item py-2" @click="onCopyAction('after')">
-                <i class="bi bi-arrow-bar-down text-muted me-2"></i> After Target
+              <button
+                class="dropdown-item py-2"
+                @click="onCopyAction('after')"
+              >
+                <i class="bi bi-arrow-bar-down text-muted me-2" /> After Target
               </button>
             </li>
             <li>
-              <button class="dropdown-item py-2" @click="onCopyAction('inside')">
-                <i class="bi bi-arrow-bar-right text-muted me-2"></i> As Child
+              <button
+                class="dropdown-item py-2"
+                @click="onCopyAction('inside')"
+              >
+                <i class="bi bi-arrow-bar-right text-muted me-2" /> As Child
               </button>
             </li>
           </ul>
@@ -68,16 +90,31 @@
     </div>
 
     <!-- Side Tree -->
-    <div v-if="selectedDocumentId" class="side-tree flex-grow-1 d-flex flex-column overflow-hidden border rounded p-2">
-      <div v-if="loadingSideDoc" class="d-flex justify-content-center align-items-center h-100">
-        <div class="spinner-border spinner-border-sm text-primary" role="status">
+    <div
+      v-if="selectedDocumentId"
+      class="side-tree flex-grow-1 d-flex flex-column overflow-hidden border rounded p-2"
+    >
+      <div
+        v-if="loadingSideDoc"
+        class="d-flex justify-content-center align-items-center h-100"
+      >
+        <div
+          class="spinner-border spinner-border-sm text-primary"
+          role="status"
+        >
           <span class="visually-hidden">Loading...</span>
         </div>
       </div>
-      <div v-else-if="sideDocError" class="alert alert-danger py-2">
+      <div
+        v-else-if="sideDocError"
+        class="alert alert-danger py-2"
+      >
         {{ sideDocError }}
       </div>
-      <div v-else-if="sideDocument" class="side-tree-content">
+      <div
+        v-else-if="sideDocument"
+        class="side-tree-content"
+      >
         <TreeView
           :doc="sideDocument"
           :selected-id="sideSelectedId"
@@ -86,7 +123,10 @@
           @select="onSideSelect"
         />
       </div>
-      <div v-else class="d-flex justify-content-center align-items-center h-100 text-muted">
+      <div
+        v-else
+        class="d-flex justify-content-center align-items-center h-100 text-muted"
+      >
         <span>Loading document...</span>
       </div>
     </div>

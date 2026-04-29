@@ -1,188 +1,224 @@
 <template>
-    <div class="comment-module p-3">
-        <!-- Header -->
-        <div class="comment-header mb-3 pb-2">
-             <h4 class="comment-title">
-                 <i class="bi bi-chat-dots"></i>
-                 Comments
-                <span v-if="commentStore.comments.length > 0" class="comment-count">
-                    ({{ commentStore.comments.length }})
-                </span>
-            </h4>
-            <button
-                v-if="commentStore.hasComments"
-                class="btn btn-sm btn-outline-secondary export-btn"
-                @click="exportComments"
-                title="Export comments as CSV"
-            >
-                 <i class="bi bi-download"></i> Export
-            </button>
-        </div>
-
-        <!-- Loading State -->
-        <div v-if="commentStore.loading" class="comment-loading">
-             <i class="bi bi-arrow-repeat bi-spin"></i> Loading comments...
-        </div>
-
-        <!-- Error State -->
-        <div v-if="commentStore.error" class="comment-error alert alert-danger">
-            {{ commentStore.error }}
-        </div>
-
-        <!-- Comment Input -->
-        <div class="comment-input-section">
-            <div class="comment-input-wrapper">
-                <textarea
-                    v-model="newCommentContent"
-                    class="form-control comment-textarea"
-                    placeholder="Add a comment..."
-                    rows="3"
-                    :disabled="!isLoggedIn"
-                ></textarea>
-                <div class="comment-input-actions">
-                    <label v-if="enableAttachments" class="attachment-btn" title="Attach file">
-                         <i class="bi bi-paperclip"></i>
-                        <input
-                            type="file"
-                            ref="fileInput"
-                            @change="handleFileSelect"
-                            style="display: none"
-                            accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt"
-                        />
-                    </label>
-                    <span v-if="selectedFile" class="selected-file">
-                        {{ selectedFile.name }}
-                        <button class="remove-file" @click="removeFile">&times;</button>
-                    </span>
-                    <button
-                        class="btn btn-primary btn-sm submit-btn"
-                        @click="submitComment"
-                        :disabled="!canSubmit"
-                    >
-                         <i class="bi bi-send"></i> Post
-                    </button>
-                </div>
-            </div>
-            <div v-if="!isLoggedIn" class="login-prompt">
-                <a href="/login">Log in</a> to post comments.
-            </div>
-        </div>
-
-        <!-- Comments List -->
-        <div class="comments-list">
-            <template v-if="commentStore.topLevelComments.length > 0">
-                <CommentItem
-                    v-for="comment in commentStore.topLevelComments"
-                    :key="comment.id"
-                    :comment="comment"
-                    :replies="commentStore.getReplies(comment.id)"
-                    :is-logged-in="isLoggedIn"
-                    :current-user-id="currentUserId"
-                    @reply="handleReply"
-                    @edit="handleEdit"
-                    @delete="handleDelete"
-                    @upvote="handleUpvote"
-                />
-            </template>
-            <div v-else-if="!commentStore.loading" class="no-comments m-3">
-                 <i class="bi bi-chat-square-text"></i>
-                <p>No comments yet. Be the first to comment!</p>
-            </div>
-        </div>
-
-        <!-- Edit Modal -->
-        <div
-            class="modal fade"
-            id="editCommentModal"
-            tabindex="-1"
-            ref="editModal"
+  <div class="comment-module p-3">
+    <!-- Header -->
+    <div class="comment-header mb-3 pb-2">
+      <h4 class="comment-title">
+        <i class="bi bi-chat-dots" />
+        Comments
+        <span
+          v-if="commentStore.comments.length > 0"
+          class="comment-count"
         >
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Edit Comment</h5>
-                        <button
-                            type="button"
-                            class="btn-close"
-                            data-bs-dismiss="modal"
-                        ></button>
-                    </div>
-                    <div class="modal-body">
-                        <textarea
-                            v-model="editContent"
-                            class="form-control"
-                            rows="4"
-                        ></textarea>
-                    </div>
-                    <div class="modal-footer">
-                        <button
-                            type="button"
-                            class="btn btn-secondary"
-                            data-bs-dismiss="modal"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="button"
-                            class="btn btn-primary"
-                            @click="saveEdit"
-                            :disabled="!editContent.trim()"
-                        >
-                            Save Changes
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Delete Confirmation Modal -->
-        <div
-            class="modal fade"
-            :class="{ show: showDeleteModal, 'd-block': showDeleteModal }"
-            id="deleteCommentModal"
-            tabindex="-1"
-            v-if="showDeleteModal"
-        >
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Delete Comment</h5>
-                        <button
-                            type="button"
-                            class="btn-close"
-                            @click="cancelDelete"
-                        ></button>
-                    </div>
-                    <div class="modal-body">
-                        <p>Are you sure you want to delete this comment?</p>
-                        <p v-if="hasRepliesToDelete" class="text-warning">
-                            <i class="bi bi-exclamation-triangle"></i>
-                            This will also delete all replies.
-                        </p>
-                    </div>
-                    <div class="modal-footer">
-                        <button
-                            type="button"
-                            class="btn btn-secondary"
-                            @click="cancelDelete"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="button"
-                            class="btn btn-danger"
-                            @click="confirmDelete"
-                        >
-                            Delete
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal Backdrop -->
-        <div v-if="showDeleteModal" class="modal-backdrop fade show" @click="cancelDelete"></div>
+          ({{ commentStore.comments.length }})
+        </span>
+      </h4>
+      <button
+        v-if="commentStore.hasComments"
+        class="btn btn-sm btn-outline-secondary export-btn"
+        title="Export comments as CSV"
+        @click="exportComments"
+      >
+        <i class="bi bi-download" /> Export
+      </button>
     </div>
+
+    <!-- Loading State -->
+    <div
+      v-if="commentStore.loading"
+      class="comment-loading"
+    >
+      <i class="bi bi-arrow-repeat bi-spin" /> Loading comments...
+    </div>
+
+    <!-- Error State -->
+    <div
+      v-if="commentStore.error"
+      class="comment-error alert alert-danger"
+    >
+      {{ commentStore.error }}
+    </div>
+
+    <!-- Comment Input -->
+    <div class="comment-input-section">
+      <div class="comment-input-wrapper">
+        <textarea
+          v-model="newCommentContent"
+          class="form-control comment-textarea"
+          placeholder="Add a comment..."
+          rows="3"
+          :disabled="!isLoggedIn"
+        />
+        <div class="comment-input-actions">
+          <label
+            v-if="enableAttachments"
+            class="attachment-btn"
+            title="Attach file"
+          >
+            <i class="bi bi-paperclip" />
+            <input
+              ref="fileInput"
+              type="file"
+              style="display: none"
+              accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt"
+              @change="handleFileSelect"
+            >
+          </label>
+          <span
+            v-if="selectedFile"
+            class="selected-file"
+          >
+            {{ selectedFile.name }}
+            <button
+              class="remove-file"
+              @click="removeFile"
+            >&times;</button>
+          </span>
+          <button
+            class="btn btn-primary btn-sm submit-btn"
+            :disabled="!canSubmit"
+            @click="submitComment"
+          >
+            <i class="bi bi-send" /> Post
+          </button>
+        </div>
+      </div>
+      <div
+        v-if="!isLoggedIn"
+        class="login-prompt"
+      >
+        <a href="/login">Log in</a> to post comments.
+      </div>
+    </div>
+
+    <!-- Comments List -->
+    <div class="comments-list">
+      <template v-if="commentStore.topLevelComments.length > 0">
+        <CommentItem
+          v-for="comment in commentStore.topLevelComments"
+          :key="comment.id"
+          :comment="comment"
+          :replies="commentStore.getReplies(comment.id)"
+          :is-logged-in="isLoggedIn"
+          :current-user-id="currentUserId"
+          @reply="handleReply"
+          @edit="handleEdit"
+          @delete="handleDelete"
+          @upvote="handleUpvote"
+        />
+      </template>
+      <div
+        v-else-if="!commentStore.loading"
+        class="no-comments m-3"
+      >
+        <i class="bi bi-chat-square-text" />
+        <p>No comments yet. Be the first to comment!</p>
+      </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div
+      id="editCommentModal"
+      ref="editModal"
+      class="modal fade"
+      tabindex="-1"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              Edit Comment
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            />
+          </div>
+          <div class="modal-body">
+            <textarea
+              v-model="editContent"
+              class="form-control"
+              rows="4"
+            />
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              :disabled="!editContent.trim()"
+              @click="saveEdit"
+            >
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div
+      v-if="showDeleteModal"
+      id="deleteCommentModal"
+      class="modal fade"
+      :class="{ show: showDeleteModal, 'd-block': showDeleteModal }"
+      tabindex="-1"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              Delete Comment
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              @click="cancelDelete"
+            />
+          </div>
+          <div class="modal-body">
+            <p>Are you sure you want to delete this comment?</p>
+            <p
+              v-if="hasRepliesToDelete"
+              class="text-warning"
+            >
+              <i class="bi bi-exclamation-triangle" />
+              This will also delete all replies.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              @click="cancelDelete"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="btn btn-danger"
+              @click="confirmDelete"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Backdrop -->
+    <div
+      v-if="showDeleteModal"
+      class="modal-backdrop fade show"
+      @click="cancelDelete"
+    />
+  </div>
 </template>
 
 <script setup>
@@ -217,7 +253,6 @@ const newCommentContent = ref('');
 const selectedFile = ref(null);
 const fileInput = ref(null);
 const editModal = ref(null);
-const deleteModal = ref(null);
 const editContent = ref('');
 const editingCommentId = ref(null);
 const deletingCommentId = ref(null);
@@ -226,7 +261,6 @@ const showDeleteModal = ref(false);
 
 // Bootstrap modal instances
 let editModalInstance = null;
-let deleteModalInstance = null;
 
 // Computed
 const isLoggedIn = computed(() => sessionStore.isAuthenticated);
@@ -381,9 +415,6 @@ onMounted(() => {
     nextTick(() => {
         if (editModal.value) {
             editModalInstance = new Modal(editModal.value);
-        }
-        if (deleteModal.value) {
-            deleteModalInstance = new Modal(deleteModal.value);
         }
     });
 });

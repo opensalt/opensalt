@@ -1,5 +1,9 @@
 <template>
-  <div class="association-item d-flex justify-content-between align-items-center p-2 border rounded" :class="{ 'cross-framework-assoc': isAssociationFromDifferentDisplayedFramework }" :data-identifier="association.identifier">
+  <div
+    class="association-item d-flex justify-content-between align-items-center p-2 border rounded"
+    :class="{ 'cross-framework-assoc': isAssociationFromDifferentDisplayedFramework }"
+    :data-identifier="association.identifier"
+  >
     <div class="association-info flex-grow-1">
       <!--
       <div class="d-flex align-items-center mb-2">
@@ -14,7 +18,11 @@
           <!-- Show URI while loading, with a small loading indicator -->
           <template v-if="isLoading && targetTypeInfo.isCase">
             <span class="text-muted uri-display">{{ nodeUriString }}</span>
-            <span class="spinner-border spinner-border-sm text-secondary ms-2" role="status" aria-label="Loading item information">
+            <span
+              class="spinner-border spinner-border-sm text-secondary ms-2"
+              role="status"
+              aria-label="Loading item information"
+            >
               <span class="visually-hidden">Loading...</span>
             </span>
           </template>
@@ -27,7 +35,7 @@
               rel="noopener noreferrer"
               class="ms-2 association-title-link"
               v-html="displayTitle"
-            ></a>
+            />
             <a
               v-else-if="linkInfo.type === 'cross-framework'"
               :href="linkInfo.href"
@@ -35,45 +43,77 @@
               rel="noopener noreferrer"
               class="ms-2 association-title-link"
               v-html="displayTitle"
-            ></a>
+            />
             <a
               v-else-if="linkInfo.type === 'same-framework'"
               :href="linkInfo.href"
               class="ms-2 association-title-link"
               @click.prevent="onNavigateToItem"
               v-html="displayTitle"
-            ></a>
-            <span v-else class="ms-2" v-html="displayTitle"></span>
+            />
+            <span
+              v-else
+              class="ms-2"
+              v-html="displayTitle"
+            />
           </template>
           <!-- Framework badge for cross-framework CASE items -->
-          <span v-if="frameworkTitle && !isLoading && targetTypeInfo.isCase" class="badge framework-badge ms-2">
-            <i class="bi bi-box-arrow-up-right me-1"></i>{{ frameworkTitle }}
+          <span
+            v-if="frameworkTitle && !isLoading && targetTypeInfo.isCase"
+            class="badge framework-badge ms-2"
+          >
+            <i class="bi bi-box-arrow-up-right me-1" />{{ frameworkTitle }}
           </span>
           <!-- Source framework badge for associations from other frameworks -->
-          <span v-if="sourceFrameworkTitle" class="badge source-framework-badge ms-2" :title="'Association defined in: ' + sourceFrameworkTitle">
-            <i class="bi bi-folder2-open me-1"></i>Source: {{ sourceFrameworkTitle }}
+          <span
+            v-if="sourceFrameworkTitle"
+            class="badge source-framework-badge ms-2"
+            :title="'Association defined in: ' + sourceFrameworkTitle"
+          >
+            <i class="bi bi-folder2-open me-1" />Source: {{ sourceFrameworkTitle }}
           </span>
           <!-- Non-CASE item indicator -->
-          <span v-if="!targetTypeInfo.isCase && isCrossFramework" class="badge external-uri-badge ms-2">
-            <i class="bi bi-link-45deg me-1"></i>External URI
+          <span
+            v-if="!targetTypeInfo.isCase && isCrossFramework"
+            class="badge external-uri-badge ms-2"
+          >
+            <i class="bi bi-link-45deg me-1" />External URI
           </span>
           <!-- Error indicator for failed fetches -->
-          <span v-if="fetchError && targetTypeInfo.isCase" class="badge error-badge ms-2" :title="fetchError.message">
-            <i class="bi bi-exclamation-triangle me-1"></i>{{ fetchError.type === 'permission' ? 'No access' : fetchError.type === 'not_found' ? 'Not found' : 'Load error' }}
+          <span
+            v-if="fetchError && targetTypeInfo.isCase"
+            class="badge error-badge ms-2"
+            :title="fetchError.message"
+          >
+            <i class="bi bi-exclamation-triangle me-1" />{{ fetchError.type === 'permission' ? 'No access' : fetchError.type === 'not_found' ? 'Not found' : 'Load error' }}
           </span>
           <!-- Loading indicator for queued frameworks -->
-          <span v-if="isDocumentQueued && !frameworkTitle && !isLoading && targetTypeInfo.isCase" class="badge loading-badge ms-2" title="Framework queued for loading">
-            <i class="bi bi-arrow-repeat me-1" role="status" aria-hidden="true"></i>
+          <span
+            v-if="isDocumentQueued && !frameworkTitle && !isLoading && targetTypeInfo.isCase"
+            class="badge loading-badge ms-2"
+            title="Framework queued for loading"
+          >
+            <i
+              class="bi bi-arrow-repeat me-1"
+              role="status"
+              aria-hidden="true"
+            />
             Queued
           </span>
         </div>
 
-        <div v-if="notes" class="mb-1 ms-2">
+        <div
+          v-if="notes"
+          class="mb-1 ms-2"
+        >
           <strong>Annotation:</strong>
           <span class="ms-2 text-muted">{{ notes }}</span>
         </div>
 
-        <div v-if="lastChangeDateTime && false" class="mb-1">
+        <div
+          v-if="lastChangeDateTime && false"
+          class="mb-1"
+        >
           <small class="text-muted">
             <strong>Last changed:</strong> {{ formatDate(lastChangeDateTime) }}
           </small>
@@ -81,22 +121,25 @@
       </div>
     </div>
 
-    <div class="association-actions btn-group btn-group-sm ms-3" v-if="canManageAssociation">
+    <div
+      v-if="canManageAssociation"
+      class="association-actions btn-group btn-group-sm ms-3"
+    >
       <button
         type="button"
         class="btn btn-outline-primary"
-        @click="$emit('edit', association)"
         title="Edit association"
+        @click="$emit('edit', association)"
       >
-        <i class="bi bi-pencil"></i>
+        <i class="bi bi-pencil" />
       </button>
       <button
         type="button"
         class="btn btn-outline-danger"
-        @click="$emit('delete', association)"
         title="Delete association"
+        @click="$emit('delete', association)"
       >
-        <i class="bi bi-trash"></i>
+        <i class="bi bi-trash" />
       </button>
     </div>
   </div>
@@ -156,7 +199,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['edit', 'delete']);
+const _emit = defineEmits(['edit', 'delete']);
 
 const treeNavigation = inject('treeNavigation', null);
 

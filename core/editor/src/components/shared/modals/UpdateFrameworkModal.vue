@@ -1,49 +1,94 @@
 <template>
-  <div class="modal fade" id="updateFrameworkModal" tabindex="-1" role="dialog"
-       aria-labelledby="updateFrameworkModalLabel" aria-hidden="true" ref="modalElement">
-    <div class="modal-dialog modal-lg" role="document">
+  <div
+    id="updateFrameworkModal"
+    ref="modalElement"
+    class="modal fade"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="updateFrameworkModalLabel"
+    aria-hidden="true"
+  >
+    <div
+      class="modal-dialog modal-lg"
+      role="document"
+    >
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="updateFrameworkModalLabel">Update Framework</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <h5
+            id="updateFrameworkModalLabel"
+            class="modal-title"
+          >
+            Update Framework
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          />
         </div>
         <div class="modal-body">
           <!-- Error Message -->
-          <div v-if="errorMessage" class="alert alert-danger" role="alert">
+          <div
+            v-if="errorMessage"
+            class="alert alert-danger"
+            role="alert"
+          >
             {{ errorMessage }}
           </div>
 
           <!-- Success Message -->
-          <div v-if="successMessage" class="alert alert-success" role="alert">
+          <div
+            v-if="successMessage"
+            class="alert alert-success"
+            role="alert"
+          >
             <strong>Success!</strong> {{ successMessage }}
           </div>
 
           <!-- Tabs -->
-          <ul class="nav nav-tabs" role="tablist">
+          <ul
+            class="nav nav-tabs"
+            role="tablist"
+          >
             <li class="nav-item">
-              <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#ufExcel"
-                      type="button" role="tab">
+              <button
+                class="nav-link active"
+                data-bs-toggle="tab"
+                data-bs-target="#ufExcel"
+                type="button"
+                role="tab"
+              >
                 Import Spreadsheet File
               </button>
             </li>
           </ul>
-          <br />
+          <br>
 
           <!-- Tab Content -->
-          <div class="tab-content" v-show="!isLoading">
-            <div class="tab-pane fade show active" id="ufExcel">
+          <div
+            v-show="!isLoading"
+            class="tab-content"
+          >
+            <div
+              id="ufExcel"
+              class="tab-pane fade show active"
+            >
               <div class="mb-3">
-                <label for="updateFrameworkFile" class="form-label">
+                <label
+                  for="updateFrameworkFile"
+                  class="form-label"
+                >
                   Select a spreadsheet file to update this framework
                 </label>
                 <input
                   id="updateFrameworkFile"
+                  ref="fileInput"
                   type="file"
                   class="form-control"
                   accept=".xls,.xlsx,.json,.csv"
-                  ref="fileInput"
                   @change="onFileSelected"
-                />
+                >
               </div>
               <div class="form-text text-muted mb-3">
                 Accepted formats: .xls, .xlsx, .json, .csv
@@ -54,22 +99,40 @@
                 :disabled="!selectedFile || isLoading"
                 @click="importFramework"
               >
-                <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+                <span
+                  v-if="isLoading"
+                  class="spinner-border spinner-border-sm me-2"
+                  role="status"
+                />
                 Import Framework
               </button>
             </div>
           </div>
 
           <!-- Loading Spinner -->
-          <div v-if="isLoading" class="text-center py-4">
-            <div class="spinner-border text-primary" role="status">
+          <div
+            v-if="isLoading"
+            class="text-center py-4"
+          >
+            <div
+              class="spinner-border text-primary"
+              role="status"
+            >
               <span class="visually-hidden">Loading file...</span>
             </div>
-            <p class="mt-2 text-muted">Importing framework, please wait...</p>
+            <p class="mt-2 text-muted">
+              Importing framework, please wait...
+            </p>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancel
+          </button>
         </div>
       </div>
     </div>

@@ -1,32 +1,76 @@
 <template>
   <!-- Backdrop -->
-  <div v-if="props.show" class="modal-backdrop fade" :class="{ 'show': props.show }" @click="closeModal"></div>
+  <div
+    v-if="props.show"
+    class="modal-backdrop fade"
+    :class="{ 'show': props.show }"
+    @click="closeModal"
+  />
 
   <!-- Modal -->
-  <div class="modal fade" :class="{ 'show d-block': props.show }" tabindex="-1" id="addNewChildModal" aria-hidden="true" :style="{ display: props.show ? 'block' : 'none' }">
-    <div class="modal-dialog modal-xl" role="document" style="width:99%" @click.stop>
+  <div
+    id="addNewChildModal"
+    class="modal fade"
+    :class="{ 'show d-block': props.show }"
+    tabindex="-1"
+    aria-hidden="true"
+    :style="{ display: props.show ? 'block' : 'none' }"
+  >
+    <div
+      class="modal-dialog modal-xl"
+      role="document"
+      style="width:99%"
+      @click.stop
+    >
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="addNewChildModalLabel">{{ isEdit ? 'Edit Child Item' : 'Add New Child Item' }}</h5>
-          <button type="button" class="btn-close" @click="closeModal" aria-label="Close"></button>
+          <h5
+            id="addNewChildModalLabel"
+            class="modal-title"
+          >
+            {{ isEdit ? 'Edit Child Item' : 'Add New Child Item' }}
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            aria-label="Close"
+            @click="closeModal"
+          />
         </div>
         <div class="modal-body">
-          <div v-if="loading" class="d-flex justify-content-center align-items-center p-4">
-            <div class="spinner-border text-primary" role="status">
+          <div
+            v-if="loading"
+            class="d-flex justify-content-center align-items-center p-4"
+          >
+            <div
+              class="spinner-border text-primary"
+              role="status"
+            >
               <span class="visually-hidden">Loading form...</span>
             </div>
           </div>
-          <div v-else-if="error" class="alert alert-danger" role="alert">
+          <div
+            v-else-if="error"
+            class="alert alert-danger"
+            role="alert"
+          >
             {{ error }}
           </div>
-          <form v-else @submit.prevent="saveItem" name="ls_item">
+          <form
+            v-else
+            name="ls_item"
+            @submit.prevent="saveItem"
+          >
             <div class="row mb-3">
-              <label for="ls_item_fullStatement" class="col-sm-2 col-form-label required-label">Full Statement</label>
+              <label
+                for="ls_item_fullStatement"
+                class="col-sm-2 col-form-label required-label"
+              >Full Statement</label>
               <div class="col-sm-10">
                 <EasyMDE
                   id="ls_item_fullStatement"
-                  name="ls_item[fullStatement]"
                   v-model="formData.fullStatement"
+                  name="ls_item[fullStatement]"
                   :required="true"
                   placeholder="Enter the complete statement for this competency item"
                 />
@@ -35,79 +79,141 @@
             </div>
 
             <div class="row mb-3">
-              <label for="ls_item_humanCodingScheme" class="col-sm-2 col-form-label">Human Coding Scheme</label>
+              <label
+                for="ls_item_humanCodingScheme"
+                class="col-sm-2 col-form-label"
+              >Human Coding Scheme</label>
               <div class="col-sm-10">
-                <input type="text" class="form-control" id="ls_item_humanCodingScheme" name="ls_item[humanCodingScheme]" v-model="formData.humanCodingScheme" placeholder="e.g., CCSS.ELA-Literacy.RL.1.1">
+                <input
+                  id="ls_item_humanCodingScheme"
+                  v-model="formData.humanCodingScheme"
+                  type="text"
+                  class="form-control"
+                  name="ls_item[humanCodingScheme]"
+                  placeholder="e.g., CCSS.ELA-Literacy.RL.1.1"
+                >
                 <small class="text-muted">Human-readable identifier for the item, e.g., CCSS.ELA-Literacy.RL.1.1</small>
               </div>
             </div>
 
             <div class="row mb-3">
-              <label for="ls_item_abbreviatedStatement" class="col-sm-2 col-form-label">Abbreviated Statement</label>
+              <label
+                for="ls_item_abbreviatedStatement"
+                class="col-sm-2 col-form-label"
+              >Abbreviated Statement</label>
               <div class="col-sm-10">
-                <input type="text" class="form-control" id="ls_item_abbreviatedStatement" name="ls_item[abbreviatedStatement]" v-model="formData.abbreviatedStatement" placeholder="Short version of the statement">
+                <input
+                  id="ls_item_abbreviatedStatement"
+                  v-model="formData.abbreviatedStatement"
+                  type="text"
+                  class="form-control"
+                  name="ls_item[abbreviatedStatement]"
+                  placeholder="Short version of the statement"
+                >
                 <small class="text-muted">A short version of the statement for display purposes.</small>
               </div>
             </div>
 
             <div class="row mb-3">
-              <label for="ls_item_listEnumInSource" class="col-sm-2 col-form-label">List Enum In Source</label>
+              <label
+                for="ls_item_listEnumInSource"
+                class="col-sm-2 col-form-label"
+              >List Enum In Source</label>
               <div class="col-sm-10">
-                <input type="text" class="form-control" id="ls_item_listEnumInSource" name="ls_item[listEnumInSource]" v-model="formData.listEnumInSource" placeholder="e.g., 1">
+                <input
+                  id="ls_item_listEnumInSource"
+                  v-model="formData.listEnumInSource"
+                  type="text"
+                  class="form-control"
+                  name="ls_item[listEnumInSource]"
+                  placeholder="e.g., 1"
+                >
                 <small class="text-muted">The position of this item in the source enumeration.</small>
               </div>
             </div>
 
             <div class="row mb-3">
-              <label for="ls_item_conceptKeywords" class="col-sm-2 col-form-label">Concept Keywords</label>
+              <label
+                for="ls_item_conceptKeywords"
+                class="col-sm-2 col-form-label"
+              >Concept Keywords</label>
               <div class="col-sm-10">
-                <input type="text" class="form-control" id="ls_item_conceptKeywords" name="ls_item[conceptKeywords]" v-model="formData.conceptKeywords" placeholder="e.g., reading, literature, analysis">
+                <input
+                  id="ls_item_conceptKeywords"
+                  v-model="formData.conceptKeywords"
+                  type="text"
+                  class="form-control"
+                  name="ls_item[conceptKeywords]"
+                  placeholder="e.g., reading, literature, analysis"
+                >
                 <small class="text-muted">Keywords or concepts associated with this item, comma-separated.</small>
               </div>
             </div>
 
             <div class="row mb-3">
-              <label for="ls_item_language" class="col-sm-2 col-form-label">Language</label>
+              <label
+                for="ls_item_language"
+                class="col-sm-2 col-form-label"
+              >Language</label>
               <div class="col-sm-10">
-                <select class="form-select" id="ls_item_language" name="ls_item[language]" v-model="formData.language">
-                  <option value="">Select Language</option>
-                  <option value="en">English</option>
-                  <option value="es">Spanish</option>
-                  <option value="fr">French</option>
+                <select
+                  id="ls_item_language"
+                  v-model="formData.language"
+                  class="form-select"
+                  name="ls_item[language]"
+                >
+                  <option value="">
+                    Select Language
+                  </option>
+                  <option value="en">
+                    English
+                  </option>
+                  <option value="es">
+                    Spanish
+                  </option>
+                  <option value="fr">
+                    French
+                  </option>
                 </select>
                 <small class="text-muted">The language of this item.</small>
               </div>
             </div>
 
             <div class="row mb-3">
-              <label for="ls_item_educationalAlignment" class="col-sm-2 col-form-label">Education Level</label>
+              <label
+                for="ls_item_educationalAlignment"
+                class="col-sm-2 col-form-label"
+              >Education Level</label>
               <div class="col-sm-10">
                 <MultiSelect
                   id="ls_item_educationalAlignment"
-                  name="ls_item[educationalAlignment][]"
                   v-model="formData.educationalAlignment"
+                  name="ls_item[educationalAlignment][]"
                   :options="availableEducationLevels"
                   option-value="code"
                   option-label="code"
                   placeholder="Select education levels"
-                  searchPlaceholder="Search education levels..."
+                  search-placeholder="Search education levels..."
                 />
                 <small class="text-muted">Education levels associated with this item.</small>
               </div>
             </div>
 
             <div class="row mb-3">
-              <label for="ls_item_itemType" class="col-sm-2 col-form-label">Item Type</label>
+              <label
+                for="ls_item_itemType"
+                class="col-sm-2 col-form-label"
+              >Item Type</label>
               <div class="col-sm-10">
                 <SingleSelect
                   id="ls_item_itemType"
-                  name="ls_item[itemType]"
                   v-model="formData.itemType"
+                  name="ls_item[itemType]"
                   :options="availableItemTypes"
                   option-value="id"
                   option-label="text"
                   placeholder="Select Item Type"
-                  searchPlaceholder="Search item types..."
+                  search-placeholder="Search item types..."
                   :allow-clear="true"
                 />
                 <small class="text-muted">The type of this item.</small>
@@ -115,29 +221,46 @@
             </div>
 
             <div class="row mb-3">
-              <label for="ls_item_subjects" class="col-sm-2 col-form-label">Subjects</label>
+              <label
+                for="ls_item_subjects"
+                class="col-sm-2 col-form-label"
+              >Subjects</label>
               <div class="col-sm-10">
                 <MultiSelect
                   id="ls_item_subjects"
-                  name="ls_item[subjects][]"
                   v-model="formData.subjects"
+                  name="ls_item[subjects][]"
                   :options="availableSubjects"
                   option-value="id"
                   option-label="title"
                   :show-select-all="false"
                   placeholder="Select subjects"
-                  searchPlaceholder="Search subjects..."
+                  search-placeholder="Search subjects..."
                 />
                 <small class="text-muted">Subject areas associated with this item.</small>
               </div>
             </div>
 
             <div class="row mb-3">
-              <label for="ls_item_licence" class="col-sm-2 col-form-label">License</label>
+              <label
+                for="ls_item_licence"
+                class="col-sm-2 col-form-label"
+              >License</label>
               <div class="col-sm-10">
-                <select class="form-select" id="ls_item_licence" name="ls_item[licence]" v-model="formData.licence">
-                  <option value="">Select License</option>
-                  <option v-for="licence in availableLicences" :key="licence.id" :value="licence.id">
+                <select
+                  id="ls_item_licence"
+                  v-model="formData.licence"
+                  class="form-select"
+                  name="ls_item[licence]"
+                >
+                  <option value="">
+                    Select License
+                  </option>
+                  <option
+                    v-for="licence in availableLicences"
+                    :key="licence.id"
+                    :value="licence.id"
+                  >
                     {{ licence.title }}
                   </option>
                 </select>
@@ -146,18 +269,43 @@
             </div>
 
             <div class="row mb-3">
-              <label for="ls_item_notes" class="col-sm-2 col-form-label">Notes</label>
+              <label
+                for="ls_item_notes"
+                class="col-sm-2 col-form-label"
+              >Notes</label>
               <div class="col-sm-10">
-                <textarea class="form-control" id="ls_item_notes" name="ls_item[notes]" rows="3" v-model="formData.notes" placeholder="Additional notes or comments"></textarea>
+                <textarea
+                  id="ls_item_notes"
+                  v-model="formData.notes"
+                  class="form-control"
+                  name="ls_item[notes]"
+                  rows="3"
+                  placeholder="Additional notes or comments"
+                />
                 <small class="text-muted">Additional notes or comments about this item.</small>
               </div>
             </div>
           </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
-          <button type="button" class="btn btn-primary" @click="saveItem" :disabled="saving">
-            <span v-if="saving" class="spinner-border spinner-border-sm me-2" role="status"></span>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            @click="closeModal"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            :disabled="saving"
+            @click="saveItem"
+          >
+            <span
+              v-if="saving"
+              class="spinner-border spinner-border-sm me-2"
+              role="status"
+            />
             {{ isEdit ? 'Update' : 'Add' }} Item
           </button>
         </div>
@@ -175,10 +323,22 @@ import { logger } from '../../../../utils/logger.js';
 import { useItemTypeModal } from '../../../../composables/useItemTypeModal';
 
 const props = defineProps({
-  parentItem: Object,
-  show: Boolean,
-  itemType: String,
-  item: Object
+  parentItem: {
+    type: Object,
+    default: null
+  },
+  show: {
+    type: Boolean,
+    default: false
+  },
+  itemType: {
+    type: String,
+    default: ''
+  },
+  item: {
+    type: Object,
+    default: null
+  }
 });
 
 const emit = defineEmits(['created', 'updated', 'hidden']);

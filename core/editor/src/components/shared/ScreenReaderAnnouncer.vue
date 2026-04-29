@@ -1,7 +1,10 @@
 <template>
   <!-- Screen reader announcer container - visually hidden but accessible to screen readers -->
   <!-- Note: aria-hidden is NOT used here because aria-live regions must be perceivable by screen readers -->
-  <div id="a11y-announcer-container" class="sr-only">
+  <div
+    id="a11y-announcer-container"
+    class="sr-only"
+  >
     <!-- Polite region for general announcements (non-interruptive) -->
     <div
       id="a11y-announcer-polite"
@@ -25,7 +28,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { watch } from 'vue';
 
 const props = defineProps({
   politeMessage: {

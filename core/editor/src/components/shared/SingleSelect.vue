@@ -1,28 +1,49 @@
 <template>
-  <div class="singleselect" :class="{ 'singleselect--active': isOpen }">
-    <div class="singleselect__tags" @click="toggleDropdown">
+  <div
+    class="singleselect"
+    :class="{ 'singleselect--active': isOpen }"
+  >
+    <div
+      class="singleselect__tags"
+      @click="toggleDropdown"
+    >
       <div class="singleselect__tags-wrap">
-        <span v-if="!selectedItem" class="singleselect__placeholder">
+        <span
+          v-if="!selectedItem"
+          class="singleselect__placeholder"
+        >
           {{ placeholder }}
         </span>
-        <span v-else class="singleselect__selected-value">
+        <span
+          v-else
+          class="singleselect__selected-value"
+        >
           {{ selectedLabel }}
         </span>
       </div>
-      <div class="singleselect__spinner" v-if="isLoading"></div>
-      <div class="singleselect__select"></div>
+      <div
+        v-if="isLoading"
+        class="singleselect__spinner"
+      />
+      <div class="singleselect__select" />
     </div>
 
-    <div class="singleselect__content" v-show="isOpen">
+    <div
+      v-show="isOpen"
+      class="singleselect__content"
+    >
       <div class="singleselect__content-wrapper">
-        <div class="singleselect__search" v-if="searchable">
+        <div
+          v-if="searchable"
+          class="singleselect__search"
+        >
           <input
+            v-model="searchQuery"
             type="text"
             class="singleselect__input"
-            v-model="searchQuery"
             :placeholder="searchPlaceholder"
             @input="filterOptions"
-          />
+          >
         </div>
 
         <ul class="singleselect__options">
@@ -42,7 +63,10 @@
           >
             <span class="singleselect__option-text">{{ getOptionLabel(option) }}</span>
           </li>
-          <li v-if="filteredOptions.length === 0" class="singleselect__option singleselect__option--disabled">
+          <li
+            v-if="filteredOptions.length === 0"
+            class="singleselect__option singleselect__option--disabled"
+          >
             <span class="singleselect__option-text">{{ noResultsText }}</span>
           </li>
         </ul>

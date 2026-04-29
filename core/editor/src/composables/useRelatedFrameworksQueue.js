@@ -34,10 +34,6 @@ export function useRelatedFrameworksQueue() {
     normalPriority: queue.value.length
   }));
 
-  function isItemQueued(_identifier) {
-    return false;
-  }
-
   function getFetchStatus(_identifier) {
     return null;
   }
@@ -61,10 +57,6 @@ export function useRelatedFrameworksQueue() {
     isRunning.value = false;
     isPaused.value = false;
     activeRequestCount.value = 0;
-  }
-
-  async function getAssociatedDocumentIdentifiers() {
-    return [];
   }
 
   async function setHighPriorityForAssociatedFrameworks() {}

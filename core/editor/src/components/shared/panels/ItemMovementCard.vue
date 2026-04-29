@@ -1,40 +1,43 @@
 <template>
-  <div class="btn-group btn-group-sm me-2" v-if="canEditItem && !isItemFromViewedFramework && !isReadOnly">
+  <div
+    v-if="canEditItem && !isItemFromViewedFramework && !isReadOnly"
+    class="btn-group btn-group-sm me-2"
+  >
     <button 
       v-if="canMoveUp"
       type="button" 
       class="btn btn-outline-secondary"
-      @click="move('up')"
       title="Move Up"
+      @click="move('up')"
     >
-      <i class="bi bi-arrow-up"></i>
+      <i class="bi bi-arrow-up" />
     </button>
     <button 
       v-if="canMoveDown"
       type="button" 
       class="btn btn-outline-secondary"
-      @click="move('down')"
       title="Move Down"
+      @click="move('down')"
     >
-      <i class="bi bi-arrow-down"></i>
+      <i class="bi bi-arrow-down" />
     </button>
     <button 
       v-if="canIndent"
       type="button" 
       class="btn btn-outline-secondary"
-      @click="move('indent')"
       title="Indent (Make child of previous sibling)"
+      @click="move('indent')"
     >
-      <i class="bi bi-arrow-right"></i>
+      <i class="bi bi-arrow-right" />
     </button>
     <button 
       v-if="canOutdent"
       type="button" 
       class="btn btn-outline-secondary"
-      @click="move('outdent')"
       title="Outdent (Move to parent level)"
+      @click="move('outdent')"
     >
-      <i class="bi bi-arrow-left"></i>
+      <i class="bi bi-arrow-left" />
     </button>
   </div>
 </template>
@@ -98,7 +101,7 @@ const parentLevelContext = computed(() => {
     };
   } else if (p.length >= 2) {
     // Has parent
-    const parentId = p[p.length - 2];
+    const _parentId = p[p.length - 2];
     // Find parent object by doing a path traversal again
     let currentLevel = props.currentDocument.items;
     let parentObj = null;
@@ -142,7 +145,7 @@ const canOutdent = computed(() => {
   return ctx && ctx.parent !== null;
 });
 
-const emit = defineEmits(['tree-change']);
+const _emit = defineEmits(['tree-change']);
 const itemStore = useItemStore();
 
 const navigation = inject('treeNavigation', {

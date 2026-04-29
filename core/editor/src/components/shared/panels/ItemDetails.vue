@@ -21,7 +21,11 @@
       @delete="$emit('delete-item', item)"
     >
       <!-- Specialized Item Details -->
-      <component v-if="itemDetailsComponent" :is="itemDetailsComponent" :item="displayItem" />
+      <component
+        :is="itemDetailsComponent"
+        v-if="itemDetailsComponent"
+        :item="displayItem"
+      />
 
       <!-- Default Item Details -->
       <ItemDefaultDetails
@@ -32,25 +36,25 @@
         :license-name="licenseName"
       />
 
-    <!-- Actions card (inside the outer card-body "shell", after the header card) -->
-    <ItemActionsCard
-      :can-edit-item="canEditItem"
-      :is-item-from-viewed-framework="isItemFromViewedFramework"
-      :is-read-only="isReadOnly"
-      :available-types="availableTypes"
-      @add-child="handleDropdownClick"
-      @add-exemplar="$emit('add-exemplar', item)"
-    />
-
-    <template #header-actions>
-      <ItemMovementCard
-        :item="item"
-        :current-document="currentDocument"
+      <!-- Actions card (inside the outer card-body "shell", after the header card) -->
+      <ItemActionsCard
         :can-edit-item="canEditItem"
         :is-item-from-viewed-framework="isItemFromViewedFramework"
         :is-read-only="isReadOnly"
+        :available-types="availableTypes"
+        @add-child="handleDropdownClick"
+        @add-exemplar="$emit('add-exemplar', item)"
       />
-    </template>
+
+      <template #header-actions>
+        <ItemMovementCard
+          :item="item"
+          :current-document="currentDocument"
+          :can-edit-item="canEditItem"
+          :is-item-from-viewed-framework="isItemFromViewedFramework"
+          :is-read-only="isReadOnly"
+        />
+      </template>
     </ItemHeaderCard>
 
 
@@ -79,8 +83,6 @@
       :item-identifier="item.identifier"
     />
   </div>
-
-
 </template>
 
 <script setup>
@@ -96,9 +98,7 @@ import ItemActionsCard from './ItemActionsCard.vue';
 import ItemMovementCard from './ItemMovementCard.vue';
 import ItemAssociationsCard from './ItemAssociationsCard.vue';
 import CommentModule from '../CommentModule.vue';
-import DeleteAssociationModal from '@/components/association/DeleteAssociationModal.vue';
 
-// Composables
 import { useItemAssociations } from '../../../composables/useItemAssociations.js';
 import { useEditorContextStore } from '../../../stores/editorContextStore';
 import { useSessionStore } from '../../../stores/sessionStore';

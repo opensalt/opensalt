@@ -1,5 +1,4 @@
 import { countMatches as countTreeMatches } from '../utils/tree.js';
-import { ref, computed } from 'vue';
 
 /**
  * Composable for item search functionality

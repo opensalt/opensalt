@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue';
 import { defineAsyncComponent } from 'vue';
 
-export function useDynamicModal(parent, onCreate, types) {
+export function useDynamicModal(parent, onCreate, _types) {
   const parentItem = ref(null);
   const onCreated = ref(() => {});
   parentItem.value = parent;

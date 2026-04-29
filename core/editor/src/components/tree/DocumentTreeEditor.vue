@@ -1,33 +1,78 @@
 <template>
   <div>
     <!-- Header row: document name (left), status (right) -->
-    <header class="d-flex align-items-center justify-content-between mb-2 p-2" style="background: #f8d7da; border-radius: 6px; border: 2px solid #e09c6d;">
-      <h1 class="fs-4 fw-bold text-uppercase mb-0">{{ docTitle }}</h1>
+    <header
+      class="d-flex align-items-center justify-content-between mb-2 p-2"
+      style="background: #f8d7da; border-radius: 6px; border: 2px solid #e09c6d;"
+    >
+      <h1 class="fs-4 fw-bold text-uppercase mb-0">
+        {{ docTitle }}
+      </h1>
       <div>
-        <span class="badge bg-warning text-dark fs-5 px-4 py-2" style="font-size: 1.5rem;" role="status" aria-live="polite">{{ docStatus }}</span>
+        <span
+          class="badge bg-warning text-dark fs-5 px-4 py-2"
+          style="font-size: 1.5rem;"
+          role="status"
+          aria-live="polite"
+        >{{ docStatus }}</span>
       </div>
     </header>
 
-    <div v-if="loading" class="d-flex justify-content-center align-items-center" style="height: 80vh;" role="status" aria-live="polite">
-      <div class="spinner-border text-primary" role="status">
+    <div
+      v-if="loading"
+      class="d-flex justify-content-center align-items-center"
+      style="height: 80vh;"
+      role="status"
+      aria-live="polite"
+    >
+      <div
+        class="spinner-border text-primary"
+        role="status"
+      >
         <span class="visually-hidden">Loading document...</span>
       </div>
     </div>
-    <div v-else-if="error" class="alert alert-danger my-4" role="alert" aria-live="assertive">{{ error }}</div>
-    <main v-else class="row g-0" style="height: 80vh;">
+    <div
+      v-else-if="error"
+      class="alert alert-danger my-4"
+      role="alert"
+      aria-live="assertive"
+    >
+      {{ error }}
+    </div>
+    <main
+      v-else
+      class="row g-0"
+      style="height: 80vh;"
+    >
       <!-- Tree panel -->
-      <section class="col-5 border-end p-3" style="background: #fff;">
-        <label for="search-input" class="visually-hidden">Search items in document</label>
+      <section
+        class="col-5 border-end p-3"
+        style="background: #fff;"
+      >
+        <label
+          for="search-input"
+          class="visually-hidden"
+        >Search items in document</label>
         <input
-          type="text"
           id="search-input"
+          v-model="search"
+          type="text"
           class="form-control mb-2"
           placeholder="Search..."
-          v-model="search"
           aria-describedby="search-help"
+        >
+        <div
+          id="search-help"
+          class="visually-hidden"
+        >
+          Type to search for items in the document tree
+        </div>
+        <TreeView
+          :doc="doc"
+          :search="search"
+          @select="onSelect"
         />
-        <div id="search-help" class="visually-hidden">Type to search for items in the document tree</div>
-        <TreeView :doc="doc" @select="onSelect" :search="search" />
       </section>
       <!-- Details/info panel -->
       <InfoPanel :selected-item="selectedItem" />
@@ -39,10 +84,6 @@
 import { ref, computed, onMounted } from 'vue';
 import TreeView from './TreeView.vue';
 import InfoPanel from '../shared/panels/InfoPanel.vue';
-import { useAnnouncer } from '../../composables/useAnnouncer.js';
-
-// Initialize screen reader announcer
-const announcer = useAnnouncer();
 
 const doc = ref({ title: '', status: '', items: [] });
 const loading = ref(true);
@@ -185,14 +226,6 @@ onMounted(async () => {
 
 function onSelect(id) {
   selectedId.value = id;
-}
-
-function onTreeFocus(itemId) {
-  // Handle tree focus events for accessibility
-  const item = findItem(doc.value.items || [], itemId);
-  if (item) {
-    announcer.announceNavigation(item);
-  }
 }
 
 function findItem(items, id) {

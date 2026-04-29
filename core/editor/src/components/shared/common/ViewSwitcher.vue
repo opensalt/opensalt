@@ -1,35 +1,39 @@
 <template>
   <div class="view-switcher d-flex justify-content-center">
-    <div class="btn-group" role="group" aria-label="View selection">
+    <div
+      class="btn-group"
+      role="group"
+      aria-label="View selection"
+    >
       <button
         type="button"
         class="btn btn-sm"
         :class="{ 'btn-primary': currentView === 'tree', 'btn-outline-primary': currentView !== 'tree' }"
-        @click="switchView('tree')"
         :aria-pressed="currentView === 'tree'"
+        @click="switchView('tree')"
       >
-        <i class="bi bi-diagram-3 me-1"></i>
+        <i class="bi bi-diagram-3 me-1" />
         Tree View
       </button>
       <button
         type="button"
         class="btn btn-sm"
         :class="{ 'btn-primary': currentView === 'association', 'btn-outline-primary': currentView !== 'association' }"
-        @click="switchView('association')"
         :aria-pressed="currentView === 'association'"
+        @click="switchView('association')"
       >
-        <i class="bi bi-share me-1"></i>
+        <i class="bi bi-share me-1" />
         Association View
       </button>
-        <button
+      <button
         v-if="sessionStore.isAuthenticated"
         type="button"
         class="btn btn-sm"
         :class="{ 'btn-primary': currentView === 'log', 'btn-outline-primary': currentView !== 'log' }"
-        @click="switchView('log')"
         :aria-pressed="currentView === 'log'"
+        @click="switchView('log')"
       >
-        <i class="bi bi-list-check me-1"></i>
+        <i class="bi bi-list-check me-1" />
         Log View
       </button>
     </div>

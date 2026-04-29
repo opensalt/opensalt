@@ -5,15 +5,25 @@
     :title="modalTitle"
     size="xl"
     :aria-labelledby="modalLabel"
-    @update:isOpen="handleVisibilityChange"
+    @update:is-open="handleVisibilityChange"
     @hidden="handleHidden"
   >
-    <div v-if="loading" class="d-flex justify-content-center align-items-center p-4">
-      <div class="spinner-border text-primary" role="status">
+    <div
+      v-if="loading"
+      class="d-flex justify-content-center align-items-center p-4"
+    >
+      <div
+        class="spinner-border text-primary"
+        role="status"
+      >
         <span class="visually-hidden">Loading...</span>
       </div>
     </div>
-    <div v-else-if="error" class="alert alert-danger" role="alert">
+    <div
+      v-else-if="error"
+      class="alert alert-danger"
+      role="alert"
+    >
       {{ error }}
     </div>
     <div v-else-if="mode === 'list'">
@@ -24,18 +34,26 @@
       <table class="table table-striped">
         <thead>
           <tr>
-            <th style="width:30%">Association Group Name</th>
+            <th style="width:30%">
+              Association Group Name
+            </th>
             <th>Description</th>
-            <th style="width:20%">Actions</th>
+            <th style="width:20%">
+              Actions
+            </th>
           </tr>
         </thead>
         <tbody>
           <tr data-assocgroupid="default">
             <td><strong>– Default Group –</strong></td>
             <td>—</td>
-            <td></td>
+            <td />
           </tr>
-          <tr v-for="group in editableAssociationGroups" :key="group.id" :data-assocgroupid="group.id">
+          <tr
+            v-for="group in editableAssociationGroups"
+            :key="group.id"
+            :data-assocgroupid="group.id"
+          >
             <td>{{ group.title }}</td>
             <td>{{ group.description || '—' }}</td>
             <td>
@@ -43,18 +61,18 @@
                 <button
                   type="button"
                   class="btn btn-outline-primary"
-                  @click="editGroup(group)"
                   title="Edit group"
+                  @click="editGroup(group)"
                 >
-                  <i class="bi bi-pencil"></i>
+                  <i class="bi bi-pencil" />
                 </button>
                 <button
                   type="button"
                   class="btn btn-outline-danger"
-                  @click="deleteGroup(group)"
                   title="Delete group"
+                  @click="deleteGroup(group)"
                 >
-                  <i class="bi bi-trash"></i>
+                  <i class="bi bi-trash" />
                 </button>
               </div>
             </td>
@@ -63,24 +81,35 @@
       </table>
 
       <div class="mt-3">
-        <button type="button" class="btn btn-primary" @click="showAddModal">
-          <i class="bi bi-plus-circle"></i> Add a New Association Group
+        <button
+          type="button"
+          class="btn btn-primary"
+          @click="showAddModal"
+        >
+          <i class="bi bi-plus-circle" /> Add a New Association Group
         </button>
       </div>
     </div>
 
-    <form v-else @submit.prevent="saveGroup" name="ls_def_association_grouping">
+    <form
+      v-else
+      name="ls_def_association_grouping"
+      @submit.prevent="saveGroup"
+    >
       <div class="row mb-3">
-        <label for="ls_def_association_grouping_title" class="col-sm-3 col-form-label required">
+        <label
+          for="ls_def_association_grouping_title"
+          class="col-sm-3 col-form-label required"
+        >
           Title *
         </label>
         <div class="col-sm-9">
           <input
+            id="ls_def_association_grouping_title"
+            v-model="formData.title"
             type="text"
             class="form-control"
-            id="ls_def_association_grouping_title"
             name="ls_def_association_grouping[title]"
-            v-model="formData.title"
             required
             placeholder="Enter group title"
           >
@@ -88,28 +117,53 @@
       </div>
 
       <div class="row mb-3">
-        <label for="ls_def_association_grouping_description" class="col-sm-3 col-form-label">
+        <label
+          for="ls_def_association_grouping_description"
+          class="col-sm-3 col-form-label"
+        >
           Description
         </label>
         <div class="col-sm-9">
           <textarea
-            class="form-control"
             id="ls_def_association_grouping_description"
+            v-model="formData.description"
+            class="form-control"
             name="ls_def_association_grouping[description]"
             rows="3"
-            v-model="formData.description"
             placeholder="Optional description for this association group"
-          ></textarea>
+          />
         </div>
       </div>
     </form>
 
     <template #footer>
-      <button v-if="mode === 'list'" type="button" class="btn btn-secondary" @click="closeModal">Done</button>
+      <button
+        v-if="mode === 'list'"
+        type="button"
+        class="btn btn-secondary"
+        @click="closeModal"
+      >
+        Done
+      </button>
       <template v-else>
-        <button type="button" class="btn btn-secondary" @click="cancelEdit">Cancel</button>
-        <button type="button" class="btn btn-primary" @click="saveGroup" :disabled="saving">
-          <span v-if="saving" class="spinner-border spinner-border-sm me-2" role="status"></span>
+        <button
+          type="button"
+          class="btn btn-secondary"
+          @click="cancelEdit"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          :disabled="saving"
+          @click="saveGroup"
+        >
+          <span
+            v-if="saving"
+            class="spinner-border spinner-border-sm me-2"
+            role="status"
+          />
           {{ isEdit ? 'Save Changes' : 'Create' }}
         </button>
       </template>

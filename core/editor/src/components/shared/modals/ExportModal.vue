@@ -1,11 +1,31 @@
 <template>
-  <div class="modal fade" id="exportDocumentModal" tabindex="-1" role="dialog"
-       aria-labelledby="exportDocumentModalLabel" aria-hidden="true" ref="modalElement">
-    <div class="modal-dialog modal-lg" role="document">
+  <div
+    id="exportDocumentModal"
+    ref="modalElement"
+    class="modal fade"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="exportDocumentModalLabel"
+    aria-hidden="true"
+  >
+    <div
+      class="modal-dialog modal-lg"
+      role="document"
+    >
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exportDocumentModalLabel">Export Document</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <h5
+            id="exportDocumentModalLabel"
+            class="modal-title"
+          >
+            Export Document
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          />
         </div>
         <div class="modal-body">
           <p>
@@ -23,7 +43,10 @@
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <i class="bi bi-filetype-json d-block mb-1" style="font-size: 1.5em;"></i>
+                  <i
+                    class="bi bi-filetype-json d-block mb-1"
+                    style="font-size: 1.5em;"
+                  />
                   Competency Framework Package (JSON)
                 </a>
                 <div class="form-text text-muted mt-1 small">
@@ -41,7 +64,10 @@
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <i class="bi bi-file-earmark-spreadsheet d-block mb-1" style="font-size: 1.5em;"></i>
+                  <i
+                    class="bi bi-file-earmark-spreadsheet d-block mb-1"
+                    style="font-size: 1.5em;"
+                  />
                   Spreadsheet export
                 </a>
                 <div class="form-text text-muted mt-1 small">
@@ -52,8 +78,14 @@
 
               <!-- CSV Export (hidden placeholder for future) -->
               <div class="col-sm-4 d-none">
-                <button class="btn btn-primary w-100 btn-export disabled" disabled>
-                  <i class="bi bi-filetype-html d-block mb-1" style="font-size: 1.5em;"></i>
+                <button
+                  class="btn btn-primary w-100 btn-export disabled"
+                  disabled
+                >
+                  <i
+                    class="bi bi-filetype-html d-block mb-1"
+                    style="font-size: 1.5em;"
+                  />
                   HTML Archive
                 </button>
                 <div class="form-text text-muted mt-1 small">
@@ -63,7 +95,7 @@
             </div>
           </div>
 
-          <hr />
+          <hr>
 
           <p>
             You can also share the following link, which anyone can use to view the
@@ -72,27 +104,44 @@
 
           <div class="row align-items-center g-2">
             <div class="col-sm-6">
-              <a :href="viewUrl" target="_blank" rel="noopener noreferrer">{{ viewUrl }}</a>
+              <a
+                :href="viewUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+              >{{ viewUrl }}</a>
             </div>
             <div class="col-sm-5">
               <div class="input-group">
                 <input
+                  ref="viewUrlInput"
                   type="text"
                   class="form-control form-control-sm"
                   :value="viewUrl"
                   readonly
-                  ref="viewUrlInput"
-                />
-                <button class="btn btn-outline-secondary btn-sm" type="button"
-                        @click="copyToClipboard" :title="copyTooltip">
-                  <i class="bi" :class="copyIcon"></i>
+                >
+                <button
+                  class="btn btn-outline-secondary btn-sm"
+                  type="button"
+                  :title="copyTooltip"
+                  @click="copyToClipboard"
+                >
+                  <i
+                    class="bi"
+                    :class="copyIcon"
+                  />
                 </button>
               </div>
             </div>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Done</button>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Done
+          </button>
         </div>
       </div>
     </div>
@@ -201,7 +250,7 @@ async function copyToClipboard() {
       copyIcon.value = 'bi-clipboard';
       copyTooltip.value = 'Copy to clipboard';
     }, 2000);
-  } catch (err) {
+  } catch {
     // Fallback: select the input text
     if (viewUrlInput.value) {
       viewUrlInput.value.select();

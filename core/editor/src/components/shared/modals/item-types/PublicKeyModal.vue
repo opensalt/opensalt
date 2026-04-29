@@ -1,53 +1,108 @@
 <template>
   <!-- Backdrop -->
-  <div v-if="props.show" class="modal-backdrop fade" :class="{ 'show': props.show }" @click="closeModal"></div>
+  <div
+    v-if="props.show"
+    class="modal-backdrop fade"
+    :class="{ 'show': props.show }"
+    @click="closeModal"
+  />
 
   <!-- Modal -->
-  <div class="modal fade" :class="{ 'show d-block': props.show }" tabindex="-1" id="addNewPublicKeyModal" aria-hidden="true" :style="{ display: props.show ? 'block' : 'none' }">
-    <div class="modal-dialog modal-xl" role="document" @click.stop>
+  <div
+    id="addNewPublicKeyModal"
+    class="modal fade"
+    :class="{ 'show d-block': props.show }"
+    tabindex="-1"
+    aria-hidden="true"
+    :style="{ display: props.show ? 'block' : 'none' }"
+  >
+    <div
+      class="modal-dialog modal-xl"
+      role="document"
+      @click.stop
+    >
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="addNewPublicKeyModalLabel">{{ isEdit ? 'Edit Public Key' : 'Add New Public Key' }}</h5>
-          <button type="button" class="btn-close" @click="closeModal" aria-label="Close"></button>
+          <h5
+            id="addNewPublicKeyModalLabel"
+            class="modal-title"
+          >
+            {{ isEdit ? 'Edit Public Key' : 'Add New Public Key' }}
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            aria-label="Close"
+            @click="closeModal"
+          />
         </div>
         <div class="modal-body">
-          <div v-if="loading" class="d-flex justify-content-center align-items-center p-4">
-            <div class="spinner-border text-primary" role="status">
+          <div
+            v-if="loading"
+            class="d-flex justify-content-center align-items-center p-4"
+          >
+            <div
+              class="spinner-border text-primary"
+              role="status"
+            >
               <span class="visually-hidden">Loading form...</span>
             </div>
           </div>
-          <div v-else-if="error" class="alert alert-danger" role="alert">
+          <div
+            v-else-if="error"
+            class="alert alert-danger"
+            role="alert"
+          >
             {{ error }}
           </div>
-          <form v-else @submit.prevent="createItem" name="ls_public_key">
+          <form
+            v-else
+            name="ls_public_key"
+            @submit.prevent="createItem"
+          >
             <div class="row mb-3">
-              <label for="ls_public_key_publicKey" class="col-sm-3 col-form-label required-label">Public Key</label>
+              <label
+                for="ls_public_key_publicKey"
+                class="col-sm-3 col-form-label required-label"
+              >Public Key</label>
               <div class="col-sm-9">
                 <textarea
-                  class="form-control"
                   id="ls_public_key_publicKey"
-                  name="ls_public_key[publicKey]"
                   v-model="formData.publicKey"
+                  class="form-control"
+                  name="ls_public_key[publicKey]"
                   spellcheck="false"
                   rows="6"
                   placeholder="Paste the public key here as a JWK or certificate"
                   required
-                ></textarea>
+                />
                 <small class="text-muted">Paste the public key here as a JWK or certificate.</small>
               </div>
             </div>
-            <div class="row mb-3" v-if="false">
-              <label for="ls_public_key_type" class="col-sm-3 col-form-label">Type</label>
+            <div
+              v-if="false"
+              class="row mb-3"
+            >
+              <label
+                for="ls_public_key_type"
+                class="col-sm-3 col-form-label"
+              >Type</label>
               <div class="col-sm-9">
                 <select
-                  class="form-select"
                   id="ls_public_key_type"
-                  name="ls_public_key[type]"
                   v-model="formData.type"
+                  class="form-select"
+                  name="ls_public_key[type]"
                 >
-                  <option value="">Select Type</option>
-                  <option value="jwk">JWK</option>
-                  <option value="certificate">Certificate</option>
+                  <option value="">
+                    Select Type
+                  </option>
+                  <option value="jwk">
+                    JWK
+                  </option>
+                  <option value="certificate">
+                    Certificate
+                  </option>
                 </select>
                 <small class="text-muted">The type of the public key.</small>
               </div>
@@ -55,9 +110,24 @@
           </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
-          <button type="button" class="btn btn-primary" @click="saveItem" :disabled="saving">
-            <span v-if="saving" class="spinner-border spinner-border-sm me-2" role="status"></span>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            @click="closeModal"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            :disabled="saving"
+            @click="saveItem"
+          >
+            <span
+              v-if="saving"
+              class="spinner-border spinner-border-sm me-2"
+              role="status"
+            />
             {{ isEdit ? 'Update' : 'Create' }}
           </button>
         </div>
@@ -70,10 +140,22 @@
 import { ref, reactive, watch, computed } from 'vue';
 
 const props = defineProps({
-  parentItem: Object,
-  itemType: String,
-  show: Boolean,
-  item: Object
+  parentItem: {
+    type: Object,
+    default: null
+  },
+  itemType: {
+    type: String,
+    default: ''
+  },
+  show: {
+    type: Boolean,
+    default: false
+  },
+  item: {
+    type: Object,
+    default: null
+  }
 });
 
 const emit = defineEmits(['created', 'updated', 'hidden']);

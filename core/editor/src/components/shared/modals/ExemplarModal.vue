@@ -5,10 +5,14 @@
     title="Add Exemplar"
     size="lg"
     aria-labelledby="addExemplarModalLabel"
-    @update:isOpen="(val) => $emit('update:show', val)"
+    @update:is-open="(val) => $emit('update:show', val)"
     @hidden="handleHidden"
   >
-    <div v-if="error" class="alert alert-danger mb-3" role="alert">
+    <div
+      v-if="error"
+      class="alert alert-danger mb-3"
+      role="alert"
+    >
       {{ error }}
     </div>
 
@@ -16,8 +20,14 @@
       <strong>Item:</strong>
       <div class="card mt-2">
         <div class="card-body">
-          <h6 class="card-title" id="addExemplarOriginTitle">
-            <span v-if="currentItem?.humanCodingScheme" class="badge bg-secondary me-2">
+          <h6
+            id="addExemplarOriginTitle"
+            class="card-title"
+          >
+            <span
+              v-if="currentItem?.humanCodingScheme"
+              class="badge bg-secondary me-2"
+            >
               {{ currentItem.humanCodingScheme }}
             </span>
             {{ currentItem?.title || currentItem?.abbreviatedTitle || currentItem?.identifier || 'No item selected' }}
@@ -28,15 +38,18 @@
 
     <form @submit.prevent="addExemplar">
       <div class="row mb-3">
-        <label for="addExemplarFormUrl" class="col-sm-3 col-form-label required">
+        <label
+          for="addExemplarFormUrl"
+          class="col-sm-3 col-form-label required"
+        >
           URL *
         </label>
         <div class="col-sm-9">
           <input
-            type="url"
             id="addExemplarFormUrl"
-            class="form-control"
             v-model="formData.exemplarUrl"
+            type="url"
+            class="form-control"
             placeholder="https://example.com/resource"
             required
           >
@@ -47,47 +60,65 @@
       </div>
 
       <div class="row mb-3">
-        <label for="addExemplarFormDescription" class="col-sm-3 col-form-label">
+        <label
+          for="addExemplarFormDescription"
+          class="col-sm-3 col-form-label"
+        >
           Description
         </label>
         <div class="col-sm-9">
           <textarea
             id="addExemplarFormDescription"
+            v-model="formData.exemplarDescription"
             class="form-control"
             rows="3"
-            v-model="formData.exemplarDescription"
             placeholder="Optional description of the exemplar"
-          ></textarea>
+          />
         </div>
       </div>
 
       <div class="row mb-3">
-        <label for="addExemplarFormAnnotation" class="col-sm-3 col-form-label">
+        <label
+          for="addExemplarFormAnnotation"
+          class="col-sm-3 col-form-label"
+        >
           Annotation
         </label>
         <div class="col-sm-9">
           <textarea
             id="addExemplarFormAnnotation"
+            v-model="formData.annotation"
             class="form-control"
             rows="2"
-            v-model="formData.annotation"
             placeholder="Optional annotation for this exemplar association"
-          ></textarea>
+          />
         </div>
       </div>
 
-      <div v-if="filteredGroups.length > 0" class="row mb-3">
-        <label for="addExemplarFormGroup" class="col-sm-3 col-form-label">
+      <div
+        v-if="filteredGroups.length > 0"
+        class="row mb-3"
+      >
+        <label
+          for="addExemplarFormGroup"
+          class="col-sm-3 col-form-label"
+        >
           Association Group
         </label>
         <div class="col-sm-9">
           <select
             id="addExemplarFormGroup"
-            class="form-select"
             v-model="formData.groupId"
+            class="form-select"
           >
-            <option value="default">None</option>
-            <option v-for="group in filteredGroups" :key="group.id" :value="group.id">
+            <option value="default">
+              None
+            </option>
+            <option
+              v-for="group in filteredGroups"
+              :key="group.id"
+              :value="group.id"
+            >
               {{ group.title }}
             </option>
           </select>
@@ -96,9 +127,24 @@
     </form>
 
     <template #footer>
-      <button type="button" class="btn btn-secondary" @click="closeModal">Cancel</button>
-      <button type="button" class="btn btn-primary" @click="addExemplar" :disabled="saving">
-        <span v-if="saving" class="spinner-border spinner-border-sm me-2" role="status"></span>
+      <button
+        type="button"
+        class="btn btn-secondary"
+        @click="closeModal"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        class="btn btn-primary"
+        :disabled="saving"
+        @click="addExemplar"
+      >
+        <span
+          v-if="saving"
+          class="spinner-border spinner-border-sm me-2"
+          role="status"
+        />
         Add Exemplar
       </button>
     </template>
@@ -111,8 +157,14 @@ import BaseModal from '../BaseModal.vue';
 import { useFilterStore } from '../../../stores/filterStore';
 
 const props = defineProps({
-  currentItem: Object,
-  show: Boolean,
+  currentItem: {
+    type: Object,
+    default: null
+  },
+  show: {
+    type: Boolean,
+    default: false
+  },
   associationGroups: {
     type: Array,
     default: () => []

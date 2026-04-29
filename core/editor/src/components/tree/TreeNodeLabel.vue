@@ -6,7 +6,7 @@
       class="loading-spinner"
       aria-hidden="true"
     >
-      <i class="bi bi-arrow-repeat spin"></i>
+      <i class="bi bi-arrow-repeat spin" />
     </span>
     <!-- External link icon for cross-framework items -->
     <span
@@ -15,21 +15,33 @@
       aria-hidden="true"
       title="External framework item"
     >
-      <i class="bi bi-box-arrow-up-right"></i>
+      <i class="bi bi-box-arrow-up-right" />
     </span>
     <span
       v-if="isCrossFrameworkItem && externalFrameworkTitle"
       class="badge bg-primary text-white me-2 ms-1"
     >
-      <i class="bi bi-box-arrow-up-right me-1"></i>{{ externalFrameworkTitle }}
+      <i class="bi bi-box-arrow-up-right me-1" />{{ externalFrameworkTitle }}
     </span>
-    <span v-if="displayHumanCodingScheme" class="coding-scheme" style="color: #6c757d;">
+    <span
+      v-if="displayHumanCodingScheme"
+      class="coding-scheme"
+      style="color: #6c757d;"
+    >
       {{ displayHumanCodingScheme }}:&nbsp;
     </span>
-    <span v-if="searchQuery && hasMatch" v-html="highlightedTitle"></span>
+    <span
+      v-if="searchQuery && hasMatch"
+      v-html="highlightedTitle"
+    />
     <span v-else>{{ displayTitle }}</span>
   </span>
-  <div v-if="showPopover && fullStatementHtml" class="popover" v-html="fullStatementHtml" role="tooltip"></div>
+  <div
+    v-if="showPopover && fullStatementHtml"
+    class="popover"
+    role="tooltip"
+    v-html="fullStatementHtml"
+  />
 </template>
 
 <script setup>

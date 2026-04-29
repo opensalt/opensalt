@@ -1,29 +1,57 @@
 <template>
-  <details v-if="hasChildren" :open="isExpanded" @toggle="onToggle" class="tree-node" role="treeitem" :aria-level="level + 1" :aria-expanded="isExpanded" :aria-selected="selectedId === item.identifier" :aria-grabbed="isKeyboardDragging" :tabindex="isFocused ? '0' : '-1'" :data-tree-node-id="item.identifier" @keydown="handleKeyDown">
-    <summary class="expand-control" :style="{ marginLeft: (level * 20) + 'px' }" @click="onSummaryClick" :tabindex="isFocused ? '0' : '-1'">
-      <span class="expand-indicator" aria-hidden="true">
-        <i :class="isExpanded ? 'bi bi-caret-down-fill' : 'bi bi-caret-right-fill'"></i>
+  <details
+    v-if="hasChildren"
+    :open="isExpanded"
+    class="tree-node"
+    role="treeitem"
+    :aria-level="level + 1"
+    :aria-expanded="isExpanded"
+    :aria-selected="selectedId === item.identifier"
+    :aria-grabbed="isKeyboardDragging"
+    :tabindex="isFocused ? '0' : '-1'"
+    :data-tree-node-id="item.identifier"
+    @toggle="onToggle"
+    @keydown="handleKeyDown"
+  >
+    <summary
+      class="expand-control"
+      :style="{ marginLeft: (level * 20) + 'px' }"
+      :tabindex="isFocused ? '0' : '-1'"
+      @click="onSummaryClick"
+    >
+      <span
+        class="expand-indicator"
+        aria-hidden="true"
+      >
+        <i :class="isExpanded ? 'bi bi-caret-down-fill' : 'bi bi-caret-right-fill'" />
       </span>
       <span
         class="tree-node-label"
         :class="{ 'selected': selectedId === item.identifier, 'drag-over': dragOver, 'keyboard-dragging': isKeyboardDragging }"
+        style="cursor:pointer"
+        draggable="true"
+        role="button"
+        :aria-pressed="isKeyboardDragging"
         @click.stop.prevent="select"
         @dblclick.stop="dblClick"
         @focus="onFocus"
-        style="cursor:pointer"
-        draggable="true"
         @dragstart="onDragStart"
         @dragover="onDragOver"
         @dragleave="onDragLeave"
         @drop="onDrop"
         @dragend="onDragEnd"
-        role="button"
-        :aria-pressed="isKeyboardDragging"
       >
-        <span v-if="item.humanCodingScheme" class="coding-scheme" style="font-weight: bold;">{{ item.humanCodingScheme }}: </span>
+        <span
+          v-if="item.humanCodingScheme"
+          class="coding-scheme"
+          style="font-weight: bold;"
+        >{{ item.humanCodingScheme }}: </span>
         {{ item.abbreviatedTitle || item.title || item.identifier }}
       </span>
-      <slot name="actions" :item="item" />
+      <slot
+        name="actions"
+        :item="item"
+      />
     </summary>
 
     <DraggableTreeNode
@@ -42,35 +70,61 @@
       @drop="$emit('drop', $event)"
     >
       <template #actions="slotProps">
-        <slot name="actions" v-bind="slotProps" />
+        <slot
+          name="actions"
+          v-bind="slotProps"
+        />
       </template>
     </DraggableTreeNode>
   </details>
 
   <!-- For items without children -->
-  <div v-else class="tree-node" role="treeitem" :aria-level="level + 1" :aria-selected="selectedId === item.identifier" :aria-grabbed="isKeyboardDragging" :tabindex="isFocused ? '0' : '-1'" :data-tree-node-id="item.identifier" @keydown="handleKeyDown">
-    <div class="tree-node-content" :style="{ marginLeft: (level * 20) + 'px' }">
-      <span class="no-children-spacer" aria-hidden="true"></span>
+  <div
+    v-else
+    class="tree-node"
+    role="treeitem"
+    :aria-level="level + 1"
+    :aria-selected="selectedId === item.identifier"
+    :aria-grabbed="isKeyboardDragging"
+    :tabindex="isFocused ? '0' : '-1'"
+    :data-tree-node-id="item.identifier"
+    @keydown="handleKeyDown"
+  >
+    <div
+      class="tree-node-content"
+      :style="{ marginLeft: (level * 20) + 'px' }"
+    >
+      <span
+        class="no-children-spacer"
+        aria-hidden="true"
+      />
       <span
         class="tree-node-label"
         :class="{ 'selected': selectedId === item.identifier, 'drag-over': dragOver, 'keyboard-dragging': isKeyboardDragging }"
+        style="cursor:pointer"
+        draggable="true"
+        role="button"
+        :aria-pressed="isKeyboardDragging"
         @click="select"
         @dblclick="dblClick"
         @focus="onFocus"
-        style="cursor:pointer"
-        draggable="true"
         @dragstart="onDragStart"
         @dragover="onDragOver"
         @dragleave="onDragLeave"
         @drop="onDrop"
         @dragend="onDragEnd"
-        role="button"
-        :aria-pressed="isKeyboardDragging"
       >
-        <span v-if="item.humanCodingScheme" class="coding-scheme" style="font-weight: bold;">{{ item.humanCodingScheme }}: </span>
+        <span
+          v-if="item.humanCodingScheme"
+          class="coding-scheme"
+          style="font-weight: bold;"
+        >{{ item.humanCodingScheme }}: </span>
         {{ item.abbreviatedTitle || item.title || item.identifier }}
       </span>
-      <slot name="actions" :item="item" />
+      <slot
+        name="actions"
+        :item="item"
+      />
     </div>
   </div>
 </template>
@@ -81,11 +135,26 @@ import { useAnnouncer } from '../../composables/useAnnouncer.js';
 import { logger } from '../../utils/logger.js';
 
 const props = defineProps({
-  item: Object,
-  level: Number,
-  selectedId: String,
-  parentItems: Array,
-  index: Number,
+  item: {
+    type: Object,
+    default: null
+  },
+  level: {
+    type: Number,
+    default: 0
+  },
+  selectedId: {
+    type: String,
+    default: null
+  },
+  parentItems: {
+    type: Array,
+    default: () => []
+  },
+  index: {
+    type: Number,
+    default: 0
+  },
   dragMode: {
     type: String,
     default: 'move' // 'move', 'copy', 'associate'

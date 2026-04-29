@@ -1,131 +1,173 @@
 <template>
-    <div class="comment-item" :class="{ 'is-reply': isReply }">
-        <div class="comment-avatar">
-            <div class="avatar-placeholder">
-                {{ avatarInitials }}
-            </div>
-        </div>
-
-        <div class="comment-content">
-            <div class="comment-header">
-                <span class="comment-author">{{ comment.fullname }}</span>
-                <span class="comment-time">{{ formattedTime }}</span>
-            </div>
-
-            <!-- Comment Body -->
-            <div v-if="!isEditing" class="comment-body">
-                <p>{{ comment.content }}</p>
-
-                <!-- File Attachment -->
-                <div v-if="comment.file_url" class="comment-attachment">
-                    <a :href="comment.file_url" target="_blank" class="attachment-link">
-                        <i :class="fileIcon"></i>
-                        {{ attachmentName }}
-                    </a>
-                </div>
-            </div>
-
-            <!-- Edit Form -->
-            <div v-else class="comment-edit-form">
-                <textarea
-                    v-model="editContent"
-                    class="form-control"
-                    rows="3"
-                ></textarea>
-                <div class="edit-actions">
-                    <button class="btn btn-sm btn-secondary" @click="cancelEdit">Cancel</button>
-                    <button class="btn btn-sm btn-primary" @click="saveEdit" :disabled="!editContent.trim()">
-                        Save
-                    </button>
-                </div>
-            </div>
-
-            <!-- Comment Actions -->
-            <div v-if="!isEditing" class="comment-actions">
-                <!-- Upvote -->
-                <button
-                    class="action-btn upvote-btn"
-                    :class="{ 'has-upvoted': comment.user_has_upvoted }"
-                    @click="$emit('upvote', comment.id)"
-                    :disabled="!isLoggedIn"
-                    :title="comment.user_has_upvoted ? 'Remove upvote' : 'Upvote'"
-                >
-                     <i class="bi bi-hand-thumbs-up"></i>
-                    <span v-if="comment.upvote_count > 0" class="upvote-count">
-                        {{ comment.upvote_count }}
-                    </span>
-                </button>
-
-                <!-- Reply -->
-                <button
-                    v-if="!isReply"
-                    class="action-btn reply-btn"
-                    @click="toggleReply"
-                    :disabled="!isLoggedIn"
-                    title="Reply"
-                >
-                     <i class="bi bi-reply"></i> Reply
-                </button>
-
-                <!-- Edit (only for comment author) -->
-                <button
-                    v-if="isAuthor"
-                    class="action-btn edit-btn"
-                    @click="startEdit"
-                    title="Edit"
-                >
-                     <i class="bi bi-pencil"></i> Edit
-                </button>
-
-                <!-- Delete (only for comment author) -->
-                <button
-                    v-if="isAuthor"
-                    class="action-btn delete-btn"
-                    @click="$emit('delete', comment.id)"
-                    title="Delete"
-                >
-                    <i class="bi bi-trash"></i> Delete
-                </button>
-            </div>
-
-            <!-- Reply Form -->
-            <div v-if="showReplyForm && !isEditing" class="reply-form">
-                <textarea
-                    v-model="replyContent"
-                    class="form-control"
-                    placeholder="Write a reply..."
-                    rows="2"
-                ></textarea>
-                <div class="reply-actions">
-                    <button class="btn btn-sm btn-secondary" @click="cancelReply">Cancel</button>
-                    <button
-                        class="btn btn-sm btn-primary"
-                        @click="submitReply"
-                        :disabled="!replyContent.trim()"
-                    >
-                        Reply
-                    </button>
-                </div>
-            </div>
-
-            <!-- Nested Replies -->
-            <div v-if="replies.length > 0" class="comment-replies">
-                <CommentItem
-                    v-for="reply in replies"
-                    :key="reply.id"
-                    :comment="reply"
-                    :replies="[]"
-                    :is-logged-in="isLoggedIn"
-                    :current-user-id="currentUserId"
-                    :is-reply="true"
-                    @reply="$emit('reply', $event)"
-                    @edit="$emit('edit', $event)"
-                    @delete="$emit('delete', $event)"
-                    @upvote="$emit('upvote', $event)"
-                />
-            </div>
-        </div>
+  <div
+    class="comment-item"
+    :class="{ 'is-reply': isReply }"
+  >
+    <div class="comment-avatar">
+      <div class="avatar-placeholder">
+        {{ avatarInitials }}
+      </div>
     </div>
+
+    <div class="comment-content">
+      <div class="comment-header">
+        <span class="comment-author">{{ comment.fullname }}</span>
+        <span class="comment-time">{{ formattedTime }}</span>
+      </div>
+
+      <!-- Comment Body -->
+      <div
+        v-if="!isEditing"
+        class="comment-body"
+      >
+        <p>{{ comment.content }}</p>
+
+        <!-- File Attachment -->
+        <div
+          v-if="comment.file_url"
+          class="comment-attachment"
+        >
+          <a
+            :href="comment.file_url"
+            target="_blank"
+            class="attachment-link"
+          >
+            <i :class="fileIcon" />
+            {{ attachmentName }}
+          </a>
+        </div>
+      </div>
+
+      <!-- Edit Form -->
+      <div
+        v-else
+        class="comment-edit-form"
+      >
+        <textarea
+          v-model="editContent"
+          class="form-control"
+          rows="3"
+        />
+        <div class="edit-actions">
+          <button
+            class="btn btn-sm btn-secondary"
+            @click="cancelEdit"
+          >
+            Cancel
+          </button>
+          <button
+            class="btn btn-sm btn-primary"
+            :disabled="!editContent.trim()"
+            @click="saveEdit"
+          >
+            Save
+          </button>
+        </div>
+      </div>
+
+      <!-- Comment Actions -->
+      <div
+        v-if="!isEditing"
+        class="comment-actions"
+      >
+        <!-- Upvote -->
+        <button
+          class="action-btn upvote-btn"
+          :class="{ 'has-upvoted': comment.user_has_upvoted }"
+          :disabled="!isLoggedIn"
+          :title="comment.user_has_upvoted ? 'Remove upvote' : 'Upvote'"
+          @click="$emit('upvote', comment.id)"
+        >
+          <i class="bi bi-hand-thumbs-up" />
+          <span
+            v-if="comment.upvote_count > 0"
+            class="upvote-count"
+          >
+            {{ comment.upvote_count }}
+          </span>
+        </button>
+
+        <!-- Reply -->
+        <button
+          v-if="!isReply"
+          class="action-btn reply-btn"
+          :disabled="!isLoggedIn"
+          title="Reply"
+          @click="toggleReply"
+        >
+          <i class="bi bi-reply" /> Reply
+        </button>
+
+        <!-- Edit (only for comment author) -->
+        <button
+          v-if="isAuthor"
+          class="action-btn edit-btn"
+          title="Edit"
+          @click="startEdit"
+        >
+          <i class="bi bi-pencil" /> Edit
+        </button>
+
+        <!-- Delete (only for comment author) -->
+        <button
+          v-if="isAuthor"
+          class="action-btn delete-btn"
+          title="Delete"
+          @click="$emit('delete', comment.id)"
+        >
+          <i class="bi bi-trash" /> Delete
+        </button>
+      </div>
+
+      <!-- Reply Form -->
+      <div
+        v-if="showReplyForm && !isEditing"
+        class="reply-form"
+      >
+        <textarea
+          v-model="replyContent"
+          class="form-control"
+          placeholder="Write a reply..."
+          rows="2"
+        />
+        <div class="reply-actions">
+          <button
+            class="btn btn-sm btn-secondary"
+            @click="cancelReply"
+          >
+            Cancel
+          </button>
+          <button
+            class="btn btn-sm btn-primary"
+            :disabled="!replyContent.trim()"
+            @click="submitReply"
+          >
+            Reply
+          </button>
+        </div>
+      </div>
+
+      <!-- Nested Replies -->
+      <div
+        v-if="replies.length > 0"
+        class="comment-replies"
+      >
+        <CommentItem
+          v-for="reply in replies"
+          :key="reply.id"
+          :comment="reply"
+          :replies="[]"
+          :is-logged-in="isLoggedIn"
+          :current-user-id="currentUserId"
+          :is-reply="true"
+          @reply="$emit('reply', $event)"
+          @edit="$emit('edit', $event)"
+          @delete="$emit('delete', $event)"
+          @upvote="$emit('upvote', $event)"
+        />
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -162,10 +204,6 @@ const replyContent = ref('');
 const isEditing = ref(false);
 const editContent = ref('');
 
-// Flag to track if we're submitting a reply
-const isSubmittingReply = ref(false);
-
-// Computed
 const avatarInitials = computed(() => {
     const name = props.comment.fullname || 'Unknown';
     const parts = name.split(' ');
