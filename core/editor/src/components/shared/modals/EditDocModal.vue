@@ -159,26 +159,13 @@
         </div>
       </div>
 
-      <div class="row mb-3">
-        <label
-          for="ls_doc_subjects"
-          class="col-sm-2 col-form-label"
-        >Subjects</label>
-        <div class="col-sm-10">
-          <MultiSelect
-            id="ls_doc_subjects"
-            v-model="formData.subjects"
-            name="ls_doc[subjects][]"
-            :options="availableSubjects"
-            option-value="id"
-            option-label="title"
-            :show-select-all="false"
-            placeholder="Select subjects"
-            search-placeholder="Search subjects..."
-          />
-          <small class="text-muted">Subject areas associated with this document.</small>
-        </div>
-      </div>
+      <SubjectSelector
+        id="ls_doc_subjects"
+        ref="subjectSelectorRef"
+        v-model="formData.subjects"
+        name="ls_doc[subjects][]"
+        help-text="Subject areas associated with this document."
+      />
 
       <div class="row mb-3">
         <label
@@ -290,26 +277,13 @@
         </div>
       </div>
 
-      <div class="row mb-3">
-        <label
-          for="ls_doc_licence"
-          class="col-sm-2 col-form-label"
-        >License</label>
-        <div class="col-sm-10">
-          <SingleSelect
-            id="ls_doc_licence"
-            v-model="formData.licence"
-            name="ls_doc[licence]"
-            :options="availableLicenses"
-            option-value="id"
-            option-label="title"
-            placeholder="Select License"
-            search-placeholder="Search licenses..."
-            :allow-clear="true"
-          />
-          <small class="text-muted">License governing the use of this document.</small>
-        </div>
-      </div>
+      <LicenseSelector
+        id="ls_doc_licence"
+        ref="licenseSelectorRef"
+        v-model="formData.licence"
+        name="ls_doc[licence]"
+        help-text="License governing the use of this document."
+      />
 
       <div class="row mb-3">
         <label
@@ -396,10 +370,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch } from 'vue';
+import { ref, reactive, watch, nextTick } from 'vue';
 import BaseModal from '../BaseModal.vue';
-import MultiSelect from '../MultiSelect.vue';
-import SingleSelect from '../SingleSelect.vue';
+import SubjectSelector from '../common/SubjectSelector.vue';
+import LicenseSelector from '../common/LicenseSelector.vue';
 import { logger } from '../../../utils/logger.js';
 
 const props = defineProps({
@@ -423,6 +397,9 @@ const loading = ref(false);
 const error = ref('');
 const saving = ref(false);
 
+const subjectSelectorRef = ref(null);
+const licenseSelectorRef = ref(null);
+
 const formData = reactive({
   title: '',
   creator: '',
@@ -442,98 +419,8 @@ const formData = reactive({
   org: null
 });
 
-const availableSubjects = ref([]);
-const availableLicenses = ref([]);
 const availableFrameworkTypes = ref([]);
 const availableAccessGroups = ref([]);
-
-async function fetchSubjects() {
-  if (availableSubjects.value.length > 0) return;
-
-  try {
-    const response = await fetch('/cfdef/subject/list?field_name=subjects&page=1&page_limit=50', {
-      method: 'GET',
-      credentials: 'same-origin',
-      headers: {
-        'Accept': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest'
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const text = await response.text();
-    const data = JSON.parse(text);
-
-    if (data) {
-      availableSubjects.value = data;
-    } else {
-      availableSubjects.value = [
-        { id: 'math', title: 'Mathematics' },
-        { id: 'science', title: 'Science' },
-        { id: 'english', title: 'English Language Arts' },
-        { id: 'history', title: 'History' }
-      ];
-    }
-  } catch (err) {
-    logger.error('Failed to fetch subjects:', err);
-    availableSubjects.value = [
-      { id: 'math', title: 'Mathematics' },
-      { id: 'science', title: 'Science' },
-      { id: 'english', title: 'English Language Arts' },
-      { id: 'history', title: 'History' }
-    ];
-  }
-}
-
-async function fetchLicenses() {
-  if (availableLicenses.value.length > 0) return;
-
-  try {
-    const response = await fetch('/cfdef/licence/list?field_name=licence&page=1&page_limit=50', {
-      method: 'GET',
-      credentials: 'same-origin',
-      headers: {
-        'Accept': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest'
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const text = await response.text();
-    const data = JSON.parse(text);
-
-    if (data) {
-      availableLicenses.value = data;
-    } else {
-      availableLicenses.value = [
-        { id: 'cc0', title: 'CC0 (Public Domain)' },
-        { id: 'cc-by', title: 'CC BY (Attribution)' },
-        { id: 'cc-by-sa', title: 'CC BY-SA (Attribution-ShareAlike)' },
-        { id: 'cc-by-nd', title: 'CC BY-ND (Attribution-NoDerivs)' },
-        { id: 'cc-by-nc', title: 'CC BY-NC (Attribution-NonCommercial)' },
-        { id: 'cc-by-nc-sa', title: 'CC BY-NC-SA (Attribution-NonCommercial-ShareAlike)' },
-        { id: 'cc-by-nc-nd', title: 'CC BY-NC-ND (Attribution-NonCommercial-NoDerivs)' }
-      ];
-    }
-  } catch (err) {
-    logger.error('Failed to fetch licenses:', err);
-    availableLicenses.value = [
-      { id: 'cc0', title: 'CC0 (Public Domain)' },
-      { id: 'cc-by', title: 'CC BY (Attribution)' },
-      { id: 'cc-by-sa', title: 'CC BY-SA (Attribution-ShareAlike)' },
-      { id: 'cc-by-nd', title: 'CC BY-ND (Attribution-NoDerivs)' },
-      { id: 'cc-by-nc', title: 'CC BY-NC (Attribution-NonCommercial)' },
-      { id: 'cc-by-nc-sa', title: 'CC BY-NC-SA (Attribution-NonCommercial-ShareAlike)' },
-      { id: 'cc-by-nc-nd', title: 'CC BY-NC-ND (Attribution-NonCommercial-NoDerivs)' }
-    ];
-  }
-}
 
 async function fetchFrameworkTypes() {
   if (availableFrameworkTypes.value.length > 0) return;
@@ -600,7 +487,12 @@ async function fetchAccessGroups() {
 
 watch(() => props.show, async (newVal) => {
   if (newVal && props.document) {
-    const fetches = [fetchSubjects(), fetchLicenses(), fetchFrameworkTypes()];
+    await nextTick();
+    const fetches = [
+      subjectSelectorRef.value?.ensureLoaded(),
+      licenseSelectorRef.value?.ensureLoaded(),
+      fetchFrameworkTypes()
+    ];
     if (props.isAdmin) {
       fetches.push(fetchAccessGroups());
     }
@@ -628,17 +520,41 @@ function loadDocumentData() {
   formData.urlName = props.document.urlName || '';
   formData.version = props.document.version || '';
   formData.description = props.document.description || '';
-  formData.subjects = props.document.subjects || [];
+
+  const availableSubjects = subjectSelectorRef.value?.availableSubjects || [];
+  const docSubjects = props.document.subjects || [];
+  const subjectIds = docSubjects.map(s => {
+    if (typeof s === 'object' && s !== null) {
+      const match = availableSubjects.find(opt => opt.title === s.title || opt.text === s.title);
+      return match ? match.id : null;
+    }
+    return s;
+  }).filter(v => v !== null && v !== undefined);
+  formData.subjects = subjectIds;
+
   formData.language = props.document.language || '';
   formData.adoptionStatus = props.document.adoptionStatus || 'Draft';
   formData.statusStart = props.document.statusStart || '';
   formData.statusEnd = props.document.statusEnd || '';
   formData.note = props.document.notes || props.document.note || '';
-  formData.licence = props.document.licence || '';
+
+  const availableLicenses = licenseSelectorRef.value?.availableLicenses || [];
+  const docLicence = props.document.licence || props.document.licenseURI?.identifier || '';
+  if (docLicence && !isNumeric(docLicence)) {
+    const match = availableLicenses.find(opt => opt.id == docLicence || opt.text === props.document.licenseURI?.title);
+    formData.licence = match ? match.id : '';
+  } else {
+    formData.licence = docLicence;
+  }
+
   formData.frameworkType = props.document.frameworkType || '';
   formData.org = props.document.org || null;
 
   loading.value = false;
+}
+
+function isNumeric(val) {
+  return typeof val === 'number' || (typeof val === 'string' && !isNaN(val) && val.trim() !== '');
 }
 
 function closeModal() {

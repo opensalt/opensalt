@@ -67,6 +67,22 @@
     </div>
 
     <div
+      v-if="item.subjectURI && item.subjectURI.length > 0"
+      class="mt-2"
+    >
+      <strong>Subject:</strong>
+      <span class="ms-1">
+        <span
+          v-for="subject in item.subjectURI"
+          :key="subject.identifier"
+          class="badge bg-secondary me-1"
+        >
+          {{ subject.title }}
+        </span>
+      </span>
+    </div>
+
+    <div
       v-if="item.licenseURI"
       class="mt-2 text-truncate"
     >

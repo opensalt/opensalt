@@ -191,7 +191,7 @@
                   name="ls_item[educationalAlignment][]"
                   :options="availableEducationLevels"
                   option-value="code"
-                  option-label="code"
+                  option-label="label"
                   placeholder="Select education levels"
                   search-placeholder="Search education levels..."
                 />
@@ -220,47 +220,21 @@
               </div>
             </div>
 
-            <div class="row mb-3">
-              <label
-                for="ls_item_subjects"
-                class="col-sm-2 col-form-label"
-              >Subjects</label>
-              <div class="col-sm-10">
-                <MultiSelect
-                  id="ls_item_subjects"
-                  v-model="formData.subjects"
-                  name="ls_item[subjects][]"
-                  :options="availableSubjects"
-                  option-value="id"
-                  option-label="title"
-                  :show-select-all="false"
-                  placeholder="Select subjects"
-                  search-placeholder="Search subjects..."
-                />
-                <small class="text-muted">Subject areas associated with this item.</small>
-              </div>
-            </div>
+            <SubjectSelector
+              id="ls_item_subjects"
+              ref="subjectSelectorRef"
+              v-model="formData.subjects"
+              name="ls_item[subjects][]"
+              help-text="Subject areas associated with this item."
+            />
 
-            <div class="row mb-3">
-              <label
-                for="ls_item_licence"
-                class="col-sm-2 col-form-label"
-              >License</label>
-              <div class="col-sm-10">
-                <SingleSelect
-                  id="ls_item_licence"
-                  v-model="formData.licence"
-                  name="ls_item[licence]"
-                  :options="availableLicences"
-                  option-value="id"
-                  option-label="title"
-                  placeholder="Select License"
-                  search-placeholder="Search licenses..."
-                  :allow-clear="true"
-                />
-                <small class="text-muted">License governing the use of this item.</small>
-              </div>
-            </div>
+            <LicenseSelector
+              id="ls_item_licence"
+              ref="licenseSelectorRef"
+              v-model="formData.licence"
+              name="ls_item[licence]"
+              help-text="License governing the use of this item."
+            />
 
             <div class="row mb-3">
               <label
@@ -309,10 +283,12 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch } from 'vue';
+import { ref, reactive, watch, nextTick } from 'vue';
 import EasyMDE from '../../EasyMDE.vue';
 import MultiSelect from '../../MultiSelect.vue';
 import SingleSelect from '../../SingleSelect.vue';
+import SubjectSelector from '../../common/SubjectSelector.vue';
+import LicenseSelector from '../../common/LicenseSelector.vue';
 import { logger } from '../../../../utils/logger.js';
 import { useItemTypeModal } from '../../../../composables/useItemTypeModal';
 import educationLevels from '../../../../data/EducationLevel.json';
@@ -340,6 +316,9 @@ const emit = defineEmits(['created', 'updated', 'hidden']);
 
 const { loading, error, saving, isEdit, closeModal } = useItemTypeModal(props, emit, { typeName: 'child' });
 
+const subjectSelectorRef = ref(null);
+const licenseSelectorRef = ref(null);
+
 const formData = reactive({
   fullStatement: '',
   humanCodingScheme: '',
@@ -354,117 +333,7 @@ const formData = reactive({
   notes: ''
 });
 
-// Subjects fetched from API
-const availableSubjects = ref([]);
-const loadingSubjects = ref(false);
-
-/**
- * Fetch subjects from the API
- */
-async function fetchSubjects() {
-  if (availableSubjects.value.length > 0) return; // Already loaded
-
-  loadingSubjects.value = true;
-  try {
-    logger.debug('Fetching subjects from API...');
-    // Use direct fetch to handle the response properly
-    // The API endpoint returns JSON but may have text/html content-type due to Twig template
-    const response = await fetch('/cfdef/subject/list?field_name=subjects&page=1&page_limit=50', {
-      method: 'GET',
-      credentials: 'same-origin',
-      headers: {
-        'Accept': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest'
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    // Try to parse as JSON regardless of content-type
-    const text = await response.text();
-    logger.debug('Raw subjects response:', text);
-
-    // Parse the JSON
-    const data = JSON.parse(text);
-    logger.debug('Parsed subjects response:', data);
-
-    if (data) {
-      availableSubjects.value = data;
-      logger.debug('Loaded subjects:', availableSubjects.value);
-    } else {
-      logger.warn('Unexpected response format for subjects:', data);
-      throw new Error('Invalid response format');
-    }
-  } catch (err) {
-    logger.error('Failed to fetch subjects:', err);
-    // Fallback to default subjects if API fails
-    availableSubjects.value = [
-      { id: 'math', title: 'Mathematics' },
-      { id: 'science', title: 'Science' },
-      { id: 'english', title: 'English Language Arts' },
-      { id: 'history', title: 'History' }
-    ];
-    logger.debug('Using fallback subjects:', availableSubjects.value);
-  } finally {
-    loadingSubjects.value = false;
-  }
-}
-
 const availableEducationLevels = ref(educationLevels);
-
-const availableLicences = ref([]);
-
-/**
- * Fetch licenses from the API
- */
-async function fetchLicenses() {
-  if (availableLicences.value.length > 0) return;
-
-  try {
-    const response = await fetch('/cfdef/licence/list?field_name=licence&page=1&page_limit=50', {
-      method: 'GET',
-      credentials: 'same-origin',
-      headers: {
-        'Accept': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest'
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const text = await response.text();
-    const data = JSON.parse(text);
-
-    if (data) {
-      availableLicences.value = data;
-    } else {
-      availableLicences.value = [
-        { id: 'cc0', title: 'CC0 (Public Domain)' },
-        { id: 'cc-by', title: 'CC BY (Attribution)' },
-        { id: 'cc-by-sa', title: 'CC BY-SA (Attribution-ShareAlike)' },
-        { id: 'cc-by-nd', title: 'CC BY-ND (Attribution-NoDerivs)' },
-        { id: 'cc-by-nc', title: 'CC BY-NC (Attribution-NonCommercial)' },
-        { id: 'cc-by-nc-sa', title: 'CC BY-NC-SA (Attribution-NonCommercial-ShareAlike)' },
-        { id: 'cc-by-nc-nd', title: 'CC BY-NC-ND (Attribution-NonCommercial-NoDerivs)' }
-      ];
-    }
-  } catch (err) {
-    logger.error('Failed to fetch licenses:', err);
-    availableLicences.value = [
-      { id: 'cc0', title: 'CC0 (Public Domain)' },
-      { id: 'cc-by', title: 'CC BY (Attribution)' },
-      { id: 'cc-by-sa', title: 'CC BY-SA (Attribution-ShareAlike)' },
-      { id: 'cc-by-nd', title: 'CC BY-ND (Attribution-NoDerivs)' },
-      { id: 'cc-by-nc', title: 'CC BY-NC (Attribution-NonCommercial)' },
-      { id: 'cc-by-nc-sa', title: 'CC BY-NC-SA (Attribution-NonCommercial-ShareAlike)' },
-      { id: 'cc-by-nc-nd', title: 'CC BY-NC-ND (Attribution-NonCommercial-NoDerivs)' }
-    ];
-  }
-}
 
 // Item types fetched from API
 const availableItemTypes = ref([]);
@@ -528,7 +397,12 @@ async function fetchItemTypes() {
 
 watch(() => props.show, async (newVal) => {
   if (newVal) {
-    await Promise.all([fetchItemTypes(), fetchSubjects(), fetchLicenses()]);
+    await nextTick();
+    await Promise.all([
+      fetchItemTypes(),
+      subjectSelectorRef.value?.ensureLoaded(),
+      licenseSelectorRef.value?.ensureLoaded()
+    ]);
     loadFormData();
   }
 }, { immediate: true });
@@ -560,10 +434,11 @@ function loadFormData() {
     );
     formData.itemType = matchingType ? matchingType.id : '';
     // Read from subjectURI and match by title to get IDs
-    logger.debug('Available subjects:', availableSubjects.value);
+    const availableSubjects = subjectSelectorRef.value?.availableSubjects || [];
+    logger.debug('Available subjects:', availableSubjects);
     logger.debug('Item subjects:', props.item.subjectURI);
     const subjectIds = (props.item.subjectURI || []).map(uri => {
-      const match = availableSubjects.value.find(opt => opt.title === uri.title);
+      const match = availableSubjects.find(opt => opt.title === uri.title);
       return match ? match.id : null;
     }).filter(Boolean);
     formData.subjects = subjectIds;

@@ -15,6 +15,7 @@ use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Entity\Framework\LsDefConcept;
 use App\Entity\Framework\LsDefItemType;
 use App\Entity\Framework\LsDefLicence;
+use App\Entity\Framework\LsDefSubject;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Entity\User\User;
@@ -369,8 +370,53 @@ class LsDocRepository extends ServiceEntityRepository
         $allItems = $allItemsQuery->getResult(Query::HYDRATE_ARRAY);
 
         $itemDataMap = [];
+        $itemIds = [];
         foreach ($allItems as $item) {
             $itemDataMap[$item['identifier']] = $item;
+            $itemIds[$item['identifier']] = $item['identifier'];
+        }
+
+        $itemLicenceMap = [];
+        $itemSubjectMap = [];
+        if ([] !== $itemIds && !$lightweight) {
+            $itemIdsByInternalId = [];
+            foreach ($allItems as $item) {
+                $itemIdsByInternalId[$item['identifier']] = $item['identifier'];
+            }
+
+            $licenceQuery = $em->createQuery('
+                SELECT i.identifier as itemIdentifier, l.identifier as licenceIdentifier,
+                       l.uri as licenceUri, l.title as licenceTitle
+                FROM '.LsItem::class.' i
+                JOIN i.licence l
+                WHERE i.lsDoc = :docId
+            ');
+            $licenceQuery->setParameter('docId', $viewedDocId);
+            $licenceResults = $licenceQuery->getResult(Query::HYDRATE_ARRAY);
+            foreach ($licenceResults as $lr) {
+                $itemLicenceMap[$lr['itemIdentifier']] = [
+                    'identifier' => $lr['licenceIdentifier'],
+                    'uri' => $lr['licenceUri'],
+                    'title' => $lr['licenceTitle'],
+                ];
+            }
+
+            $subjectQuery = $em->createQuery('
+                SELECT i.identifier as itemIdentifier, s.identifier as subjectIdentifier,
+                       s.uri as subjectUri, s.title as subjectTitle
+                FROM '.LsItem::class.' i
+                JOIN i.subjects s
+                WHERE i.lsDoc = :docId
+            ');
+            $subjectQuery->setParameter('docId', $viewedDocId);
+            $subjectResults = $subjectQuery->getResult(Query::HYDRATE_ARRAY);
+            foreach ($subjectResults as $sr) {
+                $itemSubjectMap[$sr['itemIdentifier']][] = [
+                    'identifier' => $sr['subjectIdentifier'],
+                    'uri' => $sr['subjectUri'],
+                    'title' => $sr['subjectTitle'],
+                ];
+            }
         }
 
         $parentMap = [];
@@ -445,7 +491,8 @@ class LsDocRepository extends ServiceEntityRepository
         $buildNode = function (string $identifier, bool $isCrossFramework = false) use (
             &$buildNode, $itemDataMap, $foreignItems, $parentMap, $assocMap,
             $viewedDocId, $viewedDocIdentifier, $childIds, $lightweight,
-            $itemTypeRepo, &$itemTypeCache, $em
+            $itemTypeRepo, &$itemTypeCache, $em,
+            $itemLicenceMap, $itemSubjectMap
         ): ?array {
             static $visited = [];
             if (isset($visited[$identifier])) {
@@ -549,6 +596,8 @@ class LsDocRepository extends ServiceEntityRepository
                     'isUnresolved' => false,
                     'discriminator' => $item['discriminator'] ?? 0,
                     'extensions' => $item['extensions'] ?? [],
+                    'licenseURI' => $itemLicenceMap[$identifier] ?? null,
+                    'subjectURI' => $itemSubjectMap[$identifier] ?? [],
                     'children' => [],
                 ];
             }
@@ -673,37 +722,37 @@ class LsDocRepository extends ServiceEntityRepository
         $definitions = [];
         if (!$lightweight) {
             $groupings = $this->findAllDocAssociationGroups($lsDoc, Query::HYDRATE_ARRAY);
-            $definitions['CFAssociationGroupings'] = array_map(static function (array $g): array {
+            $definitions['CFAssociationGroupings'] = array_values(array_map(static function (array $g): array {
                 return [
                     'identifier' => $g['identifier'] ?? null,
                     'uri' => $g['uri'] ?? null,
                     'title' => $g['title'] ?? null,
                     'description' => $g['description'] ?? null,
                 ];
-            }, $groupings);
+            }, $groupings));
 
             $itemTypes = $this->findAllUsedItemTypes($lsDoc, Query::HYDRATE_ARRAY);
-            $definitions['CFItemTypes'] = array_map(static function (array $t): array {
+            $definitions['CFItemTypes'] = array_values(array_map(static function (array $t): array {
                 return [
                     'identifier' => $t['identifier'] ?? null,
                     'uri' => $t['uri'] ?? null,
                     'title' => $t['title'] ?? null,
                     'description' => $t['description'] ?? null,
                 ];
-            }, $itemTypes);
+            }, $itemTypes));
 
             $concepts = $this->findAllUsedConcepts($lsDoc, Query::HYDRATE_ARRAY);
-            $definitions['CFConcepts'] = array_map(static function (array $c): array {
+            $definitions['CFConcepts'] = array_values(array_map(static function (array $c): array {
                 return [
                     'identifier' => $c['identifier'] ?? null,
                     'uri' => $c['uri'] ?? null,
                     'title' => $c['title'] ?? null,
                     'keywords' => $c['keywords'] ?? null,
                 ];
-            }, $concepts);
+            }, $concepts));
 
             $subjects = $lsDoc->getSubjects();
-            $definitions['CFSubjects'] = array_map(static function ($s): array {
+            $definitions['CFSubjects'] = array_values(array_map(static function ($s): array {
                 if (is_array($s)) {
                     return $s;
                 }
@@ -713,10 +762,10 @@ class LsDocRepository extends ServiceEntityRepository
                     'uri' => method_exists($s, 'getUri') ? $s->getUri() : null,
                     'title' => method_exists($s, 'getTitle') ? $s->getTitle() : null,
                 ];
-            }, is_array($subjects) ? $subjects : $subjects->toArray());
+            }, is_array($subjects) ? $subjects : $subjects->toArray()));
 
             $licences = $this->findAllUsedLicences($lsDoc, Query::HYDRATE_ARRAY);
-            $definitions['CFLicenses'] = array_map(static function (array $l): array {
+            $definitions['CFLicenses'] = array_values(array_map(static function (array $l): array {
                 return [
                     'identifier' => $l['identifier'] ?? null,
                     'uri' => $l['uri'] ?? null,
@@ -724,7 +773,7 @@ class LsDocRepository extends ServiceEntityRepository
                     'description' => $l['description'] ?? null,
                     'licenseText' => $l['licenseText'] ?? null,
                 ];
-            }, $licences);
+            }, $licences));
         }
 
         return [

@@ -13,6 +13,8 @@ use App\Command\Framework\UpdateItemCommand;
 use App\DTO\ItemType\ItemTypeInterface;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDefAssociationGrouping;
+use App\Entity\Framework\LsDefLicence;
+use App\Entity\Framework\LsDefSubject;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Entity\Framework\LsItemKind;
@@ -205,6 +207,15 @@ class ItemController extends AbstractController
             ];
         }
 
+        $subjectURIs = [];
+        foreach ($lsItem->getSubjects() as $subject) {
+            $subjectURIs[] = [
+                'identifier' => $subject->getIdentifier(),
+                'uri' => $subject->getUri(),
+                'title' => $subject->getTitle(),
+            ];
+        }
+
         $response = [
             'identifier' => $lsItem->getIdentifier(),
             'uri' => $lsItem->getUri(),
@@ -221,7 +232,9 @@ class ItemController extends AbstractController
             'statusStartDate' => $lsItem->getStatusStart()?->format('Y-m-d'),
             'statusEndDate' => $lsItem->getStatusEnd()?->format('Y-m-d'),
             'subject' => $lsItem->getSubject(),
+            'subjectURI' => $subjectURIs,
             'licenseURI' => $licenceObj,
+            'licence' => $licence?->getIdentifier(),
             'extensions' => $lsItem->getExtra() ?? [],
             'lastChangeDateTime' => $lsItem->getChangedAt()?->format('c'),
             'documentIdentifier' => $doc->getIdentifier(),
@@ -477,18 +490,42 @@ class ItemController extends AbstractController
 
     private function applyDataToItem(LsItem $lsItem, array $data, ?string $itemType): void
     {
-        // If itemType is provided, try to use specialized DTO
+        if (array_key_exists('licence', $data)) {
+            if (null !== $data['licence'] && '' !== $data['licence']) {
+                $field = is_numeric($data['licence']) ? 'id' : 'identifier';
+                $licence = $this->managerRegistry->getRepository(LsDefLicence::class)
+                    ->findOneBy([$field => $data['licence']]);
+                if (null !== $licence) {
+                    $lsItem->setLicence($licence);
+                }
+            } else {
+                $lsItem->setLicence(null);
+            }
+        }
+        if (array_key_exists('subjects', $data)) {
+            $subjects = [];
+            if (is_array($data['subjects'])) {
+                foreach ($data['subjects'] as $subjectValue) {
+                    if (empty($subjectValue)) {
+                        continue;
+                    }
+                    $field = is_numeric($subjectValue) ? 'id' : 'identifier';
+                    $subject = $this->managerRegistry->getRepository(LsDefSubject::class)
+                        ->findOneBy([$field => $subjectValue]);
+                    if (null !== $subject) {
+                        $subjects[] = $subject;
+                    }
+                }
+            }
+            $lsItem->setSubjects($subjects);
+        }
+
         if (null !== $itemType) {
             $kind = LsItemKind::tryFromName($itemType);
             $dtoClass = $kind->dto();
             if (LsItem::class !== $dtoClass) {
                 $dto = $dtoClass::fromItem($lsItem);
-                // Use simple property mapping for now, or mimic form handling
-                // For now, let's just use applyToItem if we can populate the DTO
-                // This is a bit complex without the full form system,
-                // but we can manually set properties on the DTO.
 
-                // Simple property mapper for the DTO
                 foreach ($data as $key => $value) {
                     if (property_exists($dto, $key)) {
                         $dto->$key = $value;
@@ -508,7 +545,6 @@ class ItemController extends AbstractController
             }
         }
 
-        // Default item handling
         if (isset($data['fullStatement'])) {
             $lsItem->setFullStatement($data['fullStatement']);
         }
@@ -541,7 +577,6 @@ class ItemController extends AbstractController
             }
             $lsItem->setEducationalAlignment($educationalAlignment);
         }
-        // ... add more as needed
     }
 
     private function generateItemJsonResponse(LsItem $item, ?LsAssociation $assoc = null): Response

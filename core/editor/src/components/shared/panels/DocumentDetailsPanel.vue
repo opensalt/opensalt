@@ -93,18 +93,29 @@
         </div>
 
         <div
-          v-if="document.subject && document.subject.length > 0"
+          v-if="(document.subjects && document.subjects.length > 0) || (document.subject && document.subject.length > 0)"
           class="mt-3"
         >
           <strong>Subject: </strong>
           <div class="mt-1 d-inline-flex">
-            <span
-              v-for="subject in document.subject"
-              :key="subject"
-              class="badge bg-secondary me-1"
-            >
-              {{ subject }}
-            </span>
+            <template v-if="document.subjects && document.subjects.length > 0">
+              <span
+                v-for="subject in document.subjects"
+                :key="subject.identifier"
+                class="badge bg-secondary me-1"
+              >
+                {{ subject.title }}
+              </span>
+            </template>
+            <template v-else-if="document.subject && document.subject.length > 0">
+              <span
+                v-for="subject in document.subject"
+                :key="subject"
+                class="badge bg-secondary me-1"
+              >
+                {{ subject }}
+              </span>
+            </template>
           </div>
         </div>
 

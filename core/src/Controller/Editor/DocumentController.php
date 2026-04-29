@@ -7,6 +7,8 @@ namespace App\Controller\Editor;
 use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\DeleteDocumentCommand;
 use App\Command\Framework\UpdateDocumentCommand;
+use App\Entity\Framework\LsDefLicence;
+use App\Entity\Framework\LsDefSubject;
 use App\Entity\Framework\LsDoc;
 use App\Entity\User\AccessGroup;
 use App\Security\Permission;
@@ -61,8 +63,34 @@ class DocumentController extends AbstractController
             if (isset($data['statusEnd'])) {
                 $lsDoc->setStatusEnd($data['statusEnd'] ? new \DateTime($data['statusEnd']) : null);
             }
-            if (isset($data['licence'])) {
-                // This might need lookup of CFLicense
+            if (array_key_exists('licence', $data)) {
+                if (null !== $data['licence'] && '' !== $data['licence']) {
+                    $field = is_numeric($data['licence']) ? 'id' : 'identifier';
+                    $licence = $this->em->getRepository(LsDefLicence::class)
+                        ->findOneBy([$field => $data['licence']]);
+                    if (null !== $licence) {
+                        $lsDoc->setLicence($licence);
+                    }
+                } else {
+                    $lsDoc->setLicence(null);
+                }
+            }
+            if (array_key_exists('subjects', $data)) {
+                $subjects = [];
+                if (is_array($data['subjects'])) {
+                    foreach ($data['subjects'] as $subjectValue) {
+                        if (empty($subjectValue)) {
+                            continue;
+                        }
+                        $field = is_numeric($subjectValue) ? 'id' : 'identifier';
+                        $subject = $this->em->getRepository(LsDefSubject::class)
+                            ->findOneBy([$field => $subjectValue]);
+                        if (null !== $subject) {
+                            $subjects[] = $subject;
+                        }
+                    }
+                }
+                $lsDoc->setSubjects($subjects);
             }
             if (isset($data['note'])) {
                 $lsDoc->setNote($data['note']);

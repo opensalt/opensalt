@@ -34,6 +34,25 @@ class TreeController extends AbstractController
 
         $result = $this->docRepository->findTreeForDocument($lsDoc, $lightweight);
 
+        $licence = $lsDoc->getLicence();
+        $licenceObj = null;
+        if (null !== $licence) {
+            $licenceObj = [
+                'identifier' => $licence->getIdentifier(),
+                'uri' => $licence->getUri(),
+                'title' => $licence->getTitle(),
+            ];
+        }
+
+        $subjectURIs = [];
+        foreach ($lsDoc->getSubjects() as $subject) {
+            $subjectURIs[] = [
+                'identifier' => $subject->getIdentifier(),
+                'uri' => $subject->getUri(),
+                'title' => $subject->getTitle(),
+            ];
+        }
+
         $document = [
             'identifier' => $lsDoc->getIdentifier(),
             'uri' => $lsDoc->getUri(),
@@ -46,6 +65,10 @@ class TreeController extends AbstractController
             'version' => $lsDoc->getVersion(),
             'org' => $lsDoc->getOrg()?->getId(),
             'orgName' => $lsDoc->getOrg()?->getName(),
+            'licenseURI' => $licenceObj,
+            'subject' => $lsDoc->getSubject(),
+            'subjects' => $subjectURIs,
+            'licence' => $licence?->getIdentifier(),
         ];
 
         $response = [

@@ -32,6 +32,10 @@ export interface TreeResponse {
     version?: string;
     org?: number | null;
     orgName?: string | null;
+    licenseURI?: { identifier?: string; uri?: string; title?: string } | null;
+    subject?: string[] | null;
+    subjects?: Array<{ identifier?: string; uri?: string; title?: string }>;
+    licence?: string | null;
   };
   tree: TreeNode[];
   definitions?: {
@@ -84,7 +88,9 @@ export interface ItemDetailsResponse {
   statusStartDate?: string;
   statusEndDate?: string;
   subject?: string[] | string | null;
+  subjectURI?: Array<{ identifier?: string; uri?: string; title?: string }>;
   licenseURI?: { identifier?: string; uri?: string; title?: string } | null;
+  licence?: string | null;
   extensions?: Record<string, unknown>;
   lastChangeDateTime?: string;
   documentIdentifier?: string;
