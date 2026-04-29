@@ -247,23 +247,17 @@
                 class="col-sm-2 col-form-label"
               >License</label>
               <div class="col-sm-10">
-                <select
+                <SingleSelect
                   id="ls_item_licence"
                   v-model="formData.licence"
-                  class="form-select"
                   name="ls_item[licence]"
-                >
-                  <option value="">
-                    Select License
-                  </option>
-                  <option
-                    v-for="licence in availableLicences"
-                    :key="licence.id"
-                    :value="licence.id"
-                  >
-                    {{ licence.title }}
-                  </option>
-                </select>
+                  :options="availableLicences"
+                  option-value="id"
+                  option-label="title"
+                  placeholder="Select License"
+                  search-placeholder="Search licenses..."
+                  :allow-clear="true"
+                />
                 <small class="text-muted">License governing the use of this item.</small>
               </div>
             </div>
@@ -420,15 +414,57 @@ async function fetchSubjects() {
 
 const availableEducationLevels = ref(educationLevels);
 
-const availableLicences = ref([
-  { id: 'cc0', title: 'CC0 (Public Domain)' },
-  { id: 'cc-by', title: 'CC BY (Attribution)' },
-  { id: 'cc-by-sa', title: 'CC BY-SA (Attribution-ShareAlike)' },
-  { id: 'cc-by-nd', title: 'CC BY-ND (Attribution-NoDerivs)' },
-  { id: 'cc-by-nc', title: 'CC BY-NC (Attribution-NonCommercial)' },
-  { id: 'cc-by-nc-sa', title: 'CC BY-NC-SA (Attribution-NonCommercial-ShareAlike)' },
-  { id: 'cc-by-nc-nd', title: 'CC BY-NC-ND (Attribution-NonCommercial-NoDerivs)' }
-]);
+const availableLicences = ref([]);
+
+/**
+ * Fetch licenses from the API
+ */
+async function fetchLicenses() {
+  if (availableLicences.value.length > 0) return;
+
+  try {
+    const response = await fetch('/cfdef/licence/list?field_name=licence&page=1&page_limit=50', {
+      method: 'GET',
+      credentials: 'same-origin',
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const text = await response.text();
+    const data = JSON.parse(text);
+
+    if (data) {
+      availableLicences.value = data;
+    } else {
+      availableLicences.value = [
+        { id: 'cc0', title: 'CC0 (Public Domain)' },
+        { id: 'cc-by', title: 'CC BY (Attribution)' },
+        { id: 'cc-by-sa', title: 'CC BY-SA (Attribution-ShareAlike)' },
+        { id: 'cc-by-nd', title: 'CC BY-ND (Attribution-NoDerivs)' },
+        { id: 'cc-by-nc', title: 'CC BY-NC (Attribution-NonCommercial)' },
+        { id: 'cc-by-nc-sa', title: 'CC BY-NC-SA (Attribution-NonCommercial-ShareAlike)' },
+        { id: 'cc-by-nc-nd', title: 'CC BY-NC-ND (Attribution-NonCommercial-NoDerivs)' }
+      ];
+    }
+  } catch (err) {
+    logger.error('Failed to fetch licenses:', err);
+    availableLicences.value = [
+      { id: 'cc0', title: 'CC0 (Public Domain)' },
+      { id: 'cc-by', title: 'CC BY (Attribution)' },
+      { id: 'cc-by-sa', title: 'CC BY-SA (Attribution-ShareAlike)' },
+      { id: 'cc-by-nd', title: 'CC BY-ND (Attribution-NoDerivs)' },
+      { id: 'cc-by-nc', title: 'CC BY-NC (Attribution-NonCommercial)' },
+      { id: 'cc-by-nc-sa', title: 'CC BY-NC-SA (Attribution-NonCommercial-ShareAlike)' },
+      { id: 'cc-by-nc-nd', title: 'CC BY-NC-ND (Attribution-NonCommercial-NoDerivs)' }
+    ];
+  }
+}
 
 // Item types fetched from API
 const availableItemTypes = ref([]);
@@ -492,7 +528,7 @@ async function fetchItemTypes() {
 
 watch(() => props.show, async (newVal) => {
   if (newVal) {
-    await Promise.all([fetchItemTypes(), fetchSubjects()]);
+    await Promise.all([fetchItemTypes(), fetchSubjects(), fetchLicenses()]);
     loadFormData();
   }
 }, { immediate: true });
