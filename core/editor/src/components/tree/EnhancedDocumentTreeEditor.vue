@@ -203,7 +203,7 @@ import { findItem, findItemPath } from '../../utils/tree.js';
 import DualFrameworkHeader from './DualFrameworkHeader.vue';
 import TreePanelSection from './TreePanelSection.vue';
 import ModalManager from './ModalManager.vue';
-import RightSidePanel from '../shared/panels/RightSidePanel.vue';
+import RightSidePanel from './panels/RightSidePanel.vue';
 import SideBySideTreePanel from './SideBySideTreePanel.vue';
 
 // ---------------------------------------------------------------------------

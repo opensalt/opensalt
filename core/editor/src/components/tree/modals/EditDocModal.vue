@@ -371,7 +371,7 @@
 
 <script setup>
 import { ref, reactive, watch, nextTick } from 'vue';
-import BaseModal from '../BaseModal.vue';
+import BaseModal from '../../shared/BaseModal.vue';
 import SubjectSelector from '../common/SubjectSelector.vue';
 import LicenseSelector from '../common/LicenseSelector.vue';
 import { logger } from '../../../utils/logger.js';

@@ -153,7 +153,7 @@
 
 <script setup>
 import { ref, reactive, watch, computed } from 'vue';
-import BaseModal from '../BaseModal.vue';
+import BaseModal from '../../shared/BaseModal.vue';
 import { useFilterStore } from '../../../stores/filterStore';
 
 const props = defineProps({

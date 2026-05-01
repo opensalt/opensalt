@@ -67,8 +67,8 @@ import { computed } from 'vue';
 import { useViewedDoc } from '../../composables/useViewedDoc';
 import DocumentSelector from '../shared/common/DocumentSelector.vue';
 import TreeFilter from './TreeFilter.vue';
-import SearchFilter from '../shared/common/SearchFilter.vue';
-import AssociationGroupSelector from '../shared/common/AssociationGroupSelector.vue';
+import SearchFilter from './common/SearchFilter.vue';
+import AssociationGroupSelector from './common/AssociationGroupSelector.vue';
 import TreeView from './TreeView.vue';
 
 // Props
