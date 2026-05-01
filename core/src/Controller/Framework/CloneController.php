@@ -10,6 +10,7 @@ use App\Entity\Framework\LsDoc;
 use App\Security\Permission;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -18,11 +19,13 @@ class CloneController extends AbstractController
     use CommandDispatcherTrait;
 
     #[Route(path: '/clone/framework/{id}', name: 'clone_framework', requirements: ['id' => '\d+'], methods: ['GET'])]
-    #[Route(path: '/clone/framework/{identifier}', name: 'clone_framework_by_identifier', methods: ['POST'])]
+    #[Route(path: '/clone/framework/{identifier}', name: 'clone_framework_by_identifier', requirements: ['identifier' => '[a-fA-F0-9]{8}-([a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}'], methods: ['POST'])]
     #[IsGranted(Permission::FRAMEWORK_EDIT, 'lsDoc')]
     #[IsGranted(Permission::FRAMEWORK_CREATE)]
-    public function framework(string $_route, LsDoc $lsDoc): Response
-    {
+    public function framework(
+        string $_route,
+        #[MapEntity(expr: '((id ?? null) == null) ? repository.findOneByIdentifier(identifier ?? null) : repository.find(id ?? null)')] LsDoc $lsDoc,
+        ): Response {
         $command = new CloneFrameworkCommand($lsDoc);
         $this->sendCommand($command);
         $newLsDoc = $command->getNotificationEvent()->getDoc();
