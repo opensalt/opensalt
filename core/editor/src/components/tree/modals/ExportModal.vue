@@ -56,7 +56,10 @@
               </div>
 
               <!-- Excel/Spreadsheet Export -->
-              <div class="col-sm-4">
+              <div
+                v-if="sessionStore.isAuthenticated"
+                class="col-sm-4"
+              >
                 <a
                   :href="excelExportUrl"
                   role="button"
@@ -102,37 +105,11 @@
             Competency Framework in their web browser (no login required):
           </p>
 
-          <div class="row align-items-center g-2">
-            <div class="col-sm-6">
-              <a
-                :href="viewUrl"
-                target="_blank"
-                rel="noopener noreferrer"
-              >{{ viewUrl }}</a>
-            </div>
-            <div class="col-sm-5">
-              <div class="input-group">
-                <input
-                  ref="viewUrlInput"
-                  type="text"
-                  class="form-control form-control-sm"
-                  :value="viewUrl"
-                  readonly
-                >
-                <button
-                  class="btn btn-outline-secondary btn-sm"
-                  type="button"
-                  :title="copyTooltip"
-                  @click="copyToClipboard"
-                >
-                  <i
-                    class="bi"
-                    :class="copyIcon"
-                  />
-                </button>
-              </div>
-            </div>
-          </div>
+          <a
+            :href="viewUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+          >{{ viewUrl }}</a>
         </div>
         <div class="modal-footer">
           <button
@@ -152,6 +129,7 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import Modal from 'bootstrap/js/dist/modal';
 import { useRoute } from 'vue-router';
+import { useSessionStore } from '@/stores/sessionStore.js';
 
 const props = defineProps({
   show: Boolean,
@@ -163,12 +141,10 @@ const props = defineProps({
 
 const emit = defineEmits(['hidden']);
 
+const sessionStore = useSessionStore();
 const route = useRoute();
 
 const modalElement = ref(null);
-const viewUrlInput = ref(null);
-const copyIcon = ref('bi-clipboard');
-const copyTooltip = ref('Copy to clipboard');
 let bsModal = null;
 
 /**
@@ -186,16 +162,7 @@ const frameworkIdentifier = computed(() => {
 });
 
 /**
- * The framework slug from the route params (used for URL construction)
- * This is the same value used to access the editor: /editor/{frameworkId}
- */
-const frameworkSlug = computed(() => {
-  return route.params.frameworkId || '';
-});
-
-/**
  * JSON export URL using the CASE v1.1 API endpoint
- * This endpoint accepts the UUID identifier
  */
 const jsonExportUrl = computed(() => {
   if (!frameworkIdentifier.value) return '#';
@@ -211,9 +178,10 @@ const excelExportUrl = computed(() => {
   return `/cfdoc/${frameworkIdentifier.value}/excel`;
 });
 
-/**
- * Public view URL for the framework (no login required)
- */
+const frameworkSlug = computed(() => {
+  return route.params.frameworkId || '';
+});
+
 const viewUrl = computed(() => {
   if (!frameworkSlug.value) return '';
   return `${window.location.origin}/editor/${frameworkSlug.value}`;
@@ -231,33 +199,12 @@ onMounted(() => {
 watch(() => props.show, (newVal) => {
   if (bsModal) {
     if (newVal) {
-      // Reset copy button
-      copyIcon.value = 'bi-clipboard';
-      copyTooltip.value = 'Copy to clipboard';
       bsModal.show();
     } else {
       bsModal.hide();
     }
   }
 });
-
-async function copyToClipboard() {
-  try {
-    await navigator.clipboard.writeText(viewUrl.value);
-    copyIcon.value = 'bi-check-lg';
-    copyTooltip.value = 'Copied!';
-    setTimeout(() => {
-      copyIcon.value = 'bi-clipboard';
-      copyTooltip.value = 'Copy to clipboard';
-    }, 2000);
-  } catch {
-    // Fallback: select the input text
-    if (viewUrlInput.value) {
-      viewUrlInput.value.select();
-      document.execCommand('copy');
-    }
-  }
-}
 </script>
 
 <style scoped>
