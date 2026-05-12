@@ -12,7 +12,6 @@ use App\Command\Framework\DeleteItemWithChildrenCommand;
 use App\Command\Framework\UpdateItemCommand;
 use App\DTO\ItemType\ItemTypeInterface;
 use App\Entity\Framework\LsAssociation;
-use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Entity\Framework\LsDefLicence;
 use App\Entity\Framework\LsDefSubject;
 use App\Entity\Framework\LsDoc;
@@ -577,6 +576,11 @@ class ItemController extends AbstractController
             }
             $lsItem->setEducationalAlignment($educationalAlignment);
         }
+        if (isset($data['additionalFields']) && is_array($data['additionalFields'])) {
+            foreach ($data['additionalFields'] as $fieldName => $value) {
+                $lsItem->setAdditionalField($fieldName, $value);
+            }
+        }
     }
 
     private function generateItemJsonResponse(LsItem $item, ?LsAssociation $assoc = null): Response
@@ -599,6 +603,7 @@ class ItemController extends AbstractController
             'itemType' => $item->getItemType(),
             'changedAt' => $item->getChangedAt(),
             'extra' => $item->getExtra(),
+            'additionalFields' => $item->getAdditionalFields() ?? [],
             'assocData' => [],
         ];
 

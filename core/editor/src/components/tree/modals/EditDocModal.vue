@@ -342,6 +342,11 @@
           <small class="text-muted">The organization that owns this document. Only administrators can change this.</small>
         </div>
       </div>
+
+      <AdditionalFields
+        v-model="formData.additionalFields"
+        :field-definitions="docFieldDefinitions"
+      />
     </form>
 
     <template #footer>
@@ -374,7 +379,9 @@ import { ref, reactive, watch, nextTick } from 'vue';
 import BaseModal from '../../shared/BaseModal.vue';
 import SubjectSelector from '../common/SubjectSelector.vue';
 import LicenseSelector from '../common/LicenseSelector.vue';
+import AdditionalFields from '../fields/AdditionalFields.vue';
 import { logger } from '../../../utils/logger.js';
+import { useAdditionalFields } from '../../../composables/useAdditionalFields.js';
 
 const props = defineProps({
   document: {
@@ -392,6 +399,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['saved', 'hidden', 'update:show']);
+
+const { fieldDefinitions: docFieldDefinitions, fetchFields: fetchDocFields } = useAdditionalFields();
 
 const loading = ref(false);
 const error = ref('');
@@ -416,7 +425,8 @@ const formData = reactive({
   note: '',
   licence: '',
   frameworkType: '',
-  org: null
+  org: null,
+  additionalFields: {}
 });
 
 const availableFrameworkTypes = ref([]);
@@ -491,7 +501,8 @@ watch(() => props.show, async (newVal) => {
     const fetches = [
       subjectSelectorRef.value?.ensureLoaded(),
       licenseSelectorRef.value?.ensureLoaded(),
-      fetchFrameworkTypes()
+      fetchFrameworkTypes(),
+      fetchDocFields('doc')
     ];
     if (props.isAdmin) {
       fetches.push(fetchAccessGroups());
@@ -549,6 +560,7 @@ function loadDocumentData() {
 
   formData.frameworkType = props.document.frameworkType || '';
   formData.org = props.document.org || null;
+  formData.additionalFields = props.document.additionalFields || {};
 
   loading.value = false;
 }

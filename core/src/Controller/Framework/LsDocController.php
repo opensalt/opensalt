@@ -204,7 +204,7 @@ class LsDocController extends AbstractController
     public function edit(
         Request $request,
         #[MapEntity(expr: '((id ?? null) == null) ? repository.findOneByIdentifier(identifier ?? null) : repository.find(id ?? null)')] LsDoc $lsDoc,
-        #[CurrentUser] User $user
+        #[CurrentUser] User $user,
     ): Response {
         $ajax = $request->isXmlHttpRequest();
 
@@ -269,7 +269,7 @@ class LsDocController extends AbstractController
     #[IsGranted(Permission::FRAMEWORK_DELETE, 'lsDoc')]
     public function delete(
         Request $request,
-        #[MapEntity(expr: '((id ?? null) == null) ? repository.findOneByIdentifier(identifier ?? null) : repository.find(id ?? null)')] LsDoc $lsDoc
+        #[MapEntity(expr: '((id ?? null) == null) ? repository.findOneByIdentifier(identifier ?? null) : repository.find(id ?? null)')] LsDoc $lsDoc,
     ): Response {
         if ($request->isXmlHttpRequest()) {
             $token = $request->request->getString('token');
@@ -303,7 +303,7 @@ class LsDocController extends AbstractController
     #[Route(path: '/{identifier}/export.{_format}', name: 'lsdoc_export_identifier', requirements: ['identifier' => '[a-fA-F0-9]{8}-([a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}', '_format' => '(json|html|null)'], methods: ['GET'])]
     public function export(
         #[MapEntity(expr: '((id ?? null) == null) ? repository.findOneByIdentifier(identifier ?? null) : repository.find(id ?? null)')] LsDoc $lsDoc,
-        string $_format = 'json'
+        string $_format = 'json',
     ): Response {
         if ('json' !== $_format) {
             $_format = 'html';

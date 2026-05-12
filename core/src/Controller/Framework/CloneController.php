@@ -8,9 +8,9 @@ use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\CloneFrameworkCommand;
 use App\Entity\Framework\LsDoc;
 use App\Security\Permission;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 

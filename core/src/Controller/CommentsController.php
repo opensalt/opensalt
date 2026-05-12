@@ -166,6 +166,7 @@ class CommentsController extends AbstractController
                     $lsDoc = $lsDocRepo->find($itemId) ?? $lsDocRepo->findOneBy(['identifier' => $itemId]);
                     if (null === $lsDoc) {
                         fclose($handle);
+
                         return;
                     }
                     $docId = $lsDoc->getId();

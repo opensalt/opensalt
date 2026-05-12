@@ -118,13 +118,21 @@ class DocumentController extends AbstractController
                     $lsDoc->setOrg($accessGroup);
                 }
             }
+            if (isset($data['additionalFields']) && is_array($data['additionalFields'])) {
+                foreach ($data['additionalFields'] as $fieldName => $value) {
+                    $lsDoc->setAdditionalField($fieldName, $value);
+                }
+            }
         }
 
         try {
             $command = new UpdateDocumentCommand($lsDoc);
             $this->sendCommand($command);
 
-            return new JsonResponse(['status' => 'OK'], Response::HTTP_OK);
+            return new JsonResponse([
+                'status' => 'OK',
+                'additionalFields' => $lsDoc->getAdditionalFields() ?? [],
+            ], Response::HTTP_OK);
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }

@@ -35,8 +35,7 @@ class ExcelExportController extends AbstractController
     public function exportExcel(
         Request $request,
         #[MapEntity(expr: '((id ?? null) == null) ? repository.findOneByIdentifier(identifier ?? null) : repository.find(id ?? null)')] LsDoc $lsDoc,
-        ): StreamedResponse
-    {
+        ): StreamedResponse {
         $limiter = $this->excelDownloadLimiter->create($request->getClientIp());
         if (false === $limiter->consume()->isAccepted()) {
             throw new TooManyRequestsHttpException(600);

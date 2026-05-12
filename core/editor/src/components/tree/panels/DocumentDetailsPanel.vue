@@ -189,6 +189,26 @@
             Last modified: {{ formatDate(document.lastModified) }}
           </small>
         </div>
+
+        <!-- Additional Fields (read-only) -->
+        <div
+          v-if="hasAdditionalFieldValues"
+          class="mt-3 additional-fields-section"
+        >
+          <h6 class="mb-2">
+            Additional Fields
+          </h6>
+          <div
+            v-for="field in docFieldDefinitions"
+            :key="field.id || field.name"
+            class="row mb-1"
+          >
+            <template v-if="getDocDisplayValue(field.name)">
+              <div class="col-sm-4 text-muted">{{ field.displayName || field.name }}</div>
+              <div class="col-sm-8">{{ getDocDisplayValue(field.name) }}</div>
+            </template>
+          </div>
+        </div>
       </div>
 
       <!-- Document Actions -->
@@ -322,9 +342,10 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useDynamicModal } from '../../../composables/useDynamicModal.js';
 import { useDocumentAssociations } from '../../../composables/useDocumentAssociations.js';
+import { useAdditionalFields } from '../../../composables/useAdditionalFields.js';
 import { editorConfig } from '../../../config/editorConfig.js';
 import CommentModule from '../CommentModule.vue';
 import ItemAssociationsCard from './ItemAssociationsCard.vue';
@@ -418,6 +439,25 @@ const { showModal, selectedType, isModalVisible, handleCreated, modalComponent, 
   (newItem) => { emit('add-root-item', newItem); },
   availableTypes
 );
+
+// Additional fields for documents
+const { fieldDefinitions: docFieldDefinitions, fetchFields: fetchDocFields } = useAdditionalFields();
+
+onMounted(() => {
+  fetchDocFields('doc');
+});
+
+const hasAdditionalFieldValues = computed(() => {
+  if (!docFieldDefinitions.value?.length) return false;
+  const af = props.document?.additionalFields;
+  return docFieldDefinitions.value.some(f => af?.[f.name]);
+});
+
+function getDocDisplayValue(fieldName) {
+  const af = props.document?.additionalFields;
+  if (!af || typeof af !== 'object') return undefined;
+  return af[fieldName] || undefined;
+}
 
 function getDisplayName(type) {
   const displayNames = {
