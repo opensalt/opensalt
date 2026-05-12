@@ -1,5 +1,8 @@
 <template>
-  <div class="log-view h-100 d-flex flex-column bg-light">
+  <div
+    id="logView"
+    class="log-view h-100 d-flex flex-column bg-light"
+  >
     <div
       v-if="loading"
       class="d-flex justify-content-center align-items-center flex-grow-1"
@@ -44,6 +47,14 @@
             <h3 class="mb-0">
               Activity Log
             </h3>
+            <div id="logTable_filter">
+              <input
+                v-model="searchFilter"
+                type="text"
+                class="form-control form-control-sm"
+                placeholder="Search logs..."
+              >
+            </div>
             <div
               v-if="false"
               class="btn-group"
@@ -80,7 +91,10 @@
             class="table-responsive border rounded-3 bg-white shadow-sm flex-grow-1 overflow-auto log-table-wrapper"
             style="min-height: 0;"
           >
-            <table class="table table-hover align-middle mb-0 border-0">
+            <table
+              id="logTable"
+              class="table table-hover align-middle mb-0 border-0"
+            >
               <thead class="table-light sticky-top shadow-sm z-index-1">
                 <tr>
                   <th
@@ -216,7 +230,7 @@
                 </li>
               </ul>
             </nav>
-            <div class="d-flex align-items-center gap-2">
+            <div class="d-flex align-items-center gap-2 dataTables_wrapper">
               <label class="small text-muted mb-0">Per page:</label>
               <select
                 v-model="pageSize"
@@ -328,7 +342,11 @@
                   class="btn btn-sm btn-outline-primary"
                   @click="exportLogs('csv')"
                 >
-                  <i class="bi bi-file-earmark-spreadsheet me-1" />CSV
+                  <a
+                    class="btn-export-csv"
+                    :href="csvExportUrl"
+                    @click.prevent="exportLogs('csv')"
+                  ><i class="bi bi-file-earmark-spreadsheet me-1" />CSV</a>
                 </button>
               </div>
             </div>
@@ -352,6 +370,13 @@
   const currentDocument = computed(() => currentDocumentStore.currentDocument);
 
   const logFilter = ref('all');
+  const searchFilter = ref('');
+
+  const csvExportUrl = computed(() => {
+    const docIdentifier = currentDocument.value?.id;
+    if (!docIdentifier) return '#';
+    return `/cfdoc/identifier/${docIdentifier}/revisions/export`;
+  });
   const logs = ref([]);
   const totalRecords = ref(0);
 
@@ -372,10 +397,20 @@
   });
 
   const filteredLogs = computed(() => {
-    if (logFilter.value === 'all') {
-      return logs.value;
+    let result = logs.value;
+    if (logFilter.value !== 'all') {
+      result = result.filter(log => log.type === logFilter.value);
     }
-    return logs.value.filter(log => log.type === logFilter.value);
+    if (searchFilter.value) {
+      const term = searchFilter.value.toLowerCase();
+      result = result.filter(log =>
+        (log.description || '').toLowerCase().includes(term) ||
+        (log.username || '').toLowerCase().includes(term) ||
+        (log.type || '').toLowerCase().includes(term) ||
+        (log.timestamp || '').toLowerCase().includes(term)
+      );
+    }
+    return result;
   });
 
   const startItem = computed(() => (currentPage.value - 1) * pageSize.value);

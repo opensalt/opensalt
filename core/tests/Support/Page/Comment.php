@@ -6,7 +6,7 @@ use Behat\Behat\Context\Context;
 
 class Comment implements Context
 {
-    public static $docPath = '/cftree/doc/';
+    public static $docPath = '/editor/';
     public static $commentFilePath = '/salt/case/export_comment/';
 
     protected string $filename;
@@ -38,8 +38,8 @@ class Comment implements Context
         $this->CfDocComment = 'acceptance doc comment '.sq($I->getItemId());
         $I->waitForElementNotVisible('#modalSpinner', 120);
         $I->createAComment($this->CfDocComment);
-        $I->waitForJS('return $.active == 0;', 2);
-        $I->see($this->CfDocComment, '.comment-wrapper .wrapper .content');
+        $I->wait(2);
+        $I->see($this->CfDocComment);
     }
 
     /**
@@ -50,8 +50,8 @@ class Comment implements Context
         $I = $this->I;
         $this->CfItemComment = 'acceptance item comment '.sq($I->getItemId());
         $I->createAComment($this->CfItemComment);
-        $I->waitForJS('return $.active == 0;', 2);
-        $I->see($this->CfItemComment, '.comment-wrapper .wrapper .content');
+        $I->wait(2);
+        $I->see($this->CfItemComment);
     }
 
     /**

@@ -293,11 +293,16 @@ export function useTreeEditorHandlers({
     async function handleAddChild(newItem, parentItem) {
         if (newItem && parentItem?.identifier) {
             try {
-                await currentDocumentStore.createItem(parentItem.identifier, newItem);
+                const result = await currentDocumentStore.createItem(parentItem.identifier, newItem);
                 if (currentDoc.value?.id) {
                     await documentStore.revalidatePackage(currentDoc.value.id, true);
                 }
-                currentDocumentStore.reloadActiveDocument();
+                await currentDocumentStore.reloadActiveDocument();
+                // Select the newly added item in the tree and update the URL
+                const newIdentifier = result?.identifier;
+                if (newIdentifier) {
+                    onSelect(newIdentifier);
+                }
             } catch (error) {
                 logger.error('Failed to add child item:', error);
             }
@@ -499,11 +504,16 @@ export function useTreeEditorHandlers({
     async function handleAddRootItem(newItem) {
         if (newItem && currentDoc.value) {
             try {
-                await currentDocumentStore.createItem(currentDoc.value.id, newItem);
+                const result = await currentDocumentStore.createItem(currentDoc.value.id, newItem);
                 if (currentDoc.value?.id) {
                     await documentStore.revalidatePackage(currentDoc.value.id, true);
                 }
-                currentDocumentStore.reloadActiveDocument();
+                await currentDocumentStore.reloadActiveDocument();
+                // Select the newly added item in the tree and update the URL
+                const newIdentifier = result?.identifier;
+                if (newIdentifier) {
+                    onSelect(newIdentifier);
+                }
             } catch (error) {
                 logger.error('Failed to add root item:', error);
             }

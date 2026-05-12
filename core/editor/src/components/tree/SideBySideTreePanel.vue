@@ -1,5 +1,5 @@
 <template>
-  <div class="side-by-side-panel h-100 d-flex flex-column">
+  <div class="side-by-side-panel side-tree-panel h-100 d-flex flex-column">
     <!-- Mode Tabs -->
     <div class="mode-tabs mb-2">
       <div

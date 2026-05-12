@@ -45,6 +45,7 @@ class Group implements Context
         $org = $this->groupName;
 
         $I->amOnPage(self::GROUP_ADMIN_PAGE);
+        $I->scrollTo("//td[text()='{$org}']/..//a[text()='show']", 54, 0);
         $I->click("//td[text()='{$org}']/..//a[text()='show']");
         $I->see($this->groupName);
         $I->click('Delete');
@@ -106,6 +107,7 @@ class Group implements Context
         $org = $this->groupName;
 
         $I->amOnPage(self::GROUP_ADMIN_PAGE);
+        $I->scrollTo("//td[text()='{$org}']/..//a[text()='edit']", 100, 0);
         $I->click("//td[text()='{$org}']/..//a[text()='edit']");
         $I->seeInField('#salt_userbundle_organization_name', $this->groupName);
         $rows = $table->getRows();
@@ -132,7 +134,9 @@ class Group implements Context
         $org = $this->groupName;
 
         $I->amOnPage(self::GROUP_ADMIN_PAGE);
+        $I->scrollTo("//td[text()='{$org}']/..//a[text()='edit']", 54, 0);
         $I->click("//td[text()='{$org}']/..//a[text()='edit']");
+        //$I->amOnPage($I->grabAttributeFrom("//td[text()='{$org}']/..//a[text()='edit']", 'href'));
         $I->seeInField('#salt_userbundle_organization_name', $this->groupName);
         $I->fillField('#salt_userbundle_organization_name', $newOrgName);
         $I->click('Save');
@@ -163,6 +167,7 @@ class Group implements Context
 
         $org = $this->groupName;
         $I->amOnPage(self::GROUP_ADMIN_PAGE);
+        $I->scrollTo("//td[text()='{$org}']/..//a[text()='show']", 54, 0);
         $I->click("//td[text()='{$org}']/..//a[text()='show']");
     }
 }

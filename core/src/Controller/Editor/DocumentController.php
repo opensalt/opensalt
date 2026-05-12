@@ -45,6 +45,12 @@ class DocumentController extends AbstractController
             if (isset($data['officialUri'])) {
                 $lsDoc->setOfficialUri($data['officialUri']);
             }
+            if (isset($data['creator'])) {
+                $lsDoc->setCreator($data['creator']);
+            }
+            if (isset($data['publisher'])) {
+                $lsDoc->setPublisher($data['publisher']);
+            }
             if (isset($data['version'])) {
                 $lsDoc->setVersion($data['version']);
             }

@@ -9,7 +9,7 @@
 
   <!-- Modal -->
   <div
-    id="addNewChildModal"
+    :id="isEdit ? 'editItemModal' : 'addNewChildModal'"
     class="modal fade"
     :class="{ 'show d-block': props.show }"
     tabindex="-1"
@@ -58,6 +58,7 @@
           </div>
           <form
             v-else
+            id="ls_item"
             name="ls_item"
             @submit.prevent="saveItem"
           >
@@ -274,7 +275,7 @@
               class="spinner-border spinner-border-sm me-2"
               role="status"
             />
-            {{ isEdit ? 'Update' : 'Add' }} Item
+            {{ isEdit ? 'Save Changes' : 'Create' }}
           </button>
         </div>
       </div>

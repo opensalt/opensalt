@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Editor;
 
+use App\Repository\Framework\LsDocRepository;
 use App\Security\Feature;
 use Novaway\Bundle\FeatureFlagBundle\Manager\FeatureManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -19,10 +20,23 @@ final class EditorShellController extends AbstractController
 
     #[Route(path: '/editor', name: 'editor_shell', methods: ['GET'])]
     #[Route(path: '/editor/{path}', name: 'editor_shell_path', requirements: ['path' => '.+'], methods: ['GET'])]
-    public function index(?string $path = null): Response
-    {
+    public function index(
+        LsDocRepository $docRepository,
+        ?string $path = null,
+    ): Response {
+        $frameworkIdentifier = preg_split('#/#', $path ?? '')[0];
+
+        if ('' === $frameworkIdentifier) {
+            throw $this->createNotFoundException('No framework requested');
+        }
+
         if (null !== $path && ctype_digit($path)) {
             return $this->redirectToRoute('doc_tree_view', ['slug' => $path]);
+        }
+
+        $framework = $docRepository->findOneBy(['identifier' => $frameworkIdentifier]);
+        if (null === $framework) {
+            throw $this->createNotFoundException("Framework {$frameworkIdentifier} not found");
         }
 
         $isDev = $this->getParameter('kernel.debug');

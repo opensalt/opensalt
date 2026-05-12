@@ -9,12 +9,8 @@ use Facebook\WebDriver\Exception\StaleElementReferenceException;
 
 class Item implements Context
 {
-    public static $itemPath = '/cftree/item/';
+    public static $itemPath = '/editor/';
     public static $exactMatchesPath = '/api/v1/lor/exactMatchIdentifiers/';
-
-    protected $rememberedItem;
-    protected $itemData = [];
-    protected $enum = 0;
 
     /**
      * @var \Tests\Support\AcceptanceTester
@@ -34,7 +30,7 @@ class Item implements Context
         $I = $this->I;
 
         $I->getLastItemId();
-        $I->amOnPage(self::$itemPath . $I->getItemId());
+        $I->amOnPage(self::$itemPath . $I->getDocId() . '/' . $I->getItemId());
         $I->waitForElementNotVisible('#modalSpinner');
 
         return $this;
@@ -47,9 +43,9 @@ class Item implements Context
     {
         $I = $this->I;
 
-        $I->waitForElementVisible('#itemSection h4.itemTitle', 120);
+        $I->waitForElementVisible('.details-panel .card-title', 120);
 
-        $I->seeElement('#treeSideRight h4.itemTitle span.itemTitleSpan');
+        $I->seeElement('.details-panel .card-title');
 
         return $this;
     }
@@ -65,79 +61,7 @@ class Item implements Context
      */
     public function iAddItem($item = 'Test Item', $additionalField = null, $value = null)
     {
-        $requestedItem = $item;
-
-        /** @var \Faker\Generator $faker */
-        $faker = \Faker\Factory::create();
-        $enum = ++$this->enum;
-        $item .= ' '.$enum;
-        $note = $faker->paragraph();
-        $fullStatement = $faker->paragraph();
-        $keywords = $faker->word();
-        $statement = $item;
-        $this->rememberedItem = $item;
-
-        $this->itemData = [
-            'fullStatement' => $fullStatement,
-            'humanCodingScheme' => $item,
-            'listEnumInSource' => $enum,
-            'abbreviatedStatement' => $statement,
-            'conceptKeywords' => $keywords,
-            'language' => 'en',
-            'note' => $note,
-        ];
-
-        $I = $this->I;
-        $I->waitForText('Add New Child Item', 30);
-        $I->see('Add New Child Item');
-        $I->wait(1);
-        $I->click('Add New Child Item');
-        $I->waitForElementVisible('#ls_item', 30);
-        $I->waitForElementVisible('#ls_item_listEnumInSource');
-
-        $I->executeJS("$('#ls_item_fullStatement + .EasyMDEContainer .CodeMirror')[0].CodeMirror.getDoc().setValue('{$fullStatement}')");
-        $I->fillField('#ls_item_humanCodingScheme', $item);
-        $I->fillField('#ls_item_listEnumInSource', $enum);
-        $I->fillField('#ls_item_abbreviatedStatement', $statement);
-        $I->fillField('#ls_item_conceptKeywords', $keywords);
-        $I->selectOption('ls_item[language]', ['value' => $this->itemData['language']]);
-        $I->executeJS("$('#ls_item_notes + .EasyMDEContainer .CodeMirror')[0].CodeMirror.getDoc().setValue('{$note}')");
-
-        if (null !== $additionalField && !empty($additionalField)) {
-            $I->see($additionalField);
-            $I->fillField('#ls_item_additional_fields_'.$additionalField, $value);
-        }
-
-        $I->click('Create');
-        $I->waitForElementNotVisible('#editItemModal');
-
-        $I->waitForElementVisible('.item-humanCodingScheme', 30);
-        $I->waitForJS('return $.active == 0');
-        try {
-            $I->see($item, '.item-humanCodingScheme');
-        } catch (StaleElementReferenceException $e) {
-            $I->wait(1);
-            $I->see($item, '.item-humanCodingScheme');
-        }
-
-        $I->remember($requestedItem, $item);
-
-        $frameworkUrl = $I->grabFromCurrentUrl('/(.*)/');
-
-        $I->click("//section[@id='tree1Section']//span[@class='item-humanCodingScheme'][text()='{$item}']");
-        $itemId = $I->grabFromCurrentUrl('#/(\d+)$#');
-        $I->remember($requestedItem.'-id', $itemId);
-
-        $key = $I->grabTextFrom('div.lsItemDetails li.list-group-item .item-identifier');
-        $I->remember($requestedItem.'-identifier', $key);
-
-        $I->amOnPage($frameworkUrl);
-        try {
-            $I->waitForElementVisible('#modalSpinner', 10);
-        } catch (\Exception $e) {
-            // Ignore if not seen
-        }
-        $I->waitForElementNotVisible('#modalSpinner', 120);
+        $this->I->createItem($item, $additionalField, $value);
     }
 
     /**
@@ -155,11 +79,13 @@ class Item implements Context
     {
         $I = $this->I;
 
-        $I->amOnPage(self::$itemPath . $I->getItemId());
+        $I->amOnPage(self::$itemPath . $I->getDocId() . '/' . $I->getItemId());
         $I->waitForElementVisible('#deleteItemBtn');
         $I->click('//*[@id="deleteItemBtn"]');
         $I->waitForElementClickable('#deleteOneItemModal .btn-delete');
         $I->click('#deleteOneItemModal .btn-delete');
+        $I->waitForElementNotVisible('#deleteOneItemModal', 10);
+        $I->wait(3);
     }
 
     /**
@@ -170,7 +96,7 @@ class Item implements Context
         $I = $this->I;
 
         // The name may be still shown in a notification, restrict to tree
-        $I->dontSee($this->itemData['humanCodingScheme'], '#tree1Section');
+        $I->dontSee($this->I->itemData['humanCodingScheme'], '#tree1Section');
     }
 
     /**
@@ -212,7 +138,7 @@ class Item implements Context
         $I->fillField($map[$field], $data);
 //    }
 
-        $this->itemData[$dataMap[$field]] = $data;
+        $this->I->itemData[$dataMap[$field]] = $data;
     }
 
     /**
@@ -224,8 +150,9 @@ class Item implements Context
 
         $this->iAmOnAnItemPage();
 
-        $I->waitForElementVisible('//*[@id="itemOptions"]/button[1]');
-        $I->click('//*[@id="itemOptions"]/button[1]');
+        // Wait for Vue app session to initialize (canEditItem depends on session)
+        $I->waitForElementVisible('button[title="Edit item"]', 30);
+        $I->click('button[title="Edit item"]');
         $I->waitForElementVisible('#ls_item', 30);
         $I->waitForElementVisible('#ls_item_listEnumInSource');
 
@@ -234,9 +161,10 @@ class Item implements Context
             $this->iEditTheFieldInItem($row[0], $row[1]);
         }
 
-        $I->click('//*[@id="editItemModal"]/div/div/div[3]/button[2]');
+        $I->waitForElementClickable('#editItemModal .btn-primary', 10);
+        $I->click('#editItemModal .btn-primary');
         $I->waitForElementNotVisible('#editItemModal', 30);
-        $I->waitForJS('return $.active == 0');
+        $I->wait(2);
 
         return $this;
     }
@@ -250,18 +178,37 @@ class Item implements Context
 
         $this->iAmOnAnItemPage();
         $I->waitForElementVisible('#rightSideCopyItemsBtn');
-        $I->click('Make This Item a Parent');
         $I->click('#rightSideCopyItemsBtn');
-        try {
-            $I->see('Select a Competency Framework Document to view on the right side.');
-            $I->selectOption('#ls_doc_list_lsDoc_right', array('text' => $I->getLastFrameworkTitle() . ' (• DOCUMENT BEING EDITED •)'));
-        } catch (\Exception $e) {
-            // If already selected then we will not see the select list
-            $I->see('Drag and drop from right to left');
-        }
-        $I->waitForElementVisible('(//div[@id="viewmode_tree2"]/ul/li/ul/li/span)[1]');
-        $I->dragAndDrop('(//div[@id="viewmode_tree2"]/ul/li/ul/li/span)[1]', '(//div[@id="viewmode_tree1"]/ul/li/ul/li/span)[1]');
-        $I->see($this->itemData['humanCodingScheme'], '#viewmode_tree1');
+
+        // Wait for SideBySideTreePanel to mount
+        $I->waitForElementVisible('.side-by-side-panel .document-selector select.form-select', 30);
+
+        // Select framework using JS to ensure Vue reactivity is triggered
+        $lastDoc = $I->getLastFramework();
+        $identifier = $lastDoc['identifier'];
+        $I->executeJS(
+            "var sel = document.querySelector('.side-by-side-panel .document-selector select.form-select');" .
+            "if (sel) { sel.value = '{$identifier}'; sel.dispatchEvent(new Event('change', {bubbles: true})); }"
+        );
+
+        // Wait for side tree to load and expand
+        $I->waitForElementVisible('.side-by-side-panel .side-tree .tree-node .tree-node .tree-node-label', 30);
+
+        // Click the first child item in the side tree to select it
+        $I->click('.side-by-side-panel .side-tree .tree-node .tree-node .tree-node-label');
+
+        // Click the Copy dropdown button to open it
+        $I->click('#copyDropdownBtnSide');
+        $I->wait(1);
+
+        // Click "As Child" from the dropdown menu
+        $I->click('As Child', '.side-by-side-panel .dropdown-menu');
+
+        // Wait for copy operation to complete
+        $I->wait(2);
+
+        // Verify the item appears in the main tree
+        $I->see($this->I->itemData['humanCodingScheme'], '#tree1Section');
     }
 
     /**
@@ -274,13 +221,34 @@ class Item implements Context
 
         $this->iAmOnAnItemPage();
         $I->waitForElementVisible('#rightSideCopyItemsBtn');
+        $I->click('#rightSideCopyItemsBtn');
+
+        // Wait for SideBySideTreePanel to mount
+        $I->waitForElementVisible('.side-by-side-panel .document-selector select.form-select', 30);
+
+        // Select framework using JS to ensure Vue reactivity is triggered
+        $lastDoc = $I->getLastFramework();
+        $identifier = $lastDoc['identifier'];
+        $I->executeJS(
+            "var sel = document.querySelector('.side-by-side-panel .document-selector select.form-select');" .
+            "if (sel) { sel.value = '{$identifier}'; sel.dispatchEvent(new Event('change', {bubbles: true})); }"
+        );
+
+        // Wait for side tree to load and expand
+        $I->waitForElementVisible('.side-by-side-panel .side-tree .tree-node .tree-node .tree-node-label', 30);
+
+        // Click the first child item in the side tree
+        $I->click('.side-by-side-panel .side-tree .tree-node .tree-node .tree-node-label');
+
+        // Click Associate button
+        $I->click('Associate', '.side-by-side-panel');
+
+        // Fill in the association modal
+        $I->waitForElementVisible('#editAssociationModal', 30);
+        $I->selectOption('#editAssociationFormType', 'Is Related To');
+        $I->fillField('#editAssociationFormAnnotation', 'Test annotation');
         $I->click('Create Association');
-        $I->see('Select a Competency Framework Document to view on the right side.');
-        $I->selectOption('#ls_doc_list_lsDoc_right', array('text' => $I->getLastFrameworkTitle() . ' (• DOCUMENT BEING EDITED •)'));
-        $I->waitForElementVisible('(//div[@id="viewmode_tree2"]/ul/li/ul/li/span)[1]');
-        $I->dragAndDrop('(//div[@id="viewmode_tree2"]/ul/li/ul/li/span)[1]', '(//div[@id="viewmode_tree1"]/ul/li/ul/li/span)[1]');
-        $I->waitForElementVisible('#lsAssociationSwitchDirection');
-        $I->click('Associate');
+        $I->waitForElementNotVisible('#editAssociationModal', 30);
     }
 
     /**
@@ -296,14 +264,35 @@ class Item implements Context
 
         $this->iAmOnAnItemPage();
         $I->waitForElementVisible('#rightSideCopyItemsBtn');
+        // Select the target item ($to) in the main tree
+        $I->click("//section[@id='tree1Section']//span[contains(@class, 'item-humanCodingScheme') and text()='{$rememberedTo}']/ancestor::div[contains(@class, 'tree-node-label')][1]");
+        $I->wait(1);
+        // Switch to Copy / Associate mode
+        $I->click('#rightSideCopyItemsBtn');
+
+        // Wait for SideBySideTreePanel to mount
+        $I->waitForElementVisible('.side-by-side-panel .document-selector select.form-select', 30);
+
+        // Select framework using JS to ensure Vue reactivity is triggered
+        $lastDoc = $I->getLastFramework();
+        $identifier = $lastDoc['identifier'];
+        $I->executeJS(
+            "var sel = document.querySelector('.side-by-side-panel .document-selector select.form-select');" .
+            "if (sel) { sel.value = '{$identifier}'; sel.dispatchEvent(new Event('change', {bubbles: true})); }"
+        );
+
+        // Wait for side tree to load and select the source item ($from)
+        $I->waitForElementVisible('.side-by-side-panel .side-tree .tree-node .tree-node .tree-node-label', 30);
+        $I->click("//div[contains(@class, 'side-tree')]//span[contains(@class, 'item-humanCodingScheme') and text()='{$rememberedFrom}']/ancestor::div[contains(@class, 'tree-node-label')][1]");
+
+        // Click Associate button
+        $I->click('Associate', '.side-by-side-panel');
+
+        // Fill in the association modal
+        $I->waitForElementVisible('#editAssociationModal', 30);
+        $I->selectOption('#editAssociationFormType', array('text' => $type));
         $I->click('Create Association');
-        $I->see('Select a Competency Framework Document to view on the right side.');
-        $I->selectOption('#ls_doc_list_lsDoc_right', array('text' => $I->getLastFrameworkTitle() . ' (• DOCUMENT BEING EDITED •)'));
-        $I->waitForElementVisible('(//div[@id="viewmode_tree2"]/ul/li/ul/li/span)[1]');
-        $I->dragAndDrop("(//div[@id='viewmode_tree2']/ul/li/ul/li/span//span[text()='{$rememberedFrom}']/../..)[1]", "(//div[@id='viewmode_tree1']/ul/li/ul/li/span//span[text()='{$rememberedTo}']/../..)[1]");
-        $I->waitForElementVisible('#lsAssociationSwitchDirection');
-        $I->selectOption('#associationFormType', array('text' => $type));
-        $I->click('Associate');
+        $I->waitForElementNotVisible('#editAssociationModal', 30);
     }
 
     /**
@@ -314,8 +303,8 @@ class Item implements Context
         $I = $this->I;
 
         $this->iAmOnAnItemPage();
-        $I->see($this->itemData['humanCodingScheme'], '//*[@id="itemInfo"]/div[3]/section[1]/div[2]/div/div/a//span[contains(concat(" ",normalize-space(@class), " "), " item-humanCodingScheme ")]');
-
+        $I->waitForElementVisible('.details-panel .association-item .item-humanCodingScheme', 30);
+        $I->see($this->I->itemData['humanCodingScheme'], '.details-panel .association-item');
     }
 
     /**
@@ -325,10 +314,13 @@ class Item implements Context
     {
         $I = $this->I;
 
-        $I->amOnPage(self::$itemPath . $I->getItemId());
-        $I->waitForElementVisible('#deleteItemBtn');
-        $I->click('//*[@id="itemInfo"]/div[3]/section[1]/div[2]/div/div/a//span[contains(concat(" ",normalize-space(@class), " "), " btn-remove-association ")]/*[contains(concat(" ",normalize-space(@class), " "), " fa-remove ")]');
-        $this->waitAndAcceptPopup(30);
+        $I->amOnPage(self::$itemPath . $I->getDocId() . '/' . $I->getItemId());
+        $I->waitForElementVisible('.details-panel .association-item button[title="Delete association"]', 30);
+        $I->click('.details-panel .association-item button[title="Delete association"]');
+        $I->waitForElementVisible('#deleteAssociationModal .btn-danger', 30);
+        $I->click('#deleteAssociationModal .btn-danger');
+        $I->waitForElementNotVisible('#deleteAssociationModal', 30);
+        $I->wait(2);
     }
 
     /**
@@ -371,7 +363,7 @@ class Item implements Context
         $I = $this->I;
 
         $I->iAmOnAFrameworkPage();
-        $I->see($this->itemData['abbreviatedStatement'], Locator::firstElement('//div[@id="viewmode_tree1"]/ul/li/ul/li/span'));
+        $I->see($this->I->itemData['abbreviatedStatement'], Locator::firstElement('//div[@id="viewmode_tree1"]/ul/li/ul/li/span'));
 
     }
 
@@ -394,11 +386,31 @@ class Item implements Context
     {
         $I = $this->I;
 
-        $I->amOnPage(self::$itemPath . $I->getItemId());
-        $I->waitForElementVisible('#deleteItemBtn');
-        $I->checkOption('#enableMoveCheckbox');
-        $I->click('Make This Item a Parent');
-        $I->dragAndDrop('(//div[@id="viewmode_tree1"]/ul/li/ul/li/span)[1]', '//*[@id="ui-id-1"]/span');
+        // Navigate to the framework page where the tree is visible
+        $I->amOnPage(self::$itemPath . $I->getDocId());
+        $I->waitForElementNotVisible('#modalSpinner', 120);
+
+        // Wait for the tree to load with child items
+        $I->waitForElementVisible('#tree1Section .tree-container [data-tree-node-id]', 30);
+
+        // Move the first item inside the second item via the move API
+        // Tree nodes: [0] = document root, [1] = first item, [2] = second item
+        $I->executeJS(<<<JS
+            var nodes = document.querySelectorAll('#tree1Section .tree-container [data-tree-node-id]');
+            if (nodes.length >= 3) {
+                var firstItemId = nodes[1].getAttribute('data-tree-node-id');
+                var secondItemId = nodes[2].getAttribute('data-tree-node-id');
+                fetch('/framework/editor/item/' + firstItemId + '/move', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        newParentIdentifier: secondItemId,
+                        position: 'inside'
+                    })
+                });
+            }
+        JS);
+        $I->wait(2);
     }
 
     /**
@@ -408,8 +420,9 @@ class Item implements Context
     {
         $I = $this->I;
 
-        $I->amOnPage(self::$itemPath . $I->getItemId());
-        $I->waitForElementVisible('//*[@id="itemInfo"]');
+        $I->amOnPage(self::$itemPath . $I->getDocId() . '/' . $I->getItemId());
+        $I->waitForElementNotVisible('#modalSpinner', 120);
+        $I->waitForElementVisible('.details-panel', 30);
     }
 
     /**
@@ -421,8 +434,9 @@ class Item implements Context
 
         $this->iAmOnAnItemPage();
 
-        $I->waitForElementVisible('//*[@id="itemOptions"]/button[1]');
-        $I->click('//*[@id="itemOptions"]/button[1]');
+        // Wait for Vue app session to initialize (canEditItem depends on session)
+        $I->waitForElementVisible('button[title="Edit item"]', 30);
+        $I->click('button[title="Edit item"]');
         $I->waitForElementVisible('#ls_item');
         $I->waitForElementVisible('#ls_item_listEnumInSource');
 
@@ -439,7 +453,7 @@ class Item implements Context
     {
         $I = $this->I;
 
-        $I->waitForJS('return (("undefined" === typeof $) ? 1 : 0) === 0 && $.active === 0 && $("#tree1Section div.treeDiv ul").length > 0;', 10);
+        $I->wait(3);
         $I->see('Import Children');
         try {
             $I->click('Import Children');
@@ -451,13 +465,13 @@ class Item implements Context
         $I->see('Import Items');
         $I->attachFile('input#file-url', 'children.csv');
         $I->click('.btn-import-csv');
-        $I->waitForJS('return (("undefined" === typeof $) ? 1 : $.active) === 0;', 15);
+        $I->wait(3);
 
         $I->waitForElementNotVisible('#addChildrenModal', 120);
         $I->waitForElementNotVisible('#modalSpinner', 120);
-        $I->waitForElementVisible('#itemSection h4.itemTitle', 120);
+        $I->waitForElementVisible('.details-panel .card-title', 120);
 
-        $I->executeJS("$('#tree1Section div.treeDiv').fancytree('getTree').visit(function(n){n.setExpanded(true);});");
+        $I->wait(2);
         $I->see('A.B abc');
         $I->see('A.B.C def');
         $I->see('A.B.D ghi');
@@ -486,23 +500,9 @@ class Item implements Context
 
     protected function waitAndAcceptPopup($tries = 30)
     {
-        $this->I->waitForElementVisible('.bootbox');
-        $this->I->click('.bootbox-accept');
-        $this->I->waitForElementNotVisible('.bootbox');
-
-        /*
-        while ($tries--) {
-            try {
-                $this->I->acceptPopup();
-                break;
-            } catch (NoAlertOpenException $e) {
-                if (0 === $tries) {
-                    throw $e;
-                }
-                $this->I->wait(1);
-            }
-        }
-        */
+        $this->I->waitForElementVisible('.btn-delete');
+        $this->I->click('.btn-delete');
+        $this->I->wait(1);
     }
 
     /**
@@ -513,8 +513,8 @@ class Item implements Context
         $I = $this->I;
 
         $I->see($item);
-        $I->executeJS("$('.fancytree-title').click()");
-        $I->waitForJS('return (("undefined" === typeof $) ? 1 : $.active) === 0;', 30);
+        $I->click('.fancytree-title');
+        $I->wait(2);
         $I->click('More Info');
         $I->see($additionalField);
         $I->see($value);

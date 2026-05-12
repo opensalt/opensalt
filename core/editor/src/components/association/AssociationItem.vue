@@ -285,7 +285,7 @@ const displayTitle = computed(() => {
     // Build display with markdown rendering
     const parts = [];
     if (item.humanCodingScheme) {
-      parts.push('<strong>' + (render.value ? render.value.escaped(item.humanCodingScheme) : item.humanCodingScheme) + '</strong>');
+      parts.push('<span class="item-humanCodingScheme">' + (render.value ? render.value.escaped(item.humanCodingScheme) : item.humanCodingScheme) + '</span>');
     }
     if (item.abbreviatedStatement) {
       parts.push(render.value ? render.value.escaped(item.abbreviatedStatement) : item.abbreviatedStatement);

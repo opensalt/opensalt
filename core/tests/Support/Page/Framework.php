@@ -11,7 +11,7 @@ use Ramsey\Uuid\Uuid;
 
 class Framework implements Context
 {
-    public static $docPath = '/cftree/doc/';
+    public static $docPath = '/editor/';
     public static $lsdocPath = '/cfdoc/';
     public static $creatorsPath = '/api/v1/lor/creators';
     public static $frameworksByCreatorPath = '/api/v1/lor/frameworksByCreator/';
@@ -63,8 +63,8 @@ class Framework implements Context
     {
         $I = $this->I;
 
-        $I->waitForElementVisible('#treeSideLeft span.fancytree-node', 120);
-        $I->seeElement('#treeSideLeft span.fancytree-node');
+        $I->waitForElementVisible('#tree1Section .fancytree-title', 120);
+        $I->seeElement('#tree1Section .fancytree-title');
 
         return $this;
     }
@@ -76,7 +76,7 @@ class Framework implements Context
     {
         $I = $this->I;
 
-        $I->seeElement('#treeSideRight h4.itemTitle span.itemTitleSpan');
+        $I->seeElement('.details-panel .card-title');
 
         return $this;
     }
@@ -130,8 +130,9 @@ class Framework implements Context
      */
     public function IClickOnCopyFramework()
     {
-        $this->I->click('#copyFrameworkModal_copyLeftBtn');
-        $this->I->click('#copyFrameworkModal .modal-footer .js-btn-copy-button');
+        // New VueJS CloneFrameworkModal: single "Clone Framework" confirmation button
+        $this->I->waitForElementClickable('#cloneFrameworkModal .btn-primary', 10);
+        $this->I->click('#cloneFrameworkModal .btn-primary');
 
         return $this;
     }
@@ -159,7 +160,10 @@ class Framework implements Context
      */
     public function IShouldSeeASuccessMessage(): Framework
     {
-        $this->I->waitForElementVisible('#copyFrameworkModal .alert-success');
+        // After cloning, the VueJS editor redirects to the cloned framework via window.location.href
+        // Wait for the clone modal to close and the new page to load
+        $this->I->waitForElementNotVisible('#cloneFrameworkModal', 10);
+        $this->I->waitForElementVisible('#docTitle', 30);
         return $this;
     }
 
@@ -168,7 +172,8 @@ class Framework implements Context
      */
     public function iShouldSeeTheCopyFrameworkModal(): Framework
     {
-        $this->I->waitForElementVisible('#copyFrameworkModal .js-btn-copy-button');
+        // New VueJS CloneFrameworkModal uses id="cloneFrameworkModal"
+        $this->I->waitForElementVisible('#cloneFrameworkModal .btn-primary');
         return $this;
     }
 
@@ -177,7 +182,8 @@ class Framework implements Context
      */
     public function iClickOnCopyFromButton(): Framework
     {
-        $this->I->click('#copyFrameworkModal_copyLeftBtn');
+        // New VueJS CloneFrameworkModal: single confirmation button (no separate "copy from" button)
+        $this->I->click('#cloneFrameworkModal .btn-primary');
         return $this;
     }
 
@@ -186,7 +192,8 @@ class Framework implements Context
      */
     public function iShouldSeeTheCopyFromButtonActive(): Framework
     {
-        $this->I->click('#copyFrameworkModal_copyLeftBtn');
+        // New VueJS CloneFrameworkModal: single confirmation button (no separate "copy from" button)
+        $this->I->click('#cloneFrameworkModal .btn-primary');
         return $this;
     }
 
@@ -244,7 +251,7 @@ class Framework implements Context
      */
     public function iSelectFrameworkNode(): Framework
     {
-        $el = ['xpath' => '(//div[@id="viewmode_tree1"]/ul/li/span)[1]'];
+        $el = ['css' => '#tree1Section .tree-container > details > summary .tree-node-label'];
 
         try {
             $this->I->click($el);
@@ -272,11 +279,13 @@ class Framework implements Context
 
         $frameworkName = $this->rememberedFramework;
         $I->waitForElementVisible("//span[text()='{$frameworkName}']");
-        $I->clickWithLeftButton(['xpath' => "//span[text()='{$frameworkName}']/.."]);
+        //$I->clickWithLeftButton(['xpath' => "//span[text()='{$frameworkName}']/.."]);
+        $frameworkUrl = $I->grabAttributeFrom("//span[text()='{$frameworkName}']/..", 'href');
+        $I->amOnPage($frameworkUrl);
 
         $I->waitForElementNotVisible('#modalSpinner', 120);
-        $I->waitForElementVisible('#itemSection h4.itemTitle', 120);
-        $I->setDocId($I->grabValueFrom('#lsDocId'));
+        $I->waitForElementVisible('.details-panel .card-title', 120);
+        $I->setDocId($I->grabFromCurrentUrl('#/editor/(.+)$#'));
 
         return $this;
     }
@@ -687,8 +696,16 @@ class Framework implements Context
     {
         $I = $this->I;
 
-        $I->click('//span[text()="MD.Math"]/../../..');
-        $I->seeElement('.lsItemDetails .katex');
+        // Expand root document node to show children (new VueJS tree starts collapsed)
+        $I->executeJS("document.querySelectorAll('#tree1Section details:not([open]) .expand-indicator').forEach(function(e) { e.click(); });");
+        $I->wait(1);
+
+        // Click on tree node "MD.Math" (new VueJS tree uses .fancytree-title spans)
+        $I->click(['xpath' => "//span[contains(@class, 'fancytree-title')][contains(., 'MD.Math')]"]);
+
+        // Wait for markdown rendering (lazy-loaded) and check for KaTeX
+        $I->waitForElement('.details-panel .katex', 15);
+        $I->seeElement('.details-panel .katex');
     }
 
     /**
@@ -698,8 +715,12 @@ class Framework implements Context
     {
         $I = $this->I;
 
-        $I->click('//span[text()="MD.Table"]/../../..');
-        $I->seeElement('.lsItemDetails table');
+        // Click on tree node "MD.Table"
+        $I->click(['xpath' => "//span[contains(@class, 'fancytree-title')][contains(., 'MD.Table')]"]);
+
+        // Wait for markdown rendering and check for table
+        $I->waitForElement('.details-panel .markdown-content table', 15);
+        $I->seeElement('.details-panel table');
     }
 
     /**
@@ -709,8 +730,12 @@ class Framework implements Context
     {
         $I = $this->I;
 
-        $I->click('//span[text()="MD.Table"]/../../..');
-        $I->seeElement('.lsItemDetails u');
+        // Click on tree node "MD.Table"
+        $I->click(['xpath' => "//span[contains(@class, 'fancytree-title')][contains(., 'MD.Table')]"]);
+
+        // Wait for markdown rendering and check for underline
+        $I->waitForElement('.details-panel .markdown-content u', 15);
+        $I->seeElement('.details-panel u');
     }
 
     /**
@@ -720,8 +745,12 @@ class Framework implements Context
     {
         $I = $this->I;
 
-        $I->click('//span[text()="MD.Table"]/../../..');
-        $I->seeElement('.lsItemDetails .katex');
+        // Click on tree node "MD.Table"
+        $I->click(['xpath' => "//span[contains(@class, 'fancytree-title')][contains(., 'MD.Table')]"]);
+
+        // Wait for markdown rendering and check for KaTeX
+        $I->waitForElement('.details-panel .katex', 15);
+        $I->seeElement('.details-panel .katex');
     }
 
     /**
@@ -732,8 +761,8 @@ class Framework implements Context
         $I = $this->I;
 
         $this->iGoToTheFrameworkDocument();
-        $I->waitForElementVisible('//*[@id="documentOptions"]/button[@data-bs-target="#editDocModal"]');
-        $I->click('//*[@id="documentOptions"]/button[@data-bs-target="#editDocModal"]');
+        $I->waitForElementVisible('button[data-bs-target="#editDocModal"]');
+        $I->click('button[data-bs-target="#editDocModal"]');
         $I->waitForElementVisible('#ls_doc_title');
 
         return $this;
@@ -862,7 +891,7 @@ class Framework implements Context
         }
 
         $I->see($framework, '#docTitle');
-        $I->setDocId($I->grabValueFrom('#lsDocId'));
+        $I->setDocId($I->grabFromCurrentUrl('#/editor/(.+)$#'));
     }
 
     /**
@@ -908,7 +937,9 @@ class Framework implements Context
     {
         $I = $this->I;
 
-        $I->waitForElementVisible('.itemTitleSpan');
+        $I->waitForElementVisible('#docTitle');
+        $I->wait(2);
+        $I->waitForText('Official URL:', 15);
 
         $I->see('Official URL:');
         $I->see($this->frameworkData['officialUri']);
@@ -940,6 +971,11 @@ class Framework implements Context
         }
 
         $I->clickWithLeftButton(['xpath' => '*//input[@value="Delete"]']);
+
+        // Make sure framework is not remembered
+        $I::$staticLsDocId = null;
+        $I::$staticLsItemId = null;
+        $I->setDocId(null);
     }
 
     /**
@@ -995,8 +1031,8 @@ class Framework implements Context
         $I = $this->I;
 
         $this->iGoToTheFrameworkDocument();
-        $I->waitForElementVisible('//*[@id="documentOptions"]/button[@data-bs-target="#editDocModal"]');
-        $I->click('//*[@id="documentOptions"]/button[@data-bs-target="#editDocModal"]');
+        $I->waitForElementVisible('button[data-bs-target="#editDocModal"]');
+        $I->click('button[data-bs-target="#editDocModal"]');
         $I->waitForElementVisible('#ls_doc_title');
 
         $rows = $table->getRows();
@@ -1004,7 +1040,7 @@ class Framework implements Context
             $this->iEditTheFieldInFramework($row[0], $row[1]);
         }
 
-        $I->click('//*[@id="editDocModal"]//button[text()="Save Changes"]');
+        $I->click('#editDocModal button.btn-primary');
 
         return $this;
     }
@@ -1095,7 +1131,7 @@ class Framework implements Context
     {
         $I = $this->I;
 
-        $I->click('//div[@id="viewmode_tree1"]/ul/li/ul/li[1]');
+        $I->click("//section[@id='tree1Section']//ul[@role='group']/li[1]");
 
         return $this;
     }
@@ -1120,9 +1156,7 @@ class Framework implements Context
         $I = $this->I;
 
         $I->fillField('#filterOnTree', $item);
-        // Chrome seems to require an explicit "keyup" to trigger the searching
-        $I->executeJS("$('#filterOnTree').trigger('keyup');");
-        $I->wait(1); // search has a 500ms delay to allow typing
+        $I->wait(1);
     }
 
     /**
@@ -1139,8 +1173,8 @@ class Framework implements Context
                 return;
             } catch (ExpectationFailedException $e) {
                 // Try triggering the search again
-                $I->executeJS("$('#filterOnTree').trigger('keyup');");
-                $I->wait(1.5); // search has a 500ms delay to allow typing
+                $I->fillField('#filterOnTree', $item);
+                $I->wait(1.5);
             }
         }
 
@@ -1155,8 +1189,8 @@ class Framework implements Context
         $I = $this->I;
 
         $this->iGoToTheFrameworkDocument();
-        $I->waitForElementVisible('//*[@id="documentOptions"]/button[@data-bs-target="#editDocModal"]');
-        $I->click('//*[@id="documentOptions"]/button[@data-bs-target="#editDocModal"]');
+        $I->waitForElementVisible('button[data-bs-target="#editDocModal"]');
+        $I->click('button[data-bs-target="#editDocModal"]');
         $I->waitForElementVisible('#ls_doc_title');
 
         $rows = $table->getRows();
@@ -1340,11 +1374,11 @@ class Framework implements Context
             // Might have been too quick
         }
         $I->waitForElementNotVisible('#modalSpinner', 60);
-        $I->waitForJS('return (("undefined" === typeof $) ? 1 : $.active) === 0;', 30);
+        $I->wait(3);
         $I->waitForJS('return (("undefined" === typeof $) ? 1 : 0) === 0 && $("#tree1Section div.treeDiv ul").length > 0;', 10);
         $I->executeJS("$('#tree1Section div.treeDiv').fancytree('getTree').visit(function(n){n.setExpanded(true);});");
         $I->see('Framework updated');
-        $I->dontSee('A.B abc'); // Changed to T ...
+        $I->dontSee('A.B abc');
         $I->see('T Item updated');
         $I->dontSee('A.B.C def'); // Changed to U ...
         $I->see('U New full statement');
@@ -1402,13 +1436,13 @@ class Framework implements Context
         }
 
         $I->waitForElementNotVisible('#modalSpinner', 60);
-        $I->waitForJS('return (("undefined" === typeof $) ? 1 : $.active) === 0;', 30);
+        $I->wait(3);
         $I->waitForJS('return (("undefined" === typeof $) ? 1 : 0) === 0 && $("#tree1Section div.treeDiv ul").length > 0;', 10);
         $I->executeJS("$('#tree1Section div.treeDiv').fancytree('getTree').visit(function(n){n.setExpanded(true);});");
 
         $I->see('item custom field');
         $I->executeJS("$('.fancytree-title').click()");
-        $I->waitForJS('return (("undefined" === typeof $) ? 1 : $.active) === 0;', 30);
+        $I->wait(3);
         $I->click('More Info');
         $I->see('test_additionalfield');
         $I->see('spreadsheet_custom_field');
@@ -1524,31 +1558,37 @@ class Framework implements Context
         $I = $this->I;
 
         $I->see($this->rememberedFramework);
-        $I->executeJS("$('#tree1Section div.treeDiv').fancytree('getTree').visit(function(n){n.setExpanded(true);});");
+
+        // Expand all tree nodes (new VueJS editor uses <details> elements)
+        // Must click .expand-indicator (caret icon) because clicking <summary> directly
+        // triggers onSummaryClick which calls event.preventDefault() and selects instead
+        for ($i = 0; $i < 5; ++$i) {
+            $I->executeJS("document.querySelectorAll('#tree1Section details:not([open]) .expand-indicator').forEach(function(e) { e.click(); });");
+            $I->wait(1);
+        }
 
         $I->see('S Statement 1');
         $I->see('S.1 Statement 2');
         $I->see('S.2 Statement 3');
         $I->see('S.2.1 Statement 4');
 
-        $I->click('#displayAssocBtn');
-        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[value="Is Child Of"]');
-        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[value="Exact Match Of"]');
-        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[value="Exemplar"]');
-        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[value="Is Related To"]');
-        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[value="Precedes"]');
-        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[value="Is Peer Of"]');
-        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[value="Is Part Of"]');
-        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[value="Has Skill Level"]');
-        $I->checkOption('#assocViewTable_length .assocViewTableTypeFilters .avTypeFilter input[value="Replaced By"]');
+        // Navigate to the association view (new VueJS editor uses a separate route)
+        $I->amOnPage('/editor/' . $I->getDocId() . '/association');
+        $I->waitForElementVisible('.association-view', 30);
+        $I->waitForElementVisible('#assocViewTable', 30);
 
-        $I->see('Is Child Of', '//table[@id="assocViewTable"]');
-        $I->see('Exact Match Of', '//table[@id="assocViewTable"]');
-        $I->see('Precedes', '//table[@id="assocViewTable"]');
-        $I->see('Is Peer Of', '//table[@id="assocViewTable"]');
-        $I->see('Is Part Of', '//table[@id="assocViewTable"]');
-        $I->see('Has Skill Level', '//table[@id="assocViewTable"]');
-        $I->see('Replaced By', '//table[@id="assocViewTable"]');
+        // Check the isChildOf filter (unchecked by default) to show all association types
+        // Other types are already checked by default in the new VueJS AssociationView
+        $I->checkOption('.assocViewTableTypeFilters .avTypeFilter input[value="isChildOf"]');
+        $I->wait(2);
+
+        $I->see('Is Child Of', '#assocViewTable');
+        $I->see('Exact Match Of', '#assocViewTable');
+        $I->see('Precedes', '#assocViewTable');
+        $I->see('Is Peer Of', '#assocViewTable');
+        $I->see('Is Part Of', '#assocViewTable');
+        $I->see('Has Skill Level', '#assocViewTable');
+        $I->see('Replaced By', '#assocViewTable');
     }
 
     /**
@@ -1564,10 +1604,12 @@ class Framework implements Context
 
         $frameworkName = $this->rememberedFramework;
         $I->waitForElementVisible("//span[text()='{$frameworkName}']");
-        $I->clickWithLeftButton(['xpath' => "//span[text()='{$frameworkName}']/.."]);
+        //$I->clickWithLeftButton(['xpath' => "//span[text()='{$frameworkName}']/.."]);
+        $frameworkUrl = $I->grabAttributeFrom("//span[text()='{$frameworkName}']/..", 'href');
+        $I->amOnPage($frameworkUrl);
 
         $I->waitForElementNotVisible('#modalSpinner', 120);
-        $I->waitForElementVisible('#itemSection h4.itemTitle', 120);
+        $I->waitForElementVisible('.details-panel .card-title', 120);
 
         $I->rememberDocIdFromUrl();
 

@@ -21,6 +21,7 @@ use App\Repository\Framework\LsDocRepository;
 use App\Security\Permission;
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -130,10 +131,13 @@ class LsDocController extends AbstractController
     /**
      * Finds and displays a LsDoc entity.
      */
-    #[Route(path: '/{id}.{_format}', name: 'lsdoc_show', defaults: ['_format' => 'html'], methods: ['GET'])]
+    #[Route(path: '/{id}.{_format}', name: 'lsdoc_show', requirements: ['id' => '\d+'], defaults: ['_format' => 'html'], methods: ['GET'])]
+    #[Route(path: '/{identifier}.{_format}', name: 'lsdoc_show_identifier', requirements: ['identifier' => '[a-fA-F0-9]{8}-([a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}'], defaults: ['_format' => 'html'], methods: ['GET'])]
     #[IsGranted(Permission::FRAMEWORK_VIEW, 'lsDoc')]
-    public function show(LsDoc $lsDoc, string $_format = 'html'): Response
-    {
+    public function show(
+        #[MapEntity(expr: '((id ?? null) == null) ? repository.findOneByIdentifier(identifier ?? null) : repository.find(id ?? null)')] LsDoc $lsDoc,
+        string $_format = 'html',
+    ): Response {
         if ('json' === $_format) {
             // Redirect?  Change Action for Template?
             return $this->render('framework/ls_doc/show.json.twig', [
@@ -194,10 +198,14 @@ class LsDocController extends AbstractController
     /**
      * Displays a form to edit an existing LsDoc entity.
      */
+    #[Route(path: '/{identifier}/edit', name: 'lsdoc_edit_identifier', requirements: ['identifier' => '[a-fA-F0-9]{8}-([a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}'], methods: ['GET', 'POST'])]
     #[Route(path: '/{id}/edit', name: 'lsdoc_edit', methods: ['GET', 'POST'])]
     #[IsGranted(Permission::FRAMEWORK_EDIT, 'lsDoc')]
-    public function edit(Request $request, LsDoc $lsDoc, #[CurrentUser] User $user): Response
-    {
+    public function edit(
+        Request $request,
+        #[MapEntity(expr: '((id ?? null) == null) ? repository.findOneByIdentifier(identifier ?? null) : repository.find(id ?? null)')] LsDoc $lsDoc,
+        #[CurrentUser] User $user
+    ): Response {
         $ajax = $request->isXmlHttpRequest();
 
         try {
@@ -256,10 +264,13 @@ class LsDocController extends AbstractController
     /**
      * Deletes a LsDoc entity.
      */
+    #[Route(path: '/{identifier}', name: 'lsdoc_delete_identifier', requirements: ['identifier' => '[a-fA-F0-9]{8}-([a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}'], methods: ['DELETE'])]
     #[Route(path: '/{id}', name: 'lsdoc_delete', methods: ['DELETE'])]
     #[IsGranted(Permission::FRAMEWORK_DELETE, 'lsDoc')]
-    public function delete(Request $request, LsDoc $lsDoc): Response
-    {
+    public function delete(
+        Request $request,
+        #[MapEntity(expr: '((id ?? null) == null) ? repository.findOneByIdentifier(identifier ?? null) : repository.find(id ?? null)')] LsDoc $lsDoc
+    ): Response {
         if ($request->isXmlHttpRequest()) {
             $token = $request->request->getString('token');
             if ($this->isCsrfTokenValid('DELETE '.$lsDoc->getId(), $token)) {
@@ -288,10 +299,12 @@ class LsDocController extends AbstractController
     /**
      * Finds and displays a LsDoc entity.
      */
-    #[Route(path: '/{id}/export.{_format}', name: 'lsdoc_export', requirements: ['_format' => '(json|html|null)'], defaults: ['_format' => 'json'], methods: ['GET'])]
-    #[IsGranted(Permission::FRAMEWORK_VIEW, 'lsDoc')]
-    public function export(LsDoc $lsDoc, string $_format = 'json'): Response
-    {
+    #[Route(path: '/{id}/export.{_format}', name: 'lsdoc_export', requirements: ['id' => '\d+', '_format' => '(json|html|null)'], defaults: ['_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/{identifier}/export.{_format}', name: 'lsdoc_export_identifier', requirements: ['identifier' => '[a-fA-F0-9]{8}-([a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}', '_format' => '(json|html|null)'], methods: ['GET'])]
+    public function export(
+        #[MapEntity(expr: '((id ?? null) == null) ? repository.findOneByIdentifier(identifier ?? null) : repository.find(id ?? null)')] LsDoc $lsDoc,
+        string $_format = 'json'
+    ): Response {
         if ('json' !== $_format) {
             $_format = 'html';
         }

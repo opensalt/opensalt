@@ -2,6 +2,7 @@
   <!-- Actions - Only available for editable items -->
   <div
     v-if="canEditItem"
+    id="itemOptions"
     class="card mt-0 border-0"
   >
     <div class="card-body py-0 ms-auto">
@@ -39,6 +40,7 @@
           </ul>
         </div>
         <button
+          id="addExemplarBtn"
           type="button"
           class="btn btn-outline-secondary"
           @click="$emit('add-exemplar')"

@@ -11,6 +11,7 @@
     <!-- Page-wide spinner: only during initial load (no document yet) -->
     <div
       v-if="loading && !currentDoc"
+      id="modalSpinner"
       class="d-flex justify-content-center align-items-center"
       style="height: 100%;"
       role="status"
@@ -64,7 +65,10 @@
       />
 
       <!-- Details / side-by-side panel -->
-      <section class="col-7 details-panel d-flex flex-column h-100 overflow-hidden">
+      <section
+        id="treeSideRight"
+        class="col-7 details-panel d-flex flex-column h-100 overflow-hidden"
+      >
         <RightSidePanel
           v-if="rightPanelMode === 'itemDetails'"
           :current-document="currentDoc"
@@ -231,7 +235,6 @@ const announcer = useAnnouncer();
 const doc = computed(() => currentDocumentStore.currentDocument || { title: '', status: '', items: [] });
 const loading = computed(() => documentStore.loading);
 const error = computed(() => documentStore.error);
-const searchQuery = computed(() => filterStore.searchQuery);
 const selectedId = ref(route.params.itemId || null);
 const currentDoc = computed(() => currentDocumentStore.currentDocument);
 const rightPanelMode = ref('itemDetails');
@@ -259,7 +262,7 @@ const filteredDoc = computed(() => ({
   ...doc.value,
   items: filterStore.filterItemsRecursively(
     doc.value.items || [],
-    searchQuery.value,
+    treeSearchQuery.value,
     filterStore.selectedFilters,
     filterStore.selectedAssociationGroup
   ),

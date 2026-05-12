@@ -15,7 +15,7 @@ Feature: Adding, viewing and deleting a framework
     Then I should see the framework
 
      And I should see the button "Export"
-     And I should see the button "Edit"
+     And I should see the button "Edit document"
      And I should see the button "Manage Association Groups"
      And I should see the button "Add New Child Item"
      And I should see the button "Import Children"

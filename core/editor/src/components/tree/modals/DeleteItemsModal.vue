@@ -149,7 +149,7 @@
           </button>
           <button
             type="button"
-            class="btn"
+            class="btn btn-delete"
             :class="buttonClass"
             :disabled="!canDelete"
             @click="confirmDelete"

@@ -5,9 +5,10 @@
         <i class="bi bi-search" />
       </span>
       <input
+        id="filterOnTree"
         ref="searchInput"
         type="text"
-        class="form-control"
+        class="form-control treeFilter"
         :value="modelValue"
         placeholder="Filter tree..."
         aria-label="Filter tree items"

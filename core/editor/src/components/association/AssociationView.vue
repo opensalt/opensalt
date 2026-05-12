@@ -61,12 +61,12 @@
           </div>
           <div
             v-else
-            class="type-checkboxes"
+            class="type-checkboxes assocViewTableTypeFilters"
           >
             <div
               v-for="type in allAssociationTypes"
               :key="type"
-              class="form-check"
+              class="form-check avTypeFilter"
             >
               <input
                 :id="'type-' + type"

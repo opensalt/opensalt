@@ -11,7 +11,7 @@
       />
     </div>
 
-    <div class="mt-2">
+    <div class="mt-2 details-identifier item-identifier">
       <strong>Identifier:</strong> <a
         :href="`/uri/${item.identifier}`"
         target="_blank"

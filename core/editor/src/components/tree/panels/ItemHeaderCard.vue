@@ -36,6 +36,7 @@
             <i class="bi bi-pencil" />
           </button>
           <button
+            id="deleteItemBtn"
             type="button"
             class="btn btn-outline-danger"
             title="Delete item"
@@ -49,15 +50,13 @@
 
     <div class="card-body">
       <!-- Item Title -->
-      <h5 class="card-title">
+      <h4 class="card-title ms-0 itemTitle">
         <span
           v-if="displayItem.humanCodingScheme"
           class="badge bg-secondary me-1"
-        >
-          {{ displayItem.humanCodingScheme }}
-        </span>
-        {{ displayItem.abbreviatedStatement || '' }}
-      </h5>
+        >{{ displayItem.humanCodingScheme }}</span>
+        <span class="itemTitleSpan">{{ displayItem.abbreviatedStatement || '' }}</span>
+      </h4>
 
       <!-- Specialized Item Details or Default Details slot -->
       <slot />
