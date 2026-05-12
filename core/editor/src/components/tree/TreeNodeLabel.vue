@@ -32,8 +32,8 @@
     <span>&nbsp;</span>
     <span
       v-if="searchQuery && hasMatch"
-      v-html="highlightedTitle"
       class="display-title"
+      v-html="highlightedTitle"
     />
     <span
       v-else

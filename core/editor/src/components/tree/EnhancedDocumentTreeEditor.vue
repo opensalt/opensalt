@@ -232,7 +232,7 @@ const announcer = useAnnouncer();
 // ---------------------------------------------------------------------------
 // Core state
 // ---------------------------------------------------------------------------
-const doc = computed(() => currentDocumentStore.currentDocument || { title: '', status: '', items: [] });
+const doc = computed(() => currentDocumentStore.currentDocument || { title: '', adoptionStatus: '', items: [] });
 const loading = computed(() => documentStore.loading);
 const error = computed(() => documentStore.error);
 const selectedId = ref(route.params.itemId || null);

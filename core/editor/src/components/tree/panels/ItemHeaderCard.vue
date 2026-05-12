@@ -24,7 +24,7 @@
       <div class="d-flex align-items-center gap-2">
         <slot name="header-actions" />
         <div
-          v-if="canEditItem"
+          v-if="canEditItem && !isAdopted"
           class="btn-group btn-group-sm"
         >
           <button
@@ -70,6 +70,7 @@ defineProps({
   displayItem: { type: Object, required: true },
   itemIconSrc: { type: String, default: '' },
   canEditItem: { type: Boolean, default: false },
+  isAdopted: { type: Boolean, default: false },
   isItemFromViewedFramework: { type: Boolean, default: false },
 });
 defineEmits(['edit', 'delete']);

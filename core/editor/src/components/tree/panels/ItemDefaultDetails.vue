@@ -123,8 +123,12 @@
         class="row mb-1"
       >
         <template v-if="getDisplayValue(field.name)">
-          <div class="col-sm-4 text-muted">{{ field.displayName || field.name }}</div>
-          <div class="col-sm-8">{{ getDisplayValue(field.name) }}</div>
+          <div class="col-sm-4 text-muted">
+            {{ field.displayName || field.name }}
+          </div>
+          <div class="col-sm-8">
+            {{ getDisplayValue(field.name) }}
+          </div>
         </template>
       </div>
     </div>

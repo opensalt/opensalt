@@ -473,7 +473,9 @@
 
   function formatTimestamp(timestamp) {
     if (!timestamp) return 'Unknown';
-    return new Date(timestamp).toLocaleString();
+    const d = new Date(timestamp);
+    const pad = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
   }
 
   function getMostActiveType() {

@@ -89,10 +89,6 @@
                   accept=".xls,.xlsx,.json,.csv"
                   @change="onFileSelected"
                 >
-                <input
-                  id="excel-url"
-                  type="hidden"
-                >
               </div>
               <div class="form-text text-muted mb-3">
                 Accepted formats: .xls, .xlsx, .json, .csv

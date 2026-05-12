@@ -7,7 +7,10 @@
   >
     <div class="card-body py-0 ms-auto">
       <div class="d-flex gap-2">
-        <div class="btn-group">
+        <div
+          v-if="!isAdopted"
+          class="btn-group"
+        >
           <button
             type="button"
             class="btn btn-outline-primary"
@@ -76,6 +79,7 @@
 <script setup>
 defineProps({
   canEditItem: { type: Boolean, default: false },
+  isAdopted: { type: Boolean, default: false },
   isItemFromViewedFramework: { type: Boolean, default: false },
   isReadOnly: { type: Boolean, default: false },
   availableTypes: { type: Array, default: () => [] },

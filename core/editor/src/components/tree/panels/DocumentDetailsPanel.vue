@@ -49,7 +49,7 @@
           id="docTitle"
           class="card-title"
         >
-          <span class="badge bg-primary me-2">{{ document.status || 'Draft' }}</span>
+          <span class="badge bg-primary me-2">{{ document.adoptionStatus || 'Draft' }}</span>
           {{ document.title || 'Untitled Document' }}
         </h5>
         <input
@@ -204,8 +204,12 @@
             class="row mb-1"
           >
             <template v-if="getDocDisplayValue(field.name)">
-              <div class="col-sm-4 text-muted">{{ field.displayName || field.name }}</div>
-              <div class="col-sm-8">{{ getDocDisplayValue(field.name) }}</div>
+              <div class="col-sm-4 text-muted">
+                {{ field.displayName || field.name }}
+              </div>
+              <div class="col-sm-8">
+                {{ getDocDisplayValue(field.name) }}
+              </div>
             </template>
           </div>
         </div>
@@ -229,7 +233,10 @@
 
             <!-- Editor-only actions -->
             <template v-if="!isReadOnly">
-              <div class="btn-group">
+              <div
+                v-if="!isAdopted"
+                class="btn-group"
+              >
                 <button
                   type="button"
                   class="btn btn-outline-primary"
@@ -270,6 +277,7 @@
               </button>
 
               <button
+                v-if="!isAdopted"
                 type="button"
                 class="btn btn-outline-secondary"
                 data-bs-target="#updateFrameworkModal"
@@ -278,6 +286,7 @@
                 <i class="bi bi-arrow-repeat" /> Update Framework
               </button>
               <button
+                v-if="!isAdopted"
                 id="js-copy-framework-modal-button"
                 type="button"
                 class="btn btn-outline-secondary"
@@ -373,6 +382,7 @@ import { useEditorContextStore } from '../../../stores/editorContextStore';
 const sessionStore = useSessionStore();
 const contextStore = useEditorContextStore();
 const isReadOnly = computed(() => props.isViewingDifferentFramework || props.document?.isReadOnly || !sessionStore.isAuthenticated);
+const isAdopted = computed(() => props.document?.adoptionStatus === 'Adopted');
 const isAdmin = computed(() => contextStore.isAdmin);
 const commentsEnabled = editorConfig.features.comments;
 

@@ -79,9 +79,17 @@ class AcceptanceTester extends \Codeception\Actor implements Context
     public function iShouldSeeTheButton(string $arg1): AcceptanceTester
     {
         try {
-            $this->see($arg1, 'button');
+            try {
+                $this->see($arg1, 'button');
+            } catch (\Throwable) {
+                $this->seeElement('button[title="' . $arg1 . '"]');
+            }
         } catch (\Facebook\WebDriver\Exception\StaleElementReferenceException) {
-            $this->see($arg1, 'button');
+            try {
+                $this->see($arg1, 'button');
+            } catch (\Throwable) {
+                $this->seeElement('button[title="' . $arg1 . '"]');
+            }
         }
 
         return $this;
@@ -390,7 +398,7 @@ class AcceptanceTester extends \Codeception\Actor implements Context
 
         if (null !== $additionalField && !empty($additionalField)) {
             $I->see($additionalField);
-            $I->fillField('#ls_item_additional_fields_'.$additionalField, $value);
+            $I->fillField('#additional_field_'.$additionalField, $value);
         }
 
         $I->click('Create');

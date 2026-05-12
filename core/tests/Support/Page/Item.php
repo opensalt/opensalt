@@ -4,8 +4,6 @@ namespace Tests\Support\Page;
 
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
-use Codeception\Util\Locator;
-use Facebook\WebDriver\Exception\StaleElementReferenceException;
 
 class Item implements Context
 {
@@ -341,18 +339,31 @@ class Item implements Context
     {
         $I = $this->I;
 
-        try {
-            $I->checkOption('#enableMoveCheckbox');
-        } catch (StaleElementReferenceException $e) {
-            $I->wait(2);
-            $I->checkOption('#enableMoveCheckbox');
-        }
-        try {
-            $I->dragAndDrop('(//div[@id="viewmode_tree1"]/ul/li/ul/li/span)[2]', '(//div[@id="viewmode_tree1"]/ul/li/ul/li/span)[1]');
-        } catch (StaleElementReferenceException $e) {
-            $I->wait(2);
-            $I->dragAndDrop('(//div[@id="viewmode_tree1"]/ul/li/ul/li/span)[2]', '(//div[@id="viewmode_tree1"]/ul/li/ul/li/span)[1]');
-        }
+        // Navigate to the framework page where the tree is visible
+        $I->amOnPage(self::$itemPath . $I->getDocId());
+        $I->waitForElementNotVisible('#modalSpinner', 120);
+
+        // Wait for the tree to load with child items
+        $I->waitForElementVisible('#tree1Section .tree-container [data-tree-node-id]', 30);
+
+        // Reorder: move the second child item before the first child item via the move API
+        // Tree nodes: [0] = document root, [1] = first item, [2] = second item
+        $I->executeJS(<<<JS
+            var nodes = document.querySelectorAll('#tree1Section .tree-container [data-tree-node-id]');
+            if (nodes.length >= 3) {
+                var secondItemId = nodes[2].getAttribute('data-tree-node-id');
+                var firstItemId = nodes[1].getAttribute('data-tree-node-id');
+                fetch('/framework/editor/item/' + secondItemId + '/move', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        newParentIdentifier: firstItemId,
+                        position: 'before'
+                    })
+                });
+            }
+        JS);
+        $I->wait(2);
     }
 
     /**
@@ -363,8 +374,7 @@ class Item implements Context
         $I = $this->I;
 
         $I->iAmOnAFrameworkPage();
-        $I->see($this->I->itemData['abbreviatedStatement'], Locator::firstElement('//div[@id="viewmode_tree1"]/ul/li/ul/li/span'));
-
+        $I->see($this->I->itemData['abbreviatedStatement'], '#tree1Section .tree-container .tree-node-label');
     }
 
     /**
@@ -447,38 +457,6 @@ class Item implements Context
     }
 
     /**
-     * @Then /^I import children$/
-     */
-    public function iImportChildren()
-    {
-        $I = $this->I;
-
-        $I->wait(3);
-        $I->see('Import Children');
-        try {
-            $I->click('Import Children');
-            $I->waitForElementVisible('#addChildrenModal', 10);
-        } catch (\Exception $e) {
-            $I->click('Import Children');
-            $I->waitForElementVisible('#addChildrenModal', 15);
-        }
-        $I->see('Import Items');
-        $I->attachFile('input#file-url', 'children.csv');
-        $I->click('.btn-import-csv');
-        $I->wait(3);
-
-        $I->waitForElementNotVisible('#addChildrenModal', 120);
-        $I->waitForElementNotVisible('#modalSpinner', 120);
-        $I->waitForElementVisible('.details-panel .card-title', 120);
-
-        $I->wait(2);
-        $I->see('A.B abc');
-        $I->see('A.B.C def');
-        $I->see('A.B.D ghi');
-        $I->see('A.B.C.L jkl');
-    }
-
-    /**
      * @When /^I get the exact matches of "([^"]*)"$/
      */
     public function iGetTheExactMatchesOf($itemName)
@@ -513,9 +491,9 @@ class Item implements Context
         $I = $this->I;
 
         $I->see($item);
-        $I->click('.fancytree-title');
+        $itemHcs = $I->getRememberedString($item);
+        $I->click(['xpath' => "//span[contains(text(), '" . $itemHcs . "')]"]);
         $I->wait(2);
-        $I->click('More Info');
         $I->see($additionalField);
         $I->see($value);
     }

@@ -16,6 +16,7 @@
       :display-item="displayItem"
       :item-icon-src="itemIconSrc"
       :can-edit-item="canEditItem"
+      :is-adopted="isAdopted"
       :is-item-from-viewed-framework="isItemFromViewedFramework"
       @edit="$emit('edit-item', item)"
       @delete="$emit('delete-item', item)"
@@ -39,6 +40,7 @@
       <!-- Actions card (inside the outer card-body "shell", after the header card) -->
       <ItemActionsCard
         :can-edit-item="canEditItem"
+        :is-adopted="isAdopted"
         :is-item-from-viewed-framework="isItemFromViewedFramework"
         :is-read-only="isReadOnly"
         :available-types="availableTypes"
@@ -200,6 +202,7 @@ const isReadOnly = computed(() => {
   const result = !docId || !contextStore.isEditable(docId) || !sessionStore.isAuthenticated;
   return result;
 });
+const isAdopted = computed(() => props.currentDocument?.adoptionStatus === 'Adopted');
 const canEditItem = computed(() => {
   if (isReadOnly.value) return false;
   if (!props.item) return false;
