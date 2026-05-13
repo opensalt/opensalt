@@ -163,7 +163,7 @@ class CommentsController extends AbstractController
 
             switch ($itemType) {
                 case 'document':
-                    $lsDoc = (filter_var($itemId, FILTER_VALIDATE_INT) !== false) ? $lsDocRepo->find($itemId) : $lsDocRepo->findOneBy(['identifier' => $itemId]);
+                    $lsDoc = (false !== filter_var($itemId, FILTER_VALIDATE_INT)) ? $lsDocRepo->find($itemId) : $lsDocRepo->findOneBy(['identifier' => $itemId]);
                     if (null === $lsDoc) {
                         fclose($handle);
 
@@ -183,7 +183,7 @@ class CommentsController extends AbstractController
 
                 case 'item':
                     /** @var ?LsItem $lsItem */
-                    $lsItem = (filter_var($itemId, FILTER_VALIDATE_INT) !== false) ? $lsItemRepo->find($itemId) : $lsItemRepo->findOneBy(['identifier' => $itemId]);
+                    $lsItem = (false !== filter_var($itemId, FILTER_VALIDATE_INT)) ? $lsItemRepo->find($itemId) : $lsItemRepo->findOneBy(['identifier' => $itemId]);
 
                     if (null !== $lsItem) {
                         $childIds = $lsItem->getDescendantIds();
