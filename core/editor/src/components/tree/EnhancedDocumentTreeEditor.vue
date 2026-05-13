@@ -11,20 +11,33 @@
     <!-- Page-wide spinner: only during initial load (no document yet) -->
     <div
       v-if="loading && !currentDoc"
+      id="modalSpinner"
       class="d-flex justify-content-center align-items-center"
       style="height: 100%;"
       role="status"
       aria-live="polite"
     >
-      <div class="spinner-border text-primary" role="status">
+      <div
+        class="spinner-border text-primary"
+        role="status"
+      >
         <span class="visually-hidden">Loading document...</span>
       </div>
     </div>
-    <div v-else-if="error && !currentDoc" class="alert alert-danger my-4" role="alert" aria-live="assertive">
+    <div
+      v-else-if="error && !currentDoc"
+      class="alert alert-danger my-4"
+      role="alert"
+      aria-live="assertive"
+    >
       {{ error }}
     </div>
 
-    <main v-else class="row g-0 flex-grow-1" style="min-height: 0;">
+    <main
+      v-else
+      class="row g-0 flex-grow-1"
+      style="min-height: 0;"
+    >
       <!-- Tree panel -->
       <TreePanelSection
         :class="['col-5', { 'viewing-different-framework': isViewingDifferentFramework }]"
@@ -52,7 +65,10 @@
       />
 
       <!-- Details / side-by-side panel -->
-      <section class="col-7 details-panel d-flex flex-column h-100 overflow-hidden">
+      <section
+        id="treeSideRight"
+        class="col-7 details-panel d-flex flex-column h-100 overflow-hidden"
+      >
         <RightSidePanel
           v-if="rightPanelMode === 'itemDetails'"
           :current-document="currentDoc"
@@ -82,6 +98,7 @@
           @side-document-select="onSideDocumentSelect"
           @external-document-requested="onExternalDocumentRequested"
           @side-select="onSideSelect"
+          @action="onExternalAction"
         />
         <SideBySideTreePanel
           v-else
@@ -96,6 +113,7 @@
           @external-document-requested="onExternalDocumentRequested"
           @side-select="onSideSelect"
           @tree-change="onTreeChange"
+          @action="onExternalAction"
         />
       </section>
     </main>
@@ -172,6 +190,7 @@ import { useFilterStore } from '../../stores/filterStore';
 import { useItemStore } from '../../stores/itemStore';
 import { useViewStore } from '../../stores/viewStore';
 import { useEditorContextStore } from '@/stores/editorContextStore';
+import { useViewedDoc } from '../../composables/useViewedDoc';
 import { useTreeNavigation } from '../../composables/useTreeNavigation.js';
 import { useAnnouncer } from '../../composables/useAnnouncer.js';
 import { useDynamicEditModal } from '../../composables/useDynamicEditModal.js';
@@ -182,12 +201,13 @@ import { useDocumentLoader } from '../../composables/useDocumentLoader.js';
 import { useFrameworkSearch } from '../../composables/useFrameworkSearch.js';
 import { useTreeEditorHandlers } from '../../composables/useTreeEditorHandlers.js';
 import { logger } from '../../utils/logger.js';
+import { findItem, findItemPath } from '../../utils/tree.js';
 
 // Components
 import DualFrameworkHeader from './DualFrameworkHeader.vue';
 import TreePanelSection from './TreePanelSection.vue';
 import ModalManager from './ModalManager.vue';
-import RightSidePanel from '../shared/panels/RightSidePanel.vue';
+import RightSidePanel from './panels/RightSidePanel.vue';
 import SideBySideTreePanel from './SideBySideTreePanel.vue';
 
 // ---------------------------------------------------------------------------
@@ -212,29 +232,14 @@ const announcer = useAnnouncer();
 // ---------------------------------------------------------------------------
 // Core state
 // ---------------------------------------------------------------------------
-const doc = computed(() => currentDocumentStore.currentDocument || { title: '', status: '', items: [] });
+const doc = computed(() => currentDocumentStore.currentDocument || { title: '', adoptionStatus: '', items: [] });
 const loading = computed(() => documentStore.loading);
 const error = computed(() => documentStore.error);
-const searchQuery = computed(() => filterStore.searchQuery);
 const selectedId = ref(route.params.itemId || null);
 const currentDoc = computed(() => currentDocumentStore.currentDocument);
+const rightPanelMode = ref('itemDetails');
 
-const viewedDoc = computed(() => {
-  const registryVersion = contextStore.registryVersion;
-  void registryVersion;
-  const id = contextStore.viewedDocumentId;
-  if (!id) return null;
-  const docMeta = contextStore.documentRegistry.get(id);
-  if (!docMeta) return null;
-  const pkg = contextStore.loadedPackages.get(id);
-  let items = [];
-  if (pkg?.CFItems) {
-    const transformed = currentDocumentStore.transformCASEItems(pkg.CFItems, pkg.CFAssociations || [], id);
-    items = transformed.items || transformed;
-  }
-  return { ...docMeta, id: docMeta.identifier, items };
-});
-const isViewingDifferentFramework = computed(() => contextStore.isViewingDifferentFramework);
+const { viewedDoc, isViewingDifferentFramework } = useViewedDoc({ transformItems: true });
 
 // ---------------------------------------------------------------------------
 // Item selection
@@ -250,17 +255,6 @@ const selectedItem = computed(() => {
   return null;
 });
 
-function findItem(items, id) {
-  for (const item of items) {
-    if (item.identifier === id) return item;
-    if (item.children) {
-      const found = findItem(item.children, id);
-      if (found) return found;
-    }
-  }
-  return null;
-}
-
 // ---------------------------------------------------------------------------
 // Filtered doc + tree items
 // ---------------------------------------------------------------------------
@@ -268,7 +262,7 @@ const filteredDoc = computed(() => ({
   ...doc.value,
   items: filterStore.filterItemsRecursively(
     doc.value.items || [],
-    searchQuery.value,
+    treeSearchQuery.value,
     filterStore.selectedFilters,
     filterStore.selectedAssociationGroup
   ),
@@ -300,6 +294,7 @@ const {
   expandItem,
   collapseItem,
   toggleExpanded,
+  expandToItem,
   initializeFocus,
 } = useTreeNavigation({
   items: treeItems,
@@ -312,6 +307,26 @@ const {
   externalExpandedState: computed(() => viewStore.itemViewState),
 });
 
+async function navigateToItem(itemId) {
+  if (!itemId) return;
+  const frameworkId = currentDoc.value?.id;
+  if (!frameworkId) return;
+
+  const item =
+    findItem(doc.value?.items || [], itemId) ||
+    (viewedDoc.value ? findItem(viewedDoc.value.items, itemId) : null);
+  if (!item) return;
+
+  expandToItem(itemId);
+  viewStore.setCurrentItem(item);
+  router.push(`/${frameworkId}/${itemId}`);
+  viewStore.setLastSelectedItem(frameworkId, itemId);
+
+  await nextTick();
+  const el = document.querySelector(`[data-tree-node-id="${itemId}"]`);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+}
+
 provide('treeNavigation', {
   focusedItemId,
   setFocus,
@@ -320,6 +335,7 @@ provide('treeNavigation', {
   expandItem,
   collapseItem,
   toggleExpanded,
+  navigateToItem,
 });
 
 
@@ -327,12 +343,12 @@ provide('treeNavigation', {
 // Dynamic edit modal
 // ---------------------------------------------------------------------------
 const onItemUpdate = async (updatedItem) => {
-  console.log('onItemUpdate triggered with:', updatedItem);
+  logger.debug('onItemUpdate triggered with:', updatedItem);
   try {
     if (updatedItem && updatedItem.identifier) {
-      console.log('Sending update to backend for:', updatedItem.identifier);
+      logger.debug('Sending update to backend for:', updatedItem.identifier);
       const result = await currentDocumentStore.updateItem(updatedItem.identifier, updatedItem);
-      console.log('Backend response:', result);
+      logger.debug('Backend response:', result);
       // Local update
       itemStore.updateItem(currentDoc.value, updatedItem);
       // Force revalidation to update cached data
@@ -341,11 +357,11 @@ const onItemUpdate = async (updatedItem) => {
       }
       currentDocumentStore.reloadActiveDocument();
     } else {
-      console.warn('updatedItem is missing identifier:', updatedItem);
+      logger.warn('updatedItem is missing identifier:', updatedItem);
     }
   } catch (error) {
     logger.error('Failed to update item:', error);
-    console.error('Update item error detail:', error);
+    logger.error('Update item error detail:', error);
   }
 };
 
@@ -397,13 +413,18 @@ const {
 // Side document
 // ---------------------------------------------------------------------------
 const { sideDocument, loadingSideDoc, sideDocError, onSideDocumentSelect, onSideSelect } =
-  useSideDocument();
+  useSideDocument({
+    onDocumentLoaded: (sideDoc, _docData) => {
+      if (sideDoc?.id) {
+        contextStore.setFrameworkSelection(rightPanelMode.value, sideDoc.id);
+      }
+    }
+  });
 
 // ---------------------------------------------------------------------------
 // Document loader
 // ---------------------------------------------------------------------------
 const {
-  onDocumentChanged: documentLoaderOnDocumentChanged,
   onExternalDocumentRequested: documentLoaderOnExternalDocumentRequested,
   onExternalDocumentUrlLoaded: documentLoaderOnExternalDocumentUrlLoaded,
   initializeDocument,
@@ -415,7 +436,6 @@ const { connect: connectMercure } = useMercureNotifications();
 // ---------------------------------------------------------------------------
 // Panel / search state
 // ---------------------------------------------------------------------------
-const rightPanelMode = ref('itemDetails');
 const treeSearchQuery = ref('');
 
 // ---------------------------------------------------------------------------
@@ -456,6 +476,7 @@ const {
   onViewedDocumentChanged,
   onExternalDocumentRequested,
   onExternalDocumentUrlLoaded,
+  onExternalAction,
   onSearch,
   onFilter,
   onClearSearch,
@@ -519,6 +540,7 @@ const {
   documentLoaderOnExternalDocumentRequested,
   documentLoaderOnExternalDocumentUrlLoaded,
   sideDocument,
+  onSideDocumentSelect,
   expandItem,
   initializeFocus,
   setFocus,
@@ -569,7 +591,6 @@ async function onCloneFrameworkConfirmed() {
   }
 
   try {
-    // Make a POST request to the clone endpoint
     const response = await fetch(`/clone/framework/${frameworkIdentifier}`, {
       method: 'POST',
       headers: {
@@ -582,36 +603,13 @@ async function onCloneFrameworkConfirmed() {
       throw new Error(`Failed to clone framework: ${response.statusText} (${response.status})`);
     }
 
-    // The backend returns a 302 redirect to /editor/{newFrameworkIdentifier}
-    // Since fetch follows redirects automatically, response.url will be the final URL
-    // Navigate to the new framework using browser navigation
     window.location.href = response.url;
 
   } catch (error) {
     logger.error('Failed to clone framework:', error);
-    // TODO: Show error message to user
   } finally {
     showCloneFrameworkModal.value = false;
   }
-}
-
-function onCloneFrameworkModalHidden() {
-  // Hide the clone framework modal
-  showCloneFrameworkModal.value = false;
-}
-
-// ---------------------------------------------------------------------------
-// Scroll to selected item
-// ---------------------------------------------------------------------------
-function findItemPath(items, targetId, path = []) {
-  for (const item of items) {
-    if (item.identifier === targetId) return [...path, item.identifier];
-    if (item.children?.length) {
-      const childPath = findItemPath(item.children, targetId, [...path, item.identifier]);
-      if (childPath) return childPath;
-    }
-  }
-  return null;
 }
 
 async function scrollToSelectedItem() {

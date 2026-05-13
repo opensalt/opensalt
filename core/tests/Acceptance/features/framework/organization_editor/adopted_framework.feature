@@ -14,18 +14,17 @@ Feature: A framework marked as "Adopted" should not allow edits
     When I click "Import CASE® file"
     And I upload the adopted CASE file
     And I go to the uploaded framework
-    Then I should see the button "Manage Association Groups"
-    And I should not see the button "Add New Child Item"
-    And I should not see the button "Import Children"
+    Then I should see the button "Manage Groups"
+    And I should not see the button "Add Root Item"
     And I should not see the button "Update Framework"
     And I should see the button "Export"
-    And I should see the button "Edit"
+    And I should see the button "Edit document"
 
     When I click the first item in the framework
-    And I should not see the button "Edit"
+    And I should not see the button "Edit item"
     And I should not see the button "Delete"
-    And I should not see the button "Add a New Child Item"
-    And I should see the button "Add an Exemplar"
+    And I should not see the button "Add Child Item"
+    And I should see the button "Add Exemplar"
 
     Then I edit the fields in a framework
       | Adoption Status | Deprecated |

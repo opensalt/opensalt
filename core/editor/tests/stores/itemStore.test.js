@@ -363,7 +363,8 @@ describe('ItemStore', () => {
       expect(currentDocument.items[0].children[0].identifier).toBe('item-2');
     });
 
-    it('returns false when dragged item not found', async () => {
+    it('returns true when dragged item not found in local tree but API succeeds', async () => {
+      api.post.mockResolvedValueOnce({});
       const currentDocument = {
         id: 'doc-1',
         items: [{ identifier: 'item-1' }]
@@ -375,7 +376,7 @@ describe('ItemStore', () => {
         position: 'before'
       });
 
-      expect(result).toBe(false);
+      expect(result).toBe(true);
     });
 
     it('calls API to persist move', async () => {
@@ -395,9 +396,11 @@ describe('ItemStore', () => {
       });
 
       expect(api.post).toHaveBeenCalledWith(
-        '/doctree/update_items/doc-1?_format=json',
+        '/framework/editor/item/item-2/move',
         expect.objectContaining({
-          lsItems: [expect.objectContaining({ identifier: 'item-2' })]
+          newParentIdentifier: 'doc-1',
+          targetItemIdentifier: 'item-1',
+          position: 'before',
         })
       );
     });

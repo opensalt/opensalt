@@ -163,6 +163,18 @@ class LsItemRepository extends ServiceEntityRepository
         return $matched;
     }
 
+    public function findIdentifiersByLsDoc(LsDoc $doc): array
+    {
+        $result = $this->createQueryBuilder('i')
+            ->select('i.identifier')
+            ->where('i.lsDoc = :doc')
+            ->setParameter('doc', $doc->getId())
+            ->getQuery()
+            ->getScalarResult();
+
+        return array_column($result, 'identifier');
+    }
+
     /**
      * @param string[] $identifiers
      *

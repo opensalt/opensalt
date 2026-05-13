@@ -1,33 +1,51 @@
 <template>
   <div class="association-view h-100 d-flex flex-column bg-light">
-    <div v-if="loading" class="d-flex justify-content-center align-items-center flex-grow-1">
-      <div class="spinner-border text-primary" role="status">
+    <div
+      v-if="loading"
+      class="d-flex justify-content-center align-items-center flex-grow-1"
+    >
+      <div
+        class="spinner-border text-primary"
+        role="status"
+      >
         <span class="visually-hidden">Loading associations...</span>
       </div>
     </div>
-    <div v-else-if="error" class="alert alert-danger m-4" role="alert">
+    <div
+      v-else-if="error"
+      class="alert alert-danger m-4"
+      role="alert"
+    >
       {{ error }}
     </div>
-    <div v-else-if="!currentDocument" class="alert alert-info m-4" role="alert">
+    <div
+      v-else-if="!currentDocument"
+      class="alert alert-info m-4"
+      role="alert"
+    >
       Please select a document to view associations.
     </div>
-    <div v-else class="d-flex flex-grow-1 overflow-hidden" style="min-height: 0;">
+    <div
+      v-else
+      class="d-flex flex-grow-1 overflow-hidden"
+      style="min-height: 0;"
+    >
       <!-- Filters Sidebar -->
       <aside class="col-md-3 col-lg-2 border-end p-4 bg-white overflow-auto shadow-sm filter-panel flex-shrink-0">
         <h5 class="mb-4 d-flex align-items-center text-secondary">
-          <i class="bi bi-filter-right me-2 fs-4"></i> Filters
+          <i class="bi bi-filter-right me-2 fs-4" /> Filters
         </h5>
 
         <div class="mb-3">
           <label class="form-label">Search</label>
           <div class="input-group">
             <span class="input-group-text">
-              <i class="bi bi-search"></i>
+              <i class="bi bi-search" />
             </span>
             <input
+              v-model="searchFilter"
               type="text"
               class="form-control"
-              v-model="searchFilter"
               placeholder="Search associations..."
             >
           </div>
@@ -35,19 +53,32 @@
 
         <div class="mb-3">
           <label class="form-label">Association Types</label>
-          <div v-if="allAssociationTypes.length === 0" class="text-muted small">
+          <div
+            v-if="allAssociationTypes.length === 0"
+            class="text-muted small"
+          >
             No association types available. Load a document to see available types.
           </div>
-          <div v-else class="type-checkboxes">
-            <div v-for="type in allAssociationTypes" :key="type" class="form-check">
+          <div
+            v-else
+            class="type-checkboxes assocViewTableTypeFilters"
+          >
+            <div
+              v-for="type in allAssociationTypes"
+              :key="type"
+              class="form-check avTypeFilter"
+            >
               <input
-                type="checkbox"
                 :id="'type-' + type"
-                :value="type"
                 v-model="selectedTypes"
+                type="checkbox"
+                :value="type"
                 class="form-check-input"
               >
-              <label :for="'type-' + type" class="form-check-label">
+              <label
+                :for="'type-' + type"
+                class="form-check-label"
+              >
                 {{ type }}
               </label>
             </div>
@@ -56,25 +87,58 @@
 
         <div class="mb-3">
           <label class="form-label">Association Group</label>
-          <select class="form-select" v-model="selectedGroup">
-            <option value="">All Groups</option>
-            <option v-for="group in associationGroups" :key="group.id" :value="group.id">
+          <select
+            v-model="selectedGroup"
+            class="form-select"
+          >
+            <option value="">
+              All Groups
+            </option>
+            <option
+              v-for="group in associationGroups"
+              :key="group.id"
+              :value="group.id"
+            >
               {{ group.title }}
             </option>
           </select>
         </div>
 
         <div class="mt-4">
-          <button type="button" class="btn btn-outline-secondary btn-sm w-100" @click="clearFilters">
+          <button
+            type="button"
+            class="btn btn-outline-secondary btn-sm w-100"
+            @click="clearFilters"
+          >
             Clear Filters
           </button>
         </div>
       </aside>
 
       <!-- Main Content -->
-      <main class="col-md-9 col-lg-10 p-4 d-flex flex-column" style="min-height: 0;">
-        <div v-if="filteredAssociations.length === 0" class="text-center py-5 text-muted">
-          <i class="bi bi-inbox fs-1 mb-3"></i>
+      <main
+        class="col-md-9 col-lg-10 p-4 d-flex flex-column"
+        style="min-height: 0;"
+      >
+        <div
+          v-if="associationsLoading"
+          class="d-flex justify-content-center align-items-center flex-grow-1"
+        >
+          <div class="text-center text-muted">
+            <div
+              class="spinner-border text-primary mb-3"
+              role="status"
+            >
+              <span class="visually-hidden">Loading associations...</span>
+            </div>
+            <p>Loading associations...</p>
+          </div>
+        </div>
+        <div
+          v-else-if="filteredAssociations.length === 0"
+          class="text-center py-5 text-muted"
+        >
+          <i class="bi bi-inbox fs-1 mb-3" />
           <p>No associations found matching your filters.</p>
         </div>
 
@@ -82,38 +146,69 @@
           <AssociationTableView
             :associations="paginatedAssociations"
             :association-groups="associationGroups"
-            :is-read-only="false"
+            :is-read-only="associationActionsReadOnly"
             @edit-association="editAssoc"
             @delete-association="deleteAssoc"
           />
 
           <!-- Pagination -->
-          <div v-if="totalPages > 1" class="mt-4 flex-shrink-0">
+          <div
+            v-if="totalPages > 1"
+            class="mt-4 flex-shrink-0"
+          >
             <nav aria-label="Association pagination">
               <ul class="pagination justify-content-center">
                 <li :class="{ disabled: currentPage === 1 }">
-                  <button class="page-link" @click="goToPage(1)" :disabled="currentPage === 1">
+                  <button
+                    class="page-link"
+                    :disabled="currentPage === 1"
+                    @click="goToPage(1)"
+                  >
                     &laquo; First
                   </button>
                 </li>
                 <li :class="{ disabled: currentPage === 1 }">
-                  <button class="page-link" @click="goToPage(currentPage - 1)" :disabled="currentPage === 1">
+                  <button
+                    class="page-link"
+                    :disabled="currentPage === 1"
+                    @click="goToPage(currentPage - 1)"
+                  >
                     &lsaquo; Previous
                   </button>
                 </li>
-                <li v-for="page in displayedPages" :key="page" :class="{ active: page === currentPage, disabled: page === '...' }">
-                  <button v-if="page !== '...'" class="page-link" :class="{ active: page === currentPage }" @click="goToPage(page)">
+                <li
+                  v-for="page in displayedPages"
+                  :key="page"
+                  :class="{ active: page === currentPage, disabled: page === '...' }"
+                >
+                  <button
+                    v-if="page !== '...'"
+                    class="page-link"
+                    :class="{ active: page === currentPage }"
+                    @click="goToPage(page)"
+                  >
                     {{ page }}
                   </button>
-                  <span v-else class="page-link border-0">...</span>
+                  <span
+                    v-else
+                    class="page-link border-0"
+                  >...</span>
                 </li>
                 <li :class="{ disabled: currentPage === totalPages }">
-                  <button class="page-link" @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages">
+                  <button
+                    class="page-link"
+                    :disabled="currentPage === totalPages"
+                    @click="goToPage(currentPage + 1)"
+                  >
                     Next &rsaquo;
                   </button>
                 </li>
                 <li :class="{ disabled: currentPage === totalPages }">
-                  <button class="page-link" @click="goToPage(totalPages)" :disabled="currentPage === totalPages">
+                  <button
+                    class="page-link"
+                    :disabled="currentPage === totalPages"
+                    @click="goToPage(totalPages)"
+                  >
                     Last &raquo;
                   </button>
                 </li>
@@ -146,11 +241,10 @@
 </template>
 
 <script setup>
-/* global console */
 import { ref, computed, onMounted, watch } from 'vue';
 import { useDocumentStore } from '../../stores/documentStore';
 import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
-import { useEditorContextStore } from '../../stores/editorContextStore';
+import { useSessionStore } from '../../stores/sessionStore';
 import { logger } from '../../utils/logger.js';
 import AssociationTableView from './AssociationTableView.vue';
 import EditAssociationModal from './EditAssociationModal.vue';
@@ -158,7 +252,7 @@ import DeleteAssociationModal from './DeleteAssociationModal.vue';
 
 const documentStore = useDocumentStore();
 const currentDocumentStore = useCurrentDocumentStore();
-const contextStore = useEditorContextStore();
+const sessionStore = useSessionStore();
 
 // Modal state
 const showEditAssociationModal = ref(false);
@@ -173,42 +267,42 @@ const loading = computed(() => documentStore.loading);
 const error = computed(() => documentStore.error);
 const currentDocument = computed(() => currentDocumentStore.currentDocument);
 const associationGroups = computed(() => currentDocumentStore.associationGroups);
+const dbAssociations = ref([]);
+const associationsLoading = ref(true);
+const associationActionsReadOnly = computed(() => !sessionStore.isAuthenticated);
 
-const associations = computed(() => {
-  // Collect all item identifiers in the current document (including document itself)
+async function refreshDbAssociations() {
   const currentDocId = currentDocumentStore.currentDocument?.identifier;
-  const currentItemIds = new Set();
-  
-  if (currentDocumentStore.currentDocument?.items) {
-    (function collectIds(items) {
-      for (const item of items) {
-        currentItemIds.add(item.identifier);
-        if (item.children) collectIds(item.children);
-      }
-    })(currentDocumentStore.currentDocument.items);
+  if (!currentDocId) {
+    dbAssociations.value = [];
+    associationsLoading.value = false;
+    return;
   }
-  if (currentDocId) currentItemIds.add(currentDocId);
 
-  // Use centralized registry to find all associations involving these items
-  const result = [];
-  const seenIds = new Set();
+  associationsLoading.value = true;
+  try {
+    const data = await currentDocumentStore.fetchFrameworkAssociations(currentDocId);
+    dbAssociations.value = data.map((assoc) => ({
+      ...assoc,
+      _sourceFrameworkId: assoc.associationDocumentIdentifier || null,
+    }));
+  } catch (err) {
+    logger.error('[AssociationView] Failed to fetch associations for framework:', currentDocId, err);
+    dbAssociations.value = [];
+  } finally {
+    associationsLoading.value = false;
+  }
+}
 
-  contextStore.associationRegistry.forEach((regAssoc) => {
-    const assoc = regAssoc.association;
-    const originId = assoc.originNodeURI?.identifier;
-    const destId = assoc.destinationNodeURI?.identifier;
+watch(
+  () => currentDocumentStore.currentDocument?.identifier,
+  () => {
+    void refreshDbAssociations();
+  },
+  { immediate: true }
+);
 
-    if ((currentItemIds.has(originId) || currentItemIds.has(destId)) && !seenIds.has(assoc.identifier)) {
-      seenIds.add(assoc.identifier);
-      result.push({
-        ...assoc,
-        _sourceFrameworkId: regAssoc.frameworkId // Framework origin tracking
-      });
-    }
-  });
-
-  return result;
-});
+const associations = computed(() => dbAssociations.value);
 
 // Dynamically derive association types from actual data
 const allAssociationTypes = computed(() => {
@@ -336,7 +430,6 @@ const filteredAssociations = computed(() => {
 const totalPages = computed(() => Math.max(1, Math.ceil(filteredAssociations.value.length / itemsPerPage.value)));
 
 const displayedPages = computed(() => {
-  const pages = [];
   const delta = 2; // Number of pages to show before and after current page
   const left = currentPage.value - delta;
   const right = currentPage.value + delta + 1;
@@ -445,7 +538,7 @@ async function handleDeleteConfirmed(assoc) {
   // Use the correct ID property - associations can have either id or identifier
   const associationId = assoc.id || assoc.identifier;
   if (!associationId) {
-    console.error('Association has no id or identifier:', assoc);
+    logger.error('Association has no id or identifier:', assoc);
     return;
   }
   try {
@@ -453,7 +546,7 @@ async function handleDeleteConfirmed(assoc) {
     logger.debug('Association deleted successfully:', associationId);
     showDeleteModal.value = false;
   } catch (e) {
-    console.error('Failed to delete association', e);
+    logger.error('Failed to delete association', e);
   }
 }
 
@@ -467,11 +560,6 @@ function clearFilters() {
   selectedGroup.value = '';
   searchFilter.value = '';
   currentPage.value = 1;
-}
-
-function formatDate(dateString) {
-  if (!dateString) return 'N/A';
-  return new Date(dateString).toLocaleDateString();
 }
 
 function goToPage(page) {

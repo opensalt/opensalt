@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { api } from '../services/api.js';
+import { logger } from '../utils/logger.js';
 
 /**
  * Comment Store
@@ -56,7 +57,7 @@ export const useCommentStore = defineStore('comments', () => {
      */
     async function fetchComments(itemType, itemIdentifier) {
         if (!itemType || !itemIdentifier) {
-            console.warn('fetchComments: Missing itemType or itemIdentifier');
+            logger.warn('fetchComments: Missing itemType or itemIdentifier');
             return;
         }
 
@@ -66,9 +67,13 @@ export const useCommentStore = defineStore('comments', () => {
 
         try {
             const response = await api.get(`/comments/${itemType}/${itemIdentifier}`);
-            comments.value = Array.isArray(response) ? response : [];
+            const fetchedComments = Array.isArray(response) ? response : [];
+            // Preserve any locally-added comments that the server response doesn't yet include
+            const fetchedIds = new Set(fetchedComments.map(c => c.id));
+            const localOnly = comments.value.filter(c => c.id && !fetchedIds.has(c.id));
+            comments.value = [...fetchedComments, ...localOnly];
         } catch (err) {
-            console.error('Failed to fetch comments:', err);
+            logger.error('Failed to fetch comments:', err);
             error.value = err.message || 'Failed to load comments';
             comments.value = [];
         } finally {
@@ -86,7 +91,7 @@ export const useCommentStore = defineStore('comments', () => {
      */
     async function addComment(commentData, file = null) {
         if (!currentItem.value) {
-            console.error('addComment: No current item set');
+            logger.error('addComment: No current item set');
             return null;
         }
 
@@ -127,7 +132,7 @@ export const useCommentStore = defineStore('comments', () => {
 
             return newComment;
         } catch (err) {
-            console.error('Failed to add comment:', err);
+            logger.error('Failed to add comment:', err);
             error.value = err.message || 'Failed to add comment';
             return null;
         }
@@ -154,7 +159,7 @@ export const useCommentStore = defineStore('comments', () => {
 
             return updatedComment;
         } catch (err) {
-            console.error('Failed to update comment:', err);
+            logger.error('Failed to update comment:', err);
             error.value = err.message || 'Failed to update comment';
             return null;
         }
@@ -190,7 +195,7 @@ export const useCommentStore = defineStore('comments', () => {
 
             return true;
         } catch (err) {
-            console.error('Failed to delete comment:', err);
+            logger.error('Failed to delete comment:', err);
             error.value = err.message || 'Failed to delete comment';
             return false;
         }
@@ -206,7 +211,7 @@ export const useCommentStore = defineStore('comments', () => {
 
         const comment = comments.value.find(c => c.id === commentId);
         if (!comment) {
-            console.error('toggleUpvote: Comment not found');
+            logger.error('toggleUpvote: Comment not found');
             return null;
         }
 
@@ -230,7 +235,7 @@ export const useCommentStore = defineStore('comments', () => {
 
             return updatedComment;
         } catch (err) {
-            console.error('Failed to toggle upvote:', err);
+            logger.error('Failed to toggle upvote:', err);
             error.value = err.message || 'Failed to update upvote';
             return null;
         }

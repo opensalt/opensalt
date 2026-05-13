@@ -226,7 +226,8 @@ final class ExcelExport
         ];
         $lastCol = array_key_last($columns);
         foreach (self::$customItemFields as $customField) {
-            $columns[++$lastCol] = sprintf('[extra][customFields][%s]', $customField);
+            $lastCol = str_increment($lastCol);
+            $columns[$lastCol] = sprintf('[extra][customFields][%s]', $customField);
         }
 
         foreach ($columns as $column => $field) {

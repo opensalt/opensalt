@@ -21,10 +21,10 @@ use App\Entity\User\User;
 use App\Repository\User\AccessGroupRepository;
 use App\Security\Permission;
 use Ecotone\EventSourcing\EventStore;
+use Ecotone\EventSourcing\EventStore\MetadataMatcher;
+use Ecotone\EventSourcing\EventStore\Operator;
 use Ecotone\Modelling\CommandBus;
 use Ecotone\Modelling\QueryBus;
-use Prooph\EventStore\Metadata\MetadataMatcher;
-use Prooph\EventStore\Metadata\Operator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormInterface;
@@ -376,7 +376,7 @@ class CredentialController extends AbstractController
             $deprecateForm = $this->createDeprecateForm($credential);
         }
 
-        $store->load(CredentialDefinition::STREAM, metadataMatcher: new MetadataMatcher()->withMetadataMatch('_aggregate_id', Operator::EQUALS(), $uuid->toString()), deserialize: false);
+        $store->load(CredentialDefinition::STREAM, metadataMatcher: new MetadataMatcher()->withMetadataMatch('_aggregate_id', Operator::EQUALS, $uuid->toString()), deserialize: false);
         //dump($history);
 
         return $this->render('credential/show.html.twig', [

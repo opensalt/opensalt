@@ -1,4 +1,4 @@
-import { nextTick } from 'vue';
+import { findItem, findItemPath } from '../utils/tree.js';
 import { logger } from '../utils/logger.js';
 
 /**
@@ -11,29 +11,21 @@ import { logger } from '../utils/logger.js';
  * @param {Object} ctx - Context object with refs, stores, and utility functions
  */
 export function useTreeEditorHandlers({
-    // Stores
     documentStore,
     currentDocumentStore,
     filterStore,
     itemStore,
     viewStore,
     contextStore,
-    // Router
     router,
-    route,
-    // Reactive state
     currentDoc,
-    doc,
     viewedDoc,
-    selectedId,
     isViewingDifferentFramework,
     rightPanelMode,
     filteredDoc,
-    // Modal state (from useModalState)
     showEditDocModal,
     showEditAssociationModal,
     showDeleteModal,
-    showExemplarModal,
     editingAssociation,
     itemsToDelete,
     deleteType,
@@ -42,47 +34,21 @@ export function useTreeEditorHandlers({
     addingAssociationOrigin,
     addingAssociationDestination,
     closeEditAssociationModal,
-    openCrossTreeModal,
     closeCrossTreeModal,
     crossTreeSource,
     crossTreeTarget,
     showAssocGroupModal,
     showLoadExternalModal,
-    // Dynamic edit modal
     showEditModal,
-    // Document loader composable fns
     documentLoaderOnExternalDocumentRequested,
     documentLoaderOnExternalDocumentUrlLoaded,
-    // Side document
     sideDocument,
-    // Navigation helpers
-    expandItem,
-    initializeFocus,
-    setFocus,
-    scrollToSelectedItem,
-    // Announcer
+    onSideDocumentSelect,
     announcer,
-    showDeleteAssociationModal,
-    associationToDelete,
     openDeleteAssociationModal,
     closeDeleteAssociationModal,
-    // Mercure
-    connectMercure,
+    _connectMercure,
 }) {
-    // ---------------------------------------------------------------------------
-    // Item lookup helper
-    // ---------------------------------------------------------------------------
-    function findItem(items, id) {
-        for (const item of items) {
-            if (item.identifier === id) return item;
-            if (item.children) {
-                const found = findItem(item.children, id);
-                if (found) return found;
-            }
-        }
-        return null;
-    }
-
     // ---------------------------------------------------------------------------
     // Selection
     // ---------------------------------------------------------------------------
@@ -130,31 +96,13 @@ export function useTreeEditorHandlers({
         // Check for drop on same item
         if (draggedItem.identifier === targetItem.identifier) return;
 
-        // Check mode FIRST before document IDs
-        if (rightPanelMode.value === 'createAssociations') {
-            // Always create association when in createAssociations mode
-            addingAssociation.value = true;
-            addingAssociationType.value = '';
-            addingAssociationOrigin.value = draggedItem;
-            addingAssociationDestination.value = targetItem;
-            showEditAssociationModal.value = true;
-            return;
-        } else if (rightPanelMode.value === 'copyItems') {
-            // Always copy when in copyItems mode
-            openCrossTreeModal(draggedItem, targetItem, position);
-            return;
-        }
-
-        // Only check document IDs for default behavior
+        // Verify it's an internal move (safety check)
         const draggedDocId = draggedItem.CFDocumentURI?.identifier || draggedItem.documentId;
         const targetDocId = currentDoc.value?.id;
 
         if (draggedDocId === targetDocId) {
-            // Internal move - only when NOT in special modes
+            // Internal move
             await itemStore.moveItem(currentDoc.value, { draggedItem, targetItem, position });
-        } else {
-            // Cross-tree move (Item Details mode) - prompt for action
-            openCrossTreeModal(draggedItem, targetItem, position);
         }
     }
 
@@ -198,6 +146,76 @@ export function useTreeEditorHandlers({
     }
 
     // ---------------------------------------------------------------------------
+    // External Button Actions
+    // ---------------------------------------------------------------------------
+    async function onExternalAction(event) {
+        const { type, position, itemId } = event;
+        // Find source item from right panel
+        const itemsToSearch = sideDocument.value?.items || sideDocument.value?.children || [];
+        let sourceItem = findItem(itemsToSearch, itemId);
+
+        // If the item selected is not in the items tree, must be the document root
+        if (!sourceItem && sideDocument.value) {
+            sourceItem = {
+                identifier: sideDocument.value.identifier || sideDocument.value.id || 'document-root',
+                title: sideDocument.value.title || 'Document Root',
+                itemType: 'document',
+                ...sideDocument.value
+            };
+        }
+
+        if (!sourceItem) return;
+
+        // Target item is current selection in main tree
+        let targetItem = viewStore.currentItem;
+
+        // If nothing is selected, check if we can use the document root
+        if (!targetItem && currentDoc.value) {
+            targetItem = {
+                identifier: currentDoc.value.identifier || currentDoc.value.id || 'document-root',
+                title: currentDoc.value.title || 'Document Root',
+                itemType: 'document',
+                ...currentDoc.value
+            };
+        }
+
+        if (!targetItem) return;
+
+        if (type === 'associate') {
+            addingAssociation.value = true;
+            addingAssociationType.value = '';
+            addingAssociationOrigin.value = targetItem;
+            addingAssociationDestination.value = sourceItem;
+            showEditAssociationModal.value = true;
+        } else if (type === 'copy') {
+            const documentId = currentDoc.value?.id;
+            let targetParentId = null;
+
+            if (position === 'inside') {
+                targetParentId = targetItem.identifier === documentId ? documentId : targetItem.identifier;
+            } else if (position === 'before' || position === 'after') {
+                // Find parent of targetItem
+                const path = findItemPath(currentDoc.value?.items || [], targetItem.identifier);
+                if (path && path.length >= 2) {
+                    targetParentId = path[path.length - 2];
+                } else {
+                    targetParentId = documentId; // Fallback to root
+                }
+            }
+
+            try {
+                await currentDocumentStore.copyItem(documentId, sourceItem, targetParentId);
+                if (documentId) {
+                    await documentStore.revalidatePackage(documentId, true);
+                }
+                currentDocumentStore.reloadActiveDocument();
+            } catch (error) {
+                logger.error('Failed to copy external item:', error);
+            }
+        }
+    }
+
+    // ---------------------------------------------------------------------------
     // Viewed document
     // ---------------------------------------------------------------------------
     async function onViewedDocumentChanged(id) {
@@ -205,21 +223,25 @@ export function useTreeEditorHandlers({
 
         if (!documentId) {
             contextStore.viewedDocumentId = null;
+            contextStore.setFrameworkSelection('treeView', null);
             return;
         }
 
         if (documentId === currentDoc.value?.identifier) {
             contextStore.viewedDocumentId = null;
+            contextStore.setFrameworkSelection('treeView', null);
             return;
         }
 
         try {
-            const pkg = await documentStore.loadPackage(documentId);
-            if (pkg?.CFDocument) {
+            const response = await documentStore.fetchTree(documentId);
+            if (response?.document) {
                 contextStore.viewedDocumentId = documentId;
+                // Save framework selection for treeView mode
+                contextStore.setFrameworkSelection('treeView', documentId);
             }
         } catch (err) {
-            console.error('Failed to switch viewed document:', err);
+            logger.error('Failed to switch viewed document:', err);
         }
     }
 
@@ -271,11 +293,16 @@ export function useTreeEditorHandlers({
     async function handleAddChild(newItem, parentItem) {
         if (newItem && parentItem?.identifier) {
             try {
-                await currentDocumentStore.createItem(parentItem.identifier, newItem);
+                const result = await currentDocumentStore.createItem(parentItem.identifier, newItem);
                 if (currentDoc.value?.id) {
                     await documentStore.revalidatePackage(currentDoc.value.id, true);
                 }
-                currentDocumentStore.reloadActiveDocument();
+                await currentDocumentStore.reloadActiveDocument();
+                // Select the newly added item in the tree and update the URL
+                const newIdentifier = result?.identifier;
+                if (newIdentifier) {
+                    onSelect(newIdentifier);
+                }
             } catch (error) {
                 logger.error('Failed to add child item:', error);
             }
@@ -324,8 +351,17 @@ export function useTreeEditorHandlers({
         }
     }
 
-    function onRightPanelModeChanged(mode) {
+    async function onRightPanelModeChanged(mode) {
         rightPanelMode.value = mode;
+
+        // Restore framework selection for the new mode
+        if (mode === 'externalDocument') {
+            const selection = contextStore.getFrameworkSelection(mode);
+            if (selection?.documentId) {
+                // Trigger side document loading
+                await onSideDocumentSelect(selection.documentId);
+            }
+        }
     }
 
     // ---------------------------------------------------------------------------
@@ -468,11 +504,16 @@ export function useTreeEditorHandlers({
     async function handleAddRootItem(newItem) {
         if (newItem && currentDoc.value) {
             try {
-                await currentDocumentStore.createItem(currentDoc.value.id, newItem);
+                const result = await currentDocumentStore.createItem(currentDoc.value.id, newItem);
                 if (currentDoc.value?.id) {
                     await documentStore.revalidatePackage(currentDoc.value.id, true);
                 }
-                currentDocumentStore.reloadActiveDocument();
+                await currentDocumentStore.reloadActiveDocument();
+                // Select the newly added item in the tree and update the URL
+                const newIdentifier = result?.identifier;
+                if (newIdentifier) {
+                    onSelect(newIdentifier);
+                }
             } catch (error) {
                 logger.error('Failed to add root item:', error);
             }
@@ -495,16 +536,6 @@ export function useTreeEditorHandlers({
     // ---------------------------------------------------------------------------
     // Document init & scroll
     // ---------------------------------------------------------------------------
-    function findItemPath(items, targetId, path = []) {
-        for (const item of items) {
-            if (item.identifier === targetId) return [...path, item.identifier];
-            if (item.children?.length) {
-                const childPath = findItemPath(item.children, targetId, [...path, item.identifier]);
-                if (childPath) return childPath;
-            }
-        }
-        return null;
-    }
 
     // Exposed for the parent component to call
     function getScrollTarget() {
@@ -522,6 +553,7 @@ export function useTreeEditorHandlers({
         onViewedDocumentChanged,
         onExternalDocumentRequested,
         onExternalDocumentUrlLoaded,
+        onExternalAction,
         onSearch,
         onFilter,
         onClearSearch,

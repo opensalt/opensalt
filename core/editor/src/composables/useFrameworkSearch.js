@@ -1,8 +1,11 @@
 import { computed } from 'vue';
+import { countMatches as countTreeMatches } from '../utils/tree.js';
 
 /**
  * Composable that provides framework-level search count and matching-ID set
  * for the main tree editor.
+ *
+ * All search is performed client-side on the in-memory tree data.
  *
  * @param {Object} options
  * @param {import('vue').Ref} options.treeSearchQuery - The current search string
@@ -12,8 +15,7 @@ import { computed } from 'vue';
  */
 export function useFrameworkSearch({ treeSearchQuery, doc, viewedDoc, isViewingDifferentFramework }) {
     function countMatches(items, query) {
-        let count = 0;
-        for (const item of items) {
+        return countTreeMatches(items, item => {
             const searchableText = [
                 item.humanCodingScheme,
                 item.abbreviatedStatement,
@@ -24,10 +26,8 @@ export function useFrameworkSearch({ treeSearchQuery, doc, viewedDoc, isViewingD
                 .filter(Boolean)
                 .join(' ')
                 .toLowerCase();
-            if (searchableText.includes(query)) count++;
-            if (item.children) count += countMatches(item.children, query);
-        }
-        return count;
+            return searchableText.includes(query);
+        });
     }
 
     function findMatches(items, query, matches) {

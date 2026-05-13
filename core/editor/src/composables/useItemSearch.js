@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue';
+import { countMatches as countTreeMatches } from '../utils/tree.js';
 
 /**
  * Composable for item search functionality
@@ -11,9 +11,7 @@ export function useItemSearch() {
   function countMatches(items, query) {
     if (!query) return 0;
     const searchQuery = query.toLowerCase();
-    let count = 0;
-    
-    for (const item of items) {
+    return countTreeMatches(items, item => {
       const searchableText = [
         item.humanCodingScheme,
         item.abbreviatedStatement,
@@ -21,15 +19,8 @@ export function useItemSearch() {
         item.title,
         item.identifier
       ].filter(Boolean).join(' ').toLowerCase();
-
-      if (searchableText.includes(searchQuery)) {
-        count++;
-      }
-      if (item.children) {
-        count += countMatches(item.children, searchQuery);
-      }
-    }
-    return count;
+      return searchableText.includes(searchQuery);
+    });
   }
 
   /**

@@ -2,34 +2,41 @@
   <div class="tree-filter mb-2">
     <div class="input-group input-group-sm">
       <span class="input-group-text">
-        <i class="bi bi-search"></i>
+        <i class="bi bi-search" />
       </span>
       <input
+        id="filterOnTree"
         ref="searchInput"
         type="text"
-        class="form-control"
+        class="form-control treeFilter"
         :value="modelValue"
-        @input="onInput"
-        @keydown.escape="onClear"
         placeholder="Filter tree..."
         aria-label="Filter tree items"
-      />
+        @input="onInput"
+        @keydown.escape="onClear"
+      >
       <button
         v-if="modelValue"
         type="button"
         class="btn btn-outline-secondary"
-        @click="onClear"
         aria-label="Clear filter"
+        @click="onClear"
       >
-        <i class="bi bi-x-lg"></i>
+        <i class="bi bi-x-lg" />
       </button>
     </div>
-    <div v-if="matchCount !== null && modelValue" class="filter-info mt-1">
+    <div
+      v-if="matchCount !== null && modelValue"
+      class="filter-info mt-1"
+    >
       <small class="text-muted">
         <span v-if="matchCount > 0">
           {{ matchCount }} item{{ matchCount !== 1 ? 's' : '' }} found
         </span>
-        <span v-else class="text-warning">
+        <span
+          v-else
+          class="text-warning"
+        >
           No matches found
         </span>
       </small>
@@ -38,9 +45,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onUnmounted } from 'vue';
 
-const props = defineProps({
+const _props = defineProps({
   modelValue: {
     type: String,
     default: ''
@@ -75,6 +82,13 @@ function onClear() {
   emit('clear');
   searchInput.value?.focus();
 }
+
+// Clean up debounce timer on unmount
+onUnmounted(() => {
+  if (debounceTimer) {
+    clearTimeout(debounceTimer);
+  }
+});
 
 // Expose focus method for external use
 defineExpose({

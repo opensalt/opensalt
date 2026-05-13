@@ -10,7 +10,6 @@ use App\Command\Framework\DeleteAssociationGroupCommand;
 use App\Command\Framework\UpdateAssociationGroupCommand;
 use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Entity\Framework\LsDoc;
-use App\Repository\Framework\LsDefAssociationGroupingRepository;
 use App\Security\Permission;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,11 +23,6 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class AssociationGroupController extends AbstractController
 {
     use CommandDispatcherTrait;
-
-    public function __construct(
-        private readonly LsDefAssociationGroupingRepository $groupRepository,
-    ) {
-    }
 
     #[Route(path: '/association_grouping/new/{identifier}', name: 'editor_association_grouping_new', methods: ['POST'])]
     #[IsGranted(Permission::FRAMEWORK_EDIT, 'lsDoc')]

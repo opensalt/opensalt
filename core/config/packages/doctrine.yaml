@@ -61,6 +61,7 @@ doctrine:
                         #alias: GedmoTree # (optional) it will default to the name set for the mapping
                         is_bundle: false
 
+
 #when@test:
 #    doctrine:
 #        dbal:

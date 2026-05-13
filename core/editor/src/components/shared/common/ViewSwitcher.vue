@@ -1,35 +1,42 @@
 <template>
   <div class="view-switcher d-flex justify-content-center">
-    <div class="btn-group" role="group" aria-label="View selection">
+    <div
+      class="btn-group"
+      role="group"
+      aria-label="View selection"
+    >
       <button
+        id="displayTreeBtn"
         type="button"
         class="btn btn-sm"
         :class="{ 'btn-primary': currentView === 'tree', 'btn-outline-primary': currentView !== 'tree' }"
-        @click="switchView('tree')"
         :aria-pressed="currentView === 'tree'"
+        @click="switchView('tree')"
       >
-        <i class="bi bi-diagram-3 me-1"></i>
+        <i class="bi bi-diagram-3 me-1" />
         Tree View
       </button>
       <button
+        id="displayAssocBtn"
         type="button"
         class="btn btn-sm"
         :class="{ 'btn-primary': currentView === 'association', 'btn-outline-primary': currentView !== 'association' }"
-        @click="switchView('association')"
         :aria-pressed="currentView === 'association'"
+        @click="switchView('association')"
       >
-        <i class="bi bi-share me-1"></i>
+        <i class="bi bi-share me-1" />
         Association View
       </button>
-        <button
+      <button
         v-if="sessionStore.isAuthenticated"
+        id="displayLogBtn"
         type="button"
         class="btn btn-sm"
         :class="{ 'btn-primary': currentView === 'log', 'btn-outline-primary': currentView !== 'log' }"
-        @click="switchView('log')"
         :aria-pressed="currentView === 'log'"
+        @click="switchView('log')"
       >
-        <i class="bi bi-list-check me-1"></i>
+        <i class="bi bi-list-check me-1" />
         Log View
       </button>
     </div>
@@ -42,12 +49,15 @@ import { useRouter, useRoute } from 'vue-router';
 import { useCurrentDocumentStore } from '../../../stores/currentDocumentStore';
 import { useSessionStore } from '../../../stores/sessionStore';
 import { useViewStore } from '../../../stores/viewStore';
+import { useEditorContextStore } from '../../../stores/editorContextStore';
+import { logger } from '../../../utils/logger.js';
 
 const router = useRouter();
 const route = useRoute();
 const currentDocumentStore = useCurrentDocumentStore();
 const sessionStore = useSessionStore();
 const viewStore = useViewStore();
+const editorContextStore = useEditorContextStore();
 
 const currentFrameworkId = computed(() => currentDocumentStore.currentDocument?.id || '');
 
@@ -58,25 +68,42 @@ const currentView = computed(() => {
   return 'tree';
 });
 
-function switchView(view) {
+async function switchView(view) {
   if (!currentFrameworkId.value) {
-    console.warn('No framework ID available for navigation');
+    logger.warn('No framework ID available for navigation');
     return;
   }
+
   let path;
+
   if (view === 'tree') {
-    // Get the last selected item for this specific document
-    const lastItemId = viewStore.getLastItemIdForDocument(currentFrameworkId.value);
-    if (lastItemId) {
-      path = `/${currentFrameworkId.value}/${lastItemId}`;
+    // Check if there's a saved framework selection for treeView
+    const treeViewSelection = editorContextStore.getFrameworkSelection('treeView');
+
+    if (treeViewSelection?.documentId && treeViewSelection.documentId !== currentFrameworkId.value) {
+      // Use the saved framework selection
+      const lastItemId = viewStore.getLastItemIdForDocument(treeViewSelection.documentId);
+      if (lastItemId) {
+        path = `/${treeViewSelection.documentId}/${lastItemId}`;
+      } else {
+        path = `/${treeViewSelection.documentId}`;
+      }
+      logger.debug('[ViewSwitcher] Using saved treeView framework:', treeViewSelection.documentId);
     } else {
-      path = `/${currentFrameworkId.value}`;
+      // Use current framework
+      const lastItemId = viewStore.getLastItemIdForDocument(currentFrameworkId.value);
+      if (lastItemId) {
+        path = `/${currentFrameworkId.value}/${lastItemId}`;
+      } else {
+        path = `/${currentFrameworkId.value}`;
+      }
     }
   } else if (view === 'association') {
     path = `/${currentFrameworkId.value}/association`;
   } else if (view === 'log') {
     path = `/${currentFrameworkId.value}/log`;
   }
+
   router.push(path);
 }
 </script>

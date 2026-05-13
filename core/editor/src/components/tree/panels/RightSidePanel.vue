@@ -1,0 +1,248 @@
+<template>
+  <div class="right-side-panel ms-3 h-100 d-flex flex-column">
+    <!-- Mode Tabs -->
+    <div class="mode-tabs mb-2 flex-shrink-0">
+      <div
+        class="btn-group w-100"
+        role="group"
+        aria-label="Panel mode selection"
+      >
+        <button
+          id="rightSideItemDetailsBtn"
+          type="button"
+          class="btn btn-sm"
+          :class="{ 'btn-primary': currentMode === 'itemDetails', 'btn-outline-primary': currentMode !== 'itemDetails' }"
+          @click="setMode('itemDetails')"
+        >
+          <i class="bi bi-info-circle me-1" />
+          Item Details
+        </button>
+        <button
+          v-if="sessionStore.isAuthenticated"
+          id="rightSideCopyItemsBtn"
+          type="button"
+          class="btn btn-sm"
+          :class="{ 'btn-primary': currentMode === 'externalDocument', 'btn-outline-primary': currentMode !== 'externalDocument' }"
+          @click="setMode('externalDocument')"
+        >
+          <i class="bi bi-box-arrow-in-right me-1" />
+          Copy / Associate
+        </button>
+      </div>
+    </div>
+
+    <!-- Panel Content -->
+    <div class="panel-content flex-grow-1 overflow-y-auto">
+      <!-- Item Details Mode -->
+      <ItemDetailsPanel
+        v-if="currentMode === 'itemDetails'"
+        :selected-item="selectedItem"
+        :current-document="currentDocument"
+        :association-groups="associationGroups"
+        @edit-item="$emit('edit-item', $event)"
+        @delete-item="$emit('delete-item', $event)"
+        @add-child="(...args) => $emit('add-child', ...args)"
+        @add-exemplar="$emit('add-exemplar', $event)"
+        @add-association="$emit('add-association', $event)"
+        @edit-association="$emit('edit-association', $event)"
+        @delete-association="$emit('delete-association', $event)"
+        @update-item="$emit('update-item', $event)"
+        @edit-document="$emit('edit-document')"
+        @delete-document="$emit('delete-document')"
+        @add-root-item="$emit('add-root-item', $event)"
+        @manage-association-groups="$emit('manage-association-groups')"
+        @update-framework="$emit('update-framework')"
+        @export-document="$emit('export-document')"
+        @clone-framework="$emit('clone-framework')"
+      />
+
+      <!-- Copy Items or Create Associations Mode -->
+      <SideTreePanel
+        v-else
+        :mode="currentMode"
+        :current-document-id="currentDocument?.id"
+        :available-documents="availableDocuments"
+        :side-document="sideDocument"
+        :loading-side-doc="loadingSideDoc"
+        :side-doc-error="sideDocError"
+        @document-select="$emit('side-document-select', $event)"
+        @external-document-requested="$emit('external-document-requested')"
+        @side-select="$emit('side-select', $event)"
+        @action="$emit('action', $event)"
+      />
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, watch } from 'vue';
+import ItemDetailsPanel from './ItemDetailsPanel.vue';
+import SideTreePanel from '../../tree/SideTreePanel.vue';
+import { useSessionStore } from '../../../stores/sessionStore';
+import { useEditorContextStore } from '../../../stores/editorContextStore';
+
+const sessionStore = useSessionStore();
+const editorContextStore = useEditorContextStore();
+
+const props = defineProps({
+  selectedItem: {
+    type: Object,
+    default: null
+  },
+  currentDocument: {
+    type: Object,
+    default: null
+  },
+  initialMode: {
+    type: String,
+    default: 'itemDetails'
+  },
+  associationGroups: {
+    type: Array,
+    default: () => []
+  },
+  availableDocuments: {
+    type: Array,
+    default: () => []
+  },
+  sideDocument: {
+    type: Object,
+    default: null
+  },
+  loadingSideDoc: {
+    type: Boolean,
+    default: false
+  },
+  sideDocError: {
+    type: String,
+    default: ''
+  }
+});
+
+const emit = defineEmits([
+  'mode-changed',
+  'edit-item',
+  'delete-item',
+  'add-child',
+  'add-exemplar',
+  'add-association',
+  'edit-association',
+  'delete-association',
+  'update-item',
+  'edit-document',
+  'delete-document',
+  'add-root-item',
+  'manage-association-groups',
+  'update-framework',
+  'export-document',
+  'clone-framework',
+  'side-document-select',
+  'external-document-requested',
+  'side-select',
+  'action'
+]);
+
+const currentMode = ref(props.initialMode);
+
+function setMode(mode) {
+  currentMode.value = mode;
+  emit('mode-changed', mode);
+
+  // Restore framework selection for the new mode
+  restoreFrameworkSelection(mode);
+}
+
+async function restoreFrameworkSelection(mode) {
+  if (mode === 'itemDetails') {
+    return;
+  }
+
+  const selection = editorContextStore.getFrameworkSelection(mode);
+
+  if (!selection?.documentId) {
+    // Try to get the most recently used framework as a fallback
+    const mostRecent = editorContextStore.getMostRecentFramework();
+
+    if (mostRecent) {
+      emit('side-document-select', mostRecent);
+    }
+    return;
+  }
+
+  emit('side-document-select', selection.documentId);
+}
+
+// Sync with prop changes
+watch(() => props.initialMode, (newMode) => {
+  currentMode.value = newMode;
+});
+
+watch(() => sessionStore.isAuthenticated, (auth) => {
+  if (!auth && currentMode.value !== 'itemDetails') {
+    setMode('itemDetails');
+  }
+});
+
+// Restore framework selection on initial mount
+watch(() => props.initialMode, async (newMode) => {
+  currentMode.value = newMode;
+  await restoreFrameworkSelection(newMode);
+}, { immediate: true });
+</script>
+
+<style scoped>
+.right-side-panel {
+  height: 100%;
+  overflow: hidden;
+  padding-top: 0.75rem;
+}
+
+.mode-tabs .btn {
+  font-size: 0.8rem;
+  padding: 0.375rem 0.5rem;
+}
+
+.mode-tabs .btn i {
+  font-size: 0.9em;
+}
+
+.panel-content {
+  min-height: 0;
+  padding-bottom: 0.75rem;
+}
+
+.btn-group .btn {
+  font-size: 0.875rem;
+}
+
+.card-header {
+  padding: 0.5rem 1rem;
+  background-color: #f8f9fa;
+}
+
+.card-body {
+  padding: 1rem;
+}
+
+.list-group-item {
+  padding: 0.75rem 1rem;
+}
+
+.badge {
+  font-size: 0.75em;
+}
+
+.alert {
+  padding: 0.75rem 1rem;
+}
+
+.btn-group-sm .btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+}
+
+.associations-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+</style>

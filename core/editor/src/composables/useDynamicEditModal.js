@@ -33,14 +33,14 @@ export function useDynamicEditModal(onUpdate, onAdd, availableTypes = ['general'
 
   const editModalComponent = computed(() => {
     const typeMap = {
-      general: () => import('@/components/shared/modals/item-types/ChildModal.vue'),
-      assessment: () => import('@/components/shared/modals/item-types/AssessmentModal.vue'),
-      course: () => import('@/components/shared/modals/item-types/CourseModal.vue'),
-      credential: () => import('@/components/shared/modals/item-types/CredentialModal.vue'),
-      job: () => import('@/components/shared/modals/item-types/JobModal.vue'),
-      organization: () => import('@/components/shared/modals/item-types/OrganizationModal.vue'),
-      public_key: () => import('@/components/shared/modals/item-types/PublicKeyModal.vue'),
-      identifier: () => import('@/components/shared/modals/item-types/IdentifierModal.vue')
+      general: () => import('@/components/tree/modals/item-types/ChildModal.vue'),
+      assessment: () => import('@/components/tree/modals/item-types/AssessmentModal.vue'),
+      course: () => import('@/components/tree/modals/item-types/CourseModal.vue'),
+      credential: () => import('@/components/tree/modals/item-types/CredentialModal.vue'),
+      job: () => import('@/components/tree/modals/item-types/JobModal.vue'),
+      organization: () => import('@/components/tree/modals/item-types/OrganizationModal.vue'),
+      public_key: () => import('@/components/tree/modals/item-types/PublicKeyModal.vue'),
+      identifier: () => import('@/components/tree/modals/item-types/IdentifierModal.vue')
     };
     const loader = typeMap[selectedEditType.value] || typeMap.general;
     return defineAsyncComponent(loader);

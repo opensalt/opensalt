@@ -1,0 +1,19 @@
+<table class="table table-sm table-bordered table-striped table-hover mb-0">
+    {% if data|length == 1 and data|keys|first == 0 %}
+        {% set data = data.0 %}
+    {% endif %}
+    {% for rowKey, row in data %}
+        {% if row is not empty and row != [] %}
+            <tr>
+                <th style="width: 25%;">{{ rowKey }}</th>
+                <td>
+                    {% if row is iterable %}
+                        {{ include('vector_search/_table.html.twig', {data: row}) }}
+                    {% else %}
+                        {{ row }}
+                    {% endif %}
+                </td>
+            </tr>
+        {% endif %}
+    {% endfor %}
+</table>

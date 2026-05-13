@@ -1,51 +1,40 @@
 import { ref, computed, watch, toValue } from 'vue';
 import { useCurrentDocumentStore } from '../stores/currentDocumentStore';
 import { useEditorContextStore } from '../stores/editorContextStore';
-import { useDocumentStore } from '../stores/documentStore';
 import { useViewStore } from '../stores/viewStore';
+import { api } from '../services/api.js';
 import { logger } from '../utils/logger.js';
+import { findItem as findItemInTree } from '../utils/tree.js';
 
 
-// Cross-framework item cache is now handled by editorContextStore registries
-
-/**
- * Find an item recursively in a tree by identifier
- * @param {Array} items - Array of items to search
- * @param {string} identifier - The identifier to find
- * @returns {Object|null} - The found item or null
- */
 export function findItemById(items, identifier) {
   if (!items || !Array.isArray(items)) return null;
-
+  const found = findItemInTree(items, identifier);
+  if (found) return found;
   for (const item of items) {
-    if (item.identifier === identifier || item.id === identifier) {
-      return item;
-    }
+    if (item.id === identifier) return item;
     if (item.children) {
-      const found = findItemById(item.children, identifier);
-      if (found) return found;
+      const childFound = findItemById(item.children, identifier);
+      if (childFound) return childFound;
     }
   }
   return null;
 }
 
-/**
- * Determine if an item is a CASE item based on targetType and association type
- * For exemplar associations without explicit targetType, treat as unknown (non-CASE)
- *
- * @param {string|undefined} targetType - The targetType from the node URI
- * @param {string} associationType - The association type
- * @returns {Object} - { isCase: boolean, isUnknown: boolean }
- */
 export function determineTargetType(targetType, associationType) {
-  // Exemplar associations have unknown target type unless explicitly specified
-  if (associationType === 'exemplar' && !targetType) {
+  if (targetType) {
+    return {
+      isCase: targetType === 'item' || targetType === 'document' || targetType === 'CASE',
+      isUnknown: false
+    };
+  }
+
+  if (associationType === 'exemplar') {
     return { isCase: false, isUnknown: true };
   }
 
-  // Default to CASE if targetType is not specified or is explicitly 'CASE'
   return {
-    isCase: !targetType || targetType === 'CASE',
+    isCase: true,
     isUnknown: false
   };
 }
@@ -77,12 +66,10 @@ function isMeaningfulTitle(value) {
   return lower !== 'origin node' && lower !== 'destination node';
 }
 
-/**
- * Find an item in all cached frameworks using centralized registry
- * @param {string} identifier - The item identifier to find
- * @param {Object} contextStore - The editor context store
- * @returns {Object|null} - { item, documentTitle, documentId } or null
- */
+function isLoadableAssociationUri(uri) {
+  return typeof uri === 'string' && /^https?:\/\//i.test(uri.trim());
+}
+
 export function findInCachedFrameworks(identifierOrCandidates, contextStore) {
   const candidates = Array.isArray(identifierOrCandidates)
     ? identifierOrCandidates.filter(Boolean)
@@ -91,26 +78,23 @@ export function findInCachedFrameworks(identifierOrCandidates, contextStore) {
   if (candidates.length === 0) return null;
 
   for (const candidate of candidates) {
-    const resolved = contextStore.resolveEndpoint(candidate);
-    if (!resolved) continue;
-
-    if (resolved.entityType === 'item') {
-      if (isUnresolvedCrossFrameworkPlaceholder(resolved.entity)) {
-        continue;
-      }
-      const doc = contextStore.documentRegistry.get(resolved.frameworkId);
+    const cachedDetails = contextStore.itemDetailsCache.get(candidate);
+    if (cachedDetails) {
+      const fwId = cachedDetails.documentIdentifier || null;
+      const doc = fwId ? contextStore.documentRegistry.get(fwId) : null;
       return {
-        item: resolved.entity,
+        item: cachedDetails,
         documentTitle: doc?.title,
-        documentId: resolved.frameworkId
+        documentId: fwId
       };
     }
 
-    if (resolved.entityType === 'document') {
+    const doc = contextStore.documentRegistry.get(candidate);
+    if (doc) {
       return {
-        item: { identifier: candidate, title: resolved.entity.title, fullStatement: resolved.entity.title },
-        documentTitle: resolved.entity.title,
-        documentId: resolved.entity.identifier
+        item: { identifier: candidate, title: doc.title, fullStatement: doc.title },
+        documentTitle: doc.title,
+        documentId: doc.identifier
       };
     }
   }
@@ -118,29 +102,18 @@ export function findInCachedFrameworks(identifierOrCandidates, contextStore) {
   return null;
 }
 
-/**
- * Extract UUID from a CASE URI
- * The UUID is typically the last segment of the URI path
- * @param {string} uri - The full URI
- * @returns {string|null} - The extracted UUID or null
- */
 function extractUuidFromUri(uri) {
   if (!uri) return null;
 
   try {
-    // Try to parse as URL
     const url = new URL(uri);
-    // Get the last segment of the pathname
     const segments = url.pathname.split('/').filter(Boolean);
     const lastSegment = segments[segments.length - 1];
 
-    // Check if it looks like a UUID (basic check for hex characters and dashes)
     if (lastSegment && /^[0-9a-fA-F-]{36}$/.test(lastSegment)) {
       return lastSegment;
     }
 
-    // Also check if the second-to-last segment might be an identifier type
-    // (e.g., /CFItems/uuid or /items/uuid)
     if (segments.length >= 2) {
       const possibleUuid = segments[segments.length - 1];
       if (/^[0-9a-fA-F-]{36}$/.test(possibleUuid)) {
@@ -150,44 +123,23 @@ function extractUuidFromUri(uri) {
 
     return null;
   } catch {
-    // If URL parsing fails, try regex extraction
     const uuidMatch = uri.match(/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/);
     return uuidMatch ? uuidMatch[1] : null;
   }
 }
 
-// Direct fetch functions are now in editorContextStore.ts
-
-/**
- * Composable for resolving items that may be in different frameworks
- *
- * This composable handles:
- * 1. Looking up items in the current document first
- * 2. Checking cached frameworks for the item
- * 3. For CASE items: fetching the item directly by URI, then fetching the document
- * 4. For non-CASE items: displaying the URI without fetching
- * 5. Caching fetched items and documents
- *
- * @param {Object} options - Configuration options
- * @param {import('vue').Ref<Object>|Object} options.association - The association object
- * @param {import('vue').Ref<string>|string} options.direction - 'normal' or 'reversed'
- * @returns {Object} - Composable return values
- */
 export function useCrossFrameworkItem(options) {
   const { association, direction } = options;
 
   const currentDocumentStore = useCurrentDocumentStore();
-  const documentStore = useDocumentStore();
   const contextStore = useEditorContextStore();
   const viewStore = useViewStore();
 
-  // State
   const isLoading = ref(false);
   const externalFrameworkTitle = ref(null);
   const externalItemData = ref(null);
   const fetchError = ref(null);
 
-  // Get the node URI based on direction
   const nodeURI = computed(() => {
     const assoc = toValue(association);
     const dir = toValue(direction);
@@ -200,12 +152,26 @@ export function useCrossFrameworkItem(options) {
     return assoc.destinationNodeURI || assoc.destination;
   });
 
-  // Get the item identifier from the node URI
   const itemIdentifier = computed(() => {
     return nodeURI.value?.identifier || extractUuidFromUri(nodeURI.value?.uri || '');
   });
 
-  // Candidate lookup keys for registry/cache resolution
+  const displayedFrameworkId = computed(() => (
+    contextStore.isViewingDifferentFramework
+      ? (
+        contextStore.viewedDocumentId ||
+        currentDocumentStore.currentDocument?.identifier ||
+        currentDocumentStore.currentDocument?.id ||
+        null
+      )
+      : (
+        contextStore.activeWriteDocumentId ||
+        currentDocumentStore.currentDocument?.identifier ||
+        currentDocumentStore.currentDocument?.id ||
+        null
+      )
+  ));
+
   const lookupCandidates = computed(() => {
     const uri = nodeURI.value?.uri;
     const identifier = itemIdentifier.value;
@@ -213,21 +179,37 @@ export function useCrossFrameworkItem(options) {
     return [identifier, uri, fromUri].filter(Boolean);
   });
 
+  const hasNonLoadableUri = computed(() => {
+    const uri = nodeURI.value?.uri;
+    return !!uri && !isLoadableAssociationUri(uri);
+  });
+
   const registryItemData = computed(() => {
     for (const candidate of lookupCandidates.value) {
-      const resolved = contextStore.resolveEndpoint(candidate);
-      if (resolved?.entityType === 'item') {
-        if (isUnresolvedCrossFrameworkPlaceholder(resolved.entity)) {
-          continue;
-        }
-        return resolved.entity;
+      const cached = contextStore.itemDetailsCache.get(candidate);
+      if (cached) {
+        return cached;
+      }
+    }
+    return null;
+  });
+
+  const resolvedLocalFrameworkId = computed(() => {
+    const registryItem = registryItemData.value;
+    if (registryItem) {
+      return registryItem.documentIdentifier || null;
+    }
+
+    for (const candidate of lookupCandidates.value) {
+      const doc = contextStore.documentRegistry.get(candidate);
+      if (doc) {
+        return doc.identifier || doc.frameworkId || null;
       }
     }
 
     return null;
   });
 
-  // Determine target type info (CASE vs non-CASE vs unknown)
   const targetTypeInfo = computed(() => {
     const targetType = nodeURI.value?.targetType;
     const assoc = toValue(association);
@@ -240,7 +222,6 @@ export function useCrossFrameworkItem(options) {
     const identifier = itemIdentifier.value;
     if (!identifier) return null;
 
-    // Check if it's the document itself (by identifier, id, or uri)
     const isCurrentDoc = currentDocumentStore.currentDocument &&
       (currentDocumentStore.currentDocument.identifier === identifier ||
         currentDocumentStore.currentDocument.id === identifier ||
@@ -266,24 +247,24 @@ export function useCrossFrameworkItem(options) {
     return found;
   });
 
-  // Check if this is a cross-framework reference relative to the viewed framework
   const isCrossFramework = computed(() => {
-    // If we have an item identifier, check if it belongs to the framework being viewed in the tree
-    if (lookupCandidates.value.length > 0) {
-      const displayedFrameworkId = contextStore.isViewingDifferentFramework
-        ? contextStore.viewedDocumentId
-        : contextStore.activeWriteDocumentId;
+    if (!itemIdentifier.value && !nodeURI.value?.uri) {
+      return false;
+    }
 
+    if (lookupCandidates.value.length > 0) {
       const cachedResult = findInCachedFrameworks(lookupCandidates.value, contextStore);
-      if (cachedResult && cachedResult.documentId === displayedFrameworkId) {
-        return false;
+      if (cachedResult?.documentId) {
+        return cachedResult.documentId !== displayedFrameworkId.value;
       }
     }
 
-    // If we found the item in the current document, it's NOT cross-framework
     if (itemInCurrentDocument.value) return false;
 
-    // If URI is missing but we have an identifier not found locally, still treat as cross-framework.
+    if (resolvedLocalFrameworkId.value) {
+      return resolvedLocalFrameworkId.value !== displayedFrameworkId.value;
+    }
+
     if (!nodeURI.value?.uri) {
       return !!itemIdentifier.value;
     }
@@ -291,11 +272,13 @@ export function useCrossFrameworkItem(options) {
     return !!itemIdentifier.value;
   });
 
-  // The resolved item data (from current doc, cache, or external fetch)
   const itemData = computed(() => {
-    // First check current document
     if (itemInCurrentDocument.value) {
       return itemInCurrentDocument.value;
+    }
+
+    if (hasNonLoadableUri.value) {
+      return null;
     }
 
     if (registryItemData.value && externalItemData.value) {
@@ -318,29 +301,31 @@ export function useCrossFrameworkItem(options) {
 
   const resolvedFrameworkId = computed(() => {
     const item = itemData.value || externalItemData.value || registryItemData.value;
+    if (!item) return null;
+
     return (
-      item?.documentId ||
-      item?.CFDocumentURI?.identifier ||
-      contextStore.itemRegistry.get(item?.identifier)?.frameworkId ||
-      contextStore.resolveEndpoint(item?.uri || item?.identifier || nodeURI.value?.uri || itemIdentifier.value)?.frameworkId ||
+      item.documentId ||
+      item.documentIdentifier ||
+      item.CFDocumentURI?.identifier ||
+      contextStore.itemDetailsCache.get(item.identifier)?.documentIdentifier ||
       null
     );
   });
 
-  // The display title for the item
   const itemTitle = computed(() => {
-    // For exemplar associations, always show the actual URI, not the title
     const assoc = toValue(association);
     if (assoc?.associationType === 'exemplar') {
       return nodeURI.value?.uri || 'Unknown URI';
     }
 
-    // For non-CASE or unknown items, display the URI
+    if (hasNonLoadableUri.value) {
+      return nodeURI.value?.title || nodeURI.value?.uri || itemIdentifier.value || 'Unknown URI';
+    }
+
     if (!targetTypeInfo.value.isCase && !targetTypeInfo.value.isUnknown) {
       return nodeURI.value?.uri || 'Unknown URI';
     }
 
-    // For unknown items (like exemplar without targetType), show URI or title
     if (targetTypeInfo.value.isUnknown) {
       return nodeURI.value?.title || nodeURI.value?.uri || 'Unknown';
     }
@@ -379,14 +364,11 @@ export function useCrossFrameworkItem(options) {
     return itemIdentifier.value || nodeURI.value?.uri || 'Unknown';
   });
 
-  // The framework title (for badge display)
   const frameworkTitle = computed(() => {
     if (!isCrossFramework.value) return null;
 
-    // For non-CASE items, no framework title
     if (!targetTypeInfo.value.isCase) return null;
 
-    // If we have external framework data, use its title
     if (externalFrameworkTitle.value) {
       return externalFrameworkTitle.value;
     }
@@ -398,7 +380,14 @@ export function useCrossFrameworkItem(options) {
       return documentTitle;
     }
 
-    // Otherwise indicate we're loading or don't have the info
+    const nodeFwId = nodeURI.value?.documentIdentifier;
+    if (nodeFwId) {
+      const doc = contextStore.documentRegistry.get(nodeFwId);
+      if (doc?.title) return doc.title;
+    }
+
+    if (hasNonLoadableUri.value) return null;
+
     return isLoading.value || (itemIdentifier.value && viewStore.getViewState(itemIdentifier.value).loading) ? 'Loading...' : 'External Framework';
   });
 
@@ -407,9 +396,9 @@ export function useCrossFrameworkItem(options) {
 
     const frameworkId =
       item.documentId ||
+      item.documentIdentifier ||
       item.CFDocumentURI?.identifier ||
-      contextStore.itemRegistry.get(item.identifier)?.frameworkId ||
-      contextStore.resolveEndpoint(item.uri || item.identifier)?.frameworkId ||
+      contextStore.itemDetailsCache.get(item.identifier)?.documentIdentifier ||
       null;
 
     if (!frameworkId) {
@@ -432,25 +421,9 @@ export function useCrossFrameworkItem(options) {
       return linkTitle;
     }
 
-    if (typeof documentStore.fetchDocumentMetadata === 'function') {
-      const metadata = await documentStore.fetchDocumentMetadata(frameworkId);
-      if (metadata?.title) {
-        contextStore.registerDocumentMetadata({
-          identifier: metadata.identifier || frameworkId,
-          uri: metadata.uri || existingDoc?.uri || '',
-          title: metadata.title,
-          frameworkId
-        });
-        return metadata.title;
-      }
-    }
-
     return null;
   }
 
-  /**
-   * Load the external item for CASE items
-   */
   async function loadExternalItem() {
     const identifier = itemIdentifier.value;
     const uri = nodeURI.value?.uri;
@@ -459,10 +432,9 @@ export function useCrossFrameworkItem(options) {
     if (!loadingKey) return;
     if (itemInCurrentDocument.value) return;
 
-    // For non-CASE items, don't fetch
     if (!targetTypeInfo.value.isCase) return;
+    if (hasNonLoadableUri.value) return;
 
-    // Check cached frameworks/registries first
     const cachedResult = findInCachedFrameworks(lookupCandidates.value, contextStore);
     if (cachedResult && !isUnresolvedCrossFrameworkPlaceholder(cachedResult.item)) {
       externalItemData.value = cachedResult.item;
@@ -470,7 +442,6 @@ export function useCrossFrameworkItem(options) {
       return;
     }
 
-    // Check if already loading
     if (isLoading.value) return;
 
     isLoading.value = true;
@@ -478,21 +449,18 @@ export function useCrossFrameworkItem(options) {
     fetchError.value = null;
 
     try {
-      const fetchReference = uri || identifier;
-      const result = await contextStore.fetchExternalItemData(fetchReference);
-      const fetchedItem = result?.item || (result?.identifier ? result : null);
-      if (fetchedItem) {
-        // If it was a package, it's already registered.
-        // If it was a single item, fetchExternalItemData might have registered it too.
+      const response = await api.get(`/framework/editor/item/${identifier}/details`);
+      const fetchedItem = response?.data || response;
+
+      if (fetchedItem && fetchedItem.identifier) {
+        contextStore.itemDetailsCache.set(fetchedItem.identifier, fetchedItem);
 
         externalItemData.value = fetchedItem;
 
-        // Try to get document title from registry
-        const fwId = contextStore.itemRegistry.get(fetchedItem.identifier)?.frameworkId
-          || contextStore.resolveEndpoint(fetchedItem.uri || fetchedItem.identifier)?.frameworkId;
+        const fwId = fetchedItem.documentIdentifier || null;
         if (fwId) {
           const doc = contextStore.documentRegistry.get(fwId);
-          externalFrameworkTitle.value = doc?.title || await ensureFrameworkMetadata(fetchedItem) || 'External Framework';
+          externalFrameworkTitle.value = doc?.title || fetchedItem.CFDocumentURI?.title || 'External Framework';
         } else {
           externalFrameworkTitle.value = await ensureFrameworkMetadata(fetchedItem);
         }
@@ -503,7 +471,7 @@ export function useCrossFrameworkItem(options) {
         };
       }
     } catch (error) {
-      console.warn(`Unexpected error in loadExternalItem:`, error);
+      logger.warn(`Unexpected error in loadExternalItem:`, error);
       fetchError.value = {
         type: error?.status === 403 ? 'permission' :
           error?.status === 404 ? 'not_found' : 'network',
@@ -516,29 +484,22 @@ export function useCrossFrameworkItem(options) {
     }
   }
 
-  /**
-   * Force reload the external item
-   */
   async function reload() {
     externalItemData.value = null;
     externalFrameworkTitle.value = null;
     fetchError.value = null;
 
-    // Cache is now handled by editorContextStore, so no need to clear manually
     await loadExternalItem();
   }
 
-  // Watch for changes to association or direction
   watch(
     [() => toValue(association), () => toValue(direction)],
     () => {
-      // Reset state when association changes
       externalItemData.value = null;
       externalFrameworkTitle.value = null;
       fetchError.value = null;
 
-      // Load external item if needed
-      if (isCrossFramework.value && !itemInCurrentDocument.value && targetTypeInfo.value.isCase) {
+      if (isCrossFramework.value && !itemInCurrentDocument.value && targetTypeInfo.value.isCase && !hasNonLoadableUri.value) {
         loadExternalItem();
       }
     },
@@ -546,11 +507,9 @@ export function useCrossFrameworkItem(options) {
   );
 
   return {
-    // State
     isLoading,
     fetchError,
 
-    // Computed
     itemData,
     itemTitle,
     frameworkTitle,
@@ -558,27 +517,20 @@ export function useCrossFrameworkItem(options) {
     itemIdentifier,
     targetTypeInfo,
     nodeURI,
+    resolvedFrameworkId,
+    displayedFrameworkId,
 
-    // Methods
     loadExternalItem,
     reload
   };
 }
 
-/**
- * Clear the cross-framework item cache (now handled by editorContextStore)
- */
 export function clearCrossFrameworkItemCache() {
-  // Cache is now handled by editorContextStore, so this is a no-op
-  console.warn('crossFrameworkItemCache is now handled by editorContextStore registries');
+  logger.warn('crossFrameworkItemCache is now handled by editorContextStore registries');
 }
 
-/**
- * Get cache size (now handled by editorContextStore)
- */
 export function getCrossFrameworkItemCacheSize() {
-  // Cache is now handled by editorContextStore, so we return 0 for compatibility
-  console.warn('crossFrameworkItemCache is now handled by editorContextStore registries');
+  logger.warn('crossFrameworkItemCache is now handled by editorContextStore registries');
   return 0;
 }
 

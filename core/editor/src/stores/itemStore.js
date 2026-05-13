@@ -2,7 +2,6 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { api } from '../services/api.js';
 import { logger } from '../utils/logger.js';
-import { useEditorContextStore } from './editorContextStore';
 
 export const useItemStore = defineStore('items', () => {
   // Internal item lookup map for fast access
@@ -13,10 +12,7 @@ export const useItemStore = defineStore('items', () => {
     if (itemLookupMap.value.has(identifier)) {
       return itemLookupMap.value.get(identifier);
     }
-
-    const contextStore = useEditorContextStore();
-    const resolved = contextStore.resolveEndpoint(identifier);
-    return (resolved?.entityType === 'item') ? resolved.entity : null;
+    return null;
   }
 
   // Build item lookup map from items array
@@ -81,11 +77,9 @@ export const useItemStore = defineStore('items', () => {
   }
 
   function findItemByIdentifier(items, identifier) {
-    // Try the global registry first for O(1)
     const fastMatch = getItemByIdentifierFast(identifier);
     if (fastMatch) return fastMatch;
 
-    // Fallback to recursive search if not in registry yet
     if (!Array.isArray(items)) return null;
     for (const item of items) {
       if (item.identifier === identifier) return item;
@@ -150,77 +144,67 @@ export const useItemStore = defineStore('items', () => {
   async function moveItem(currentDocument, { draggedItem, targetItem, position }) {
     if (!currentDocument || !draggedItem || !targetItem) return false;
 
-    // Remove from current position
-    const itemToMove = removeItemRecursively(currentDocument.items, draggedItem.identifier);
-    if (!itemToMove) {
-      logger.warn('Could not find dragged item to move:', draggedItem.identifier);
-      return false;
-    }
+    const newParentIdentifier = position === 'inside'
+      ? targetItem.identifier
+      : (targetItem.parentIdentifier || currentDocument.id);
 
-    // Find parent of target
-    let targetParentArray = currentDocument.items;
-    let targetParent = null;
-
-    if (targetItem.identifier !== currentDocument.id) {
-      // Find the parent of targetItem
-      const findParent = (items, targetId) => {
-        for (const item of items) {
-          if (item.children && item.children.some(c => c.identifier === targetId)) {
-            return item;
-          }
-          if (item.children) {
-            const found = findParent(item.children, targetId);
-            if (found) return found;
-          }
-        }
-        return null;
-      };
-      targetParent = findParent(currentDocument.items, targetItem.identifier);
-      if (targetParent) {
-        targetParentArray = targetParent.children;
-      }
-    }
-
-    const targetIndex = targetParentArray.findIndex(item => item.identifier === targetItem.identifier);
-
-    if (position === 'before') {
-      targetParentArray.splice(targetIndex, 0, itemToMove);
-    } else if (position === 'after') {
-      targetParentArray.splice(targetIndex + 1, 0, itemToMove);
-    } else if (position === 'inside') {
-      if (!targetItem.children) targetItem.children = [];
-      targetItem.children.push(itemToMove);
-    }
-
-    // Update sequence numbers
-    const updateSequence = (items) => {
-      items.forEach((item, index) => {
-        item.sequenceNumber = (index + 1) * 10; // Use spacing to allow future reorders
-      });
-    };
-
-    if (position === 'inside') {
-      updateSequence(targetItem.children);
-    } else {
-      updateSequence(targetParentArray);
-    }
-
-    logger.debug('Item moved successfully from', draggedItem.identifier, 'to', targetItem.identifier, position);
-
-    // Call API to persist the move
     try {
-      await api.post('/framework/editor/document/' + currentDocument.id + '/update_items', {
-        lsItems: [itemToMove]
+      const response = await api.post(`/framework/editor/item/${draggedItem.identifier}/move`, {
+        newParentIdentifier: position === 'inside' ? targetItem.identifier : newParentIdentifier,
+        targetItemIdentifier: position !== 'inside' ? targetItem.identifier : null,
+        position,
+        childOfAssociationIdentifier: draggedItem.childOfAssociationIdentifier || draggedItem.childOfAssocId || null,
       });
+
+      const itemToMove = removeItemRecursively(currentDocument.items, draggedItem.identifier);
+      if (!itemToMove) {
+        return true;
+      }
+
+      let targetParentArray = currentDocument.items;
+      if (position === 'inside') {
+        if (!targetItem.children) targetItem.children = [];
+        targetItem.children.push(itemToMove);
+      } else {
+        const findParentArray = (items, targetId, parent) => {
+          for (const item of items) {
+            if (item.identifier === targetId) return parent || items;
+            if (item.children) {
+              const found = findParentArray(item.children, targetId, item.children);
+              if (found) return found;
+            }
+          }
+          return null;
+        };
+        targetParentArray = findParentArray(currentDocument.items, targetItem.identifier) || currentDocument.items;
+        const targetIndex = targetParentArray.findIndex(item => item.identifier === targetItem.identifier);
+        if (position === 'before') {
+          targetParentArray.splice(targetIndex, 0, itemToMove);
+        } else if (position === 'after') {
+          targetParentArray.splice(targetIndex + 1, 0, itemToMove);
+        }
+      }
+
+      if (response?.childOfAssociationIdentifier) {
+        itemToMove.childOfAssociationIdentifier = response.childOfAssociationIdentifier;
+        itemToMove.childOfAssocId = response.childOfAssociationIdentifier;
+      }
+      if (response?.sequenceNumber !== undefined) {
+        itemToMove.sequenceNumber = response.sequenceNumber;
+      }
+
+      if (position === 'inside') {
+        itemToMove.parentIdentifier = targetItem.identifier;
+      } else {
+        itemToMove.parentIdentifier = targetItem.parentIdentifier || currentDocument.id;
+      }
+
+      invalidateCache();
+      return true;
     } catch (error) {
       logger.error('Failed to persist item move:', error);
       throw error;
     }
-
-    // Invalidate cache since items were moved
-    invalidateCache();
-
-    return true;
   }
 
   return {

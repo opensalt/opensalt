@@ -2,10 +2,21 @@
   <div class="association-group mb-3">
     <div class="association-group-header d-flex justify-content-between align-items-center mb-0">
       <h6 class="mb-0 text-capitalize">
-        <i :class="getAssociationIcon(associationType)" class="me-2"></i>
+        <i
+          :class="getAssociationIcon(associationType)"
+          class="me-2"
+        />
         {{ formatAssociationType(associationType) }}
-        <span v-if="associationType.match(/^ext:/i)" class="badge bg-warning text-dark ms-2" title="This is an extended association type">Extended</span>
-        <span v-if="direction === 'reversed'" class="badge bg-warning text-dark ms-2" title="Reversed (item is destination)">Reversed</span>
+        <span
+          v-if="associationType.match(/^ext:/i)"
+          class="badge bg-warning text-dark ms-2"
+          title="This is an extended association type"
+        >Extended</span>
+        <span
+          v-if="direction === 'reversed'"
+          class="badge bg-warning text-dark ms-2"
+          title="Reversed (item is destination)"
+        >Reversed</span>
         <span class="badge ms-2 count-badge">{{ associations.length }}</span>
       </h6>
     </div>
@@ -28,8 +39,9 @@
 
 <script setup>
 import AssociationItem from './AssociationItem.vue';
+import { formatAssociationType, getAssociationIcon } from '../../utils/associationHelpers.js';
 
-const props = defineProps({
+const _props = defineProps({
   associationType: {
     type: String,
     required: true
@@ -47,7 +59,7 @@ const props = defineProps({
     default: 'normal'
   },
   itemIdentifier: {
-    type: String,
+    type: [String, null],
     default: null
   },
   isReadOnly: {
@@ -56,41 +68,12 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits([
+const _emit = defineEmits([
   'edit-association',
   'delete-association'
 ]);
 
-function formatAssociationType(type) {
-  if (!type) return 'Unknown';
 
-  if (type.match(/^ext:/)) {
-    type = type.replace(/^ext:/, '');
-  }
-
-  // Convert camelCase to readable format
-  return type
-    .replace(/([A-Z])/g, ' $1') // Add space before capital letters
-    .replace(/^./, str => str.toUpperCase()) // Capitalize first letter
-    .trim();
-}
-
-function getAssociationIcon(type) {
-  const iconMap = {
-    'isChildOf': 'bi bi-diagram-3',
-    'isPeerOf': 'bi bi-share',
-    'isPartOf': 'bi bi-puzzle',
-    'exactMatchOf': 'bi bi-check-circle',
-    'precedes': 'bi bi-arrow-right',
-    'isRelatedTo': 'bi bi-link',
-    'replacedBy': 'bi bi-arrow-clockwise',
-    'exemplar': 'bi bi-star',
-    'hasSkillLevel': 'bi bi-bar-chart',
-    'isTranslationOf': 'bi bi-translate'
-  };
-
-  return iconMap[type] || 'bi bi-link-45deg';
-}
 </script>
 
 <style scoped>

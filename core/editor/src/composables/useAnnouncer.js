@@ -1,4 +1,5 @@
-import { ref, inject, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
+import { logger } from '../utils/logger.js';
 
 /**
  * Screen Reader Announcer Composable
@@ -67,7 +68,7 @@ export function useAnnouncer() {
     try {
       const announcers = getAnnouncerElement();
       if (!announcers || !announcers.polite || !announcers.assertive) {
-        console.warn('Announcer elements not available');
+        logger.warn('Announcer elements not available');
         return;
       }
 
@@ -81,11 +82,11 @@ export function useAnnouncer() {
         try {
           targetRegion.textContent = message;
         } catch (error) {
-          console.warn('Failed to set announcement text:', error);
+          logger.warn('Failed to set announcement text:', error);
         }
       }, 50);
     } catch (error) {
-      console.warn('Announcement failed:', error);
+      logger.warn('Announcement failed:', error);
     }
   };
 

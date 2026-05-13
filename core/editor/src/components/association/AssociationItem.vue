@@ -1,5 +1,9 @@
 <template>
-  <div class="association-item d-flex justify-content-between align-items-center p-2 border rounded" :class="{ 'cross-framework-assoc': isCrossFrameworkAssoc }" :data-identifier="association.identifier">
+  <div
+    class="association-item d-flex justify-content-between align-items-center p-2 border rounded"
+    :class="{ 'cross-framework-assoc': isAssociationFromDifferentDisplayedFramework }"
+    :data-identifier="association.identifier"
+  >
     <div class="association-info flex-grow-1">
       <!--
       <div class="d-flex align-items-center mb-2">
@@ -14,43 +18,102 @@
           <!-- Show URI while loading, with a small loading indicator -->
           <template v-if="isLoading && targetTypeInfo.isCase">
             <span class="text-muted uri-display">{{ nodeUriString }}</span>
-            <span class="spinner-border spinner-border-sm text-secondary ms-2" role="status" aria-label="Loading item information">
+            <span
+              class="spinner-border spinner-border-sm text-secondary ms-2"
+              role="status"
+              aria-label="Loading item information"
+            >
               <span class="visually-hidden">Loading...</span>
             </span>
           </template>
           <!-- Show display title when not loading -->
           <template v-else>
-            <span class="ms-2" v-html="displayTitle"></span>
+            <a
+              v-if="linkInfo.type === 'external'"
+              :href="linkInfo.href"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="ms-2 association-title-link"
+              v-html="displayTitle"
+            />
+            <a
+              v-else-if="linkInfo.type === 'cross-framework'"
+              :href="linkInfo.href"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="ms-2 association-title-link"
+              v-html="displayTitle"
+            />
+            <a
+              v-else-if="linkInfo.type === 'same-framework'"
+              :href="linkInfo.href"
+              class="ms-2 association-title-link"
+              @click.prevent="onNavigateToItem"
+              v-html="displayTitle"
+            />
+            <span
+              v-else
+              class="ms-2"
+              v-html="displayTitle"
+            />
           </template>
           <!-- Framework badge for cross-framework CASE items -->
-          <span v-if="frameworkTitle && !isLoading && targetTypeInfo.isCase" class="badge framework-badge ms-2">
-            <i class="bi bi-box-arrow-up-right me-1"></i>{{ frameworkTitle }}
+          <span
+            v-if="frameworkTitle && !isLoading && targetTypeInfo.isCase"
+            class="badge framework-badge ms-2"
+          >
+            <i class="bi bi-box-arrow-up-right me-1" />{{ frameworkTitle }}
           </span>
           <!-- Source framework badge for associations from other frameworks -->
-          <span v-if="sourceFrameworkTitle" class="badge source-framework-badge ms-2" :title="'Association defined in: ' + sourceFrameworkTitle">
-            <i class="bi bi-folder2-open me-1"></i>Source: {{ sourceFrameworkTitle }}
+          <span
+            v-if="sourceFrameworkTitle"
+            class="badge source-framework-badge ms-2"
+            :title="'Association defined in: ' + sourceFrameworkTitle"
+          >
+            <i class="bi bi-folder2-open me-1" />Source: {{ sourceFrameworkTitle }}
           </span>
           <!-- Non-CASE item indicator -->
-          <span v-if="!targetTypeInfo.isCase && isCrossFramework" class="badge external-uri-badge ms-2">
-            <i class="bi bi-link-45deg me-1"></i>External URI
+          <span
+            v-if="!targetTypeInfo.isCase && isCrossFramework"
+            class="badge external-uri-badge ms-2"
+          >
+            <i class="bi bi-link-45deg me-1" />External URI
           </span>
           <!-- Error indicator for failed fetches -->
-          <span v-if="fetchError && targetTypeInfo.isCase" class="badge error-badge ms-2" :title="fetchError.message">
-            <i class="bi bi-exclamation-triangle me-1"></i>{{ fetchError.type === 'permission' ? 'No access' : fetchError.type === 'not_found' ? 'Not found' : 'Load error' }}
+          <span
+            v-if="fetchError && targetTypeInfo.isCase"
+            class="badge error-badge ms-2"
+            :title="fetchError.message"
+          >
+            <i class="bi bi-exclamation-triangle me-1" />{{ fetchError.type === 'permission' ? 'No access' : fetchError.type === 'not_found' ? 'Not found' : 'Load error' }}
           </span>
           <!-- Loading indicator for queued frameworks -->
-          <span v-if="isDocumentQueued && !frameworkTitle && !isLoading && targetTypeInfo.isCase" class="badge loading-badge ms-2" title="Framework queued for loading">
-            <i class="bi bi-arrow-repeat me-1" role="status" aria-hidden="true"></i>
+          <span
+            v-if="isDocumentQueued && !frameworkTitle && !isLoading && targetTypeInfo.isCase"
+            class="badge loading-badge ms-2"
+            title="Framework queued for loading"
+          >
+            <i
+              class="bi bi-arrow-repeat me-1"
+              role="status"
+              aria-hidden="true"
+            />
             Queued
           </span>
         </div>
 
-        <div v-if="notes" class="mb-1 ms-2">
+        <div
+          v-if="notes"
+          class="mb-1 ms-2"
+        >
           <strong>Annotation:</strong>
           <span class="ms-2 text-muted">{{ notes }}</span>
         </div>
 
-        <div v-if="lastChangeDateTime && false" class="mb-1">
+        <div
+          v-if="lastChangeDateTime && false"
+          class="mb-1"
+        >
           <small class="text-muted">
             <strong>Last changed:</strong> {{ formatDate(lastChangeDateTime) }}
           </small>
@@ -58,33 +121,35 @@
       </div>
     </div>
 
-    <div class="association-actions btn-group btn-group-sm ms-3" v-if="!isReadOnly && !isCrossFrameworkAssoc">
+    <div
+      v-if="canManageAssociation"
+      class="association-actions btn-group btn-group-sm ms-3"
+    >
       <button
         type="button"
         class="btn btn-outline-primary"
-        @click="$emit('edit', association)"
         title="Edit association"
+        @click="$emit('edit', association)"
       >
-        <i class="bi bi-pencil"></i>
+        <i class="bi bi-pencil" />
       </button>
       <button
         type="button"
         class="btn btn-outline-danger"
-        @click="$emit('delete', association)"
         title="Delete association"
+        @click="$emit('delete', association)"
       >
-        <i class="bi bi-trash"></i>
+        <i class="bi bi-trash" />
       </button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, ref, onMounted, toRef, watch } from 'vue';
+import { computed, ref, onMounted, toRef, watch, inject } from 'vue';
 import { useCrossFrameworkItem } from '../../composables/useCrossFrameworkItem';
 import { useRelatedFrameworksQueue } from '../../composables/useRelatedFrameworksQueue.js';
-import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
-import { useEditorContextStore } from '@/stores/editorContextStore';
+import { useAssociationPermissions } from '../../composables/useAssociationPermissions';
 
 // Lazy-loaded markdown renderer with caching
 let markdownRendererPromise = null;
@@ -129,56 +194,23 @@ const props = defineProps({
     default: false
   },
   itemIdentifier: {
-    type: String,
-    required: true
+    type: [String, null],
+    default: null
   }
 });
 
-const emit = defineEmits(['edit', 'delete']);
+const _emit = defineEmits(['edit', 'delete']);
+
+const treeNavigation = inject('treeNavigation', null);
 
 // Use the related frameworks queue composable
 const { getQueueStatus } = useRelatedFrameworksQueue();
 
-// Access stores for resolving source framework titles
-const currentDocumentStore = useCurrentDocumentStore();
-const contextStore = useEditorContextStore();
-
-// Check if this association comes from a different framework than the one being viewed
-const isCrossFrameworkAssoc = computed(() => {
-  // _sourceFrameworkId is set by our mergedAssociations logic
-  // Fall back to CASE CFDocumentURI.identifier for associations from AssociationView
-  const assocFrameworkId = props.association._sourceFrameworkId
-    || props.association.CFDocumentURI?.identifier
-    || (typeof props.association.CFDocumentURI === 'string' ? props.association.CFDocumentURI : null);
-  if (!assocFrameworkId) return false;
-
-  const displayedFrameworkId = contextStore.isViewingDifferentFramework
-    ? contextStore.viewedDocumentId
-    : contextStore.activeWriteDocumentId;
-
-  return assocFrameworkId !== displayedFrameworkId;
-});
-
-// DEBUG: Log props to see what values we're receiving
-console.log('[AssociationItem] Props received:', {
-  isReadOnly: props.isReadOnly,
-  isCrossFrameworkAssoc: isCrossFrameworkAssoc.value,
-  associationId: props.association.identifier,
-  shouldShowActions: !props.isReadOnly && !isCrossFrameworkAssoc.value
-});
-
-// Resolve the source framework title from the centralized document registry
-const sourceFrameworkTitle = computed(() => {
-  if (!isCrossFrameworkAssoc.value) return null;
-
-  const frameworkId = props.association._sourceFrameworkId
-    || props.association.CFDocumentURI?.identifier
-    || (typeof props.association.CFDocumentURI === 'string' ? props.association.CFDocumentURI : null);
-  if (!frameworkId) return null;
-
-  const doc = contextStore.documentRegistry.get(frameworkId);
-  return doc?.title || null;
-});
+const {
+  isAssociationFromDifferentDisplayedFramework,
+  canManageAssociation,
+  sourceFrameworkTitle
+} = useAssociationPermissions(toRef(props, 'association'), { isReadOnly: toRef(props, 'isReadOnly') });
 
 // Use the cross-framework item composable
 const {
@@ -189,7 +221,10 @@ const {
   isCrossFramework,
   targetTypeInfo,
   fetchError,
-  nodeURI
+  nodeURI,
+  resolvedFrameworkId,
+  displayedFrameworkId,
+  itemIdentifier: resolvedItemIdentifier
 } = useCrossFrameworkItem({
   association: toRef(props, 'association'),
   direction: toRef(props, 'direction')
@@ -200,6 +235,47 @@ const isReversed = computed(() => {
     return props.direction === 'reversed';
 });
 
+const linkInfo = computed(() => {
+  if (isLoading.value) return { type: 'none' };
+
+  const uri = nodeURI.value?.uri;
+  const itemId = resolvedItemIdentifier.value;
+  const nodeFwId = nodeURI.value?.documentIdentifier;
+  const targetFwId = nodeFwId || resolvedFrameworkId.value;
+  const currentFwId = displayedFrameworkId.value;
+
+  if (targetTypeInfo.value.isCase) {
+    if (!itemId) return { type: 'none' };
+
+    const isSameFw = (targetFwId && currentFwId && targetFwId === currentFwId) || !isCrossFramework.value;
+
+    if (isSameFw && treeNavigation?.navigateToItem) {
+      return { type: 'same-framework', itemId, href: currentFwId ? `/${currentFwId}/${itemId}` : `#item-${itemId}` };
+    }
+
+    if (targetFwId) {
+      if (itemId === targetFwId) {
+        return { type: 'cross-framework', href: `/editor/${targetFwId}` };
+      }
+      return { type: 'cross-framework', href: `/editor/${targetFwId}/${itemId}` };
+    }
+
+    return { type: 'none' };
+  }
+
+  if (uri && /^https?:\/\//i.test(uri)) {
+    return { type: 'external', href: uri };
+  }
+
+  return { type: 'none' };
+});
+
+function onNavigateToItem() {
+  if (linkInfo.value.type === 'same-framework' && treeNavigation?.navigateToItem) {
+    treeNavigation.navigateToItem(linkInfo.value.itemId);
+  }
+}
+
 // Display title with markdown rendering support
 const displayTitle = computed(() => {
   const title = itemTitle.value;
@@ -209,7 +285,7 @@ const displayTitle = computed(() => {
     // Build display with markdown rendering
     const parts = [];
     if (item.humanCodingScheme) {
-      parts.push('<strong>' + (render.value ? render.value.escaped(item.humanCodingScheme) : item.humanCodingScheme) + '</strong>');
+      parts.push('<span class="item-humanCodingScheme">' + (render.value ? render.value.escaped(item.humanCodingScheme) : item.humanCodingScheme) + '</span>');
     }
     if (item.abbreviatedStatement) {
       parts.push(render.value ? render.value.escaped(item.abbreviatedStatement) : item.abbreviatedStatement);
@@ -379,4 +455,15 @@ watch(
   font-size: 0.85em;
   word-break: break-all;
 }
+
+.association-title-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.association-title-link:hover {
+  text-decoration: underline;
+  color: #0c63e4;
+}
+
 </style>

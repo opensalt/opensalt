@@ -1,15 +1,21 @@
 <template>
-  <header class="dual-framework-header p-2 border-bottom bg-light">
+  <header
+    v-if="false /* TODO */"
+    class="dual-framework-header p-2 border-bottom bg-light"
+  >
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
       <div class="edited-framework">
         <span class="badge bg-primary">
-          <i class="bi bi-pencil-square me-1"></i>Editing
+          <i class="bi bi-pencil-square me-1" />Editing
         </span>
         <span class="ms-2 fw-bold">{{ currentDoc.title || 'Untitled' }}</span>
       </div>
-      <div v-if="isViewingDifferentFramework" class="viewed-framework">
+      <div
+        v-if="isViewingDifferentFramework"
+        class="viewed-framework"
+      >
         <span class="badge bg-secondary">
-          <i class="bi bi-eye me-1"></i>Viewing
+          <i class="bi bi-eye me-1" />Viewing
         </span>
         <span class="text-muted"> from {{ viewedDoc?.title || 'external framework' }}</span>
       </div>

@@ -1,11 +1,17 @@
 <script setup>
-import { ref } from 'vue';
-import Modal from 'bootstrap/js/dist/modal';
-
-const props = defineProps({
-  show: Boolean,
-  sourceItem: Object,
-  targetItem: Object, // Parent dropped onto
+const _props = defineProps({
+  show: {
+    type: Boolean,
+    default: false
+  },
+  sourceItem: {
+    type: Object,
+    default: null
+  },
+  targetItem: {
+    type: Object,
+    default: null
+  },
 });
 
 const emit = defineEmits(['close', 'copy', 'associate']);
@@ -24,19 +30,30 @@ function onClose() {
 </script>
 
 <template>
-  <div class="modal fade" 
-       :class="{ show: show, 'd-block': show }" 
-       tabindex="-1" 
-       role="dialog" 
-       aria-modal="true"
-       v-if="show"
-       style="background-color: rgba(0,0,0,0.5);"
+  <div
+    v-if="show" 
+    class="modal fade" 
+    :class="{ show: show, 'd-block': show }" 
+    tabindex="-1" 
+    role="dialog"
+    aria-modal="true"
+    style="background-color: rgba(0,0,0,0.5);"
   >
-    <div class="modal-dialog modal-dialog-centered" role="document">
+    <div
+      class="modal-dialog modal-dialog-centered"
+      role="document"
+    >
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Action Required</h5>
-          <button type="button" class="btn-close" aria-label="Close" @click="onClose"></button>
+          <h5 class="modal-title">
+            Action Required
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            aria-label="Close"
+            @click="onClose"
+          />
         </div>
         <div class="modal-body">
           <p>
@@ -46,9 +63,27 @@ function onClose() {
           <p>What would you like to do?</p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @click="onClose">Cancel</button>
-          <button type="button" class="btn btn-primary" @click="onAssociate">Associate</button>
-          <button type="button" class="btn btn-primary" @click="onCopy">Copy Item</button>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            @click="onClose"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            @click="onAssociate"
+          >
+            Associate
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            @click="onCopy"
+          >
+            Copy Item
+          </button>
         </div>
       </div>
     </div>

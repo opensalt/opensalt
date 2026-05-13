@@ -1,32 +1,36 @@
 <template>
-  <div class="document-selector card mb-3">
+  <div class="document-selector card mt-0 mb-3">
     <div class="card-header d-flex justify-content-between align-items-center">
-      <h6 class="mb-0">{{ label }}</h6>
+      <h6 class="mb-0">
+        {{ label }}
+      </h6>
       <!-- Visual indicator when viewing a different framework -->
       <span
         v-if="isViewingDifferentFramework"
         class="badge bg-warning text-dark"
         title="You are viewing a different framework than the one being edited"
       >
-        <i class="bi bi-eye me-1"></i>Viewing
+        <i class="bi bi-eye me-1" />Viewing
       </span>
       <button
         type="button"
         class="btn btn-sm btn-outline-primary"
-        @click="changeDocument"
         title="Change document"
+        @click="changeDocument"
       >
-        <i class="bi bi-arrow-repeat"></i>
+        <i class="bi bi-arrow-repeat" />
       </button>
     </div>
     <div class="card-body">
       <select
-        class="form-select"
         v-model="selectedDoc"
-        @change="onDocumentChange"
+        class="form-select"
         :class="{ 'viewing-different-framework': isViewingDifferentFramework }"
+        @change="onDocumentChange"
       >
-        <option value="">Select a document...</option>
+        <option value="">
+          Select a document...
+        </option>
         <optgroup
           v-for="group in groupedDocuments"
           :key="group.creator"
@@ -36,20 +40,25 @@
             v-for="doc in group.documents"
             :key="doc.identifier"
             :value="doc.identifier"
-            :selected="doc.identifier === currentDoc?.identifier"
-            :style="(doc.identifier === currentDoc?.identifier) ? 'color: blue;' : ''"
+            :selected="doc.identifier === (currentDoc?.identifier || currentDoc?.id)"
+            :style="(doc.identifier === (currentDoc?.identifier || currentDoc?.id)) ? 'color: blue;' : ''"
           >
-            {{ doc.identifier === currentDoc?.identifier ? '** Current Document ** - ' : '' }}
+            {{ doc.identifier === (currentDoc?.identifier || currentDoc?.id) ? '** Current Document ** - ' : '' }}
             {{ doc.title || 'Unknown Name' }} ({{ doc.identifier || 'No Identifier' }})
           </option>
         </optgroup>
         <optgroup label="External Documents">
-          <option value="external">Load external document...</option>
+          <option value="external">
+            Load external document...
+          </option>
         </optgroup>
       </select>
       <!-- Viewing indicator text -->
-      <div v-if="isViewingDifferentFramework && viewedDoc" class="mt-2 small text-muted">
-        <i class="bi bi-info-circle me-1"></i>
+      <div
+        v-if="isViewingDifferentFramework && viewedDoc"
+        class="mt-2 small text-muted"
+      >
+        <i class="bi bi-info-circle me-1" />
         Viewing: <strong>{{ viewedDoc.title || 'Untitled' }}</strong>
       </div>
     </div>
@@ -64,8 +73,14 @@ import { ref, watch, computed } from 'vue';
 import { useDocumentStore } from '@/stores/documentStore';
 
 const props = defineProps({
-  currentDoc: Object,
-  availableDocuments: Array,
+  currentDoc: {
+    type: Object,
+    default: null
+  },
+  availableDocuments: {
+    type: Array,
+    default: () => []
+  },
   label: {
     type: String,
     default: 'Document'
@@ -122,16 +137,19 @@ const emit = defineEmits(['viewed-document-changed', 'external-document-requeste
 
 const selectedDoc = ref('');
 
+function getDocumentId(document) {
+  return document?.identifier || document?.id || '';
+}
+
 watch(() => props.currentDoc, (newDoc) => {
-  if (newDoc) {
-    selectedDoc.value = newDoc.identifier;
-  }
+  selectedDoc.value = getDocumentId(newDoc);
 }, { immediate: true });
 
 // NEW: Watch for viewed document changes to update selection
 watch(() => props.viewedDoc, (newViewedDoc) => {
-  if (newViewedDoc && newViewedDoc.identifier) {
-    selectedDoc.value = newViewedDoc.identifier;
+  const viewedDocumentId = getDocumentId(newViewedDoc);
+  if (viewedDocumentId) {
+    selectedDoc.value = viewedDocumentId;
   }
 });
 
@@ -143,7 +161,7 @@ function onDocumentChange() {
     emit('external-document-requested', { side: props.side });
 
     // Reset selection
-    selectedDoc.value = props.currentDoc?.identifier || '';
+    selectedDoc.value = getDocumentId(props.currentDoc);
   } else if (selectedValue) {
     // NEW: Emit 'viewed-document-changed' instead of 'document-changed'
     // This supports the dual framework edit/view separation feature

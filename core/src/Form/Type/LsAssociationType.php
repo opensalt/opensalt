@@ -97,7 +97,7 @@ class LsAssociationType extends AbstractType
             ->findBy(['appliesTo' => LsAssociation::class]);
         if ([] !== $fields) {
             $builder->add('additional_fields', CustomFieldsType::class, [
-                'applies_to' => LsItem::class,
+                'applies_to' => LsAssociation::class,
                 'label' => 'Additional fields',
                 'constraints' => [new Valid()],
             ]);

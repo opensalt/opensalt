@@ -1,12 +1,16 @@
-import { ref, watch, onUnmounted } from 'vue';
+import { ref, onUnmounted } from 'vue';
 import { useCurrentDocumentStore } from '../stores/currentDocumentStore';
 import { useDocumentStore } from '../stores/documentStore';
+import { useEditorContextStore } from '../stores/editorContextStore';
 import { logger } from '../utils/logger';
-import { frameworkCacheService } from '../services/frameworkCacheService';
+import { api } from '../services/api.js';
+
+const relatedDocCache = new Map();
 
 export function useMercureNotifications() {
     const currentDocumentStore = useCurrentDocumentStore();
     const documentStore = useDocumentStore();
+    const editorContextStore = useEditorContextStore();
     let eventSource = null;
     const currentTopic = ref(null);
     const subscribedDocIds = ref([]);
@@ -20,14 +24,18 @@ export function useMercureNotifications() {
             return;
         }
 
-        // Gather documentId and any related documents
         const docIds = new Set([documentId]);
 
         try {
-            // First try to look up from the local cache to avoid another network request
-            const cachedDocs = await frameworkCacheService.getRelatedFrameworks(documentId);
-            if (Array.isArray(cachedDocs)) {
-                cachedDocs.forEach((doc) => {
+            let relatedDocs = relatedDocCache.get(documentId);
+            if (!relatedDocs) {
+                relatedDocs = await api.getRelatedDocuments(documentId);
+                if (Array.isArray(relatedDocs)) {
+                    relatedDocCache.set(documentId, relatedDocs);
+                }
+            }
+            if (Array.isArray(relatedDocs)) {
+                relatedDocs.forEach((doc) => {
                     if (doc.identifier) docIds.add(doc.identifier);
                 });
             }
@@ -40,7 +48,6 @@ export function useMercureNotifications() {
 
         const url = new URL(window.location.protocol + '//' + window.location.host + '/.well-known/mercure');
 
-        // Append topic for each document we want to listen to
         subscribedDocIds.value.forEach(id => {
             url.searchParams.append('topic', `doc-updates/${id}`);
         });
@@ -73,22 +80,32 @@ export function useMercureNotifications() {
     }
 
     async function handleNotification(notification) {
-        // Basic validation that we received some changes payload
         if (notification && notification.changes) {
             logger.debug('Received Mercure notification of changes:', notification.changes);
 
-            // Revalidate all subscribed documents to ensure data is fresh
-            subscribedDocIds.value.forEach(async (id) => {
+            const activeDocId = editorContextStore.activeWriteDocumentId;
+
+            for (const id of subscribedDocIds.value) {
                 try {
-                    await documentStore.revalidatePackage(id);
+                    for (const [itemIdentifier, details] of editorContextStore.itemDetailsCache) {
+                        if (details.documentIdentifier === id) {
+                            editorContextStore.invalidateItemDetails(itemIdentifier);
+                        }
+                    }
+                    currentDocumentStore.invalidateItemDetailsCache();
+
+                    documentStore.invalidateTreeCache(id);
+
+                    if (id === activeDocId) {
+                        await documentStore.fetchTree(id);
+                    }
                 } catch (e) {
-                    logger.error(`Failed to revalidate package ${id} after notification:`, e);
+                    logger.error(`Failed to invalidate caches for document ${id} after notification:`, e);
                 }
-            });
+            }
         }
     }
 
-    // Ensure cleanup
     onUnmounted(() => {
         disconnect();
     });

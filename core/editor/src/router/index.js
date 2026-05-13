@@ -27,17 +27,13 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
-  scrollBehavior(to, from, savedPosition) {
+  scrollBehavior(_to, _from, _savedPosition) {
     // Always scroll to top on navigation
     return { top: 0 };
   }
 });
 
-// Navigation guard for route validation
-router.beforeEach((to, from, next) => {
-  // Add any global route guards here
-  // For example: authentication checks, analytics tracking, etc.
-  next();
-});
+// Navigation guard placeholder for future app-wide checks.
+router.beforeEach(() => true);
 
 export default router;

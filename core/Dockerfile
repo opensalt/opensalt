@@ -56,6 +56,7 @@ RUN set -eux; \
 		mysqli \
 		pdo_mysql \
 		pdo_pgsql \
+		ffi \
 	;
 
 ARG DOCKERIZE_VERSION=v0.9.7

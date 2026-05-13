@@ -1,5 +1,8 @@
 <template>
-  <tbody class="association-tbody" :class="{ 'cross-framework-tbody': isCrossFrameworkAssoc }">
+  <tbody
+    class="association-tbody"
+    :class="{ 'cross-framework-tbody': isAssociationFromDifferentDisplayedFramework }"
+  >
     <!-- Main row -->
     <tr class="association-row">
       <!-- Origin Column -->
@@ -7,115 +10,308 @@
         <div class="item-display">
           <template v-if="originDisplay.isLoading">
             <span class="text-muted uri-display">{{ originDisplay.truncatedStatement }}</span>
-            <span class="spinner-border spinner-border-sm text-secondary ms-2" role="status" aria-label="Loading item information">
+            <span
+              class="spinner-border spinner-border-sm text-secondary ms-2"
+              role="status"
+              aria-label="Loading item information"
+            >
               <span class="visually-hidden">Loading...</span>
             </span>
           </template>
           <template v-else>
             <div class="d-flex align-items-center flex-wrap gap-1">
-              <span v-if="originDisplay.humanCodingScheme" class="item-human-coding-scheme">
-                {{ originDisplay.humanCodingScheme }}
-              </span>
-              <span v-if="originDisplay.statement" class="item-statement">
-                {{ originDisplay.truncatedStatement }}
-              </span>
-              <span v-if="!originDisplay.humanCodingScheme && !originDisplay.statement" class="text-muted">
-                Unknown
-              </span>
+              <a
+                v-if="originLinkInfo.type === 'same-framework'"
+                :href="originLinkInfo.href"
+                class="association-title-link"
+                @click.prevent="onOriginClick"
+              >
+                <span
+                  v-if="originDisplay.humanCodingScheme"
+                  class="item-human-coding-scheme"
+                >{{ originDisplay.humanCodingScheme }}:</span>
+                <span
+                  v-if="originDisplay.statement"
+                  class="item-statement"
+                >{{ originDisplay.truncatedStatement }}</span>
+                <span
+                  v-if="!originDisplay.humanCodingScheme && !originDisplay.statement"
+                  class="text-muted"
+                >Unknown</span>
+              </a>
+              <a
+                v-else-if="originLinkInfo.type === 'cross-framework'"
+                :href="originLinkInfo.href"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="association-title-link"
+              >
+                <span
+                  v-if="originDisplay.humanCodingScheme"
+                  class="item-human-coding-scheme"
+                >{{ originDisplay.humanCodingScheme }}:</span>
+                <span
+                  v-if="originDisplay.statement"
+                  class="item-statement"
+                >{{ originDisplay.truncatedStatement }}</span>
+                <span
+                  v-if="!originDisplay.humanCodingScheme && !originDisplay.statement"
+                  class="text-muted"
+                >Unknown</span>
+              </a>
+              <a
+                v-else-if="originLinkInfo.type === 'external'"
+                :href="originLinkInfo.href"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="association-title-link"
+              >
+                <span
+                  v-if="originDisplay.humanCodingScheme"
+                  class="item-human-coding-scheme"
+                >{{ originDisplay.humanCodingScheme }}:</span>
+                <span
+                  v-if="originDisplay.statement"
+                  class="item-statement"
+                >{{ originDisplay.truncatedStatement }}</span>
+                <span
+                  v-if="!originDisplay.humanCodingScheme && !originDisplay.statement"
+                  class="text-muted"
+                >Unknown</span>
+              </a>
+              <template v-else>
+                <span
+                  v-if="originDisplay.humanCodingScheme"
+                  class="item-human-coding-scheme"
+                >
+                  {{ originDisplay.humanCodingScheme }}:
+                </span>
+                <span
+                  v-if="originDisplay.statement"
+                  class="item-statement"
+                >
+                  {{ originDisplay.truncatedStatement }}
+                </span>
+                <span
+                  v-if="!originDisplay.humanCodingScheme && !originDisplay.statement"
+                  class="text-muted"
+                >
+                  Unknown
+                </span>
+              </template>
               <!-- Framework badge for cross-framework CASE items -->
-              <span v-if="originFrameworkTitle && !isOriginLoading && originTargetTypeInfo.isCase" class="badge framework-badge" :title="`From: ${originFrameworkTitle}`">
-                <i class="bi bi-box-arrow-up-right me-1"></i>{{ originFrameworkTitle }}
+              <span
+                v-if="originFrameworkTitle && !isOriginLoading && originTargetTypeInfo.isCase"
+                class="badge framework-badge"
+                :title="`From: ${originFrameworkTitle}`"
+              >
+                <i class="bi bi-box-arrow-up-right me-1" />{{ originFrameworkTitle }}
               </span>
               <!-- Non-CASE item indicator -->
-              <span v-if="!originTargetTypeInfo.isCase && isOriginCrossFramework" class="badge external-uri-badge" title="External URI">
-                <i class="bi bi-link-45deg me-1"></i>External
+              <span
+                v-if="!originTargetTypeInfo.isCase && isOriginCrossFramework"
+                class="badge external-uri-badge"
+                title="External URI"
+              >
+                <i class="bi bi-link-45deg me-1" />External
               </span>
             </div>
             <!-- Source framework tag moved to Origin column -->
-            <div v-if="sourceFrameworkTitle" class="mt-2 text-muted small border-top pt-1 border-opacity-25" style="max-width: 250px;">
-              <i class="bi bi-folder2-open me-1"></i>Source: {{ sourceFrameworkTitle }}
+            <div
+              v-if="sourceFrameworkTitle"
+              class="mt-2 text-muted small border-top pt-1 border-opacity-25"
+              style="max-width: 250px;"
+            >
+              <i class="bi bi-folder2-open me-1" />Source: {{ sourceFrameworkTitle }}
             </div>
           </template>
         </div>
       </td>
 
-    <!-- Association Type Column -->
-    <td class="py-3">
-      <div class="association-type-badge">
-        <i :class="typeDisplay.icon" class="me-1" aria-hidden="true"></i>
-        <span class="text-capitalize">{{ typeDisplay.formatted }}</span>
-        <span
-          v-if="isExtendedType"
-          class="badge bg-warning text-dark ms-2"
-          title="This is an extended association type"
-        >
-          Extended
-        </span>
-      </div>
-    </td>
-
-    <!-- Destination Column -->
-    <td class="py-3">
-      <div class="item-display">
-        <template v-if="destinationDisplay.isLoading">
-          <span class="text-muted uri-display">{{ destinationDisplay.truncatedStatement }}</span>
-          <span class="spinner-border spinner-border-sm text-secondary ms-2" role="status" aria-label="Loading item information">
-            <span class="visually-hidden">Loading...</span>
+      <!-- Association Type Column -->
+      <td class="py-3">
+        <div class="association-type-badge">
+          <i
+            :class="typeDisplay.icon"
+            class="me-1"
+            aria-hidden="true"
+          />
+          <span class="text-capitalize">{{ typeDisplay.formatted }}</span>
+          <span
+            v-if="isExtendedType"
+            class="badge bg-warning text-dark ms-2"
+            title="This is an extended association type"
+          >
+            Extended
           </span>
-        </template>
-        <template v-else>
-          <div class="d-flex align-items-center flex-wrap gap-1">
-            <span v-if="destinationDisplay.humanCodingScheme" class="item-human-coding-scheme">
-              {{ destinationDisplay.humanCodingScheme }}
-            </span>
-            <span v-if="destinationDisplay.statement" class="item-statement">
-              {{ destinationDisplay.truncatedStatement }}
-            </span>
-            <span v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement" class="text-muted">
-              Unknown
-            </span>
-            <!-- Framework badge for cross-framework CASE items -->
-            <span v-if="destinationFrameworkTitle && !isDestinationLoading && destinationTargetTypeInfo.isCase" class="badge framework-badge" :title="`From: ${destinationFrameworkTitle}`">
-              <i class="bi bi-box-arrow-up-right me-1"></i>{{ destinationFrameworkTitle }}
-            </span>
-            <!-- Non-CASE item indicator -->
-            <span v-if="!destinationTargetTypeInfo.isCase && isDestinationCrossFramework" class="badge external-uri-badge" title="External URI">
-              <i class="bi bi-link-45deg me-1"></i>External
-            </span>
-          </div>
-        </template>
-      </div>
-    </td>
+        </div>
+      </td>
 
-    <!-- Actions Column -->
-    <td class="py-3 text-end">
-      <div v-if="!isReadOnly && !isCrossFrameworkAssoc && association.associationType !== 'isChildOf' && association.type !== 'isChildOf'" class="btn-group btn-group-sm" role="group">
-        <button
-          type="button"
-          class="btn btn-outline-primary"
-          @click="$emit('edit', association)"
-          :aria-label="`Edit association from ${originDisplay.humanCodingScheme || 'Unknown'} to ${destinationDisplay.humanCodingScheme || 'Unknown'}`"
-          title="Edit association"
-        >
-          <i class="bi bi-pencil" aria-hidden="true"></i>
-        </button>
-        <button
-          type="button"
-          class="btn btn-outline-danger"
-          @click="$emit('delete', association)"
-          :aria-label="`Delete association from ${originDisplay.humanCodingScheme || 'Unknown'} to ${destinationDisplay.humanCodingScheme || 'Unknown'}`"
-          title="Delete association"
-        >
-          <i class="bi bi-trash" aria-hidden="true"></i>
-        </button>
-      </div>
-    </td>
-  </tr>
+      <!-- Destination Column -->
+      <td class="py-3">
+        <div class="item-display">
+          <template v-if="destinationDisplay.isLoading">
+            <span class="text-muted uri-display">{{ destinationDisplay.truncatedStatement }}</span>
+            <span
+              class="spinner-border spinner-border-sm text-secondary ms-2"
+              role="status"
+              aria-label="Loading item information"
+            >
+              <span class="visually-hidden">Loading...</span>
+            </span>
+          </template>
+          <template v-else>
+            <div class="d-flex align-items-center flex-wrap gap-1">
+              <a
+                v-if="destinationLinkInfo.type === 'same-framework'"
+                :href="destinationLinkInfo.href"
+                class="association-title-link"
+                @click.prevent="onDestinationClick"
+              >
+                <span
+                  v-if="destinationDisplay.humanCodingScheme"
+                  class="item-human-coding-scheme"
+                >{{ destinationDisplay.humanCodingScheme }}:</span>
+                <span
+                  v-if="destinationDisplay.statement"
+                  class="item-statement"
+                >{{ destinationDisplay.truncatedStatement }}</span>
+                <span
+                  v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement"
+                  class="text-muted"
+                >Unknown</span>
+              </a>
+              <a
+                v-else-if="destinationLinkInfo.type === 'cross-framework'"
+                :href="destinationLinkInfo.href"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="association-title-link"
+              >
+                <span
+                  v-if="destinationDisplay.humanCodingScheme"
+                  class="item-human-coding-scheme"
+                >{{ destinationDisplay.humanCodingScheme }}:</span>
+                <span
+                  v-if="destinationDisplay.statement"
+                  class="item-statement"
+                >{{ destinationDisplay.truncatedStatement }}</span>
+                <span
+                  v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement"
+                  class="text-muted"
+                >Unknown</span>
+              </a>
+              <a
+                v-else-if="destinationLinkInfo.type === 'external'"
+                :href="destinationLinkInfo.href"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="association-title-link"
+              >
+                <span
+                  v-if="destinationDisplay.humanCodingScheme"
+                  class="item-human-coding-scheme"
+                >{{ destinationDisplay.humanCodingScheme }}:</span>
+                <span
+                  v-if="destinationDisplay.statement"
+                  class="item-statement"
+                >{{ destinationDisplay.truncatedStatement }}</span>
+                <span
+                  v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement"
+                  class="text-muted"
+                >Unknown</span>
+              </a>
+              <template v-else>
+                <span
+                  v-if="destinationDisplay.humanCodingScheme"
+                  class="item-human-coding-scheme"
+                >
+                  {{ destinationDisplay.humanCodingScheme }}:
+                </span>
+                <span
+                  v-if="destinationDisplay.statement"
+                  class="item-statement"
+                >
+                  {{ destinationDisplay.truncatedStatement }}
+                </span>
+                <span
+                  v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement"
+                  class="text-muted"
+                >
+                  Unknown
+                </span>
+              </template>
+              <!-- Framework badge for cross-framework CASE items -->
+              <span
+                v-if="destinationFrameworkTitle && !isDestinationLoading && destinationTargetTypeInfo.isCase"
+                class="badge framework-badge"
+                :title="`From: ${destinationFrameworkTitle}`"
+              >
+                <i class="bi bi-box-arrow-up-right me-1" />{{ destinationFrameworkTitle }}
+              </span>
+              <!-- Non-CASE item indicator -->
+              <span
+                v-if="!destinationTargetTypeInfo.isCase && isDestinationCrossFramework"
+                class="badge external-uri-badge"
+                title="External URI"
+              >
+                <i class="bi bi-link-45deg me-1" />External
+              </span>
+            </div>
+          </template>
+        </div>
+      </td>
 
-    <tr v-if="hasAnnotation" class="annotation-row">
-      <td colspan="4" class="py-2 px-3">
+      <!-- Actions Column -->
+      <td class="py-3 text-end">
+        <div
+          v-if="canManageAssociation || canDeleteAssociation"
+          class="btn-group btn-group-sm"
+          role="group"
+        >
+          <button
+            v-if="canManageAssociation"
+            type="button"
+            class="btn btn-outline-primary"
+            :aria-label="`Edit association from ${originDisplay.humanCodingScheme || 'Unknown'} to ${destinationDisplay.humanCodingScheme || 'Unknown'}`"
+            title="Edit association"
+            @click="$emit('edit', association)"
+          >
+            <i
+              class="bi bi-pencil"
+              aria-hidden="true"
+            />
+          </button>
+          <button
+            v-if="canDeleteAssociation"
+            type="button"
+            class="btn btn-outline-danger"
+            :aria-label="`Delete association from ${originDisplay.humanCodingScheme || 'Unknown'} to ${destinationDisplay.humanCodingScheme || 'Unknown'}`"
+            title="Delete association"
+            @click="$emit('delete', association)"
+          >
+            <i
+              class="bi bi-trash"
+              aria-hidden="true"
+            />
+          </button>
+        </div>
+      </td>
+    </tr>
+
+    <tr
+      v-if="hasAnnotation"
+      class="annotation-row"
+    >
+      <td
+        colspan="4"
+        class="py-2 px-3"
+      >
         <div class="annotation-content">
-          <i class="bi bi-sticky me-2 text-muted" aria-hidden="true"></i>
+          <i
+            class="bi bi-sticky me-2 text-muted"
+            aria-hidden="true"
+          />
           <strong class="text-muted small">Annotation:</strong>
           <span class="ms-2 text-muted small">{{ annotation }}</span>
         </div>
@@ -125,10 +321,11 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted, toRef } from 'vue';
-import { useCurrentDocumentStore } from '../../stores/currentDocumentStore';
-import { useEditorContextStore } from '../../stores/editorContextStore';
+import { computed, ref, onMounted, toRef, inject } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useCrossFrameworkItem } from '../../composables/useCrossFrameworkItem';
+import { useAssociationPermissions } from '../../composables/useAssociationPermissions';
+import { formatAssociationType, getAssociationIcon } from '../../utils/associationHelpers.js';
 
 // Lazy-loaded markdown renderer with caching
 let markdownRendererPromise = null;
@@ -166,7 +363,7 @@ const props = defineProps({
     default: () => []
   },
   itemIdentifier: {
-    type: String,
+    type: [String, null],
     default: null
   },
   isReadOnly: {
@@ -175,37 +372,18 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['edit', 'delete']);
+const _emit = defineEmits(['edit', 'delete']);
 
-const currentDocumentStore = useCurrentDocumentStore();
-const contextStore = useEditorContextStore();
+const route = useRoute();
+const router = useRouter();
+const treeNavigation = inject('treeNavigation', null);
 
-// Check if this association comes from a different framework than the one being viewed
-const isCrossFrameworkAssoc = computed(() => {
-  const assocFrameworkId = props.association._sourceFrameworkId
-    || props.association.CFDocumentURI?.identifier
-    || (typeof props.association.CFDocumentURI === 'string' ? props.association.CFDocumentURI : null);
-  if (!assocFrameworkId) return false;
-
-  const displayedFrameworkId = contextStore.isViewingDifferentFramework
-    ? contextStore.viewedDocumentId
-    : contextStore.activeWriteDocumentId;
-
-  return assocFrameworkId !== displayedFrameworkId;
-});
-
-// Resolve the source framework title from the centralized document registry
-const sourceFrameworkTitle = computed(() => {
-  if (!isCrossFrameworkAssoc.value) return null;
-
-  const frameworkId = props.association._sourceFrameworkId
-    || props.association.CFDocumentURI?.identifier
-    || (typeof props.association.CFDocumentURI === 'string' ? props.association.CFDocumentURI : null);
-  if (!frameworkId) return null;
-
-  const doc = contextStore.documentRegistry.get(frameworkId);
-  return doc?.title || null;
-});
+const {
+  isAssociationFromDifferentDisplayedFramework,
+  canManageAssociation,
+  canDeleteAssociation,
+  sourceFrameworkTitle
+} = useAssociationPermissions(toRef(props, 'association'), { isReadOnly: toRef(props, 'isReadOnly') });
 
 // Use cross-framework item composable for origin (reversed direction)
 const {
@@ -215,7 +393,10 @@ const {
   targetTypeInfo: originTargetTypeInfo,
   nodeURI: originNodeURI,
   frameworkTitle: originFrameworkTitle,
-  isCrossFramework: isOriginCrossFramework
+  isCrossFramework: isOriginCrossFramework,
+  resolvedFrameworkId: originResolvedFrameworkId,
+  displayedFrameworkId: originDisplayedFrameworkId,
+  itemIdentifier: originItemIdentifier
 } = useCrossFrameworkItem({
   association: toRef(props, 'association'),
   direction: 'reversed'
@@ -229,11 +410,96 @@ const {
   targetTypeInfo: destinationTargetTypeInfo,
   nodeURI: destinationNodeURI,
   frameworkTitle: destinationFrameworkTitle,
-  isCrossFramework: isDestinationCrossFramework
+  isCrossFramework: isDestinationCrossFramework,
+  resolvedFrameworkId: destinationResolvedFrameworkId,
+  displayedFrameworkId: destinationDisplayedFrameworkId,
+  itemIdentifier: destinationItemIdentifier
 } = useCrossFrameworkItem({
   association: toRef(props, 'association'),
   direction: 'normal'
 });
+
+function computeLinkInfo({ isLoading, targetTypeInfo, nodeURI, isCrossFramework, resolvedFrameworkId, displayedFrameworkId, itemIdentifier }) {
+  if (isLoading.value) return { type: 'none' };
+
+  const uri = nodeURI.value?.uri;
+  const itemId = itemIdentifier.value;
+  const nodeFwId = nodeURI.value?.documentIdentifier;
+  const targetFwId = nodeFwId || resolvedFrameworkId.value;
+  const currentFwId = displayedFrameworkId.value;
+
+  if (targetTypeInfo.value.isCase) {
+    if (!itemId) return { type: 'none' };
+
+    const isSameFw = (targetFwId && currentFwId && targetFwId === currentFwId) || !isCrossFramework.value;
+
+    if (isSameFw) {
+      return { type: 'same-framework', itemId, href: currentFwId ? `/${currentFwId}/${itemId}` : `#item-${itemId}` };
+    }
+
+    if (targetFwId) {
+      if (itemId === targetFwId) {
+        return { type: 'cross-framework', href: `/editor/${targetFwId}` };
+      }
+      return { type: 'cross-framework', href: `/editor/${targetFwId}/${itemId}` };
+    }
+
+    return { type: 'none' };
+  }
+
+  if (uri && /^https?:\/\//i.test(uri)) {
+    return { type: 'external', href: uri };
+  }
+
+  if (!isCrossFramework.value && itemId) {
+    return { type: 'same-framework', itemId, href: currentFwId ? `/${currentFwId}/${itemId}` : `#item-${itemId}` };
+  }
+
+  return { type: 'none' };
+}
+
+const originLinkInfo = computed(() => computeLinkInfo({
+  isLoading: isOriginLoading,
+  targetTypeInfo: originTargetTypeInfo,
+  nodeURI: originNodeURI,
+  isCrossFramework: isOriginCrossFramework,
+  resolvedFrameworkId: originResolvedFrameworkId,
+  displayedFrameworkId: originDisplayedFrameworkId,
+  itemIdentifier: originItemIdentifier,
+}));
+
+const destinationLinkInfo = computed(() => computeLinkInfo({
+  isLoading: isDestinationLoading,
+  targetTypeInfo: destinationTargetTypeInfo,
+  nodeURI: destinationNodeURI,
+  isCrossFramework: isDestinationCrossFramework,
+  resolvedFrameworkId: destinationResolvedFrameworkId,
+  displayedFrameworkId: destinationDisplayedFrameworkId,
+  itemIdentifier: destinationItemIdentifier,
+}));
+
+function navigateToItem(itemId) {
+  if (treeNavigation?.navigateToItem) {
+    treeNavigation.navigateToItem(itemId);
+  } else {
+    const frameworkId = route.params.frameworkId;
+    if (frameworkId && itemId) {
+      router.push(`/${frameworkId}/${itemId}`);
+    }
+  }
+}
+
+function onOriginClick() {
+  if (originLinkInfo.value.type === 'same-framework') {
+    navigateToItem(originLinkInfo.value.itemId);
+  }
+}
+
+function onDestinationClick() {
+  if (destinationLinkInfo.value.type === 'same-framework') {
+    navigateToItem(destinationLinkInfo.value.itemId);
+  }
+}
 
 // Helper function to truncate text
 function truncateText(text, maxLength = 50) {
@@ -340,39 +606,7 @@ const isExtendedType = computed(() => {
 const hasAnnotation = computed(() => !!props.association.notes);
 const annotation = computed(() => props.association.notes || '');
 
-// Helper functions
-function formatAssociationType(type) {
-  if (!type) return 'Unknown';
 
-  // Remove ext: prefix for display
-  let displayType = type;
-  if (type.match(/^ext:/)) {
-    displayType = type.replace(/^ext:/, '');
-  }
-
-  // Convert camelCase to readable format
-  return displayType
-    .replace(/([A-Z])/g, ' $1') // Add space before capital letters
-    .replace(/^./, str => str.toUpperCase()) // Capitalize first letter
-    .trim();
-}
-
-function getAssociationIcon(type) {
-  const iconMap = {
-    'isChildOf': 'bi bi-diagram-3',
-    'isPeerOf': 'bi bi-share',
-    'isPartOf': 'bi bi-puzzle',
-    'exactMatchOf': 'bi bi-check-circle',
-    'precedes': 'bi bi-arrow-right',
-    'isRelatedTo': 'bi bi-link',
-    'replacedBy': 'bi bi-arrow-clockwise',
-    'exemplar': 'bi bi-star',
-    'hasSkillLevel': 'bi bi-bar-chart',
-    'isTranslationOf': 'bi bi-translate'
-  };
-
-  return iconMap[type] || 'bi bi-link-45deg';
-}
 </script>
 
 <style scoped>
@@ -395,6 +629,7 @@ function getAssociationIcon(type) {
   font-weight: 600;
   color: #495057;
   font-size: 0.875rem;
+  margin-right: 0.25rem;
 }
 
 .item-statement {
@@ -476,5 +711,20 @@ function getAssociationIcon(type) {
 
 .gap-1 {
   gap: 0.25rem;
+}
+
+.association-title-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.association-title-link:hover {
+  text-decoration: underline;
+  color: #0c63e4;
+}
+
+.association-title-link:hover .item-human-coding-scheme,
+.association-title-link:hover .item-statement {
+  color: #0c63e4;
 }
 </style>

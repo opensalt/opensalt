@@ -7,9 +7,9 @@ use Behat\Behat\Context\Context;
 class Exemplar implements Context
 {
     protected $exemplarData = [];
-    public static $itemPath = '/cftree/item/';
-    public static $docPath = '/cftree/doc/';
-    public static $av = '/av';
+    public static $itemPath = '/editor/';
+    public static $docPath = '/editor/';
+    public static $av = '/association';
 
     /**
      * @var \Tests\Support\AcceptanceTester
@@ -36,14 +36,21 @@ class Exemplar implements Context
             'description' => $exemplar,
         ];
         $I->getLastItemId();
-        $I->amOnPage(self::$itemPath.$I->getItemId());
+        $I->amOnPage(self::$itemPath.$I->getDocId().'/'.$I->getItemId());
         $I->waitForElementNotVisible('#modalSpinner');
 
-        $I->click('//*[@id="addExemplarBtn"]');
-        $I->waitForElementVisible('#addExemplarModal');
-        $I->fillField('#addExemplarFormUrl', $this->exemplarData['url']);
-        //$I->fillField('#addExemplarFormDescription', $exemplar);
-        $I->click('//*[@id="addExemplarModal"]/div/div/div[3]/button[2]');
+        // Wait for the Vue app to fully initialize (session check, item load, editability)
+        $I->waitForElementVisible('#rightSideCopyItemsBtn', 30);
+        $I->waitForElementVisible('#addExemplarBtn', 10);
+
+        $I->click('#addExemplarBtn');
+        // Wait for the EditAssociationModal to open (onAddExemplar opens this modal, not ExemplarModal)
+        $I->waitForElementVisible('#editAssociationModal', 30);
+        // Wait for the exemplar URL field to appear (ExemplarFields renders conditionally via v-if="isExemplarType")
+        $I->waitForElementVisible('#editAssociationFormExemplarUrl', 10);
+        $I->fillField('#editAssociationFormExemplarUrl', $this->exemplarData['url']);
+        $I->click('#editAssociationModal .btn-primary');
+        $I->waitForElementNotVisible('#editAssociationModal', 10);
     }
 
     /**
@@ -54,8 +61,9 @@ class Exemplar implements Context
         $I = $this->I;
 
         $I->getLastItemId();
-        $I->amOnPage(self::$itemPath.$I->getItemId());
+        $I->amOnPage(self::$itemPath.$I->getDocId().'/'.$I->getItemId());
         $I->waitForElementNotVisible('#modalSpinner');
+        $I->waitForElement('.association-item', 15);
 
         $I->see('Exemplar');
         $I->see($this->exemplarData['url']);
@@ -68,11 +76,19 @@ class Exemplar implements Context
     {
         $I = $this->I;
 
-        $I->amOnPage(self::$itemPath.$I->getItemId());
-        $I->waitForElementVisible('#deleteItemBtn');
-        $I->click('//*[@id="itemInfo"]/div[3]/section[1]/div[2]/div/div/a/span[1]/span/i');
-        $this->waitAndAcceptPopup();
-        $I->waitForElementNotVisible('.spinnerOuter');
+        $I->amOnPage(self::$itemPath.$I->getDocId().'/'.$I->getItemId());
+        $I->waitForElementNotVisible('#modalSpinner');
+        $I->wait(1);
+
+        // Click the delete button on the exemplar association item
+        $I->waitForElementVisible('.association-item .btn-outline-danger', 10);
+        $I->click('.association-item .btn-outline-danger');
+
+        // Confirm deletion in the DeleteAssociationModal
+        $I->waitForElementVisible('#deleteAssociationModal', 10);
+        $I->waitForElementClickable('#deleteAssociationModal .btn-danger', 5);
+        $I->click('#deleteAssociationModal .btn-danger');
+        $I->waitForElementNotVisible('#deleteAssociationModal', 10);
     }
 
     /**
@@ -83,10 +99,18 @@ class Exemplar implements Context
         $I = $this->I;
 
         $I->amOnPage(self::$docPath.$I->getDocId().self::$av);
-        $I->waitForElementVisible('#assocViewTable_wrapper');
+        $I->waitForElementVisible('.association-table-view', 15);
         $this->I->wait(1);
-        $I->clickWithLeftButton(['xpath' => '//*[@id="assocViewTable"]//tr[1]/td/span/span[contains(concat(" ",normalize-space(@class), " "), " btn-remove-association ")]']);
-        $this->waitAndAcceptPopup();
+
+        // Click the delete button on the first association row
+        $I->waitForElementVisible('.association-row .btn-outline-danger', 10);
+        $I->click('.association-row .btn-outline-danger');
+
+        // Confirm deletion in the DeleteAssociationModal
+        $I->waitForElementVisible('#deleteAssociationModal', 10);
+        $I->waitForElementClickable('#deleteAssociationModal .btn-danger', 5);
+        $I->click('#deleteAssociationModal .btn-danger');
+        $I->waitForElementNotVisible('#deleteAssociationModal', 10);
     }
 
     /**
@@ -97,39 +121,14 @@ class Exemplar implements Context
         $I = $this->I;
 
         $I->amOnPage(self::$docPath.$I->getDocId().self::$av);
-        $I->waitForElementVisible('#assocViewTable_wrapper');
-        $I->dontSee('Exemplar', '.avTypeCell');
+        $I->waitForElementVisible('.association-table-view', 15);
+        $I->dontSee('Exemplar', '.association-table-view');
     }
 
     protected function waitAndAcceptPopup($tries = 30): void
     {
-        $this->I->waitForElementVisible('.bootbox');
-        $this->I->click('.bootbox-accept');
-        $this->I->waitForElementNotVisible('.bootbox');
-        /*
-        $this->I->executeInSelenium(function (\Facebook\WebDriver\WebDriver $webDriver) {
-            try {
-                $webDriver->wait(5, 200)
-                    ->until(WebDriverExpectedCondition::alertIsPresent()
-                );
-                $webDriver->switchTo()->alert()->accept();
-            } catch (\Exception $e) {
-                throw $e;
-            }
-        });
-        */
-        /*
-        while ($tries--) {
-            try {
-                $this->I->acceptPopup();
-                break;
-            } catch (\Throwable $e) {
-                if (0 === $tries) {
-                    throw $e;
-                }
-                $this->I->wait(1);
-            }
-        }
-        */
+        $this->I->waitForElementVisible('#deleteAssociationModal .btn-danger', 10);
+        $this->I->click('#deleteAssociationModal .btn-danger');
+        $this->I->wait(1);
     }
 }

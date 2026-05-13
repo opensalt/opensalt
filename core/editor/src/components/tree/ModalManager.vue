@@ -9,6 +9,7 @@
     <EditDocModal
       :document="currentDoc"
       :show="showEditDocModal"
+      :is-admin="contextStore.isAdmin"
       @saved="onDocSaved"
       @hidden="onEditDocModalHidden"
     />
@@ -118,22 +119,25 @@
 
 <script setup>
 import { defineAsyncComponent } from 'vue';
+import { useEditorContextStore } from '../../stores/editorContextStore';
+
+const contextStore = useEditorContextStore();
 
 // Lazy-loaded modal components
-const EditDocModal = defineAsyncComponent(() => import('../shared/modals/EditDocModal.vue'));
+const EditDocModal = defineAsyncComponent(() => import('./modals/EditDocModal.vue'));
 const EditAssociationModal = defineAsyncComponent(() => import('../association/EditAssociationModal.vue'));
-const DeleteItemsModal = defineAsyncComponent(() => import('../shared/modals/DeleteItemsModal.vue'));
-const ExemplarModal = defineAsyncComponent(() => import('../shared/modals/ExemplarModal.vue'));
+const DeleteItemsModal = defineAsyncComponent(() => import('./modals/DeleteItemsModal.vue'));
+const ExemplarModal = defineAsyncComponent(() => import('./modals/ExemplarModal.vue'));
 const AssociationGroupModal = defineAsyncComponent(() => import('../association/AssociationGroupModal.vue'));
 const CrossTreeDropModal = defineAsyncComponent(() => import('./CrossTreeDropModal.vue'));
-const LoadExternalDocumentModal = defineAsyncComponent(() => import('../shared/modals/LoadExternalDocumentModal.vue'));
-const UpdateFrameworkModal = defineAsyncComponent(() => import('../shared/modals/UpdateFrameworkModal.vue'));
-const ExportModal = defineAsyncComponent(() => import('../shared/modals/ExportModal.vue'));
-const CloneFrameworkModal = defineAsyncComponent(() => import('../shared/modals/CloneFrameworkModal.vue'));
+const LoadExternalDocumentModal = defineAsyncComponent(() => import('./modals/LoadExternalDocumentModal.vue'));
+const UpdateFrameworkModal = defineAsyncComponent(() => import('./modals/UpdateFrameworkModal.vue'));
+const ExportModal = defineAsyncComponent(() => import('./modals/ExportModal.vue'));
+const CloneFrameworkModal = defineAsyncComponent(() => import('./modals/CloneFrameworkModal.vue'));
 const DeleteAssociationModal = defineAsyncComponent(() => import('../association/DeleteAssociationModal.vue'));
 
 // Props
-const props = defineProps({
+const _props = defineProps({
   /**
    * Current document being edited
    */

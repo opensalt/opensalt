@@ -1,12 +1,19 @@
 <template>
   <section
+    id="tree1Section"
     class="tree-panel d-flex flex-column h-100 overflow-hidden"
     aria-labelledby="tree-heading"
   >
-    <h2 id="tree-heading" class="visually-hidden">Document Tree</h2>
+    <h2
+      id="tree-heading"
+      class="visually-hidden"
+    >
+      Document Tree
+    </h2>
 
     <!-- Document Selector -->
     <DocumentSelector
+      v-if="false /* Removed for now */"
       :current-doc="currentDoc"
       :available-documents="availableDocuments"
       :viewed-doc="viewedDoc"
@@ -19,8 +26,8 @@
     <TreeFilter
       v-model="treeSearchQueryModel"
       :match-count="matchCount"
-      @clear="onClearTreeFilter"
       class="mx-2"
+      @clear="onClearTreeFilter"
     />
 
     <!-- Search and Filter (legacy, hidden) -->
@@ -58,12 +65,11 @@
 
 <script setup>
 import { computed } from 'vue';
-import { useEditorContextStore } from '@/stores/editorContextStore';
-import { useCurrentDocumentStore } from '@/stores/currentDocumentStore';
+import { useViewedDoc } from '../../composables/useViewedDoc';
 import DocumentSelector from '../shared/common/DocumentSelector.vue';
 import TreeFilter from './TreeFilter.vue';
-import SearchFilter from '../shared/common/SearchFilter.vue';
-import AssociationGroupSelector from '../shared/common/AssociationGroupSelector.vue';
+import SearchFilter from './common/SearchFilter.vue';
+import AssociationGroupSelector from './common/AssociationGroupSelector.vue';
 import TreeView from './TreeView.vue';
 
 // Props
@@ -171,28 +177,7 @@ const treeSearchQueryModel = computed({
   set: (value) => emit('update:treeSearchQuery', value)
 });
 
-const contextStore = useEditorContextStore();
-const currentDocumentStore = useCurrentDocumentStore();
-
-const isViewingDifferentFramework = computed(() => contextStore.isViewingDifferentFramework);
-
-const viewedDoc = computed(() => {
-  const registryVersion = contextStore.registryVersion;
-  void registryVersion;
-  const id = contextStore.viewedDocumentId;
-  if (!id) return null;
-  const doc = contextStore.documentRegistry.get(id);
-  if (!doc) return null;
-
-  const pkg = contextStore.loadedPackages.get(id);
-  let items = [];
-  if (pkg && pkg.CFItems) {
-    const transformed = currentDocumentStore.transformCASEItems(pkg.CFItems, pkg.CFAssociations || [], id);
-    items = transformed.items || transformed;
-  }
-
-  return { ...doc, id: doc.identifier, items };
-});
+const { viewedDoc, isViewingDifferentFramework } = useViewedDoc({ transformItems: true });
 
 // NEW: Compute the document to display based on view mode
 // When viewing a different framework, use viewed document; otherwise use filtered document
@@ -255,5 +240,6 @@ function onClearSearch() {
 /* Component-specific styles */
 .tree-panel {
   min-height: 0;
+  padding-top: 0.75rem;
 }
 </style>

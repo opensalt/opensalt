@@ -8,6 +8,7 @@
 import { ref } from 'vue';
 import { useDocumentStore } from '../stores/documentStore';
 import { useCurrentDocumentStore } from '../stores/currentDocumentStore';
+import { logger } from '../utils/logger.js';
 
 /**
  * @param {Object} options - Configuration options
@@ -137,7 +138,7 @@ export function useCrossTreeOperations(options = {}) {
 
       return true;
     } catch (error) {
-      console.error('Failed to copy item:', error);
+      logger.error('Failed to copy item:', error);
       // TODO: Show error toast
       return false;
     }
@@ -191,7 +192,7 @@ export function useCrossTreeOperations(options = {}) {
    * @param {Object} targetItem - The target item
    * @returns {boolean} True if this is a cross-tree operation
    */
-  function isCrossTreeOperation(draggedItem, targetItem) {
+  function isCrossTreeOperation(draggedItem, _targetItem) {
     const draggedDocId = draggedItem.CFDocumentURI?.identifier || draggedItem.documentId;
     const targetDocId = currentDoc?.value?.id;
     return draggedDocId !== targetDocId;

@@ -31,9 +31,9 @@ class FrameworkLogs implements Context
     {
         $I = $this->I;
 
-        $I->see('Date', 'th');
-        $I->see('Change', 'th');
-        $I->see('Username', 'th');
+        $I->see('Time', 'th');
+        $I->see('Action', 'th');
+        $I->see('User', 'th');
     }
 
     /**
@@ -43,7 +43,7 @@ class FrameworkLogs implements Context
     {
         $this->I->waitForElementNotVisible('#modalSpinner');
         $this->I->click('#displayLogBtn');
-        $this->I->waitForJS('return $.active == 0', 30);
+        $this->I->wait(2);
         $this->I->waitForElementVisible(['xpath' => '//*[@id="logTable"]/tbody/tr[1]/td[2]'], 30);
     }
 
@@ -78,6 +78,7 @@ class FrameworkLogs implements Context
     public function iEnterInTheLogSearchField($term)
     {
         $this->I->fillField('#logTable_filter input', $term);
+        $this->I->wait(1);
     }
 
     /**

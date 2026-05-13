@@ -8,39 +8,21 @@ use Tests\Support\Context\Login;
 
 class CommentExportCest
 {
-    public static $docPath = '/cftree/doc/';
+    public static $docPath = '/editor/';
     public static $commentFilePath = '/salt/case/export_comment/';
-    public static $itemPath = '/cftree/item/';
+    public static $itemPath = '/editor/';
 
     public function _before(AcceptanceTester $Acpt)
     {
         $Acpt->assertFeatureEnabled('comments');
     }
 
-    /* -- This test is failing for some reason
-     *    even though the screenshot seems to show the button
-     *    Removing test for now
-     *
-     *    @TODO figure out issue and fix this test
-    public function seeExportCSVButton(AcceptanceTester $Acpt, Scenario $scenario)
-    {
-        $loginPage = new Login($Acpt, $scenario);
-        $loginPage->loginAsRole('admin');
-        $Acpt->getLastFrameworkId();
-        $Acpt->amOnPage(self::$docPath.$Acpt->getDocId());
-        $Acpt->waitForElementNotVisible('#modalSpinner', 120);
-
-        $Acpt->waitForElementVisible('.export_csv_comment', 30);
-        $Acpt->see('Export Comments');
-    }
-     */
-
     public function dontSeeExportCSVButton(AcceptanceTester $Acpt)
     {
         $Acpt->getLastFrameworkId();
         $Acpt->amOnPage(self::$docPath . $Acpt->getDocId());
-        $Acpt->waitForElementNotVisible('#modalSpinner', 120);
-        $Acpt->dontSee('Export Comments');
+        $Acpt->waitForElementNotVisible('.spinner-border', 120);
+        $Acpt->dontSee('Export', '.export-comments-btn');
     }
 
     public function exportDocumentCommentCSV(AcceptanceTester $Acpt, Scenario $scenario)
@@ -49,9 +31,17 @@ class CommentExportCest
         $loginPage->loginAsRole('admin');
         $Acpt->getLastFrameworkId();
         $Acpt->amOnPage(self::$docPath . $Acpt->getDocId());
-        $Acpt->waitForElementNotVisible('#modalSpinner', 120);
-        $Acpt->see('Export Comments');
-        $Acpt->click('//*[@id="doc_export_comment"]');
+        $Acpt->waitForElementNotVisible('.spinner-border', 120);
+
+        $Acpt->createAComment('export test comment');
+        $Acpt->wait(1);
+
+        $Acpt->see('Export', '.export-comments-btn');
+        $Acpt->click('.export-comments-btn');
+
+        // Wait briefly for download link to be fetched if it redirects, though in Vue it's window.location.href
+        $Acpt->wait(1);
+
         $url = self::$commentFilePath . 'document/' . $Acpt->getDocId() . '/comment.csv';
         $csvFile = file_get_contents($Acpt->download($url));
         $Acpt->assertNotEmpty($csvFile, 'CSV file is empty');
@@ -65,10 +55,16 @@ class CommentExportCest
         $loginPage = new Login($Acpt, $scenario);
         $loginPage->loginAsRole('admin');
         $Acpt->getLastItemId();
-        $Acpt->amOnPage(self::$itemPath . $Acpt->getItemId());
-        $Acpt->waitForElementNotVisible('#modalSpinner', 120);
-        $Acpt->see('Export Comments');
-        $Acpt->click('//*[@id="item_export_comment"]');
+        $Acpt->amOnPage(self::$itemPath . $Acpt->getDocId() . '/' . $Acpt->getItemId());
+        $Acpt->waitForElementNotVisible('.spinner-border', 120);
+
+        $Acpt->createAComment('export test comment');
+        $Acpt->wait(1);
+
+        $Acpt->see('Export', '.export-comments-btn');
+        $Acpt->click('.export-comments-btn');
+        $Acpt->wait(1);
+
         $url = self::$commentFilePath . 'item/' . $Acpt->getDocId() . '/comment.csv';
         $csvFile = file_get_contents($Acpt->download($url));
         $Acpt->assertNotEmpty($csvFile, 'CSV file is empty');
@@ -83,9 +79,15 @@ class CommentExportCest
         $loginPage->loginAsRole('admin');
         $Acpt->getLastFrameworkId();
         $Acpt->amOnPage(self::$docPath . $Acpt->getDocId());
-        $Acpt->waitForElementNotVisible('#modalSpinner', 120);
-        $Acpt->see('Export Comments');
-        $Acpt->click('//*[@id="doc_export_comment"]');
+        $Acpt->waitForElementNotVisible('.spinner-border', 120);
+
+        $Acpt->createAComment('export test comment');
+        $Acpt->wait(1);
+
+        $Acpt->see('Export', '.export-comments-btn');
+        $Acpt->click('.export-comments-btn');
+        $Acpt->wait(1);
+
         $url = self::$commentFilePath . 'document/' . $Acpt->getDocId() . '/comment.csv';
         $csvFile = file_get_contents($Acpt->download($url));
         $Acpt->assertNotEmpty($csvFile, 'CSV file is empty');

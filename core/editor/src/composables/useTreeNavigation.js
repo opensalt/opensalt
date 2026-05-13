@@ -1,4 +1,4 @@
-import { ref, nextTick, computed, shallowRef, watch } from 'vue';
+import { ref, nextTick, watch } from 'vue';
 
 /**
  * Tree Navigation Composable
@@ -93,12 +93,6 @@ export function useTreeNavigation(options = {}) {
     }
 
     return visibleNodes;
-  };
-
-  // Find index of an item in visible nodes list
-  const findVisibleIndex = (itemId) => {
-    const visibleNodes = getVisibleNodes();
-    return visibleNodes.findIndex(item => item.identifier === itemId);
   };
 
   // Set focus to a specific node

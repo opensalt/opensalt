@@ -2,7 +2,8 @@
  * useDocumentLoader Composable
  *
  * Handles document fetching and initialization logic for EnhancedDocumentTreeEditor.
- * Extracts document loading, transformation, and management concerns.
+ * Extracts document loading and management concerns.
+ * Uses API-first architecture: fetchTree returns a pre-built tree.
  */
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
@@ -10,10 +11,10 @@ import { useDocumentStore } from '../stores/documentStore';
 import { useCurrentDocumentStore } from '../stores/currentDocumentStore';
 import { useFilterStore } from '../stores/filterStore';
 import { useRelatedFrameworksQueue } from './useRelatedFrameworksQueue';
+import { logger } from '../utils/logger.js';
 
 
-// Log when this composable is instantiated
-console.log('[useDocumentLoader] Composable instantiated');
+logger.debug('[useDocumentLoader] Composable instantiated');
 
 /**
  * @param {Object} options - Configuration options
@@ -33,98 +34,73 @@ export function useDocumentLoader(options = {}) {
   const filterStore = useFilterStore();
   const relatedFrameworksQueue = useRelatedFrameworksQueue();
 
-  // Loading and error states
   const loading = computed(() => documentStore.loading);
   const error = computed(() => documentStore.error);
 
-  // Available documents list
   const availableDocuments = computed(() => documentStore.documents);
 
-  /**
-   * Transform CASE document data into format expected by application
-   * @param {Object} docData - The raw document data from the API
-   * @returns {Object} The transformed document object
-   */
-  function transformDocumentData(docData) {
-    const cfDoc = docData.CFDocument || {};
-    const items = currentDocumentStore.transformCASEItems(
-      docData.CFItems || [],
-      docData.CFAssociations || [],
-      cfDoc.identifier
-    );
+  function isCurrentDocumentLoaded(documentId) {
+    if (!documentId) return false;
+    const currentId =
+      currentDocumentStore.currentDocument?.identifier ||
+      currentDocumentStore.currentDocument?.id ||
+      null;
 
-    return {
-      id: cfDoc.identifier,
-      identifier: cfDoc.identifier,
-      uri: cfDoc.uri || '',
-      title: cfDoc.title || 'Untitled',
-      description: cfDoc.description || null,
-      creator: cfDoc.creator || '',
-      subject: cfDoc.subject || null,
-      subjectURI: cfDoc.subjectURI || [],
-      status: cfDoc.adoptionStatus || 'Draft',
-      statusStartDate: cfDoc.statusStartDate || null,
-      statusEndDate: cfDoc.statusEndDate || null,
-      lastModified: cfDoc.lastChangeDateTime || '',
-      language: cfDoc.language || null,
-      version: cfDoc.version || null,
-      officialSourceURL: cfDoc.officialSourceURL || null,
-      publisher: cfDoc.publisher || null,
-      licenseURI: cfDoc.licenseURI || null,
-      notes: cfDoc.notes || null,
-      frameworkType: cfDoc.frameworkType || null,
-      caseVersion: cfDoc.caseVersion || null,
-      extensions: cfDoc.extensions || null,
-      CFPackageURI: cfDoc.CFPackageURI || null,
-      items: items
-    };
+    if (currentId !== documentId) return false;
+
+    return Array.isArray(currentDocumentStore.currentDocumentTree);
+  }
+
+  async function queueRelatedDocuments(documentId) {
+    if (!documentId) return [];
+
+    logger.debug('[useDocumentLoader] About to call fetchAndQueueRelatedDocuments for:', documentId);
+    const relatedDocs = await relatedFrameworksQueue.fetchAndQueueRelatedDocuments(documentId);
+    logger.debug('[useDocumentLoader] fetchAndQueueRelatedDocuments completed');
+
+    relatedFrameworksQueue.startQueue();
+    logger.debug('[useDocumentLoader] Queue started');
+
+    return relatedDocs;
   }
 
   /**
-   * Load a document by its ID
+   * Load a document by its ID using the API tree endpoint.
    * @param {string} documentId - The document identifier
    * @returns {Promise<Object>} The loaded document data
    */
   async function loadDocument(documentId) {
     if (!documentId) return null;
 
-    console.log('[useDocumentLoader] loadDocument called with documentId:', documentId);
+    if (isCurrentDocumentLoaded(documentId)) {
+      await queueRelatedDocuments(documentId);
+      return currentDocumentStore.currentDocument;
+    }
 
-    const docData = await documentStore.fetchDocument(documentId);
-    const transformedDoc = transformDocumentData(docData);
+    logger.debug('[useDocumentLoader] loadDocument called with documentId:', documentId);
 
-    const definitions = docData.CFDefinitions || {};
-    const associationGroupings = definitions.CFAssociationGroupings || docData.CFAssociationGroupings || [];
+    const treeResponse = await documentStore.fetchTree(documentId);
 
-    currentDocumentStore.selectDocument(
-      transformedDoc,
-      associationGroupings,
-      docData.CFAssociations || [],
-      definitions
-    );
+    currentDocumentStore.selectDocument(treeResponse);
+
+    const definitions = treeResponse.definitions || {};
+    const associationGroupings = definitions.CFAssociationGroupings || [];
 
     filterStore.syncSelectedAssociationGroup({
-      frameworkId: transformedDoc.identifier || documentId,
-      associations: docData.CFAssociations || [],
-      realGroupIds: associationGroupings
+      frameworkId: treeResponse.document.identifier || documentId,
+      definedGroupIds: associationGroupings
         .map(group => group.identifier || group.uri)
-        .filter(Boolean)
+        .filter(Boolean),
+      treeNodes: treeResponse.tree || []
     });
 
     if (onDocumentLoaded) {
-      onDocumentLoaded(transformedDoc, docData);
+      onDocumentLoaded(treeResponse.document, treeResponse);
     }
 
-    console.log('[useDocumentLoader] About to call fetchAndQueueRelatedDocuments for:', documentId);
-    // Fetch related documents and add to queue
-    await relatedFrameworksQueue.fetchAndQueueRelatedDocuments(documentId);
-    console.log('[useDocumentLoader] fetchAndQueueRelatedDocuments completed');
+    await queueRelatedDocuments(documentId);
 
-    // Start queue processing
-    relatedFrameworksQueue.startQueue();
-    console.log('[useDocumentLoader] Queue started');
-
-    return transformedDoc;
+    return treeResponse.document;
   }
 
   /**
@@ -139,7 +115,7 @@ export function useDocumentLoader(options = {}) {
         await loadDocument(documentId);
       }
     } catch (error) {
-      console.error('Error loading document:', error);
+      logger.error('Error loading document:', error);
     }
   }
 
@@ -159,16 +135,14 @@ export function useDocumentLoader(options = {}) {
   async function onExternalDocumentUrlLoaded(url) {
     if (!url) return null;
 
-    // Clear any previous error
     documentStore.clearSideDocError();
 
     try {
       const { data, finalUrl } = await documentStore.loadExternalDocument(url);
 
-      // Transform and set side document
       const cfDoc = data.CFDocument || {};
-      // Use a unique ID for external docs if identifier is missing or clashes
       const externalId = cfDoc.identifier || 'external-' + Date.now();
+
       const items = currentDocumentStore.transformCASEItems(
         data.CFItems || [],
         data.CFAssociations || [],
@@ -189,7 +163,7 @@ export function useDocumentLoader(options = {}) {
 
       return sideDoc;
     } catch (error) {
-      console.error('Error loading external document:', error);
+      logger.error('Error loading external document:', error);
       if (sideDocument) {
         sideDocument.value = null;
       }
@@ -206,6 +180,10 @@ export function useDocumentLoader(options = {}) {
       const frameworkId = route.params.frameworkId;
 
       if (frameworkId) {
+        if (isCurrentDocumentLoaded(frameworkId)) {
+          await queueRelatedDocuments(frameworkId);
+          return;
+        }
         await loadDocument(frameworkId);
       } else if (!currentDocumentStore.currentDocument || Object.keys(currentDocumentStore.currentDocument).length === 0) {
         await documentStore.fetchDocuments();
@@ -216,22 +194,19 @@ export function useDocumentLoader(options = {}) {
         }
       }
     } catch (e) {
-      console.error('Error initializing data:', e);
+      logger.error('Error initializing data:', e);
     }
   }
 
   return {
-    // State
     loading,
     error,
     availableDocuments,
 
-    // Methods
     loadDocument,
     onDocumentChanged,
     onExternalDocumentRequested,
     onExternalDocumentUrlLoaded,
-    initializeDocument,
-    transformDocumentData
+    initializeDocument
   };
 }

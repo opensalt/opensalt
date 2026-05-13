@@ -47,13 +47,13 @@ describe('useAnnouncer', () => {
     let createElementCount = 0;
 
     // Mock document.getElementById
-    vi.spyOn(document, 'getElementById').mockImplementation((id) => {
+    vi.spyOn(document, 'getElementById').mockImplementation((_id) => {
       // Return null to force createAnnouncerElement to be called
       return null;
     });
 
     // Mock document.createElement
-    vi.spyOn(document, 'createElement').mockImplementation((tagName) => {
+    vi.spyOn(document, 'createElement').mockImplementation((_tagName) => {
       createElementCount++;
 
       if (createElementCount === 1) {

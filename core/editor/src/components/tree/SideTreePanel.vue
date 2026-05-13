@@ -4,58 +4,131 @@
     <DocumentSelector
       :current-doc="currentDocForSelector"
       :available-documents="availableDocuments"
-      :label="mode === 'copyItems' ? 'Source Document' : 'Target Document'"
+      :label="'External Document'"
       side="right"
-      @document-changed="onDocumentChanged"
+      @viewed-document-changed="onDocumentChanged"
       @external-document-requested="onExternalDocumentRequested"
     />
 
     <!-- Instructions -->
-    <div v-if="!selectedDocumentId" class="instructions alert alert-info py-2 mb-2">
+    <div
+      v-if="!selectedDocumentId"
+      class="instructions alert alert-info py-2 mb-2"
+    >
       <small>
-        <i class="bi bi-info-circle me-1"></i>
-        <span v-if="mode === 'copyItems'">
-          Select a document to copy items from.
-        </span>
-        <span v-else>
-          Select a document to create associations with.
+        <i class="bi bi-info-circle me-1" />
+        <span>
+          Select a document to act on its items.
         </span>
       </small>
+    </div>
+
+    <!-- Action Bar -->
+    <div
+      v-if="sideDocument"
+      class="mb-2 p-2 border rounded bg-light d-flex flex-column align-items-center"
+    >
+      <small class="text-muted mb-2">
+        <span v-if="!sideSelectedId">Select an item below to act on it.</span>
+        <span v-else>Item selected. Switch to main tree to select target.</span>
+      </small>
+      <div class="d-flex gap-2 ms-auto">
+        <button
+          type="button"
+          class="btn btn-outline-primary"
+          :disabled="!sideSelectedId"
+          @click="emit('action', { type: 'associate', itemId: sideSelectedId })"
+        >
+          <i class="bi bi-link-45deg" /> Associate
+        </button>
+        <div
+          v-click-outside="() => copyMenuOpen = false"
+          class="btn-group"
+        >
+          <button
+            id="copyDropdownBtn"
+            type="button"
+            class="btn btn-outline-primary dropdown-toggle"
+            :disabled="copyDisabled"
+            :aria-expanded="copyMenuOpen"
+            @click="toggleCopyMenu"
+          >
+            <i class="bi bi-copy" /> Copy...
+          </button>
+          <ul
+            v-if="copyMenuOpen"
+            class="dropdown-menu show shadow-sm"
+            aria-labelledby="copyDropdownBtn"
+          >
+            <li>
+              <button
+                class="dropdown-item py-2"
+                @click="onCopyAction('before')"
+              >
+                <i class="bi bi-arrow-bar-up text-muted me-2" /> Before Target
+              </button>
+            </li>
+            <li>
+              <button
+                class="dropdown-item py-2"
+                @click="onCopyAction('after')"
+              >
+                <i class="bi bi-arrow-bar-down text-muted me-2" /> After Target
+              </button>
+            </li>
+            <li>
+              <button
+                class="dropdown-item py-2"
+                @click="onCopyAction('inside')"
+              >
+                <i class="bi bi-arrow-bar-right text-muted me-2" /> As Child
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
 
     <!-- Side Tree -->
-    <div v-if="selectedDocumentId" class="side-tree flex-grow-1 d-flex flex-column overflow-hidden border rounded p-2">
-      <div v-if="loadingSideDoc" class="d-flex justify-content-center align-items-center h-100">
-        <div class="spinner-border spinner-border-sm text-primary" role="status">
+    <div
+      v-if="selectedDocumentId"
+      class="side-tree flex-grow-1 d-flex flex-column overflow-hidden border rounded p-2"
+    >
+      <div
+        v-if="loadingSideDoc"
+        class="d-flex justify-content-center align-items-center h-100"
+      >
+        <div
+          class="spinner-border spinner-border-sm text-primary"
+          role="status"
+        >
           <span class="visually-hidden">Loading...</span>
         </div>
       </div>
-      <div v-else-if="sideDocError" class="alert alert-danger py-2">
+      <div
+        v-else-if="sideDocError"
+        class="alert alert-danger py-2"
+      >
         {{ sideDocError }}
       </div>
-      <div v-else-if="sideDocument" class="side-tree-content">
+      <div
+        v-else-if="sideDocument"
+        class="side-tree-content"
+      >
         <TreeView
           :doc="sideDocument"
           :selected-id="sideSelectedId"
+          :disable-drop="true"
+          :disable-drag="true"
           @select="onSideSelect"
         />
       </div>
-      <div v-else class="d-flex justify-content-center align-items-center h-100 text-muted">
+      <div
+        v-else
+        class="d-flex justify-content-center align-items-center h-100 text-muted"
+      >
         <span>Loading document...</span>
       </div>
-    </div>
-
-    <!-- Drag Instructions -->
-    <div v-if="sideDocument" class="drag-instructions mt-2 alert alert-secondary py-1">
-      <small>
-        <i class="bi bi-grip-vertical me-1"></i>
-        <span v-if="mode === 'copyItems'">
-          Drag items to the left tree to copy them.
-        </span>
-        <span v-else>
-          Drag items to create associations.
-        </span>
-      </small>
     </div>
   </div>
 </template>
@@ -64,11 +137,32 @@
 import { ref, watch, computed } from 'vue';
 import TreeView from './TreeView.vue';
 import DocumentSelector from '../shared/common/DocumentSelector.vue';
+import { useEditorContextStore } from '../../stores/editorContextStore';
+import { useSideTreePanel } from '../../composables/useSideTreePanel';
+import { findItem } from '../../utils/tree';
+
+// Custom directive to detect clicks outside an element
+const vClickOutside = {
+  mounted(el, binding) {
+    el.__clickOutsideHandler = (event) => {
+      if (!el.contains(event.target)) {
+        binding.value(event);
+      }
+    };
+    document.addEventListener('click', el.__clickOutsideHandler);
+  },
+  unmounted(el) {
+    document.removeEventListener('click', el.__clickOutsideHandler);
+    delete el.__clickOutsideHandler;
+  }
+};
+
+const editorContextStore = useEditorContextStore();
 
 const props = defineProps({
   mode: {
     type: String,
-    default: 'copyItems'
+    default: 'externalDocument'
   },
   currentDocument: {
     type: Object,
@@ -99,35 +193,62 @@ const props = defineProps({
 const emit = defineEmits([
   'document-select',
   'external-document-requested',
-  'side-select'
+  'side-select',
+  'action'
 ]);
 
-const selectedDocumentId = ref('');
+const { selectedDocumentId, currentDocForSelector, onDocumentSelected } = useSideTreePanel(props);
 const sideSelectedId = ref(null);
+const copyMenuOpen = ref(false);
 
-// Track current document for DocumentSelector
-const currentDocForSelector = computed(() => {
-  // If sideDocument is set, it's the current selected document for this panel
-  if (selectedDocumentId.value && props.availableDocuments) {
-    return props.availableDocuments.find(doc => doc.id === selectedDocumentId.value) || props.currentDocument;
+const isSideSelectedDocument = computed(() => {
+  if (!sideSelectedId.value || !props.sideDocument) return false;
+  
+  if (sideSelectedId.value === props.sideDocument.id || 
+      sideSelectedId.value === props.sideDocument.identifier || 
+      sideSelectedId.value === 'document-root') {
+    return true;
   }
-  return props.currentDocument;
+  
+  const itemsToSearch = props.sideDocument.items || props.sideDocument.children || [];
+  const found = findItem(itemsToSearch, sideSelectedId.value);
+  
+  // If the selected item is not in the tree, it must be the document root itself
+  return !found;
 });
 
+const copyDisabled = computed(() => !sideSelectedId.value || isSideSelectedDocument.value);
+
+function toggleCopyMenu() {
+  if (copyDisabled.value) return;
+  copyMenuOpen.value = !copyMenuOpen.value;
+}
+
+function onCopyAction(position) {
+  copyMenuOpen.value = false;
+  emit('action', { type: 'copy', position, itemId: sideSelectedId.value });
+}
+
 function onDocumentChanged(event) {
-  const { side, documentId } = event;
+  const { documentId } = event;
   if (documentId) {
-    selectedDocumentId.value = documentId;
+    onDocumentSelected(documentId);
     emit('document-select', documentId);
+
+    // Save framework selection to centralized state
+    if (props.mode === 'externalDocument') {
+      editorContextStore.setFrameworkSelection(props.mode, documentId);
+    }
   }
 }
 
-function onExternalDocumentRequested(event) {
+function onExternalDocumentRequested() {
   emit('external-document-requested');
 }
 
 function onSideSelect(id) {
   sideSelectedId.value = id;
+  copyMenuOpen.value = false;
   emit('side-select', id);
 }
 

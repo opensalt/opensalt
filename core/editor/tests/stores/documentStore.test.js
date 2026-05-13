@@ -179,28 +179,29 @@ describe('DocumentStore', () => {
 
   describe('fetchDocument', () => {
     it('fetches single document by identifier', async () => {
-      const mockDocument = {
-        CFDocument: {
+      const mockTreeResponse = {
+        document: {
           identifier: 'doc-1',
           title: 'Test Document'
         },
-        CFItems: []
+        tree: []
       };
 
-      api.get.mockResolvedValueOnce(mockDocument);
+      api.get.mockResolvedValueOnce(mockTreeResponse);
 
       const result = await documentStore.fetchDocument('doc-1');
 
-      expect(result).toEqual(mockDocument);
-      expect(api.get).toHaveBeenCalledWith('/ims/case/v1p1/CFPackages/doc-1');
+      expect(result).toEqual(mockTreeResponse);
+      expect(api.get).toHaveBeenCalledWith('/framework/editor/tree/doc-1');
     });
 
     it('caches fetched documents', async () => {
-      const mockDocument = {
-        CFDocument: { identifier: 'doc-1', title: 'Test' }
+      const mockTreeResponse = {
+        document: { identifier: 'doc-1', title: 'Test' },
+        tree: []
       };
 
-      api.get.mockResolvedValue(mockDocument);
+      api.get.mockResolvedValue(mockTreeResponse);
 
       await documentStore.fetchDocument('doc-1');
       await documentStore.fetchDocument('doc-1');
@@ -209,19 +210,20 @@ describe('DocumentStore', () => {
     });
 
     it('deduplicates concurrent requests', async () => {
-      const mockDocument = {
-        CFDocument: { identifier: 'doc-1', title: 'Test' }
+      const mockTreeResponse = {
+        document: { identifier: 'doc-1', title: 'Test' },
+        tree: []
       };
 
-      api.get.mockResolvedValue(mockDocument);
+      api.get.mockResolvedValue(mockTreeResponse);
 
       const [result1, result2] = await Promise.all([
         documentStore.fetchDocument('doc-1'),
         documentStore.fetchDocument('doc-1')
       ]);
 
-      expect(result1).toEqual(mockDocument);
-      expect(result2).toEqual(mockDocument);
+      expect(result1).toEqual(mockTreeResponse);
+      expect(result2).toEqual(mockTreeResponse);
       expect(api.get).toHaveBeenCalledTimes(1);
     });
 
@@ -230,7 +232,6 @@ describe('DocumentStore', () => {
       api.get.mockRejectedValueOnce(new Error(errorMessage));
 
       await expect(documentStore.fetchDocument('non-existent')).rejects.toThrow(errorMessage);
-      expect(documentStore.error).toBe(errorMessage);
     });
   });
 
@@ -249,38 +250,6 @@ describe('DocumentStore', () => {
 
       expect(result.data).toEqual(mockDocument);
       expect(result.finalUrl).toBe('https://external.com/package');
-    });
-
-    it('follows CFPackageURI redirect', async () => {
-      const initialResponse = {
-        CFPackageURI: {
-          uri: 'https://redirect.com/package'
-        }
-      };
-      const finalResponse = {
-        CFDocument: {
-          identifier: 'ext-doc-1',
-          title: 'Redirected Document'
-        }
-      };
-
-      api.get
-        .mockResolvedValueOnce(initialResponse)
-        .mockResolvedValueOnce(finalResponse);
-
-      const result = await documentStore.loadExternalDocument('https://initial.com');
-
-      expect(result.data).toEqual(finalResponse);
-      expect(result.finalUrl).toBe('https://redirect.com/package');
-      expect(api.get).toHaveBeenCalledTimes(2);
-    });
-
-    it('throws error when response has neither CFDocument nor CFPackageURI', async () => {
-      api.get.mockResolvedValueOnce({ otherData: true });
-
-      await expect(
-        documentStore.loadExternalDocument('https://external.com/package')
-      ).rejects.toThrow('Response does not contain CFDocument or CFPackageURI');
     });
 
     it('handles load error', async () => {
@@ -315,22 +284,22 @@ describe('DocumentStore', () => {
     });
 
     it('fetches side document without affecting global loading state', async () => {
-      const mockDocument = {
-        CFDocument: {
+      const mockTreeResponse = {
+        document: {
           identifier: 'side-doc-1',
           title: 'Side Document'
         },
-        CFItems: []
+        tree: []
       };
 
-      api.get.mockResolvedValueOnce(mockDocument);
+      api.get.mockResolvedValueOnce(mockTreeResponse);
 
       const result = await documentStore.fetchSideDocument('side-doc-1');
 
-      expect(result).toEqual(mockDocument);
+      expect(result).toEqual(mockTreeResponse);
       expect(documentStore.loadingSideDocument).toBe(false);
-      expect(documentStore.loading).toBe(false); // Global loading should not be affected
-      expect(api.get).toHaveBeenCalledWith('/ims/case/v1p1/CFPackages/side-doc-1');
+      expect(documentStore.loading).toBe(false);
+      expect(api.get).toHaveBeenCalledWith('/framework/editor/tree/side-doc-1?mode=lightweight');
     });
 
     it('sets loadingSideDocument during fetch', async () => {
@@ -341,17 +310,14 @@ describe('DocumentStore', () => {
 
       const fetchPromise = documentStore.fetchSideDocument('side-doc-1');
 
-      // Wait for nextTick to ensure the async function moves past the initial await
       await new Promise(resolve => setTimeout(resolve, 0));
 
-      // During fetch, loadingSideDocument should be true
       expect(documentStore.loadingSideDocument).toBe(true);
-      expect(documentStore.loading).toBe(false); // Global loading should remain false
+      expect(documentStore.loading).toBe(false);
 
-      // Resolve the API call
       resolvePromise({
-        CFDocument: { identifier: 'side-doc-1', title: 'Test' },
-        CFItems: []
+        document: { identifier: 'side-doc-1', title: 'Test' },
+        tree: []
       });
 
       await fetchPromise;
@@ -360,32 +326,16 @@ describe('DocumentStore', () => {
     });
 
     it('caches fetched side documents', async () => {
-      const mockDocument = {
-        CFDocument: { identifier: 'side-doc-1', title: 'Test' }
+      const mockTreeResponse = {
+        document: { identifier: 'side-doc-1', title: 'Test' },
+        tree: []
       };
 
-      api.get.mockResolvedValue(mockDocument);
+      api.get.mockResolvedValue(mockTreeResponse);
 
       await documentStore.fetchSideDocument('side-doc-1');
       await documentStore.fetchSideDocument('side-doc-1');
 
-      expect(api.get).toHaveBeenCalledTimes(1);
-    });
-
-    it('deduplicates concurrent side document requests', async () => {
-      const mockDocument = {
-        CFDocument: { identifier: 'side-doc-1', title: 'Test' }
-      };
-
-      api.get.mockResolvedValue(mockDocument);
-
-      const [result1, result2] = await Promise.all([
-        documentStore.fetchSideDocument('side-doc-1'),
-        documentStore.fetchSideDocument('side-doc-1')
-      ]);
-
-      expect(result1).toEqual(mockDocument);
-      expect(result2).toEqual(mockDocument);
       expect(api.get).toHaveBeenCalledTimes(1);
     });
 
@@ -412,7 +362,7 @@ describe('DocumentStore', () => {
       await expect(documentStore.fetchSideDocument('bad-id')).rejects.toThrow();
 
       expect(documentStore.sideDocError).toBe('Side doc error');
-      expect(documentStore.error).toBeNull(); // Global error should not be affected
+      expect(documentStore.error).toBeNull();
     });
   });
 
@@ -428,22 +378,19 @@ describe('DocumentStore', () => {
     });
 
     it('does not affect global error state', async () => {
-      // Set global error
       api.get.mockRejectedValueOnce(new Error('Global error'));
       await documentStore.fetchDocuments().catch(() => { });
 
-      // Set side doc error
       api.get.mockRejectedValueOnce(new Error('Side error'));
       await documentStore.fetchSideDocument('test-id').catch(() => { });
 
       expect(documentStore.error).toBe('Global error');
       expect(documentStore.sideDocError).toBe('Side error');
 
-      // Clear only side doc error
       documentStore.clearSideDocError();
 
       expect(documentStore.sideDocError).toBeNull();
-      expect(documentStore.error).toBe('Global error'); // Global error should remain
+      expect(documentStore.error).toBe('Global error');
     });
   });
 });

@@ -30,6 +30,7 @@ class LsDoc implements CaseApiInterface, LockableInterface
     use CloneIdentifiableTrait;
     use ExtraDataTrait;
     use ExtensionTrait;
+    use AccessAdditionalFieldTrait;
 
     final public const string ADOPTION_STATUS_PRIVATE_DRAFT = 'Private Draft';
     final public const string ADOPTION_STATUS_DRAFT = 'Draft';

@@ -2,42 +2,31 @@
   <div class="exemplar-fields">
     <!-- Exemplar URL Field -->
     <div class="row mb-3">
-      <label for="editAssociationFormExemplarUrl" class="col-sm-3 col-form-label required text-end">
-        Exemplar URL *
+      <label
+        for="editAssociationFormExemplarUrl"
+        class="col-sm-3 col-form-label required text-end"
+      >
+        Exemplar URL
       </label>
       <div class="col-sm-9">
         <input
-          type="url"
           id="editAssociationFormExemplarUrl"
+          type="url"
           class="form-control"
           :value="url"
-          @input="$emit('update:url', $event.target.value)"
           placeholder="https://example.com/resource"
           required
+          @input="$emit('update:url', $event.target.value)"
         >
-        <div v-if="urlError" class="text-danger small mt-1">
+        <div
+          v-if="urlError"
+          class="text-danger small mt-1"
+        >
           {{ urlError }}
         </div>
         <div class="form-text">
           Enter the URL of the exemplar resource
         </div>
-      </div>
-    </div>
-
-    <!-- Exemplar Description Field -->
-    <div class="row mb-3">
-      <label for="editAssociationFormExemplarDescription" class="col-sm-3 col-form-label text-end">
-        Description
-      </label>
-      <div class="col-sm-9">
-        <textarea
-          id="editAssociationFormExemplarDescription"
-          class="form-control"
-          rows="3"
-          :value="description"
-          @input="$emit('update:description', $event.target.value)"
-          placeholder="Optional description of the exemplar"
-        ></textarea>
       </div>
     </div>
   </div>
@@ -60,13 +49,6 @@ defineProps({
     default: ''
   },
   /**
-   * Exemplar description value (v-model)
-   */
-  description: {
-    type: String,
-    default: ''
-  },
-  /**
    * Validation error message for URL
    */
   urlError: {
@@ -75,7 +57,7 @@ defineProps({
   }
 });
 
-defineEmits(['update:url', 'update:description']);
+defineEmits(['update:url']);
 </script>
 
 <style scoped>

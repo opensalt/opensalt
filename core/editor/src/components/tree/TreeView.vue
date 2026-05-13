@@ -9,15 +9,15 @@
       </div>
       <div
         v-else
+        ref="treeContainer"
         role="tree"
         :aria-label="treeLabel"
         :aria-multiselectable="false"
         :aria-setsize="totalItems"
         tabindex="-1"
-        ref="treeContainer"
-        @keydown="handleTreeKeyDown"
         class="tree-container"
         :class="{ 'view-mode': isViewMode }"
+        @keydown="handleTreeKeyDown"
       >
         <TreeNode
           :key="documentRoot.identifier"
@@ -26,11 +26,12 @@
           :selected-id="props.selectedId"
           :parent-items="[documentRoot]"
           :index="0"
-          :startExpanded="true"
+          :start-expanded="true"
           :search-query="props.searchQuery || props.search"
           :matching-item-ids="props.matchingItemIds"
           :is-view-mode="isViewMode"
           :disable-drop="disableDrop"
+          :disable-drag="disableDrag"
           @select="onSelect"
           @dblclick="onDblClick"
           @move="onMove"
@@ -46,9 +47,13 @@
 import { ref, computed, provide, inject } from 'vue';
 import TreeNode from './TreeNode.vue';
 import { useTreeNavigation } from '../../composables/useTreeNavigation';
+import { sortTreeNodes } from '../../utils/tree.js';
 
 const props = defineProps({
-  doc: Object,
+  doc: {
+    type: Object,
+    default: null
+  },
   selectedId: {
     type: String,
     default: null
@@ -74,6 +79,10 @@ const props = defineProps({
     default: false
   },
   disableDrop: {
+    type: Boolean,
+    default: false
+  },
+  disableDrag: {
     type: Boolean,
     default: false
   }
@@ -120,15 +129,17 @@ const treeContainer = ref(null);
 const documentRoot = computed(() => {
   if (!props.doc) return null;
 
+  const items = props.doc.items || [];
+  sortTreeNodes(items);
+
   return {
     identifier: props.doc.id || 'document-root',
     title: props.doc.title || 'Document Root',
     abbreviatedTitle: props.doc.title || 'Document Root',
     humanCodingScheme: '', // No human coding scheme for document root
-    children: props.doc.items || [],
+    children: items,
     itemType: 'document',
     lastChanged: props.doc.lastModified || '',
-    // Add other document properties as needed
     ...props.doc
   };
 });

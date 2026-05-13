@@ -1,7 +1,10 @@
 <template>
   <div class="row mb-3">
-    <label for="editAssociationFormType" class="col-sm-3 col-form-label required text-end">
-      Association Type *
+    <label
+      for="editAssociationFormType"
+      class="col-sm-3 col-form-label required text-end"
+    >
+      Association Type
     </label>
     <div class="col-sm-9">
       <select
@@ -9,8 +12,8 @@
         class="form-select"
         :class="{ 'locked-field': isDisabled }"
         :value="modelValue"
-        @change="handleChange"
         :disabled="isDisabled"
+        @change="handleChange"
       >
         <option 
           v-for="type in types" 
@@ -21,20 +24,32 @@
           {{ type.label }}
         </option>
       </select>
-      <div v-if="isDisabled" class="form-text text-muted">
-        <i class="bi bi-lock me-1"></i>Type is locked when adding an exemplar
+      <div
+        v-if="false && isDisabled"
+        class="form-text text-muted"
+      >
+        <i class="bi bi-lock me-1" />Type is locked when adding an exemplar
       </div>
-      <div v-if="showCustomTypeField" class="form-group mt-2">
-        <label for="customType" class="form-label">Custom Association Type</label>
+      <div
+        v-if="showCustomTypeField"
+        class="form-group mt-2"
+      >
+        <label
+          for="customType"
+          class="form-label"
+        >Custom Association Type</label>
         <input
           id="customType"
           :value="customType"
-          @input="$emit('update:customType', $event.target.value)"
           type="text"
           class="form-control"
           placeholder="ext:custom-type"
-        />
-        <div v-if="customType && !isValidCustomType" class="text-danger small mt-1">
+          @input="$emit('update:customType', $event.target.value)"
+        >
+        <div
+          v-if="customType && !isValidCustomType"
+          class="text-danger small mt-1"
+        >
           Invalid format. Must start with "ext:" followed by alphanumeric characters, dots, hyphens, or underscores.
         </div>
       </div>
