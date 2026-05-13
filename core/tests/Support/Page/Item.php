@@ -4,6 +4,8 @@ namespace Tests\Support\Page;
 
 use Behat\Behat\Context\Context;
 use Behat\Gherkin\Node\TableNode;
+use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverElement;
 
 class Item implements Context
 {
@@ -269,15 +271,30 @@ class Item implements Context
         $I->click('#rightSideCopyItemsBtn');
 
         // Wait for SideBySideTreePanel to mount
-        $I->waitForElementVisible('.side-by-side-panel .document-selector select.form-select', 30);
+        $I->waitForElementVisible('.side-by-side-panel .document-selector select.form-select optgroup', 30);
+        $I->wait(2);
 
         // Select framework using JS to ensure Vue reactivity is triggered
         $lastDoc = $I->getLastFramework();
         $identifier = $lastDoc['identifier'];
+        $frameworkName = $lastDoc['title'];
+        /*
         $I->executeJS(
             "var sel = document.querySelector('.side-by-side-panel .document-selector select.form-select');" .
             "if (sel) { sel.value = '{$identifier}'; sel.dispatchEvent(new Event('change', {bubbles: true})); }"
         );
+        */
+        $I->waitForElement('.side-by-side-panel .document-selector select.form-select option[value="'. $identifier .'"]');
+        $I->selectOption('.side-by-side-panel .document-selector select.form-select', $frameworkName);
+        // The selectOption() does not seem to be triggering the change event, so we do it manually
+        $I->executeJS(
+            "var sel = document.querySelector('.side-by-side-panel .document-selector select.form-select');" .
+            "sel.dispatchEvent(new Event('change', {bubbles: true}));"
+        );
+        $I->seeOptionIsSelected('.side-by-side-panel .document-selector select.form-select', $frameworkName);
+        $I->waitForElementChange('.side-by-side-panel .side-tree', function(WebDriverElement $el) {
+            return count($el->findElements(WebDriverBy::cssSelector('.tree-node'))) > 0;
+        }, 30);
 
         // Wait for side tree to load and select the source item ($from)
         $I->waitForElementVisible('.side-by-side-panel .side-tree .tree-node .tree-node .tree-node-label', 30);
