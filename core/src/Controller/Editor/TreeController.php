@@ -10,7 +10,6 @@ use App\Security\Permission;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 use Symfony\Component\Routing\Attribute\Route;
@@ -63,12 +62,19 @@ class TreeController extends AbstractController
             'adoptionStatus' => $lsDoc->getAdoptionStatus(),
             'language' => $lsDoc->getLanguage(),
             'version' => $lsDoc->getVersion(),
+            'officialSourceURL' => $lsDoc->getOfficialUri(),
+            'publisher' => $lsDoc->getPublisher(),
+            'notes' => $lsDoc->getNote(),
+            'frameworkType' => $lsDoc->getFrameworkType()?->getFrameworkType(),
+            'statusStart' => $lsDoc->getStatusStart()?->format('Y-m-d'),
+            'statusEnd' => $lsDoc->getStatusEnd()?->format('Y-m-d'),
             'org' => $lsDoc->getOrg()?->getId(),
             'orgName' => $lsDoc->getOrg()?->getName(),
             'licenseURI' => $licenceObj,
             'subject' => $lsDoc->getSubject(),
             'subjects' => $subjectURIs,
             'licence' => $licence?->getIdentifier(),
+            'additionalFields' => $lsDoc->getAdditionalFields() ?? [],
         ];
 
         $response = [

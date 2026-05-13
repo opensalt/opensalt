@@ -13,14 +13,18 @@
           {{ docTitle }}
         </h1>
         <ViewSwitcher />
-        <div>
+        <div v-if="docStatus">
           <span
             class="badge bg-warning text-dark fs-5 px-4 py-2 doc-status"
-            :class="{ draft: docStatus === 'Draft', deprecated: docStatus === 'Deprecated' }"
+            :class="{ draft: docStatus === 'Draft', deprecated: docStatus === 'Deprecated', adopted: docStatus === 'Adopted' }"
             role="status"
             aria-live="polite"
           >{{ docStatus }}</span>
         </div>
+        <div
+          v-else
+          class="badge-spacer"
+        />
       </header>
 
       <div
@@ -104,9 +108,9 @@ function removeToast(id) {
 // Provide notification function to child components
 provide('notify', notify);
 
-const doc = computed(() => currentDocumentStore.currentDocument || { title: '', status: '', items: [] });
+const doc = computed(() => currentDocumentStore.currentDocument || { title: '', adoptionStatus: '', items: [] });
 const docTitle = computed(() => doc.value.title);
-const docStatus = computed(() => doc.value.status || 'Draft');
+const docStatus = computed(() => currentDocumentStore.currentDocument ? (doc.value.adoptionStatus || 'Draft') : null);
 
 // Update browser tab title when framework changes
 watch(() => doc.value?.title, (newTitle) => {
@@ -126,5 +130,8 @@ watch(() => doc.value?.title, (newTitle) => {
 }
 .toast {
   pointer-events: auto;
+}
+.badge-spacer {
+  min-width: 120px;
 }
 </style>

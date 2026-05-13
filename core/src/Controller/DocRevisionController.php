@@ -27,8 +27,7 @@ class DocRevisionController extends AbstractController
         #[MapEntity(expr: '((id ?? null) == null) ? repository.findOneByIdentifier(identifier ?? null) : repository.find(id ?? null)')] LsDoc $doc,
         int $offset,
         int $limit,
-    ): Response
-    {
+    ): Response {
         $response = new StreamedResponse();
         $response->headers->set('Content-type', 'application/json');
 
@@ -64,8 +63,7 @@ class DocRevisionController extends AbstractController
     #[IsGranted(Permission::FRAMEWORK_EDIT, 'doc')]
     public function exportDocRevisions(
         #[MapEntity(expr: '((id ?? null) == null) ? repository.findOneByIdentifier(identifier ?? null) : repository.find(id ?? null)')] LsDoc $doc,
-    ): Response
-    {
+    ): Response {
         $response = new StreamedResponse();
         $response->headers->set('Content-type', 'text/csv; charset=utf-8');
         $response->headers->set('Content-Disposition', 'attachment; filename="framework_log.csv"');

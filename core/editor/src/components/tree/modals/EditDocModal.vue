@@ -46,6 +46,7 @@
             name="ls_doc[title]"
             placeholder="Enter document title"
             required
+            :disabled="isAdopted"
           >
           <small class="text-muted">The title of the document.</small>
         </div>
@@ -64,6 +65,7 @@
             class="form-control"
             name="ls_doc[creator]"
             placeholder="e.g., Organization or Person"
+            :disabled="isAdopted"
           >
           <small class="text-muted">The entity responsible for creating the document.</small>
         </div>
@@ -82,6 +84,7 @@
             class="form-control"
             name="ls_doc[officialUri]"
             placeholder="e.g., https://example.org/standards"
+            :disabled="isAdopted"
           >
           <small class="text-muted">The official URI for this document.</small>
         </div>
@@ -100,26 +103,9 @@
             class="form-control"
             name="ls_doc[publisher]"
             placeholder="e.g., Publishing Organization"
+            :disabled="isAdopted"
           >
           <small class="text-muted">The entity responsible for publishing the document.</small>
-        </div>
-      </div>
-
-      <div class="row mb-3">
-        <label
-          for="ls_doc_urlName"
-          class="col-sm-2 col-form-label"
-        >URL Name</label>
-        <div class="col-sm-10">
-          <input
-            id="ls_doc_urlName"
-            v-model="formData.urlName"
-            type="text"
-            class="form-control"
-            name="ls_doc[urlName]"
-            placeholder="e.g., my-framework"
-          >
-          <small class="text-muted">A URL-friendly name for this document.</small>
         </div>
       </div>
 
@@ -136,6 +122,7 @@
             class="form-control"
             name="ls_doc[version]"
             placeholder="e.g., 1.0"
+            :disabled="isAdopted"
           >
           <small class="text-muted">The version of the document.</small>
         </div>
@@ -154,6 +141,7 @@
             name="ls_doc[description]"
             rows="3"
             placeholder="Enter document description"
+            :disabled="isAdopted"
           />
           <small class="text-muted">A description of the document.</small>
         </div>
@@ -165,6 +153,7 @@
         v-model="formData.subjects"
         name="ls_doc[subjects][]"
         help-text="Subject areas associated with this document."
+        :disabled="isAdopted"
       />
 
       <div class="row mb-3">
@@ -178,6 +167,7 @@
             v-model="formData.language"
             class="form-select"
             name="ls_doc[language]"
+            :disabled="isAdopted"
           >
             <option value="">
               Select Language
@@ -283,6 +273,7 @@
         v-model="formData.licence"
         name="ls_doc[licence]"
         help-text="License governing the use of this document."
+        :disabled="isAdopted"
       />
 
       <div class="row mb-3">
@@ -299,6 +290,7 @@
             name="ls_doc[frameworkType]"
             placeholder="e.g., Standard, Rubric"
             list="frameworkTypeOptions"
+            :disabled="isAdopted"
           >
           <datalist id="frameworkTypeOptions">
             <option
@@ -342,6 +334,12 @@
           <small class="text-muted">The organization that owns this document. Only administrators can change this.</small>
         </div>
       </div>
+
+      <AdditionalFields
+        v-model="formData.additionalFields"
+        :field-definitions="docFieldDefinitions"
+        :disabled="isAdopted"
+      />
     </form>
 
     <template #footer>
@@ -370,11 +368,13 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch, nextTick } from 'vue';
+import { ref, reactive, watch, nextTick, computed } from 'vue';
 import BaseModal from '../../shared/BaseModal.vue';
 import SubjectSelector from '../common/SubjectSelector.vue';
 import LicenseSelector from '../common/LicenseSelector.vue';
+import AdditionalFields from '../fields/AdditionalFields.vue';
 import { logger } from '../../../utils/logger.js';
+import { useAdditionalFields } from '../../../composables/useAdditionalFields.js';
 
 const props = defineProps({
   document: {
@@ -392,6 +392,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['saved', 'hidden', 'update:show']);
+
+const { fieldDefinitions: docFieldDefinitions, fetchFields: fetchDocFields } = useAdditionalFields();
 
 const loading = ref(false);
 const error = ref('');
@@ -416,11 +418,14 @@ const formData = reactive({
   note: '',
   licence: '',
   frameworkType: '',
-  org: null
+  org: null,
+  additionalFields: {}
 });
 
 const availableFrameworkTypes = ref([]);
 const availableAccessGroups = ref([]);
+
+const isAdopted = computed(() => props.document?.adoptionStatus === 'Adopted');
 
 async function fetchFrameworkTypes() {
   if (availableFrameworkTypes.value.length > 0) return;
@@ -491,7 +496,8 @@ watch(() => props.show, async (newVal) => {
     const fetches = [
       subjectSelectorRef.value?.ensureLoaded(),
       licenseSelectorRef.value?.ensureLoaded(),
-      fetchFrameworkTypes()
+      fetchFrameworkTypes(),
+      fetchDocFields('doc')
     ];
     if (props.isAdmin) {
       fetches.push(fetchAccessGroups());
@@ -549,6 +555,7 @@ function loadDocumentData() {
 
   formData.frameworkType = props.document.frameworkType || '';
   formData.org = props.document.org || null;
+  formData.additionalFields = props.document.additionalFields || {};
 
   loading.value = false;
 }

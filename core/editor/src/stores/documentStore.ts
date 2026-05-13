@@ -69,6 +69,7 @@ export interface TreeNode {
   isUnresolved?: boolean;
   discriminator?: number;
   extensions?: Record<string, unknown>;
+  additionalFields?: Record<string, string>;
   children: TreeNode[];
 }
 
@@ -92,6 +93,7 @@ export interface ItemDetailsResponse {
   licenseURI?: { identifier?: string; uri?: string; title?: string } | null;
   licence?: string | null;
   extensions?: Record<string, unknown>;
+  additionalFields?: Record<string, string>;
   lastChangeDateTime?: string;
   documentIdentifier?: string;
   permissions?: { canEdit: boolean };

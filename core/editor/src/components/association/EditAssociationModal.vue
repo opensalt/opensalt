@@ -111,7 +111,7 @@
               v-model:url="formData.exemplarUrl"
               :url-error="exemplarUrlError"
             />
-            
+
             <!-- Manual Destination Fields -->
             <DestinationFields
               v-if="isAddMode && !destinationItem && !isExemplarType"
@@ -162,6 +162,12 @@
                 </select>
               </div>
             </div>
+
+            <!-- Additional Fields -->
+            <AdditionalFields
+              v-model="additionalFields"
+              :field-definitions="assocFieldDefinitions"
+            />
           </div>
         </div>
         <div class="modal-footer">
@@ -198,6 +204,7 @@ import Modal from 'bootstrap/js/dist/modal';
 // Import composables
 import { useAssociationDirection } from '../../composables/useAssociationDirection';
 import { useAssociationForm } from '../../composables/useAssociationForm';
+import { useAdditionalFields } from '../../composables/useAdditionalFields.js';
 
 // Import components
 import AssociationItemDisplay from './AssociationItemDisplay.vue';
@@ -205,6 +212,7 @@ import DirectionSwitchButton from './DirectionSwitchButton.vue';
 import AssociationTypeSelector from './AssociationTypeSelector.vue';
 import ExemplarFields from './ExemplarFields.vue';
 import DestinationFields from './DestinationFields.vue';
+import AdditionalFields from '../tree/fields/AdditionalFields.vue';
 import { getOrderedAssociationTypes } from '../../composables/useAssociationTypePriority';
 import { useEditorContextStore } from '../../stores/editorContextStore';
 
@@ -248,10 +256,15 @@ const props = defineProps({
 const emit = defineEmits(['updated', 'hidden', 'created']);
 const contextStore = useEditorContextStore();
 
+const { fieldDefinitions: assocFieldDefinitions, fetchFields: fetchAssocFields } = useAdditionalFields();
+
 // Error and saving state
 const error = ref('');
 const saving = ref(false);
 const modal = ref(null);
+
+// Additional fields managed separately from the composable's formData
+const additionalFields = ref({});
 
 // Use the form composable
 const {
@@ -336,7 +349,7 @@ const prioritizedTypes = computed(() => {
   const source = leftSideItemData.value;
   const target = rightSideItemData.value;
   const isExemplar = rightSideTargetTypeInfo.value?.isUnknown && !rightSideTargetTypeInfo.value?.isCase;
-  
+
   return getOrderedAssociationTypes(source, target, {
     isEditing: props.mode === 'edit',
     currentType: formData.type === 'other' ? customType.value : formData.type,
@@ -348,10 +361,10 @@ const prioritizedTypes = computed(() => {
 // Available groups for the group selector (filtering out virtual groups)
 const availableGroups = computed(() => {
   if (!props.availableGroups) return [];
-  return props.availableGroups.filter(g => 
-    g.id !== 'default' && 
-    g.id !== 'all' && 
-    g.title !== 'Default' && 
+  return props.availableGroups.filter(g =>
+    g.id !== 'default' &&
+    g.id !== 'all' &&
+    g.title !== 'Default' &&
     g.title !== 'All'
   );
 });
@@ -362,6 +375,14 @@ watch(() => props.show, async (newVal) => {
     error.value = '';
     loadAssociationData();
     resetDirection();
+    // Fetch additional field definitions
+    await fetchAssocFields('association');
+    // Load existing additionalFields when editing
+    if (props.mode === 'edit' && props.association) {
+      additionalFields.value = props.association.additionalFields || {};
+    } else {
+      additionalFields.value = {};
+    }
     // Wait for DOM to be ready before accessing the modal element
     await nextTick();
     const modalEl = document.getElementById('editAssociationModal');
@@ -412,10 +433,12 @@ function saveAssociation() {
     if (props.mode === 'add') {
       // Create new association
       const newAssociation = createAssociationData(finalType);
+      newAssociation.additionalFields = additionalFields.value;
       emit('created', newAssociation);
     } else {
       // Update existing association
       const updatedAssociation = updateAssociationData(finalType);
+      updatedAssociation.additionalFields = additionalFields.value;
       emit('updated', updatedAssociation);
     }
     if (modal.value) {

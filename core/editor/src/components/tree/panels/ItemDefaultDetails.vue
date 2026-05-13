@@ -11,7 +11,7 @@
       />
     </div>
 
-    <div class="mt-2">
+    <div class="mt-2 details-identifier item-identifier">
       <strong>Identifier:</strong> <a
         :href="`/uri/${item.identifier}`"
         target="_blank"
@@ -108,16 +108,61 @@
         Last changed: {{ formatDate(item.lastChanged) }}
       </small>
     </div>
+
+    <!-- Additional Fields (read-only) -->
+    <div
+      v-if="hasAdditionalFieldValues"
+      class="mt-3 additional-fields-section"
+    >
+      <h6 class="mb-2">
+        Additional Fields
+      </h6>
+      <div
+        v-for="field in fieldDefinitions"
+        :key="field.id || field.name"
+        class="row mb-1"
+      >
+        <template v-if="getDisplayValue(field.name)">
+          <div class="col-sm-4 text-muted">
+            {{ field.displayName || field.name }}
+          </div>
+          <div class="col-sm-8">
+            {{ getDisplayValue(field.name) }}
+          </div>
+        </template>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-defineProps({
+import { computed, onMounted } from 'vue';
+import { useAdditionalFields } from '../../../composables/useAdditionalFields.js';
+
+const props = defineProps({
   item: { type: Object, required: true },
   renderedFullStatement: { type: String, default: '' },
   renderedNotes: { type: String, default: '' },
   licenseName: { type: String, default: null },
 });
+
+const { fieldDefinitions, fetchFields } = useAdditionalFields();
+
+onMounted(() => {
+  fetchFields('item');
+});
+
+const hasAdditionalFieldValues = computed(() => {
+  if (!fieldDefinitions.value?.length) return false;
+  const af = props.item?.additionalFields;
+  return fieldDefinitions.value.some(f => af?.[f.name]);
+});
+
+function getDisplayValue(fieldName) {
+  const af = props.item?.additionalFields;
+  if (!af || typeof af !== 'object') return undefined;
+  return af[fieldName] || undefined;
+}
 
 function formatDate(dateString) {
   if (!dateString) return '';

@@ -163,7 +163,7 @@ class LsAssociationRepository extends ServiceEntityRepository
         string $itemIdentifier,
         ?string $frameworkId = null,
         int $limit = 1000,
-        int $offset = 0
+        int $offset = 0,
     ): array {
         $qb = $this->createQueryBuilder('a')
             ->leftJoin('a.originLsItem', 'i1')
@@ -194,7 +194,7 @@ class LsAssociationRepository extends ServiceEntityRepository
     public function findByDocument(
         string $docId,
         int $limit = 1000,
-        int $offset = 0
+        int $offset = 0,
     ): array {
         $qb = $this->createQueryBuilder('a')
             ->leftJoin('a.originLsItem', 'i1')

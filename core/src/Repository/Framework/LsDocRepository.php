@@ -15,7 +15,6 @@ use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Entity\Framework\LsDefConcept;
 use App\Entity\Framework\LsDefItemType;
 use App\Entity\Framework\LsDefLicence;
-use App\Entity\Framework\LsDefSubject;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Entity\User\User;
@@ -321,7 +320,8 @@ class LsDocRepository extends ServiceEntityRepository
                    oi.changedAt as originChangedAt,
                    a.destinationNodeIdentifier as destNodeIdentifier,
                    di.identifier as destIdentifier, di.uri as destUri,
-                   IDENTITY(di.lsDoc) as destDocId
+                   IDENTITY(di.lsDoc) as destDocId,
+                   a.extra as assocExtra
             FROM '.LsAssociation::class.' a
             LEFT JOIN a.group g
             JOIN a.originLsItem oi
@@ -342,7 +342,8 @@ class LsDocRepository extends ServiceEntityRepository
                    oi.abbreviatedStatement as originAbs, oi.listEnumInSource as originLe,
                    IDENTITY(oi.lsDoc) as originDocId,
                    IDENTITY(oi.itemType) as originItemTypeId,
-                   oi.changedAt as originChangedAt
+                   oi.changedAt as originChangedAt,
+                   a.extra as assocExtra
             FROM '.LsAssociation::class.' a
             LEFT JOIN a.group g
             JOIN a.originLsItem oi
@@ -360,7 +361,7 @@ class LsDocRepository extends ServiceEntityRepository
         $allItemsQuery = $em->createQuery('
             SELECT i.identifier, i.uri, i.humanCodingScheme, i.fullStatement,
                    i.abbreviatedStatement, i.listEnumInSource, i.changedAt,
-                   i.discriminator, i.extensions,
+                   i.discriminator, i.extensions, i.extra,
                    IDENTITY(i.lsDoc) as lsDoc,
                    IDENTITY(i.itemType) as itemType
             FROM '.LsItem::class.' i
@@ -436,6 +437,7 @@ class LsDocRepository extends ServiceEntityRepository
                 'originFs' => $row['originFs'],
                 'originHcs' => $row['originHcs'],
                 'originAbs' => $row['originAbs'],
+                'assocExtra' => $row['assocExtra'],
             ];
             $childIds[$originId] = true;
 
@@ -458,6 +460,7 @@ class LsDocRepository extends ServiceEntityRepository
                 'originFs' => $row['originFs'],
                 'originHcs' => $row['originHcs'],
                 'originAbs' => $row['originAbs'],
+                'assocExtra' => $row['assocExtra'],
             ];
             $childIds[$originId] = true;
 
@@ -471,7 +474,7 @@ class LsDocRepository extends ServiceEntityRepository
             $foreignQuery = $em->createQuery('
                 SELECT i.identifier, i.uri, i.humanCodingScheme, i.fullStatement,
                        i.abbreviatedStatement, i.listEnumInSource, i.changedAt,
-                       i.discriminator, i.extensions,
+                       i.discriminator, i.extensions, i.extra,
                        IDENTITY(i.lsDoc) as lsDoc,
                        IDENTITY(i.itemType) as itemType
                 FROM '.LsItem::class.' i
@@ -489,8 +492,8 @@ class LsDocRepository extends ServiceEntityRepository
         $itemTypeCache = [];
 
         $buildNode = function (string $identifier, bool $isCrossFramework = false) use (
-            &$buildNode, $itemDataMap, $foreignItems, $parentMap, $assocMap,
-            $viewedDocId, $viewedDocIdentifier, $childIds, $lightweight,
+            &$buildNode, $itemDataMap, $foreignItems , $assocMap,
+            $viewedDocId, $viewedDocIdentifier , $lightweight,
             $itemTypeRepo, &$itemTypeCache, $em,
             $itemLicenceMap, $itemSubjectMap
         ): ?array {
@@ -534,9 +537,12 @@ class LsDocRepository extends ServiceEntityRepository
                     $node['associationGroupIdentifier'] = $assoc['groupIdentifier'] ?? null;
                     $node['discriminator'] = 0;
                     $node['extensions'] = [];
+                    $node['additionalFields'] = [];
+                    $node['associationAdditionalFields'] = $assoc['assocExtra']['customFields'] ?? [];
                 } else {
                     $node['discriminator'] = 0;
                     $node['extensions'] = [];
+                    $node['additionalFields'] = [];
                 }
 
                 return $node;
@@ -563,6 +569,7 @@ class LsDocRepository extends ServiceEntityRepository
                     'isCrossFramework' => $isForeign,
                     'discriminator' => $item['discriminator'] ?? 0,
                     'extensions' => $item['extensions'] ?? [],
+                    'additionalFields' => $item['extra']['customFields'] ?? [],
                     'children' => [],
                 ];
             } else {
@@ -596,6 +603,8 @@ class LsDocRepository extends ServiceEntityRepository
                     'isUnresolved' => false,
                     'discriminator' => $item['discriminator'] ?? 0,
                     'extensions' => $item['extensions'] ?? [],
+                    'additionalFields' => $item['extra']['customFields'] ?? [],
+                    'associationAdditionalFields' => $assocMap[$identifier]['assocExtra']['customFields'] ?? [],
                     'licenseURI' => $itemLicenceMap[$identifier] ?? null,
                     'subjectURI' => $itemSubjectMap[$identifier] ?? [],
                     'children' => [],
@@ -692,6 +701,7 @@ class LsDocRepository extends ServiceEntityRepository
                     'isCrossFramework' => false,
                     'discriminator' => $item['discriminator'] ?? 0,
                     'extensions' => $item['extensions'] ?? [],
+                    'additionalFields' => $item['extra']['customFields'] ?? [],
                     'children' => [],
                 ];
             } else {
@@ -714,6 +724,8 @@ class LsDocRepository extends ServiceEntityRepository
                     'isUnresolved' => false,
                     'discriminator' => $item['discriminator'] ?? 0,
                     'extensions' => $item['extensions'] ?? [],
+                    'additionalFields' => $item['extra']['customFields'] ?? [],
+                    'associationAdditionalFields' => [],
                     'children' => [],
                 ];
             }

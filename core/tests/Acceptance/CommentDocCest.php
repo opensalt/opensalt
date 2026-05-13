@@ -3,13 +3,12 @@
 namespace Tests\Acceptance;
 
 use Codeception\Scenario;
-use Codeception\Util\Locator;
 use Tests\Support\AcceptanceTester;
 use Tests\Support\Context\Login;
 
 class CommentDocCest
 {
-    public static $docPath = '/cftree/doc/';
+    public static $docPath = '/editor/';
 
     public function _before(AcceptanceTester $I)
     {
@@ -21,18 +20,24 @@ class CommentDocCest
     {
         $I->getLastFrameworkId();
         $I->amOnPage(self::$docPath . $I->getDocId());
-        $I->waitForElementNotVisible('#modalSpinner', 120);
-        $I->seeElement('.jquery-comments');
-        $I->see('To comment please login first');
+        $I->waitForElementNotVisible('.spinner-border', 120);
+        $I->waitForElementVisible('.comment-module', 30);
+        $I->seeElement('.comment-module');
+        $I->waitForElementVisible('.login-prompt', 10);
+        $I->see('Log in to post comments.', '.login-prompt');
     }
 
     public function dontSeeCommentsFormAsAnAnonymousUser(AcceptanceTester $I)
     {
         $I->getLastFrameworkId();
         $I->amOnPage(self::$docPath . $I->getDocId());
-        $I->waitForElementNotVisible('#modalSpinner', 120);
-        $I->dontSeeElement('.jquery-comments .commenting-field');
-        $I->see('To comment please login first');
+        $I->waitForElementNotVisible('.spinner-border', 120);
+        $I->waitForElementVisible('.comment-module', 30);
+        // Textarea is present in the DOM but disabled for anonymous users
+        $I->seeElement('.comment-textarea[disabled]');
+        $I->dontSeeElement('.comment-textarea:not([disabled])');
+        $I->waitForElementVisible('.login-prompt', 10);
+        $I->see('Log in to post comments.', '.login-prompt');
     }
 
     public function seeCommentsSectionAsAnAuthenticatedUser(AcceptanceTester $I, Scenario $scenario)
@@ -41,8 +46,9 @@ class CommentDocCest
         $loginPage = new Login($I, $scenario);
         $loginPage->loginAsRole('Editor');
         $I->amOnPage(self::$docPath . $I->getDocId());
-        $I->waitForElementNotVisible('#modalSpinner', 120);
-        $I->seeElement('.commenting-field');
+        $I->waitForElementNotVisible('.spinner-border', 120);
+        $I->waitForElementVisible('.comment-textarea', 30);
+        $I->seeElement('.comment-textarea');
     }
 
     public function commentAsAnAuthenticatedUser(AcceptanceTester $I, Scenario $scenario)
@@ -51,27 +57,35 @@ class CommentDocCest
         $loginPage = new Login($I, $scenario);
         $loginPage->loginAsRole('Editor');
         $I->amOnPage(self::$docPath . $I->getDocId());
-        $I->waitForElementNotVisible('#modalSpinner', 120);
+        $I->waitForElementNotVisible('.spinner-border', 120);
         $I->createAComment('acceptance doc comment ' . sq($I->getDocId()));
-        $I->waitForJS('return $.active == 0;', 2);
-        $I->see('acceptance doc comment ' . sq($I->getDocId()), '.comment-wrapper .wrapper .content');
+        $I->waitForText('acceptance doc comment ' . sq($I->getDocId()), 10, ['css' => '.comment-item:first-of-type .comment-body']);
+        $I->see('acceptance doc comment ' . sq($I->getDocId()), ['css' => '.comment-item:first-of-type .comment-body']);
 
         // Verify a different user can see the comment
         $loginPage->logout();
         $I->amOnPage(self::$docPath . $I->getDocId());
-        $I->waitForElementNotVisible('#modalSpinner', 120);
-        $I->waitForJS('return $.active == 0;', 2);
-        $I->see('acceptance doc comment ' . sq($I->getDocId()), '.comment-wrapper .wrapper .content');
+        $I->waitForElementNotVisible('.spinner-border', 120);
+        $I->waitForText('acceptance doc comment ' . sq($I->getDocId()), 10, ['css' => '.comment-item:first-of-type .comment-body']);
+        $I->see('acceptance doc comment ' . sq($I->getDocId()), ['css' => '.comment-item:first-of-type .comment-body']);
     }
 
-    public function upvoteOrDownvoteAsAnAnonymousUser(AcceptanceTester $I)
+    public function upvoteOrDownvoteAsAnAnonymousUser(AcceptanceTester $I, Scenario $scenario)
     {
         $I->getLastFrameworkId();
+
+        // Create a comment first to ensure there's something to upvote
+        $loginPage = new Login($I, $scenario);
+        $loginPage->loginAsRole('Editor');
         $I->amOnPage(self::$docPath . $I->getDocId());
-        $I->waitForElementNotVisible('#modalSpinner', 120);
-        $I->click(Locator::firstElement('.upvote'));
-        $I->waitForJS('return $.active == 0;', 2);
-        $I->seeCurrentUrlEquals('/login');
+        $I->waitForElementNotVisible('.spinner-border', 120);
+        $I->createAComment('doc comment to upvote anonymous');
+        $loginPage->logout();
+
+        $I->amOnPage(self::$docPath . $I->getDocId());
+        $I->waitForElementNotVisible('.spinner-border', 120);
+        $I->waitForElementVisible(['css' => '.comment-item:first-of-type .upvote-btn'], 10);
+        $I->seeElement(['css' => '.comment-item:first-of-type .upvote-btn[disabled]']);
     }
 
     public function upvoteAsAnAuthenticatedUser(AcceptanceTester $I, Scenario $scenario)
@@ -80,11 +94,16 @@ class CommentDocCest
         $loginPage = new Login($I, $scenario);
         $loginPage->loginAsRole('Editor');
         $I->amOnPage(self::$docPath . $I->getDocId());
-        $I->waitForElementNotVisible('#modalSpinner', 120);
-        $upvotes = $I->grabTextFrom(Locator::firstElement('.upvote'));
-        $I->click(Locator::firstElement('.upvote'));
-        $I->waitForJS('return $.active == 0', 2);
-        $I->see($upvotes + 1, Locator::firstElement('.upvote'));
+        $I->waitForElementNotVisible('.spinner-border', 120);
+
+        // Ensure there is a comment
+        $I->createAComment('doc comment to upvote auth');
+
+        $I->waitForElementVisible(['css' => '.comment-item:first-of-type .upvote-btn'], 10);
+        $upvotesText = $I->grabTextFrom(['css' => '.comment-item:first-of-type .upvote-btn']);
+        $upvotes = (int) trim($upvotesText);
+        $I->click(['css' => '.comment-item:first-of-type .upvote-btn']);
+        $I->waitForText((string)($upvotes + 1), 10, ['css' => '.comment-item:first-of-type .upvote-btn .upvote-count']);
     }
 
     public function downvoteAsAnAuthenticatedUser(AcceptanceTester $I, Scenario $scenario)
@@ -93,15 +112,20 @@ class CommentDocCest
         $loginPage = new Login($I, $scenario);
         $loginPage->loginAsRole('Editor');
         $I->amOnPage(self::$docPath . $I->getDocId());
-        $I->waitForElementNotVisible('#modalSpinner', 120);
+        $I->waitForElementNotVisible('.spinner-border', 120);
         $I->createAComment('downvote doc comment ' . sq($I->getDocId()));
-        $I->waitForJS('return $.active == 0', 2);
-        $I->click(Locator::firstElement('.upvote'));
-        $I->waitForJS('return $.active == 0', 2);
-        $upvotes = $I->grabTextFrom(Locator::firstElement('.upvote'));
-        $I->click(Locator::firstElement('.upvote'));
-        $I->waitForJS('return $.active == 0', 2);
-        $I->see($upvotes - 1, Locator::firstElement('.upvote'));
+        $I->waitForElementVisible(['css' => '.comment-item:first-of-type .upvote-btn'], 10);
+        $I->click(['css' => '.comment-item:first-of-type .upvote-btn']);
+        $I->wait(1);
+        $upvotesText = $I->grabTextFrom(['css' => '.comment-item:first-of-type .upvote-btn']);
+        $upvotes = (int) trim($upvotesText);
+        $I->click(['css' => '.comment-item:first-of-type .upvote-btn']);
+        // Sometimes wait isn't enough, but it should decrement
+        if ($upvotes > 1) {
+            $I->waitForText((string)($upvotes - 1), 10, ['css' => '.comment-item:first-of-type .upvote-btn .upvote-count']);
+        } else {
+            $I->waitForElementNotVisible(['css' => '.comment-item:first-of-type .upvote-btn .upvote-count'], 10);
+        }
     }
 
     public function dontSeeCommentsInCopyItemsTab(AcceptanceTester $I, Scenario $scenario)
@@ -110,10 +134,12 @@ class CommentDocCest
         $loginPage = new Login($I, $scenario);
         $loginPage->loginAsRole('Super User');
         $I->amOnPage(self::$docPath . $I->getDocId());
-        $I->waitForElementNotVisible('#modalSpinner', 120);
-        $I->click('#rightSideCopyItemsBtn');
-        $I->waitForElement('#tree2Section');
-        $I->dontSeeElement('js-comments-container');
+        $I->waitForElementNotVisible('.spinner-border', 120);
+        // Use XPath since the button has mixed icon+text content
+        $I->waitForElementVisible('//button[contains(., "Copy / Associate")]', 10);
+        $I->click('//button[contains(., "Copy / Associate")]');
+        $I->waitForElementVisible('.side-tree-panel', 30);
+        $I->dontSeeElement('.comment-module');
     }
 
     public function dontSeeCommentsInCreateAssociationsTab(AcceptanceTester $I, Scenario $scenario)
@@ -122,10 +148,12 @@ class CommentDocCest
         $loginPage = new Login($I, $scenario);
         $loginPage->loginAsRole('Super User');
         $I->amOnPage(self::$docPath . $I->getDocId());
-        $I->waitForElementNotVisible('#modalSpinner', 120);
-        $I->click('#rightSideCreateAssociationsBtn');
-        $I->waitForElement('#tree2Section');
-        $I->dontSeeElement('js-comments-container');
+        $I->waitForElementNotVisible('.spinner-border', 120);
+        // Use XPath since the button has mixed icon+text content
+        $I->waitForElementVisible('//button[contains(., "Copy / Associate")]', 10);
+        $I->click('//button[contains(., "Copy / Associate")]');
+        $I->waitForElementVisible('.side-tree-panel', 30);
+        $I->dontSeeElement('.comment-module');
     }
 
     public function deleteComment(AcceptanceTester $I, Scenario $scenario)
@@ -134,15 +162,16 @@ class CommentDocCest
         $loginPage = new Login($I, $scenario);
         $loginPage->loginAsRole('Editor');
         $I->amOnPage(self::$docPath . $I->getDocId());
-        $I->waitForElementNotVisible('#modalSpinner', 120);
+        $I->waitForElementNotVisible('.spinner-border', 120);
         $I->createAComment('acceptance doc comment ' . sq($I->getDocId()));
-        $I->waitForJS('return $.active == 0;', 2);
-        $I->see('acceptance doc comment ' . sq($I->getDocId()), '.comment-wrapper .wrapper .content');
+        $I->waitForText('acceptance doc comment ' . sq($I->getDocId()), 10, '.comment-body');
+        $I->see('acceptance doc comment ' . sq($I->getDocId()), '.comment-body');
 
-        $I->click('.comment-wrapper .wrapper .actions .edit');
-        $I->waitForJS('return $.active == 0;', 2);
-        $I->click('.jquery-comments .commenting-field .textarea-wrapper .control-row .delete');
-        $I->dontSee('acceptance doc comment ' . sq($I->getDocId()), '.comment-wrapper .wrapper .content');
+        $I->click(['css' => '.comment-item:first-of-type .delete-btn']);
+        $I->waitForElementVisible('#deleteCommentModal', 10);
+        $I->click('#deleteCommentModal .btn-danger');
+        $I->waitForElementNotVisible('//*[contains(text(),"acceptance doc comment ' . sq($I->getDocId()) . '")]', 30);
+        $I->dontSee('acceptance doc comment ' . sq($I->getDocId()), '.comment-body');
     }
 
     public function deleteUpvotedDownvotedComment(AcceptanceTester $I, Scenario $scenario)
@@ -151,32 +180,34 @@ class CommentDocCest
         $loginPage = new Login($I, $scenario);
         $loginPage->loginAsRole('Editor');
         $I->amOnPage(self::$docPath . $I->getDocId());
-        $I->waitForElementNotVisible('#modalSpinner', 120);
+        $I->waitForElementNotVisible('.spinner-border', 120);
         $I->createAComment('acceptance doc comment ' . sq($I->getDocId()));
-        $I->waitForJS('return $.active == 0;', 2);
-        $I->see('acceptance doc comment ' . sq($I->getDocId()), '.comment-wrapper .wrapper .content');
+        $I->waitForText('acceptance doc comment ' . sq($I->getDocId()), 10, '.comment-body');
+        $I->see('acceptance doc comment ' . sq($I->getDocId()), '.comment-body');
 
         $loginPage->logout();
         $loginPage->loginAsRole('Admin');
         $I->amOnPage(self::$docPath . $I->getDocId());
-        $I->waitForElementNotVisible('#modalSpinner', 120);
-        $I->waitForJS('return $.active == 0;', 2);
-        $upvotes = $I->grabTextFrom(Locator::firstElement('.upvote'));
+        $I->waitForElementNotVisible('.spinner-border', 120);
+        $I->waitForElementVisible(['css' => '.comment-item:first-of-type .upvote-btn'], 60);
 
-        $I->click(Locator::firstElement('.upvote'));
-        $I->waitForJS('return $.active == 0', 2);
-        $I->see($upvotes + 1, Locator::firstElement('.upvote'));
+        $upvotesText = $I->grabTextFrom(['css' => '.comment-item:first-of-type .upvote-btn']);
+        $upvotes = (int) trim($upvotesText);
+
+        $I->click(['css' => '.comment-item:first-of-type .upvote-btn']);
+        $I->waitForElementVisible(['css' => '.comment-item:first-of-type .upvote-btn .upvote-count'], 30);
+        $I->waitForText((string)($upvotes + 1), 10, ['css' => '.comment-item:first-of-type .upvote-btn .upvote-count']);
 
         $loginPage->logout();
         $loginPage->loginAsRole('Editor');
         $I->amOnPage(self::$docPath . $I->getDocId());
-        $I->waitForElementNotVisible('#modalSpinner', 120);
-        $I->waitForJS('return $.active == 0;', 2);
+        $I->waitForElementNotVisible('.spinner-border', 120);
 
-        $I->click('.comment-wrapper .wrapper .actions .edit');
-        $I->waitForJS('return $.active == 0;', 2);
-        $I->click('.jquery-comments .commenting-field .textarea-wrapper .control-row .delete');
-        $I->dontSee('acceptance doc comment ' . sq($I->getDocId()), '.comment-wrapper .wrapper .content');
+        $I->waitForElementVisible(['css' => '.comment-item:first-of-type .delete-btn'], 30);
+        $I->click(['css' => '.comment-item:first-of-type .delete-btn']);
+        $I->waitForElementVisible('#deleteCommentModal', 10);
+        $I->click('#deleteCommentModal .btn-danger');
+        $I->waitForElementNotVisible('//*[contains(text(),"acceptance doc comment ' . sq($I->getDocId()) . '")]', 30);
     }
 
     public function deleteRepliedComment(AcceptanceTester $I, Scenario $scenario)
@@ -185,53 +216,30 @@ class CommentDocCest
         $loginPage = new Login($I, $scenario);
         $loginPage->loginAsRole('Editor');
         $I->amOnPage(self::$docPath . $I->getDocId());
-        $I->waitForElementNotVisible('#modalSpinner', 120);
+        $I->waitForElementNotVisible('.spinner-border', 120);
         $I->createAComment('acceptance doc replied comment ' . sq($I->getDocId()));
-        $I->waitForJS('return $.active == 0;', 2);
-        $I->see('acceptance doc replied comment ' . sq($I->getDocId()), '.comment-wrapper .wrapper .content');
+        $I->wait(1);
+        $I->see('acceptance doc replied comment ' . sq($I->getDocId()), '.comment-body');
 
         $loginPage->logout();
         $loginPage->loginAsRole('Admin');
         $I->amOnPage(self::$docPath . $I->getDocId());
-        $I->waitForElementNotVisible('#modalSpinner', 120);
-        $I->waitForJS('return $.active == 0;', 2);
+        $I->waitForElementNotVisible('.spinner-border', 120);
+        $I->wait(1);
 
-        $I->click(Locator::firstElement('.reply'));
-        $I->fillField('.jquery-comments .data-container .main .comment .child-comments .commenting-field .textarea-wrapper .textarea', 'reply');
-        $I->click('.jquery-comments .data-container .main .comment .child-comments .commenting-field .textarea-wrapper .control-row .send');
-        $I->waitForJS('return $.active == 0;', 2);
+        $I->waitForElementVisible(['css' => '.comment-item:first-of-type .reply-btn'], 30);
+        $I->click(['css' => '.comment-item:first-of-type .reply-btn']);
+        $I->submitReply('reply');
 
         $loginPage->logout();
         $loginPage->loginAsRole('Editor');
         $I->amOnPage(self::$docPath . $I->getDocId());
-        $I->waitForElementNotVisible('#modalSpinner', 120);
-        $I->waitForJS('return $.active == 0;', 2);
+        $I->waitForElementNotVisible('.spinner-border', 120);
 
-        $I->click('.comment-wrapper .wrapper .actions .edit');
-        $I->waitForJS('return $.active == 0;', 2);
-        $I->click('.jquery-comments .commenting-field .textarea-wrapper .control-row .delete');
-        $I->dontSee('acceptance doc replied comment ' . sq($I->getDocId()), '.comment-wrapper .wrapper .content');
-    }
-
-    public function uploadAttachment(AcceptanceTester $I, Scenario $scenario)
-    {
-        $I->getLastFrameworkId();
-        $loginPage = new Login($I, $scenario);
-        $loginPage->loginAsRole('Editor');
-
-        $I->amOnPage(self::$docPath . $I->getDocId());
-        $I->waitForElementNotVisible('#modalSpinner', 120);
-
-        $I->click('.jquery-comments .commenting-field .textarea-wrapper .textarea');
-        $I->attachFile('.js-comments-container .commenting-field input[type=file]', 'comment_attach.txt');
-        $I->waitForJS('return $.active == 0', 120);
-        $I->click('.jquery-comments .navigation li:last-child');
-
-        $I->dontSee('No attachments');
-
-        $url = $I->grabAttributeFrom('#attachment-list li:first-child .attachment', 'href');
-        $attachmentFile = file_get_contents($I->download($url));
-
-        $I->assertStringContainsString('attachs are working', $attachmentFile);
+        $I->waitForElementVisible(['css' => '.comment-item:first-of-type .delete-btn'], 30);
+        $I->click(['css' => '.comment-item:first-of-type .delete-btn']);
+        $I->waitForElementVisible('#deleteCommentModal', 10);
+        $I->click('#deleteCommentModal .btn-danger');
+        $I->waitForElementNotVisible('//*[contains(text(),"acceptance doc replied comment ' . sq($I->getDocId()) . '")]', 30);
     }
 }

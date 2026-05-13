@@ -6,6 +6,7 @@
       aria-label="View selection"
     >
       <button
+        id="displayTreeBtn"
         type="button"
         class="btn btn-sm"
         :class="{ 'btn-primary': currentView === 'tree', 'btn-outline-primary': currentView !== 'tree' }"
@@ -16,6 +17,7 @@
         Tree View
       </button>
       <button
+        id="displayAssocBtn"
         type="button"
         class="btn btn-sm"
         :class="{ 'btn-primary': currentView === 'association', 'btn-outline-primary': currentView !== 'association' }"
@@ -27,6 +29,7 @@
       </button>
       <button
         v-if="sessionStore.isAuthenticated"
+        id="displayLogBtn"
         type="button"
         class="btn btn-sm"
         :class="{ 'btn-primary': currentView === 'log', 'btn-outline-primary': currentView !== 'log' }"

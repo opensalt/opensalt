@@ -91,6 +91,7 @@ class ApiService {
 
     const token = this.getAuthToken();
     const headers = {
+      ...this.defaultHeaders,
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers
     };

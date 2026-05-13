@@ -1,5 +1,5 @@
 <template>
-  <span class="label-text">
+  <span class="label-text fancytree-title">
     <!-- Loading spinner for cross-framework items -->
     <span
       v-if="isCrossFrameworkItem && isLoadingCrossFramework"
@@ -25,16 +25,22 @@
     </span>
     <span
       v-if="displayHumanCodingScheme"
-      class="coding-scheme"
-      style="color: #6c757d;"
+      class="coding-scheme item-humanCodingScheme"
     >
-      {{ displayHumanCodingScheme }}:&nbsp;
+      {{ displayHumanCodingScheme }}
     </span>
+    <span>&nbsp;</span>
     <span
       v-if="searchQuery && hasMatch"
+      class="display-title"
       v-html="highlightedTitle"
     />
-    <span v-else>{{ displayTitle }}</span>
+    <span
+      v-else
+      class="display-title"
+    >
+      {{ displayTitle }}
+    </span>
   </span>
   <div
     v-if="showPopover && fullStatementHtml"

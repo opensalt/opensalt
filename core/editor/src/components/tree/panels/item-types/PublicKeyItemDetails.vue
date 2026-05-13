@@ -1,7 +1,7 @@
 <template>
   <div class="public-key-item-details">
     <!-- Identifier link -->
-    <div class="mb-3">
+    <div class="mb-3 details-identifier item-identifier">
       <strong>Identifier:</strong>
       <a
         :href="`/uri/${item.identifier}`"

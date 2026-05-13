@@ -1,5 +1,8 @@
 <template>
-  <div class="document-details-panel">
+  <div
+    id="itemInfo"
+    class="document-details-panel"
+  >
     <!-- Document Header -->
     <div class="card mb-3">
       <div class="card-header d-flex justify-content-between align-items-center">
@@ -19,6 +22,7 @@
             type="button"
             class="btn btn-outline-primary"
             title="Edit document"
+            data-bs-target="#editDocModal"
             @click="$emit('edit-document')"
           >
             <i class="bi bi-pencil" />
@@ -41,14 +45,22 @@
         </div>
       </div>
       <div class="card-body">
-        <h5 class="card-title">
-          <span class="badge bg-primary me-2">{{ document.status || 'Draft' }}</span>
+        <h5
+          id="docTitle"
+          class="card-title"
+        >
+          <span class="badge bg-primary me-2">{{ document.adoptionStatus || 'Draft' }}</span>
           {{ document.title || 'Untitled Document' }}
         </h5>
+        <input
+          id="lsDocId"
+          type="hidden"
+          :value="document.identifier"
+        >
 
         <div
           v-if="document.identifier"
-          class="mb-3"
+          class="mb-3 details-identifier document-identifier"
         >
           <strong>Identifier:</strong>
           <a
@@ -89,6 +101,12 @@
           </div>
           <div class="col-sm-6">
             <strong>Framework Type:</strong> {{ document.frameworkType || 'Standard' }}
+          </div>
+        </div>
+
+        <div class="row mt-2">
+          <div class="col-sm-6">
+            <strong>Adoption Status:</strong> {{ document.adoptionStatus || 'Draft' }}
           </div>
         </div>
 
@@ -144,7 +162,7 @@
           v-if="document.officialSourceURL"
           class="mt-2"
         >
-          <strong>Source URL:</strong> <a
+          <strong>Official URL:</strong> <a
             :href="document.officialSourceURL"
             target="_blank"
             class="text-decoration-none"
@@ -171,11 +189,38 @@
             Last modified: {{ formatDate(document.lastModified) }}
           </small>
         </div>
+
+        <!-- Additional Fields (read-only) -->
+        <div
+          v-if="hasAdditionalFieldValues"
+          class="mt-3 additional-fields-section"
+        >
+          <h6 class="mb-2">
+            Additional Fields
+          </h6>
+          <div
+            v-for="field in docFieldDefinitions"
+            :key="field.id || field.name"
+            class="row mb-1"
+          >
+            <template v-if="getDocDisplayValue(field.name)">
+              <div class="col-sm-4 text-muted">
+                {{ field.displayName || field.name }}
+              </div>
+              <div class="col-sm-8">
+                {{ getDocDisplayValue(field.name) }}
+              </div>
+            </template>
+          </div>
+        </div>
       </div>
 
       <!-- Document Actions -->
       <div class="card mt-0 border-0">
-        <div class="card-body pt-0 ms-auto">
+        <div
+          id="documentOptions"
+          class="card-body pt-0 ms-auto"
+        >
           <div class="d-flex flex-wrap gap-2">
             <!-- Export - always available to all users -->
             <button
@@ -188,7 +233,10 @@
 
             <!-- Editor-only actions -->
             <template v-if="!isReadOnly">
-              <div class="btn-group">
+              <div
+                v-if="!isAdopted"
+                class="btn-group"
+              >
                 <button
                   type="button"
                   class="btn btn-outline-primary"
@@ -229,13 +277,17 @@
               </button>
 
               <button
+                v-if="!isAdopted"
                 type="button"
                 class="btn btn-outline-secondary"
+                data-bs-target="#updateFrameworkModal"
                 @click="$emit('update-framework')"
               >
                 <i class="bi bi-arrow-repeat" /> Update Framework
               </button>
               <button
+                v-if="!isAdopted"
+                id="js-copy-framework-modal-button"
                 type="button"
                 class="btn btn-outline-secondary"
                 @click="$emit('clone-framework')"
@@ -299,9 +351,10 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useDynamicModal } from '../../../composables/useDynamicModal.js';
 import { useDocumentAssociations } from '../../../composables/useDocumentAssociations.js';
+import { useAdditionalFields } from '../../../composables/useAdditionalFields.js';
 import { editorConfig } from '../../../config/editorConfig.js';
 import CommentModule from '../CommentModule.vue';
 import ItemAssociationsCard from './ItemAssociationsCard.vue';
@@ -329,6 +382,7 @@ import { useEditorContextStore } from '../../../stores/editorContextStore';
 const sessionStore = useSessionStore();
 const contextStore = useEditorContextStore();
 const isReadOnly = computed(() => props.isViewingDifferentFramework || props.document?.isReadOnly || !sessionStore.isAuthenticated);
+const isAdopted = computed(() => props.document?.adoptionStatus === 'Adopted');
 const isAdmin = computed(() => contextStore.isAdmin);
 const commentsEnabled = editorConfig.features.comments;
 
@@ -395,6 +449,25 @@ const { showModal, selectedType, isModalVisible, handleCreated, modalComponent, 
   (newItem) => { emit('add-root-item', newItem); },
   availableTypes
 );
+
+// Additional fields for documents
+const { fieldDefinitions: docFieldDefinitions, fetchFields: fetchDocFields } = useAdditionalFields();
+
+onMounted(() => {
+  fetchDocFields('doc');
+});
+
+const hasAdditionalFieldValues = computed(() => {
+  if (!docFieldDefinitions.value?.length) return false;
+  const af = props.document?.additionalFields;
+  return docFieldDefinitions.value.some(f => af?.[f.name]);
+});
+
+function getDocDisplayValue(fieldName) {
+  const af = props.document?.additionalFields;
+  if (!af || typeof af !== 'object') return undefined;
+  return af[fieldName] || undefined;
+}
 
 function getDisplayName(type) {
   const displayNames = {

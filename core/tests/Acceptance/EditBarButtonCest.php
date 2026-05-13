@@ -8,19 +8,25 @@ use Tests\Support\Context\Login;
 
 class EditBarButtonCest
 {
-    public static $itemPath = '/cftree/item/';
+    public static $itemPath = '/editor/';
 
     public function seeAlphabeticalListButton(AcceptanceTester $Acpt, Scenario $scenario): void
     {
         $loginPage = new Login($Acpt);
         $loginPage->loginAsRole('super_user');
+        $Acpt->setDocId(null);
+        $Acpt::$staticLsDocId = null;
+        $Acpt::$staticLsItemId = null;
         $Acpt->getLastItemId();
-        $Acpt->amOnPage(self::$itemPath . $Acpt->getItemId());
-        $Acpt->waitForElementNotVisible('#modalSpinner', 120);
-        $Acpt->see('Edit');
-        $Acpt->click('[data-bs-target="#editItemModal"]');
-        $Acpt->waitForElementVisible('#editItemModal');
-        $Acpt->waitForElementVisible('#ls_item', 120);
+        $Acpt->amOnPage(self::$itemPath . $Acpt->getDocId() . '/' . $Acpt->getItemId());
+        $Acpt->waitForElementNotVisible('.spinner-border', 120);
+        $Acpt->waitForElementVisible('.details-panel', 120);
+        $Acpt->wait(2);
+        // Click the edit item button inside the new Vue UI
+        $Acpt->waitForElementVisible('.btn-outline-primary[title="Edit item"]', 60);
+        $Acpt->click('.btn-outline-primary[title="Edit item"]');
+        $Acpt->waitForElementVisible('.modal.show', 120);
+        $Acpt->waitForElementVisible('.fa.fa-sort-alpha-asc', 120);
         $Acpt->seeElement('.fa.fa-sort-alpha-asc');
     }
 }

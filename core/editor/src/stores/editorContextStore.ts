@@ -64,6 +64,7 @@ export interface CachedItemDetails {
     subject?: string[] | string | null;
     licenseURI?: { identifier?: string; uri?: string; title?: string } | null;
     extensions?: Record<string, unknown>;
+    additionalFields?: Record<string, string>;
     lastChangeDateTime?: string;
     documentIdentifier?: string;
     permissions?: { canEdit: boolean };

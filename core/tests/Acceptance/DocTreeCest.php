@@ -9,7 +9,7 @@ use Tests\Support\Context\Login;
 
 class DocTreeCest
 {
-    public static $docPath = '/cftree/doc/';
+    public static $docPath = '/editor/';
 
     // tests
     public function verifyOrder(AcceptanceTester $I, Scenario $scenario)
@@ -59,25 +59,44 @@ class DocTreeCest
         $I->click('.btn-import-case');
         $I->waitForJS('return ("function" === typeof $ && $.active == 0);', 30);
 
-        $docId = $I->getFrameworkIdForIdentifier($docUuid);
-        $I->amOnPage(self::$docPath . $docId);
-        $I->waitForElementNotVisible('#modalSpinner', 120);
-        $I->waitForElementVisible('#itemSection h4.itemTitle', 120);
+        $I::$staticLsDocId = $docUuid;
+        $I->setDocId(null);
+        $I->amOnPage('/editor/' . $docUuid);
+        $I->waitForElementNotVisible('.spinner-border', 120);
+        $I->waitForElementVisible('.details-panel .card-title', 120);
         $I->see($name);
-        $I->executeJS("$('#tree1Section div.treeDiv').fancytree('getTree').visit(function(n){n.setExpanded(true);});");
-        $I->waitForJS('return $.active == 0;', 1);
-        $css = $I->grabMultiple('.item-humanCodingScheme');
+
+        $I->executeJS("
+            window.expandAllNodes = function() {
+                const closed = document.querySelectorAll('details.tree-node:not([open]) > summary.expand-control .expand-indicator:not(.expanding)');
+                if (document.querySelectorAll('details.tree-node:not([open])').length === 0) {
+                    window.nodesExpanded = true;
+                    return;
+                }
+                closed.forEach(el => {
+                    el.classList.add('expanding');
+                    el.click();
+                });
+                setTimeout(window.expandAllNodes, 300);
+            };
+            window.nodesExpanded = false;
+            window.expandAllNodes();
+        ");
+        $I->waitForJS('return window.nodesExpanded === true;', 30);
+
+        $css = $I->grabMultiple('.coding-scheme');
         $array = [];
         $expectedArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24];
 
         foreach ($css as $cs) {
-            $tmp = explode('.', $cs);
+            $tmp = trim(str_replace(':', '', $cs));
+            $tmp = explode('.', $tmp);
             $tmp = end($tmp);
             if (is_numeric($tmp)) {
                 $array[] = (int)$tmp;
             }
         }
 
-        $I->assertEquals($array, $expectedArray);
+        $I->assertEquals($expectedArray, $array);
     }
 }

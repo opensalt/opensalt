@@ -47,6 +47,7 @@
 import { ref, computed, provide, inject } from 'vue';
 import TreeNode from './TreeNode.vue';
 import { useTreeNavigation } from '../../composables/useTreeNavigation';
+import { sortTreeNodes } from '../../utils/tree.js';
 
 const props = defineProps({
   doc: {
@@ -128,15 +129,17 @@ const treeContainer = ref(null);
 const documentRoot = computed(() => {
   if (!props.doc) return null;
 
+  const items = props.doc.items || [];
+  sortTreeNodes(items);
+
   return {
     identifier: props.doc.id || 'document-root',
     title: props.doc.title || 'Document Root',
     abbreviatedTitle: props.doc.title || 'Document Root',
     humanCodingScheme: '', // No human coding scheme for document root
-    children: props.doc.items || [],
+    children: items,
     itemType: 'document',
     lastChanged: props.doc.lastModified || '',
-    // Add other document properties as needed
     ...props.doc
   };
 });

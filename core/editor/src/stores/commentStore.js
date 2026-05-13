@@ -67,7 +67,11 @@ export const useCommentStore = defineStore('comments', () => {
 
         try {
             const response = await api.get(`/comments/${itemType}/${itemIdentifier}`);
-            comments.value = Array.isArray(response) ? response : [];
+            const fetchedComments = Array.isArray(response) ? response : [];
+            // Preserve any locally-added comments that the server response doesn't yet include
+            const fetchedIds = new Set(fetchedComments.map(c => c.id));
+            const localOnly = comments.value.filter(c => c.id && !fetchedIds.has(c.id));
+            comments.value = [...fetchedComments, ...localOnly];
         } catch (err) {
             logger.error('Failed to fetch comments:', err);
             error.value = err.message || 'Failed to load comments';

@@ -13,8 +13,8 @@
         </span>
       </h4>
       <button
-        v-if="commentStore.hasComments"
-        class="btn btn-sm btn-outline-secondary export-btn"
+        v-if="commentStore.hasComments && sessionStore.isAuthenticated"
+        class="btn btn-sm btn-outline-secondary export-btn export-comments-btn"
         title="Export comments as CSV"
         @click="exportComments"
       >

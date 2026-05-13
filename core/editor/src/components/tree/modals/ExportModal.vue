@@ -1,6 +1,6 @@
 <template>
   <div
-    id="exportDocumentModal"
+    id="exportModal"
     ref="modalElement"
     class="modal fade"
     tabindex="-1"
@@ -39,7 +39,7 @@
                 <a
                   :href="jsonExportUrl"
                   role="button"
-                  class="btn btn-primary w-100 btn-export"
+                  class="btn btn-primary w-100 btn-export btn-export-case"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -63,7 +63,7 @@
                 <a
                   :href="excelExportUrl"
                   role="button"
-                  class="btn btn-primary w-100 btn-export"
+                  class="btn btn-primary w-100 btn-export btn-export-excel"
                   target="_blank"
                   rel="noopener noreferrer"
                 >

@@ -8,6 +8,7 @@
         aria-label="Panel mode selection"
       >
         <button
+          id="rightSideItemDetailsBtn"
           type="button"
           class="btn btn-sm"
           :class="{ 'btn-primary': currentMode === 'itemDetails', 'btn-outline-primary': currentMode !== 'itemDetails' }"
@@ -18,6 +19,7 @@
         </button>
         <button
           v-if="sessionStore.isAuthenticated"
+          id="rightSideCopyItemsBtn"
           type="button"
           class="btn btn-sm"
           :class="{ 'btn-primary': currentMode === 'externalDocument', 'btn-outline-primary': currentMode !== 'externalDocument' }"

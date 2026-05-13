@@ -43,6 +43,7 @@ export interface EditorItemNode extends CFItemNode {
   subject: string[];
   subjectURI: LinkURI[];
   extensions: ExtensionObject | undefined;
+  additionalFields?: Record<string, string>;
   discriminator?: number;
   documentId: UUID | null;
   externalFrameworkTitle?: string;
@@ -121,6 +122,7 @@ function mapTreeNodeToEditorNode(node: TreeNode, parentIdentifier?: string): Edi
     subject: [],
     subjectURI: (node as any).subjectURI || [],
     extensions: (node.extensions as ExtensionObject | undefined) || undefined,
+    additionalFields: node.additionalFields || undefined,
     discriminator: node.discriminator,
     CFDocumentURI: node.documentIdentifier ? { identifier: node.documentIdentifier, title: node.documentTitle || '', uri: '' } : undefined,
     documentId: (node.documentIdentifier as UUID) || null,

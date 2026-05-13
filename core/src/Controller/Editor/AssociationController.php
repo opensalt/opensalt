@@ -27,7 +27,7 @@ class AssociationController extends AbstractController
     use CommandDispatcherTrait;
 
     public function __construct(
-        private readonly LsAssociationRepository $associationRepository
+        private readonly LsAssociationRepository $associationRepository,
     ) {
     }
 
@@ -38,8 +38,8 @@ class AssociationController extends AbstractController
     ): Response {
         $this->denyAccessUnlessGranted(Permission::FRAMEWORK_VIEW, $item->getLsDoc());
         $frameworkId = $request->query->get('frameworkId');
-        $limit = (int)$request->query->get('limit', 1000);
-        $offset = (int)$request->query->get('offset', 0);
+        $limit = (int) $request->query->get('limit', 1000);
+        $offset = (int) $request->query->get('offset', 0);
 
         $associations = $this->associationRepository->findForItem(
             $item->getIdentifier(),
@@ -71,8 +71,8 @@ class AssociationController extends AbstractController
         #[MapEntity(mapping: ['identifier' => 'identifier'])] LsDoc $doc,
         Request $request,
     ): Response {
-        $limit = (int)$request->query->get('limit', 1000);
-        $offset = (int)$request->query->get('offset', 0);
+        $limit = (int) $request->query->get('limit', 1000);
+        $offset = (int) $request->query->get('offset', 0);
 
         $associations = $this->associationRepository->findByDocument(
             $doc->getIdentifier(),
@@ -103,8 +103,8 @@ class AssociationController extends AbstractController
         #[MapEntity(mapping: ['identifier' => 'identifier'])] LsDoc $doc,
         Request $request,
     ): Response {
-        $limit = (int)$request->query->get('limit', 1000);
-        $offset = (int)$request->query->get('offset', 0);
+        $limit = (int) $request->query->get('limit', 1000);
+        $offset = (int) $request->query->get('offset', 0);
 
         $associations = $this->associationRepository->findAllForFramework(
             $doc->getIdentifier(),
@@ -226,6 +226,7 @@ class AssociationController extends AbstractController
             'sequenceNumber' => $assocEntity->getSequenceNumber(),
             'annotation' => $assocEntity->getNotes(),
             'CFAssociationGroupingURI' => $groupObj,
+            'additionalFields' => $assocEntity->getAdditionalFields() ?? [],
             'canEdit' => $this->isGranted(Permission::ASSOCIATION_EDIT, $assocEntity),
         ];
     }
@@ -265,6 +266,12 @@ class AssociationController extends AbstractController
             $this->sendCommand($command);
             $lsAssociation = $command->getAssociation();
 
+            if (null !== $lsAssociation && isset($data['additionalFields']) && is_array($data['additionalFields'])) {
+                foreach ($data['additionalFields'] as $fieldName => $value) {
+                    $lsAssociation->setAdditionalField($fieldName, $value);
+                }
+            }
+
             return new JsonResponse([
                 'id' => $lsAssociation?->getId(),
                 'identifier' => $lsAssociation?->getIdentifier(),
@@ -290,6 +297,11 @@ class AssociationController extends AbstractController
             }
             if (isset($data['sequenceNumber'])) {
                 $lsAssociation->setSequenceNumber((int) $data['sequenceNumber']);
+            }
+            if (isset($data['additionalFields']) && is_array($data['additionalFields'])) {
+                foreach ($data['additionalFields'] as $fieldName => $value) {
+                    $lsAssociation->setAdditionalField($fieldName, $value);
+                }
             }
             // assocGroup might be complex if it's an entity,
             // but for now let's assume we handle it via the group's identifier if needed.

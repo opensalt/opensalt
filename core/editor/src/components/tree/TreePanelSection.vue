@@ -1,5 +1,6 @@
 <template>
   <section
+    id="tree1Section"
     class="tree-panel d-flex flex-column h-100 overflow-hidden"
     aria-labelledby="tree-heading"
   >

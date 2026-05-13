@@ -9,7 +9,7 @@
 
   <!-- Modal -->
   <div
-    id="addNewChildModal"
+    :id="isEdit ? 'editItemModal' : 'addNewChildModal'"
     class="modal fade"
     :class="{ 'show d-block': props.show }"
     tabindex="-1"
@@ -58,6 +58,7 @@
           </div>
           <form
             v-else
+            id="ls_item"
             name="ls_item"
             @submit.prevent="saveItem"
           >
@@ -253,6 +254,11 @@
                 <small class="text-muted">Additional notes or comments about this item.</small>
               </div>
             </div>
+
+            <AdditionalFields
+              v-model="formData.additionalFields"
+              :field-definitions="itemFieldDefinitions"
+            />
           </form>
         </div>
         <div class="modal-footer">
@@ -274,7 +280,7 @@
               class="spinner-border spinner-border-sm me-2"
               role="status"
             />
-            {{ isEdit ? 'Update' : 'Add' }} Item
+            {{ isEdit ? 'Save Changes' : 'Create' }}
           </button>
         </div>
       </div>
@@ -289,8 +295,10 @@ import MultiSelect from '../../MultiSelect.vue';
 import SingleSelect from '../../SingleSelect.vue';
 import SubjectSelector from '../../common/SubjectSelector.vue';
 import LicenseSelector from '../../common/LicenseSelector.vue';
+import AdditionalFields from '../../fields/AdditionalFields.vue';
 import { logger } from '../../../../utils/logger.js';
 import { useItemTypeModal } from '../../../../composables/useItemTypeModal';
+import { useAdditionalFields } from '../../../../composables/useAdditionalFields.js';
 import educationLevels from '../../../../data/EducationLevel.json';
 
 const props = defineProps({
@@ -316,6 +324,8 @@ const emit = defineEmits(['created', 'updated', 'hidden']);
 
 const { loading, error, saving, isEdit, closeModal } = useItemTypeModal(props, emit, { typeName: 'child' });
 
+const { fieldDefinitions: itemFieldDefinitions, fetchFields: fetchItemFields } = useAdditionalFields();
+
 const subjectSelectorRef = ref(null);
 const licenseSelectorRef = ref(null);
 
@@ -330,7 +340,8 @@ const formData = reactive({
   itemType: '',
   subjects: [],
   licence: '',
-  notes: ''
+  notes: '',
+  additionalFields: {}
 });
 
 const availableEducationLevels = ref(educationLevels);
@@ -400,6 +411,7 @@ watch(() => props.show, async (newVal) => {
     await nextTick();
     await Promise.all([
       fetchItemTypes(),
+      fetchItemFields('item'),
       subjectSelectorRef.value?.ensureLoaded(),
       licenseSelectorRef.value?.ensureLoaded()
     ]);
@@ -444,6 +456,7 @@ function loadFormData() {
     formData.subjects = subjectIds;
     formData.licence = props.item.licence || '';
     formData.notes = props.item.notes || '';
+    formData.additionalFields = props.item.additionalFields || {};
   } else {
     // Reset for new
     formData.fullStatement = '';
@@ -457,6 +470,7 @@ function loadFormData() {
     formData.subjects = [];
     formData.licence = '';
     formData.notes = '';
+    formData.additionalFields = {};
   }
 
   loading.value = false;
@@ -487,6 +501,7 @@ function saveItem() {
         subjects: formData.subjects,
         licence: formData.licence,
         notes: formData.notes,
+        additionalFields: formData.additionalFields,
         extensions: {
           ...(props.item.extensions || {}),
         },
@@ -506,6 +521,7 @@ function saveItem() {
         subjects: formData.subjects,
         licence: formData.licence,
         notes: formData.notes,
+        additionalFields: formData.additionalFields,
         extensions: {
         },
         children: [],

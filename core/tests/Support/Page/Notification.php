@@ -65,9 +65,8 @@ class Notification implements Context
                     return false !== strpos($el->getAttribute('class'), 'disabled');
                 }, 30);
                 $I->see('Edit', '.disabled');
-                $I->see('Manage Association Groups', '.disabled');
-                $I->see('Add New Child Item', '.disabled');
-                $I->see('Import Children', '.disabled');
+                $I->see('Manage Groups', '.disabled');
+                $I->see('Add Child Item', '.disabled');
                 $I->see('Update Framework', '.disabled');
             }
         );
@@ -143,9 +142,8 @@ class Notification implements Context
                     return false === strpos($el->getAttribute('class'), 'disabled');
                 }, 30);
                 $I->dontSee('Edit', '.disabled');
-                $I->dontSee('Manage Association Groups', '.disabled');
-                $I->dontSee('Add New Child Item', '.disabled');
-                $I->dontSee('Import Children', '.disabled');
+                $I->dontSee('Manage Groups', '.disabled');
+                $I->dontSee('Add Child Item', '.disabled');
                 $I->dontSee('Update Framework', '.disabled');
             }
         );
@@ -166,7 +164,6 @@ class Notification implements Context
                 }, 30);
                 $I->see('Edit', '.disabled');
                 $I->see('Delete', '.disabled');
-                $I->see('Make This Item a Parent', '.disabled');
                 $I->see('Add an Exemplar', '.disabled');
             }
         );

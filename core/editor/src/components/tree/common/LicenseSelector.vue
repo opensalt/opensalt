@@ -1,5 +1,8 @@
 <template>
-  <div class="row mb-3">
+  <div
+    class="row mb-3"
+    :class="{ 'field-disabled': disabled }"
+  >
     <label
       :for="id"
       class="col-sm-2 col-form-label"
@@ -43,6 +46,10 @@ defineProps({
   helpText: {
     type: String,
     default: 'License governing the use of this item.'
+  },
+  disabled: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -113,3 +120,10 @@ defineExpose({
   availableLicenses
 });
 </script>
+
+<style scoped>
+.field-disabled {
+  opacity: 0.65;
+  pointer-events: none;
+}
+</style>

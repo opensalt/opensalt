@@ -6,7 +6,10 @@
     </caption>
 
     <div class="table-responsive border rounded bg-white shadow-sm">
-      <table class="table align-middle mb-0 border-0 custom-hover-table">
+      <table
+        id="assocViewTable"
+        class="table align-middle mb-0 border-0 custom-hover-table"
+      >
         <thead class="table-light sticky-top">
           <tr>
             <th

@@ -182,8 +182,7 @@ EOF
                 } else {
                     $subBatches = array_chunk($texts, (int) ceil(count($texts) / $parallelism));
                     $deferredResults = array_map(
-                        fn (array $subTexts): \Symfony\AI\Platform\Result\DeferredResult
-                            => $this->platform->invoke('Xenova/all-MiniLM-L6-v2', $subTexts),
+                        fn (array $subTexts): \Symfony\AI\Platform\Result\DeferredResult => $this->platform->invoke('Xenova/all-MiniLM-L6-v2', $subTexts),
                         $subBatches,
                     );
                     $vectors = [];
@@ -200,11 +199,7 @@ EOF
                 foreach ($chunk as $index => $row) {
                     $vector = $vectors[$index] ?? null;
                     if (!is_array($vector)) {
-                        throw new \RuntimeException(sprintf(
-                            'Missing generated embedding for LsItem %d in framework %d.',
-                            $row['lsItemId'],
-                            $fwId
-                        ));
+                        throw new \RuntimeException(sprintf('Missing generated embedding for LsItem %d in framework %d.', $row['lsItemId'], $fwId));
                     }
 
                     $payloadRows[] = [
