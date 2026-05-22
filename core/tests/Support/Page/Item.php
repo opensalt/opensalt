@@ -292,7 +292,7 @@ class Item implements Context
             "sel.dispatchEvent(new Event('change', {bubbles: true}));"
         );
         $I->seeOptionIsSelected('.side-by-side-panel .document-selector select.form-select', $frameworkName);
-        $I->waitForElementChange('.side-by-side-panel .side-tree', function(WebDriverElement $el) {
+        $I->waitForElementChange('.side-by-side-panel', function(WebDriverElement $el) {
             return count($el->findElements(WebDriverBy::cssSelector('.tree-node'))) > 0;
         }, 30);
 
