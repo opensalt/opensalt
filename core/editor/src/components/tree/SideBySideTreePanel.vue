@@ -152,6 +152,7 @@
         <!-- This prevents showing stale content when re-selecting a different document -->
         <div
           v-else-if="selectedDocumentId && sideDocument && sideDocument.id === selectedDocumentId"
+          ref="sideTreeContainerRef"
           class="side-tree flex-grow-1 d-flex flex-column overflow-hidden border rounded p-2"
         >
           <TreeView
@@ -179,12 +180,13 @@
 </template>
 
 <script setup>
-import { ref, watch, inject } from 'vue';
+import { ref, watch, computed, provide } from 'vue';
 import TreeView from './TreeView.vue';
 import DocumentSelector from '../shared/common/DocumentSelector.vue';
 import { logger } from '@/utils/logger.js';
 import { useEditorContextStore } from '@/stores/editorContextStore';
 import { useSideTreePanel } from '../../composables/useSideTreePanel';
+import { useTreeNavigation } from '../../composables/useTreeNavigation';
 
 const props = defineProps({
   mode: {
@@ -227,11 +229,38 @@ const editorContextStore = useEditorContextStore();
 const { selectedDocumentId, currentDocForSelector, onDocumentSelected } = useSideTreePanel(props);
 const sideSelectedId = ref(null);
 
-// Inject tree navigation context for expansion state management
-const navigation = inject('treeNavigation', {
-  expandItem: () => {},
-  collapseItem: () => {},
-  isItemExpanded: () => false
+// Ref for the side tree container element (used for scoping DOM queries)
+const sideTreeContainerRef = ref(null);
+
+// Create independent navigation for the side tree so it doesn't share
+// the main tree's expansion/focus state from EnhancedDocumentTreeEditor.
+const {
+  focusedItemId: sideFocusedItemId,
+  setFocus: sideSetFocus,
+  handleKeyDown: sideHandleKeyDown,
+  isItemExpanded: sideIsItemExpanded,
+  expandItem: sideExpandItem,
+  collapseItem: sideCollapseItem,
+  toggleExpanded: sideToggleExpanded,
+  initializeFocus: sideInitializeFocus
+} = useTreeNavigation({
+  items: computed(() => props.sideDocument?.items || []),
+  selectedId: computed(() => sideSelectedId.value),
+  onSelect: (id) => onSideSelect(id),
+  containerRef: sideTreeContainerRef
+});
+
+// Provide the side tree's independent navigation so that TreeView (and its
+// TreeNodes) use this instead of the main tree's navigation from above.
+provide('treeNavigation', {
+  focusedItemId: sideFocusedItemId,
+  setFocus: sideSetFocus,
+  handleKeyDown: sideHandleKeyDown,
+  isItemExpanded: sideIsItemExpanded,
+  expandItem: sideExpandItem,
+  collapseItem: sideCollapseItem,
+  toggleExpanded: sideToggleExpanded,
+  initializeFocus: sideInitializeFocus
 });
 
 function onDocumentChanged(event) {
@@ -268,13 +297,19 @@ watch(() => props.sideDocument, (newDoc) => {
   }
 });
 
-// Watch for sideDocument changes to expand the tree one level
-// This ensures the root document is expanded when a new document is loaded
+// Watch for sideDocument changes to initialize the side tree for Tab accessibility.
+// Sets focusedItemId to the document root (always rendered) so it gets tabindex="0"
+// (WAI-ARIA roving tabindex pattern), and expands the root so children are visible.
 watch(() => props.sideDocument?.id, (newDocId, oldDocId) => {
   if (newDocId && newDocId !== oldDocId) {
+    // Set focus to the document root node — this is the node TreeView.vue creates
+    // with identifier = doc.id, which is always rendered regardless of expansion.
+    // Without this, focusedItemId points to a child item that isn't rendered yet
+    // (root not expanded), so no treeitem has tabindex="0" and Tab can't enter the tree.
+    sideFocusedItemId.value = newDocId;
     // Expand the document root by default (one level expansion)
-    navigation.expandItem(newDocId);
-    logger.debug('[SideBySideTreePanel] Expanded side document root:', newDocId);
+    sideExpandItem(newDocId);
+    logger.debug('[SideBySideTreePanel] Initialized side tree focus & expansion for:', newDocId);
   }
 }, { immediate: false });
 </script>

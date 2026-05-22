@@ -18,6 +18,7 @@
         class="tree-container"
         :class="{ 'view-mode': isViewMode }"
         @keydown="handleTreeKeyDown"
+        @focus="handleTreeFocus"
       >
         <TreeNode
           :key="documentRoot.identifier"
@@ -44,7 +45,7 @@
 </template>
 
 <script setup>
-import { ref, computed, provide, inject } from 'vue';
+import { ref, computed, provide, inject, nextTick } from 'vue';
 import TreeNode from './TreeNode.vue';
 import { useTreeNavigation } from '../../composables/useTreeNavigation';
 import { sortTreeNodes } from '../../utils/tree.js';
@@ -90,9 +91,14 @@ const props = defineProps({
 
 const emit = defineEmits(['select', 'dblclick', 'tree-change', 'focus']);
 
-// Setup tree navigation for this tree instance
-// If parent already provides treeNavigation, we can use it, but usually Standalone TreeView needs its own
+// Check if a parent already provides tree navigation (e.g. EnhancedDocumentTreeEditor
+// or SideBySideTreePanel). If so, TreeNodes should use the parent's navigation and
+// we do NOT override it. This prevents a local empty expandedIds from shadowing the
+// parent's expansion state (which caused the tree not to expand on initial load).
 const existingNavigation = inject('treeNavigation', null);
+
+// Setup tree navigation for this tree instance
+const treeContainer = ref(null);
 
 const {
   focusedItemId,
@@ -106,10 +112,14 @@ const {
 } = useTreeNavigation({
   items: computed(() => props.doc?.items || []),
   selectedId: computed(() => props.selectedId),
-  onSelect: (id) => onSelect(id)
+  onSelect: (id) => onSelect(id),
+  containerRef: treeContainer
 });
 
-// Provide navigation to descendants if not already provided by a parent (like EnhancedDocumentTreeEditor)
+// Only provide navigation if no parent already provides it.
+// When a parent (EnhancedDocumentTreeEditor, SideBySideTreePanel, SideTreePanel)
+// provides treeNavigation, TreeNodes should use that — ensuring correct expansion
+// state and independent navigation per tree.
 if (!existingNavigation) {
   provide('treeNavigation', {
     focusedItemId,
@@ -122,8 +132,6 @@ if (!existingNavigation) {
     initializeFocus
   });
 }
-
-const treeContainer = ref(null);
 
 // Create a document root node with items as children
 const documentRoot = computed(() => {
@@ -149,20 +157,10 @@ const treeLabel = computed(() =>
   props.doc ? `Document structure tree: ${props.doc.title || 'Document'}` : 'Document structure tree'
 );
 
-// Count total items in tree (for aria-setsize)
+// Count root-level items only (for aria-setsize on the tree container)
 const totalItems = computed(() => {
   if (!props.doc) return 0;
-  let count = 0;
-  function countItems(items) {
-    items.forEach(item => {
-      count++;
-      if (item.children && item.children.length > 0) {
-        countItems(item.children);
-      }
-    });
-  }
-  countItems(props.doc.items || []);
-  return count;
+  return (props.doc.items || []).length;
 });
 
 function onSelect(id) {
@@ -187,6 +185,28 @@ function handleFocus(itemId) {
 // Handle keyboard events at tree level
 function handleTreeKeyDown(event) {
   navigationHandleKeyDown(event);
+}
+
+// Handle focus on tree container — redirect to the focused item (roving tabindex)
+function handleTreeFocus(event) {
+  if (event.target === treeContainer.value) {
+    nextTick(() => {
+      const container = treeContainer.value;
+      if (!container) return;
+      if (focusedItemId.value) {
+        const element = container.querySelector(`[data-tree-node-id="${focusedItemId.value}"]`);
+        if (element) {
+          element.focus();
+          return;
+        }
+      }
+      // Fallback: focus the first tree item
+      const firstItem = container.querySelector('[data-tree-node-id]');
+      if (firstItem) {
+        firstItem.focus();
+      }
+    });
+  }
 }
 </script>
 

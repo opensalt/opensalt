@@ -256,6 +256,11 @@ const selectedItem = computed(() => {
 });
 
 // ---------------------------------------------------------------------------
+// Search state (must be declared before filteredDoc which references it)
+// ---------------------------------------------------------------------------
+const treeSearchQuery = ref('');
+
+// ---------------------------------------------------------------------------
 // Filtered doc + tree items
 // ---------------------------------------------------------------------------
 const filteredDoc = computed(() => ({
@@ -434,9 +439,8 @@ const {
 const { connect: connectMercure } = useMercureNotifications();
 
 // ---------------------------------------------------------------------------
-// Panel / search state
+// Panel state
 // ---------------------------------------------------------------------------
-const treeSearchQuery = ref('');
 
 // ---------------------------------------------------------------------------
 // Clone Framework modal state
