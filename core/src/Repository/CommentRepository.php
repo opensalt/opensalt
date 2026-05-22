@@ -11,7 +11,6 @@ use App\Entity\Framework\LsItem;
 use App\Entity\User\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -21,6 +20,15 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class CommentRepository extends ServiceEntityRepository
 {
+    /**
+     * Maps item type strings to their corresponding entity classes.
+     * The keys also correspond to the association field names on the Comment entity.
+     */
+    private const array ITEM_TYPE_ENTITY_MAP = [
+        'document' => LsDoc::class,
+        'item' => LsItem::class,
+    ];
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Comment::class);
@@ -77,10 +85,34 @@ class CommentRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return Collection<int<0, max>, Comment>
+     * Find comments for a given item type and item identifier.
+     *
+     * The $itemId can be either a numeric database ID or a UUID identifier string.
+     * When numeric, comments are queried directly by foreign key (no entity lookup needed).
+     * When a UUID, the entity is resolved first via its identifier field.
+     *
+     * @return ArrayCollection<int, Comment>
+     *
+     * @throws \InvalidArgumentException if $itemType is not 'document' or 'item'
      */
-    public function findByTypeItem(string $itemType, int $itemId): Collection
+    public function findByTypeId(string $itemType, string $itemId): ArrayCollection
     {
-        return new ArrayCollection($this->findBy([$itemType => $itemId]));
+        $entityClass = self::ITEM_TYPE_ENTITY_MAP[$itemType]
+            ?? throw new \InvalidArgumentException(sprintf('Unsupported item type: "%s". Expected one of: %s', $itemType, implode(', ', array_keys(self::ITEM_TYPE_ENTITY_MAP))));
+
+        // Numeric ID — query comments directly by FK, no entity lookup needed
+        if (ctype_digit($itemId)) {
+            return new ArrayCollection($this->findBy([$itemType => (int) $itemId]));
+        }
+
+        // UUID identifier — resolve entity first, then query by association
+        $entity = $this->getEntityManager()->getRepository($entityClass)
+            ->findOneBy(['identifier' => $itemId]);
+
+        if (null === $entity) {
+            return new ArrayCollection();
+        }
+
+        return new ArrayCollection($this->findBy([$itemType => $entity]));
     }
 }

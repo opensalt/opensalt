@@ -77,7 +77,7 @@ final class ExcelImport
 
         $associationsIdentifiers = [];
         foreach ($items as $item) {
-            $smartLevel = $itemSmartLevels[$item->getIdentifier()];
+            $smartLevel = $itemSmartLevels[$item->getIdentifier()] ?? '';
             $levels = explode('.', $smartLevel);
             $seq = array_pop($levels);
             $parentLevel = implode('.', $levels);

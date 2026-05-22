@@ -18,7 +18,7 @@ function ApxDocument(initializer, apx) {
     // keep track of the current association group chosen for the document, which could be different on sides 1 (left) and 2 (right)
     self.currentAssocGroup = null;
     self.currentAssocGroup2 = null;
-    self.setCurrentAssocGroup = function(assocGroup, side) {
+    self.setCurrentAssocGroup = function (assocGroup, side) {
         let $agm;
         if (empty(side) || side === 1) {
             self.currentAssocGroup = assocGroup;
@@ -41,7 +41,7 @@ function ApxDocument(initializer, apx) {
     /** keep track of the currently-selected item for the document (which could be the doc itself)
      *  Input can be an item, an identifier, or an lsItemId; in the latter case, null represents the document */
     self.currentItem = null;
-    self.setCurrentItem = function(o) {
+    self.setCurrentItem = function (o) {
         self.currentItem = null;
 
         if (!empty(o.item)) {
@@ -63,7 +63,7 @@ function ApxDocument(initializer, apx) {
     };
 
     /** Load the document via an ajax call */
-    self.load = function(callbackFn) {
+    self.load = function (callbackFn) {
         let path = apx.path.doctree_retrieve_document.replace('ID', apx.lsDocId);
         let ajaxData = {};
         if (!empty(self.initializer.id)) {
@@ -80,8 +80,8 @@ function ApxDocument(initializer, apx) {
             url: path,
             method: 'GET',
             data: ajaxData
-        }).done(function(data, textStatus, jqXHR) {
-            if (empty(data) || typeof(data) !== "object" || empty(data.CFDocument)) {
+        }).done(function (data, textStatus, jqXHR) {
+            if (empty(data) || typeof (data) !== "object" || empty(data.CFDocument)) {
                 self.loadError(data);
                 return;
             }
@@ -184,7 +184,7 @@ function ApxDocument(initializer, apx) {
                     if (!empty(self.itemHash[a.origin.item])) {
                         self.itemHash[a.origin.item].assocs.push(a);
 
-                    // else...
+                        // else...
                     } else {
                         // create an "assocsOnly" item to hold the assoc, so we can easily look it up later
                         self.itemHash[a.origin.item] = {
@@ -202,7 +202,7 @@ function ApxDocument(initializer, apx) {
             }
 
             // when doc first loads, doc is selected
-            self.setCurrentItem({"identifier": self.doc.identifier});
+            self.setCurrentItem({ "identifier": self.doc.identifier });
 
             // if we initialized by url, add to the document menus
             if (!empty(self.initializer.url)) {
@@ -224,12 +224,12 @@ function ApxDocument(initializer, apx) {
                 apx.viewMode.showAssocView("refresh");
             }
 
-        }).fail(function(jqXHR, textStatus, errorThrown){
+        }).fail(function (jqXHR, textStatus, errorThrown) {
             self.loadError();
         });
     };
 
-    self.loadError = function(data) {
+    self.loadError = function (data) {
         console.log("error loading document", self.initializer);
         if (!empty(data)) {
             console.log("data returned:", data);
@@ -245,7 +245,7 @@ function ApxDocument(initializer, apx) {
     };
 
     /** Convert a original package file from the standard CASE format into the condensed format we work with in the OpenSALT code */
-    self.convertPackageData = function() {
+    self.convertPackageData = function () {
         function changeKey(item, oldKey, newKey) {
             if (oldKey in item) {
                 item[newKey] = item[oldKey];
@@ -269,7 +269,7 @@ function ApxDocument(initializer, apx) {
         // CFAssociations: define a function for converting origin and dest data
         function assocTarget(assoc, oldKey, newKey) {
             // we don't know the document
-            assoc[newKey] = {"doc": "?"};
+            assoc[newKey] = { "doc": "?" };
 
             // put the "identifier" in "item"
             if (!empty(assoc[oldKey].identifier)) {
@@ -293,7 +293,7 @@ function ApxDocument(initializer, apx) {
                 let ag;
                 let ago = assoc.CFAssociationGroupingURI;
                 // if we at least have an identifier...
-                if (!empty(ago) && typeof(ago) === "object" && !empty(ago.identifier)) {
+                if (!empty(ago) && typeof (ago) === "object" && !empty(ago.identifier)) {
                     ag = self.assocGroupHash[ago.identifier];
 
                     // if the group didn't already exist, create it now
@@ -312,7 +312,7 @@ function ApxDocument(initializer, apx) {
 
                         // generate a title if necessary
                         if (empty(ag.title)) {
-                            ag.title = "Association Group " + (ag.id*1);
+                            ag.title = "Association Group " + (ag.id * 1);
                         }
 
                         self.assocGroups.push(ag);
@@ -337,22 +337,22 @@ function ApxDocument(initializer, apx) {
     };
 
     /** Find, and try to load, any docs referenced by associations in this doc */
-    self.findAssociatedDocs = function() {
+    self.findAssociatedDocs = function () {
         for (let i = 0; i < self.assocs.length; ++i) {
             let a = self.assocs[i];
             if (a.origin.doc !== "-" && a.origin.doc !== "?" && !(a.origin.doc in apx.allDocs)) {
                 apx.allDocs[a.origin.doc] = "loading";
-                new ApxDocument({"identifier": a.origin.doc}, apx).load();
+                new ApxDocument({ "identifier": a.origin.doc }, apx).load();
             }
             if (a.dest.doc !== a.origin.doc && a.dest.doc !== "-" && a.dest.doc !== "?" && !(a.dest.doc in apx.allDocs)) {
                 apx.allDocs[a.dest.doc] = "loading";
-                new ApxDocument({"identifier": a.dest.doc}, apx).load();
+                new ApxDocument({ "identifier": a.dest.doc }, apx).load();
             }
         }
     };
 
     /** If the mainDoc has any associations that reference items in this doc, update the assoc items */
-    self.updateMainDocAssocs = function() {
+    self.updateMainDocAssocs = function () {
         for (let i = 0; i < apx.mainDoc.assocs.length; ++i) {
             let a = apx.mainDoc.assocs[i];
             if (a.origin.doc === "?" && !empty(self.itemHash[a.origin.item])) {
@@ -365,7 +365,7 @@ function ApxDocument(initializer, apx) {
     };
 
     /** Create a fancytree data structure for the given assocGroup **/
-    self.createTree = function(assocGroup, treeSide) {
+    self.createTree = function (assocGroup, treeSide) {
         // Go through all items
         for (let i = 0; i < self.items.length; ++i) {
             // for treeSide1, make sure previously-saved ftNodeDatas are cleared from all items
@@ -433,7 +433,7 @@ function ApxDocument(initializer, apx) {
                     let child = {
                         "title": a.origin.item,
                         "key": a.origin.item,
-                        "extraClasses": "object-type-"+self.itemHash[a.origin.item].objectType,
+                        "extraClasses": "object-type-" + self.itemHash[a.origin.item].objectType,
                         "children": [],
                         "sequenceNumber": a.sequenceNumber,
                         "childOfAssocId": a.id,     // stash the assocId for use elsewhere
@@ -478,7 +478,7 @@ function ApxDocument(initializer, apx) {
             }
 
             // sort children of parent
-            parent.children.sort(function(a,b) {
+            parent.children.sort(function (a, b) {
                 // try to sort by a.sequenceNumber
                 let seqA = a.sequenceNumber * 1;
                 let seqB = b.sequenceNumber * 1;
@@ -493,10 +493,10 @@ function ApxDocument(initializer, apx) {
                 let leA = 100000;
                 let leB = 100000;
                 if (!empty(a.ref) && !empty(a.ref.listEnumInSource)) {
-                    leA = a.ref.listEnumInSource*1;
+                    leA = a.ref.listEnumInSource * 1;
                 }
                 if (!empty(b.ref) && !empty(b.ref.listEnumInSource)) {
-                    leB = b.ref.listEnumInSource*1;
+                    leB = b.ref.listEnumInSource * 1;
                 }
 
                 if (isNaN(leA)) leA = 100000;
@@ -578,7 +578,7 @@ function ApxDocument(initializer, apx) {
                     let child = {
                         "title": treeItemTitle(orphan),
                         "key": orphan.identifier,
-                        "extraClasses": "object-type-"+orphan.objectType,
+                        "extraClasses": "object-type-" + orphan.objectType,
                         "children": [],
                         "sequenceNumber": i,
                         "ref": orphan
@@ -598,8 +598,8 @@ function ApxDocument(initializer, apx) {
     };
 
     /** Record folders currently expanded in this document's tree, for each side and each assocGroup */
-    self.expandedFolders = {1: {}, 2: {}};
-    self.recordExpandedFolders = function(side) {
+    self.expandedFolders = { 1: {}, 2: {} };
+    self.recordExpandedFolders = function (side) {
         let efo;
         if (side === 1) {
             efo = self.expandedFolders[1][self.currentAssocGroup] = {};
@@ -621,12 +621,12 @@ function ApxDocument(initializer, apx) {
     };
 
     /** Determine if this document was loaded from a url (as opposed to loaded via an id) */
-    self.loadedFromUrl = function() {
+    self.loadedFromUrl = function () {
         return !empty(self.initializer.url);
     };
 
     /** Determine if this is an "external" doc -- loaded from a different server */
-    self.isExternalDoc = function() {
+    self.isExternalDoc = function () {
         // it's an external doc if it's in the apx.mainDoc.associatedDocs array and its url doesn't start with "local"
         if (!empty(apx.mainDoc.associatedDocs) && !empty(apx.mainDoc.associatedDocs[self.doc.identifier]) && apx.mainDoc.associatedDocs[self.doc.identifier].url.search(/local/) != 0) {
             return true;
@@ -636,14 +636,14 @@ function ApxDocument(initializer, apx) {
     };
 
     // Not sure if we need this; plan is to always use the identifier (guid) as the key...
-    self.getDocKey = function() {
+    self.getDocKey = function () {
         if (empty(self.doc)) return null;
         // use the document guid (identifier) as the key for the document
         return self.doc.identifier;
     };
 
     /** Retrieve an array of associations for the item, optionally checking only associations of type assocType and/or only group assocGroup */
-    self.getAssocsForItem = function(item, assocType, assocGroup, inverse) {
+    self.getAssocsForItem = function (item, assocType, assocGroup, inverse) {
         // if the assoc isn't inversed, a.inverse will === undefined; so if we got a "inverse" parameter of false or null, change it to undefined
         if (inverse === false || inverse === null) {
             inverse = undefined;
@@ -653,7 +653,7 @@ function ApxDocument(initializer, apx) {
         for (let i = 0; i < item.assocs.length; ++i) {
             let a = item.assocs[i];
             if ((empty(assocType) || assocType == a.type) && inverse === a.inverse) {
-                if (typeof(assocGroup) === "undefined" || assocGroup == a.groupId) {    // use == so null matches undefined
+                if (typeof (assocGroup) === "undefined" || assocGroup == a.groupId) {    // use == so null matches undefined
                     assocs.push(a);
                 }
             }
@@ -662,7 +662,7 @@ function ApxDocument(initializer, apx) {
     };
 
     /** Retrieve the association groups for the item, optionally checking only associations of type assocType */
-    self.getAssocGroupsForItem = function(item, assocType) {
+    self.getAssocGroupsForItem = function (item, assocType) {
         let assocGroups = [];
         for (let i = 0; i < item.assocs.length; ++i) {
             let a = item.assocs[i];
@@ -681,32 +681,32 @@ function ApxDocument(initializer, apx) {
     };
 
     /** get the fancyTree object for this document on the given side */
-    self.getFt = function(side) {
+    self.getFt = function (side) {
         return self["ft" + side].fancytree("getTree");
     };
 
     /** get the fancyTree node for an item on the given side */
-    self.getFtNode = function(item, side) {
+    self.getFtNode = function (item, side) {
         return self.getFt(side).getNodeByKey(item.identifier);
     };
 
-    self.getItemUri = function(item) {
-        if(empty(item)) {
+    self.getItemUri = function (item) {
+        if (empty(item)) {
             return "?";
         }
 
-        if(!empty(item.uri)) {
+        if (!empty(item.uri)) {
             return item.uri;
         }
 
-        if(!empty(self.doc.uriBase) && !empty(item.identifier)) {
+        if (!empty(self.doc.uriBase) && !empty(item.identifier)) {
             return self.doc.uriBase + item.identifier;
         }
 
         return "?";
     };
 
-    self.getItemTitleBlock = function(item, requireFullStatement) {
+    self.getItemTitleBlock = function (item, requireFullStatement) {
         let title = self.getItemStatement(item, requireFullStatement);
 
         title = render.block(title);
@@ -721,7 +721,7 @@ function ApxDocument(initializer, apx) {
         return title;
     };
 
-    self.getItemTitle = function(item, requireFullStatement) {
+    self.getItemTitle = function (item, requireFullStatement) {
         let title = self.getItemStatement(item, requireFullStatement);
 
         title = render.inline(title);
@@ -736,7 +736,7 @@ function ApxDocument(initializer, apx) {
         return title;
     };
 
-    self.getItemStatement = function(item, requireFullStatement) {
+    self.getItemStatement = function (item, requireFullStatement) {
         let title = '';
 
         if (item === self.doc && !empty(item.title)) {
@@ -759,7 +759,7 @@ function ApxDocument(initializer, apx) {
         return title;
     };
 
-    self.getAssociationTypePretty = function(a) {
+    self.getAssociationTypePretty = function (a) {
         let s = '';
         if (a.type.substr(0, 4) === 'ext:') {
             s = a.type;
@@ -787,14 +787,14 @@ function ApxDocument(initializer, apx) {
         return type[0].toLowerCase() + type.substr(1).replace(/ /g, "");    // convert type to camel case
     };
 
-    self.getAssociationTypeCondensed = function(a) {
+    self.getAssociationTypeCondensed = function (a) {
         return self.condenseType(a.type);
     };
 
     /** render the association group menu for this document */
     self.$assocGroupMenu = null;
     self.$assocGroupMenu2 = null;
-    self.renderAssocGroupMenu = function($menu, side) {
+    self.renderAssocGroupMenu = function ($menu, side) {
         if (empty(side)) {
             side = 1;
         }
@@ -841,20 +841,20 @@ function ApxDocument(initializer, apx) {
                 }
             }
 
-        // otherwise hide the menu
+            // otherwise hide the menu
         } else {
             $menu.closest(".assocGroupFilter").hide();
         }
     };
 
     /** An assocGroup was selected from the document's menu, on side 1 or 2 */
-    self.assocGroupSelected = function(menu, side) {
+    self.assocGroupSelected = function (menu, side) {
         // get the menu val; convert "default" to null; setCurrentAssocGroup
         let val = $(menu).val();
         if (val === "default") {
             self.setCurrentAssocGroup(null, side);
         } else {
-            self.setCurrentAssocGroup(val*1, side);
+            self.setCurrentAssocGroup(val * 1, side);
         }
 
         // render the fancytree on the appropriate side
@@ -863,7 +863,7 @@ function ApxDocument(initializer, apx) {
         // if this is the left side...
         if (side === 1) {
             // select the document
-            apx.treeDoc1.setCurrentItem({"item": self.doc});
+            apx.treeDoc1.setCurrentItem({ "item": self.doc });
 
             // activate the item
             apx.treeDoc1.activateCurrentItem();
@@ -879,12 +879,12 @@ function ApxDocument(initializer, apx) {
     // UTILITIES FOR FANCYTREE ELEMENTS (LEFT OR RIGHT SIDE)
     // to get an item from a node (getItemFromNode), just use node.data.ref;
 
-    self.isDocNode = function(node) {
+    self.isDocNode = function (node) {
         return (op(node, "data", "ref", "nodeType") === "document");
     };
 
     // Get tooltip content
-    self.tooltipContent = function(node) {
+    self.tooltipContent = function (node) {
         let content;
         if (self.isDocNode(node)) {
             content = "Document: " + render.block(node.title);
@@ -899,7 +899,7 @@ function ApxDocument(initializer, apx) {
         return content;
     };
 
-    self.addAssociation = function(atts) {
+    self.addAssociation = function (atts) {
         let assoc = {
             "id": atts.id,
             "type": atts.type,
@@ -981,7 +981,7 @@ function ApxDocument(initializer, apx) {
         return assoc;
     };
 
-    self.addInverseAssociation = function(a) {
+    self.addInverseAssociation = function (a) {
         if (a.type !== "exemplar" && !empty(a.dest.item)) {
             let destItem = apx.allItemsHash[a.dest.item];
             if (!empty(destItem) && !empty(destItem.doc)) {
@@ -1001,7 +1001,7 @@ function ApxDocument(initializer, apx) {
         }
     };
 
-    self.deleteAssociation = function(assocId) {
+    self.deleteAssociation = function (assocId) {
         let assoc = self.assocIdHash[assocId];
         // if the assoc exists...
         if (!empty(assoc)) {
@@ -1040,7 +1040,7 @@ function ApxDocument(initializer, apx) {
         }
     };
 
-    self.openAssociationItem = function(el, fromAssocView) {
+    self.openAssociationItem = function (el, fromAssocView) {
         let assocId = $(el).attr("data-association-id");
         let assocIdentifier = $(el).attr("data-association-identifier");
         let assocItem = $(el).attr("data-association-item");
@@ -1070,7 +1070,7 @@ function ApxDocument(initializer, apx) {
                 // return false to signal that we opened in another window
                 return false;
 
-            // if the item is in the treeDoc1, redirect to the item
+                // if the item is in the treeDoc1, redirect to the item
             } else if (assoc[assocItem].doc == apx.treeDoc1.doc.identifier) {
                 let destItem = apx.treeDoc1.itemHash[assoc[assocItem].item];
                 if (!empty(destItem)) {
@@ -1086,10 +1086,10 @@ function ApxDocument(initializer, apx) {
                 // return true to signal that we did something in this window
                 return true;
 
-            // else try to open the item in a new window
+                // else try to open the item in a new window
             } else {
                 let doc = apx.allDocs[assoc[assocItem].doc];
-                if (typeof(doc) === "object") {
+                if (typeof (doc) === "object") {
                     let url = doc.getItemUri(doc.itemHash[assoc[assocItem].item]);
                     if (url !== "?") {
                         window.open(url);
@@ -1105,7 +1105,7 @@ function ApxDocument(initializer, apx) {
     };
 
 
-    self.addItem = function(item) {
+    self.addItem = function (item) {
         self.items.push(item);
         self.itemHash[item.identifier] = item;
         if (!empty(item.id)) {
@@ -1131,7 +1131,7 @@ function ApxDocument(initializer, apx) {
         return item;
     };
 
-    self.addNewItemData = function(data) {
+    self.addNewItemData = function (data) {
         if ("undefined" === typeof apx.mainDoc.itemIdHash[data.id]) {
             // add item and association, then reload tree (and current item?)
             let item = apx.mainDoc.addItem(data);
@@ -1174,14 +1174,14 @@ function ApxDocument(initializer, apx) {
         }
     };
 
-    self.treeCheckboxToggleAll = function(val, side) {
+    self.treeCheckboxToggleAll = function (val, side) {
         let $cb = self["ft" + side].closest(".treeSide").find(".treeCheckboxControl");
 
         // if this is the first click for this tree, enable checkboxes on the tree
         if ($cb.data("checkboxesEnabled") !== "true") {
             self.treeCheckboxToggleCheckboxes(true, side);
 
-        // else toggle select all
+            // else toggle select all
         } else {
             if (empty(val)) {
                 val = $cb.is(":checked");
@@ -1212,7 +1212,7 @@ function ApxDocument(initializer, apx) {
         }
     };
 
-    self.treeCheckboxToggleCheckboxes = function(val, side) {
+    self.treeCheckboxToggleCheckboxes = function (val, side) {
         let $cb = self["ft" + side].closest(".treeSide").find(".treeCheckboxControl");
         if (val === true) {
             self["ft" + side].fancytree("getTree").rootNode.checkbox = true;
@@ -1244,17 +1244,17 @@ function ApxDocument(initializer, apx) {
     };
 
     /** restore checkboxes after tree has been redrawn */
-    self.treeCheckboxRestoreCheckboxes = function(side) {
+    self.treeCheckboxRestoreCheckboxes = function (side) {
         let $cb = self["ft" + side].closest(".treeSide").find(".treeCheckboxControl");
         if ($cb.data("checkboxesEnabled") === "true") {
             self.treeCheckboxToggleCheckboxes(true, side);
         }
     };
 
-    self.treeCheckboxMenuItemSelected = function($menu, side) {
+    self.treeCheckboxMenuItemSelected = function ($menu, side) {
         // get all selected items
         let items = [];
-        self["ft" + side].fancytree("getTree").visit(function(node) {
+        self["ft" + side].fancytree("getTree").visit(function (node) {
             if (node.selected === true && node.unselectable !== true) {
                 items.push(node.data.ref);
             }
@@ -1280,10 +1280,10 @@ function ApxDocument(initializer, apx) {
         }
     };
 
-    self.initializeTreeFilter = function(side) {
-        let debounce = (function() {
+    self.initializeTreeFilter = function (side) {
+        let debounce = (function () {
             let timeout = null;
-            return function(callback, wait) {
+            return function (callback, wait) {
                 if (timeout) { clearTimeout(timeout); }
                 timeout = setTimeout(callback, wait);
             };
@@ -1291,10 +1291,10 @@ function ApxDocument(initializer, apx) {
 
         let $treeside = self["ft" + side].closest(".treeSide");
 
-        $treeside.find(".treeFilter").off().on('keyup', function() {
+        $treeside.find(".treeFilter").off().on('keyup', function () {
             let $that = $(this);
             let $tree = self.getFt(side);
-            debounce(function(){
+            debounce(function () {
                 if ($that.val().trim().length > 0) {
                     $tree.filterNodes($that.val(), {
                         autoExpand: true,
@@ -1311,18 +1311,18 @@ function ApxDocument(initializer, apx) {
         });
 
         // clear buttons for search fields
-        $treeside.find(".filterClear").off().on('click', function() {
+        $treeside.find(".filterClear").off().on('click', function () {
             $(this).parent().find(".treeFilter").val("").trigger("keyup");
         });
     };
 
     /** Activate the currentItem in the left-side tree */
-    self.activateCurrentItem = function(item) {
+    self.activateCurrentItem = function (item) {
         self.getFt(1).activateKey(self.currentItem.identifier);
     };
 
     /** Show the currentItem on the right side */
-    self.showCurrentItem = function() {
+    self.showCurrentItem = function () {
         // clear apx.unknownAssocsShowing
         apx.unknownAssocsShowing = {};
 
@@ -1400,7 +1400,7 @@ function ApxDocument(initializer, apx) {
                         + '<strong>' + attributes[key] + ':</strong> '
                         + val
                         + '</li>'
-                    ;
+                        ;
                 }
             }
 
@@ -1410,13 +1410,13 @@ function ApxDocument(initializer, apx) {
                 let licenseText = licenseDoc[0].licenseText;
 
                 html += '<li class="list-group-item">'
-                + '<strong>License:</strong> '
-                + render.escaped(licenseDoc[0].title);
+                    + '<strong>License:</strong> '
+                    + render.escaped(licenseDoc[0].title);
 
-                if ( licenseText.length > 0) {
+                if (licenseText.length > 0) {
                     html += ' - <i>'
-                    + render.escaped(licenseText)
-                    + '</i>';
+                        + render.escaped(licenseText)
+                        + '</i>';
                 }
 
                 html += '</li>';
@@ -1499,7 +1499,7 @@ function ApxDocument(initializer, apx) {
                         html += '<section class="card card-default card-component item-component">'
                             + '<div class="card-header">' + icon + render.escaped(title) + '</div>'
                             + '<div class="card-body"><div><div class="list-group">'
-                        ;
+                            ;
 
                         lastType = nextType;
                         lastInverse = a.inverse;
@@ -1544,11 +1544,11 @@ function ApxDocument(initializer, apx) {
                     html += '<a data-association-id="' + a.id + '" data-association-identifier="' + a.identifier + '" data-association-item="dest" class="list-group-item lsassociation lsitem clearfix lsassociation-' + originDoc + '-doc">'
                         + removeBtn
                         + editBtn
-                        + '<span class="itemDetailsAssociationTitle '+('' !== annotation ? 'annotated' : '')+'" title="'+annotation+'">'
+                        + '<span class="itemDetailsAssociationTitle ' + ('' !== annotation ? 'annotated' : '') + '" title="' + annotation + '">'
                         + self.associationDestItemTitle(a).replace(/<a\b[^>]*>/gmi, '').replace(/<\/a>/gmi, '')
                         + '</span>'
                         + '</a>'
-                    ;
+                        ;
                 }
                 // close final type section
                 html += '</div></div></div></section>';
@@ -1620,13 +1620,13 @@ function ApxDocument(initializer, apx) {
         }
 
         function showItem() {
-// show title and appropriate icon
+            // show title and appropriate icon
             $jq.find(".itemTitleSpan").html(self.getItemTitle(item));
             $jq.closest('section').data('object-type', item.objectType);
             $jq.closest('section').removeClass((i, className) => {
                 return (className.match(/(^|\s)object-type-\S+/g) || []).join(' ')
             });
-            $jq.closest('section').addClass('object-type-'+item.objectType);
+            $jq.closest('section').addClass('object-type-' + item.objectType);
 
             // show item details
             let html = "";
@@ -1646,7 +1646,7 @@ function ApxDocument(initializer, apx) {
                             + '<strong>' + attributes[key] + ':</strong> '
                             + render.block(val)
                             + '</li>'
-                        ;
+                            ;
                     } else if (key === 'identifier') {
                         let docIdentifier = item.doc?.doc?.identifier || apx.mainDoc.doc?.identifier || null;
                         let itemId = val;
@@ -1664,19 +1664,19 @@ function ApxDocument(initializer, apx) {
                         html += '<li class="list-group-item">'
                             + '<strong>' + attributes[key] + ':</strong> '
                             + '<span class="item-' + key + '">'
-                              + val
-                              + '</span>'
+                            + val
+                            + '</span>'
                             + '</li>'
-                        ;
+                            ;
                     } else {
                         // TODO: deal with conceptKeywords, educationAlignment, itemType
                         html += '<li class="list-group-item">'
                             + '<strong>' + attributes[key] + ':</strong> '
                             + '<span class="item-' + key + '">'
-                              + render.escaped(val)
-                              + '</span>'
+                            + render.escaped(val)
+                            + '</span>'
                             + '</li>'
-                        ;
+                            ;
                     }
                 }
             }
@@ -1716,7 +1716,7 @@ function ApxDocument(initializer, apx) {
                         + '<strong>' + key + ':</strong> '
                         + render.escaped(item.customFields[key])
                         + '</li>'
-                    ;
+                        ;
                 }
             }
             $jq.find("ul.lsItemDetailsMain").html(html);
@@ -1797,7 +1797,7 @@ function ApxDocument(initializer, apx) {
                         html += '<section class="card card-default card-component item-component">'
                             + '<div class="card-header">' + icon + render.escaped(title) + '</div>'
                             + '<div class="card-body"><div><div class="list-group">'
-                        ;
+                            ;
 
                         lastType = nextType;
                         lastInverse = a.inverse;
@@ -1842,11 +1842,11 @@ function ApxDocument(initializer, apx) {
                     html += '<a data-association-id="' + a.id + '" data-association-identifier="' + a.identifier + '" data-association-item="dest" class="list-group-item lsassociation lsitem clearfix lsassociation-' + originDoc + '-doc">'
                         + removeBtn
                         + editBtn
-                        + '<span class="itemDetailsAssociationTitle '+('' !== annotation ? 'annotated' : '')+'" title="'+annotation+'">'
+                        + '<span class="itemDetailsAssociationTitle ' + ('' !== annotation ? 'annotated' : '') + '" title="' + annotation + '">'
                         + self.associationDestItemTitle(a).replace(/<a\b[^>]*>/gmi, '').replace(/<\/a>/gmi, '')
                         + '</span>'
                         + '</a>'
-                    ;
+                        ;
                 }
                 // close final type section
                 html += '</div></div></div></section>';
@@ -1947,7 +1947,7 @@ function ApxDocument(initializer, apx) {
     };
 
     /** Compose the title for the destination of an association item in the item details view */
-    self.associationDestItemTitle = function(a) {
+    self.associationDestItemTitle = function (a) {
         // set default title
         let title;
         if (!empty(a.dest.uri)) {
@@ -1959,7 +1959,7 @@ function ApxDocument(initializer, apx) {
                 let data = uri.split(',', 2);
 
                 if (/;base64[;,]/.test(data[0])) {
-                    title = decodeURIComponent(atob(data[1]).split('').map(function(c) {
+                    title = decodeURIComponent(atob(data[1]).split('').map(function (c) {
                         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
                     }).join(''));
                 } else {
@@ -1980,17 +1980,17 @@ function ApxDocument(initializer, apx) {
         if (a.type === "exemplar") {
             title = a.dest.uri;
 
-        // else see if the "item" is actually a document
-        } else if (!empty(apx.allDocs[a.dest.item]) && typeof(apx.allDocs[a.dest.item]) !== "string") {
+            // else see if the "item" is actually a document
+        } else if (!empty(apx.allDocs[a.dest.item]) && typeof (apx.allDocs[a.dest.item]) !== "string") {
             title = "Document: " + apx.allDocs[a.dest.item].doc.title;
 
-        // else if we know about this item via allItemsHash...
+            // else if we know about this item via allItemsHash...
         } else if (!empty(apx.allItemsHash[a.dest.item])) {
             let destItem = apx.allItemsHash[a.dest.item];
-            title = self.getItemTitle(destItem, true);
+            title = self.getItemTitle(destItem, false);
             doc = destItem.doc;
 
-        // else we don't (currently at least) know about this item...
+            // else we don't (currently at least) know about this item...
         } else {
             // so add the association to apx.unknownAssocsShowing; if info about the item is loaded later, it'll get filled in
             apx.unknownAssocsShowing[a.id] = a;
@@ -2003,20 +2003,20 @@ function ApxDocument(initializer, apx) {
                 if (doc === "loaderror") {
                     title += " (document could not be loaded)";
 
-                // else if we know we're still in the process of loading that doc, note that
+                    // else if we know we're still in the process of loading that doc, note that
                 } else if (doc === "loading") {
                     title += " (loading document...)";
 
-                // else we have the doc -- this shouldn't normally happen, because if we know about the doc,
-                // we should have found the item in apx.allItemsHash above
-                } else if (typeof(doc) === "object") {
+                    // else we have the doc -- this shouldn't normally happen, because if we know about the doc,
+                    // we should have found the item in apx.allItemsHash above
+                } else if (typeof (doc) === "object") {
                     title += " (item not found in document)";
                 }
             }
         }
 
         // if item comes from another doc, note that
-        if (!empty(doc) && typeof(doc) === "object" && doc !== self) {
+        if (!empty(doc) && typeof (doc) === "object" && doc !== self) {
             let docTitle = doc.doc.title;
             if (docTitle.length > 60) {
                 docTitle = docTitle.substr(0, 65);
@@ -2029,7 +2029,7 @@ function ApxDocument(initializer, apx) {
         return title;
     };
 
-    self.toggleItemCreationButtons = function() {
+    self.toggleItemCreationButtons = function () {
         // if mainDoc isn't showing in tree1 slot, don't do this
         if (apx.treeDoc1 != apx.mainDoc) {
             return;
@@ -2044,7 +2044,7 @@ function ApxDocument(initializer, apx) {
             // and show the "Add a new child item" button
             $jq.find("[id=addChildBtn]").show();
 
-        // else item doesn't have children
+            // else item doesn't have children
         } else {
             // show "Make this item a folder" button
             $jq.find("[id=toggleFolderBtn]").show();
@@ -2060,11 +2060,11 @@ function ApxDocument(initializer, apx) {
         }
     };
 
-    self.toggleFolders = function(items, val) {
+    self.toggleFolders = function (items, val) {
         if (!Array.isArray(items)) {
             items = [self.currentItem];
         }
-        if (typeof(val) !== "boolean") {
+        if (typeof (val) !== "boolean") {
             val = "toggle";
         }
         for (let i = 0; i < items.length; ++i) {
@@ -2095,7 +2095,7 @@ function ApxDocument(initializer, apx) {
                 $jq.closest('section').removeClass((i, className) => {
                     return (className.match(/(^|\s)object-type-\S+/g) || []).join(' ')
                 });
-                $jq.closest('section').addClass('object-type-'+item.objectType);
+                $jq.closest('section').addClass('object-type-' + item.objectType);
             }
         }
 

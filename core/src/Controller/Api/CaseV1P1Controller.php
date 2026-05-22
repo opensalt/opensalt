@@ -109,6 +109,7 @@ class CaseV1P1Controller extends AbstractController
     public function getCfPackage(Request $request, #[MapEntity(expr: 'repository.findOneByIdentifier(id)')] LsDoc $obj): Response
     {
         $id = $obj->getIdentifier();
+        $forceDownload = $request->query->getBoolean('download');
 
         $this->info('CASE API: package returned', ['id' => $id]);
 
@@ -132,6 +133,11 @@ class CaseV1P1Controller extends AbstractController
                 'generate-package' => 'v1p1',
             ])
         );
+        $response->headers->set('Content-Type', 'application/json');
+
+        if ($forceDownload) {
+            $response->headers->set('Content-Disposition', 'attachment; filename="opensalt-framework-'.$id.'.json"');
+        }
 
         return $response;
     }

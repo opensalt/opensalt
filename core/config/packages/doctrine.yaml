@@ -36,8 +36,6 @@ doctrine:
         #    json: string
         #    uuid: char(36)
     orm:
-        enable_native_lazy_objects: true
-
         entity_managers:
             default:
                 connection: default
@@ -62,6 +60,7 @@ doctrine:
                         dir: "%kernel.project_dir%/vendor/gedmo/doctrine-extensions/src/Tree/Entity"
                         #alias: GedmoTree # (optional) it will default to the name set for the mapping
                         is_bundle: false
+
 
 #when@test:
 #    doctrine:

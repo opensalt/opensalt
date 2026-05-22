@@ -123,7 +123,7 @@ class FrameworkService
         return $lsAssociation;
     }
 
-    public function addTreeAssociation(LsDoc $doc, array $origin, string $type, array $dest, ?string $assocGroup = null, ?string $annotation = null): LsAssociation
+    public function addTreeAssociation(LsDoc $doc, array $origin, string $type, array $dest, ?string $assocGroup = null, ?string $annotation = null, ?array $extensions = null): LsAssociation
     {
         $association = new LsAssociation();
         $association->setLsDoc($doc);
@@ -132,25 +132,30 @@ class FrameworkService
         $association->setType($types[0]);
         $association->setSubtype($types[1] ?? null);
         $association->setNotes($annotation);
+        $association->setExtensions($extensions);
 
         // deal with origin and dest items, which can be specified by id or by identifier
         // if externalDoc is specified for either one, mark this document as "autoLoad": "true" in the doc's externalDocuments
         $itemRepo = $this->itemRepository;
         $docRepo = $this->docRepository;
 
-        $originItem = $itemRepo->findOneBy(['identifier' => $origin['identifier']]);
-        if (null === $originItem) {
-            $originItem = $docRepo->findOneBy(['identifier' => $origin['identifier']]);
+        $originIdentifier = $origin['identifier'] ?? null;
+        $originItem = null;
+        if (null !== $originIdentifier) {
+            $originItem = $itemRepo->findOneBy(['identifier' => $originIdentifier]);
+            if (null === $originItem) {
+                $originItem = $docRepo->findOneBy(['identifier' => $originIdentifier]);
+            }
         }
 
         if (null !== $originItem) {
-            $association->setOrigin($originItem);
+            $association->setOrigin($originItem, null, $origin['targetType'] ?? null);
         }
 
         if (null === $originItem) {
             // No identifier provided, treat as string identifier/URI
             $originItem = $origin['identifier'] ?? $origin['uri'] ?? '';
-            $association->setOrigin($origin['uri'], $originItem);
+            $association->setOrigin($origin['uri'], $originItem, $origin['targetType'] ?? null);
         }
 
         if (!empty($origin['externalDoc'])) {
@@ -158,19 +163,30 @@ class FrameworkService
             $this->em->persist($doc);
         }
 
-        $destItem = $itemRepo->findOneBy(['identifier' => $dest['identifier']]);
-        if (null === $destItem) {
-            $destItem = $docRepo->findOneBy(['identifier' => $dest['identifier']]);
+        $destIdentifier = $dest['identifier'] ?? null;
+        $destItem = null;
+        if (null !== $destIdentifier) {
+            $destItem = $itemRepo->findOneBy(['identifier' => $destIdentifier]);
+            if (null === $destItem) {
+                $destItem = $docRepo->findOneBy(['identifier' => $destIdentifier]);
+            }
         }
 
         if (null !== $destItem) {
-            $association->setDestination($destItem);
+            $association->setDestination($destItem, null, $dest['targetType'] ?? null);
         }
 
         if (null === $destItem) {
             // No identifier provided, treat as string identifier/URI
-            $destItem = $dest['identifier'] ?? $dest['uri'] ?? '';
-            $association->setDestination($dest['uri'], $destItem);
+            $destUri = $dest['uri'] ?? '';
+            $destIdentifier = $dest['identifier'] ?? $destUri;
+
+            // If it's an exemplar and we only have a URI, generate a UUIDv5 for the identifier
+            if (LsAssociation::EXEMPLAR === $association->getType() && empty($dest['identifier']) && !empty($destUri)) {
+                $destIdentifier = Uuid::uuid5(Uuid::NAMESPACE_URL, $destUri)->toString();
+            }
+
+            $association->setDestination($destUri, $destIdentifier, $dest['targetType'] ?? null);
         }
 
         if (!empty($dest['externalDoc'])) {

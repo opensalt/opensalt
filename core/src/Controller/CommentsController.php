@@ -28,6 +28,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\Requirement\Requirement;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -45,25 +46,43 @@ class CommentsController extends AbstractController
     }
 
     #[Route(path: '/comments/document/{id<\d+>}', name: 'create_doc_comment', methods: ['POST'])]
+    #[Route(path: '/comments/document/{identifier}', name: 'create_doc_comment_identifier', requirements: ['identifier' => Requirement::UID_RFC4122], methods: ['POST'])]
     #[IsGranted(Permission::COMMENT_ADD)]
-    public function newDocComment(Request $request, LsDoc $doc, #[CurrentUser] User $user, BucketService $bucket): JsonResponse
-    {
+    public function newDocComment(
+        Request $request,
+        #[MapEntity(expr: '((id ?? null) == null) ? repository.findOneByIdentifier(identifier ?? null) : repository.find(id ?? null)')] ?LsDoc $doc,
+        #[CurrentUser] User $user,
+        BucketService $bucket,
+    ): JsonResponse {
+        if (null === $doc) {
+            return new JsonResponse(['error' => ['message' => 'Document not found']], Response::HTTP_NOT_FOUND);
+        }
+
         return $this->addComment($request, 'document', $doc, $user, $bucket);
     }
 
     #[Route(path: '/comments/item/{id<\d+>}', name: 'create_item_comment', methods: ['POST'])]
+    #[Route(path: '/comments/item/{identifier}', name: 'create_item_comment_identifier', requirements: ['identifier' => Requirement::UID_RFC4122], methods: ['POST'])]
     #[IsGranted(Permission::COMMENT_ADD)]
-    public function newItemComment(Request $request, LsItem $item, #[CurrentUser] User $user, BucketService $bucket): JsonResponse
-    {
+    public function newItemComment(
+        Request $request,
+        #[MapEntity(expr: '((id ?? null) == null) ? repository.findOneByIdentifier(identifier ?? null) : repository.find(id ?? null)')] ?LsItem $item,
+        #[CurrentUser] User $user,
+        BucketService $bucket,
+    ): JsonResponse {
+        if (null === $item) {
+            return new JsonResponse(['error' => ['message' => 'Item not found']], Response::HTTP_NOT_FOUND);
+        }
+
         return $this->addComment($request, 'item', $item, $user, $bucket);
     }
 
     /**
      * @param Collection<array-key,Comment> $comments
      */
-    #[Route(path: '/comments/{itemType<document|item>}/{itemId<\d+>}', name: 'get_comments', methods: ['GET'])]
+    #[Route(path: '/comments/{itemType<document|item>}/{itemId}', name: 'get_comments', methods: ['GET'])]
     #[IsGranted(Permission::COMMENT_VIEW)]
-    public function list(#[MapEntity(class: Comment::class, expr: 'repository.findByTypeItem(itemType, itemId)')] Collection $comments, #[CurrentUser] ?User $user): JsonResponse
+    public function list(#[MapEntity(class: Comment::class, expr: 'repository.findByTypeId(itemType, itemId)')] Collection $comments, #[CurrentUser] ?User $user): JsonResponse
     {
         if ($user instanceof User) {
             foreach ($comments as $comment) {
@@ -101,6 +120,9 @@ class CommentsController extends AbstractController
         $command = new UpvoteCommentCommand($comment, $user);
         $this->sendCommand($command);
 
+        $this->managerRegistry->getManager()->refresh($comment);
+        $comment->updateStatusForUser($user);
+
         return $this->apiResponse($comment);
     }
 
@@ -112,6 +134,9 @@ class CommentsController extends AbstractController
             $command = new DownvoteCommentCommand($comment, $user);
             $this->sendCommand($command);
 
+            $this->managerRegistry->getManager()->refresh($comment);
+            $comment->updateStatusForUser($user);
+
             return $this->apiResponse($comment);
         } catch (\Exception) {
             return $this->apiResponse('Item not found', 404);
@@ -120,7 +145,7 @@ class CommentsController extends AbstractController
 
     #[Route(path: '/salt/case/export_comment/{itemType}/{itemId}/comment.csv', name: 'export_comment_file')]
     #[IsGranted(Permission::COMMENT_VIEW)]
-    public function exportComment(string $itemType, int $itemId): Response
+    public function exportComment(string $itemType, string $itemId): Response
     {
         $response = new StreamedResponse();
         $response->setCallback(function () use ($itemType, $itemId): void {
@@ -129,19 +154,27 @@ class CommentsController extends AbstractController
             if (false === $handle) {
                 throw new \Exception('Unable to open output.');
             }
-            $repo = $this->managerRegistry->getManager()->getRepository(Comment::class);
-            $lsItemRepo = $this->managerRegistry->getManager()->getRepository(LsItem::class);
+            $em = $this->managerRegistry->getManager();
+            $repo = $em->getRepository(Comment::class);
+            $lsItemRepo = $em->getRepository(LsItem::class);
+            $lsDocRepo = $em->getRepository(LsDoc::class);
             $headers = ['Framework Name', 'Node Address', 'HumanCodingScheme', 'User', 'Organization', 'Comment', 'Attachment Url', 'Created Date', 'Updated Date'];
             fputcsv($handle, $headers, escape: '\\');
 
             switch ($itemType) {
                 case 'document':
-                    $commentData = $repo->findBy([$itemType => $itemId]);
+                    $lsDoc = ctype_digit($itemId) ? $lsDocRepo->find($itemId) : $lsDocRepo->findOneBy(['identifier' => $itemId]);
+                    if (null === $lsDoc) {
+                        fclose($handle);
+
+                        return;
+                    }
+                    $docId = $lsDoc->getId();
+                    $commentData = $repo->findBy(['document' => $docId]);
                     $commentRows = $this->csvArray($commentData, $itemType);
                     foreach ($commentRows as $row) {
                         fputcsv($handle, $row, escape: '\\');
                     }
-                    $lsDoc = $this->managerRegistry->getManager()->getRepository(LsDoc::class)->find($itemId);
                     $lsDocChilds = $lsDoc->getLsItems();
                     foreach ($lsDocChilds as $lsDocChild) {
                         $childIds[] = $lsDocChild->getId();
@@ -150,19 +183,21 @@ class CommentsController extends AbstractController
 
                 case 'item':
                     /** @var ?LsItem $lsItem */
-                    $lsItem = $lsItemRepo->find($itemId);
+                    $lsItem = ctype_digit($itemId) ? $lsItemRepo->find($itemId) : $lsItemRepo->findOneBy(['identifier' => $itemId]);
 
                     if (null !== $lsItem) {
                         $childIds = $lsItem->getDescendantIds();
-                        $childIds[] = $itemId;
+                        $childIds[] = $lsItem->getId();
                     }
                     break;
             }
 
-            $commentData = $repo->findBy(['item' => $childIds]);
-            $commentRows = $this->csvArray($commentData, 'item');
-            foreach ($commentRows as $child_row) {
-                fputcsv($handle, $child_row, escape: '\\');
+            if (count($childIds) > 0) {
+                $commentData = $repo->findBy(['item' => $childIds]);
+                $commentRows = $this->csvArray($commentData, 'item');
+                foreach ($commentRows as $child_row) {
+                    fputcsv($handle, $child_row, escape: '\\');
+                }
             }
 
             fclose($handle);
@@ -219,11 +254,11 @@ class CommentsController extends AbstractController
         }
 
         try {
-            $parentId = $request->request->getInt('parent');
+            $parentId = $request->getPayload()->getInt('parent');
         } catch (\Throwable) {
             $parentId = null;
         }
-        $content = $request->request->getString('content');
+        $content = $request->getPayload()->getString('content');
         $fileUrl = null;
         $fileMimeType = null;
 
@@ -240,6 +275,7 @@ class CommentsController extends AbstractController
         $this->sendCommand($command);
 
         $comment = $command->getComment();
+        $comment->updateStatusForUser($user);
 
         return $this->apiResponse($comment);
     }

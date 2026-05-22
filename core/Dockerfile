@@ -56,6 +56,7 @@ RUN set -eux; \
 		mysqli \
 		pdo_mysql \
 		pdo_pgsql \
+		ffi \
 	;
 
 ARG DOCKERIZE_VERSION=v0.9.7
@@ -76,7 +77,7 @@ COPY frankenphp/Caddyfile /etc/caddy/Caddyfile
 
 ENTRYPOINT ["docker-entrypoint"]
 
-HEALTHCHECK --start-period=30s CMD curl -f http://localhost:2019/metrics || exit 1
+HEALTHCHECK --start-period=5s --interval=5s --timeout=3s --retries=1 CMD curl -f http://localhost:2019/metrics || exit 1
 CMD [ "frankenphp", "run", "--config", "/etc/caddy/Caddyfile" ]
 
 
@@ -84,6 +85,7 @@ CMD [ "frankenphp", "run", "--config", "/etc/caddy/Caddyfile" ]
 # "php" stage
 FROM frankenphp_base AS salt_core_php
 
+USER 1000:1000
 WORKDIR /srv/core
 
 #=======================================================================
@@ -97,6 +99,18 @@ RUN set -eux; \
 	composer clear-cache
 
 #=======================================================================
+FROM node:${NODE_VERSION} AS salt_editor_build
+
+USER node
+WORKDIR /editor
+
+COPY --chown=node:node ./editor/package.json ./editor/package-lock.json ./
+RUN npm install
+
+COPY --chown=node:node ./editor/ ./
+RUN npm run build
+
+#=======================================================================
 FROM node:${NODE_VERSION} AS salt_core_js_build
 
 WORKDIR /srv/core
@@ -106,12 +120,12 @@ RUN chown -R node:node /srv/core ; \
 
 USER node
 
-COPY package.json yarn.lock ./
-COPY --from=salt_core_vendors /srv/core/vendor/symfony/ux-vue/assets ./vendor/symfony/ux-vue/assets/
+COPY --chown=node:node package.json yarn.lock ./
+COPY --chown=node:node --from=salt_core_vendors /srv/core/vendor/symfony/ux-vue/assets ./vendor/symfony/ux-vue/assets/
 RUN yarn install --non-interactive
 
-COPY vite.config.js ./
-COPY assets ./assets/
+COPY --chown=node:node vite.config.js ./
+COPY --chown=node:node assets ./assets/
 
 RUN mkdir -p public/build \
   && yarn build
@@ -123,25 +137,29 @@ FROM salt_core_php AS salt_code_layer
 # build for production
 ARG APP_ENV=prod
 
-COPY . ./
+COPY --chown=1000:1000 . ./
 
-COPY --from=salt_core_vendors /srv/core/vendor/ ./vendor/
+COPY --chown=1000:1000 --from=salt_core_vendors /srv/core/vendor/ ./vendor/
 # hack to avoid "Service 'php' failed to build : failed to export image: failed to create image: failed to get layer sha256:38c02bf8b1bff96084338f7e6835b713185e091467e11f08001d41375f078e0e: layer does not exist"
 # as mentioned in https://github.com/moby/moby/issues/37965#issuecomment-426853382
 RUN true
-COPY --from=salt_core_js_build /srv/core/public/ ./public/
+COPY --chown=1000:1000 --from=salt_core_js_build /srv/core/public/ ./public/
 
 RUN set -eux; \
 	mkdir -p var/cache var/log; \
 	chmod 777 var/cache var/log; \
-	mkdir -p public/attachments; \
-	chmod 777 public/attachments; \
 	chmod 777 tests/_output tests/Support/Data tests/Support/_generated; \
 	chmod +x bin/console-real; sync; \
 	composer dump-autoload --no-interaction --classmap-authoritative; \
 	composer dump-env prod; \
-	composer run-script post-install-cmd; \
-	chown -R www-data:www-data var public/attachments
+	composer run-script post-install-cmd
+
+USER root
+RUN set -eux; \
+	mkdir -p public/attachments; \
+	chmod 777 public/attachments; \
+    chown -R www-data:www-data var public/attachments
+USER 1000:1000
 
 ARG VERSION
 ARG BUILD_NUMBER
@@ -164,13 +182,20 @@ LABEL org.opencontainers.title="OpenSALT PHP Application" \
       org.opencontainers.source="https://github.com/opensalt/opensalt" \
       org.opencontainers.version=${VERSION}.${BUILD_NUMBER}+${BUILD_DATE}.${COMMIT}
 
-COPY --from=salt_code_layer /srv/core/ ./
+COPY --chown=1000:1000 --from=salt_code_layer /srv/core/ ./
+COPY --chown=1000:1000 --from=salt_editor_build /editor/dist/ ./public/editor/
+
+USER root
+RUN chown -R www-data:www-data var public/attachments
+USER 1000:1000
 
 VOLUME /srv/core/var
 VOLUME /srv/core/public/attachments
 
 #=======================================================================
 FROM salt_core_app AS salt_core_dev
+
+USER root
 
 ENV APP_ENV=dev XDEBUG_MODE=off
 
@@ -193,6 +218,8 @@ CMD [ "frankenphp", "run", "--config", "/etc/caddy/Caddyfile", "--watch" ]
 # Prod consumer image
 FROM salt_core_app AS salt_core_consumer
 
+USER root
+
 ENV APP_ENV=prod
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
@@ -205,6 +232,8 @@ CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
 #=======================================================================
 # Prod FrankenPHP image
 FROM salt_core_app AS salt_core_prod
+
+USER root
 
 ENV APP_ENV=prod
 #ENV FRANKENPHP_CONFIG="import worker.Caddyfile"

@@ -133,7 +133,8 @@ class LsAssociationController extends AbstractController
                 $request->request->get('type'),
                 $request->request->all('dest'), // passed as an array
                 $request->request->get('assocGroup'),
-                $request->request->get('annotation')
+                $request->request->get('annotation'),
+                $request->request->has('extensions') ? $request->request->all('extensions') : null
             );
             $this->sendCommand($command);
             $lsAssociation = $command->getAssociation();

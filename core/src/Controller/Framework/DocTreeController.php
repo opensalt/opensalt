@@ -39,7 +39,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route(path: '/cftree')]
+#[Route(path: '/cf-tree')]
 class DocTreeController extends AbstractController
 {
     use CommandDispatcherTrait;

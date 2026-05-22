@@ -1,0 +1,5 @@
+worker {
+	file ./public/index.php
+    watch
+	env APP_RUNTIME Runtime\FrankenPhpSymfony\Runtime
+}

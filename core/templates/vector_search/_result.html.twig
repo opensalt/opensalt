@@ -1,0 +1,80 @@
+{% set lsItem = result.lsItem %}
+{% set similarity = result.similarity %}
+{% set resultMode = mode|default('near_object') %}
+
+{% set kindLabel = 'Default' %}
+{% if kinds is defined %}
+    {% for kindName, kindValue in kinds %}
+        {% if kindValue == lsItem.discriminator %}
+            {% set kindLabel = kindName|replace({'_': ' '})|capitalize %}
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start gap-3">
+            <div>
+                <h5 class="card-title mb-1">
+                    {{ lsItem.humanCodingScheme ?: 'Item #' ~ lsItem.id }}
+                </h5>
+                <div class="text-muted small">
+                    Framework: {{ lsItem.lsDoc.title ?: 'Unknown' }}
+                </div>
+            </div>
+            <div class="text-end">
+                <div class="badge text-bg-info mb-1">{{ kindLabel }}</div>
+                {% if similarity is not null %}
+                    {% if resultMode == 'near_object' %}
+                        <div class="badge text-bg-primary">{{ (similarity * 100)|number_format(2) }}% similar</div>
+                    {% elseif resultMode == 'keyword' %}
+                        <div class="badge text-bg-primary">Keyword score {{ similarity|number_format(2) }}</div>
+                    {% else %}
+                        <div class="badge text-bg-primary">Relevance {{ similarity|number_format(3) }}</div>
+                    {% endif %}
+                {% else %}
+                    <div class="badge text-bg-secondary">Keyword match</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <p class="mt-3 mb-2">{{ lsItem.fullStatement|default('No statement') }}</p>
+
+        {% if lsItem.abbreviatedStatement %}
+            <p class="mb-2 text-muted">{{ lsItem.abbreviatedStatement }}</p>
+        {% endif %}
+
+        <dl class="row small mb-3">
+            <dt class="col-sm-3">Item ID</dt>
+            <dd class="col-sm-9">{{ lsItem.id }}</dd>
+
+            <dt class="col-sm-3">Kind</dt>
+            <dd class="col-sm-9">{{ kindLabel }}</dd>
+
+            <dt class="col-sm-3">Identifier</dt>
+            <dd class="col-sm-9">{{ lsItem.identifier }}</dd>
+
+            <dt class="col-sm-3">URI</dt>
+            <dd class="col-sm-9">{{ lsItem.uri }}</dd>
+
+            <dt class="col-sm-3">Vector</dt>
+            <dd class="col-sm-9">
+                {% if similarity is not null %}
+                    Available in Qdrant
+                {% else %}
+                    Not indexed
+                {% endif %}
+            </dd>
+        </dl>
+
+        <div class="d-flex gap-2 flex-wrap">
+            <a class="btn btn-sm btn-outline-primary" href="{{ path('admin_vector_search_detail', {id: lsItem.id}) }}">Details</a>
+            <a class="btn btn-sm btn-outline-secondary" href="{{ path('admin_vector_search_near_object_item', {
+                itemId: lsItem.id,
+                framework: currentFilters.frameworkId|default(null),
+                leafOnly: currentFilters.leafOnly|default(false) ? 1 : null,
+                kind: currentFilters.kind|default(null)
+            }) }}">Near Search</a>
+        </div>
+    </div>
+</div>

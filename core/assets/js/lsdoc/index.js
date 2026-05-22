@@ -164,7 +164,7 @@ const UpdateFramework = (function () {
 
     function derivative(fileContent) {
         $.post(pathToUpdateFramework + "/derive", getRequestParams(fileContent), function (data) {
-            window.location.href = "/cftree/doc/" + data.new_doc_id;
+            window.location.href = "/cf-tree/doc/" + data.new_doc_id;
         });
     }
 

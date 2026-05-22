@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class PatchOperation
 {
     #[Assert\NotBlank]
-    #[Assert\Choice(['add', 'replace', 'remove', 'move', 'copy', 'test'])]
+    #[Assert\Choice(choices: ['add', 'replace', 'remove', 'move', 'copy', 'test'])]
     #[OA\Property(
         description: 'The operation to perform',
         type: 'string',

@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Vector Search{% endblock %}
+
+{% block body %}
+<div class="container">
+    {{ include('vector_search/_nav.html.twig') }}
+
+    <div class="mt-5">
+        <h1>Vector Search Testing</h1>
+        <p class="text-muted">Explore semantic search, keyword search, and near-object comparisons for standards.</p>
+        <p class="text-muted">Each search can be scoped to a single framework and optionally limited to leaf-node embeddings.</p>
+
+        <div class="mt-4">
+            <ul>
+                <li><a href="{{ nearTextUrl }}">Near Text Search</a></li>
+                <li><a href="{{ keywordUrl }}">Keyword Search</a></li>
+                <li><a href="{{ nearObjectUrl }}">Near Object Search</a></li>
+            </ul>
+        </div>
+
+        <div class="alert alert-secondary mt-4">
+            Indexed embeddings: {{ vectorCount }}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -43,6 +43,8 @@ security:
             user_checker: App\Security\UserChecker
             access_token:
                 token_handler: App\Security\ApiTokenAuthenticator
+            custom_authenticators:
+                - App\Security\SessionAuthenticator
 
         main:
             pattern: ^/

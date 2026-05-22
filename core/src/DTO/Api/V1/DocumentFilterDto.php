@@ -66,7 +66,7 @@ class DocumentFilterDto
     )]
     public ?string $language = null;
 
-    #[Assert\Choice(['title', 'creator', 'identifier', 'lastChangeDateTime'])]
+    #[Assert\Choice(choices: ['title', 'creator', 'identifier', 'lastChangeDateTime'])]
     #[OA\Property(
         property: 'filter[sort]',
         description: 'Sort field',
@@ -89,7 +89,7 @@ class DocumentFilterDto
         }
     }
 
-    #[Assert\Choice(['asc', 'desc'])]
+    #[Assert\Choice(choices: ['asc', 'desc'])]
     #[OA\Property(
         property: 'filter[order]',
         description: 'Sort direction',

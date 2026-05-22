@@ -3,7 +3,14 @@ let $ = jQuery;
 globalThis.$ = globalThis.jQuery = $;
 
 import migrate from 'jquery-migrate';
+jQuery.migrateMute = true;
+jQuery.migrateTrace = false;
 migrate($, globalThis);
+
+// Preserve the legacy API without triggering migrate warnings for every call.
+jQuery.trim = $.trim = function(text) {
+    return text == null ? "" : String(text).trim();
+};
 
 // $.browser is needed by jquery-comments but has been deprecated and removed a long time ago
 jQuery.uaMatch = function( ua ) {

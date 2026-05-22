@@ -49,6 +49,7 @@ final class CfPackageNormalizer implements NormalizerAwareInterface, NormalizerI
             return null;
         }
 
+        $packageVersion = $context['generate-package'] ?? null;
         $jsonLd = $context['case-json-ld'] ?? null;
         $addContext = (null !== $jsonLd) ? ($context['add-case-context'] ?? null) : null;
         unset($context['add-case-context'], $context['generate-package']);
@@ -95,7 +96,9 @@ final class CfPackageNormalizer implements NormalizerAwareInterface, NormalizerI
                 'CFSubjects' => $data->getSubjects(),
                 'CFLicenses' => array_values($this->docRepository->findAllUsedLicences($data, Query::HYDRATE_OBJECT)),
                 'CFItemTypes' => $this->docRepository->findAllUsedItemTypes($data, Query::HYDRATE_OBJECT),
-                'CFAssociationGroupings' => $this->docRepository->findAllUsedAssociationGroups($data, Query::HYDRATE_OBJECT),
+                'CFAssociationGroupings' => ('v1p1' === $packageVersion)
+                    ? $this->docRepository->findAllDocAssociationGroups($data, Query::HYDRATE_OBJECT)
+                    : $this->docRepository->findAllUsedAssociationGroups($data, Query::HYDRATE_OBJECT),
             };
 
             foreach ($defs as $obj) {

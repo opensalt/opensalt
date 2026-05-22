@@ -30,6 +30,7 @@ class LsDoc implements CaseApiInterface, LockableInterface
     use CloneIdentifiableTrait;
     use ExtraDataTrait;
     use ExtensionTrait;
+    use AccessAdditionalFieldTrait;
 
     final public const string ADOPTION_STATUS_PRIVATE_DRAFT = 'Private Draft';
     final public const string ADOPTION_STATUS_DRAFT = 'Draft';
@@ -181,7 +182,7 @@ class LsDoc implements CaseApiInterface, LockableInterface
     #[Assert\All([new Assert\Type(LsDefAssociationGrouping::class)])]
     protected Collection $associationGroupings;
 
-    #[Assert\Choice(['organization', 'user'])]
+    #[Assert\Choice(choices: ['organization', 'user'])]
     protected ?string $ownedBy = null;
 
     #[ORM\OneToOne(inversedBy: 'framework', targetEntity: Framework::class)]
