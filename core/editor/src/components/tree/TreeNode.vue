@@ -1,8 +1,7 @@
 <template>
-  <!-- Node with children: uses <details> for native expand/collapse -->
-  <details
+  <!-- Node with children -->
+  <div
     v-if="hasChildren"
-    :open="isExpanded"
     class="tree-node"
     :class="{ 'tree-node--hidden': !isVisible, 'view-mode': isViewMode }"
     role="treeitem"
@@ -15,14 +14,12 @@
     :tabindex="isFocused ? '0' : '-1'"
     :data-tree-node-id="item.identifier"
     :aria-readonly="isViewMode"
-    @toggle="onToggle"
     @keydown="handleKeyDown"
   >
-    <summary
+    <div
       class="expand-control"
       :style="{ marginLeft: (level * 20) + 'px' }"
       :draggable="!isViewMode && !isCrossFrameworkItem && !disableDrag"
-      tabindex="-1"
       :class="{
         'drop-before': dropPosition === 'before',
         'drop-after': dropPosition === 'after',
@@ -51,8 +48,6 @@
         class="tree-node-label"
         :class="{ 'selected': selectedId === item.identifier, 'focused': isFocused, 'cross-framework': isCrossFrameworkItem }"
         style="cursor:pointer"
-        role="button"
-        :aria-expanded="isExpanded"
         @click.stop.prevent="select"
         @dblclick.stop="dblClick"
         @mouseenter="onMouseEnter"
@@ -75,7 +70,7 @@
         name="actions"
         :item="item"
       />
-    </summary>
+    </div>
 
     <div
       v-if="hasChildren && isExpanded"
@@ -112,7 +107,7 @@
         </TreeNode>
       </div>
     </div>
-  </details>
+  </div>
 
   <!-- Leaf node (no children): plain <div> -->
   <div
@@ -160,7 +155,6 @@
         class="tree-node-label"
         :class="{ 'selected': selectedId === item.identifier, 'focused': isFocused, 'cross-framework': isCrossFrameworkItem }"
         style="cursor:pointer"
-        role="button"
         @click="select"
         @dblclick="dblClick"
         @mouseenter="onMouseEnter"
@@ -341,6 +335,7 @@ const navigation = inject('treeNavigation', {
   expandItem: () => {},
   collapseItem: () => {},
   toggleExpanded: () => {},
+  setFocus: () => {},
 });
 
 const isExpanded = computed({
@@ -469,27 +464,30 @@ const iconSrc = computed(() => {
 });
 
 // ---------------------------------------------------------------------------
-// Expand/collapse toggle events
+// Expand/collapse click handler
 // ---------------------------------------------------------------------------
-const onToggle = (event) => {
-  if (hasChildren.value) {
-    const newState = event.target.open;
-    if (newState) navigation.expandItem(props.item.identifier);
-    else navigation.collapseItem(props.item.identifier);
-  }
-};
-
 const onSummaryClick = (event) => {
   const target = event.target;
-  if (target.closest('.expand-indicator') || target.classList.contains('expand-indicator')) return;
-  event.preventDefault();
+  if (target.closest('.expand-indicator') || target.classList.contains('expand-indicator')) {
+    // Toggle expand/collapse when clicking the indicator
+    if (hasChildren.value) {
+      navigation.toggleExpanded(props.item.identifier);
+    }
+    return;
+  }
   select();
 };
 
 // ---------------------------------------------------------------------------
 // Selection / interaction
 // ---------------------------------------------------------------------------
-const select = () => emit('select', props.item.identifier);
+const select = () => {
+  emit('select', props.item.identifier);
+  // WCAG 2.1 AA: clicking a tree item must also set keyboard focus (WAI-ARIA Tree View pattern)
+  if (navigation.setFocus) {
+    navigation.setFocus(props.item.identifier);
+  }
+};
 const dblClick = () => emit('dblclick', props.item.identifier);
 
 const handleKeyDown = (event) => {
@@ -538,10 +536,6 @@ const { dropPosition, onDragStart, onDragOver, onDragLeave, onDrop } = useTreeNo
   display: flex;
   align-items: center;
   min-height: 24px;
-}
-
-.expand-control::-webkit-details-marker {
-  display: none;
 }
 
 .expand-indicator {
@@ -593,6 +587,23 @@ const { dropPosition, onDragStart, onDragOver, onDragLeave, onDrop } = useTreeNo
 .expand-control:focus,
 .tree-node:focus {
   outline: none;
+}
+
+/* Visible focus indicator for roving tabindex (WCAG 2.4.7) */
+.tree-node-label.focused {
+  outline: 2px solid #4a90d9;
+  outline-offset: 2px;
+}
+
+.tree-node:focus-visible {
+  outline: none;
+}
+
+/* High contrast mode focus indicator */
+@media (prefers-contrast: high) {
+  .tree-node-label.focused {
+    outline: 3px solid #000;
+  }
 }
 
 /* High contrast mode support */

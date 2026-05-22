@@ -15,12 +15,17 @@ export function useAnnouncer() {
 
   // Get announcer from parent or create one
   const getAnnouncerElement = () => {
-    // Try to get from DOM first
-    announcerElement = document.getElementById('a11y-announcer-polite');
-    if (!announcerElement) {
-      // Create announcer element if not exists
+    if (announcerElement) return announcerElement;
+
+    const politeRegion = document.getElementById('a11y-announcer-polite');
+    const assertiveRegion = document.getElementById('a11y-announcer-assertive');
+
+    if (politeRegion && assertiveRegion) {
+      announcerElement = { polite: politeRegion, assertive: assertiveRegion };
+    } else {
       announcerElement = createAnnouncerElement();
     }
+
     return announcerElement;
   };
 

@@ -1,4 +1,5 @@
 import { ref, nextTick, watch } from 'vue';
+import { useAnnouncer } from './useAnnouncer';
 
 /**
  * Tree Navigation Composable
@@ -16,14 +17,18 @@ export function useTreeNavigation(options = {}) {
     items = ref([]),
     selectedId = ref(null),
     onSelect = () => { },
-    // NEW: Optional external state from viewStore
+    // Optional external state from viewStore
     externalFocusedItemId = null,
-    externalExpandedState = null
+    externalExpandedState = null,
+    // Optional container ref for scoping DOM queries (avoids multi-tree conflicts)
+    containerRef = null
   } = options;
+
+  // Screen reader announcer
+  const { announceNavigation, announceExpansion, announceSelection } = useAnnouncer();
 
   // Focus state - use external if provided, otherwise local ref
   const focusedItemId = externalFocusedItemId || ref(null);
-  const treeRef = ref(null);
 
   // Centralized expanded state - use external if provided, otherwise local ref
   const expandedState = externalExpandedState || ref({});
@@ -53,10 +58,27 @@ export function useTreeNavigation(options = {}) {
     setItemExpanded(itemId, !current);
   };
 
+  // Helper to find an item by ID in the hierarchical tree
+  const findItemById = (itemId) => {
+    function find(itemList) {
+      for (const item of itemList) {
+        if (item.identifier === itemId) return item;
+        if (item.children && item.children.length > 0) {
+          const found = find(item.children);
+          if (found) return found;
+        }
+      }
+      return null;
+    }
+    return find(items.value || []);
+  };
+
   // Expand an item
   const expandItem = (itemId) => {
     if (!isItemExpanded(itemId)) {
       setItemExpanded(itemId, true);
+      const item = findItemById(itemId);
+      if (item) announceExpansion(item, true);
     }
   };
 
@@ -64,6 +86,8 @@ export function useTreeNavigation(options = {}) {
   const collapseItem = (itemId) => {
     if (isItemExpanded(itemId)) {
       setItemExpanded(itemId, false);
+      const item = findItemById(itemId);
+      if (item) announceExpansion(item, false);
     }
   };
 
@@ -95,6 +119,15 @@ export function useTreeNavigation(options = {}) {
     return visibleNodes;
   };
 
+  // Helper to find a tree node element, scoped to container if available
+  const findNodeElement = (nodeId) => {
+    const selector = `[data-tree-node-id="${nodeId}"]`;
+    if (containerRef && containerRef.value) {
+      return containerRef.value.querySelector(selector);
+    }
+    return document.querySelector(selector);
+  };
+
   // Set focus to a specific node
   const setFocus = (nodeId) => {
     const visibleNodes = getVisibleNodes();
@@ -103,17 +136,21 @@ export function useTreeNavigation(options = {}) {
     if (index !== -1) {
       focusedItemId.value = nodeId;
 
+      // Announce navigation to screen readers
+      const node = visibleNodes[index];
+      announceNavigation(node, index + 1, visibleNodes.length);
+
       // Focus DOM element - use multiple nextTick calls to ensure DOM is ready
       // after expand/collapse operations
       nextTick(() => {
-        const element = document.querySelector(`[data-tree-node-id="${nodeId}"]`);
+        const element = findNodeElement(nodeId);
         if (element) {
           element.focus();
         } else {
           // Element not found yet - try again after another tick
           // This handles cases where expand/collapse hasn't finished rendering
           nextTick(() => {
-            const retryElement = document.querySelector(`[data-tree-node-id="${nodeId}"]`);
+            const retryElement = findNodeElement(nodeId);
             if (retryElement) {
               retryElement.focus();
             }
@@ -237,12 +274,14 @@ export function useTreeNavigation(options = {}) {
 
   // Handle Enter key - select item
   const onEnter = (item) => {
+    announceSelection(item);
     onSelect(item.identifier);
   };
 
   // Handle Space key - toggle selection
   const onSpace = (event, item) => {
     event.preventDefault();
+    announceSelection(item);
     onSelect(item.identifier);
   };
 
@@ -337,11 +376,19 @@ export function useTreeNavigation(options = {}) {
   const initializeFocus = () => {
     const visibleNodes = getVisibleNodes();
     if (visibleNodes.length > 0 && !focusedItemId.value) {
-      setFocus(visibleNodes[0].identifier);
+      focusedItemId.value = visibleNodes[0].identifier;
     }
   };
 
-  // NEW: Watch selectedId and expand to it
+  // Ensure there's always a focused item for the roving tabindex pattern
+  // so that Tab into the tree always finds an element with tabindex="0"
+  watch(() => items.value, (newItems) => {
+    if (newItems && newItems.length > 0 && !focusedItemId.value) {
+      focusedItemId.value = newItems[0].identifier;
+    }
+  }, { immediate: true });
+
+  // Watch selectedId and expand to it
   watch(() => selectedId.value, (newId) => {
     if (newId) expandToItem(newId);
   }, { immediate: true });
@@ -349,7 +396,6 @@ export function useTreeNavigation(options = {}) {
   return {
     // State
     focusedItemId,
-    treeRef,
     expandedState,
 
     // Methods
