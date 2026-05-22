@@ -68,8 +68,8 @@ class DocTreeCest
 
         $I->executeJS("
             window.expandAllNodes = function() {
-                const closed = document.querySelectorAll('details.tree-node:not([open]) > summary.expand-control .expand-indicator:not(.expanding)');
-                if (document.querySelectorAll('details.tree-node:not([open])').length === 0) {
+                const closed = document.querySelectorAll('.tree-node[aria-expanded=\"false\"] > .expand-control .expand-indicator:not(.expanding)');
+                if (document.querySelectorAll('.tree-node[aria-expanded=\"false\"]').length === 0) {
                     window.nodesExpanded = true;
                     return;
                 }

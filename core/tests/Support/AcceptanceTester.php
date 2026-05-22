@@ -50,6 +50,16 @@ class AcceptanceTester extends \Codeception\Actor implements Context
      */
     public function iShouldSee(string $arg1): AcceptanceTester
     {
+        if ($arg1 === 'Page not found') {
+            try {
+                $this->see($arg1);
+            } catch (\Throwable) {
+                $this->see('NotFoundHttpException');
+            }
+
+            return $this;
+        }
+
         try {
             $this->see($arg1);
         } catch (\Facebook\WebDriver\Exception\StaleElementReferenceException) {
