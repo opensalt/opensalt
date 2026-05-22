@@ -251,7 +251,7 @@ class Framework implements Context
      */
     public function iSelectFrameworkNode(): Framework
     {
-        $el = ['css' => '#tree1Section .tree-container > details > summary .tree-node-label'];
+        $el = ['css' => '#tree1Section .tree-container .tree-node-label'];
 
         try {
             $this->I->click($el);
@@ -697,7 +697,7 @@ class Framework implements Context
         $I = $this->I;
 
         // Expand root document node to show children (new VueJS tree starts collapsed)
-        $I->executeJS("document.querySelectorAll('#tree1Section details:not([open]) .expand-indicator').forEach(function(e) { e.click(); });");
+        $I->executeJS("document.querySelectorAll('#tree1Section .tree-node[aria-expanded=\"false\"] .expand-indicator').forEach(function(e) { e.click(); });");
         $I->wait(1);
 
         // Click on tree node "MD.Math" (new VueJS tree uses .fancytree-title spans)
@@ -1377,7 +1377,7 @@ class Framework implements Context
         $I->wait(3);
         $I->waitForElementVisible('#tree1Section .tree-container .tree-node', 10);
         for ($i = 0; $i < 5; ++$i) {
-            $I->executeJS("document.querySelectorAll('#tree1Section details:not([open]) .expand-indicator').forEach(function(e) { e.click(); });");
+            $I->executeJS("document.querySelectorAll('#tree1Section .tree-node[aria-expanded=\"false\"] .expand-indicator').forEach(function(e) { e.click(); });");
             $I->wait(1);
         }
         $I->see('Framework updated');
@@ -1442,7 +1442,7 @@ class Framework implements Context
         $I->wait(3);
         $I->waitForElementVisible('#tree1Section .tree-container .tree-node', 10);
         for ($i = 0; $i < 5; ++$i) {
-            $I->executeJS("document.querySelectorAll('#tree1Section details:not([open]) .expand-indicator').forEach(function(e) { e.click(); });");
+            $I->executeJS("document.querySelectorAll('#tree1Section .tree-node[aria-expanded=\"false\"] .expand-indicator').forEach(function(e) { e.click(); });");
             $I->wait(1);
         }
 
@@ -1568,7 +1568,7 @@ class Framework implements Context
         // Must click .expand-indicator (caret icon) because clicking <summary> directly
         // triggers onSummaryClick which calls event.preventDefault() and selects instead
         for ($i = 0; $i < 5; ++$i) {
-            $I->executeJS("document.querySelectorAll('#tree1Section details:not([open]) .expand-indicator').forEach(function(e) { e.click(); });");
+            $I->executeJS("document.querySelectorAll('#tree1Section .tree-node[aria-expanded=\"false\"] .expand-indicator').forEach(function(e) { e.click(); });");
             $I->wait(1);
         }
 
