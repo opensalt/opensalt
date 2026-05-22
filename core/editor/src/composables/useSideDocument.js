@@ -42,6 +42,7 @@ export function useSideDocument(options = {}) {
 
     documentStore.clearSideDocError();
     sideDocument.value = null;
+    documentStore.loadingSideDocument = true;
 
     try {
       const treeResponse = await documentStore.fetchLightweightTree(documentId);

@@ -278,23 +278,15 @@ class Item implements Context
         $lastDoc = $I->getLastFramework();
         $identifier = $lastDoc['identifier'];
         $frameworkName = $lastDoc['title'];
-        /*
+
+        // Select framework using JS to ensure Vue reactivity is triggered
         $I->executeJS(
             "var sel = document.querySelector('.side-by-side-panel .document-selector select.form-select');" .
             "if (sel) { sel.value = '{$identifier}'; sel.dispatchEvent(new Event('change', {bubbles: true})); }"
         );
-        */
-        $I->waitForElement('.side-by-side-panel .document-selector select.form-select option[value="'. $identifier .'"]');
-        $I->selectOption('.side-by-side-panel .document-selector select.form-select', $frameworkName);
-        // The selectOption() does not seem to be triggering the change event, so we do it manually
-        $I->executeJS(
-            "var sel = document.querySelector('.side-by-side-panel .document-selector select.form-select');" .
-            "sel.dispatchEvent(new Event('change', {bubbles: true}));"
-        );
-        $I->seeOptionIsSelected('.side-by-side-panel .document-selector select.form-select', $frameworkName);
-        $I->waitForElementChange('.side-by-side-panel', function(WebDriverElement $el) {
-            return count($el->findElements(WebDriverBy::cssSelector('.tree-node'))) > 0;
-        }, 30);
+
+        // Wait for side tree nodes to appear
+        $I->waitForElementVisible('.side-by-side-panel .side-tree .tree-node', 30);
 
         // Wait for side tree to load and select the source item ($from)
         $I->waitForElementVisible('.side-by-side-panel .side-tree .tree-node .tree-node .tree-node-label', 30);
