@@ -15,8 +15,8 @@
         <ViewSwitcher />
         <div v-if="docStatus">
           <span
-            class="badge bg-warning text-dark fs-5 px-4 py-2 doc-status"
-            :class="{ draft: docStatus === 'Draft', deprecated: docStatus === 'Deprecated', adopted: docStatus === 'Adopted' }"
+            class="badge text-dark fs-5 px-4 py-2 doc-status"
+            :class="docStatusClass"
             role="status"
             aria-live="polite"
           >{{ docStatus }}</span>
@@ -111,6 +111,13 @@ provide('notify', notify);
 const doc = computed(() => currentDocumentStore.currentDocument || { title: '', adoptionStatus: '', items: [] });
 const docTitle = computed(() => doc.value.title);
 const docStatus = computed(() => currentDocumentStore.currentDocument ? (doc.value.adoptionStatus || 'Draft') : null);
+const docStatusClass = computed(() => {
+  if (docStatus.value === 'Draft') return 'draft';
+  if (docStatus.value === 'Private Draft') return 'private';
+  if (docStatus.value === 'Deprecated') return 'deprecated';
+  if (docStatus.value === 'Adopted') return 'adopted';
+  return 'draft'; // default fallback
+});
 
 // Update browser tab title when framework changes
 watch(() => doc.value?.title, (newTitle) => {

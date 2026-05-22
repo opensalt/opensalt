@@ -10,11 +10,12 @@ $brand-header-light: color.adjust(#78c9e9, $lightness: 20%);
 $brand-header-alternate: #e6793a;
 $brand-header-alternate-light: color.adjust(#e6793a, $lightness: 30%);
 $doc-status-draft: #f0ad4e;
+$doc-status-adopted: #78c9e9;
 $doc-status-deprecated: #d9534f;
 $alternate-doc-bg: #ffd;
 $neutral-bg: #777;
 $neutral-bg-light: #ddd;
-$dragbar-bg: #D5D5D5;
+$dragbar-bg: #d5d5d5;
 $text-color: #333;
 $text-color-light: #777;
 $white: #fff;
@@ -26,32 +27,40 @@ $border-radius: 4px;
 $font-size-base: 0.875rem;
 
 // Document Tree Editor Layout
-.document-tree-editor {
-  .header-section {
-    background: $brand-header-alternate-light;
-    border: 3px solid $brand-header-alternate;
-    color: $black;
-    border-radius: $border-radius;
-    padding: 10px 15px;
-    margin-bottom: 20px;
-    font-size: 1.6em;
+.header-section {
+  //background: $brand-header-alternate-light;
+  //border: 3px solid $brand-header-alternate;
+  color: $black;
+  border-radius: $border-radius;
+  padding: 10px 15px;
+  margin-bottom: 20px;
+  font-size: 1.6em;
+  font-weight: bold;
+
+  .doc-title {
+    font-weight: bold;
+    margin-bottom: 0;
+  }
+
+  // Document Status Badge Styles (global — used in App.vue header)
+  .doc-status {
+    border-radius: 4px;
     font-weight: bold;
 
-    .doc-title {
-      font-weight: bold;
-      margin-bottom: 0;
+    &.adopted {
+      background-color: color.adjust($doc-status-adopted, $lightness: 20%);
+      border: 3px solid $doc-status-adopted;
     }
 
-    .doc-status {
-      &.draft, &.private {
-        background-color: color.adjust($doc-status-draft, $lightness: 30%);
-        border: 3px solid $doc-status-draft;
-      }
+    &.draft,
+    &.private {
+      background-color: color.adjust($doc-status-draft, $lightness: 30%);
+      border: 3px solid $doc-status-draft;
+    }
 
-      &.deprecated {
-        background-color: color.adjust($doc-status-deprecated, $lightness: 30%);
-        border: 3px solid $doc-status-deprecated;
-      }
+    &.deprecated {
+      background-color: color.adjust($doc-status-deprecated, $lightness: 30%);
+      border: 3px solid $doc-status-deprecated;
     }
   }
 
@@ -71,8 +80,8 @@ $font-size-base: 0.875rem;
     padding: 2px 6px;
     border-radius: $border-radius;
     transition: background-color 0.2s;
-    user-select: text;
     -webkit-user-select: text;
+    user-select: text;
     cursor: pointer;
 
     &:hover {
@@ -417,7 +426,8 @@ $font-size-base: 0.875rem;
 }
 
 // Mark/Highlight Styles
-.mark, mark {
+.mark,
+mark {
   padding: 0.1em;
 }
 
@@ -728,8 +738,13 @@ $font-size-base: 0.875rem;
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 // Reduced motion for spinner
