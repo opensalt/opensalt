@@ -223,9 +223,14 @@ export const useDocumentStore = defineStore('documents', () => {
       return treeCache.get(cacheKey)!;
     }
 
-    const response = await api.get(`/framework/editor/tree/${identifier}?mode=lightweight`) as TreeResponse;
-    treeCache.set(cacheKey, response);
-    return response;
+    loadingSideDocument.value = true;
+    try {
+      const response = await api.get(`/framework/editor/tree/${identifier}?mode=lightweight`) as TreeResponse;
+      treeCache.set(cacheKey, response);
+      return response;
+    } finally {
+      loadingSideDocument.value = false;
+    }
   }
 
   async function fetchDocument(identifier: UUID): Promise<TreeResponse> {
