@@ -12,7 +12,27 @@ nelmio_cors:
         origin_regex: false
         forced_allow_origin_value: null
     paths:
-        '^(/ims/case/|/uri/|/api/v1/)':
+        '^(/ims/case/|/uri/)':
+            forced_allow_origin_value: '*'
+            allow_origin: ['*']
+            allow_headers:
+                - 'Accept-Encoding'
+                - 'If-Modified-Since'
+                #- 'If-None-Match'
+                - 'Content-Type'
+                - 'Content-Range'
+                - 'Content-Disposition'
+                - 'Content-Description'
+                - 'X-Requested-With'
+                - 'X-OpenSALT'
+                #- '*'
+            allow_methods: ['GET']
+            expose_headers:
+                - 'X-Total-Count'
+                - 'X-OpenSALT'
+                #- '*'
+            max_age: 60
+        '^(/api/v1/)':
             forced_allow_origin_value: '*'
             allow_origin: ['*']
             allow_headers:
