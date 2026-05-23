@@ -291,13 +291,28 @@ class Item implements Context
         // Set up JS error capture
         $I->executeJS("window.__jsErrors = []; window.addEventListener('error', function(e) { window.__jsErrors.push(e.message + ' at ' + e.filename + ':' + e.lineno); });");
 
-        // Set up fetch interceptor to track API calls
+        // Set up fetch interceptor to track API calls with response statuses
         $I->executeJS("
             window.__apiCalls = [];
+            window.__apiResponses = [];
             var originalFetch = window.fetch;
             window.fetch = function() {
-                window.__apiCalls.push({url: arguments[0], time: Date.now()});
-                return originalFetch.apply(this, arguments);
+                var url = arguments[0];
+                var fetchPromise = originalFetch.apply(this, arguments);
+                fetchPromise.then(function(response) {
+                    window.__apiCalls.push({url: url, status: response.status, ok: response.ok, time: Date.now()});
+                    // Clone and read the response body for tree endpoint
+                    if (url.indexOf('/framework/editor/tree/') !== -1) {
+                        var cloned = response.clone();
+                        cloned.text().then(function(body) {
+                            window.__apiResponses.push({url: url, status: response.status, body: body.substring(0, 500)});
+                        });
+                    }
+                    return response;
+                }).catch(function(error) {
+                    window.__apiCalls.push({url: url, error: error.message, time: Date.now()});
+                });
+                return fetchPromise;
             };
         ");
 
@@ -317,6 +332,19 @@ class Item implements Context
         $frameworkName = $lastDoc['title'];
 
         codecept_debug("DIAG identifier: {$identifier}");
+
+        // Direct API call to check if the tree endpoint works
+        try {
+            $treeUrl = '/framework/editor/tree/' . $identifier . '?mode=lightweight';
+            $treeResponse = $I->fetchJson($treeUrl);
+            codecept_debug("DIAG direct tree API response status: " . ($treeResponse ? 'got response' : 'null/false'));
+            if ($treeResponse) {
+                $responseStr = json_encode($treeResponse);
+                codecept_debug("DIAG direct tree API response (first 500 chars): " . substr($responseStr, 0, 500));
+            }
+        } catch (\Exception $e) {
+            codecept_debug("DIAG direct tree API call FAILED: " . $e->getMessage());
+        }
 
         // Wait for the specific option to exist (ensures documents are loaded from API)
         $I->waitForElement(".side-by-side-panel .document-selector select.form-select option[value='{$identifier}']", 30);
@@ -357,6 +385,9 @@ class Item implements Context
 
         $apiCallsAfter = $I->executeJS("return JSON.stringify(window.__apiCalls);");
         codecept_debug("DIAG API calls after 5s wait: {$apiCallsAfter}");
+
+        $apiResponses = $I->executeJS("return JSON.stringify(window.__apiResponses);");
+        codecept_debug("DIAG API responses after 5s: {$apiResponses}");
 
         $treeNodeCount2 = $I->executeJS("return document.querySelectorAll('.side-by-side-panel .side-tree .tree-node').length");
         codecept_debug("DIAG .tree-node element count after 5s: {$treeNodeCount2}");
