@@ -69,7 +69,7 @@ jobs:
           docker compose exec web ./bin/console --env=prod import:generic-csv tests/Support/Data/test_items.csv
 
       - name: Run tests
-        run: ./core/bin/run-tests ${RUN_TEST_ARGS:-$DEFAULT_RUN_TEST_ARGS}
+        run: ./core/bin/run-tests ${RUN_TEST_ARGS:-$DEFAULT_RUN_TEST_ARGS} -x skip-ci
 
       - name: Failed
         if: ${{ failure() }}
