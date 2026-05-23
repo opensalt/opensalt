@@ -291,6 +291,16 @@ class Item implements Context
         // Set up JS error capture
         $I->executeJS("window.__jsErrors = []; window.addEventListener('error', function(e) { window.__jsErrors.push(e.message + ' at ' + e.filename + ':' + e.lineno); });");
 
+        // Set up fetch interceptor to track API calls
+        $I->executeJS("
+            window.__apiCalls = [];
+            var originalFetch = window.fetch;
+            window.fetch = function() {
+                window.__apiCalls.push({url: arguments[0], time: Date.now()});
+                return originalFetch.apply(this, arguments);
+            };
+        ");
+
         $I->waitForElementVisible('#rightSideCopyItemsBtn');
         // Select the target item ($to) in the main tree
         $I->click("//section[@id='tree1Section']//span[contains(@class, 'item-humanCodingScheme') and text()='{$rememberedTo}']/ancestor::div[contains(@class, 'tree-node-label')][1]");
@@ -314,24 +324,25 @@ class Item implements Context
         $optionExists = $I->executeJS("return !!document.querySelector('.side-by-side-panel .document-selector select.form-select option[value=\"{$identifier}\"]')");
         codecept_debug("DIAG option exists for identifier: " . ($optionExists ? 'YES' : 'NO'));
 
-        // Deselect first to ensure Vue detects a change (handles same-framework case)
+        // Select the target framework using selectedIndex (more reliable than value)
         $I->executeJS(
             "var sel = document.querySelector('.side-by-side-panel .document-selector select.form-select');" .
-            "if (sel) { sel.value = ''; sel.dispatchEvent(new Event('change', {bubbles: true})); }"
-        );
-        $I->wait(1);
-
-        $selectValue = $I->executeJS("return document.querySelector('.side-by-side-panel .document-selector select.form-select')?.value || 'NOT_FOUND'");
-        codecept_debug("DIAG select value after deselect: {$selectValue}");
-
-        // Now select the target framework
-        $I->executeJS(
-            "var sel = document.querySelector('.side-by-side-panel .document-selector select.form-select');" .
-            "if (sel) { sel.value = '{$identifier}'; sel.dispatchEvent(new Event('change', {bubbles: true})); }"
+            "if (sel) { " .
+                "for (var i = 0; i < sel.options.length; i++) { " .
+                    "if (sel.options[i].value === '{$identifier}') { " .
+                        "sel.selectedIndex = i; " .
+                        "sel.dispatchEvent(new Event('change', {bubbles: true})); " .
+                        "break; " .
+                    "} " .
+                "} " .
+            "}"
         );
 
         $selectValue = $I->executeJS("return document.querySelector('.side-by-side-panel .document-selector select.form-select')?.value || 'NOT_FOUND'");
         codecept_debug("DIAG select value after select: {$selectValue}");
+
+        $apiCalls = $I->executeJS("return JSON.stringify(window.__apiCalls);");
+        codecept_debug("DIAG API calls after select: {$apiCalls}");
 
         $panelHtml = $I->executeJS("return document.querySelector('.side-by-side-panel')?.innerHTML?.substring(0, 500) || 'NOT_FOUND'");
         codecept_debug("DIAG panel HTML (first 500 chars): {$panelHtml}");
@@ -341,6 +352,17 @@ class Item implements Context
 
         $treeNodeCount = $I->executeJS("return document.querySelectorAll('.side-by-side-panel .side-tree .tree-node').length");
         codecept_debug("DIAG .tree-node element count: {$treeNodeCount}");
+
+        $I->wait(5);
+
+        $apiCallsAfter = $I->executeJS("return JSON.stringify(window.__apiCalls);");
+        codecept_debug("DIAG API calls after 5s wait: {$apiCallsAfter}");
+
+        $treeNodeCount2 = $I->executeJS("return document.querySelectorAll('.side-by-side-panel .side-tree .tree-node').length");
+        codecept_debug("DIAG .tree-node element count after 5s: {$treeNodeCount2}");
+
+        $sideTreeHTML = $I->executeJS("return document.querySelector('.side-by-side-panel .side-tree')?.innerHTML?.substring(0, 300) || 'NOT_FOUND'");
+        codecept_debug("DIAG side-tree HTML after 5s: {$sideTreeHTML}");
 
         // Wait for side tree nodes to appear
         try {
