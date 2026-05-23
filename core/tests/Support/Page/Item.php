@@ -183,9 +183,21 @@ class Item implements Context
         // Wait for SideBySideTreePanel to mount
         $I->waitForElementVisible('.side-by-side-panel .document-selector select.form-select', 30);
 
-        // Select framework using JS to ensure Vue reactivity is triggered
+        // Get the framework identifier FIRST (needed for option wait)
         $lastDoc = $I->getLastFramework();
         $identifier = $lastDoc['identifier'];
+
+        // Wait for the specific option to exist (ensures documents are loaded from API)
+        $I->waitForElement(".side-by-side-panel .document-selector select.form-select option[value='{$identifier}']", 30);
+
+        // Deselect first to ensure Vue detects a change (handles same-framework case)
+        $I->executeJS(
+            "var sel = document.querySelector('.side-by-side-panel .document-selector select.form-select');" .
+            "if (sel) { sel.value = ''; sel.dispatchEvent(new Event('change', {bubbles: true})); }"
+        );
+        $I->wait(1);
+
+        // Now select the target framework
         $I->executeJS(
             "var sel = document.querySelector('.side-by-side-panel .document-selector select.form-select');" .
             "if (sel) { sel.value = '{$identifier}'; sel.dispatchEvent(new Event('change', {bubbles: true})); }"
@@ -226,9 +238,21 @@ class Item implements Context
         // Wait for SideBySideTreePanel to mount
         $I->waitForElementVisible('.side-by-side-panel .document-selector select.form-select', 30);
 
-        // Select framework using JS to ensure Vue reactivity is triggered
+        // Get the framework identifier FIRST (needed for option wait)
         $lastDoc = $I->getLastFramework();
         $identifier = $lastDoc['identifier'];
+
+        // Wait for the specific option to exist (ensures documents are loaded from API)
+        $I->waitForElement(".side-by-side-panel .document-selector select.form-select option[value='{$identifier}']", 30);
+
+        // Deselect first to ensure Vue detects a change (handles same-framework case)
+        $I->executeJS(
+            "var sel = document.querySelector('.side-by-side-panel .document-selector select.form-select');" .
+            "if (sel) { sel.value = ''; sel.dispatchEvent(new Event('change', {bubbles: true})); }"
+        );
+        $I->wait(1);
+
+        // Now select the target framework
         $I->executeJS(
             "var sel = document.querySelector('.side-by-side-panel .document-selector select.form-select');" .
             "if (sel) { sel.value = '{$identifier}'; sel.dispatchEvent(new Event('change', {bubbles: true})); }"
@@ -270,16 +294,25 @@ class Item implements Context
         // Switch to Copy / Associate mode
         $I->click('#rightSideCopyItemsBtn');
 
-        // Wait for SideBySideTreePanel to mount
-        $I->waitForElementVisible('.side-by-side-panel .document-selector select.form-select optgroup', 30);
-        $I->wait(2);
+        // Wait for the DocumentSelector to be present
+        $I->waitForElementVisible('.side-by-side-panel .document-selector select.form-select', 30);
 
-        // Select framework using JS to ensure Vue reactivity is triggered
+        // Get the framework identifier FIRST (needed for option wait)
         $lastDoc = $I->getLastFramework();
         $identifier = $lastDoc['identifier'];
         $frameworkName = $lastDoc['title'];
 
-        // Select framework using JS to ensure Vue reactivity is triggered
+        // Wait for the specific option to exist (ensures documents are loaded from API)
+        $I->waitForElement(".side-by-side-panel .document-selector select.form-select option[value='{$identifier}']", 30);
+
+        // Deselect first to ensure Vue detects a change (handles same-framework case)
+        $I->executeJS(
+            "var sel = document.querySelector('.side-by-side-panel .document-selector select.form-select');" .
+            "if (sel) { sel.value = ''; sel.dispatchEvent(new Event('change', {bubbles: true})); }"
+        );
+        $I->wait(1);
+
+        // Now select the target framework
         $I->executeJS(
             "var sel = document.querySelector('.side-by-side-panel .document-selector select.form-select');" .
             "if (sel) { sel.value = '{$identifier}'; sel.dispatchEvent(new Event('change', {bubbles: true})); }"

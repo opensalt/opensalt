@@ -96,9 +96,12 @@ class TreeController extends AbstractController
             $etag = md5($lsDoc->getChangedAt()->format('U.u').$lsDoc->getIdentifier());
             $jsonResponse->setEtag($etag);
             $jsonResponse->setLastModified($lsDoc->getChangedAt());
-            $jsonResponse->setMaxAge(0);
-            $jsonResponse->setSharedMaxAge(0);
         }
+
+        // Ensure no caching for any tree response (including lightweight mode)
+        $jsonResponse->setMaxAge(0);
+        $jsonResponse->setSharedMaxAge(0);
+        $jsonResponse->headers->addCacheControlDirective('no-store');
 
         return $jsonResponse;
     }
