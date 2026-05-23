@@ -178,9 +178,9 @@ ARG BUILD_NUMBER
 ARG BUILD_DATE
 ARG COMMIT
 
-LABEL org.opencontainers.title="OpenSALT PHP Application" \
-      org.opencontainers.source="https://github.com/opensalt/opensalt" \
-      org.opencontainers.version=${VERSION}.${BUILD_NUMBER}+${BUILD_DATE}.${COMMIT}
+LABEL org.opencontainers.image.title="OpenSALT Registry Application" \
+      org.opencontainers.image.source="https://github.com/opensalt/opensalt" \
+      org.opencontainers.image.version=${VERSION}.${BUILD_NUMBER}+${BUILD_DATE}.${COMMIT}
 
 COPY --chown=1000:1000 --from=salt_code_layer /srv/core/ ./
 COPY --chown=1000:1000 --from=salt_editor_build /editor/dist/ ./public/editor/
