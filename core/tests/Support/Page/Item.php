@@ -333,41 +333,38 @@ class Item implements Context
 
         codecept_debug("DIAG identifier: {$identifier}");
 
-        // Direct API call to check if the tree endpoint works
-        try {
-            $treeUrl = '/framework/editor/tree/' . $identifier . '?mode=lightweight';
-            $treeResponse = $I->fetchJson($treeUrl);
-            codecept_debug("DIAG direct tree API response status: " . ($treeResponse ? 'got response' : 'null/false'));
-            if ($treeResponse) {
-                $responseStr = json_encode($treeResponse);
-                codecept_debug("DIAG direct tree API response (first 500 chars): " . substr($responseStr, 0, 500));
-            }
-        } catch (\Exception $e) {
-            codecept_debug("DIAG direct tree API call FAILED: " . $e->getMessage());
-        }
-
         // Wait for the specific option to exist (ensures documents are loaded from API)
         $I->waitForElement(".side-by-side-panel .document-selector select.form-select option[value='{$identifier}']", 30);
 
         $optionExists = $I->executeJS("return !!document.querySelector('.side-by-side-panel .document-selector select.form-select option[value=\"{$identifier}\"]')");
         codecept_debug("DIAG option exists for identifier: " . ($optionExists ? 'YES' : 'NO'));
 
-        // Select the target framework using selectedIndex (more reliable than value)
-        $I->executeJS(
-            "var sel = document.querySelector('.side-by-side-panel .document-selector select.form-select');" .
-            "if (sel) { " .
-                "for (var i = 0; i < sel.options.length; i++) { " .
-                    "if (sel.options[i].value === '{$identifier}') { " .
-                        "sel.selectedIndex = i; " .
-                        "sel.dispatchEvent(new Event('change', {bubbles: true})); " .
-                        "break; " .
-                    "} " .
-                "} " .
-            "}"
-        );
+        // Add raw event listener to check if change event is dispatched
+        $I->executeJS("
+            window.__rawChangeEvent = null;
+            var sel = document.querySelector('.side-by-side-panel .document-selector select.form-select');
+            if (sel) {
+                sel.addEventListener('change', function(e) {
+                    window.__rawChangeEvent = {
+                        type: e.type,
+                        value: sel.value,
+                        isTrusted: e.isTrusted,
+                        bubbles: e.bubbles,
+                        phase: e.eventPhase
+                    };
+                }, true);
+            }
+        ");
+
+        // Select the target framework using Codeception's native selectOption (trusted OS-level events)
+        $selectSelector = '.side-by-side-panel .document-selector select.form-select';
+        $I->selectOption($selectSelector, $identifier);
 
         $selectValue = $I->executeJS("return document.querySelector('.side-by-side-panel .document-selector select.form-select')?.value || 'NOT_FOUND'");
         codecept_debug("DIAG select value after select: {$selectValue}");
+
+        $rawEvent = $I->executeJS("return JSON.stringify(window.__rawChangeEvent);");
+        codecept_debug("DIAG raw change event: {$rawEvent}");
 
         $apiCalls = $I->executeJS("return JSON.stringify(window.__apiCalls);");
         codecept_debug("DIAG API calls after select: {$apiCalls}");
