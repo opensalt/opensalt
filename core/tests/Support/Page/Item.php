@@ -339,32 +339,54 @@ class Item implements Context
         $optionExists = $I->executeJS("return !!document.querySelector('.side-by-side-panel .document-selector select.form-select option[value=\"{$identifier}\"]')");
         codecept_debug("DIAG option exists for identifier: " . ($optionExists ? 'YES' : 'NO'));
 
-        // Add raw event listener to check if change event is dispatched
-        $I->executeJS("
-            window.__rawChangeEvent = null;
-            var sel = document.querySelector('.side-by-side-panel .document-selector select.form-select');
-            if (sel) {
-                sel.addEventListener('change', function(e) {
-                    window.__rawChangeEvent = {
-                        type: e.type,
-                        value: sel.value,
-                        isTrusted: e.isTrusted,
-                        bubbles: e.bubbles,
-                        phase: e.eventPhase
-                    };
-                }, true);
-            }
-        ");
+        // Check the select value BEFORE any interaction
+        $beforeValue = $I->executeJS(
+            "var sel = document.querySelector('.side-by-side-panel .document-selector select.form-select');" .
+            "return sel ? sel.value : 'NOT_FOUND';"
+        );
+        codecept_debug("DIAG select value before interaction: {$beforeValue}");
 
-        // Select the target framework using Codeception's native selectOption (trusted OS-level events)
-        $selectSelector = '.side-by-side-panel .document-selector select.form-select';
-        $I->selectOption($selectSelector, $identifier);
+        // Select the target framework using executeJS
+        // First ensure the value is different by selecting a different option, then select the target
+        $I->executeJS(
+            "var sel = document.querySelector('.side-by-side-panel .document-selector select.form-select');" .
+            "if (sel) { " .
+                // First, find and select a DIFFERENT option (not the target)
+                "var changed = false; " .
+                "for (var i = sel.options.length - 1; i >= 0; i--) { " .
+                    "if (sel.options[i].value && sel.options[i].value !== '{$identifier}') { " .
+                        "sel.selectedIndex = i; " .
+                        "sel.dispatchEvent(new Event('change', {bubbles: true})); " .
+                        "changed = true; " .
+                        "break; " .
+                    "} " .
+                "} " .
+                // If no different option found, try setting to empty first
+                "if (!changed) { " .
+                    "sel.selectedIndex = -1; " .
+                "} " .
+            "}"
+        );
+
+        // Brief wait for Vue to process the first change
+        $I->wait(0.5);
+
+        // Now select the target option
+        $I->executeJS(
+            "var sel = document.querySelector('.side-by-side-panel .document-selector select.form-select');" .
+            "if (sel) { " .
+                "for (var i = 0; i < sel.options.length; i++) { " .
+                    "if (sel.options[i].value === '{$identifier}') { " .
+                        "sel.selectedIndex = i; " .
+                        "sel.dispatchEvent(new Event('change', {bubbles: true})); " .
+                        "break; " .
+                    "} " .
+                "} " .
+            "}"
+        );
 
         $selectValue = $I->executeJS("return document.querySelector('.side-by-side-panel .document-selector select.form-select')?.value || 'NOT_FOUND'");
         codecept_debug("DIAG select value after select: {$selectValue}");
-
-        $rawEvent = $I->executeJS("return JSON.stringify(window.__rawChangeEvent);");
-        codecept_debug("DIAG raw change event: {$rawEvent}");
 
         $apiCalls = $I->executeJS("return JSON.stringify(window.__apiCalls);");
         codecept_debug("DIAG API calls after select: {$apiCalls}");
