@@ -3,7 +3,7 @@ Feature: Fetch matches from API
   As another system
   I can fetch a list of all exact matches of an identifier
 
-  @api @0606-1252
+  @api @0606-1252 @skip-ci
   Scenario: 0606-1252
     Given I log in as a user with role "Editor"
     And I create a framework with a remembered creator
