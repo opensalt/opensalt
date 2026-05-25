@@ -134,7 +134,7 @@ final class RebuildQdrantIndexByFrameworkCommandTest extends TestCase
             ->willReturn($vectorRows);
 
         $rawResult = $this->createMock(\Symfony\AI\Platform\Result\RawResultInterface::class);
-        $vectorResult = new \Symfony\AI\Platform\Result\VectorResult(new Vector([0.1, 0.2, 0.3]));
+        $vectorResult = new \Symfony\AI\Platform\Result\VectorResult([new Vector([0.1, 0.2, 0.3])]);
         $resultConverter = $this->createMock(\Symfony\AI\Platform\ResultConverterInterface::class);
         $resultConverter->expects(self::once())
             ->method('convert')

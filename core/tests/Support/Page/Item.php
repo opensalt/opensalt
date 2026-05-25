@@ -288,34 +288,6 @@ class Item implements Context
 
         $this->iAmOnAnItemPage();
 
-        // Set up JS error capture
-        $I->executeJS("window.__jsErrors = []; window.addEventListener('error', function(e) { window.__jsErrors.push(e.message + ' at ' + e.filename + ':' + e.lineno); });");
-
-        // Set up fetch interceptor to track API calls with response statuses
-        $I->executeJS("
-            window.__apiCalls = [];
-            window.__apiResponses = [];
-            var originalFetch = window.fetch;
-            window.fetch = function() {
-                var url = arguments[0];
-                var fetchPromise = originalFetch.apply(this, arguments);
-                fetchPromise.then(function(response) {
-                    window.__apiCalls.push({url: url, status: response.status, ok: response.ok, time: Date.now()});
-                    // Clone and read the response body for tree endpoint
-                    if (url.indexOf('/framework/editor/tree/') !== -1) {
-                        var cloned = response.clone();
-                        cloned.text().then(function(body) {
-                            window.__apiResponses.push({url: url, status: response.status, body: body.substring(0, 500)});
-                        });
-                    }
-                    return response;
-                }).catch(function(error) {
-                    window.__apiCalls.push({url: url, error: error.message, time: Date.now()});
-                });
-                return fetchPromise;
-            };
-        ");
-
         $I->waitForElementVisible('#rightSideCopyItemsBtn');
         // Select the target item ($to) in the main tree
         $I->click("//section[@id='tree1Section']//span[contains(@class, 'item-humanCodingScheme') and text()='{$rememberedTo}']/ancestor::div[contains(@class, 'tree-node-label')][1]");
@@ -329,22 +301,9 @@ class Item implements Context
         // Get the framework identifier FIRST (needed for option wait)
         $lastDoc = $I->getLastFramework();
         $identifier = $lastDoc['identifier'];
-        $frameworkName = $lastDoc['title'];
-
-        codecept_debug("DIAG identifier: {$identifier}");
 
         // Wait for the specific option to exist (ensures documents are loaded from API)
         $I->waitForElement(".side-by-side-panel .document-selector select.form-select option[value='{$identifier}']", 30);
-
-        $optionExists = $I->executeJS("return !!document.querySelector('.side-by-side-panel .document-selector select.form-select option[value=\"{$identifier}\"]')");
-        codecept_debug("DIAG option exists for identifier: " . ($optionExists ? 'YES' : 'NO'));
-
-        // Check the select value BEFORE any interaction
-        $beforeValue = $I->executeJS(
-            "var sel = document.querySelector('.side-by-side-panel .document-selector select.form-select');" .
-            "return sel ? sel.value : 'NOT_FOUND';"
-        );
-        codecept_debug("DIAG select value before interaction: {$beforeValue}");
 
         // Select the target framework using executeJS
         // First ensure the value is different by selecting a different option, then select the target
@@ -413,65 +372,8 @@ class Item implements Context
         ");
         $I->waitForElementNotVisible('#loadExternalDocumentModal', 5);
 
-        $selectValue = $I->executeJS("return document.querySelector('.side-by-side-panel .document-selector select.form-select')?.value || 'NOT_FOUND'");
-        codecept_debug("DIAG select value after select: {$selectValue}");
-
-        $apiCalls = $I->executeJS("return JSON.stringify(window.__apiCalls);");
-        codecept_debug("DIAG API calls after select: {$apiCalls}");
-
-        $panelHtml = $I->executeJS("return document.querySelector('.side-by-side-panel')?.innerHTML?.substring(0, 500) || 'NOT_FOUND'");
-        codecept_debug("DIAG panel HTML (first 500 chars): {$panelHtml}");
-
-        $sideTreeCount = $I->executeJS("return document.querySelectorAll('.side-by-side-panel .side-tree').length");
-        codecept_debug("DIAG .side-tree element count: {$sideTreeCount}");
-
-        $treeNodeCount = $I->executeJS("return document.querySelectorAll('.side-by-side-panel .side-tree .tree-node').length");
-        codecept_debug("DIAG .tree-node element count: {$treeNodeCount}");
-
-        $I->wait(5);
-
-        $apiCallsAfter = $I->executeJS("return JSON.stringify(window.__apiCalls);");
-        codecept_debug("DIAG API calls after 5s wait: {$apiCallsAfter}");
-
-        $apiResponses = $I->executeJS("return JSON.stringify(window.__apiResponses);");
-        codecept_debug("DIAG API responses after 5s: {$apiResponses}");
-
-        $treeNodeCount2 = $I->executeJS("return document.querySelectorAll('.side-by-side-panel .side-tree .tree-node').length");
-        codecept_debug("DIAG .tree-node element count after 5s: {$treeNodeCount2}");
-
-        $sideTreeHTML = $I->executeJS("return document.querySelector('.side-by-side-panel .side-tree')?.innerHTML?.substring(0, 300) || 'NOT_FOUND'");
-        codecept_debug("DIAG side-tree HTML after 5s: {$sideTreeHTML}");
-
         // Wait for side tree nodes to appear
-        try {
-            $I->waitForElementVisible('.side-by-side-panel .side-tree .tree-node', 30);
-        } catch (\Exception $e) {
-            codecept_debug("DIAG waitForElementVisible FAILED: " . $e->getMessage());
-
-            // Capture more state on failure
-            $sideTreeStates = $I->executeJS("
-                var trees = document.querySelectorAll('.side-by-side-panel .side-tree');
-                var states = [];
-                trees.forEach(function(t) {
-                    states.push({
-                        display: getComputedStyle(t).display,
-                        visibility: getComputedStyle(t).visibility,
-                        childCount: t.children.length,
-                        innerHTML: t.innerHTML.substring(0, 200)
-                    });
-                });
-                return JSON.stringify(states);
-            ");
-            codecept_debug("DIAG side-tree states on failure: {$sideTreeStates}");
-
-            // Check for JS errors
-            $jsErrors = $I->executeJS("
-                return window.__jsErrors ? JSON.stringify(window.__jsErrors) : 'no __jsErrors captured';
-            ");
-            codecept_debug("DIAG JS errors: {$jsErrors}");
-
-            throw $e;
-        }
+        $I->waitForElementVisible('.side-by-side-panel .side-tree .tree-node', 30);
 
         // Wait for side tree to load and select the source item ($from)
         $I->waitForElementVisible('.side-by-side-panel .side-tree .tree-node .tree-node .tree-node-label', 30);
