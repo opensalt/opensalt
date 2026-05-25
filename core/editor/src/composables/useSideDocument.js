@@ -25,6 +25,10 @@ export function useSideDocument(options = {}) {
   const sideDocument = ref(null);
   const sideSelectedId = ref(null);
 
+  // Generation counter to prevent stale async fetches from overwriting
+  // the result of a more recent fetch (race condition guard).
+  let fetchGeneration = 0;
+
   const loadingSideDoc = computed(() => documentStore.loadingSideDocument);
   const sideDocError = computed(() => documentStore.sideDocError);
 
@@ -40,12 +44,19 @@ export function useSideDocument(options = {}) {
       return null;
     }
 
+    const thisGeneration = ++fetchGeneration;
+
     documentStore.clearSideDocError();
     sideDocument.value = null;
     documentStore.loadingSideDocument = true;
 
     try {
       const treeResponse = await documentStore.fetchLightweightTree(documentId);
+
+      // Only apply results if this is still the latest fetch
+      if (thisGeneration !== fetchGeneration) {
+        return null;
+      }
 
       const doc = treeResponse.document;
 
@@ -66,11 +77,19 @@ export function useSideDocument(options = {}) {
 
       return sideDocument.value;
     } catch (error) {
+      // Only handle error if this is still the latest fetch
+      if (thisGeneration !== fetchGeneration) {
+        return null;
+      }
+
       logger.error('[onSideDocumentSelect] Error loading side document:', error);
       sideDocument.value = null;
       return null;
     } finally {
-      documentStore.resetLoadingSideDocument();
+      // Only reset loading state if this is still the latest fetch
+      if (thisGeneration === fetchGeneration) {
+        documentStore.resetLoadingSideDocument();
+      }
     }
   }
 
