@@ -385,6 +385,34 @@ class Item implements Context
             "}"
         );
 
+        // Close loadExternalDocumentModal if it was opened by the first select step
+        $I->executeJS("
+            var modal = document.getElementById('loadExternalDocumentModal');
+            if (modal && (modal.classList.contains('show') || modal.style.display === 'block')) {
+                // Try Bootstrap 5 modal API first
+                if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    var bsModal = bootstrap.Modal.getInstance(modal);
+                    if (bsModal) {
+                        bsModal.hide();
+                    } else {
+                        modal.classList.remove('show');
+                        modal.style.display = 'none';
+                    }
+                } else {
+                    modal.classList.remove('show');
+                    modal.style.display = 'none';
+                }
+                // Remove backdrop
+                var backdrops = document.querySelectorAll('.modal-backdrop');
+                backdrops.forEach(function(b) { b.remove(); });
+                // Remove body overflow hidden
+                document.body.classList.remove('modal-open');
+                document.body.style.removeProperty('overflow');
+                document.body.style.removeProperty('padding-right');
+            }
+        ");
+        $I->waitForElementNotVisible('#loadExternalDocumentModal', 5);
+
         $selectValue = $I->executeJS("return document.querySelector('.side-by-side-panel .document-selector select.form-select')?.value || 'NOT_FOUND'");
         codecept_debug("DIAG select value after select: {$selectValue}");
 
