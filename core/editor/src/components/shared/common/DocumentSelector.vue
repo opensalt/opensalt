@@ -143,6 +143,12 @@ function getDocumentId(document) {
 
 watch(() => props.currentDoc, (newDoc) => {
   selectedDoc.value = getDocumentId(newDoc);
+  if (selectedDoc.value) {
+    emit('viewed-document-changed', {
+      side: props.side,
+      documentId: selectedDoc.value
+    });
+  }
 }, { immediate: true });
 
 // NEW: Watch for viewed document changes to update selection
