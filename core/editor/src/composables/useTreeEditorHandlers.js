@@ -1,5 +1,6 @@
 import { findItem, findItemPath } from '../utils/tree.js';
 import { logger } from '../utils/logger.js';
+import { useSessionStore } from '../stores/sessionStore';
 
 /**
  * Composable that owns all event-handler functions for EnhancedDocumentTreeEditor.
@@ -49,6 +50,8 @@ export function useTreeEditorHandlers({
     closeDeleteAssociationModal,
     _connectMercure,
 }) {
+    const sessionStore = useSessionStore();
+
     // ---------------------------------------------------------------------------
     // Selection
     // ---------------------------------------------------------------------------
@@ -76,6 +79,7 @@ export function useTreeEditorHandlers({
 
     function onDblClick(id) {
         onSelect(id);
+        if (!sessionStore.isAuthenticated) return;
         const isDocumentNode = id === currentDoc.value?.id;
         if (isDocumentNode) {
             showEditDocModal.value = true;

@@ -31,6 +31,7 @@
               Destination
             </th>
             <th
+              v-if="!isReadOnly"
               scope="col"
               class="py-3 border-0 text-muted small text-uppercase text-end"
             >
@@ -42,7 +43,7 @@
         <tbody v-if="associations.length === 0">
           <tr>
             <td
-              colspan="4"
+              :colspan="isReadOnly ? 3 : 4"
               class="text-center py-5 text-muted border-0"
             >
               <div class="py-4">
