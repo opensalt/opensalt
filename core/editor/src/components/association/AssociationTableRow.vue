@@ -263,7 +263,7 @@
       </td>
 
       <!-- Actions Column -->
-      <td class="py-3 text-end">
+      <td v-if="!isReadOnly" class="py-3 text-end">
         <div
           v-if="canManageAssociation || canDeleteAssociation"
           class="btn-group btn-group-sm"
@@ -304,7 +304,7 @@
       class="annotation-row"
     >
       <td
-        colspan="4"
+        :colspan="isReadOnly ? 3 : 4"
         class="py-2 px-3"
       >
         <div class="annotation-content">
