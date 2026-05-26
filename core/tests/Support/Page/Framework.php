@@ -719,7 +719,7 @@ class Framework implements Context
         $I->click(['xpath' => "//span[contains(@class, 'fancytree-title')][contains(., 'MD.Table')]"]);
 
         // Wait for markdown rendering and check for table
-        $I->waitForElement('.details-panel .markdown-content table', 15);
+        $I->waitForElement('.details-panel .markdown-body table', 15);
         $I->seeElement('.details-panel table');
     }
 
@@ -734,7 +734,7 @@ class Framework implements Context
         $I->click(['xpath' => "//span[contains(@class, 'fancytree-title')][contains(., 'MD.Table')]"]);
 
         // Wait for markdown rendering and check for underline
-        $I->waitForElement('.details-panel .markdown-content u', 15);
+        $I->waitForElement('.details-panel .markdown-body u', 15);
         $I->seeElement('.details-panel u');
     }
 
