@@ -183,9 +183,7 @@
     },
     "replace": {
         "paragonie/random_compat": "2.*",
-        "symfony/polyfill-intl-grapheme": "*",
-        "symfony/polyfill-intl-icu": "*",
-        "symfony/polyfill-intl-idn": "*",
+        "symfony/polyfill-php85": "*",
         "symfony/polyfill-php84": "*",
         "symfony/polyfill-php83": "*",
         "symfony/polyfill-php82": "*",
