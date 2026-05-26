@@ -76,41 +76,52 @@ jobs:
         run: |
           docker compose logs web db
 
+      - name: Check DockerHub credentials
+        id: check_docker_credentials
+        run: |
+          if [ -n "${{ secrets.DOCKER_USERNAME }}" ] && [ -n "${{ secrets.DOCKER_TOKEN }}" ]; then
+            echo "has_credentials=true" >> $GITHUB_OUTPUT
+            echo "DockerHub credentials found, will proceed with login and push."
+          else
+            echo "has_credentials=false" >> $GITHUB_OUTPUT
+            echo "DockerHub credentials not configured, skipping login and push."
+          fi
+
       - name: Login to DockerHub
-        if: github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main' || github.event_name == 'release'
+        if: (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main' || github.event_name == 'release') && steps.check_docker_credentials.outputs.has_credentials == 'true'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
       - name: Push develop
-        if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/develop' && github.event_name == 'push' && steps.check_docker_credentials.outputs.has_credentials == 'true'
         env:
           REPO: opensalt/opensalt
         run: |
-          docker tag opensalt/opensalt:web-3.x $REPO:web-develop
-          docker tag opensalt/opensalt:db-3.x $REPO:db-develop
+          docker tag opensalt/opensalt:web-4.x $REPO:web-develop
+          docker tag opensalt/opensalt:db-4.x $REPO:db-develop
           docker push $REPO:web-develop
           docker push $REPO:db-develop
 
       - name: Push latest
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && steps.check_docker_credentials.outputs.has_credentials == 'true'
         env:
           REPO: opensalt/opensalt
         run: |
-          docker tag opensalt/opensalt:web-3.x $REPO:web-latest
-          docker tag opensalt/opensalt:db-3.x $REPO:db-latest
+          docker tag opensalt/opensalt:web-4.x $REPO:web-latest
+          docker tag opensalt/opensalt:db-4.x $REPO:db-latest
           docker push $REPO:web-latest
           docker push $REPO:db-latest
 
       - name: Push release
-        if: github.event_name == 'release'
+        if: github.event_name == 'release' && steps.check_docker_credentials.outputs.has_credentials == 'true'
         env:
           REPO: opensalt/opensalt
           TAG: ${GITHUB_REF/refs\/tags\//}
         run: |
-          docker tag opensalt/opensalt:web-3.x $REPO:web-${TAG}
-          docker tag opensalt/opensalt:db-3.x $REPO:db-${TAG}
+          docker tag opensalt/opensalt:web-4.x $REPO:web-${TAG}
+          docker tag opensalt/opensalt:db-4.x $REPO:db-${TAG}
           docker push $REPO:web-${TAG}
           docker push $REPO:db-${TAG}
 
