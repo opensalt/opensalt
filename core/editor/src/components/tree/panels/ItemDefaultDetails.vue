@@ -6,7 +6,7 @@
     >
       <strong>Full Statement:</strong>
       <div
-        class="mt-1 markdown-content"
+        class="mt-1 markdown-body"
         v-html="renderedFullStatement"
       />
     </div>
@@ -95,7 +95,7 @@
     >
       <strong>Notes:</strong>
       <p
-        class="mt-1 markdown-content"
+        class="mt-1 markdown-body"
         v-html="renderedNotes"
       />
     </div>
@@ -172,7 +172,7 @@ function formatDate(dateString) {
 
 <style scoped>
 /* Markdown content styling */
-.markdown-content {
+.markdown-body {
   padding: 0.75rem;
   padding-bottom: 0;
   background-color: #f8f9fa;
@@ -182,33 +182,33 @@ function formatDate(dateString) {
   line-height: 1.5;
 }
 
-.markdown-content h1,
-.markdown-content h2,
-.markdown-content h3,
-.markdown-content h4,
-.markdown-content h5,
-.markdown-content h6 {
+.markdown-body :deep(h1),
+.markdown-body :deep(h2),
+.markdown-body :deep(h3),
+.markdown-body :deep(h4),
+.markdown-body :deep(h5),
+.markdown-body :deep(h6) {
   margin-top: 0;
   margin-bottom: 0.5rem;
   font-weight: 600;
   color: #495057;
 }
 
-.markdown-content p {
+.markdown-body :deep(p) {
   margin-bottom: 0.75rem;
 }
 
-.markdown-content ul,
-.markdown-content ol {
+.markdown-body :deep(ul),
+.markdown-body :deep(ol) {
   margin-bottom: 0.75rem;
   padding-left: 1.5rem;
 }
 
-.markdown-content li {
+.markdown-body :deep(li) {
   margin-bottom: 0.25rem;
 }
 
-.markdown-content blockquote {
+.markdown-body :deep(blockquote) {
   border-left: 4px solid #dee2e6;
   padding-left: 1rem;
   margin: 1rem 0;
@@ -216,7 +216,7 @@ function formatDate(dateString) {
   font-style: italic;
 }
 
-.markdown-content code {
+.markdown-body :deep(code) {
   background-color: #e9ecef;
   padding: 0.125rem 0.25rem;
   border-radius: 0.25rem;
@@ -224,7 +224,7 @@ function formatDate(dateString) {
   font-family: 'Courier New', monospace;
 }
 
-.markdown-content pre {
+.markdown-body :deep(pre) {
   background-color: #e9ecef;
   padding: 0.75rem;
   border-radius: 0.375rem;
@@ -232,39 +232,21 @@ function formatDate(dateString) {
   margin: 0.75rem 0;
 }
 
-.markdown-content table {
-  width: 100%;
-  margin-bottom: 0.75rem;
-  border-collapse: collapse;
-}
-
-.markdown-content th,
-.markdown-content td {
-  padding: 0.375rem 0.75rem;
-  border: 1px solid #dee2e6;
-  text-align: left;
-}
-
-.markdown-content th {
-  background-color: #f8f9fa;
-  font-weight: 600;
-}
-
-.markdown-content a {
+.markdown-body :deep(a) {
   color: #0d6efd;
   text-decoration: none;
 }
 
-.markdown-content a:hover {
+.markdown-body :deep(a:hover) {
   text-decoration: underline;
 }
 
 /* KaTeX styling */
-.markdown-content .katex {
+.markdown-body :deep(.katex) {
   font-size: 1em;
 }
 
-.markdown-content .katex-display {
+.markdown-body :deep(.katex-display) {
   margin: 1rem 0;
   text-align: center;
 }

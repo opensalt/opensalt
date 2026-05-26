@@ -26,7 +26,7 @@
     "datatables.net-bs5": "^1.13.8",
     "easymde": "^2.20.0",
     "github-markdown-css": "^5.8.1",
-    "katex": "^0.16.43",
+    "katex": "0.16.28",
     "markdown-it": "^14.1.0",
     "markdown-it-underline": "^1.0.1",
     "papaparse": "^5.4.1",

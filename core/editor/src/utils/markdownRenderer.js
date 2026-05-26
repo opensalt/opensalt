@@ -1,6 +1,7 @@
 
 import MarkdownIt from 'markdown-it';
 import markdownItKatexModule from '@vscode/markdown-it-katex';
+import katex from 'katex';
 import markdownItUnderline from 'markdown-it-underline';
 import sanitizeHtml from 'sanitize-html';
 import { logger } from './logger.js';
@@ -17,7 +18,7 @@ const md = new MarkdownIt({
   .use(markdownItKatex, {
     throwOnError: false,
     errorColor: '#cc0000',
-    displayMode: true
+    katex: katex
   })
   .use(markdownItUnderline);
 

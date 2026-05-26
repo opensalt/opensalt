@@ -1,6 +1,7 @@
 
 import underline from 'markdown-it-underline';
 import mkModule from '@vscode/markdown-it-katex';
+import katex from 'katex';
 import markdown from 'markdown-it';
 import sanitizeHtml from 'sanitize-html';
 
@@ -14,7 +15,8 @@ const render = (function () {
             linkify: false
         }).use(underline).use(mk, {
             "throwOnError": false,
-            "errorColor": " #cc0000"
+            "errorColor": "#cc0000",
+            "katex": katex
         }),
         mdInline = markdown('default', {
             html: true,
@@ -22,7 +24,8 @@ const render = (function () {
             linkify: false
         }).use(underline).use(mk, {
             "throwOnError": false,
-            "errorColor": " #cc0000"
+            "errorColor": "#cc0000",
+            "katex": katex
         }),
         mdInlineLinked = markdown('default', {
             html: true,
@@ -30,7 +33,8 @@ const render = (function () {
             linkify: true
         }).use(underline).use(mk, {
             "throwOnError": false,
-            "errorColor": " #cc0000"
+            "errorColor": "#cc0000",
+            "katex": katex
         });
 
     function sanitizerBlock(dirty) {
