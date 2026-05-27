@@ -13,6 +13,7 @@ use App\Command\Framework\UpdateItemCommand;
 use App\DTO\ItemType\ItemTypeInterface;
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDefLicence;
+use App\Entity\Framework\LsDefItemType;
 use App\Entity\Framework\LsDefSubject;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
@@ -518,6 +519,27 @@ class ItemController extends AbstractController
             }
             $lsItem->setSubjects($subjects);
         }
+        if (array_key_exists('itemType', $data)) {
+            $itemTypeValue = $data['itemType'];
+            if (empty($itemTypeValue) || '' === $itemTypeValue) {
+                $lsItem->setItemType(null);
+            } elseif (str_starts_with((string) $itemTypeValue, '__')) {
+                $cleanValue = substr((string) $itemTypeValue, 2);
+                $newType = new LsDefItemType();
+                $newType->setCode($cleanValue);
+                $newType->setTitle($cleanValue);
+                $newType->setHierarchyCode($cleanValue);
+                $this->managerRegistry->getManager()->persist($newType);
+                $lsItem->setItemType($newType);
+            } else {
+                $field = is_numeric($itemTypeValue) ? 'id' : 'identifier';
+                $existingType = $this->managerRegistry->getRepository(LsDefItemType::class)
+                    ->findOneBy([$field => $itemTypeValue]);
+                if (null !== $existingType) {
+                    $lsItem->setItemType($existingType);
+                }
+            }
+        }
 
         if (null !== $itemType) {
             $kind = LsItemKind::tryFromName($itemType);
@@ -608,7 +630,7 @@ class ItemController extends AbstractController
             'notes' => $item->getNotes(),
             'language' => $item->getLanguage(),
             'educationalAlignment' => $item->getEducationalAlignment(),
-            'itemType' => $item->getItemType(),
+            'itemType' => $item->getItemType()?->getTitle(),
             'changedAt' => $item->getChangedAt(),
             'extra' => $item->getExtra(),
             'additionalFields' => $item->getAdditionalFields() ?? [],

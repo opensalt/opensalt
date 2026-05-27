@@ -218,6 +218,7 @@
                   placeholder="Select Item Type"
                   search-placeholder="Search item types..."
                   :allow-clear="true"
+                  :creatable="true"
                 />
                 <small class="text-muted">The type of this item.</small>
               </div>
