@@ -459,7 +459,7 @@ function loadFormData() {
     logger.debug('Available subjects:', availableSubjects);
     logger.debug('Item subjects:', props.item.subjectURI);
     const subjectIds = (props.item.subjectURI || []).map(uri => {
-      const match = availableSubjects.find(opt => opt.title === uri.title);
+      const match = availableSubjects.find(opt => opt.title === uri.title || opt.text === uri.title);
       return match ? match.id : null;
     }).filter(Boolean);
     formData.subjects = subjectIds;

@@ -18,6 +18,7 @@
         :show-select-all="false"
         placeholder="Select subjects"
         search-placeholder="Search subjects..."
+        :creatable="true"
         @update:model-value="$emit('update:modelValue', $event)"
       />
       <small class="text-muted">{{ helpText }}</small>

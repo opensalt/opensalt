@@ -12,8 +12,8 @@ use App\Command\Framework\DeleteItemWithChildrenCommand;
 use App\Command\Framework\UpdateItemCommand;
 use App\DTO\ItemType\ItemTypeInterface;
 use App\Entity\Framework\LsAssociation;
-use App\Entity\Framework\LsDefLicence;
 use App\Entity\Framework\LsDefItemType;
+use App\Entity\Framework\LsDefLicence;
 use App\Entity\Framework\LsDefSubject;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
@@ -509,11 +509,20 @@ class ItemController extends AbstractController
                     if (empty($subjectValue)) {
                         continue;
                     }
-                    $field = is_numeric($subjectValue) ? 'id' : 'identifier';
-                    $subject = $this->managerRegistry->getRepository(LsDefSubject::class)
-                        ->findOneBy([$field => $subjectValue]);
-                    if (null !== $subject) {
-                        $subjects[] = $subject;
+                    if (str_starts_with((string) $subjectValue, '__')) {
+                        $cleanValue = substr((string) $subjectValue, 2);
+                        $newSubject = new LsDefSubject();
+                        $newSubject->setTitle($cleanValue);
+                        $newSubject->setHierarchyCode($cleanValue);
+                        $this->managerRegistry->getManager()->persist($newSubject);
+                        $subjects[] = $newSubject;
+                    } else {
+                        $field = is_numeric($subjectValue) ? 'id' : 'identifier';
+                        $subject = $this->managerRegistry->getRepository(LsDefSubject::class)
+                            ->findOneBy([$field => $subjectValue]);
+                        if (null !== $subject) {
+                            $subjects[] = $subject;
+                        }
                     }
                 }
             }

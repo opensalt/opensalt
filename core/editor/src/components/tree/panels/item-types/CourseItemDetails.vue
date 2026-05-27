@@ -36,7 +36,9 @@
 
       <div v-if="item.extensions && item.extensions['salt:deliveryType']">
         <dt>Delivery Type</dt>
-        <dd class="capitalize">{{ item.extensions['salt:deliveryType'] }}</dd>
+        <dd class="capitalize">
+          {{ item.extensions['salt:deliveryType'] }}
+        </dd>
       </div>
 
       <div

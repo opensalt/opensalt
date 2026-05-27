@@ -88,11 +88,20 @@ class DocumentController extends AbstractController
                         if (empty($subjectValue)) {
                             continue;
                         }
-                        $field = is_numeric($subjectValue) ? 'id' : 'identifier';
-                        $subject = $this->em->getRepository(LsDefSubject::class)
-                            ->findOneBy([$field => $subjectValue]);
-                        if (null !== $subject) {
-                            $subjects[] = $subject;
+                        if (str_starts_with((string) $subjectValue, '__')) {
+                            $cleanValue = substr((string) $subjectValue, 2);
+                            $newSubject = new LsDefSubject();
+                            $newSubject->setTitle($cleanValue);
+                            $newSubject->setHierarchyCode($cleanValue);
+                            $this->em->persist($newSubject);
+                            $subjects[] = $newSubject;
+                        } else {
+                            $field = is_numeric($subjectValue) ? 'id' : 'identifier';
+                            $subject = $this->em->getRepository(LsDefSubject::class)
+                                ->findOneBy([$field => $subjectValue]);
+                            if (null !== $subject) {
+                                $subjects[] = $subject;
+                            }
                         }
                     }
                 }

@@ -89,6 +89,29 @@
         <ul class="multiselect__options">
           <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/interactive-supports-focus, vuejs-accessibility/mouse-events-have-key-events -->
           <li
+            v-if="createOption"
+            :id="createOptionId"
+            role="option"
+            class="multiselect__option multiselect__option--create"
+            :class="{
+              'multiselect__option--selected': isSelected(createOption),
+              'multiselect__option--highlighted': highlightedIndex === -2
+            }"
+            :aria-selected="isSelected(createOption)"
+            @click="toggleCreateOption"
+            @mouseenter="highlightedIndex = -2"
+          >
+            <input
+              type="checkbox"
+              :checked="isSelected(createOption)"
+              class="multiselect__checkbox"
+              tabindex="-1"
+              @change="toggleCreateOption"
+            >
+            <span class="multiselect__option-text">{{ getOptionLabel(createOption) }}</span>
+          </li>
+          <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/interactive-supports-focus, vuejs-accessibility/mouse-events-have-key-events -->
+          <li
             v-for="(option, index) in filteredOptions"
             :id="getOptionId(index)"
             :key="getOptionValue(option)"
@@ -158,6 +181,14 @@ const props = defineProps({
   showSelectAll: {
     type: Boolean,
     default: true
+  },
+  creatable: {
+    type: Boolean,
+    default: false
+  },
+  createOptionText: {
+    type: String,
+    default: "Create '{text}'"
   }
 })
 
@@ -174,10 +205,34 @@ const showCount = ref(10)
 const componentId = _msIdCounter++
 const listboxId = `ms-listbox-${componentId}`
 const getOptionId = (index) => `${listboxId}-opt-${index}`
+const createOptionId = `${listboxId}-create`
+
+const createOption = computed(() => {
+  if (!props.creatable || !searchQuery.value.trim()) return null
+
+  const query = searchQuery.value.trim()
+  const queryLower = query.toLowerCase()
+
+  const exactMatch = props.options.some(opt =>
+    getOptionLabel(opt).toLowerCase() === queryLower
+  )
+  if (exactMatch) return null
+
+  return {
+    [props.optionValue]: '__' + query,
+    [props.optionLabel]: props.createOptionText.replace('{text}', query),
+    _isCreateOption: true
+  }
+})
+
+const hasCreateOption = computed(() => createOption.value !== null)
 
 const activeDescendantId = computed(() => {
   if (highlightedIndex.value === null || highlightedIndex.value === undefined) {
     return undefined
+  }
+  if (highlightedIndex.value === -2) {
+    return createOptionId
   }
   return getOptionId(highlightedIndex.value)
 })
@@ -215,11 +270,12 @@ const isSelected = (option) => {
 }
 
 const getSelectedLabel = (value) => {
-  // If value is an object, try to get its label directly
   if (typeof value === 'object' && value !== null) {
     return getOptionLabel(value)
   }
-  // Otherwise find the matching option
+  if (typeof value === 'string' && value.startsWith('__')) {
+    return value.substring(2)
+  }
   const option = props.options.find(opt => getOptionValue(opt) === value)
   return option ? getOptionLabel(option) : value
 }
@@ -247,6 +303,24 @@ const toggleOption = (option) => {
   emit('update:modelValue', currentValues)
 }
 
+const toggleCreateOption = () => {
+  if (createOption.value) {
+    const value = getOptionValue(createOption.value)
+    const currentValues = [...selectedItems.value]
+    const index = currentValues.indexOf(value)
+
+    if (index > -1) {
+      currentValues.splice(index, 1)
+    } else {
+      currentValues.push(value)
+    }
+
+    emit('update:modelValue', currentValues)
+    searchQuery.value = ''
+    filterOptions()
+  }
+}
+
 const selectAll = () => {
   const allValues = filteredOptions.value.map(option => getOptionValue(option))
   emit('update:modelValue', allValues)
@@ -271,23 +345,42 @@ const filterOptions = () => {
 
 // Keyboard navigation
 const moveHighlight = (direction) => {
-  if (filteredOptions.value.length === 0) return
+  if (filteredOptions.value.length === 0 && !hasCreateOption.value) return
 
+  const hasCreate = hasCreateOption.value
+  const totalFlatCount = filteredOptions.value.length + (hasCreate ? 1 : 0)
+
+  let flatIndex
   if (highlightedIndex.value === null || highlightedIndex.value === undefined) {
-    highlightedIndex.value = direction > 0 ? 0 : filteredOptions.value.length - 1
+    flatIndex = direction > 0 ? 0 : totalFlatCount - 1
   } else {
-    highlightedIndex.value = (highlightedIndex.value + direction + filteredOptions.value.length) % filteredOptions.value.length
+    if (highlightedIndex.value === -2 && hasCreate) {
+      flatIndex = 0
+    } else {
+      flatIndex = highlightedIndex.value + (hasCreate ? 1 : 0)
+    }
+    flatIndex = (flatIndex + direction + totalFlatCount) % totalFlatCount
+  }
+
+  if (hasCreate && flatIndex === 0) {
+    highlightedIndex.value = -2
+  } else {
+    highlightedIndex.value = flatIndex - (hasCreate ? 1 : 0)
   }
 }
 
 const highlightFirst = () => {
-  if (filteredOptions.value.length === 0) return
-  highlightedIndex.value = 0
+  if (filteredOptions.value.length === 0 && !hasCreateOption.value) return
+  highlightedIndex.value = hasCreateOption.value ? -2 : 0
 }
 
 const highlightLast = () => {
-  if (filteredOptions.value.length === 0) return
-  highlightedIndex.value = filteredOptions.value.length - 1
+  if (filteredOptions.value.length === 0 && !hasCreateOption.value) return
+  if (filteredOptions.value.length === 0) {
+    highlightedIndex.value = -2
+  } else {
+    highlightedIndex.value = filteredOptions.value.length - 1
+  }
 }
 
 const handleKeydown = (event) => {
@@ -296,6 +389,8 @@ const handleKeydown = (event) => {
       event.preventDefault()
       if (!isOpen.value) {
         toggleDropdown()
+      } else if (highlightedIndex.value === -2) {
+        toggleCreateOption()
       } else if (highlightedIndex.value !== null && highlightedIndex.value !== undefined) {
         toggleOption(filteredOptions.value[highlightedIndex.value])
       }
@@ -305,6 +400,8 @@ const handleKeydown = (event) => {
       event.preventDefault()
       if (!isOpen.value) {
         toggleDropdown()
+      } else if (highlightedIndex.value === -2) {
+        toggleCreateOption()
       } else if (highlightedIndex.value !== null && highlightedIndex.value !== undefined) {
         toggleOption(filteredOptions.value[highlightedIndex.value])
       }
@@ -558,5 +655,15 @@ onUnmounted(() => {
 .multiselect__tags:focus-within {
   border-color: #86b7fe;
   box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.multiselect__option--create {
+  color: #0d6efd;
+  font-weight: 500;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.multiselect__option--create:hover {
+  background-color: #f0f7ff;
 }
 </style>
