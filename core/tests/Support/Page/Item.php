@@ -177,8 +177,8 @@ class Item implements Context
         $I = $this->I;
 
         $this->iAmOnAnItemPage();
-        $I->waitForElementVisible('#rightSideCopyItemsBtn');
-        $I->click('#rightSideCopyItemsBtn');
+        $I->waitForElementVisible('#tab-externalDocument');
+        $I->click('#tab-externalDocument');
 
         // Wait for SideBySideTreePanel to mount
         $I->waitForElementVisible('.side-by-side-panel .document-selector select.form-select', 30);
@@ -232,8 +232,8 @@ class Item implements Context
         $I = $this->I;
 
         $this->iAmOnAnItemPage();
-        $I->waitForElementVisible('#rightSideCopyItemsBtn');
-        $I->click('#rightSideCopyItemsBtn');
+        $I->waitForElementVisible('#tab-externalDocument');
+        $I->click('#tab-externalDocument');
 
         // Wait for SideBySideTreePanel to mount
         $I->waitForElementVisible('.side-by-side-panel .document-selector select.form-select', 30);
@@ -288,12 +288,12 @@ class Item implements Context
 
         $this->iAmOnAnItemPage();
 
-        $I->waitForElementVisible('#rightSideCopyItemsBtn');
+        $I->waitForElementVisible('#tab-externalDocument');
         // Select the target item ($to) in the main tree
         $I->click("//section[@id='tree1Section']//span[contains(@class, 'item-humanCodingScheme') and text()='{$rememberedTo}']/ancestor::div[contains(@class, 'tree-node-label')][1]");
         $I->wait(1);
         // Switch to Copy / Associate mode
-        $I->click('#rightSideCopyItemsBtn');
+        $I->click('#tab-externalDocument');
 
         // Wait for the DocumentSelector to be present
         $I->waitForElementVisible('.side-by-side-panel .document-selector select.form-select', 30);
