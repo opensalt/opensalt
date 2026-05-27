@@ -4,7 +4,10 @@
     :class="{ 'is-reply': isReply }"
   >
     <div class="comment-avatar">
-      <div class="avatar-placeholder">
+      <div
+        class="avatar-placeholder"
+        aria-hidden="true"
+      >
         {{ avatarInitials }}
       </div>
     </div>
@@ -32,8 +35,12 @@
             target="_blank"
             class="attachment-link"
           >
-            <i :class="fileIcon" />
+            <i
+              :class="fileIcon"
+              aria-hidden="true"
+            />
             {{ attachmentName }}
+            <span class="visually-hidden"> (opens in new window)</span>
           </a>
         </div>
       </div>
@@ -44,8 +51,10 @@
         class="comment-edit-form"
       >
         <textarea
+          ref="editTextareaRef"
           v-model="editContent"
           class="form-control"
+          aria-label="Edit comment"
           rows="3"
         />
         <div class="edit-actions">
@@ -125,9 +134,11 @@
         class="reply-form"
       >
         <textarea
+          ref="replyTextareaRef"
           v-model="replyContent"
           class="form-control"
           placeholder="Write a reply..."
+          aria-label="Reply to comment"
           rows="2"
         />
         <div class="reply-actions">
@@ -151,6 +162,7 @@
       <div
         v-if="replies.length > 0"
         class="comment-replies"
+        role="list"
       >
         <CommentItem
           v-for="reply in replies"
@@ -171,7 +183,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, nextTick } from 'vue';
 
 const props = defineProps({
     comment: {
@@ -203,6 +215,8 @@ const showReplyForm = ref(false);
 const replyContent = ref('');
 const isEditing = ref(false);
 const editContent = ref('');
+const replyTextareaRef = ref(null);
+const editTextareaRef = ref(null);
 
 const avatarInitials = computed(() => {
     const name = props.comment.fullname || 'Unknown';
@@ -269,6 +283,10 @@ function toggleReply() {
     showReplyForm.value = !showReplyForm.value;
     if (!showReplyForm.value) {
         replyContent.value = '';
+    } else {
+        nextTick(() => {
+            replyTextareaRef.value?.focus();
+        });
     }
 }
 
@@ -294,6 +312,9 @@ async function submitReply() {
 function startEdit() {
     isEditing.value = true;
     editContent.value = props.comment.content;
+    nextTick(() => {
+        editTextareaRef.value?.focus();
+    });
 }
 
 function cancelEdit() {
@@ -375,7 +396,7 @@ function saveEdit() {
 
 .comment-time {
     font-size: 0.8rem;
-    color: #6c757d;
+    color: #5a6268;
 }
 
 .comment-body {
@@ -399,8 +420,8 @@ function saveEdit() {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: #007bff;
-    text-decoration: none;
+    color: #0056b3;
+    text-decoration: underline;
     font-size: 0.9rem;
 
     &:hover {
@@ -424,7 +445,7 @@ function saveEdit() {
     border: none;
     padding: 4px 8px;
     font-size: 0.8rem;
-    color: #6c757d;
+    color: #5a6268;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -435,6 +456,11 @@ function saveEdit() {
     &:hover:not(:disabled) {
         background: #e9ecef;
         color: #495057;
+    }
+
+    &:focus-visible {
+        outline: 3px solid #005fcc;
+        outline-offset: 2px;
     }
 
     &:disabled {
@@ -449,11 +475,11 @@ function saveEdit() {
 
 .upvote-btn {
     &.has-upvoted {
-        color: #28a745;
+        color: #1a7a35;
 
         &:hover:not(:disabled) {
             background: #d4edda;
-            color: #28a745;
+            color: #1a7a35;
         }
     }
 }

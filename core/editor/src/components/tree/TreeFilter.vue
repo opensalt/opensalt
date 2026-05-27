@@ -2,7 +2,10 @@
   <div class="tree-filter mb-2">
     <div class="input-group input-group-sm">
       <span class="input-group-text">
-        <i class="bi bi-search" />
+        <i
+          class="bi bi-search"
+          aria-hidden="true"
+        />
       </span>
       <input
         id="filterOnTree"
@@ -22,7 +25,10 @@
         aria-label="Clear filter"
         @click="onClear"
       >
-        <i class="bi bi-x-lg" />
+        <i
+          class="bi bi-x-lg"
+          aria-hidden="true"
+        />
       </button>
     </div>
     <div
@@ -66,12 +72,12 @@ let debounceTimer = null;
 
 function onInput(event) {
   const value = event.target.value;
-  
+
   // Debounce the input to avoid excessive filtering
   if (debounceTimer) {
     clearTimeout(debounceTimer);
   }
-  
+
   debounceTimer = setTimeout(() => {
     emit('update:modelValue', value);
   }, 150);

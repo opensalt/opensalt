@@ -68,8 +68,8 @@ vi.mock('@/composables/useCrossFrameworkItem', () => ({
 }));
 
 import { editorConfig } from '@/config/editorConfig.js';
-import DocumentDetailsPanel from '@/components/shared/panels/DocumentDetailsPanel.vue';
-import ItemDetails from '@/components/shared/panels/ItemDetails.vue';
+import DocumentDetailsPanel from '@/components/tree/panels/DocumentDetailsPanel.vue';
+import ItemDetails from '@/components/tree/panels/ItemDetails.vue';
 
 describe('comment visibility in editor panels', () => {
   beforeEach(() => {

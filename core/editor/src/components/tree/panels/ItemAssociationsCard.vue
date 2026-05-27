@@ -10,8 +10,9 @@
           v-if="isProcessingAssociations"
           class="spinner-border spinner-border-sm ms-2"
           role="status"
-          aria-hidden="true"
-        />
+        >
+          <span class="visually-hidden">Loading associations…</span>
+        </span>
       </h6>
       <button
         v-if="showAddButton && !isReadOnly"
@@ -19,7 +20,10 @@
         class="btn btn-sm btn-outline-primary"
         @click="$emit('add-association')"
       >
-        <i class="bi bi-plus" /> Add
+        <i
+          class="bi bi-plus"
+          aria-hidden="true"
+        /> Add
       </button>
     </div>
 
@@ -43,10 +47,10 @@
       <div
         v-if="isProcessingAssociations && mergedAssociations.length === 0"
         class="text-center py-3"
+        role="status"
       >
         <span
           class="spinner-border spinner-border-sm me-2"
-          role="status"
           aria-hidden="true"
         />
         <span class="text-muted">Loading associations...</span>
@@ -54,6 +58,7 @@
       <div
         v-else-if="!isProcessingAssociations && mergedAssociations.length === 0"
         class="text-muted py-2"
+        role="status"
       >
         No associations to display.
       </div>

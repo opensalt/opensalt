@@ -362,6 +362,7 @@ class LsDocRepository extends ServiceEntityRepository
             SELECT i.identifier, i.uri, i.humanCodingScheme, i.fullStatement,
                    i.abbreviatedStatement, i.listEnumInSource, i.changedAt,
                    i.discriminator, i.extensions, i.extra,
+                   i.conceptKeywords, i.language, i.educationalAlignment,
                    IDENTITY(i.lsDoc) as lsDoc,
                    IDENTITY(i.itemType) as itemType
             FROM '.LsItem::class.' i
@@ -607,6 +608,9 @@ class LsDocRepository extends ServiceEntityRepository
                     'associationAdditionalFields' => $assocMap[$identifier]['assocExtra']['customFields'] ?? [],
                     'licenseURI' => $itemLicenceMap[$identifier] ?? null,
                     'subjectURI' => $itemSubjectMap[$identifier] ?? [],
+                    'conceptKeywords' => $item['conceptKeywords'] ?? null,
+                    'language' => $item['language'] ?? null,
+                    'educationLevel' => $item['educationalAlignment'] ?? null,
                     'children' => [],
                 ];
             }

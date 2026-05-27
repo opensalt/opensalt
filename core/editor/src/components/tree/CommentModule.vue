@@ -3,7 +3,10 @@
     <!-- Header -->
     <div class="comment-header mb-3 pb-2">
       <h4 class="comment-title">
-        <i class="bi bi-chat-dots" />
+        <i
+          class="bi bi-chat-dots"
+          aria-hidden="true"
+        />
         Comments
         <span
           v-if="commentStore.comments.length > 0"
@@ -18,7 +21,10 @@
         title="Export comments as CSV"
         @click="exportComments"
       >
-        <i class="bi bi-download" /> Export
+        <i
+          class="bi bi-download"
+          aria-hidden="true"
+        /> Export
       </button>
     </div>
 
@@ -26,14 +32,20 @@
     <div
       v-if="commentStore.loading"
       class="comment-loading"
+      role="status"
+      aria-live="polite"
     >
-      <i class="bi bi-arrow-repeat bi-spin" /> Loading comments...
+      <i
+        class="bi bi-arrow-repeat bi-spin"
+        aria-hidden="true"
+      /> Loading comments...
     </div>
 
     <!-- Error State -->
     <div
       v-if="commentStore.error"
       class="comment-error alert alert-danger"
+      role="alert"
     >
       {{ commentStore.error }}
     </div>
@@ -45,6 +57,7 @@
           v-model="newCommentContent"
           class="form-control comment-textarea"
           placeholder="Add a comment..."
+          aria-label="Add a comment"
           rows="3"
           :disabled="!isLoggedIn"
         />
@@ -91,7 +104,10 @@
     </div>
 
     <!-- Comments List -->
-    <div class="comments-list">
+    <div
+      class="comments-list"
+      role="list"
+    >
       <template v-if="commentStore.topLevelComments.length > 0">
         <CommentItem
           v-for="comment in commentStore.topLevelComments"
@@ -121,16 +137,25 @@
       ref="editModal"
       class="modal fade"
       tabindex="-1"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="editCommentModalLabel"
+      @keydown.tab="onEditTabTrap"
+      @keydown.escape.prevent.stop="closeEditModal"
     >
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">
+            <h5
+              id="editCommentModalLabel"
+              class="modal-title"
+            >
               Edit Comment
             </h5>
             <button
               type="button"
               class="btn-close"
+              aria-label="Close"
               data-bs-dismiss="modal"
             />
           </div>
@@ -138,6 +163,7 @@
             <textarea
               v-model="editContent"
               class="form-control"
+              aria-label="Edit comment"
               rows="4"
             />
           </div>
@@ -166,19 +192,29 @@
     <div
       v-if="showDeleteModal"
       id="deleteCommentModal"
+      ref="deleteModalRef"
       class="modal fade"
       :class="{ show: showDeleteModal, 'd-block': showDeleteModal }"
       tabindex="-1"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="deleteCommentModalLabel"
+      @keydown.tab="onDeleteTabTrap"
+      @keydown.escape.prevent.stop="cancelDelete"
     >
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">
+            <h5
+              id="deleteCommentModalLabel"
+              class="modal-title"
+            >
               Delete Comment
             </h5>
             <button
               type="button"
               class="btn-close"
+              aria-label="Close"
               @click="cancelDelete"
             />
           </div>
@@ -213,6 +249,7 @@
     </div>
 
     <!-- Modal Backdrop -->
+    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <div
       v-if="showDeleteModal"
       class="modal-backdrop fade show"
@@ -222,11 +259,20 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, nextTick } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue';
 import Modal from 'bootstrap/js/dist/modal';
 import { useCommentStore } from '../../stores/commentStore.js';
 import { useSessionStore } from '../../stores/sessionStore.js';
 import CommentItem from './CommentItem.vue';
+
+const FOCUSABLE_SELECTOR = [
+    'a[href]',
+    'button:not([disabled])',
+    'textarea:not([disabled])',
+    'input:not([disabled])',
+    'select:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])'
+].join(', ');
 
 const props = defineProps({
     itemType: {
@@ -259,6 +305,10 @@ const deletingCommentId = ref(null);
 const replyToComment = ref(null);
 const showDeleteModal = ref(false);
 
+// Focus trap refs
+const deleteModalRef = ref(null);
+const previousFocusElement = ref(null);
+
 // Bootstrap modal instances
 let editModalInstance = null;
 
@@ -274,6 +324,65 @@ const hasRepliesToDelete = computed(() => {
     if (!deletingCommentId.value) return false;
     const replies = commentStore.getReplies(deletingCommentId.value);
     return replies.length > 0;
+});
+
+// Focus trap helpers
+function getFocusableElements(container) {
+    if (!container) return [];
+    return [...container.querySelectorAll(FOCUSABLE_SELECTOR)];
+}
+
+function focusFirstElement(container) {
+    const focusable = getFocusableElements(container);
+    if (focusable.length > 0) {
+        focusable[0].focus();
+    }
+}
+
+function onTabTrap(event, container) {
+    if (!container) return;
+    const focusable = getFocusableElements(container);
+    if (focusable.length === 0) return;
+
+    const firstFocusable = focusable[0];
+    const lastFocusable = focusable[focusable.length - 1];
+
+    if (event.shiftKey) {
+        if (document.activeElement === firstFocusable) {
+            event.preventDefault();
+            lastFocusable.focus();
+        }
+    } else {
+        if (document.activeElement === lastFocusable) {
+            event.preventDefault();
+            firstFocusable.focus();
+        }
+    }
+}
+
+function onEditTabTrap(event) {
+    onTabTrap(event, editModal.value);
+}
+
+function onDeleteTabTrap(event) {
+    onTabTrap(event, deleteModalRef.value);
+}
+
+function closeEditModal() {
+    editModalInstance?.hide();
+}
+
+// Watch for delete modal visibility to manage focus
+watch(showDeleteModal, (newVal) => {
+    if (newVal) {
+        previousFocusElement.value = document.activeElement;
+        nextTick(() => focusFirstElement(deleteModalRef.value));
+    } else {
+        if (previousFocusElement.value) {
+            previousFocusElement.value.focus();
+            previousFocusElement.value = null;
+        }
+    }
 });
 
 // Watch for item changes
@@ -418,6 +527,13 @@ onMounted(() => {
         }
     });
 });
+
+onUnmounted(() => {
+    if (previousFocusElement.value) {
+        previousFocusElement.value.focus();
+        previousFocusElement.value = null;
+    }
+});
 </script>
 
 <style lang="scss" scoped>
@@ -490,7 +606,6 @@ onMounted(() => {
 
     &:focus {
         box-shadow: none;
-        outline: none;
     }
 }
 

@@ -35,7 +35,14 @@ export function useAnnouncer() {
   const createAnnouncerElement = () => {
     const container = document.createElement('div');
     container.id = 'a11y-announcer-container';
-    container.className = 'sr-only';
+    container.className = 'visually-hidden';
+    // Inline styles as fallback in case Bootstrap class is not loaded
+    container.style.position = 'absolute';
+    container.style.width = '1px';
+    container.style.height = '1px';
+    container.style.overflow = 'hidden';
+    container.style.clip = 'rect(0, 0, 0, 0)';
+    container.style.whiteSpace = 'nowrap';
     // Note: aria-hidden is NOT set here because aria-live regions must be perceivable by screen readers
 
     // Create polite region (for non-critical announcements)

@@ -4,8 +4,17 @@
     :class="{ 'multiselect--active': isOpen }"
   >
     <div
+      :id="id"
       class="multiselect__tags"
+      role="combobox"
+      tabindex="0"
+      :aria-expanded="isOpen"
+      aria-haspopup="listbox"
+      :aria-controls="listboxId"
+      :aria-activedescendant="activeDescendantId"
+      :aria-label="triggerLabel"
       @click="toggleDropdown"
+      @keydown="handleKeydown"
     >
       <div class="multiselect__tags-wrap">
         <span
@@ -42,6 +51,10 @@
 
     <div
       v-show="isOpen"
+      :id="listboxId"
+      role="listbox"
+      aria-multiselectable="true"
+      :aria-label="placeholder"
       class="multiselect__content"
     >
       <div class="multiselect__content-wrapper">
@@ -74,17 +87,49 @@
         </div>
 
         <ul class="multiselect__options">
+          <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/interactive-supports-focus, vuejs-accessibility/mouse-events-have-key-events -->
           <li
-            v-for="option in filteredOptions"
+            v-if="createOption"
+            :id="createOptionId"
+            role="option"
+            class="multiselect__option multiselect__option--create"
+            :class="{
+              'multiselect__option--selected': isSelected(createOption),
+              'multiselect__option--highlighted': highlightedIndex === -2
+            }"
+            :aria-selected="isSelected(createOption)"
+            @click="toggleCreateOption"
+            @mouseenter="highlightedIndex = -2"
+          >
+            <input
+              type="checkbox"
+              :checked="isSelected(createOption)"
+              class="multiselect__checkbox"
+              tabindex="-1"
+              @change="toggleCreateOption"
+            >
+            <span class="multiselect__option-text">{{ getOptionLabel(createOption) }}</span>
+          </li>
+          <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/interactive-supports-focus, vuejs-accessibility/mouse-events-have-key-events -->
+          <li
+            v-for="(option, index) in filteredOptions"
+            :id="getOptionId(index)"
             :key="getOptionValue(option)"
+            role="option"
             class="multiselect__option"
-            :class="{ 'multiselect__option--selected': isSelected(option) }"
+            :class="{
+              'multiselect__option--selected': isSelected(option),
+              'multiselect__option--highlighted': highlightedIndex === index
+            }"
+            :aria-selected="isSelected(option)"
             @click="toggleOption(option)"
+            @mouseenter="highlightedIndex = index"
           >
             <input
               type="checkbox"
               :checked="isSelected(option)"
               class="multiselect__checkbox"
+              tabindex="-1"
               @change="toggleOption(option)"
             >
             <span class="multiselect__option-text">{{ getOptionLabel(option) }}</span>
@@ -98,7 +143,13 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 
+let _msIdCounter = 0
+
 const props = defineProps({
+  id: {
+    type: String,
+    default: ''
+  },
   modelValue: {
     type: Array,
     default: () => []
@@ -130,6 +181,14 @@ const props = defineProps({
   showSelectAll: {
     type: Boolean,
     default: true
+  },
+  creatable: {
+    type: Boolean,
+    default: false
+  },
+  createOptionText: {
+    type: String,
+    default: "Create '{text}'"
   }
 })
 
@@ -139,7 +198,50 @@ const isOpen = ref(false)
 const isLoading = ref(false)
 const searchQuery = ref('')
 const filteredOptions = ref([])
-const showCount = ref(10);
+const highlightedIndex = ref(null)
+const showCount = ref(10)
+
+// Unique IDs for ARIA relationships
+const componentId = _msIdCounter++
+const listboxId = `ms-listbox-${componentId}`
+const getOptionId = (index) => `${listboxId}-opt-${index}`
+const createOptionId = `${listboxId}-create`
+
+const createOption = computed(() => {
+  if (!props.creatable || !searchQuery.value.trim()) return null
+
+  const query = searchQuery.value.trim()
+  const queryLower = query.toLowerCase()
+
+  const exactMatch = props.options.some(opt =>
+    getOptionLabel(opt).toLowerCase() === queryLower
+  )
+  if (exactMatch) return null
+
+  return {
+    [props.optionValue]: '__' + query,
+    [props.optionLabel]: props.createOptionText.replace('{text}', query),
+    _isCreateOption: true
+  }
+})
+
+const hasCreateOption = computed(() => createOption.value !== null)
+
+const activeDescendantId = computed(() => {
+  if (highlightedIndex.value === null || highlightedIndex.value === undefined) {
+    return undefined
+  }
+  if (highlightedIndex.value === -2) {
+    return createOptionId
+  }
+  return getOptionId(highlightedIndex.value)
+})
+
+const triggerLabel = computed(() => {
+  const count = selectedItems.value.length
+  if (count === 0) return props.placeholder
+  return `${props.placeholder}, ${count} selected`
+})
 
 const selectedItems = computed(() => {
   return props.modelValue || []
@@ -168,17 +270,23 @@ const isSelected = (option) => {
 }
 
 const getSelectedLabel = (value) => {
-  // If value is an object, try to get its label directly
   if (typeof value === 'object' && value !== null) {
     return getOptionLabel(value)
   }
-  // Otherwise find the matching option
+  if (typeof value === 'string' && value.startsWith('__')) {
+    return value.substring(2)
+  }
   const option = props.options.find(opt => getOptionValue(opt) === value)
   return option ? getOptionLabel(option) : value
 }
 
 const toggleDropdown = () => {
   isOpen.value = !isOpen.value
+  if (isOpen.value) {
+    searchQuery.value = ''
+    filteredOptions.value = [...props.options]
+    highlightedIndex.value = null
+  }
 }
 
 const toggleOption = (option) => {
@@ -193,6 +301,24 @@ const toggleOption = (option) => {
   }
 
   emit('update:modelValue', currentValues)
+}
+
+const toggleCreateOption = () => {
+  if (createOption.value) {
+    const value = getOptionValue(createOption.value)
+    const currentValues = [...selectedItems.value]
+    const index = currentValues.indexOf(value)
+
+    if (index > -1) {
+      currentValues.splice(index, 1)
+    } else {
+      currentValues.push(value)
+    }
+
+    emit('update:modelValue', currentValues)
+    searchQuery.value = ''
+    filterOptions()
+  }
 }
 
 const selectAll = () => {
@@ -217,6 +343,107 @@ const filterOptions = () => {
   })
 }
 
+// Keyboard navigation
+const moveHighlight = (direction) => {
+  if (filteredOptions.value.length === 0 && !hasCreateOption.value) return
+
+  const hasCreate = hasCreateOption.value
+  const totalFlatCount = filteredOptions.value.length + (hasCreate ? 1 : 0)
+
+  let flatIndex
+  if (highlightedIndex.value === null || highlightedIndex.value === undefined) {
+    flatIndex = direction > 0 ? 0 : totalFlatCount - 1
+  } else {
+    if (highlightedIndex.value === -2 && hasCreate) {
+      flatIndex = 0
+    } else {
+      flatIndex = highlightedIndex.value + (hasCreate ? 1 : 0)
+    }
+    flatIndex = (flatIndex + direction + totalFlatCount) % totalFlatCount
+  }
+
+  if (hasCreate && flatIndex === 0) {
+    highlightedIndex.value = -2
+  } else {
+    highlightedIndex.value = flatIndex - (hasCreate ? 1 : 0)
+  }
+}
+
+const highlightFirst = () => {
+  if (filteredOptions.value.length === 0 && !hasCreateOption.value) return
+  highlightedIndex.value = hasCreateOption.value ? -2 : 0
+}
+
+const highlightLast = () => {
+  if (filteredOptions.value.length === 0 && !hasCreateOption.value) return
+  if (filteredOptions.value.length === 0) {
+    highlightedIndex.value = -2
+  } else {
+    highlightedIndex.value = filteredOptions.value.length - 1
+  }
+}
+
+const handleKeydown = (event) => {
+  switch (event.key) {
+    case 'Enter':
+      event.preventDefault()
+      if (!isOpen.value) {
+        toggleDropdown()
+      } else if (highlightedIndex.value === -2) {
+        toggleCreateOption()
+      } else if (highlightedIndex.value !== null && highlightedIndex.value !== undefined) {
+        toggleOption(filteredOptions.value[highlightedIndex.value])
+      }
+      break
+
+    case ' ':
+      event.preventDefault()
+      if (!isOpen.value) {
+        toggleDropdown()
+      } else if (highlightedIndex.value === -2) {
+        toggleCreateOption()
+      } else if (highlightedIndex.value !== null && highlightedIndex.value !== undefined) {
+        toggleOption(filteredOptions.value[highlightedIndex.value])
+      }
+      break
+
+    case 'Escape':
+      event.preventDefault()
+      isOpen.value = false
+      break
+
+    case 'ArrowDown':
+      event.preventDefault()
+      if (!isOpen.value) {
+        toggleDropdown()
+      }
+      moveHighlight(1)
+      break
+
+    case 'ArrowUp':
+      event.preventDefault()
+      if (!isOpen.value) {
+        toggleDropdown()
+      }
+      moveHighlight(-1)
+      break
+
+    case 'Home':
+      event.preventDefault()
+      if (isOpen.value) {
+        highlightFirst()
+      }
+      break
+
+    case 'End':
+      event.preventDefault()
+      if (isOpen.value) {
+        highlightLast()
+      }
+      break
+  }
+}
+
 const handleClickOutside = (event) => {
   const target = event.target
   const multiselect = target.closest('.multiselect')
@@ -233,6 +460,13 @@ const handleMouseDownOutside = (event) => {
     isOpen.value = false
   }
 }
+
+// Reset highlight when dropdown closes
+watch(isOpen, (newVal) => {
+  if (!newVal) {
+    highlightedIndex.value = null
+  }
+})
 
 watch(() => props.options, () => {
   filteredOptions.value = props.options
@@ -396,6 +630,12 @@ onUnmounted(() => {
   background-color: #e3f2fd;
 }
 
+.multiselect__option--highlighted {
+  background-color: #e8e8ff;
+  outline: 2px solid #0d6efd;
+  outline-offset: -2px;
+}
+
 .multiselect__checkbox {
   margin: 0;
 }
@@ -406,8 +646,24 @@ onUnmounted(() => {
 }
 
 /* Focus styles */
+.multiselect__tags:focus-visible {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  outline: none;
+}
+
 .multiselect__tags:focus-within {
   border-color: #86b7fe;
   box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.multiselect__option--create {
+  color: #0d6efd;
+  font-weight: 500;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.multiselect__option--create:hover {
+  background-color: #f0f7ff;
 }
 </style>

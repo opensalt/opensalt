@@ -2,7 +2,10 @@
   <div class="search-filter">
     <div class="input-group">
       <span class="input-group-text">
-        <i class="bi bi-search" />
+        <i
+          class="bi bi-search"
+          aria-hidden="true"
+        />
       </span>
       <input
         ref="searchInput"
@@ -10,6 +13,7 @@
         type="text"
         class="form-control"
         :placeholder="placeholder"
+        aria-label="Search items"
         @input="onSearchInput"
         @keydown="onKeyDown"
       >
@@ -18,9 +22,13 @@
         type="button"
         class="btn btn-outline-secondary"
         title="Clear search"
+        aria-label="Clear search"
         @click="clearSearch"
       >
-        <i class="bi bi-x" />
+        <i
+          class="bi bi-x"
+          aria-hidden="true"
+        />
       </button>
     </div>
 
@@ -37,17 +45,25 @@
           <button
             type="button"
             class="btn btn-sm btn-outline-secondary"
+            aria-label="Toggle advanced filters"
             @click="toggleAdvancedFilters"
           >
-            <i class="bi bi-chevron-up" />
+            <i
+              class="bi bi-chevron-up"
+              aria-hidden="true"
+            />
           </button>
         </div>
         <div class="card-body">
           <div class="row g-3">
             <!-- Filter by item type -->
             <div class="col-md-6">
-              <label class="form-label">Item Type</label>
+              <label
+                class="form-label"
+                for="filter-itemType"
+              >Item Type</label>
               <select
+                id="filter-itemType"
                 v-model="filters.itemType"
                 class="form-select"
                 @change="applyFilters"
@@ -81,8 +97,12 @@
 
             <!-- Filter by subject -->
             <div class="col-md-6">
-              <label class="form-label">Subject</label>
+              <label
+                class="form-label"
+                for="filter-subject"
+              >Subject</label>
               <select
+                id="filter-subject"
                 v-model="filters.subject"
                 class="form-select"
                 @change="applyFilters"
@@ -102,8 +122,12 @@
 
             <!-- Filter by association status -->
             <div class="col-md-6">
-              <label class="form-label">Association Status</label>
+              <label
+                class="form-label"
+                for="filter-associationStatus"
+              >Association Status</label>
               <select
+                id="filter-associationStatus"
                 v-model="filters.associationStatus"
                 class="form-select"
                 @change="applyFilters"
@@ -122,8 +146,12 @@
 
             <!-- Filter by last changed date -->
             <div class="col-md-6">
-              <label class="form-label">Modified Since</label>
+              <label
+                class="form-label"
+                for="filter-modifiedSince"
+              >Modified Since</label>
               <select
+                id="filter-modifiedSince"
                 v-model="filters.modifiedSince"
                 class="form-select"
                 @change="applyFilters"
@@ -222,7 +250,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, nextTick, onUnmounted } from 'vue';
+import { ref, reactive, computed, onUnmounted } from 'vue';
 
 const props = defineProps({
   placeholder: {
@@ -387,13 +415,6 @@ function getFilterValueLabel(key, value) {
   }
   return value;
 }
-
-// Focus search input when component mounts
-nextTick(() => {
-  if (searchInput.value) {
-    searchInput.value.focus();
-  }
-});
 
 // Cleanup timeout on unmount
 onUnmounted(() => {

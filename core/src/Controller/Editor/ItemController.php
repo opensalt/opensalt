@@ -12,6 +12,7 @@ use App\Command\Framework\DeleteItemWithChildrenCommand;
 use App\Command\Framework\UpdateItemCommand;
 use App\DTO\ItemType\ItemTypeInterface;
 use App\Entity\Framework\LsAssociation;
+use App\Entity\Framework\LsDefItemType;
 use App\Entity\Framework\LsDefLicence;
 use App\Entity\Framework\LsDefSubject;
 use App\Entity\Framework\LsDoc;
@@ -508,15 +509,45 @@ class ItemController extends AbstractController
                     if (empty($subjectValue)) {
                         continue;
                     }
-                    $field = is_numeric($subjectValue) ? 'id' : 'identifier';
-                    $subject = $this->managerRegistry->getRepository(LsDefSubject::class)
-                        ->findOneBy([$field => $subjectValue]);
-                    if (null !== $subject) {
-                        $subjects[] = $subject;
+                    if (str_starts_with((string) $subjectValue, '__')) {
+                        $cleanValue = substr((string) $subjectValue, 2);
+                        $newSubject = new LsDefSubject();
+                        $newSubject->setTitle($cleanValue);
+                        $newSubject->setHierarchyCode($cleanValue);
+                        $this->managerRegistry->getManager()->persist($newSubject);
+                        $subjects[] = $newSubject;
+                    } else {
+                        $field = is_numeric($subjectValue) ? 'id' : 'identifier';
+                        $subject = $this->managerRegistry->getRepository(LsDefSubject::class)
+                            ->findOneBy([$field => $subjectValue]);
+                        if (null !== $subject) {
+                            $subjects[] = $subject;
+                        }
                     }
                 }
             }
             $lsItem->setSubjects($subjects);
+        }
+        if (array_key_exists('itemType', $data)) {
+            $itemTypeValue = $data['itemType'];
+            if (empty($itemTypeValue) || '' === $itemTypeValue) {
+                $lsItem->setItemType(null);
+            } elseif (str_starts_with((string) $itemTypeValue, '__')) {
+                $cleanValue = substr((string) $itemTypeValue, 2);
+                $newType = new LsDefItemType();
+                $newType->setCode($cleanValue);
+                $newType->setTitle($cleanValue);
+                $newType->setHierarchyCode($cleanValue);
+                $this->managerRegistry->getManager()->persist($newType);
+                $lsItem->setItemType($newType);
+            } else {
+                $field = is_numeric($itemTypeValue) ? 'id' : 'identifier';
+                $existingType = $this->managerRegistry->getRepository(LsDefItemType::class)
+                    ->findOneBy([$field => $itemTypeValue]);
+                if (null !== $existingType) {
+                    $lsItem->setItemType($existingType);
+                }
+            }
         }
 
         if (null !== $itemType) {
@@ -555,6 +586,8 @@ class ItemController extends AbstractController
         }
         if (isset($data['listEnumeration'])) {
             $lsItem->setListEnumInSource($data['listEnumeration']);
+        } elseif (isset($data['listEnumInSource'])) {
+            $lsItem->setListEnumInSource($data['listEnumInSource']);
         }
         if (isset($data['conceptKeywords'])) {
             $conceptKeywords = $data['conceptKeywords'];
@@ -575,6 +608,12 @@ class ItemController extends AbstractController
                 $educationalAlignment = implode(', ', $educationalAlignment);
             }
             $lsItem->setEducationalAlignment($educationalAlignment);
+        } elseif (isset($data['educationLevel'])) {
+            $educationLevel = $data['educationLevel'];
+            if (is_array($educationLevel)) {
+                $educationLevel = implode(', ', $educationLevel);
+            }
+            $lsItem->setEducationalAlignment($educationLevel);
         }
         if (isset($data['additionalFields']) && is_array($data['additionalFields'])) {
             foreach ($data['additionalFields'] as $fieldName => $value) {
@@ -600,7 +639,7 @@ class ItemController extends AbstractController
             'notes' => $item->getNotes(),
             'language' => $item->getLanguage(),
             'educationalAlignment' => $item->getEducationalAlignment(),
-            'itemType' => $item->getItemType(),
+            'itemType' => $item->getItemType()?->getTitle(),
             'changedAt' => $item->getChangedAt(),
             'extra' => $item->getExtra(),
             'additionalFields' => $item->getAdditionalFields() ?? [],

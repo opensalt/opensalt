@@ -159,12 +159,12 @@ class Notification implements Context
         $admin = $I->haveFriend('new user');
         $admin->does(
             function (\Tests\Support\AcceptanceTester $I) {
-                $I->waitForElementChange('button[data-bs-target="#editItemModal"]', function (WebDriverElement $el) {
+                $I->waitForElementChange('button[title="Edit item"]', function (WebDriverElement $el) {
                     return false !== strpos($el->getAttribute('class'), 'disabled');
                 }, 30);
                 $I->see('Edit', '.disabled');
                 $I->see('Delete', '.disabled');
-                $I->see('Add an Exemplar', '.disabled');
+                $I->see('Add Exemplar', '.disabled');
             }
         );
     }
@@ -179,13 +179,12 @@ class Notification implements Context
         $admin = $I->haveFriend('new user');
         $admin->does(
             function (\Tests\Support\AcceptanceTester $I) {
-                $I->waitForElementChange('button[data-bs-target="#editItemModal"]', function (WebDriverElement $el) {
+                $I->waitForElementChange('button[title="Edit item"]', function (WebDriverElement $el) {
                     return false === strpos($el->getAttribute('class'), 'disabled');
                 }, 30);
                 $I->dontSee('Edit', '.disabled');
                 $I->dontSee('Delete', '.disabled');
-                $I->dontSee('Make This Item a Parent', '.disabled');
-                $I->dontSee('Add an Exemplar', '.disabled');
+                $I->dontSee('Add Exemplar', '.disabled');
             }
         );
     }

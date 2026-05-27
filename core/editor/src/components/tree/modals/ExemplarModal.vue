@@ -47,14 +47,29 @@
         <div class="col-sm-9">
           <input
             id="addExemplarFormUrl"
+            ref="urlInputRef"
             v-model="formData.exemplarUrl"
             type="url"
             class="form-control"
             placeholder="https://example.com/resource"
             required
+            :aria-required="true"
+            :aria-invalid="urlError ? 'true' : undefined"
+            :aria-describedby="urlDescribedBy"
           >
-          <div class="form-text">
+          <div
+            id="help-addExemplarFormUrl"
+            class="form-text"
+          >
             Enter the URL of the exemplar resource
+          </div>
+          <div
+            v-if="urlError"
+            id="error-addExemplarFormUrl"
+            class="invalid-feedback d-block"
+            role="alert"
+          >
+            {{ urlError }}
           </div>
         </div>
       </div>
@@ -152,7 +167,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch, computed } from 'vue';
+import { ref, reactive, watch, computed, nextTick } from 'vue';
 import BaseModal from '../../shared/BaseModal.vue';
 import { useFilterStore } from '../../../stores/filterStore';
 
@@ -176,6 +191,8 @@ const emit = defineEmits(['added', 'hidden', 'update:show']);
 const filterStore = useFilterStore();
 const error = ref('');
 const saving = ref(false);
+const urlInputRef = ref(null);
+const urlError = ref('');
 
 const formData = reactive({
   exemplarUrl: '',
@@ -185,12 +202,18 @@ const formData = reactive({
 });
 
 const filteredGroups = computed(() => {
-  return props.associationGroups.filter(g => 
-    g.id !== 'default' && 
-    g.id !== 'all' && 
-    g.title !== 'Default' && 
+  return props.associationGroups.filter(g =>
+    g.id !== 'default' &&
+    g.id !== 'all' &&
+    g.title !== 'Default' &&
     g.title !== 'All'
   );
+});
+
+const urlDescribedBy = computed(() => {
+  const ids = ['help-addExemplarFormUrl'];
+  if (urlError.value) ids.push('error-addExemplarFormUrl');
+  return ids.join(' ');
 });
 
 watch(() => props.show, (newVal) => {
@@ -205,6 +228,7 @@ function resetForm() {
   formData.annotation = '';
   formData.groupId = filterStore.selectedAssociationGroup === 'all' ? 'default' : filterStore.selectedAssociationGroup;
   error.value = '';
+  urlError.value = '';
 }
 
 function validateUrl(url) {
@@ -222,18 +246,29 @@ function closeModal() {
 }
 
 function addExemplar() {
+  urlError.value = '';
+
   if (!formData.exemplarUrl.trim()) {
-    error.value = 'URL is required';
+    urlError.value = 'URL is required';
+    nextTick(() => {
+      urlInputRef.value?.focus();
+    });
     return;
   }
 
   if (!validateUrl(formData.exemplarUrl)) {
-    error.value = 'Please enter a valid URL';
+    urlError.value = 'Please enter a valid URL';
+    nextTick(() => {
+      urlInputRef.value?.focus();
+    });
     return;
   }
 
   if (formData.exemplarUrl.length > 300) {
-    error.value = 'URL must be 300 characters or less';
+    urlError.value = 'URL must be 300 characters or less';
+    nextTick(() => {
+      urlInputRef.value?.focus();
+    });
     return;
   }
 

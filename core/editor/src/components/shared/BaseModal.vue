@@ -2,7 +2,7 @@
   <Teleport to="body">
     <Transition name="modal-fade">
       <div
-        v-if="isOpen"
+        v-show="isOpen"
         :id="id"
         ref="modalRef"
         class="modal fade show"
@@ -11,9 +11,10 @@
         role="dialog"
         :aria-labelledby="ariaLabelledby"
         :aria-modal="isOpen ? 'true' : undefined"
-        aria-hidden="true"
+        :aria-hidden="!isOpen"
         @click.self="onBackdropClick"
         @keydown.escape.prevent.stop="onEscape"
+        @keydown.tab="onTabTrap"
       >
         <div
           class="modal-dialog"
@@ -59,7 +60,16 @@
 </template>
 
 <script setup>
-import { computed, ref, watch, onMounted, onUnmounted } from 'vue';
+import { computed, ref, watch, nextTick, onMounted, onUnmounted } from 'vue';
+
+const FOCUSABLE_SELECTOR = [
+  'a[href]',
+  'button:not([disabled])',
+  'textarea:not([disabled])',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])'
+].join(', ');
 
 const props = defineProps({
   isOpen: {
@@ -103,6 +113,7 @@ const props = defineProps({
 const emit = defineEmits(['update:isOpen', 'hidden', 'shown']);
 
 const modalRef = ref(null);
+const previousFocusElement = ref(null);
 
 const sizeClass = computed(() => {
   if (!props.size) return '';
@@ -127,23 +138,72 @@ function onEscape() {
   }
 }
 
+function getFocusableElements() {
+  if (!modalRef.value) return [];
+  return [...modalRef.value.querySelectorAll(FOCUSABLE_SELECTOR)];
+}
+
+function focusFirstElement() {
+  const focusable = getFocusableElements();
+  if (focusable.length > 0) {
+    focusable[0].focus();
+  }
+}
+
+function onTabTrap(event) {
+  if (!modalRef.value) return;
+  const focusable = getFocusableElements();
+  if (focusable.length === 0) return;
+
+  const firstFocusable = focusable[0];
+  const lastFocusable = focusable[focusable.length - 1];
+
+  if (event.shiftKey) {
+    if (document.activeElement === firstFocusable) {
+      event.preventDefault();
+      lastFocusable.focus();
+    }
+  } else {
+    if (document.activeElement === lastFocusable) {
+      event.preventDefault();
+      firstFocusable.focus();
+    }
+  }
+}
+
 watch(() => props.isOpen, (newVal) => {
   if (newVal) {
+    previousFocusElement.value = document.activeElement;
     document.body.style.overflow = 'hidden';
     emit('shown');
+    nextTick(() => focusFirstElement());
   } else {
     document.body.style.overflow = '';
+    if (previousFocusElement.value) {
+      previousFocusElement.value.focus();
+      previousFocusElement.value = null;
+    }
   }
 });
 
 onMounted(() => {
   if (props.isOpen) {
+    previousFocusElement.value = document.activeElement;
     document.body.style.overflow = 'hidden';
+    nextTick(() => {
+      if (props.isOpen) {
+        focusFirstElement();
+      }
+    });
   }
 });
 
 onUnmounted(() => {
   document.body.style.overflow = '';
+  if (previousFocusElement.value) {
+    previousFocusElement.value.focus();
+    previousFocusElement.value = null;
+  }
 });
 </script>
 

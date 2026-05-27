@@ -40,7 +40,7 @@ class Exemplar implements Context
         $I->waitForElementNotVisible('#modalSpinner');
 
         // Wait for the Vue app to fully initialize (session check, item load, editability)
-        $I->waitForElementVisible('#rightSideCopyItemsBtn', 30);
+        $I->waitForElementVisible('#tab-externalDocument', 30);
         $I->waitForElementVisible('#addExemplarBtn', 10);
 
         $I->click('#addExemplarBtn');

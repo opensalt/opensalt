@@ -62,7 +62,10 @@
             v-if="frameworkTitle && !isLoading && targetTypeInfo.isCase"
             class="badge framework-badge ms-2"
           >
-            <i class="bi bi-box-arrow-up-right me-1" />{{ frameworkTitle }}
+            <i
+              class="bi bi-box-arrow-up-right me-1"
+              aria-hidden="true"
+            />{{ frameworkTitle }}
           </span>
           <!-- Source framework badge for associations from other frameworks -->
           <span
@@ -70,14 +73,20 @@
             class="badge source-framework-badge ms-2"
             :title="'Association defined in: ' + sourceFrameworkTitle"
           >
-            <i class="bi bi-folder2-open me-1" />Source: {{ sourceFrameworkTitle }}
+            <i
+              class="bi bi-folder2-open me-1"
+              aria-hidden="true"
+            />Source: {{ sourceFrameworkTitle }}
           </span>
           <!-- Non-CASE item indicator -->
           <span
             v-if="!targetTypeInfo.isCase && isCrossFramework"
             class="badge external-uri-badge ms-2"
           >
-            <i class="bi bi-link-45deg me-1" />External URI
+            <i
+              class="bi bi-link-45deg me-1"
+              aria-hidden="true"
+            />External URI
           </span>
           <!-- Error indicator for failed fetches -->
           <span
@@ -85,7 +94,10 @@
             class="badge error-badge ms-2"
             :title="fetchError.message"
           >
-            <i class="bi bi-exclamation-triangle me-1" />{{ fetchError.type === 'permission' ? 'No access' : fetchError.type === 'not_found' ? 'Not found' : 'Load error' }}
+            <i
+              class="bi bi-exclamation-triangle me-1"
+              aria-hidden="true"
+            />{{ fetchError.type === 'permission' ? 'No access' : fetchError.type === 'not_found' ? 'Not found' : 'Load error' }}
           </span>
           <!-- Loading indicator for queued frameworks -->
           <span
@@ -131,7 +143,10 @@
         title="Edit association"
         @click="$emit('edit', association)"
       >
-        <i class="bi bi-pencil" />
+        <i
+          class="bi bi-pencil"
+          aria-hidden="true"
+        />
       </button>
       <button
         type="button"
@@ -139,7 +154,10 @@
         title="Delete association"
         @click="$emit('delete', association)"
       >
-        <i class="bi bi-trash" />
+        <i
+          class="bi bi-trash"
+          aria-hidden="true"
+        />
       </button>
     </div>
   </div>

@@ -3,41 +3,57 @@
     v-if="canEditItem && !isItemFromViewedFramework && !isReadOnly"
     class="btn-group btn-group-sm me-2"
   >
-    <button 
+    <button
       v-if="canMoveUp"
-      type="button" 
+      type="button"
       class="btn btn-outline-secondary"
       title="Move Up"
+      aria-label="Move item up"
       @click="move('up')"
     >
-      <i class="bi bi-arrow-up" />
+      <i
+        class="bi bi-arrow-up"
+        aria-hidden="true"
+      />
     </button>
-    <button 
+    <button
       v-if="canMoveDown"
-      type="button" 
+      type="button"
       class="btn btn-outline-secondary"
       title="Move Down"
+      aria-label="Move item down"
       @click="move('down')"
     >
-      <i class="bi bi-arrow-down" />
+      <i
+        class="bi bi-arrow-down"
+        aria-hidden="true"
+      />
     </button>
-    <button 
+    <button
       v-if="canIndent"
-      type="button" 
+      type="button"
       class="btn btn-outline-secondary"
       title="Indent (Make child of previous sibling)"
+      aria-label="Indent item"
       @click="move('indent')"
     >
-      <i class="bi bi-arrow-right" />
+      <i
+        class="bi bi-arrow-right"
+        aria-hidden="true"
+      />
     </button>
-    <button 
+    <button
       v-if="canOutdent"
-      type="button" 
+      type="button"
       class="btn btn-outline-secondary"
       title="Outdent (Move to parent level)"
+      aria-label="Outdent item"
       @click="move('outdent')"
     >
-      <i class="bi bi-arrow-left" />
+      <i
+        class="bi bi-arrow-left"
+        aria-hidden="true"
+      />
     </button>
   </div>
 </template>
@@ -72,8 +88,8 @@ const props = defineProps({
 });
 
 const isInternalItem = computed(() => {
-  return props.currentDocument?.id && 
-    (props.item?.documentId === props.currentDocument.id || 
+  return props.currentDocument?.id &&
+    (props.item?.documentId === props.currentDocument.id ||
      props.item?.CFDocumentURI?.identifier === props.currentDocument.id);
 });
 
@@ -91,7 +107,7 @@ const path = computed(() => {
 const parentLevelContext = computed(() => {
   if (!path.value) return null;
   const p = path.value;
-  
+
   if (p.length === 1) {
     // Root level
     return {
@@ -113,7 +129,7 @@ const parentLevelContext = computed(() => {
             break;
         }
     }
-    
+
     if (parentObj) {
         return {
             siblings: parentObj.children || [],

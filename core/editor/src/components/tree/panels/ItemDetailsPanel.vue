@@ -1,5 +1,8 @@
 <template>
-  <div class="item-details-panel">
+  <section
+    class="item-details-panel"
+    aria-label="Item details"
+  >
     <!-- Document Details (when no item selected) -->
     <!-- Show viewed document details when viewing a different framework, otherwise show current document -->
     <DocumentDetailsPanel
@@ -24,7 +27,10 @@
       v-else-if="!selectedItem && !currentDocument"
       class="text-center text-muted p-4"
     >
-      <i class="bi bi-file-earmark fs-1 mb-3" />
+      <i
+        class="bi bi-file-earmark fs-1 mb-3"
+        aria-hidden="true"
+      />
       <p>No document loaded</p>
     </div>
 
@@ -43,7 +49,7 @@
       @delete-association="$emit('delete-association', $event)"
       @update-item="$emit('update-item', $event)"
     />
-  </div>
+  </section>
 </template>
 
 <script setup>
@@ -99,13 +105,6 @@ const displayDocument = computed(() => {
   return props.currentDocument;
 });
 </script>
-
-<style scoped>
-.item-details-panel {
-  flex: 1;
-  min-height: 0;
-}
-</style>
 
 <style scoped>
 .item-details-panel {

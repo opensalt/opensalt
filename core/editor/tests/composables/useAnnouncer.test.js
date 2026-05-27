@@ -33,6 +33,7 @@ describe('useAnnouncer', () => {
     const createMockElement = (id) => ({
       id: id || '',
       className: '',
+      style: {},
       textContent: '',
       setAttribute: vi.fn(),
       appendChild: vi.fn(function(child) {

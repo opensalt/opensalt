@@ -64,7 +64,10 @@
                   title="Edit group"
                   @click="editGroup(group)"
                 >
-                  <i class="bi bi-pencil" />
+                  <i
+                    class="bi bi-pencil"
+                    aria-hidden="true"
+                  />
                 </button>
                 <button
                   type="button"
@@ -72,7 +75,10 @@
                   title="Delete group"
                   @click="deleteGroup(group)"
                 >
-                  <i class="bi bi-trash" />
+                  <i
+                    class="bi bi-trash"
+                    aria-hidden="true"
+                  />
                 </button>
               </div>
             </td>
@@ -86,7 +92,10 @@
           class="btn btn-primary"
           @click="showAddModal"
         >
-          <i class="bi bi-plus-circle" /> Add a New Association Group
+          <i
+            class="bi bi-plus-circle"
+            aria-hidden="true"
+          /> Add a New Association Group
         </button>
       </div>
     </div>

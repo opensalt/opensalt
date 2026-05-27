@@ -39,6 +39,7 @@
     "vue-router": "^5.0.4"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.3",
     "@eslint/js": "^10.0.0",
     "@playwright/test": "^1.58.2",
     "@vitejs/plugin-vue": "^6.0.5",
@@ -47,6 +48,7 @@
     "eslint": "^10.1.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-vue": "^10.4.0",
+    "eslint-plugin-vuejs-accessibility": "^2.5.0",
     "globals": "^17.4.0",
     "happy-dom": "^20.8.8",
     "jsdom": "^29.0.1",

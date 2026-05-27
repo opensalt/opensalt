@@ -13,7 +13,10 @@
         :aria-pressed="currentView === 'tree'"
         @click="switchView('tree')"
       >
-        <i class="bi bi-diagram-3 me-1" />
+        <i
+          class="bi bi-diagram-3 me-1"
+          aria-hidden="true"
+        />
         Tree View
       </button>
       <button
@@ -24,7 +27,10 @@
         :aria-pressed="currentView === 'association'"
         @click="switchView('association')"
       >
-        <i class="bi bi-share me-1" />
+        <i
+          class="bi bi-share me-1"
+          aria-hidden="true"
+        />
         Association View
       </button>
       <button
@@ -36,7 +42,10 @@
         :aria-pressed="currentView === 'log'"
         @click="switchView('log')"
       >
-        <i class="bi bi-list-check me-1" />
+        <i
+          class="bi bi-list-check me-1"
+          aria-hidden="true"
+        />
         Log View
       </button>
     </div>

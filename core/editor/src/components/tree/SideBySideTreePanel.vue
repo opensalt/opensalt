@@ -4,25 +4,41 @@
     <div class="mode-tabs mb-2">
       <div
         class="btn-group w-100"
-        role="group"
+        role="tablist"
         aria-label="Panel mode selection"
       >
         <button
+          id="side-tab-itemDetails"
           type="button"
+          role="tab"
           class="btn btn-sm"
           :class="{ 'btn-primary': mode === 'itemDetails', 'btn-outline-primary': mode !== 'itemDetails' }"
+          :aria-selected="mode === 'itemDetails'"
+          :tabindex="mode === 'itemDetails' ? 0 : -1"
           @click="$emit('mode-changed', 'itemDetails')"
+          @keydown="onTabKeydown"
         >
-          <i class="bi bi-info-circle me-1" />
+          <i
+            class="bi bi-info-circle me-1"
+            aria-hidden="true"
+          />
           Item Details
         </button>
         <button
+          id="side-tab-externalDocument"
           type="button"
+          role="tab"
           class="btn btn-sm"
           :class="{ 'btn-primary': mode === 'externalDocument', 'btn-outline-primary': mode !== 'externalDocument' }"
+          :aria-selected="mode === 'externalDocument'"
+          :tabindex="mode === 'externalDocument' ? 0 : -1"
           @click="$emit('mode-changed', 'externalDocument')"
+          @keydown="onTabKeydown"
         >
-          <i class="bi bi-box-arrow-in-right me-1" />
+          <i
+            class="bi bi-box-arrow-in-right me-1"
+            aria-hidden="true"
+          />
           Copy / Associate
         </button>
       </div>
@@ -31,14 +47,19 @@
     <!-- Content Area -->
     <div class="panel-content flex-grow-1 overflow-hidden">
       <!-- Item Details Mode -->
-      <slot
+      <div
         v-if="mode === 'itemDetails'"
-        name="item-details"
-      />
+        role="tabpanel"
+        aria-labelledby="side-tab-itemDetails"
+      >
+        <slot name="item-details" />
+      </div>
 
       <!-- Copy Items or Create Associations Mode -->
       <div
         v-else
+        role="tabpanel"
+        aria-labelledby="side-tab-externalDocument"
         class="side-tree-container h-100 d-flex flex-column"
       >
         <!-- Document Selector -->
@@ -180,13 +201,15 @@
 </template>
 
 <script setup>
-import { ref, watch, computed, provide } from 'vue';
+import { ref, watch, computed, provide, nextTick } from 'vue';
 import TreeView from './TreeView.vue';
 import DocumentSelector from '../shared/common/DocumentSelector.vue';
 import { logger } from '@/utils/logger.js';
 import { useEditorContextStore } from '@/stores/editorContextStore';
 import { useSideTreePanel } from '../../composables/useSideTreePanel';
 import { useTreeNavigation } from '../../composables/useTreeNavigation';
+
+const allTabs = ['itemDetails', 'externalDocument'];
 
 const props = defineProps({
   mode: {
@@ -282,6 +305,35 @@ function onExternalDocumentRequested() {
 function onSideSelect(id) {
   sideSelectedId.value = id;
   emit('side-select', id);
+}
+
+function onTabKeydown(event) {
+  const tabs = allTabs;
+  const currentIndex = tabs.indexOf(props.mode);
+  let newIndex;
+
+  switch (event.key) {
+    case 'ArrowRight':
+      newIndex = (currentIndex + 1) % tabs.length;
+      break;
+    case 'ArrowLeft':
+      newIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+      break;
+    case 'Home':
+      newIndex = 0;
+      break;
+    case 'End':
+      newIndex = tabs.length - 1;
+      break;
+    default:
+      return;
+  }
+
+  event.preventDefault();
+  emit('mode-changed', tabs[newIndex]);
+  nextTick(() => {
+    document.getElementById(`side-tab-${tabs[newIndex]}`)?.focus();
+  });
 }
 
 // Reset selection when document changes

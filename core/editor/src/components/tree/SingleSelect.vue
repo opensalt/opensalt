@@ -4,8 +4,16 @@
     :class="{ 'singleselect--active': isOpen }"
   >
     <div
+      :id="id"
       class="singleselect__tags"
+      role="combobox"
+      tabindex="0"
+      :aria-expanded="isOpen"
+      aria-haspopup="listbox"
+      :aria-controls="listboxId"
+      :aria-activedescendant="activeDescendantId"
       @click="toggleDropdown"
+      @keydown="handleKeydown"
     >
       <div class="singleselect__tags-wrap">
         <span
@@ -30,6 +38,9 @@
 
     <div
       v-show="isOpen"
+      :id="listboxId"
+      role="listbox"
+      :aria-label="placeholder"
       class="singleselect__content"
     >
       <div class="singleselect__content-wrapper">
@@ -47,25 +58,52 @@
         </div>
 
         <ul class="singleselect__options">
+          <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/interactive-supports-focus, vuejs-accessibility/mouse-events-have-key-events -->
           <li
             v-if="allowClear"
+            :id="clearOptionId"
+            role="option"
             class="singleselect__option singleselect__option--clear"
+            :class="{ 'singleselect__option--highlighted': highlightedIndex === -1 }"
+            :aria-selected="modelValue === null"
             @click="clearSelection"
+            @mouseenter="highlightedIndex = -1"
           >
             <span class="singleselect__option-text">{{ clearText }}</span>
           </li>
+          <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/interactive-supports-focus, vuejs-accessibility/mouse-events-have-key-events -->
           <li
-            v-for="option in filteredOptions"
+            v-if="createOption"
+            :id="createOptionId"
+            role="option"
+            class="singleselect__option singleselect__option--create"
+            :class="{ 'singleselect__option--highlighted': highlightedIndex === -2 }"
+            @click="selectCreateOption"
+            @mouseenter="highlightedIndex = -2"
+          >
+            <span class="singleselect__option-text">{{ getOptionLabel(createOption) }}</span>
+          </li>
+          <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/interactive-supports-focus, vuejs-accessibility/mouse-events-have-key-events -->
+          <li
+            v-for="(option, index) in filteredOptions"
+            :id="getOptionId(index)"
             :key="getOptionValue(option)"
+            role="option"
             class="singleselect__option"
-            :class="{ 'singleselect__option--selected': isSelected(option) }"
+            :class="{
+              'singleselect__option--selected': isSelected(option),
+              'singleselect__option--highlighted': highlightedIndex === index
+            }"
+            :aria-selected="isSelected(option)"
             @click="selectOption(option)"
+            @mouseenter="highlightedIndex = index"
           >
             <span class="singleselect__option-text">{{ getOptionLabel(option) }}</span>
           </li>
           <li
-            v-if="filteredOptions.length === 0"
+            v-if="filteredOptions.length === 0 && !createOption"
             class="singleselect__option singleselect__option--disabled"
+            role="presentation"
           >
             <span class="singleselect__option-text">{{ noResultsText }}</span>
           </li>
@@ -78,7 +116,13 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 
+let _ssIdCounter = 0
+
 const props = defineProps({
+  id: {
+    type: String,
+    default: ''
+  },
   modelValue: {
     type: [String, Number, null],
     default: null
@@ -118,6 +162,14 @@ const props = defineProps({
   noResultsText: {
     type: String,
     default: 'No results found'
+  },
+  creatable: {
+    type: Boolean,
+    default: false
+  },
+  createOptionText: {
+    type: String,
+    default: "Create '{text}'"
   }
 })
 
@@ -127,6 +179,27 @@ const isOpen = ref(false)
 const isLoading = ref(false)
 const searchQuery = ref('')
 const filteredOptions = ref([])
+const highlightedIndex = ref(null)
+
+// Unique IDs for ARIA relationships
+const componentId = _ssIdCounter++
+const listboxId = `ss-listbox-${componentId}`
+const clearOptionId = `${listboxId}-clear`
+const createOptionId = `${listboxId}-create`
+const getOptionId = (index) => `${listboxId}-opt-${index}`
+
+const activeDescendantId = computed(() => {
+  if (highlightedIndex.value === null || highlightedIndex.value === undefined) {
+    return undefined
+  }
+  if (highlightedIndex.value === -2) {
+    return createOptionId
+  }
+  if (highlightedIndex.value === -1) {
+    return clearOptionId
+  }
+  return getOptionId(highlightedIndex.value)
+})
 
 const getOptionValue = (option) => {
   if (option === null || option === undefined) return null
@@ -144,11 +217,43 @@ const getOptionLabel = (option) => {
   return option
 }
 
+const createOption = computed(() => {
+  if (!props.creatable || !searchQuery.value.trim()) return null
+
+  const query = searchQuery.value.trim()
+  const queryLower = query.toLowerCase()
+
+  const exactMatch = props.options.some(opt =>
+    getOptionLabel(opt).toLowerCase() === queryLower
+  )
+  if (exactMatch) return null
+
+  return {
+    [props.optionValue]: '__' + query,
+    [props.optionLabel]: props.createOptionText.replace('{text}', query),
+    _isCreateOption: true
+  }
+})
+
+const hasCreateOption = computed(() => createOption.value !== null)
+
 const selectedItem = computed(() => {
   if (props.modelValue === null || props.modelValue === undefined || props.modelValue === '') {
     return null
   }
-  return props.options.find(opt => getOptionValue(opt) === props.modelValue) || null
+  const found = props.options.find(opt => getOptionValue(opt) === props.modelValue)
+  if (found) return found
+
+  if (typeof props.modelValue === 'string' && props.modelValue.startsWith('__')) {
+    const cleanValue = props.modelValue.substring(2)
+    return {
+      [props.optionValue]: props.modelValue,
+      [props.optionLabel]: cleanValue,
+      _isCreateOption: true
+    }
+  }
+
+  return null
 })
 
 const selectedLabel = computed(() => {
@@ -165,6 +270,7 @@ const toggleDropdown = () => {
     // Reset search when opening and sync with current options
     searchQuery.value = ''
     filteredOptions.value = [...props.options] // Create a new array to ensure reactivity
+    highlightedIndex.value = null
   }
 }
 
@@ -193,6 +299,125 @@ const filterOptions = () => {
   })
 }
 
+const selectCreateOption = () => {
+  if (createOption.value) {
+    emit('update:modelValue', getOptionValue(createOption.value))
+    isOpen.value = false
+    searchQuery.value = ''
+  }
+}
+
+// Keyboard navigation
+const moveHighlight = (direction) => {
+  if (filteredOptions.value.length === 0 && !hasCreateOption.value) return
+
+  const hasClear = props.allowClear
+  const hasCreate = hasCreateOption.value
+  const totalFlatCount = filteredOptions.value.length + (hasClear ? 1 : 0) + (hasCreate ? 1 : 0)
+
+  let flatIndex
+  if (highlightedIndex.value === null || highlightedIndex.value === undefined) {
+    flatIndex = direction > 0 ? 0 : totalFlatCount - 1
+  } else {
+    if (highlightedIndex.value === -2 && hasCreate) {
+      flatIndex = 0
+    } else if (highlightedIndex.value === -1 && hasClear) {
+      flatIndex = hasCreate ? 1 : 0
+    } else {
+      const offset = (hasCreate ? 1 : 0) + (hasClear ? 1 : 0)
+      flatIndex = highlightedIndex.value + offset
+    }
+    flatIndex = (flatIndex + direction + totalFlatCount) % totalFlatCount
+  }
+
+  const createCount = hasCreate ? 1 : 0
+  const clearCount = hasClear ? 1 : 0
+  const specialCount = createCount + clearCount
+
+  if (flatIndex < specialCount) {
+    if (hasCreate && flatIndex === 0) {
+      highlightedIndex.value = -2
+    } else {
+      highlightedIndex.value = -1
+    }
+  } else {
+    highlightedIndex.value = flatIndex - specialCount
+  }
+}
+
+const highlightFirst = () => {
+  if (filteredOptions.value.length === 0 && !hasCreateOption.value) return
+  if (hasCreateOption.value) {
+    highlightedIndex.value = -2
+  } else {
+    highlightedIndex.value = props.allowClear ? -1 : 0
+  }
+}
+
+const highlightLast = () => {
+  if (filteredOptions.value.length === 0 && !hasCreateOption.value) return
+  if (filteredOptions.value.length === 0) {
+    highlightedIndex.value = -2
+  } else {
+    highlightedIndex.value = filteredOptions.value.length - 1
+  }
+}
+
+const handleKeydown = (event) => {
+  switch (event.key) {
+    case 'Enter':
+    case ' ':
+      event.preventDefault()
+      if (!isOpen.value) {
+        toggleDropdown()
+      } else if (highlightedIndex.value !== null && highlightedIndex.value !== undefined) {
+        if (highlightedIndex.value === -2) {
+          selectCreateOption()
+        } else if (highlightedIndex.value === -1) {
+          clearSelection()
+        } else {
+          selectOption(filteredOptions.value[highlightedIndex.value])
+        }
+      }
+      break
+
+    case 'Escape':
+      event.preventDefault()
+      isOpen.value = false
+      break
+
+    case 'ArrowDown':
+      event.preventDefault()
+      if (!isOpen.value) {
+        toggleDropdown()
+      }
+      moveHighlight(1)
+      break
+
+    case 'ArrowUp':
+      event.preventDefault()
+      if (!isOpen.value) {
+        toggleDropdown()
+      }
+      moveHighlight(-1)
+      break
+
+    case 'Home':
+      event.preventDefault()
+      if (isOpen.value) {
+        highlightFirst()
+      }
+      break
+
+    case 'End':
+      event.preventDefault()
+      if (isOpen.value) {
+        highlightLast()
+      }
+      break
+  }
+}
+
 const handleClickOutside = (event) => {
   const target = event.target
   const singleselect = target.closest('.singleselect')
@@ -209,6 +434,13 @@ const handleMouseDownOutside = (event) => {
     isOpen.value = false
   }
 }
+
+// Reset highlight when dropdown closes
+watch(isOpen, (newVal) => {
+  if (!newVal) {
+    highlightedIndex.value = null
+  }
+})
 
 watch(() => props.options, (newOptions) => {
   filteredOptions.value = newOptions
@@ -353,6 +585,12 @@ onUnmounted(() => {
   background-color: #e3f2fd;
 }
 
+.singleselect__option--highlighted {
+  background-color: #e8e8ff;
+  outline: 2px solid #0d6efd;
+  outline-offset: -2px;
+}
+
 .singleselect__option--clear {
   color: #6c757d;
   font-style: italic;
@@ -361,6 +599,16 @@ onUnmounted(() => {
 
 .singleselect__option--clear:hover {
   background-color: #f8f9fa;
+}
+
+.singleselect__option--create {
+  color: #0d6efd;
+  font-weight: 500;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.singleselect__option--create:hover {
+  background-color: #f0f7ff;
 }
 
 .singleselect__option--disabled {
@@ -378,6 +626,12 @@ onUnmounted(() => {
 }
 
 /* Focus styles */
+.singleselect__tags:focus-visible {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  outline: none;
+}
+
 .singleselect__tags:focus-within {
   border-color: #86b7fe;
   box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);

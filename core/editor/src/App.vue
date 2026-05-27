@@ -3,6 +3,12 @@
     id="editor"
     class="d-flex flex-column h-100 overflow-hidden"
   >
+    <a
+      href="#main-content"
+      class="visually-hidden-focusable skip-link"
+    >
+      Skip to main content
+    </a>
     <div
       class="container-fluid d-flex flex-column flex-grow-1 overflow-hidden"
       style="min-height: 0;"
@@ -47,8 +53,8 @@
         :key="toast.id"
         class="toast align-items-center border-0 show mb-2"
         :class="`text-bg-${toast.type}`"
-        role="alert"
-        aria-live="assertive"
+        :role="toast.type === 'danger' ? 'alert' : 'status'"
+        :aria-live="toast.type === 'danger' ? 'assertive' : 'polite'"
         aria-atomic="true"
       >
         <div class="d-flex">
@@ -56,20 +62,24 @@
             <i
               v-if="toast.type === 'success'"
               class="bi bi-check-circle-fill me-2"
+              aria-hidden="true"
             />
             <i
               v-else-if="toast.type === 'danger'"
               class="bi bi-x-circle-fill me-2"
+              aria-hidden="true"
             />
             <i
               v-else
               class="bi bi-info-circle-fill me-2"
+              aria-hidden="true"
             />
             {{ toast.message }}
           </div>
           <button
             type="button"
             class="btn-close btn-close-white me-2 m-auto"
+            aria-label="Close notification"
             @click="removeToast(toast.id)"
           />
         </div>
@@ -131,6 +141,22 @@ watch(() => doc.value?.title, (newTitle) => {
 
 <style>
 @import './styles/cftree-styles.scss';
+
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  padding: 0.5rem 1rem;
+  background: #000;
+  color: #fff;
+  text-decoration: none;
+}
+.skip-link:focus {
+  clip: auto;
+  width: auto;
+  height: auto;
+}
 
 .toast-container {
   pointer-events: none;

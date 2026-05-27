@@ -105,7 +105,10 @@
                 class="badge framework-badge"
                 :title="`From: ${originFrameworkTitle}`"
               >
-                <i class="bi bi-box-arrow-up-right me-1" />{{ originFrameworkTitle }}
+                <i
+                  class="bi bi-box-arrow-up-right me-1"
+                  aria-hidden="true"
+                />{{ originFrameworkTitle }}
               </span>
               <!-- Non-CASE item indicator -->
               <span
@@ -113,7 +116,10 @@
                 class="badge external-uri-badge"
                 title="External URI"
               >
-                <i class="bi bi-link-45deg me-1" />External
+                <i
+                  class="bi bi-link-45deg me-1"
+                  aria-hidden="true"
+                />External
               </span>
             </div>
             <!-- Source framework tag moved to Origin column -->
@@ -122,7 +128,10 @@
               class="mt-2 text-muted small border-top pt-1 border-opacity-25"
               style="max-width: 250px;"
             >
-              <i class="bi bi-folder2-open me-1" />Source: {{ sourceFrameworkTitle }}
+              <i
+                class="bi bi-folder2-open me-1"
+                aria-hidden="true"
+              />Source: {{ sourceFrameworkTitle }}
             </div>
           </template>
         </div>
@@ -263,7 +272,10 @@
       </td>
 
       <!-- Actions Column -->
-      <td v-if="!isReadOnly" class="py-3 text-end">
+      <td
+        v-if="!isReadOnly"
+        class="py-3 text-end"
+      >
         <div
           v-if="canManageAssociation || canDeleteAssociation"
           class="btn-group btn-group-sm"

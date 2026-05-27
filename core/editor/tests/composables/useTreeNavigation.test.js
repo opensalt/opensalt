@@ -66,7 +66,6 @@ describe('useTreeNavigation', () => {
       navigation = useTreeNavigation();
 
       expect(navigation.focusedItemId.value).toBeNull();
-      expect(navigation.treeRef.value).toBeNull();
     });
 
     it('initializes with provided options', () => {
@@ -76,8 +75,8 @@ describe('useTreeNavigation', () => {
         onSelect: mockOnSelect
       });
 
-      // Focus is not automatically set - must call initializeFocus()
-      expect(navigation.focusedItemId.value).toBeNull();
+      // Focus is automatically set to the first item via immediate watcher
+      expect(navigation.focusedItemId.value).toBe('item-1');
     });
 
     it('provides navigation context to child components', () => {
@@ -658,11 +657,14 @@ describe('useTreeNavigation', () => {
   describe('initializeFocus', () => {
     it('sets focus to first visible item', () => {
       navigation = useTreeNavigation({ items: mockItems });
-      expect(navigation.focusedItemId.value).toBeNull();
+      // Focus is automatically set to the first item via immediate watcher
+      expect(navigation.focusedItemId.value).toBe('item-1');
 
+      // Calling initializeFocus() should not override existing focus
+      navigation.setFocus('item-3');
       navigation.initializeFocus();
 
-      expect(navigation.focusedItemId.value).toBe('item-1');
+      expect(navigation.focusedItemId.value).toBe('item-3');
     });
 
     it('does not change focus if already set', () => {

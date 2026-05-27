@@ -17,7 +17,7 @@ $neutral-bg: #777;
 $neutral-bg-light: #ddd;
 $dragbar-bg: #d5d5d5;
 $text-color: #333;
-$text-color-light: #777;
+$text-color-light: #5a6268;
 $white: #fff;
 $black: #000;
 
@@ -554,7 +554,7 @@ mark {
   display: inline-flex;
   align-items: center;
   margin-right: 0.25rem;
-  color: #6c757d;
+  color: #5a6268;
   font-size: 0.875em;
   cursor: help;
 }
@@ -575,7 +575,7 @@ mark {
   .viewed-framework {
     display: flex;
     align-items: center;
-    color: #6c757d;
+    color: #5a6268;
   }
 }
 
@@ -588,7 +588,7 @@ mark {
   display: inline-flex;
   align-items: center;
   font-size: 0.75rem;
-  color: #0d6efd;
+  color: #0056b3;
 
   i {
     margin-right: 0.25rem;
@@ -730,7 +730,7 @@ mark {
   display: inline-flex;
   align-items: center;
   margin-right: 0.25rem;
-  color: #6c757d;
+  color: #5a6268;
 
   .spin {
     animation: spin 1s linear infinite;
@@ -751,5 +751,60 @@ mark {
 @media (prefers-reduced-motion: reduce) {
   .loading-spinner .spin {
     animation: none;
+  }
+}
+
+// ============================================================================
+// WCAG 1.4.3 Contrast Fixes — Override Bootstrap text colors
+// ============================================================================
+
+// Override Bootstrap .text-muted to meet 4.5:1 contrast ratio on white backgrounds
+// Bootstrap default #6c757d has ~4.3:1 contrast; #5a6268 has ~5.7:1
+.text-muted {
+  color: #5a6268 !important;
+}
+
+// ============================================================================
+// Definition List Side-by-Side Layout
+// ============================================================================
+
+// Styles definition lists (<dl class="details-list">) as side-by-side
+// label-value pairs. Each direct child <div> that does NOT use Bootstrap
+// grid (.row) receives flexbox layout so <dt> sits left of <dd>.
+// Divs with .row retain Bootstrap's multi-column grid.
+
+.details-list {
+  margin: 0;
+
+  > div:not(.row) {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.25rem 0;
+    align-items: baseline;
+  }
+
+  // Full-width entries: stack label above value instead of side-by-side
+  > div.details-entry--full {
+    flex-direction: column;
+
+    dt {
+      white-space: normal;
+    }
+    dd {
+      width: 100%;
+    }
+  }
+
+  dt {
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+    color: #495057;
+  }
+
+  dd {
+    margin: 0;
+    min-width: 0;
+    word-break: break-word;
   }
 }

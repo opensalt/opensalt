@@ -939,20 +939,20 @@ class Framework implements Context
 
         $I->waitForElementVisible('#docTitle');
         $I->wait(2);
-        $I->waitForText('Official URL:', 15);
+        $I->waitForText('Official URL', 15);
 
-        $I->see('Official URL:');
+        $I->see('Official URL');
         $I->see($this->frameworkData['officialUri']);
-        $I->see('Identifier:');
-        $I->see('Creator:');
+        $I->see('Identifier');
+        $I->see('Creator');
         $I->see($this->frameworkData['creator']);
-        $I->see('Publisher:');
+        $I->see('Publisher');
         $I->see($this->frameworkData['publisher']);
-        $I->see('Language:');
+        $I->see('Language');
         $I->see($this->frameworkData['language']);
-        $I->see('Adoption Status:');
+        $I->see('Adoption Status');
         $I->see($this->frameworkData['adoptionStatus']);
-        $I->see('License:');
+        $I->see('License');
         $I->see($this->frameworkData['license']);
     }
 

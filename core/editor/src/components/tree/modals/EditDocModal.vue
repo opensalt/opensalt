@@ -35,11 +35,15 @@
       <div class="row mb-3">
         <label
           for="ls_doc_title"
-          class="col-sm-2 col-form-label required-label"
-        >Title</label>
+          class="col-sm-2 col-form-label"
+        >Title <span
+          class="text-danger"
+          aria-hidden="true"
+        >*</span></label>
         <div class="col-sm-10">
           <input
             id="ls_doc_title"
+            ref="titleInputRef"
             v-model="formData.title"
             type="text"
             class="form-control"
@@ -47,8 +51,19 @@
             placeholder="Enter document title"
             required
             :disabled="isAdopted"
+            :aria-required="true"
+            :aria-invalid="titleError ? 'true' : undefined"
+            :aria-describedby="titleError ? 'error-ls-doc-title' : undefined"
           >
           <small class="text-muted">The title of the document.</small>
+          <div
+            v-if="titleError"
+            id="error-ls-doc-title"
+            class="invalid-feedback d-block"
+            role="alert"
+          >
+            {{ titleError }}
+          </div>
         </div>
       </div>
 
@@ -401,6 +416,8 @@ const saving = ref(false);
 
 const subjectSelectorRef = ref(null);
 const licenseSelectorRef = ref(null);
+const titleInputRef = ref(null);
+const titleError = ref('');
 
 const formData = reactive({
   title: '',
@@ -504,6 +521,8 @@ watch(() => props.show, async (newVal) => {
     }
     await Promise.all(fetches);
     loadDocumentData();
+    await nextTick();
+    titleInputRef.value?.focus();
   }
 });
 
@@ -581,8 +600,13 @@ function handleHidden() {
 }
 
 function saveDocument() {
+  titleError.value = '';
+
   if (!formData.title.trim()) {
-    error.value = 'Title is required';
+    titleError.value = 'Title is required';
+    nextTick(() => {
+      titleInputRef.value?.focus();
+    });
     return;
   }
 
@@ -612,8 +636,7 @@ function saveDocument() {
   box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
-.required-label::before {
-  content: "*";
-  color: red;
+.text-danger {
+  color: #dc3545;
 }
 </style>

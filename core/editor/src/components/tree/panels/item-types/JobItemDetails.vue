@@ -1,83 +1,66 @@
 <template>
   <div class="job-item-details">
-    <!-- Identifier link -->
-    <div class="mb-3 details-identifier item-identifier">
-      <strong>Identifier:</strong>
-      <a
-        :href="`/uri/${item.identifier}`"
-        target="_blank"
-        class="ms-1"
-      >{{ item.identifier }}</a>
-    </div>
-
-    <!-- Job-specific fields -->
-    <div
-      v-if="item.fullStatement"
-      class="mb-3"
-    >
-      <strong>Job Title:</strong>
-      <p class="mt-1">
-        {{ item.fullStatement }}
-      </p>
-    </div>
-
-    <div
-      v-if="item.humanCodingLanguage"
-      class="mb-3"
-    >
-      <strong>Human Coding Language:</strong>
-      <p class="mt-1">
-        {{ item.humanCodingLanguage }}
-      </p>
-    </div>
-
-    <div
-      v-if="item.codedNotation"
-      class="mb-3"
-    >
-      <strong>Coded Notation:</strong>
-      <p class="mt-1">
-        {{ item.codedNotation }}
-      </p>
-    </div>
-
-    <div
-      v-if="item.keywords"
-      class="mb-3"
-    >
-      <strong>Keywords:</strong>
-      <div class="mt-1">
-        <span
-          v-for="keyword in parsedKeywords"
-          :key="keyword"
-          class="badge bg-secondary me-1"
-        >
-          {{ keyword }}
-        </span>
+    <dl class="details-list">
+      <!-- Identifier link -->
+      <div class="details-identifier item-identifier">
+        <dt>Identifier</dt>
+        <dd>
+          <a
+            :href="`/uri/${item.identifier}`"
+            target="_blank"
+            class="ms-1"
+          >{{ item.identifier }}<span class="visually-hidden"> (opens in new window)</span></a>
+        </dd>
       </div>
-    </div>
 
-    <div
-      v-if="item.uri"
-      class="mb-3 text-truncate"
-    >
-      <strong>Webpage:</strong>
-      <a
-        :href="item.uri"
-        target="_blank"
-        class="ms-1"
-      >{{ item.uri }}</a>
-    </div>
+      <!-- Job-specific fields -->
+      <div v-if="item.fullStatement">
+        <dt>Job Title</dt>
+        <dd>{{ item.fullStatement }}</dd>
+      </div>
 
-    <div
-      v-if="item.notes"
-      class="mb-3"
-    >
-      <strong>Notes:</strong>
-      <p class="mt-1">
-        {{ item.notes }}
-      </p>
-    </div>
+      <div v-if="item.humanCodingLanguage">
+        <dt>Human Coding Language</dt>
+        <dd>{{ item.humanCodingLanguage }}</dd>
+      </div>
+
+      <div v-if="item.codedNotation">
+        <dt>Coded Notation</dt>
+        <dd>{{ item.codedNotation }}</dd>
+      </div>
+
+      <div v-if="item.keywords">
+        <dt>Keywords</dt>
+        <dd>
+          <span
+            v-for="keyword in parsedKeywords"
+            :key="keyword"
+            class="badge bg-secondary me-1"
+          >
+            {{ keyword }}
+          </span>
+        </dd>
+      </div>
+
+      <div
+        v-if="item.uri"
+        class="text-truncate"
+      >
+        <dt>Webpage</dt>
+        <dd>
+          <a
+            :href="item.uri"
+            target="_blank"
+            class="ms-1"
+          >{{ item.uri }}<span class="visually-hidden"> (opens in new window)</span></a>
+        </dd>
+      </div>
+
+      <div v-if="item.notes">
+        <dt>Notes</dt>
+        <dd>{{ item.notes }}</dd>
+      </div>
+    </dl>
   </div>
 </template>
 
@@ -107,15 +90,5 @@ const parsedKeywords = computed(() => {
 <style scoped>
 .job-item-details {
   padding: 0.5rem 0;
-}
-
-.job-item-details strong {
-  color: #495057;
-  font-weight: 600;
-}
-
-.job-item-details p {
-  margin-bottom: 0.5rem;
-  color: #212529;
 }
 </style>

@@ -40,10 +40,23 @@
               type="url"
               class="form-control"
               placeholder="https://example.com/api/document.json"
+              :aria-invalid="urlError ? 'true' : undefined"
+              :aria-describedby="urlDescribedBy"
               @keyup.enter="loadDocument"
             >
-            <div class="form-text">
+            <div
+              id="help-externalDocumentUrl"
+              class="form-text"
+            >
               Enter the URL of a CASE document to load
+            </div>
+            <div
+              v-if="urlError"
+              id="error-externalDocumentUrl"
+              class="invalid-feedback d-block"
+              role="alert"
+            >
+              {{ urlError }}
             </div>
           </div>
         </div>
@@ -59,7 +72,6 @@
           <button
             type="button"
             class="btn btn-primary"
-            :disabled="!externalUrl"
             @click="loadDocument"
           >
             Load Document
@@ -71,7 +83,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import Modal from 'bootstrap/js/dist/modal';
 
 const props = defineProps({
@@ -82,7 +94,14 @@ const emit = defineEmits(['load', 'hidden']);
 
 const modalElement = ref(null);
 const externalUrl = ref('');
+const urlError = ref('');
 let bsModal = null;
+
+const urlDescribedBy = computed(() => {
+  const ids = ['help-externalDocumentUrl'];
+  if (urlError.value) ids.push('error-externalDocumentUrl');
+  return ids.join(' ');
+});
 
 onMounted(() => {
   if (modalElement.value) {
@@ -95,7 +114,6 @@ onMounted(() => {
 });
 
 // Watch for show prop changes
-import { watch } from 'vue';
 watch(() => props.show, (newValue) => {
   if (bsModal) {
     if (newValue) {
@@ -111,11 +129,14 @@ function hide() {
 }
 
 function loadDocument() {
-  if (externalUrl.value) {
-    emit('load', externalUrl.value);
-    // Modal will be closed by parent changing 'show' prop or we can hide it here
-    // Usually better to let parent control state, but for UX 'instant' feedback:
-    if(bsModal) bsModal.hide();
+  urlError.value = '';
+
+  if (!externalUrl.value || !externalUrl.value.trim()) {
+    urlError.value = 'Please enter a URL to load a CASE document.';
+    return;
   }
+
+  emit('load', externalUrl.value);
+  if(bsModal) bsModal.hide();
 }
 </script>

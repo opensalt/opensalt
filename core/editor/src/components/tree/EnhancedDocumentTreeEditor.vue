@@ -35,9 +35,16 @@
 
     <main
       v-else
+      id="main-content"
       class="row g-0 flex-grow-1"
       style="min-height: 0;"
     >
+      <div
+        id="sr-announcer"
+        aria-live="polite"
+        aria-atomic="true"
+        class="visually-hidden"
+      />
       <!-- Tree panel -->
       <TreePanelSection
         :class="['col-5', { 'viewing-different-framework': isViewingDifferentFramework }]"
@@ -68,6 +75,7 @@
       <section
         id="treeSideRight"
         class="col-7 details-panel d-flex flex-column h-100 overflow-hidden"
+        aria-label="Item details panel"
       >
         <RightSidePanel
           v-if="rightPanelMode === 'itemDetails'"

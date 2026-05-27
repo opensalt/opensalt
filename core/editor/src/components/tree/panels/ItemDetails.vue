@@ -1,5 +1,9 @@
 <template>
-  <div class="item-details">
+  <section
+    ref="detailRef"
+    class="item-details"
+    aria-labelledby="item-detail-heading"
+  >
     <!-- Status banners (cross-framework / read-only) -->
     <ItemCrossFrameworkBanner
       :is-cross-framework-item="isCrossFrameworkItem"
@@ -84,12 +88,12 @@
       item-type="item"
       :item-identifier="item.identifier"
     />
-  </div>
+  </section>
 </template>
 
 <script setup>
 /* global localStorage */
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, watch, nextTick } from 'vue';
 import { editorConfig } from '../../../config/editorConfig.js';
 
 // Sub-components
@@ -145,6 +149,23 @@ const emit = defineEmits([
   'delete-association',
   'update-item',
 ]);
+
+// ---------------------------------------------------------------------------
+// Template ref & focus management
+// ---------------------------------------------------------------------------
+const detailRef = ref(null);
+
+watch(() => props.item, (newItem) => {
+  if (newItem) {
+    nextTick(() => {
+      const heading = detailRef.value?.querySelector('#item-detail-heading');
+      if (heading) {
+        heading.setAttribute('tabindex', '-1');
+        heading.focus();
+      }
+    });
+  }
+});
 
 // ---------------------------------------------------------------------------
 // Stores
