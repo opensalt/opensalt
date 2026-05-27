@@ -37,7 +37,7 @@ defineProps({
   },
   id: {
     type: String,
-    default: 'subjects'
+    default: 'subject-select'
   },
   name: {
     type: String,

@@ -16,7 +16,10 @@
             class="btn btn-outline-primary"
             @click="$emit('add-child', 'general')"
           >
-            <i class="bi bi-plus-circle" /> Add Child Item
+            <i
+              class="bi bi-plus-circle"
+              aria-hidden="true"
+            /> Add Child Item
           </button>
           <button
             type="button"
@@ -48,7 +51,10 @@
           class="btn btn-outline-secondary"
           @click="$emit('add-exemplar')"
         >
-          <i class="bi bi-link-45deg" /> Add Exemplar
+          <i
+            class="bi bi-link-45deg"
+            aria-hidden="true"
+          /> Add Exemplar
         </button>
       </div>
     </div>

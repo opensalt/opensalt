@@ -1,6 +1,8 @@
 
 <template>
   <!-- Backdrop -->
+  <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+  <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
   <div
     v-if="props.show"
     class="modal-backdrop fade"

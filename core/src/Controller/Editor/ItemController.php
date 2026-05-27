@@ -555,6 +555,8 @@ class ItemController extends AbstractController
         }
         if (isset($data['listEnumeration'])) {
             $lsItem->setListEnumInSource($data['listEnumeration']);
+        } elseif (isset($data['listEnumInSource'])) {
+            $lsItem->setListEnumInSource($data['listEnumInSource']);
         }
         if (isset($data['conceptKeywords'])) {
             $conceptKeywords = $data['conceptKeywords'];
@@ -575,6 +577,12 @@ class ItemController extends AbstractController
                 $educationalAlignment = implode(', ', $educationalAlignment);
             }
             $lsItem->setEducationalAlignment($educationalAlignment);
+        } elseif (isset($data['educationLevel'])) {
+            $educationLevel = $data['educationLevel'];
+            if (is_array($educationLevel)) {
+                $educationLevel = implode(', ', $educationLevel);
+            }
+            $lsItem->setEducationalAlignment($educationLevel);
         }
         if (isset($data['additionalFields']) && is_array($data['additionalFields'])) {
             foreach ($data['additionalFields'] as $fieldName => $value) {

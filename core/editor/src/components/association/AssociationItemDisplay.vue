@@ -30,14 +30,20 @@
           v-if="frameworkTitle && !isLoading && targetTypeInfo.isCase"
           class="badge framework-badge"
         >
-          <i class="bi bi-box-arrow-up-right me-1" />{{ frameworkTitle }}
+          <i
+            class="bi bi-box-arrow-up-right me-1"
+            aria-hidden="true"
+          />{{ frameworkTitle }}
         </span>
         <!-- Non-CASE item indicator -->
         <span
           v-if="!targetTypeInfo.isCase && itemData"
           class="badge external-uri-badge"
         >
-          <i class="bi bi-link-45deg me-1" />External URI
+          <i
+            class="bi bi-link-45deg me-1"
+            aria-hidden="true"
+          />External URI
         </span>
         <!-- Error indicator for failed fetches -->
         <span
@@ -45,7 +51,10 @@
           class="badge error-badge"
           :title="fetchError.message"
         >
-          <i class="bi bi-exclamation-triangle me-1" />
+          <i
+            class="bi bi-exclamation-triangle me-1"
+            aria-hidden="true"
+          />
           {{ errorLabel }}
         </span>
       </div>

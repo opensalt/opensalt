@@ -1,5 +1,8 @@
 <template>
-  <div class="easymde-wrapper">
+  <div
+    ref="wrapperRef"
+    class="easymde-wrapper"
+  >
     <textarea
       :id="id"
       ref="textareaRef"
@@ -7,6 +10,7 @@
       :placeholder="placeholder"
       :required="required"
       :name="name"
+      :aria-label="label"
       @input="handleInput"
     />
   </div>
@@ -37,12 +41,17 @@ const props = defineProps({
   name: {
     type: String,
     default: ''
+  },
+  label: {
+    type: String,
+    default: 'Markdown editor'
   }
 })
 
 const emit = defineEmits(['update:modelValue'])
 
 const textareaRef = ref(null)
+const wrapperRef = ref(null)
 let easyMDEInstance = null
 
 const handleInput = (event) => {
@@ -76,6 +85,14 @@ onMounted(async () => {
       const value = easyMDEInstance.value()
       emit('update:modelValue', value)
     })
+
+    // Apply accessibility attributes to the EasyMDE container
+    const container = wrapperRef.value?.querySelector('.EasyMDEContainer')
+    if (container) {
+      container.setAttribute('role', 'textbox')
+      container.setAttribute('aria-multiline', 'true')
+      container.setAttribute('aria-label', props.label)
+    }
   }
 })
 

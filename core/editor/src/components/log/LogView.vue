@@ -19,7 +19,10 @@
       class="alert alert-info m-4"
       role="alert"
     >
-      <i class="bi bi-info-circle me-2" />
+      <i
+        class="bi bi-info-circle me-2"
+        aria-hidden="true"
+      />
       You must be logged in to view the activity log.
     </div>
     <div

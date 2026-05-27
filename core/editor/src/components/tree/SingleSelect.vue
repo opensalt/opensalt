@@ -4,8 +4,16 @@
     :class="{ 'singleselect--active': isOpen }"
   >
     <div
+      :id="id"
       class="singleselect__tags"
+      role="combobox"
+      tabindex="0"
+      :aria-expanded="isOpen"
+      aria-haspopup="listbox"
+      :aria-controls="listboxId"
+      :aria-activedescendant="activeDescendantId"
       @click="toggleDropdown"
+      @keydown="handleKeydown"
     >
       <div class="singleselect__tags-wrap">
         <span
@@ -30,6 +38,9 @@
 
     <div
       v-show="isOpen"
+      :id="listboxId"
+      role="listbox"
+      :aria-label="placeholder"
       class="singleselect__content"
     >
       <div class="singleselect__content-wrapper">
@@ -47,25 +58,40 @@
         </div>
 
         <ul class="singleselect__options">
+          <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/interactive-supports-focus, vuejs-accessibility/mouse-events-have-key-events -->
           <li
             v-if="allowClear"
+            :id="clearOptionId"
+            role="option"
             class="singleselect__option singleselect__option--clear"
+            :class="{ 'singleselect__option--highlighted': highlightedIndex === -1 }"
+            :aria-selected="modelValue === null"
             @click="clearSelection"
+            @mouseenter="highlightedIndex = -1"
           >
             <span class="singleselect__option-text">{{ clearText }}</span>
           </li>
+          <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/interactive-supports-focus, vuejs-accessibility/mouse-events-have-key-events -->
           <li
-            v-for="option in filteredOptions"
+            v-for="(option, index) in filteredOptions"
+            :id="getOptionId(index)"
             :key="getOptionValue(option)"
+            role="option"
             class="singleselect__option"
-            :class="{ 'singleselect__option--selected': isSelected(option) }"
+            :class="{
+              'singleselect__option--selected': isSelected(option),
+              'singleselect__option--highlighted': highlightedIndex === index
+            }"
+            :aria-selected="isSelected(option)"
             @click="selectOption(option)"
+            @mouseenter="highlightedIndex = index"
           >
             <span class="singleselect__option-text">{{ getOptionLabel(option) }}</span>
           </li>
           <li
             v-if="filteredOptions.length === 0"
             class="singleselect__option singleselect__option--disabled"
+            role="presentation"
           >
             <span class="singleselect__option-text">{{ noResultsText }}</span>
           </li>
@@ -78,7 +104,13 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 
+let _ssIdCounter = 0
+
 const props = defineProps({
+  id: {
+    type: String,
+    default: ''
+  },
   modelValue: {
     type: [String, Number, null],
     default: null
@@ -127,6 +159,23 @@ const isOpen = ref(false)
 const isLoading = ref(false)
 const searchQuery = ref('')
 const filteredOptions = ref([])
+const highlightedIndex = ref(null)
+
+// Unique IDs for ARIA relationships
+const componentId = _ssIdCounter++
+const listboxId = `ss-listbox-${componentId}`
+const clearOptionId = `${listboxId}-clear`
+const getOptionId = (index) => `${listboxId}-opt-${index}`
+
+const activeDescendantId = computed(() => {
+  if (highlightedIndex.value === null || highlightedIndex.value === undefined) {
+    return undefined
+  }
+  if (highlightedIndex.value === -1) {
+    return clearOptionId
+  }
+  return getOptionId(highlightedIndex.value)
+})
 
 const getOptionValue = (option) => {
   if (option === null || option === undefined) return null
@@ -165,6 +214,7 @@ const toggleDropdown = () => {
     // Reset search when opening and sync with current options
     searchQuery.value = ''
     filteredOptions.value = [...props.options] // Create a new array to ensure reactivity
+    highlightedIndex.value = null
   }
 }
 
@@ -193,6 +243,96 @@ const filterOptions = () => {
   })
 }
 
+// Keyboard navigation
+const moveHighlight = (direction) => {
+  if (filteredOptions.value.length === 0) return
+
+  const hasClearOption = props.allowClear
+  const totalFlatCount = filteredOptions.value.length + (hasClearOption ? 1 : 0)
+
+  // Convert highlightedIndex to flat index
+  let flatIndex
+  if (highlightedIndex.value === null || highlightedIndex.value === undefined) {
+    // Nothing highlighted yet; go to first or last depending on direction
+    if (direction > 0) {
+      flatIndex = 0
+    } else {
+      flatIndex = totalFlatCount - 1
+    }
+  } else {
+    // Convert to flat index: -1 (clear) -> 0, 0 -> 1, 1 -> 2, etc. (when allowClear)
+    flatIndex = hasClearOption ? highlightedIndex.value + 1 : highlightedIndex.value
+    flatIndex = (flatIndex + direction + totalFlatCount) % totalFlatCount
+  }
+
+  // Convert back from flat index
+  highlightedIndex.value = hasClearOption ? flatIndex - 1 : flatIndex
+}
+
+const highlightFirst = () => {
+  if (filteredOptions.value.length === 0) return
+  highlightedIndex.value = props.allowClear ? -1 : 0
+}
+
+const highlightLast = () => {
+  if (filteredOptions.value.length === 0) return
+  highlightedIndex.value = filteredOptions.value.length - 1
+}
+
+const handleKeydown = (event) => {
+  switch (event.key) {
+    case 'Enter':
+    case ' ':
+      event.preventDefault()
+      if (!isOpen.value) {
+        toggleDropdown()
+      } else if (highlightedIndex.value !== null && highlightedIndex.value !== undefined) {
+        // Select the highlighted option
+        if (highlightedIndex.value === -1) {
+          clearSelection()
+        } else {
+          selectOption(filteredOptions.value[highlightedIndex.value])
+        }
+      }
+      break
+
+    case 'Escape':
+      event.preventDefault()
+      isOpen.value = false
+      break
+
+    case 'ArrowDown':
+      event.preventDefault()
+      if (!isOpen.value) {
+        toggleDropdown()
+      }
+      moveHighlight(1)
+      break
+
+    case 'ArrowUp':
+      event.preventDefault()
+      if (!isOpen.value) {
+        toggleDropdown()
+      }
+      moveHighlight(-1)
+      break
+
+    case 'Home':
+      event.preventDefault()
+      if (isOpen.value) {
+        highlightFirst()
+      }
+      break
+
+    case 'End':
+      event.preventDefault()
+      if (isOpen.value) {
+        highlightLast()
+      }
+      break
+  }
+}
+
 const handleClickOutside = (event) => {
   const target = event.target
   const singleselect = target.closest('.singleselect')
@@ -209,6 +349,13 @@ const handleMouseDownOutside = (event) => {
     isOpen.value = false
   }
 }
+
+// Reset highlight when dropdown closes
+watch(isOpen, (newVal) => {
+  if (!newVal) {
+    highlightedIndex.value = null
+  }
+})
 
 watch(() => props.options, (newOptions) => {
   filteredOptions.value = newOptions
@@ -353,6 +500,12 @@ onUnmounted(() => {
   background-color: #e3f2fd;
 }
 
+.singleselect__option--highlighted {
+  background-color: #e8e8ff;
+  outline: 2px solid #0d6efd;
+  outline-offset: -2px;
+}
+
 .singleselect__option--clear {
   color: #6c757d;
   font-style: italic;
@@ -378,6 +531,12 @@ onUnmounted(() => {
 }
 
 /* Focus styles */
+.singleselect__tags:focus-visible {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  outline: none;
+}
+
 .singleselect__tags:focus-within {
   border-color: #86b7fe;
   box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);

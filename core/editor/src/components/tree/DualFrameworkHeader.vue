@@ -6,7 +6,10 @@
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
       <div class="edited-framework">
         <span class="badge bg-primary">
-          <i class="bi bi-pencil-square me-1" />Editing
+          <i
+            class="bi bi-pencil-square me-1"
+            aria-hidden="true"
+          />Editing
         </span>
         <span class="ms-2 fw-bold">{{ currentDoc.title || 'Untitled' }}</span>
       </div>
@@ -15,7 +18,10 @@
         class="viewed-framework"
       >
         <span class="badge bg-secondary">
-          <i class="bi bi-eye me-1" />Viewing
+          <i
+            class="bi bi-eye me-1"
+            aria-hidden="true"
+          />Viewing
         </span>
         <span class="text-muted"> from {{ viewedDoc?.title || 'external framework' }}</span>
       </div>

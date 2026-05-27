@@ -47,7 +47,10 @@
               class="text-center py-5 text-muted border-0"
             >
               <div class="py-4">
-                <i class="bi bi-link-45deg fs-1 d-block mb-3 opacity-25" />
+                <i
+                  class="bi bi-link-45deg fs-1 d-block mb-3 opacity-25"
+                  aria-hidden="true"
+                />
                 <p class="mb-0">
                   No associations found.
                 </p>

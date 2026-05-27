@@ -5,7 +5,10 @@
     class="alert alert-info mb-2"
     role="alert"
   >
-    <i class="bi bi-box-arrow-up-right me-2" />
+    <i
+      class="bi bi-box-arrow-up-right me-2"
+      aria-hidden="true"
+    />
     <strong>External Framework Item</strong>
     <!-- Loading state -->
     <span
@@ -27,9 +30,12 @@
     <!-- Error state -->
     <span
       v-else-if="crossFrameworkFetchError"
-      class="text-warning ms-2"
+      class="text-warning-on-light ms-2"
     >
-      <i class="bi bi-exclamation-triangle" />
+      <i
+        class="bi bi-exclamation-triangle"
+        aria-hidden="true"
+      />
       {{ crossFrameworkFetchError.type === 'permission' ? 'No access' : 'Load error' }}
     </span>
   </div>
@@ -66,3 +72,11 @@ defineProps({
   viewedDoc: { type: Object, default: null },
 });
 </script>
+
+<style scoped>
+/* WCAG 1.4.3: .text-warning (#ffc107) fails contrast on light backgrounds.
+   Use #664d03 (~7.0:1 contrast on white) instead. */
+.text-warning-on-light {
+  color: #664d03;
+}
+</style>

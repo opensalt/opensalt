@@ -37,7 +37,7 @@ defineProps({
   },
   id: {
     type: String,
-    default: 'licence'
+    default: 'license-select'
   },
   name: {
     type: String,

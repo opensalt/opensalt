@@ -2,11 +2,12 @@
   <!-- Item Header Card -->
   <div class="card mb-3">
     <div class="card-header d-flex justify-content-between align-items-center">
-      <h6 class="mb-0 d-flex align-items-center">
+      <h5 class="mb-0 d-flex align-items-center">
         <img
           :src="itemIconSrc"
           class="me-2 item-icon"
           aria-hidden="true"
+          alt=""
         >
         Item Details
         <!-- Read-only badge for viewed framework items -->
@@ -20,7 +21,7 @@
             aria-hidden="true"
           /> Read-only
         </span>
-      </h6>
+      </h5>
       <div class="d-flex align-items-center gap-2">
         <slot name="header-actions" />
         <div
@@ -31,18 +32,26 @@
             type="button"
             class="btn btn-outline-primary"
             title="Edit item"
+            aria-label="Edit item"
             @click="$emit('edit', item)"
           >
-            <i class="bi bi-pencil" />
+            <i
+              class="bi bi-pencil"
+              aria-hidden="true"
+            />
           </button>
           <button
             id="deleteItemBtn"
             type="button"
             class="btn btn-outline-danger"
             title="Delete item"
+            aria-label="Delete item"
             @click="$emit('delete', item)"
           >
-            <i class="bi bi-trash" />
+            <i
+              class="bi bi-trash"
+              aria-hidden="true"
+            />
           </button>
         </div>
       </div>
@@ -50,7 +59,10 @@
 
     <div class="card-body">
       <!-- Item Title -->
-      <h4 class="card-title ms-0 itemTitle">
+      <h4
+        id="item-detail-heading"
+        class="card-title ms-0 itemTitle"
+      >
         <span
           v-if="displayItem.humanCodingScheme"
           class="badge bg-secondary me-1"

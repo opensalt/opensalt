@@ -33,14 +33,20 @@
       <!-- Filters Sidebar -->
       <aside class="col-md-3 col-lg-2 border-end p-4 bg-white overflow-auto shadow-sm filter-panel flex-shrink-0">
         <h5 class="mb-4 d-flex align-items-center text-secondary">
-          <i class="bi bi-filter-right me-2 fs-4" /> Filters
+          <i
+            class="bi bi-filter-right me-2 fs-4"
+            aria-hidden="true"
+          /> Filters
         </h5>
 
         <div class="mb-3">
           <label class="form-label">Search</label>
           <div class="input-group">
             <span class="input-group-text">
-              <i class="bi bi-search" />
+              <i
+                class="bi bi-search"
+                aria-hidden="true"
+              />
             </span>
             <input
               v-model="searchFilter"

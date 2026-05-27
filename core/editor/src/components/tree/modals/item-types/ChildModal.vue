@@ -1,5 +1,7 @@
 <template>
   <!-- Backdrop -->
+  <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+  <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
   <div
     v-if="props.show"
     class="modal-backdrop fade"
@@ -433,13 +435,19 @@ function loadFormData() {
     formData.fullStatement = props.item.fullStatement || '';
     formData.humanCodingScheme = props.item.humanCodingScheme || '';
     formData.abbreviatedStatement = props.item.abbreviatedStatement || '';
-    formData.listEnumInSource = props.item.listEnumInSource || '';
+    formData.listEnumInSource = props.item.listEnumeration || props.item.listEnumInSource || '';
     formData.conceptKeywords = props.item.conceptKeywords || '';
     formData.language = props.item.language || '';
-    // Handle educationalAlignment as array - convert single value to array if needed
-    formData.educationalAlignment = Array.isArray(props.item.educationLevel)
-      ? props.item.educationLevel
-      : (props.item.educationLevel ? [props.item.educationLevel] : []);
+    // Handle educationalAlignment as array - the GET endpoint returns educationLevel as
+    // a comma-separated string (e.g., "09, 10"), so split it into individual codes
+    const eduLevel = props.item.educationLevel || props.item.educationalAlignment;
+    if (Array.isArray(eduLevel)) {
+      formData.educationalAlignment = eduLevel;
+    } else if (typeof eduLevel === 'string' && eduLevel.trim()) {
+      formData.educationalAlignment = eduLevel.split(',').map(s => s.trim()).filter(Boolean);
+    } else {
+      formData.educationalAlignment = [];
+    }
     // Find the matching option by text property and use its id
     const matchingType = availableItemTypes.value.find(
       opt => opt.text === props.item.itemType
@@ -493,7 +501,7 @@ function saveItem() {
         fullStatement: formData.fullStatement,
         humanCodingScheme: formData.humanCodingScheme,
         abbreviatedStatement: formData.abbreviatedStatement,
-        listEnumInSource: formData.listEnumInSource,
+        listEnumeration: formData.listEnumInSource,
         conceptKeywords: formData.conceptKeywords,
         language: formData.language,
         educationalAlignment: formData.educationalAlignment,
@@ -513,7 +521,7 @@ function saveItem() {
         fullStatement: formData.fullStatement,
         humanCodingScheme: formData.humanCodingScheme,
         abbreviatedStatement: formData.abbreviatedStatement,
-        listEnumInSource: formData.listEnumInSource,
+        listEnumeration: formData.listEnumInSource,
         conceptKeywords: formData.conceptKeywords,
         language: formData.language || 'en',
         educationalAlignment: formData.educationalAlignment,

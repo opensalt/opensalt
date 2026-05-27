@@ -110,7 +110,7 @@ vi.mock('@/composables/useCrossFrameworkItem', () => ({
   })),
 }));
 
-import ItemDetails from '@/components/shared/panels/ItemDetails.vue';
+import ItemDetails from '@/components/tree/panels/ItemDetails.vue';
 
 describe('ItemDetails.vue - isReadOnly computed property logic', () => {
   let pinia;

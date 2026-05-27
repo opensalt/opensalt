@@ -70,6 +70,9 @@ export interface TreeNode {
   discriminator?: number;
   extensions?: Record<string, unknown>;
   additionalFields?: Record<string, string>;
+  conceptKeywords?: string[] | string | null;
+  language?: string | null;
+  educationLevel?: string[] | string | null;
   children: TreeNode[];
 }
 

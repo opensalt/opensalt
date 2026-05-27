@@ -46,8 +46,9 @@
                   <i
                     class="bi bi-filetype-json d-block mb-1"
                     style="font-size: 1.5em;"
+                    aria-hidden="true"
                   />
-                  Competency Framework Package (JSON)
+                  Competency Framework Package (JSON)<span class="visually-hidden"> (opens in new window)</span>
                 </a>
                 <div class="form-text text-muted mt-1 small">
                   Exports a JSON file using the IMS-standard format.
@@ -70,8 +71,9 @@
                   <i
                     class="bi bi-file-earmark-spreadsheet d-block mb-1"
                     style="font-size: 1.5em;"
+                    aria-hidden="true"
                   />
-                  Spreadsheet export
+                  Spreadsheet export<span class="visually-hidden"> (opens in new window)</span>
                 </a>
                 <div class="form-text text-muted mt-1 small">
                   Exports an Excel spreadsheet file that you can open
@@ -88,6 +90,7 @@
                   <i
                     class="bi bi-filetype-html d-block mb-1"
                     style="font-size: 1.5em;"
+                    aria-hidden="true"
                   />
                   HTML Archive
                 </button>
@@ -109,7 +112,7 @@
             :href="viewUrl"
             target="_blank"
             rel="noopener noreferrer"
-          >{{ viewUrl }}</a>
+          >{{ viewUrl }}<span class="visually-hidden"> (opens in new window)</span></a>
         </div>
         <div class="modal-footer">
           <button

@@ -4,28 +4,42 @@
     <div class="mode-tabs mb-2 flex-shrink-0">
       <div
         class="btn-group w-100"
-        role="group"
+        role="tablist"
         aria-label="Panel mode selection"
       >
         <button
-          id="rightSideItemDetailsBtn"
+          id="tab-itemDetails"
           type="button"
+          role="tab"
           class="btn btn-sm"
           :class="{ 'btn-primary': currentMode === 'itemDetails', 'btn-outline-primary': currentMode !== 'itemDetails' }"
+          :aria-selected="currentMode === 'itemDetails'"
+          :tabindex="currentMode === 'itemDetails' ? 0 : -1"
           @click="setMode('itemDetails')"
+          @keydown="onTabKeydown"
         >
-          <i class="bi bi-info-circle me-1" />
+          <i
+            class="bi bi-info-circle me-1"
+            aria-hidden="true"
+          />
           Item Details
         </button>
         <button
           v-if="sessionStore.isAuthenticated"
-          id="rightSideCopyItemsBtn"
+          id="tab-externalDocument"
           type="button"
+          role="tab"
           class="btn btn-sm"
           :class="{ 'btn-primary': currentMode === 'externalDocument', 'btn-outline-primary': currentMode !== 'externalDocument' }"
+          :aria-selected="currentMode === 'externalDocument'"
+          :tabindex="currentMode === 'externalDocument' ? 0 : -1"
           @click="setMode('externalDocument')"
+          @keydown="onTabKeydown"
         >
-          <i class="bi bi-box-arrow-in-right me-1" />
+          <i
+            class="bi bi-box-arrow-in-right me-1"
+            aria-hidden="true"
+          />
           Copy / Associate
         </button>
       </div>
@@ -34,48 +48,58 @@
     <!-- Panel Content -->
     <div class="panel-content flex-grow-1 overflow-y-auto">
       <!-- Item Details Mode -->
-      <ItemDetailsPanel
+      <div
         v-if="currentMode === 'itemDetails'"
-        :selected-item="selectedItem"
-        :current-document="currentDocument"
-        :association-groups="associationGroups"
-        @edit-item="$emit('edit-item', $event)"
-        @delete-item="$emit('delete-item', $event)"
-        @add-child="(...args) => $emit('add-child', ...args)"
-        @add-exemplar="$emit('add-exemplar', $event)"
-        @add-association="$emit('add-association', $event)"
-        @edit-association="$emit('edit-association', $event)"
-        @delete-association="$emit('delete-association', $event)"
-        @update-item="$emit('update-item', $event)"
-        @edit-document="$emit('edit-document')"
-        @delete-document="$emit('delete-document')"
-        @add-root-item="$emit('add-root-item', $event)"
-        @manage-association-groups="$emit('manage-association-groups')"
-        @update-framework="$emit('update-framework')"
-        @export-document="$emit('export-document')"
-        @clone-framework="$emit('clone-framework')"
-      />
+        role="tabpanel"
+        aria-labelledby="tab-itemDetails"
+      >
+        <ItemDetailsPanel
+          :selected-item="selectedItem"
+          :current-document="currentDocument"
+          :association-groups="associationGroups"
+          @edit-item="$emit('edit-item', $event)"
+          @delete-item="$emit('delete-item', $event)"
+          @add-child="(...args) => $emit('add-child', ...args)"
+          @add-exemplar="$emit('add-exemplar', $event)"
+          @add-association="$emit('add-association', $event)"
+          @edit-association="$emit('edit-association', $event)"
+          @delete-association="$emit('delete-association', $event)"
+          @update-item="$emit('update-item', $event)"
+          @edit-document="$emit('edit-document')"
+          @delete-document="$emit('delete-document')"
+          @add-root-item="$emit('add-root-item', $event)"
+          @manage-association-groups="$emit('manage-association-groups')"
+          @update-framework="$emit('update-framework')"
+          @export-document="$emit('export-document')"
+          @clone-framework="$emit('clone-framework')"
+        />
+      </div>
 
       <!-- Copy Items or Create Associations Mode -->
-      <SideTreePanel
+      <div
         v-else
-        :mode="currentMode"
-        :current-document-id="currentDocument?.id"
-        :available-documents="availableDocuments"
-        :side-document="sideDocument"
-        :loading-side-doc="loadingSideDoc"
-        :side-doc-error="sideDocError"
-        @document-select="$emit('side-document-select', $event)"
-        @external-document-requested="$emit('external-document-requested')"
-        @side-select="$emit('side-select', $event)"
-        @action="$emit('action', $event)"
-      />
+        role="tabpanel"
+        aria-labelledby="tab-externalDocument"
+      >
+        <SideTreePanel
+          :mode="currentMode"
+          :current-document-id="currentDocument?.id"
+          :available-documents="availableDocuments"
+          :side-document="sideDocument"
+          :loading-side-doc="loadingSideDoc"
+          :side-doc-error="sideDocError"
+          @document-select="$emit('side-document-select', $event)"
+          @external-document-requested="$emit('external-document-requested')"
+          @side-select="$emit('side-select', $event)"
+          @action="$emit('action', $event)"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed, nextTick } from 'vue';
 import ItemDetailsPanel from './ItemDetailsPanel.vue';
 import SideTreePanel from '../../tree/SideTreePanel.vue';
 import { useSessionStore } from '../../../stores/sessionStore';
@@ -83,6 +107,14 @@ import { useEditorContextStore } from '../../../stores/editorContextStore';
 
 const sessionStore = useSessionStore();
 const editorContextStore = useEditorContextStore();
+
+const availableTabs = computed(() => {
+  const tabs = ['itemDetails'];
+  if (sessionStore.isAuthenticated) {
+    tabs.push('externalDocument');
+  }
+  return tabs;
+});
 
 const props = defineProps({
   selectedItem: {
@@ -150,6 +182,35 @@ function setMode(mode) {
 
   // Restore framework selection for the new mode
   restoreFrameworkSelection(mode);
+}
+
+function onTabKeydown(event) {
+  const tabs = availableTabs.value;
+  const currentIndex = tabs.indexOf(currentMode.value);
+  let newIndex;
+
+  switch (event.key) {
+    case 'ArrowRight':
+      newIndex = (currentIndex + 1) % tabs.length;
+      break;
+    case 'ArrowLeft':
+      newIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+      break;
+    case 'Home':
+      newIndex = 0;
+      break;
+    case 'End':
+      newIndex = tabs.length - 1;
+      break;
+    default:
+      return;
+  }
+
+  event.preventDefault();
+  setMode(tabs[newIndex]);
+  nextTick(() => {
+    document.getElementById(`tab-${tabs[newIndex]}`)?.focus();
+  });
 }
 
 async function restoreFrameworkSelection(mode) {

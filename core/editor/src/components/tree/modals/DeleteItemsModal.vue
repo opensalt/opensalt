@@ -1,4 +1,5 @@
 <template>
+  <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
   <div
     v-if="props.show"
     class="modal-backdrop fade show"
@@ -7,13 +8,17 @@
 
   <div
     :id="modalId"
+    ref="modalRef"
     class="modal fade"
     :class="{ 'show d-block': props.show }"
     tabindex="-1"
     role="dialog"
     :aria-labelledby="modalLabel"
+    :aria-modal="props.show ? 'true' : undefined"
     :aria-hidden="!props.show"
     :style="{ display: props.show ? 'block' : 'none' }"
+    @keydown.escape.prevent.stop="closeModal"
+    @keydown.tab="onTabTrap"
   >
     <div
       class="modal-dialog modal-lg"
@@ -168,7 +173,16 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue';
+
+const FOCUSABLE_SELECTOR = [
+  'a[href]',
+  'button:not([disabled])',
+  'textarea:not([disabled])',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])'
+].join(', ');
 
 const props = defineProps({
   items: {
@@ -187,6 +201,8 @@ const props = defineProps({
 
 const emit = defineEmits(['confirmed', 'hidden']);
 
+const modalRef = ref(null);
+const previousFocusElement = ref(null);
 const error = ref('');
 const deleting = ref(false);
 const deleteConfirmation = ref('');
@@ -246,13 +262,69 @@ const buttonText = computed(() => {
   }
 });
 
-watch(() => props.show, async (newVal) => {
-  if (newVal) {
-    resetModal();
-    return;
-  }
+function getFocusableElements() {
+  if (!modalRef.value) return [];
+  return [...modalRef.value.querySelectorAll(FOCUSABLE_SELECTOR)];
+}
 
-  resetModal();
+function focusFirstElement() {
+  const focusable = getFocusableElements();
+  if (focusable.length > 0) {
+    focusable[0].focus();
+  }
+}
+
+function onTabTrap(event) {
+  if (!modalRef.value) return;
+  const focusable = getFocusableElements();
+  if (focusable.length === 0) return;
+
+  const firstFocusable = focusable[0];
+  const lastFocusable = focusable[focusable.length - 1];
+
+  if (event.shiftKey) {
+    if (document.activeElement === firstFocusable) {
+      event.preventDefault();
+      lastFocusable.focus();
+    }
+  } else {
+    if (document.activeElement === lastFocusable) {
+      event.preventDefault();
+      firstFocusable.focus();
+    }
+  }
+}
+
+watch(() => props.show, (newVal) => {
+  if (newVal) {
+    previousFocusElement.value = document.activeElement;
+    resetModal();
+    nextTick(() => focusFirstElement());
+  } else {
+    resetModal();
+    if (previousFocusElement.value) {
+      previousFocusElement.value.focus();
+      previousFocusElement.value = null;
+    }
+  }
+});
+
+onMounted(() => {
+  if (props.show) {
+    previousFocusElement.value = document.activeElement;
+    nextTick(() => {
+      if (props.show) {
+        focusFirstElement();
+      }
+    });
+  }
+});
+
+onUnmounted(() => {
+  if (previousFocusElement.value) {
+    previousFocusElement.value.focus();
+    previousFocusElement.value = null;
+  }
 });
 
 function resetModal() {

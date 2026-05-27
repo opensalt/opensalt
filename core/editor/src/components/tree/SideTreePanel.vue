@@ -16,7 +16,10 @@
       class="instructions alert alert-info py-2 mb-2"
     >
       <small>
-        <i class="bi bi-info-circle me-1" />
+        <i
+          class="bi bi-info-circle me-1"
+          aria-hidden="true"
+        />
         <span>
           Select a document to act on its items.
         </span>
@@ -28,7 +31,10 @@
       v-if="sideDocument"
       class="mb-2 p-2 border rounded bg-light d-flex flex-column align-items-center"
     >
-      <small class="text-muted mb-2">
+      <small
+        class="text-muted mb-2"
+        aria-live="polite"
+      >
         <span v-if="!sideSelectedId">Select an item below to act on it.</span>
         <span v-else>Item selected. Switch to main tree to select target.</span>
       </small>
@@ -39,7 +45,10 @@
           :disabled="!sideSelectedId"
           @click="emit('action', { type: 'associate', itemId: sideSelectedId })"
         >
-          <i class="bi bi-link-45deg" /> Associate
+          <i
+            class="bi bi-link-45deg"
+            aria-hidden="true"
+          /> Associate
         </button>
         <div
           v-click-outside="() => copyMenuOpen = false"
@@ -47,37 +56,50 @@
         >
           <button
             id="copyDropdownBtn"
+            ref="copyDropdownBtnRef"
             type="button"
             class="btn btn-outline-primary dropdown-toggle"
             :disabled="copyDisabled"
+            aria-haspopup="true"
             :aria-expanded="copyMenuOpen"
             @click="toggleCopyMenu"
+            @keydown="onMenuKeydown"
           >
             <i class="bi bi-copy" /> Copy...
           </button>
+          <!-- eslint-disable-next-line vuejs-accessibility/interactive-supports-focus -->
           <ul
             v-if="copyMenuOpen"
+            ref="copyMenuRef"
+            role="menu"
             class="dropdown-menu show shadow-sm"
             aria-labelledby="copyDropdownBtn"
+            @keydown="onMenuKeydown"
           >
-            <li>
+            <li role="none">
               <button
+                role="menuitem"
+                tabindex="-1"
                 class="dropdown-item py-2"
                 @click="onCopyAction('before')"
               >
                 <i class="bi bi-arrow-bar-up text-muted me-2" /> Before Target
               </button>
             </li>
-            <li>
+            <li role="none">
               <button
+                role="menuitem"
+                tabindex="-1"
                 class="dropdown-item py-2"
                 @click="onCopyAction('after')"
               >
                 <i class="bi bi-arrow-bar-down text-muted me-2" /> After Target
               </button>
             </li>
-            <li>
+            <li role="none">
               <button
+                role="menuitem"
+                tabindex="-1"
                 class="dropdown-item py-2"
                 @click="onCopyAction('inside')"
               >
@@ -135,7 +157,7 @@
 </template>
 
 <script setup>
-import { ref, watch, computed, provide } from 'vue';
+import { ref, watch, computed, provide, nextTick } from 'vue';
 import TreeView from './TreeView.vue';
 import DocumentSelector from '../shared/common/DocumentSelector.vue';
 import { useEditorContextStore } from '../../stores/editorContextStore';
@@ -202,6 +224,8 @@ const emit = defineEmits([
 const { selectedDocumentId, currentDocForSelector, onDocumentSelected } = useSideTreePanel(props);
 const sideSelectedId = ref(null);
 const copyMenuOpen = ref(false);
+const copyMenuRef = ref(null);
+const copyDropdownBtnRef = ref(null);
 
 // Ref for the side tree container element (used for scoping DOM queries)
 const sideTreeContainerRef = ref(null);
@@ -258,11 +282,64 @@ const copyDisabled = computed(() => !sideSelectedId.value || isSideSelectedDocum
 function toggleCopyMenu() {
   if (copyDisabled.value) return;
   copyMenuOpen.value = !copyMenuOpen.value;
+  if (copyMenuOpen.value) {
+    nextTick(() => {
+      const firstItem = copyMenuRef.value?.querySelector('[role="menuitem"]');
+      if (firstItem) {
+        firstItem.focus();
+      }
+    });
+  }
+}
+
+function closeCopyMenu() {
+  copyMenuOpen.value = false;
+  nextTick(() => {
+    copyDropdownBtnRef.value?.focus();
+  });
 }
 
 function onCopyAction(position) {
   copyMenuOpen.value = false;
+  nextTick(() => {
+    copyDropdownBtnRef.value?.focus();
+  });
   emit('action', { type: 'copy', position, itemId: sideSelectedId.value });
+}
+
+function onMenuKeydown(event) {
+  if (!copyMenuOpen.value) return;
+
+  const menuItems = copyMenuRef.value?.querySelectorAll('[role="menuitem"]');
+  if (!menuItems || menuItems.length === 0) return;
+
+  const currentIndex = Array.from(menuItems).indexOf(document.activeElement);
+
+  switch (event.key) {
+    case 'Escape':
+      event.preventDefault();
+      closeCopyMenu();
+      break;
+    case 'ArrowDown':
+      event.preventDefault();
+      if (currentIndex < menuItems.length - 1) {
+        menuItems[currentIndex + 1].focus();
+      } else {
+        menuItems[0].focus();
+      }
+      break;
+    case 'ArrowUp':
+      event.preventDefault();
+      if (currentIndex > 0) {
+        menuItems[currentIndex - 1].focus();
+      } else {
+        menuItems[menuItems.length - 1].focus();
+      }
+      break;
+    case 'Tab':
+      closeCopyMenu();
+      break;
+  }
 }
 
 function onDocumentChanged(event) {

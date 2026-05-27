@@ -6,14 +6,15 @@
     <!-- Document Header -->
     <div class="card mb-3">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <h6 class="mb-0 d-flex align-items-center">
+        <h5 class="mb-0 d-flex align-items-center">
           <img
             :src="docIcon"
             class="me-2 item-icon"
             aria-hidden="true"
+            alt=""
           >
           Document Details
-        </h6>
+        </h5>
         <div
           v-if="!isReadOnly"
           class="btn-group btn-group-sm"
@@ -22,18 +23,26 @@
             type="button"
             class="btn btn-outline-primary"
             title="Edit document"
+            aria-label="Edit document"
             data-bs-target="#editDocModal"
             @click="$emit('edit-document')"
           >
-            <i class="bi bi-pencil" />
+            <i
+              class="bi bi-pencil"
+              aria-hidden="true"
+            />
           </button>
           <button
             type="button"
             class="btn btn-outline-danger"
             title="Delete document"
+            aria-label="Delete document"
             @click="$emit('delete-document')"
           >
-            <i class="bi bi-trash" />
+            <i
+              class="bi bi-trash"
+              aria-hidden="true"
+            />
           </button>
         </div>
         <div
@@ -41,7 +50,10 @@
           class="text-muted small"
           title="Document is read-only"
         >
-          <i class="bi bi-lock-fill" /> Read-only
+          <i
+            class="bi bi-lock-fill"
+            aria-hidden="true"
+          /> Read-only
         </div>
       </div>
       <div class="card-body">
@@ -58,128 +70,141 @@
           :value="document.identifier"
         >
 
-        <div
-          v-if="document.identifier"
-          class="mb-3 details-identifier document-identifier"
-        >
-          <strong>Identifier:</strong>
-          <a
-            :href="`/uri/${document.identifier}`"
-            target="_blank"
-            class="ms-1"
-          >{{ document.identifier }}</a>
-        </div>
-
-        <div
-          v-if="document.description"
-          class="mb-3"
-        >
-          <strong>Description:</strong>
-          <p class="mt-1">
-            {{ document.description }}
-          </p>
-        </div>
-
-        <div class="row">
-          <div class="col-sm-6">
-            <strong>Creator:</strong> {{ document.creator || 'Unknown' }}
-          </div>
+        <dl class="details-list">
           <div
-            v-if="document.language?.length"
-            class="col-sm-6"
+            v-if="document.identifier"
+            class="mb-3 details-identifier document-identifier"
           >
-            <strong>Language:</strong> {{ document.language || '' }}
+            <dt>Identifier</dt>
+            <dd>
+              <a
+                :href="`/uri/${document.identifier}`"
+                target="_blank"
+                class="ms-1"
+              >{{ document.identifier }}<span class="visually-hidden"> (opens in new window)</span></a>
+            </dd>
           </div>
-        </div>
 
-        <div class="row mt-2">
           <div
-            v-if="document.version?.length"
-            class="col-sm-6"
+            v-if="document.description"
+            class="mb-3"
           >
-            <strong>Version:</strong> {{ document.version || '' }}
+            <dt>Description</dt>
+            <dd>{{ document.description }}</dd>
           </div>
-          <div class="col-sm-6">
-            <strong>Framework Type:</strong> {{ document.frameworkType || 'Standard' }}
+
+          <div class="row">
+            <div class="col-sm-6">
+              <dt>Creator</dt>
+              <dd>{{ document.creator || 'Unknown' }}</dd>
+            </div>
+            <div
+              v-if="document.language?.length"
+              class="col-sm-6"
+            >
+              <dt>Language</dt>
+              <dd>{{ document.language || '' }}</dd>
+            </div>
           </div>
-        </div>
 
-        <div class="row mt-2">
-          <div class="col-sm-6">
-            <strong>Adoption Status:</strong> {{ document.adoptionStatus || 'Draft' }}
+          <div class="row mt-2">
+            <div
+              v-if="document.version?.length"
+              class="col-sm-6"
+            >
+              <dt>Version</dt>
+              <dd>{{ document.version || '' }}</dd>
+            </div>
+            <div class="col-sm-6">
+              <dt>Framework Type</dt>
+              <dd>{{ document.frameworkType || 'Standard' }}</dd>
+            </div>
           </div>
-        </div>
 
-        <div
-          v-if="(document.subjects && document.subjects.length > 0) || (document.subject && document.subject.length > 0)"
-          class="mt-3"
-        >
-          <strong>Subject: </strong>
-          <div class="mt-1 d-inline-flex">
-            <template v-if="document.subjects && document.subjects.length > 0">
-              <span
-                v-for="subject in document.subjects"
-                :key="subject.identifier"
-                class="badge bg-secondary me-1"
-              >
-                {{ subject.title }}
-              </span>
-            </template>
-            <template v-else-if="document.subject && document.subject.length > 0">
-              <span
-                v-for="subject in document.subject"
-                :key="subject"
-                class="badge bg-secondary me-1"
-              >
-                {{ subject }}
-              </span>
-            </template>
+          <div class="row mt-2">
+            <div class="col-sm-6">
+              <dt>Adoption Status</dt>
+              <dd>{{ document.adoptionStatus || 'Draft' }}</dd>
+            </div>
           </div>
-        </div>
 
-        <div
-          v-if="document.publisher"
-          class="mt-2"
-        >
-          <strong>Publisher:</strong> {{ document.publisher }}
-        </div>
-
-        <div
-          v-if="false && isAdmin && document.orgName"
-          class="mt-2"
-        >
-          <strong>Owning Access Group:</strong> {{ document.orgName }}
-        </div>
-
-        <div
-          v-if="document.licenseURI"
-          class="mt-2 text-truncate"
-        >
-          <strong>License:</strong> <span class="ms-1">{{ licenseName }}</span>
-        </div>
-
-        <div
-          v-if="document.officialSourceURL"
-          class="mt-2"
-        >
-          <strong>Official URL:</strong> <a
-            :href="document.officialSourceURL"
-            target="_blank"
-            class="text-decoration-none"
+          <div
+            v-if="(document.subjects && document.subjects.length > 0) || (document.subject && document.subject.length > 0)"
+            class="mt-3"
           >
-            {{ document.officialSourceURL }}
-          </a>
-        </div>
+            <dt>Subject</dt>
+            <dd>
+              <div class="d-inline-flex">
+                <template v-if="document.subjects && document.subjects.length > 0">
+                  <span
+                    v-for="subject in document.subjects"
+                    :key="subject.identifier"
+                    class="badge bg-secondary me-1"
+                  >
+                    {{ subject.title }}
+                  </span>
+                </template>
+                <template v-else-if="document.subject && document.subject.length > 0">
+                  <span
+                    v-for="subject in document.subject"
+                    :key="subject"
+                    class="badge bg-secondary me-1"
+                  >
+                    {{ subject }}
+                  </span>
+                </template>
+              </div>
+            </dd>
+          </div>
 
-        <div
-          v-if="document.notes"
-          class="mt-3"
-        >
-          <strong>Notes:</strong>
-          <p class="mt-1">
-            {{ document.notes }}
-          </p>
-        </div>
+          <div
+            v-if="document.publisher"
+            class="mt-2"
+          >
+            <dt>Publisher</dt>
+            <dd>{{ document.publisher }}</dd>
+          </div>
+
+          <div
+            v-if="false && isAdmin && document.orgName"
+            class="mt-2"
+          >
+            <dt>Owning Access Group</dt>
+            <dd>{{ document.orgName }}</dd>
+          </div>
+
+          <div
+            v-if="document.licenseURI"
+            class="mt-2 text-truncate"
+          >
+            <dt>License</dt>
+            <dd><span class="ms-1">{{ licenseName }}</span></dd>
+          </div>
+
+          <div
+            v-if="document.officialSourceURL"
+            class="mt-2"
+          >
+            <dt>Official URL</dt>
+            <dd>
+              <a
+                :href="document.officialSourceURL"
+                target="_blank"
+                class="text-decoration-none"
+              >
+                {{ document.officialSourceURL }}<span class="visually-hidden"> (opens in new window)</span>
+              </a>
+            </dd>
+          </div>
+
+          <div
+            v-if="document.notes"
+            class="mt-3"
+          >
+            <dt>Notes</dt>
+            <dd>{{ document.notes }}</dd>
+          </div>
+        </dl>
 
         <div
           v-if="document.lastModified"
@@ -198,20 +223,22 @@
           <h6 class="mb-2">
             Additional Fields
           </h6>
-          <div
-            v-for="field in docFieldDefinitions"
-            :key="field.id || field.name"
-            class="row mb-1"
-          >
-            <template v-if="getDocDisplayValue(field.name)">
-              <div class="col-sm-4 text-muted">
-                {{ field.displayName || field.name }}
-              </div>
-              <div class="col-sm-8">
-                {{ getDocDisplayValue(field.name) }}
-              </div>
-            </template>
-          </div>
+          <dl class="details-list">
+            <div
+              v-for="field in docFieldDefinitions"
+              :key="field.id || field.name"
+              class="row mb-1"
+            >
+              <template v-if="getDocDisplayValue(field.name)">
+                <dt class="col-sm-4 text-muted">
+                  {{ field.displayName || field.name }}
+                </dt>
+                <dd class="col-sm-8">
+                  {{ getDocDisplayValue(field.name) }}
+                </dd>
+              </template>
+            </div>
+          </dl>
         </div>
       </div>
 
@@ -496,5 +523,4 @@ function manageAccess() {
 </script>
 
 <style scoped>
-/* Document details specific styles can be added here */
 </style>

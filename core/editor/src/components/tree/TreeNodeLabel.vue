@@ -21,7 +21,10 @@
       v-if="isCrossFrameworkItem && externalFrameworkTitle"
       class="badge bg-primary text-white me-2 ms-1"
     >
-      <i class="bi bi-box-arrow-up-right me-1" />{{ externalFrameworkTitle }}
+      <i
+        class="bi bi-box-arrow-up-right me-1"
+        aria-hidden="true"
+      />{{ externalFrameworkTitle }}
     </span>
     <span
       v-if="displayHumanCodingScheme"

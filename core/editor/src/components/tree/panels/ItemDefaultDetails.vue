@@ -1,104 +1,128 @@
 <template>
   <div>
-    <div
-      v-if="item.fullStatement"
-      class="mb-3"
-    >
-      <strong>Full Statement:</strong>
+    <dl class="details-list">
       <div
-        class="mt-1 markdown-body"
-        v-html="renderedFullStatement"
-      />
-    </div>
+        v-if="item.fullStatement"
+        class="mb-3 details-entry--full"
+      >
+        <dt>Full Statement</dt>
+        <dd>
+          <div
+            class="mt-1 markdown-body"
+            v-html="renderedFullStatement"
+          />
+        </dd>
+      </div>
 
-    <div class="mt-2 details-identifier item-identifier">
-      <strong>Identifier:</strong> <a
-        :href="`/uri/${item.identifier}`"
-        target="_blank"
-        class="ms-1"
-      >{{ item.identifier }}</a>
-    </div>
+      <div class="details-identifier item-identifier">
+        <dt>Identifier</dt>
+        <dd>
+          <a
+            :href="`/uri/${item.identifier}`"
+            target="_blank"
+            class="ms-1"
+          >{{ item.identifier }}<span class="visually-hidden"> (opens in new window)</span></a>
+        </dd>
+      </div>
 
-    <div class="row mt-2">
       <div
         v-if="item.itemType"
         class="col-sm-6"
       >
-        <strong>Item Type:</strong> {{ item.itemType || 'General' }}
+        <dt>Item Type</dt>
+        <dd>{{ item.itemType || 'General' }}</dd>
       </div>
       <div
         v-if="item.language"
         class="col-sm-6"
       >
-        <strong>Language:</strong> {{ item.language || 'en' }}
+        <dt>Language</dt>
+        <dd>{{ item.language || 'en' }}</dd>
       </div>
-    </div>
 
-    <div
-      v-if="item.educationLevel && item.educationLevel.length > 0"
-      class="mt-2"
-    >
-      <strong>Education Level:</strong>
-      <span class="ms-1">
-        <span
-          v-for="level in item.educationLevel"
-          :key="level"
-          class="badge bg-info text-dark me-1"
-        >
-          {{ level }}
-        </span>
-      </span>
-    </div>
+      <div
+        v-if="item.listEnumeration"
+        class="mt-2"
+      >
+        <dt>List Enumeration</dt>
+        <dd>{{ item.listEnumeration }}</dd>
+      </div>
 
-    <div
-      v-if="item.conceptKeywords && item.conceptKeywords.length > 0"
-      class="mt-2"
-    >
-      <strong>Keywords:</strong>
-      <span class="ms-1">
-        <span
-          v-for="keyword in item.conceptKeywords"
-          :key="keyword"
-          class="badge bg-secondary me-1"
-        >
-          {{ keyword }}
-        </span>
-      </span>
-    </div>
+      <div
+        v-if="item.educationLevel && item.educationLevel.length > 0"
+        class="mt-2"
+      >
+        <dt>Education Level</dt>
+        <dd>
+          <span class="ms-1">
+            <span
+              v-for="level in item.educationLevel"
+              :key="level"
+              class="badge bg-info text-dark me-1"
+            >
+              {{ level }}
+            </span>
+          </span>
+        </dd>
+      </div>
 
-    <div
-      v-if="item.subjectURI && item.subjectURI.length > 0"
-      class="mt-2"
-    >
-      <strong>Subject:</strong>
-      <span class="ms-1">
-        <span
-          v-for="subject in item.subjectURI"
-          :key="subject.identifier"
-          class="badge bg-secondary me-1"
-        >
-          {{ subject.title }}
-        </span>
-      </span>
-    </div>
+      <div
+        v-if="item.conceptKeywords && item.conceptKeywords.length > 0"
+        class="mt-2"
+      >
+        <dt>Keywords</dt>
+        <dd>
+          <span class="ms-1">
+            <span
+              v-for="keyword in item.conceptKeywords"
+              :key="keyword"
+              class="badge bg-secondary me-1"
+            >
+              {{ keyword }}
+            </span>
+          </span>
+        </dd>
+      </div>
 
-    <div
-      v-if="item.licenseURI"
-      class="mt-2 text-truncate"
-    >
-      <strong>License:</strong> <span class="ms-1">{{ licenseName }}</span>
-    </div>
+      <div
+        v-if="item.subjectURI && item.subjectURI.length > 0"
+        class="mt-2"
+      >
+        <dt>Subject</dt>
+        <dd>
+          <span class="ms-1">
+            <span
+              v-for="subject in item.subjectURI"
+              :key="subject.identifier"
+              class="badge bg-secondary me-1"
+            >
+              {{ subject.title }}
+            </span>
+          </span>
+        </dd>
+      </div>
 
-    <div
-      v-if="item.notes"
-      class="mt-3"
-    >
-      <strong>Notes:</strong>
-      <p
-        class="mt-1 markdown-body"
-        v-html="renderedNotes"
-      />
-    </div>
+      <div
+        v-if="item.licenseURI"
+        class="mt-2 text-truncate"
+      >
+        <dt>License</dt>
+        <dd><span class="ms-1">{{ licenseName }}</span></dd>
+      </div>
+
+      <div
+        v-if="item.notes"
+        class="mt-3"
+      >
+        <dt>Notes</dt>
+        <dd>
+          <div
+            class="mt-1 markdown-body"
+            v-html="renderedNotes"
+          />
+        </dd>
+      </div>
+    </dl>
 
     <div
       v-if="item.lastChanged"
@@ -117,20 +141,22 @@
       <h6 class="mb-2">
         Additional Fields
       </h6>
-      <div
-        v-for="field in fieldDefinitions"
-        :key="field.id || field.name"
-        class="row mb-1"
-      >
-        <template v-if="getDisplayValue(field.name)">
-          <div class="col-sm-4 text-muted">
-            {{ field.displayName || field.name }}
-          </div>
-          <div class="col-sm-8">
-            {{ getDisplayValue(field.name) }}
-          </div>
-        </template>
-      </div>
+      <dl class="details-list">
+        <div
+          v-for="field in fieldDefinitions"
+          :key="field.id || field.name"
+          class="row mb-1"
+        >
+          <template v-if="getDisplayValue(field.name)">
+            <dt class="col-sm-4 text-muted">
+              {{ field.displayName || field.name }}
+            </dt>
+            <dd class="col-sm-8">
+              {{ getDisplayValue(field.name) }}
+            </dd>
+          </template>
+        </div>
+      </dl>
     </div>
   </div>
 </template>
@@ -212,7 +238,7 @@ function formatDate(dateString) {
   border-left: 4px solid #dee2e6;
   padding-left: 1rem;
   margin: 1rem 0;
-  color: #6c757d;
+  color: #5a6268;
   font-style: italic;
 }
 
@@ -233,8 +259,8 @@ function formatDate(dateString) {
 }
 
 .markdown-body :deep(a) {
-  color: #0d6efd;
-  text-decoration: none;
+  color: #0056b3;
+  text-decoration: underline;
 }
 
 .markdown-body :deep(a:hover) {

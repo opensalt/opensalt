@@ -4,8 +4,17 @@
     :class="{ 'multiselect--active': isOpen }"
   >
     <div
+      :id="id"
       class="multiselect__tags"
+      role="combobox"
+      tabindex="0"
+      :aria-expanded="isOpen"
+      aria-haspopup="listbox"
+      :aria-controls="listboxId"
+      :aria-activedescendant="activeDescendantId"
+      :aria-label="triggerLabel"
       @click="toggleDropdown"
+      @keydown="handleKeydown"
     >
       <div class="multiselect__tags-wrap">
         <span
@@ -42,6 +51,10 @@
 
     <div
       v-show="isOpen"
+      :id="listboxId"
+      role="listbox"
+      aria-multiselectable="true"
+      :aria-label="placeholder"
       class="multiselect__content"
     >
       <div class="multiselect__content-wrapper">
@@ -74,17 +87,26 @@
         </div>
 
         <ul class="multiselect__options">
+          <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/interactive-supports-focus, vuejs-accessibility/mouse-events-have-key-events -->
           <li
-            v-for="option in filteredOptions"
+            v-for="(option, index) in filteredOptions"
+            :id="getOptionId(index)"
             :key="getOptionValue(option)"
+            role="option"
             class="multiselect__option"
-            :class="{ 'multiselect__option--selected': isSelected(option) }"
+            :class="{
+              'multiselect__option--selected': isSelected(option),
+              'multiselect__option--highlighted': highlightedIndex === index
+            }"
+            :aria-selected="isSelected(option)"
             @click="toggleOption(option)"
+            @mouseenter="highlightedIndex = index"
           >
             <input
               type="checkbox"
               :checked="isSelected(option)"
               class="multiselect__checkbox"
+              tabindex="-1"
               @change="toggleOption(option)"
             >
             <span class="multiselect__option-text">{{ getOptionLabel(option) }}</span>
@@ -98,7 +120,13 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 
+let _msIdCounter = 0
+
 const props = defineProps({
+  id: {
+    type: String,
+    default: ''
+  },
   modelValue: {
     type: Array,
     default: () => []
@@ -139,7 +167,26 @@ const isOpen = ref(false)
 const isLoading = ref(false)
 const searchQuery = ref('')
 const filteredOptions = ref([])
-const showCount = ref(10);
+const highlightedIndex = ref(null)
+const showCount = ref(10)
+
+// Unique IDs for ARIA relationships
+const componentId = _msIdCounter++
+const listboxId = `ms-listbox-${componentId}`
+const getOptionId = (index) => `${listboxId}-opt-${index}`
+
+const activeDescendantId = computed(() => {
+  if (highlightedIndex.value === null || highlightedIndex.value === undefined) {
+    return undefined
+  }
+  return getOptionId(highlightedIndex.value)
+})
+
+const triggerLabel = computed(() => {
+  const count = selectedItems.value.length
+  if (count === 0) return props.placeholder
+  return `${props.placeholder}, ${count} selected`
+})
 
 const selectedItems = computed(() => {
   return props.modelValue || []
@@ -179,6 +226,11 @@ const getSelectedLabel = (value) => {
 
 const toggleDropdown = () => {
   isOpen.value = !isOpen.value
+  if (isOpen.value) {
+    searchQuery.value = ''
+    filteredOptions.value = [...props.options]
+    highlightedIndex.value = null
+  }
 }
 
 const toggleOption = (option) => {
@@ -217,6 +269,84 @@ const filterOptions = () => {
   })
 }
 
+// Keyboard navigation
+const moveHighlight = (direction) => {
+  if (filteredOptions.value.length === 0) return
+
+  if (highlightedIndex.value === null || highlightedIndex.value === undefined) {
+    highlightedIndex.value = direction > 0 ? 0 : filteredOptions.value.length - 1
+  } else {
+    highlightedIndex.value = (highlightedIndex.value + direction + filteredOptions.value.length) % filteredOptions.value.length
+  }
+}
+
+const highlightFirst = () => {
+  if (filteredOptions.value.length === 0) return
+  highlightedIndex.value = 0
+}
+
+const highlightLast = () => {
+  if (filteredOptions.value.length === 0) return
+  highlightedIndex.value = filteredOptions.value.length - 1
+}
+
+const handleKeydown = (event) => {
+  switch (event.key) {
+    case 'Enter':
+      event.preventDefault()
+      if (!isOpen.value) {
+        toggleDropdown()
+      } else if (highlightedIndex.value !== null && highlightedIndex.value !== undefined) {
+        toggleOption(filteredOptions.value[highlightedIndex.value])
+      }
+      break
+
+    case ' ':
+      event.preventDefault()
+      if (!isOpen.value) {
+        toggleDropdown()
+      } else if (highlightedIndex.value !== null && highlightedIndex.value !== undefined) {
+        toggleOption(filteredOptions.value[highlightedIndex.value])
+      }
+      break
+
+    case 'Escape':
+      event.preventDefault()
+      isOpen.value = false
+      break
+
+    case 'ArrowDown':
+      event.preventDefault()
+      if (!isOpen.value) {
+        toggleDropdown()
+      }
+      moveHighlight(1)
+      break
+
+    case 'ArrowUp':
+      event.preventDefault()
+      if (!isOpen.value) {
+        toggleDropdown()
+      }
+      moveHighlight(-1)
+      break
+
+    case 'Home':
+      event.preventDefault()
+      if (isOpen.value) {
+        highlightFirst()
+      }
+      break
+
+    case 'End':
+      event.preventDefault()
+      if (isOpen.value) {
+        highlightLast()
+      }
+      break
+  }
+}
+
 const handleClickOutside = (event) => {
   const target = event.target
   const multiselect = target.closest('.multiselect')
@@ -233,6 +363,13 @@ const handleMouseDownOutside = (event) => {
     isOpen.value = false
   }
 }
+
+// Reset highlight when dropdown closes
+watch(isOpen, (newVal) => {
+  if (!newVal) {
+    highlightedIndex.value = null
+  }
+})
 
 watch(() => props.options, () => {
   filteredOptions.value = props.options
@@ -396,6 +533,12 @@ onUnmounted(() => {
   background-color: #e3f2fd;
 }
 
+.multiselect__option--highlighted {
+  background-color: #e8e8ff;
+  outline: 2px solid #0d6efd;
+  outline-offset: -2px;
+}
+
 .multiselect__checkbox {
   margin: 0;
 }
@@ -406,6 +549,12 @@ onUnmounted(() => {
 }
 
 /* Focus styles */
+.multiselect__tags:focus-visible {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  outline: none;
+}
+
 .multiselect__tags:focus-within {
   border-color: #86b7fe;
   box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);

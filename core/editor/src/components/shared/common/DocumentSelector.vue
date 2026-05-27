@@ -10,7 +10,10 @@
         class="badge bg-warning text-dark"
         title="You are viewing a different framework than the one being edited"
       >
-        <i class="bi bi-eye me-1" />Viewing
+        <i
+          class="bi bi-eye me-1"
+          aria-hidden="true"
+        />Viewing
       </span>
       <button
         type="button"
@@ -18,7 +21,10 @@
         title="Change document"
         @click="changeDocument"
       >
-        <i class="bi bi-arrow-repeat" />
+        <i
+          class="bi bi-arrow-repeat"
+          aria-hidden="true"
+        />
       </button>
     </div>
     <div class="card-body">

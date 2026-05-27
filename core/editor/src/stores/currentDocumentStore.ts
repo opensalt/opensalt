@@ -96,6 +96,24 @@ function isUnresolvedCrossFrameworkPlaceholder(
 }
 
 function mapTreeNodeToEditorNode(node: TreeNode, parentIdentifier?: string): EditorItemNode {
+  // Parse conceptKeywords: the DB stores it as a JSON array (string[]),
+  // but it could also be a comma-separated string from some sources
+  let conceptKeywords: string[] = [];
+  if (Array.isArray(node.conceptKeywords)) {
+    conceptKeywords = node.conceptKeywords;
+  } else if (typeof node.conceptKeywords === 'string' && node.conceptKeywords.trim()) {
+    conceptKeywords = node.conceptKeywords.split(',').map(s => s.trim()).filter(Boolean);
+  }
+
+  // Parse educationLevel: the DB stores it as a comma-separated string,
+  // but the API may also return it as an array
+  let educationLevel: string[] = [];
+  if (Array.isArray(node.educationLevel)) {
+    educationLevel = node.educationLevel;
+  } else if (typeof node.educationLevel === 'string' && node.educationLevel.trim()) {
+    educationLevel = node.educationLevel.split(',').map(s => s.trim()).filter(Boolean);
+  }
+
   return {
     id: 0,
     identifier: node.identifier,
@@ -111,11 +129,11 @@ function mapTreeNodeToEditorNode(node: TreeNode, parentIdentifier?: string): Edi
     lastChangeDateTime: node.lastChangeDateTime || '',
     itemType: node.itemType || undefined,
     CFItemTypeURI: undefined,
-    conceptKeywords: [],
+    conceptKeywords,
     conceptKeywordsURI: undefined,
     notes: undefined,
-    language: undefined,
-    educationLevel: [],
+    language: node.language || undefined,
+    educationLevel,
     licenseURI: (node as any).licenseURI || undefined,
     statusStartDate: undefined,
     statusEndDate: undefined,

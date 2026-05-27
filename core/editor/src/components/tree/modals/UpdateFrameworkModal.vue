@@ -47,17 +47,26 @@
           </div>
 
           <!-- Tabs -->
+          <!-- eslint-disable-next-line vuejs-accessibility/interactive-supports-focus -->
           <ul
             class="nav nav-tabs"
             role="tablist"
+            @keydown="handleTabKeydown"
           >
-            <li class="nav-item">
+            <li
+              class="nav-item"
+              role="presentation"
+            >
               <button
+                id="ufExcelTab"
                 class="nav-link active"
                 data-bs-toggle="tab"
                 data-bs-target="#ufExcel"
                 type="button"
                 role="tab"
+                aria-selected="true"
+                aria-controls="ufExcel"
+                tabindex="0"
               >
                 Import Spreadsheet File
               </button>
@@ -73,6 +82,9 @@
             <div
               id="ufExcel"
               class="tab-pane fade show active"
+              role="tabpanel"
+              aria-labelledby="ufExcelTab"
+              tabindex="0"
             >
               <div class="mb-3">
                 <label
@@ -207,6 +219,38 @@ function onFileSelected(event) {
 function isFileTypeValid(filename) {
   const ext = filename.split('.').pop()?.toLowerCase();
   return ext && ALLOWED_EXTENSIONS.includes(ext);
+}
+
+function handleTabKeydown(event) {
+  const tabs = ['ufExcelTab'];
+  const currentIndex = tabs.indexOf(document.activeElement?.id);
+
+  if (currentIndex === -1) return;
+
+  let newIndex;
+  switch (event.key) {
+    case 'ArrowRight':
+      newIndex = (currentIndex + 1) % tabs.length;
+      break;
+    case 'ArrowLeft':
+      newIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+      break;
+    case 'Home':
+      newIndex = 0;
+      break;
+    case 'End':
+      newIndex = tabs.length - 1;
+      break;
+    default:
+      return;
+  }
+
+  event.preventDefault();
+  const targetTab = document.getElementById(tabs[newIndex]);
+  if (targetTab) {
+    targetTab.focus();
+    targetTab.click();
+  }
 }
 
 async function importFramework() {

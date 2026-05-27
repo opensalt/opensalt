@@ -15,9 +15,9 @@
         :disabled="isDisabled"
         @change="handleChange"
       >
-        <option 
-          v-for="type in types" 
-          :key="type.value" 
+        <option
+          v-for="type in types"
+          :key="type.value"
           :value="type.value"
           :disabled="type.isSeparator"
         >
@@ -28,7 +28,10 @@
         v-if="false && isDisabled"
         class="form-text text-muted"
       >
-        <i class="bi bi-lock me-1" />Type is locked when adding an exemplar
+        <i
+          class="bi bi-lock me-1"
+          aria-hidden="true"
+        />Type is locked when adding an exemplar
       </div>
       <div
         v-if="showCustomTypeField"
