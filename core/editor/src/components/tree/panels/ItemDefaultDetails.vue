@@ -200,7 +200,6 @@ function formatDate(dateString) {
 /* Markdown content styling */
 .markdown-body {
   padding: 0.75rem;
-  padding-bottom: 0;
   background-color: #f8f9fa;
   border-radius: 0.375rem;
   border: 1px solid #dee2e6;

@@ -60,6 +60,7 @@
     <div class="card-body">
       <!-- Item Title -->
       <h4
+        v-if="displayItem.humanCodingScheme || displayItem.abbreviatedStatement"
         id="item-detail-heading"
         class="card-title ms-0 itemTitle"
       >
