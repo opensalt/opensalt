@@ -2,10 +2,9 @@
 flysystem:
     storages:
         files.storage:
-            adapter: 'WGG\Flysystem\Doctrine\DoctrineDBALAdapter'
+            service: 'WGG\Flysystem\Doctrine\DoctrineDBALAdapter'
             options:
                 directory: '/files'
         default.storage:
-            adapter: 'local'
-            options:
+            local:
                 directory: '%kernel.project_dir%/var/storage/default'

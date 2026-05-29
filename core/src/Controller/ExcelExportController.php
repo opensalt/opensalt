@@ -11,13 +11,11 @@ use App\Service\ExcelExport;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
-use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\HttpKernel\Attribute\RateLimit;
 
 class ExcelExportController extends AbstractController
 {
@@ -25,22 +23,16 @@ class ExcelExportController extends AbstractController
 
     public function __construct(
         private readonly ExcelExport $excelExport,
-        private readonly RateLimiterFactoryInterface $excelDownloadLimiter,
     ) {
     }
 
     #[Route(path: '/cfdoc/{id}/excel', name: 'export_excel_file', requirements: ['id' => '\d+'], methods: ['GET'])]
     #[Route(path: '/cfdoc/{identifier}/excel', name: 'export_excel_file_by_identifier', methods: ['GET'])]
     #[IsGranted(Permission::FRAMEWORK_DOWNLOAD_EXCEL, 'lsDoc')]
+    #[RateLimit('excel_download')]
     public function exportExcel(
-        Request $request,
         #[MapEntity(expr: '((id ?? null) == null) ? repository.findOneByIdentifier(identifier ?? null) : repository.find(id ?? null)')] LsDoc $lsDoc,
-        ): StreamedResponse {
-        $limiter = $this->excelDownloadLimiter->create($request->getClientIp());
-        if (false === $limiter->consume()->isAccepted()) {
-            throw new TooManyRequestsHttpException(600);
-        }
-
+    ): StreamedResponse {
         $title = preg_replace('/[^A-Za-z0-9]/', '_', $lsDoc->getTitle());
 
         $phpExcelObject = $this->excelExport->exportExcelFile($lsDoc);
