@@ -34,6 +34,8 @@ final readonly class LicencesTransformer
             $this->updateLicence($cfLicence, $licences);
         }
 
+        UriCollisionResolver::resolve($licences, $this->repository);
+
         return $licences;
     }
 

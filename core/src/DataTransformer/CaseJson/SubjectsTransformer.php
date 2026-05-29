@@ -34,6 +34,8 @@ final readonly class SubjectsTransformer
             $this->updateSubject($cfItemType, $existingSubjects);
         }
 
+        UriCollisionResolver::resolve($existingSubjects, $this->repository);
+
         return $existingSubjects;
     }
 

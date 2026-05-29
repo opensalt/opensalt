@@ -34,6 +34,8 @@ final readonly class AssociationGroupingsTransformer
             $this->updateAssociationGrouping($cfAssociationGrouping, $existingGroups);
         }
 
+        UriCollisionResolver::resolve($existingGroups, $this->repository);
+
         return $existingGroups;
     }
 

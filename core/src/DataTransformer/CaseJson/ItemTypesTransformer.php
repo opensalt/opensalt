@@ -34,6 +34,8 @@ final readonly class ItemTypesTransformer
             $this->updateItemType($cfItemType, $existingItemTypes);
         }
 
+        UriCollisionResolver::resolve($existingItemTypes, $this->repository);
+
         return $existingItemTypes;
     }
 

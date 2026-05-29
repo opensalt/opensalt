@@ -34,6 +34,8 @@ final readonly class ConceptsTransformer
             $this->updateConcept($cfConcept, $existingConcepts);
         }
 
+        UriCollisionResolver::resolve($existingConcepts, $this->repository);
+
         return $existingConcepts;
     }
 
