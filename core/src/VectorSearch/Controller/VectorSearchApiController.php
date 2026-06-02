@@ -26,7 +26,11 @@ class VectorSearchApiController extends AbstractController
         $query = $request->query->get('query');
         $limit = (int) $request->query->get('limit', 10);
         $frameworkId = $request->query->has('framework') ? (int) $request->query->get('framework') : null;
-        $leafOnly = $request->query->getBoolean('leaf_only', false);
+        try {
+            $leafOnly = $request->query->getBoolean('leaf_only', false);
+        } catch (\Throwable) {
+            $leafOnly = false;
+        }
         $kindRaw = $request->query->get('kind');
         $kind = null !== $kindRaw && '' !== $kindRaw && is_numeric($kindRaw)
             ? (LsItemKind::tryFrom((int) $kindRaw)?->value)

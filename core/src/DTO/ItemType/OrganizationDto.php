@@ -31,7 +31,7 @@ class OrganizationDto implements ItemTypeInterface
         #[Assert\NotBlank()]
         public ?string $description = null,
         public ?string $type = null,
-        #[Assert\Url(requireTld: true)]
+        #[Assert\Url()]
         public ?string $webpage = null,
         public ?string $logo = null,
         public ?string $jurisdiction = null,

@@ -11,7 +11,7 @@ class MirroredFrameworkDTO
 {
     #[Assert\NotNull]
     #[Assert\NotBlank]
-    #[Assert\Url(requireTld: true)]
+    #[Assert\Url()]
     public string $url;
 
     public bool $visible = false;

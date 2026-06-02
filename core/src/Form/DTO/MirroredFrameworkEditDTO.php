@@ -10,6 +10,6 @@ class MirroredFrameworkEditDTO
 {
     #[Assert\NotNull]
     #[Assert\NotBlank]
-    #[Assert\Url(requireTld: true)]
+    #[Assert\Url()]
     public string $url;
 }

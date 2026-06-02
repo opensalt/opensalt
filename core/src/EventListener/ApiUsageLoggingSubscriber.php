@@ -37,7 +37,11 @@ final readonly class ApiUsageLoggingSubscriber implements EventSubscriberInterfa
 
         // Try to resolve from authenticator (valid token case)
         $userIdentifier = $request->attributes->getString('_api_token_user_identifier');
-        $apiTokenId = $request->attributes->getInt('_api_token_id');
+        try {
+            $apiTokenId = $request->attributes->getInt('_api_token_id');
+        } catch (\Throwable) {
+            $apiTokenId = null;
+        }
 
         // If we do not have a user identifier, skip logging as it's not an API token we recognize.
         if ('' === $userIdentifier) {

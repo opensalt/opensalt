@@ -24,7 +24,11 @@ final class ApiUsageLogController extends AbstractController
     #[Route(path: '/', name: 'system_api_usage_index', methods: ['GET'])]
     public function index(Request $request): Response
     {
-        $limit = min(500, max(1, $request->query->getInt('limit', 50)));
+        try {
+            $limit = min(500, max(1, $request->query->getInt('limit', 50)));
+        } catch (\Throwable) {
+            $limit = 50;
+        }
 
         $userIdentifier = trim($request->query->getString('user', ''));
         $endpoint = trim($request->query->getString('endpoint', ''));
@@ -48,10 +52,29 @@ final class ApiUsageLogController extends AbstractController
         }
 
         // Cursor parameters (epoch seconds + id)
-        $afterTs = $request->query->getInt('after_ts');
-        $afterId = $request->query->getInt('after_id');
-        $beforeTs = $request->query->getInt('before_ts');
-        $beforeId = $request->query->getInt('before_id');
+        try {
+            $afterTs = $request->query->getInt('after_ts');
+        } catch (\Throwable) {
+            $afterTs = 0;
+        }
+
+        try {
+            $afterId = $request->query->getInt('after_id');
+        } catch (\Throwable) {
+            $afterId = 0;
+        }
+
+        try {
+            $beforeTs = $request->query->getInt('before_ts');
+        } catch (\Throwable) {
+            $beforeTs = 0;
+        }
+
+        try {
+            $beforeId = $request->query->getInt('before_id');
+        } catch (\Throwable) {
+            $beforeId = 0;
+        }
 
         $afterTsDt = (0 !== $afterTs) ? new \DateTimeImmutable('@'.$afterTs) : null;
         $afterIdInt = (0 !== $afterId) ? $afterId : null;

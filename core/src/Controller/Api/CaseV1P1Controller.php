@@ -109,7 +109,11 @@ class CaseV1P1Controller extends AbstractController
     public function getCfPackage(Request $request, #[MapEntity(expr: 'repository.findOneByIdentifier(id)')] LsDoc $obj): Response
     {
         $id = $obj->getIdentifier();
-        $forceDownload = $request->query->getBoolean('download');
+        try {
+            $forceDownload = $request->query->getBoolean('download');
+        } catch (\Throwable) {
+            $forceDownload = false;
+        }
 
         $this->info('CASE API: package returned', ['id' => $id]);
 

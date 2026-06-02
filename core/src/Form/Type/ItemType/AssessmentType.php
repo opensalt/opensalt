@@ -56,6 +56,7 @@ class AssessmentType extends AbstractType
             ])
             ->add('webpage', UrlType::class, [
                 'label' => 'Webpage',
+                'default_protocol' => 'https',
                 'required' => false,
                 'help' => 'Webpage that describes this job',
             ])

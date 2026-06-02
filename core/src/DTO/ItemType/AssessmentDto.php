@@ -26,7 +26,7 @@ class AssessmentDto implements ItemTypeInterface
         public ?string $deliveryType = null,
         public ?string $inLanguage = null,
         public ?string $keywords = null,
-        #[Assert\Url(message: 'The webpage must be a valid URL.', requireTld: true)]
+        #[Assert\Url(message: 'The webpage must be a valid URL.')]
         public ?string $webpage = null,
     ) {
     }

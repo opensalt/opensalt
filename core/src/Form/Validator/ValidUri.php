@@ -13,7 +13,7 @@ class ValidUri extends Constraint
 
     public function __construct(?string $message = null, ?array $groups = null, mixed $payload = null)
     {
-        parent::__construct([], $groups, $payload);
+        parent::__construct(null, $groups, $payload);
 
         $this->message = $message ?? $this->message;
     }

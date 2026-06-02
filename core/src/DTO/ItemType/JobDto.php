@@ -24,7 +24,7 @@ class JobDto implements ItemTypeInterface
         public ?string $description = null,
         public ?string $codedNotation = null,
         public ?string $keywords = null,
-        #[Assert\Url(message: 'The webpage must be a valid URL.', requireTld: true)]
+        #[Assert\Url(message: 'The webpage must be a valid URL.')]
         public ?string $webpage = null,
     ) {
     }

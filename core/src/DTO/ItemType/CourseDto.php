@@ -23,7 +23,7 @@ class CourseDto implements ItemTypeInterface
         public ?string $name = null,
         #[Assert\NotBlank()]
         public ?string $description = null,
-        #[Assert\Url(requireTld: true)]
+        #[Assert\Url()]
         public ?string $webpage = null,
         public ?string $codedNotation = null,
         public ?string $inLanguage = null,
