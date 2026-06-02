@@ -39,7 +39,7 @@ final class UriCollisionResolver
             }
 
             $existing = $repository->findOneBy(['uri' => $uri]);
-            if ($existing !== null && !isset($batchIdentifiers[$existing->getIdentifier()])) {
+            if (null !== $existing && !isset($batchIdentifiers[$existing->getIdentifier()])) {
                 $entity->setUri($uri . '#' . $identifier);
                 $seenUris[$uri] = true;
                 $seenUris[$uri . '#' . $identifier] = true;
