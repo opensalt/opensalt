@@ -9,6 +9,8 @@ use App\VectorSearch\Store\HybridQdrantStore;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Symfony\AI\Platform\PlatformInterface;
+use Symfony\AI\Platform\Result\DeferredResult;
+use Symfony\AI\Platform\Vector\Vector;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -178,19 +180,19 @@ EOF
                 if ($parallelism < 2) {
                     $deferredResult = $this->platform->invoke('Xenova/all-MiniLM-L6-v2', $texts);
                     $vectors = array_map(
-                        static fn (\Symfony\AI\Platform\Vector\Vector $v): array => $v->getData(),
+                        static fn (Vector $v): array => $v->getData(),
                         $deferredResult->asVectors()
                     );
                 } else {
                     $subBatches = array_chunk($texts, (int) ceil(count($texts) / $parallelism));
                     $deferredResults = array_map(
-                        fn (array $subTexts): \Symfony\AI\Platform\Result\DeferredResult => $this->platform->invoke('Xenova/all-MiniLM-L6-v2', $subTexts),
+                        fn (array $subTexts): DeferredResult => $this->platform->invoke('Xenova/all-MiniLM-L6-v2', $subTexts),
                         $subBatches,
                     );
                     $vectors = [];
                     foreach ($deferredResults as $subVectors) {
                         $vectors = array_merge($vectors, array_map(
-                            static fn (\Symfony\AI\Platform\Vector\Vector $v): array => $v->getData(),
+                            static fn (Vector $v): array => $v->getData(),
                             $subVectors->asVectors(),
                         ));
                     }

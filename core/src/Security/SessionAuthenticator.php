@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Authenticator\AuthenticatorInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
@@ -147,7 +148,7 @@ final readonly class SessionAuthenticator implements AuthenticatorInterface
         }
 
         // Fall back to creating a new token via Security
-        return $this->security->getToken() ?? new \Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken(
+        return $this->security->getToken() ?? new UsernamePasswordToken(
             $passport->getUser(),
             $firewallName,
             $passport->getUser()->getRoles()

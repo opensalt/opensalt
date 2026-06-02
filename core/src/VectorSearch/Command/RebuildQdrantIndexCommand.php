@@ -9,6 +9,7 @@ use App\VectorSearch\Store\HybridQdrantStore;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use Symfony\AI\Platform\PlatformInterface;
+use Symfony\AI\Platform\Vector\Vector;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -189,7 +190,7 @@ EOF
                     $texts = array_column($rows, 'text');
                     $deferredResult = $this->platform->invoke('Xenova/all-MiniLM-L6-v2', $texts);
                     $vectors = array_map(
-                        static fn (\Symfony\AI\Platform\Vector\Vector $v): array => $v->getData(),
+                        static fn (Vector $v): array => $v->getData(),
                         $deferredResult->asVectors()
                     );
                     $payloadRows = [];

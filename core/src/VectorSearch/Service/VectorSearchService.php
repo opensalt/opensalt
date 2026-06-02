@@ -6,6 +6,7 @@ namespace App\VectorSearch\Service;
 
 use App\Entity\Framework\LsItem;
 use App\VectorSearch\Store\HybridQdrantStore;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\AI\Platform\PlatformInterface;
@@ -357,7 +358,7 @@ readonly class VectorSearchService
         $rows = $this->entityManager->getConnection()->fetchAllAssociative(
             'SELECT li.id, li.ls_doc_id AS framework_id FROM ls_item li WHERE li.id IN (:lsItemIds) ORDER BY framework_id ASC, li.id ASC',
             ['lsItemIds' => $lsItemIds],
-            ['lsItemIds' => \Doctrine\DBAL\ArrayParameterType::INTEGER],
+            ['lsItemIds' => ArrayParameterType::INTEGER],
         );
 
         $grouped = [];
