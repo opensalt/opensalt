@@ -58,7 +58,7 @@ class TreeController extends AbstractController
             'title' => $lsDoc->getTitle(),
             'description' => $lsDoc->getDescription(),
             'creator' => $lsDoc->getCreator(),
-            'lastChangeDateTime' => $lsDoc->getChangedAt()?->format('c'),
+            'lastChangeDateTime' => $lsDoc->getChangedAt()->format('c'),
             'adoptionStatus' => $lsDoc->getAdoptionStatus(),
             'language' => $lsDoc->getLanguage(),
             'version' => $lsDoc->getVersion(),
@@ -74,7 +74,7 @@ class TreeController extends AbstractController
             'subject' => $lsDoc->getSubject(),
             'subjects' => $subjectURIs,
             'licence' => $licence?->getIdentifier(),
-            'additionalFields' => $lsDoc->getAdditionalFields() ?? [],
+            'additionalFields' => $lsDoc->getAdditionalFields(),
         ];
 
         $response = [
@@ -92,7 +92,7 @@ class TreeController extends AbstractController
 
         $jsonResponse = new JsonResponse($response);
 
-        if (!$lightweight && null !== $lsDoc->getChangedAt()) {
+        if (!$lightweight) {
             $etag = md5($lsDoc->getChangedAt()->format('U.u').$lsDoc->getIdentifier());
             $jsonResponse->setEtag($etag);
             $jsonResponse->setLastModified($lsDoc->getChangedAt());

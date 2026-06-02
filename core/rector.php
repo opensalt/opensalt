@@ -41,7 +41,7 @@ return RectorConfig::configure()
         //naming: true,
         instanceOf: true,
         earlyReturn: true,
-        strictBooleans: true,
+        strictBooleans: false,
         rectorPreset: true,
     )
     ->withAttributesSets(
@@ -51,8 +51,8 @@ return RectorConfig::configure()
          */
     )
     ->withSets([
-        \Rector\Set\ValueObject\LevelSetList::UP_TO_PHP_84,
-        \Rector\Symfony\Set\SymfonySetList::SYMFONY_73,
+        \Rector\Set\ValueObject\LevelSetList::UP_TO_PHP_85,
+        \Rector\Symfony\Set\SymfonySetList::SYMFONY_81,
         \Rector\Symfony\Set\SymfonySetList::SYMFONY_CODE_QUALITY,
         \Rector\Symfony\Set\SymfonySetList::SYMFONY_CONSTRUCTOR_INJECTION,
     ])

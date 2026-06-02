@@ -39,99 +39,18 @@ class DocumentController extends AbstractController
     ): Response {
         $data = json_decode($request->getContent(), true);
         if (null !== $data) {
-            if (isset($data['title'])) {
-                $lsDoc->setTitle($data['title']);
+            $this->applyScalarFields($lsDoc, $data);
+
+            $this->applyLicence($lsDoc, $data);
+
+            $this->applySubjects($lsDoc, $data);
+
+            $orgResponse = $this->applyOrg($lsDoc, $data);
+            if (null !== $orgResponse) {
+                return $orgResponse;
             }
-            if (isset($data['officialUri'])) {
-                $lsDoc->setOfficialUri($data['officialUri']);
-            }
-            if (isset($data['creator'])) {
-                $lsDoc->setCreator($data['creator']);
-            }
-            if (isset($data['publisher'])) {
-                $lsDoc->setPublisher($data['publisher']);
-            }
-            if (isset($data['version'])) {
-                $lsDoc->setVersion($data['version']);
-            }
-            if (isset($data['description'])) {
-                $lsDoc->setDescription($data['description']);
-            }
-            if (isset($data['language'])) {
-                $lsDoc->setLanguage($data['language']);
-            }
-            if (isset($data['adoptionStatus'])) {
-                $lsDoc->setAdoptionStatus($data['adoptionStatus']);
-            }
-            if (isset($data['statusStart'])) {
-                $lsDoc->setStatusStart($data['statusStart'] ? new \DateTime($data['statusStart']) : null);
-            }
-            if (isset($data['statusEnd'])) {
-                $lsDoc->setStatusEnd($data['statusEnd'] ? new \DateTime($data['statusEnd']) : null);
-            }
-            if (array_key_exists('licence', $data)) {
-                if (null !== $data['licence'] && '' !== $data['licence']) {
-                    $field = is_numeric($data['licence']) ? 'id' : 'identifier';
-                    $licence = $this->em->getRepository(LsDefLicence::class)
-                        ->findOneBy([$field => $data['licence']]);
-                    if (null !== $licence) {
-                        $lsDoc->setLicence($licence);
-                    }
-                } else {
-                    $lsDoc->setLicence(null);
-                }
-            }
-            if (array_key_exists('subjects', $data)) {
-                $subjects = [];
-                if (is_array($data['subjects'])) {
-                    foreach ($data['subjects'] as $subjectValue) {
-                        if (empty($subjectValue)) {
-                            continue;
-                        }
-                        if (str_starts_with((string) $subjectValue, '__')) {
-                            $cleanValue = substr((string) $subjectValue, 2);
-                            $newSubject = new LsDefSubject();
-                            $newSubject->setTitle($cleanValue);
-                            $newSubject->setHierarchyCode($cleanValue);
-                            $this->em->persist($newSubject);
-                            $subjects[] = $newSubject;
-                        } else {
-                            $field = is_numeric($subjectValue) ? 'id' : 'identifier';
-                            $subject = $this->em->getRepository(LsDefSubject::class)
-                                ->findOneBy([$field => $subjectValue]);
-                            if (null !== $subject) {
-                                $subjects[] = $subject;
-                            }
-                        }
-                    }
-                }
-                $lsDoc->setSubjects($subjects);
-            }
-            if (isset($data['note'])) {
-                $lsDoc->setNote($data['note']);
-            }
-            if (isset($data['notes'])) {
-                $lsDoc->setNote($data['notes']);
-            }
-            if (array_key_exists('org', $data)) {
-                if (!$this->isGranted('ROLE_ADMIN')) {
-                    return new JsonResponse(['error' => 'Only admins can change the owning organization'], Response::HTTP_FORBIDDEN);
-                }
-                if (null === $data['org']) {
-                    $lsDoc->setOrg(null);
-                } else {
-                    $accessGroup = $this->em->getRepository(AccessGroup::class)->find($data['org']);
-                    if (null === $accessGroup) {
-                        return new JsonResponse(['error' => 'Access group not found'], Response::HTTP_BAD_REQUEST);
-                    }
-                    $lsDoc->setOrg($accessGroup);
-                }
-            }
-            if (isset($data['additionalFields']) && is_array($data['additionalFields'])) {
-                foreach ($data['additionalFields'] as $fieldName => $value) {
-                    $lsDoc->setAdditionalField($fieldName, $value);
-                }
-            }
+
+            $this->applyAdditionalFields($lsDoc, $data);
         }
 
         try {
@@ -140,10 +59,138 @@ class DocumentController extends AbstractController
 
             return new JsonResponse([
                 'status' => 'OK',
-                'additionalFields' => $lsDoc->getAdditionalFields() ?? [],
+                'additionalFields' => $lsDoc->getAdditionalFields(),
             ], Response::HTTP_OK);
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    private function applyScalarFields(LsDoc $lsDoc, array $data): void
+    {
+        $scalars = [
+            'title' => 'setTitle',
+            'officialUri' => 'setOfficialUri',
+            'creator' => 'setCreator',
+            'publisher' => 'setPublisher',
+            'version' => 'setVersion',
+            'description' => 'setDescription',
+            'language' => 'setLanguage',
+            'adoptionStatus' => 'setAdoptionStatus',
+        ];
+
+        foreach ($scalars as $field => $setter) {
+            if (isset($data[$field])) {
+                $lsDoc->$setter($data[$field]);
+            }
+        }
+
+        if (isset($data['statusStart'])) {
+            $lsDoc->setStatusStart($data['statusStart'] ? new \DateTime($data['statusStart']) : null);
+        }
+        if (isset($data['statusEnd'])) {
+            $lsDoc->setStatusEnd($data['statusEnd'] ? new \DateTime($data['statusEnd']) : null);
+        }
+        if (isset($data['note'])) {
+            $lsDoc->setNote($data['note']);
+        }
+        if (isset($data['notes'])) {
+            $lsDoc->setNote($data['notes']);
+        }
+    }
+
+    private function applyLicence(LsDoc $lsDoc, array $data): void
+    {
+        if (!array_key_exists('licence', $data)) {
+            return;
+        }
+
+        if (null !== $data['licence'] && '' !== $data['licence']) {
+            $field = is_numeric($data['licence']) ? 'id' : 'identifier';
+            $licence = $this->em->getRepository(LsDefLicence::class)
+                ->findOneBy([$field => $data['licence']]);
+            if (null !== $licence) {
+                $lsDoc->setLicence($licence);
+            }
+        } else {
+            $lsDoc->setLicence(null);
+        }
+    }
+
+    private function applySubjects(LsDoc $lsDoc, array $data): void
+    {
+        if (!array_key_exists('subjects', $data)) {
+            return;
+        }
+
+        $subjects = [];
+        if (is_array($data['subjects'])) {
+            foreach ($data['subjects'] as $subjectValue) {
+                $subject = $this->resolveSubject($subjectValue);
+                if (null !== $subject) {
+                    $subjects[] = $subject;
+                }
+            }
+        }
+        $lsDoc->setSubjects($subjects);
+    }
+
+    private function resolveSubject(mixed $subjectValue): ?LsDefSubject
+    {
+        if (empty($subjectValue)) {
+            return null;
+        }
+
+        if (str_starts_with((string) $subjectValue, '__')) {
+            $cleanValue = substr((string) $subjectValue, 2);
+            $newSubject = new LsDefSubject();
+            $newSubject->setTitle($cleanValue);
+            $newSubject->setHierarchyCode($cleanValue);
+            $this->em->persist($newSubject);
+
+            return $newSubject;
+        }
+
+        $field = is_numeric($subjectValue) ? 'id' : 'identifier';
+
+        return $this->em->getRepository(LsDefSubject::class)
+            ->findOneBy([$field => $subjectValue]);
+    }
+
+    private function applyOrg(LsDoc $lsDoc, array $data): ?Response
+    {
+        if (!array_key_exists('org', $data)) {
+            return null;
+        }
+
+        if (!$this->isGranted('ROLE_ADMIN')) {
+            return new JsonResponse(['error' => 'Only admins can change the owning organization'], Response::HTTP_FORBIDDEN);
+        }
+
+        if (null === $data['org']) {
+            $lsDoc->setOrg(null);
+
+            return null;
+        }
+
+        $accessGroup = $this->em->getRepository(AccessGroup::class)->find($data['org']);
+        if (null === $accessGroup) {
+            return new JsonResponse(['error' => 'Access group not found'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $lsDoc->setOrg($accessGroup);
+
+        return null;
+    }
+
+    private function applyAdditionalFields(LsDoc $lsDoc, array $data): void
+    {
+        if (!isset($data['additionalFields']) || !is_array($data['additionalFields'])) {
+            return;
+        }
+
+        foreach ($data['additionalFields'] as $fieldName => $value) {
+            $lsDoc->setAdditionalField($fieldName, $value);
         }
     }
 

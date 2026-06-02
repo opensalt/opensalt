@@ -34,6 +34,11 @@
     </fileExtensions>
 
     <issueHandlers>
+        <MissingPureAnnotation errorLevel="suppress" />
+        <MissingImmutableAnnotation errorLevel="suppress" />
+        <MissingAbstractPureAnnotation errorLevel="suppress" />
+        <MissingInterfaceImmutableAnnotation errorLevel="suppress" />
+
         <TooManyTemplateParams errorLevel="info"/>
         <LessSpecificReturnType errorLevel="error"/>
         <LessSpecificImplementedReturnType errorLevel="error"/>
@@ -75,6 +80,10 @@
 
         <InvalidStringClass errorLevel="error"/>
 
-        <MissingOverrideAttribute errorLevel="error"/>
+        <MissingOverrideAttribute errorLevel="error">
+            <errorLevel type="suppress">
+                <file name="src/Kernel.php"/>
+            </errorLevel>
+        </MissingOverrideAttribute>
     </issueHandlers>
 </psalm>

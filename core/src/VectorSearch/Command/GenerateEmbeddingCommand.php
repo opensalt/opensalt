@@ -17,7 +17,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'vector:generate-embeddings',
-    description: 'Generate embeddings for LsItems in batch'
+    description: 'Generate vector embeddings for LsItems'
 )]
 class GenerateEmbeddingCommand extends Command
 {
@@ -28,6 +28,7 @@ class GenerateEmbeddingCommand extends Command
         parent::__construct();
     }
 
+    #[\Override]
     protected function configure(): void
     {
         $this
@@ -53,6 +54,7 @@ EOF
             );
     }
 
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);

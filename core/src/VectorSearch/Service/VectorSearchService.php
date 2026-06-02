@@ -162,6 +162,16 @@ readonly class VectorSearchService
         return $rows;
     }
 
+    /**
+     * @return list<array{
+     *     lsItemId: int,
+     *     frameworkId: int,
+     *     kind: int,
+     *     text: string,
+     *     isLeafNode: bool,
+     *     sourceHierarchyUpdatedAt: \DateTimeImmutable|null
+     * }>
+     */
     public function buildAllEmbeddingRowsForFramework(int $frameworkId): array
     {
         $frameworkGraph = $this->loadFrameworkGraph($frameworkId);

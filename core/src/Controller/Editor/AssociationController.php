@@ -165,16 +165,16 @@ class AssociationController extends AbstractController
             $destTargetType = 'uri';
         }
 
-        $originHcs = $assoc['origin_human_coding_scheme'] ?? null ?? $originItem?->getHumanCodingScheme();
-        $originFs = $assoc['origin_full_statement'] ?? null ?? $originItem?->getFullStatement();
-        $originAbs = $assoc['origin_abbreviated_statement'] ?? null ?? $originItem?->getAbbreviatedStatement();
+        $originHcs = $assoc['origin_human_coding_scheme'] ?? $originItem?->getHumanCodingScheme();
+        $originFs = $assoc['origin_full_statement'] ?? $originItem?->getFullStatement();
+        $originAbs = $assoc['origin_abbreviated_statement'] ?? $originItem?->getAbbreviatedStatement();
         if (null === $originFs && null !== $originDoc) {
             $originFs = $originDoc->getTitle();
         }
 
-        $destHcs = $assoc['destination_human_coding_scheme'] ?? null ?? $destItem?->getHumanCodingScheme();
-        $destFs = $assoc['destination_full_statement'] ?? null ?? $destItem?->getFullStatement();
-        $destAbs = $assoc['destination_abbreviated_statement'] ?? null ?? $destItem?->getAbbreviatedStatement();
+        $destHcs = $assoc['destination_human_coding_scheme'] ?? $destItem?->getHumanCodingScheme();
+        $destFs = $assoc['destination_full_statement'] ?? $destItem?->getFullStatement();
+        $destAbs = $assoc['destination_abbreviated_statement'] ?? $destItem?->getAbbreviatedStatement();
         if (null === $destFs && null !== $destDoc) {
             $destFs = $destDoc->getTitle();
         }
@@ -226,7 +226,7 @@ class AssociationController extends AbstractController
             'sequenceNumber' => $assocEntity->getSequenceNumber(),
             'annotation' => $assocEntity->getNotes(),
             'CFAssociationGroupingURI' => $groupObj,
-            'additionalFields' => $assocEntity->getAdditionalFields() ?? [],
+            'additionalFields' => $assocEntity->getAdditionalFields(),
             'canEdit' => $this->isGranted(Permission::ASSOCIATION_EDIT, $assocEntity),
         ];
     }

@@ -31,6 +31,7 @@ class RebuildQdrantIndexByFrameworkCommand extends Command
         parent::__construct();
     }
 
+    #[\Override]
     protected function configure(): void
     {
         $this
@@ -58,6 +59,7 @@ EOF
             );
     }
 
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         ini_set('memory_limit', '1G');

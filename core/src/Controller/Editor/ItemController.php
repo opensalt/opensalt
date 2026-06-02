@@ -74,50 +74,10 @@ class ItemController extends AbstractController
             return new JsonResponse(['error' => 'Access Denied.'], Response::HTTP_FORBIDDEN);
         }
 
-        // Parse request body
         $data = json_decode($request->getContent(), true);
 
         try {
-            if (null !== $data && isset($data['copyFromIdentifier'])) {
-                $sourceItem = $this->itemRepository->findOneBy(['identifier' => $data['copyFromIdentifier']]);
-                if (null === $sourceItem) {
-                    return new JsonResponse(['error' => 'Source item for copy not found.'], Response::HTTP_NOT_FOUND);
-                }
-
-                $dto = new CopyToLsDocDTO();
-                $dto->lsItem = $sourceItem;
-                $dto->lsDoc = $doc;
-
-                $copyCommand = new CopyItemToDocCommand($dto);
-                $this->sendCommand($copyCommand);
-                $lsItem = $copyCommand->getNewItem();
-
-                if (!empty($data['addCopyToTitle'])) {
-                    $lsItem->setFullStatement('Copy of '.$lsItem->getFullStatement());
-                    $abbreviatedStatement = $lsItem->getAbbreviatedStatement();
-                    if (null !== $abbreviatedStatement) {
-                        $lsItem->setAbbreviatedStatement('Copy of '.$abbreviatedStatement);
-                    }
-                }
-
-                unset($data['copyFromIdentifier'], $data['addCopyToTitle'], $data['title'], $data['fullStatement']);
-
-                $itemType = $data['extensions']['salt:type'] ?? $request->query->get('itemType');
-
-                if (!empty($data)) {
-                    $this->applyDataToItem($lsItem, $data, $itemType);
-                }
-            } else {
-                $lsItem = new LsItem();
-                $lsItem->setLsDoc($doc);
-                $lsItem->setLsDocUri($doc->getUri());
-
-                $itemType = $data['extensions']['salt:type'] ?? $request->query->get('itemType');
-
-                if (null !== $data) {
-                    $this->applyDataToItem($lsItem, $data, $itemType);
-                }
-            }
+            $lsItem = $this->createItemFromRequest($data, $doc, $request);
 
             $command = new AddItemCommand($lsItem, $doc, $parent);
             $this->sendCommand($command);
@@ -129,6 +89,58 @@ class ItemController extends AbstractController
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
+    }
+
+    private function createItemFromRequest(?array $data, LsDoc $doc, Request $request): LsItem
+    {
+        if (null !== $data && isset($data['copyFromIdentifier'])) {
+            return $this->createItemFromCopy($data, $doc);
+        }
+
+        $lsItem = new LsItem();
+        $lsItem->setLsDoc($doc);
+        $lsItem->setLsDocUri($doc->getUri());
+
+        $itemType = $data['extensions']['salt:type'] ?? $request->query->get('itemType');
+
+        if (null !== $data) {
+            $this->applyDataToItem($lsItem, $data, $itemType);
+        }
+
+        return $lsItem;
+    }
+
+    private function createItemFromCopy(array &$data, LsDoc $doc): LsItem
+    {
+        $sourceItem = $this->itemRepository->findOneBy(['identifier' => $data['copyFromIdentifier']]);
+        if (null === $sourceItem) {
+            throw new \InvalidArgumentException('Source item for copy not found.');
+        }
+
+        $dto = new CopyToLsDocDTO();
+        $dto->lsItem = $sourceItem;
+        $dto->lsDoc = $doc;
+
+        $copyCommand = new CopyItemToDocCommand($dto);
+        $this->sendCommand($copyCommand);
+        $lsItem = $copyCommand->getNewItem();
+
+        if (!empty($data['addCopyToTitle'])) {
+            $lsItem->setFullStatement('Copy of '.$lsItem->getFullStatement());
+            $abbreviatedStatement = $lsItem->getAbbreviatedStatement();
+            if (null !== $abbreviatedStatement) {
+                $lsItem->setAbbreviatedStatement('Copy of '.$abbreviatedStatement);
+            }
+        }
+
+        unset($data['copyFromIdentifier'], $data['addCopyToTitle'], $data['title'], $data['fullStatement']);
+
+        if (!empty($data)) {
+            $itemType = $data['extensions']['salt:type'] ?? null;
+            $this->applyDataToItem($lsItem, $data, $itemType);
+        }
+
+        return $lsItem;
     }
 
     #[Route(path: '/item/{identifier}', name: 'editor_item_update', methods: ['PUT', 'PATCH'])]
@@ -187,36 +199,32 @@ class ItemController extends AbstractController
             return new JsonResponse(['error' => 'Access Denied.'], Response::HTTP_FORBIDDEN);
         }
 
+        return new JsonResponse($this->buildItemDetailsResponse($lsItem));
+    }
+
+    private function buildItemDetailsResponse(LsItem $lsItem): array
+    {
         $itemType = $lsItem->getItemType();
-        $itemTypeObj = null;
-        if (null !== $itemType) {
-            $itemTypeObj = [
-                'title' => $itemType->getTitle(),
-                'identifier' => $itemType->getIdentifier(),
-                'uri' => $itemType->getUri(),
-            ];
-        }
+        $itemTypeObj = null !== $itemType ? [
+            'title' => $itemType->getTitle(),
+            'identifier' => $itemType->getIdentifier(),
+            'uri' => $itemType->getUri(),
+        ] : null;
 
         $licence = $lsItem->getLicence();
-        $licenceObj = null;
-        if (null !== $licence) {
-            $licenceObj = [
-                'identifier' => $licence->getIdentifier(),
-                'uri' => $licence->getUri(),
-                'title' => $licence->getTitle(),
-            ];
-        }
+        $licenceObj = null !== $licence ? [
+            'identifier' => $licence->getIdentifier(),
+            'uri' => $licence->getUri(),
+            'title' => $licence->getTitle(),
+        ] : null;
 
-        $subjectURIs = [];
-        foreach ($lsItem->getSubjects() as $subject) {
-            $subjectURIs[] = [
-                'identifier' => $subject->getIdentifier(),
-                'uri' => $subject->getUri(),
-                'title' => $subject->getTitle(),
-            ];
-        }
+        $subjectURIs = array_map(static fn ($subject) => [
+            'identifier' => $subject->getIdentifier(),
+            'uri' => $subject->getUri(),
+            'title' => $subject->getTitle(),
+        ], $lsItem->getSubjects()->toArray());
 
-        $response = [
+        return [
             'identifier' => $lsItem->getIdentifier(),
             'uri' => $lsItem->getUri(),
             'fullStatement' => $lsItem->getFullStatement(),
@@ -235,16 +243,14 @@ class ItemController extends AbstractController
             'subjectURI' => $subjectURIs,
             'licenseURI' => $licenceObj,
             'licence' => $licence?->getIdentifier(),
-            'extensions' => $lsItem->getExtra() ?? [],
-            'lastChangeDateTime' => $lsItem->getChangedAt()?->format('c'),
-            'documentIdentifier' => $doc->getIdentifier(),
+            'extensions' => $lsItem->getExtra(),
+            'lastChangeDateTime' => $lsItem->getChangedAt()->format('c'),
+            'documentIdentifier' => $lsItem->getLsDoc()->getIdentifier(),
             'permissions' => [
                 'canEdit' => $this->isGranted(Permission::ITEM_EDIT, $lsItem),
             ],
             'associations' => $this->buildItemAssociationList($lsItem),
         ];
-
-        return new JsonResponse($response);
     }
 
     private function buildItemAssociationList(LsItem $item): array
@@ -274,40 +280,8 @@ class ItemController extends AbstractController
                 continue;
             }
 
-            $originItem = $assoc->getOriginLsItem();
-            $originDocItem = $assoc->getOriginLsDoc();
-            $destItem = $assoc->getDestinationLsItem();
-            $destDoc = $assoc->getDestinationLsDoc();
-
-            $originTitle = null;
-            $originIdentifier = $assoc->getOriginNodeIdentifier();
-            $originDocumentIdentifier = null;
-            $originTargetType = 'item';
-            if (null !== $originItem) {
-                $hcs = $originItem->getHumanCodingScheme();
-                $originTitle = ($hcs ? $hcs.' - ' : '').$originItem->getFullStatement();
-                $originDocumentIdentifier = $originItem->getLsDoc()->getIdentifier();
-                $originTargetType = 'item';
-            } elseif (null !== $originDocItem) {
-                $originTitle = $originDocItem->getTitle();
-                $originDocumentIdentifier = $originDocItem->getIdentifier();
-                $originTargetType = 'document';
-            }
-
-            $destTitle = null;
-            $destIdentifier = $assoc->getDestinationNodeIdentifier();
-            $destDocumentIdentifier = null;
-            $destTargetType = 'item';
-            if (null !== $destItem) {
-                $hcs = $destItem->getHumanCodingScheme();
-                $destTitle = ($hcs ? $hcs.' - ' : '').$destItem->getFullStatement();
-                $destDocumentIdentifier = $destItem->getLsDoc()->getIdentifier();
-                $destTargetType = 'item';
-            } elseif (null !== $destDoc) {
-                $destTitle = $destDoc->getTitle();
-                $destDocumentIdentifier = $destDoc->getIdentifier();
-                $destTargetType = 'document';
-            }
+            $originInfo = $this->buildNodeInfo($assoc->getOriginLsItem(), $assoc->getOriginLsDoc(), $assoc->getOriginNodeIdentifier(), $assoc->getOriginNodeUri());
+            $destInfo = $this->buildNodeInfo($assoc->getDestinationLsItem(), $assoc->getDestinationLsDoc(), $assoc->getDestinationNodeIdentifier(), $assoc->getDestinationNodeUri());
 
             $group = $assoc->getGroup();
             $groupObj = null;
@@ -325,19 +299,9 @@ class ItemController extends AbstractController
                 'identifier' => $assoc->getIdentifier(),
                 'associationType' => $assoc->getType(),
                 'associationDocumentIdentifier' => $assocDoc?->getIdentifier(),
-                'originNodeURI' => [
-                    'identifier' => $originIdentifier,
-                    'title' => $originTitle,
-                    'uri' => $assoc->getOriginNodeUri(),
-                    'documentIdentifier' => $originDocumentIdentifier,
-                ],
-                'destinationNodeURI' => [
-                    'identifier' => $destIdentifier,
-                    'title' => $destTitle,
-                    'uri' => $assoc->getDestinationNodeUri(),
-                    'documentIdentifier' => $destDocumentIdentifier,
-                ],
-                'targetType' => $destTargetType,
+                'originNodeURI' => $originInfo,
+                'destinationNodeURI' => $destInfo,
+                'targetType' => $destInfo['targetType'],
                 'sequenceNumber' => $assoc->getSequenceNumber(),
                 'annotation' => $assoc->getNotes(),
                 'CFAssociationGroupingURI' => $groupObj,
@@ -346,6 +310,31 @@ class ItemController extends AbstractController
         }
 
         return $associations;
+    }
+
+    private function buildNodeInfo(?LsItem $lsItem, ?LsDoc $lsDoc, ?string $identifier, ?string $uri): array
+    {
+        $title = null;
+        $documentIdentifier = null;
+        $targetType = 'item';
+
+        if (null !== $lsItem) {
+            $hcs = $lsItem->getHumanCodingScheme();
+            $title = ($hcs ? $hcs.' - ' : '').$lsItem->getFullStatement();
+            $documentIdentifier = $lsItem->getLsDoc()->getIdentifier();
+        } elseif (null !== $lsDoc) {
+            $title = $lsDoc->getTitle();
+            $documentIdentifier = $lsDoc->getIdentifier();
+            $targetType = 'document';
+        }
+
+        return [
+            'identifier' => $identifier,
+            'title' => $title,
+            'uri' => $uri,
+            'documentIdentifier' => $documentIdentifier,
+            'targetType' => $targetType,
+        ];
     }
 
     #[Route(path: '/item/{identifier}/move', name: 'editor_item_move', methods: ['POST'])]
@@ -490,91 +479,139 @@ class ItemController extends AbstractController
 
     private function applyDataToItem(LsItem $lsItem, array $data, ?string $itemType): void
     {
-        if (array_key_exists('licence', $data)) {
-            if (null !== $data['licence'] && '' !== $data['licence']) {
-                $field = is_numeric($data['licence']) ? 'id' : 'identifier';
-                $licence = $this->managerRegistry->getRepository(LsDefLicence::class)
-                    ->findOneBy([$field => $data['licence']]);
-                if (null !== $licence) {
-                    $lsItem->setLicence($licence);
-                }
-            } else {
-                $lsItem->setLicence(null);
-            }
+        $this->applyItemLicence($lsItem, $data);
+        $this->applyItemSubjects($lsItem, $data);
+        $this->applyItemItemType($lsItem, $data);
+
+        if ($this->applyItemDto($lsItem, $data, $itemType)) {
+            return;
         }
-        if (array_key_exists('subjects', $data)) {
-            $subjects = [];
-            if (is_array($data['subjects'])) {
-                foreach ($data['subjects'] as $subjectValue) {
-                    if (empty($subjectValue)) {
-                        continue;
-                    }
-                    if (str_starts_with((string) $subjectValue, '__')) {
-                        $cleanValue = substr((string) $subjectValue, 2);
-                        $newSubject = new LsDefSubject();
-                        $newSubject->setTitle($cleanValue);
-                        $newSubject->setHierarchyCode($cleanValue);
-                        $this->managerRegistry->getManager()->persist($newSubject);
-                        $subjects[] = $newSubject;
-                    } else {
-                        $field = is_numeric($subjectValue) ? 'id' : 'identifier';
-                        $subject = $this->managerRegistry->getRepository(LsDefSubject::class)
-                            ->findOneBy([$field => $subjectValue]);
-                        if (null !== $subject) {
-                            $subjects[] = $subject;
-                        }
-                    }
-                }
-            }
-            $lsItem->setSubjects($subjects);
+
+        $this->applyItemScalarFields($lsItem, $data);
+        $this->applyItemAdditionalFields($lsItem, $data);
+    }
+
+    private function applyItemLicence(LsItem $lsItem, array $data): void
+    {
+        if (!array_key_exists('licence', $data)) {
+            return;
         }
-        if (array_key_exists('itemType', $data)) {
-            $itemTypeValue = $data['itemType'];
-            if (empty($itemTypeValue) || '' === $itemTypeValue) {
-                $lsItem->setItemType(null);
-            } elseif (str_starts_with((string) $itemTypeValue, '__')) {
-                $cleanValue = substr((string) $itemTypeValue, 2);
-                $newType = new LsDefItemType();
-                $newType->setCode($cleanValue);
-                $newType->setTitle($cleanValue);
-                $newType->setHierarchyCode($cleanValue);
-                $this->managerRegistry->getManager()->persist($newType);
-                $lsItem->setItemType($newType);
-            } else {
-                $field = is_numeric($itemTypeValue) ? 'id' : 'identifier';
-                $existingType = $this->managerRegistry->getRepository(LsDefItemType::class)
-                    ->findOneBy([$field => $itemTypeValue]);
-                if (null !== $existingType) {
-                    $lsItem->setItemType($existingType);
+
+        if (null !== $data['licence'] && '' !== $data['licence']) {
+            $field = is_numeric($data['licence']) ? 'id' : 'identifier';
+            $licence = $this->managerRegistry->getRepository(LsDefLicence::class)
+                ->findOneBy([$field => $data['licence']]);
+            if (null !== $licence) {
+                $lsItem->setLicence($licence);
+            }
+        } else {
+            $lsItem->setLicence(null);
+        }
+    }
+
+    private function applyItemSubjects(LsItem $lsItem, array $data): void
+    {
+        if (!array_key_exists('subjects', $data)) {
+            return;
+        }
+
+        $subjects = [];
+        if (is_array($data['subjects'])) {
+            foreach ($data['subjects'] as $subjectValue) {
+                $subject = $this->resolveSubject($subjectValue);
+                if (null !== $subject) {
+                    $subjects[] = $subject;
                 }
             }
         }
+        $lsItem->setSubjects($subjects);
+    }
 
-        if (null !== $itemType) {
-            $kind = LsItemKind::tryFromName($itemType);
-            $dtoClass = $kind->dto();
-            if (LsItem::class !== $dtoClass) {
-                $dto = $dtoClass::fromItem($lsItem);
+    private function resolveSubject(mixed $subjectValue): ?LsDefSubject
+    {
+        if (empty($subjectValue)) {
+            return null;
+        }
 
-                foreach ($data as $key => $value) {
-                    if (property_exists($dto, $key)) {
-                        $dto->$key = $value;
-                    }
-                }
+        if (str_starts_with((string) $subjectValue, '__')) {
+            $cleanValue = substr((string) $subjectValue, 2);
+            $newSubject = new LsDefSubject();
+            $newSubject->setTitle($cleanValue);
+            $newSubject->setHierarchyCode($cleanValue);
+            $this->managerRegistry->getManager()->persist($newSubject);
 
-                if ($dto instanceof ItemTypeInterface) {
-                    $lsItem->setDiscriminator($dto::ITEM_TYPE_IDENTIFIER);
-                    $dto->applyToItem($lsItem, $this->htmlSanitizer);
+            return $newSubject;
+        }
 
-                    if (isset($data['notes'])) {
-                        $lsItem->setNotes($data['notes']);
-                    }
+        $field = is_numeric($subjectValue) ? 'id' : 'identifier';
 
-                    return;
-                }
+        return $this->managerRegistry->getRepository(LsDefSubject::class)
+            ->findOneBy([$field => $subjectValue]);
+    }
+
+    private function applyItemItemType(LsItem $lsItem, array $data): void
+    {
+        if (!array_key_exists('itemType', $data)) {
+            return;
+        }
+
+        $itemTypeValue = $data['itemType'];
+        if (empty($itemTypeValue)) {
+            $lsItem->setItemType(null);
+        } elseif (str_starts_with((string) $itemTypeValue, '__')) {
+            $cleanValue = substr((string) $itemTypeValue, 2);
+            $newType = new LsDefItemType();
+            $newType->setCode($cleanValue);
+            $newType->setTitle($cleanValue);
+            $newType->setHierarchyCode($cleanValue);
+            $this->managerRegistry->getManager()->persist($newType);
+            $lsItem->setItemType($newType);
+        } else {
+            $field = is_numeric($itemTypeValue) ? 'id' : 'identifier';
+            $existingType = $this->managerRegistry->getRepository(LsDefItemType::class)
+                ->findOneBy([$field => $itemTypeValue]);
+            if (null !== $existingType) {
+                $lsItem->setItemType($existingType);
+            }
+        }
+    }
+
+    private function applyItemDto(LsItem $lsItem, array $data, ?string $itemType): bool
+    {
+        if (null === $itemType) {
+            return false;
+        }
+
+        $kind = LsItemKind::tryFromName($itemType);
+        $dtoClass = $kind->dto();
+        if (LsItem::class === $dtoClass) {
+            return false;
+        }
+
+        $dto = $dtoClass::fromItem($lsItem);
+
+        foreach ($data as $key => $value) {
+            if (property_exists($dto, $key)) {
+                $dto->$key = $value;
             }
         }
 
+        if ($dto instanceof ItemTypeInterface) {
+            $lsItem->setDiscriminator($dto::ITEM_TYPE_IDENTIFIER);
+            $dto->applyToItem($lsItem, $this->htmlSanitizer);
+
+            if (isset($data['notes'])) {
+                $lsItem->setNotes($data['notes']);
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private function applyItemScalarFields(LsItem $lsItem, array $data): void
+    {
         if (isset($data['fullStatement'])) {
             $lsItem->setFullStatement($data['fullStatement']);
         }
@@ -603,22 +640,29 @@ class ItemController extends AbstractController
             $lsItem->setLanguage($data['language']);
         }
         if (isset($data['educationalAlignment'])) {
-            $educationalAlignment = $data['educationalAlignment'];
-            if (is_array($educationalAlignment)) {
-                $educationalAlignment = implode(', ', $educationalAlignment);
-            }
-            $lsItem->setEducationalAlignment($educationalAlignment);
+            $lsItem->setEducationalAlignment($this->flattenArrayValue($data['educationalAlignment']));
         } elseif (isset($data['educationLevel'])) {
-            $educationLevel = $data['educationLevel'];
-            if (is_array($educationLevel)) {
-                $educationLevel = implode(', ', $educationLevel);
-            }
-            $lsItem->setEducationalAlignment($educationLevel);
+            $lsItem->setEducationalAlignment($this->flattenArrayValue($data['educationLevel']));
         }
-        if (isset($data['additionalFields']) && is_array($data['additionalFields'])) {
-            foreach ($data['additionalFields'] as $fieldName => $value) {
-                $lsItem->setAdditionalField($fieldName, $value);
-            }
+    }
+
+    private function flattenArrayValue(string|array $value): string
+    {
+        if (is_array($value)) {
+            return implode(', ', $value);
+        }
+
+        return $value;
+    }
+
+    private function applyItemAdditionalFields(LsItem $lsItem, array $data): void
+    {
+        if (!isset($data['additionalFields']) || !is_array($data['additionalFields'])) {
+            return;
+        }
+
+        foreach ($data['additionalFields'] as $fieldName => $value) {
+            $lsItem->setAdditionalField($fieldName, $value);
         }
     }
 
@@ -642,7 +686,7 @@ class ItemController extends AbstractController
             'itemType' => $item->getItemType()?->getTitle(),
             'changedAt' => $item->getChangedAt(),
             'extra' => $item->getExtra(),
-            'additionalFields' => $item->getAdditionalFields() ?? [],
+            'additionalFields' => $item->getAdditionalFields(),
             'assocData' => [],
         ];
 

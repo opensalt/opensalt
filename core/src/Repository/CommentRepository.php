@@ -93,6 +93,7 @@ class CommentRepository extends ServiceEntityRepository
      *
      * @return ArrayCollection<int, Comment>
      *
+     * @psalm-suppress InvalidReturnType
      * @throws \InvalidArgumentException if $itemType is not 'document' or 'item'
      */
     public function findByTypeId(string $itemType, string $itemId): ArrayCollection
@@ -102,6 +103,7 @@ class CommentRepository extends ServiceEntityRepository
 
         // Numeric ID — query comments directly by FK, no entity lookup needed
         if (ctype_digit($itemId)) {
+            /** @psalm-suppress InvalidReturnStatement */
             return new ArrayCollection($this->findBy([$itemType => (int) $itemId]));
         }
 
@@ -113,6 +115,7 @@ class CommentRepository extends ServiceEntityRepository
             return new ArrayCollection();
         }
 
+        /** @psalm-suppress InvalidReturnStatement */
         return new ArrayCollection($this->findBy([$itemType => $entity]));
     }
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\DataTransformer\CaseJson;
 
-use Doctrine\ORM\EntityRepository;
+use Doctrine\Persistence\ObjectRepository;
 
 final class UriCollisionResolver
 {
@@ -16,9 +16,9 @@ final class UriCollisionResolver
      * Also detects collisions with existing entities in the database that are not part of this batch.
      *
      * @param array<string, object> $entities Entity array indexed by identifier, where each entity has getUri(), setUri(), and getIdentifier() methods
-     * @param EntityRepository<object> $repository Repository for the entity type, used to check for existing DB collisions
+     * @param ObjectRepository<object> $repository Repository for the entity type, used to check for existing DB collisions
      */
-    public static function resolve(array $entities, EntityRepository $repository): void
+    public static function resolve(array $entities, ObjectRepository $repository): void
     {
         $seenUris = [];
         $batchIdentifiers = [];

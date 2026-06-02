@@ -163,7 +163,10 @@ readonly class OpenSaltMcpPayloadFactory
     {
         $subjects = [];
         foreach ($document->getSubjects() as $subject) {
-            $subjects[] = $subject->getTitle();
+            $title = $subject->getTitle();
+            if (null !== $title) {
+                $subjects[] = $title;
+            }
         }
 
         return $subjects;

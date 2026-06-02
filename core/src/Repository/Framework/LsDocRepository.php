@@ -15,6 +15,7 @@ use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Entity\Framework\LsDefConcept;
 use App\Entity\Framework\LsDefItemType;
 use App\Entity\Framework\LsDefLicence;
+use App\Entity\Framework\LsDefSubject;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Entity\User\User;
@@ -23,6 +24,8 @@ use App\Util\Compare;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\ORM\AbstractQuery;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -59,25 +62,7 @@ class LsDocRepository extends ServiceEntityRepository
             ->leftJoin('d.subjects', 's')
             ->leftJoin('d.mirroredFramework', 'm');
 
-        // Apply user/organization filtering with extended access control
-        if (null !== $user) {
-            if (!$this->security->isGranted(Permission::FRAMEWORK_EDIT_ALL)) {
-                $isEditor = $this->security->isGranted('ROLE_EDITOR');
-                $qb->leftJoin('d.docAcls', 'acls', 'WITH', 'acls.user = :user')
-                    ->orWhere('(m.visible IS NULL OR m.visible = 1) AND (d.adoptionStatus != :privateDraft)')
-                    ->orWhere('(m.visible IS NOT NULL AND 1 = :isEditor)')
-                    ->orWhere('(d.org = :org OR d.user = :user OR acls.access = 1) AND (acls.access IS NULL OR acls.access != 0)')
-                    ->setParameter('isEditor', $isEditor ? 1 : 0)
-                    ->setParameter('user', $user)
-                    ->setParameter('org', $user->getOrg())
-                    ->setParameter('privateDraft', LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT);
-            }
-        }
-        if (null === $user) {
-            $qb->andWhere('m.visible IS NULL OR m.visible = 1')
-                ->andWhere('d.adoptionStatus != :privateDraft')
-                ->setParameter('privateDraft', LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT);
-        }
+        $this->applyUserAccessConditions($qb, $user);
 
         $qb->orderBy('d.creator', 'ASC')
             ->addOrderBy('d.title', 'ASC')
@@ -188,40 +173,7 @@ class LsDocRepository extends ServiceEntityRepository
         }
 
         foreach ($results as $key => $result) {
-            foreach ($result['associations'] as $association) {
-                if (!empty($association['destinationLsItem'])) {
-                    $parent = $association['destinationLsItem'];
-                    $results[$parent['id']]['children'][] = $result;
-
-                    if (!empty($association['group'])) {
-                        $results[$key]['assoc'][$parent['id']] = [
-                            'id' => $association['id'],
-                            'sequenceNumber' => $association['sequenceNumber'],
-                            'group' => $association['group']['id'],
-                        ];
-                    } else {
-                        $results[$key]['assoc'][$parent['id']] = [
-                            'id' => $association['id'],
-                            'sequenceNumber' => $association['sequenceNumber'],
-                            'group' => '',
-                        ];
-                    }
-                } elseif (!empty($association['destinationLsDoc'])) {
-                    if (!empty($association['group'])) {
-                        $results[$key]['assoc']['doc'] = [
-                            'id' => $association['id'],
-                            'sequenceNumber' => $association['sequenceNumber'],
-                            'group' => $association['group']['id'],
-                        ];
-                    } else {
-                        $results[$key]['assoc']['doc'] = [
-                            'id' => $association['id'],
-                            'sequenceNumber' => $association['sequenceNumber'],
-                            'group' => '',
-                        ];
-                    }
-                }
-            }
+            $this->processItemAssociations($results, $key, $result);
         }
 
         foreach ($results as $key => $result) {
@@ -231,6 +183,28 @@ class LsDocRepository extends ServiceEntityRepository
         }
 
         return $results;
+    }
+
+    private function processItemAssociations(array &$results, int $key, array $result): void
+    {
+        foreach ($result['associations'] as $association) {
+            if (!empty($association['destinationLsItem'])) {
+                $parent = $association['destinationLsItem'];
+                $results[$parent['id']]['children'][] = $result;
+                $results[$key]['assoc'][$parent['id']] = $this->buildAssocEntry($association);
+            } elseif (!empty($association['destinationLsDoc'])) {
+                $results[$key]['assoc']['doc'] = $this->buildAssocEntry($association);
+            }
+        }
+    }
+
+    private function buildAssocEntry(array $association): array
+    {
+        return [
+            'id' => $association['id'],
+            'sequenceNumber' => $association['sequenceNumber'],
+            'group' => !empty($association['group']) ? $association['group']['id'] : '',
+        ];
     }
 
     /**
@@ -309,6 +283,51 @@ class LsDocRepository extends ServiceEntityRepository
         $viewedDocId = $lsDoc->getId();
         $viewedDocIdentifier = $lsDoc->getIdentifier();
 
+        $childOfAssocs = $this->fetchChildOfAssociations($em, $viewedDocId);
+        $docChildAssocs = $this->fetchDocChildAssociations($em, $viewedDocId);
+
+        $itemDataMap = $this->fetchAllItemsMap($em, $viewedDocId);
+
+        $itemLicenceMap = [];
+        $itemSubjectMap = [];
+        if ([] !== $itemDataMap && !$lightweight) {
+            $itemLicenceMap = $this->fetchItemLicenceMap($em, $viewedDocId);
+            $itemSubjectMap = $this->fetchItemSubjectMap($em, $viewedDocId);
+        }
+
+        $maps = $this->buildParentAndAssocMaps($childOfAssocs, $docChildAssocs, $viewedDocId, $viewedDocIdentifier);
+        $parentMap = $maps['parentMap'];
+        $assocMap = $maps['assocMap'];
+        $childIds = $maps['childIds'];
+
+        $foreignItems = $this->fetchForeignItems($em, $maps['foreignItemIdentifiers']);
+
+        $itemTypeRepo = $em->getRepository(LsDefItemType::class);
+        $itemTypeCache = [];
+
+        $buildNode = $this->createBuildNodeClosure(
+            $itemDataMap, $foreignItems, $assocMap,
+            $viewedDocId, $viewedDocIdentifier, $lightweight,
+            $itemTypeRepo, $itemTypeCache, $em,
+            $itemLicenceMap, $itemSubjectMap
+        );
+
+        $childrenMap = $this->buildChildrenMap($parentMap, $assocMap);
+
+        $tree = $this->buildTreeRecursive($viewedDocIdentifier, $buildNode, $childrenMap, $itemDataMap, $foreignItems, $viewedDocId);
+
+        $tree = $this->appendOrphanItems($tree, $itemDataMap, $childIds, $viewedDocIdentifier, $lightweight, $itemTypeRepo, $itemTypeCache);
+
+        $definitions = $lightweight ? [] : $this->buildTreeDefinitions($lsDoc);
+
+        return [
+            'tree' => $tree,
+            'definitions' => $definitions,
+        ];
+    }
+
+    private function fetchChildOfAssociations(EntityManagerInterface $em, int $viewedDocId): array
+    {
         $query = $em->createQuery('
             SELECT a.identifier as assocIdentifier, a.sequenceNumber,
                    g.identifier as groupIdentifier,
@@ -332,8 +351,11 @@ class LsDocRepository extends ServiceEntityRepository
         $query->setParameter('viewedDocId', $viewedDocId);
         $query->setParameter('childOfType', LsAssociation::CHILD_OF);
 
-        $childOfAssocs = $query->getResult(Query::HYDRATE_ARRAY);
+        return $query->getResult(Query::HYDRATE_ARRAY);
+    }
 
+    private function fetchDocChildAssociations(EntityManagerInterface $em, int $viewedDocId): array
+    {
         $query = $em->createQuery('
             SELECT a.identifier as assocIdentifier, a.sequenceNumber,
                    g.identifier as groupIdentifier,
@@ -354,10 +376,11 @@ class LsDocRepository extends ServiceEntityRepository
         $query->setParameter('viewedDocId', $viewedDocId);
         $query->setParameter('childOfType', LsAssociation::CHILD_OF);
 
-        $docChildAssocs = $query->getResult(Query::HYDRATE_ARRAY);
+        return $query->getResult(Query::HYDRATE_ARRAY);
+    }
 
-        $itemRepo = $em->getRepository(LsItem::class);
-
+    private function fetchAllItemsMap(EntityManagerInterface $em, int $viewedDocId): array
+    {
         $allItemsQuery = $em->createQuery('
             SELECT i.identifier, i.uri, i.humanCodingScheme, i.fullStatement,
                    i.abbreviatedStatement, i.listEnumInSource, i.changedAt,
@@ -372,55 +395,63 @@ class LsDocRepository extends ServiceEntityRepository
         $allItems = $allItemsQuery->getResult(Query::HYDRATE_ARRAY);
 
         $itemDataMap = [];
-        $itemIds = [];
         foreach ($allItems as $item) {
             $itemDataMap[$item['identifier']] = $item;
-            $itemIds[$item['identifier']] = $item['identifier'];
         }
+
+        return $itemDataMap;
+    }
+
+    private function fetchItemLicenceMap(EntityManagerInterface $em, int $viewedDocId): array
+    {
+        $licenceQuery = $em->createQuery('
+            SELECT i.identifier as itemIdentifier, l.identifier as licenceIdentifier,
+                   l.uri as licenceUri, l.title as licenceTitle
+            FROM '.LsItem::class.' i
+            JOIN i.licence l
+            WHERE i.lsDoc = :docId
+        ');
+        $licenceQuery->setParameter('docId', $viewedDocId);
+        $licenceResults = $licenceQuery->getResult(Query::HYDRATE_ARRAY);
 
         $itemLicenceMap = [];
-        $itemSubjectMap = [];
-        if ([] !== $itemIds && !$lightweight) {
-            $itemIdsByInternalId = [];
-            foreach ($allItems as $item) {
-                $itemIdsByInternalId[$item['identifier']] = $item['identifier'];
-            }
-
-            $licenceQuery = $em->createQuery('
-                SELECT i.identifier as itemIdentifier, l.identifier as licenceIdentifier,
-                       l.uri as licenceUri, l.title as licenceTitle
-                FROM '.LsItem::class.' i
-                JOIN i.licence l
-                WHERE i.lsDoc = :docId
-            ');
-            $licenceQuery->setParameter('docId', $viewedDocId);
-            $licenceResults = $licenceQuery->getResult(Query::HYDRATE_ARRAY);
-            foreach ($licenceResults as $lr) {
-                $itemLicenceMap[$lr['itemIdentifier']] = [
-                    'identifier' => $lr['licenceIdentifier'],
-                    'uri' => $lr['licenceUri'],
-                    'title' => $lr['licenceTitle'],
-                ];
-            }
-
-            $subjectQuery = $em->createQuery('
-                SELECT i.identifier as itemIdentifier, s.identifier as subjectIdentifier,
-                       s.uri as subjectUri, s.title as subjectTitle
-                FROM '.LsItem::class.' i
-                JOIN i.subjects s
-                WHERE i.lsDoc = :docId
-            ');
-            $subjectQuery->setParameter('docId', $viewedDocId);
-            $subjectResults = $subjectQuery->getResult(Query::HYDRATE_ARRAY);
-            foreach ($subjectResults as $sr) {
-                $itemSubjectMap[$sr['itemIdentifier']][] = [
-                    'identifier' => $sr['subjectIdentifier'],
-                    'uri' => $sr['subjectUri'],
-                    'title' => $sr['subjectTitle'],
-                ];
-            }
+        foreach ($licenceResults as $lr) {
+            $itemLicenceMap[$lr['itemIdentifier']] = [
+                'identifier' => $lr['licenceIdentifier'],
+                'uri' => $lr['licenceUri'],
+                'title' => $lr['licenceTitle'],
+            ];
         }
 
+        return $itemLicenceMap;
+    }
+
+    private function fetchItemSubjectMap(EntityManagerInterface $em, int $viewedDocId): array
+    {
+        $subjectQuery = $em->createQuery('
+            SELECT i.identifier as itemIdentifier, s.identifier as subjectIdentifier,
+                   s.uri as subjectUri, s.title as subjectTitle
+            FROM '.LsItem::class.' i
+            JOIN i.subjects s
+            WHERE i.lsDoc = :docId
+        ');
+        $subjectQuery->setParameter('docId', $viewedDocId);
+        $subjectResults = $subjectQuery->getResult(Query::HYDRATE_ARRAY);
+
+        $itemSubjectMap = [];
+        foreach ($subjectResults as $sr) {
+            $itemSubjectMap[$sr['itemIdentifier']][] = [
+                'identifier' => $sr['subjectIdentifier'],
+                'uri' => $sr['subjectUri'],
+                'title' => $sr['subjectTitle'],
+            ];
+        }
+
+        return $itemSubjectMap;
+    }
+
+    private function buildParentAndAssocMaps(array $childOfAssocs, array $docChildAssocs, int $viewedDocId, string $viewedDocIdentifier): array
+    {
         $parentMap = [];
         $assocMap = [];
         $childIds = [];
@@ -431,15 +462,7 @@ class LsDocRepository extends ServiceEntityRepository
             $destId = $row['destIdentifier'] ?? $row['destNodeIdentifier'];
 
             $parentMap[$originId] = $destId;
-            $assocMap[$originId] = [
-                'assocIdentifier' => $row['assocIdentifier'],
-                'sequenceNumber' => $row['sequenceNumber'],
-                'groupIdentifier' => $row['groupIdentifier'],
-                'originFs' => $row['originFs'],
-                'originHcs' => $row['originHcs'],
-                'originAbs' => $row['originAbs'],
-                'assocExtra' => $row['assocExtra'],
-            ];
+            $assocMap[$originId] = $this->extractAssocData($row);
             $childIds[$originId] = true;
 
             if (null !== $destId && null !== $row['destDocId'] && (int) $row['destDocId'] !== $viewedDocId) {
@@ -454,15 +477,7 @@ class LsDocRepository extends ServiceEntityRepository
             $originId = $row['originIdentifier'];
 
             $parentMap[$originId] = $viewedDocIdentifier;
-            $assocMap[$originId] = [
-                'assocIdentifier' => $row['assocIdentifier'],
-                'sequenceNumber' => $row['sequenceNumber'],
-                'groupIdentifier' => $row['groupIdentifier'],
-                'originFs' => $row['originFs'],
-                'originHcs' => $row['originHcs'],
-                'originAbs' => $row['originAbs'],
-                'assocExtra' => $row['assocExtra'],
-            ];
+            $assocMap[$originId] = $this->extractAssocData($row);
             $childIds[$originId] = true;
 
             if (null !== $row['originDocId'] && (int) $row['originDocId'] !== $viewedDocId) {
@@ -470,32 +485,73 @@ class LsDocRepository extends ServiceEntityRepository
             }
         }
 
-        $foreignItems = [];
-        if ([] !== $foreignItemIdentifiers) {
-            $foreignQuery = $em->createQuery('
-                SELECT i.identifier, i.uri, i.humanCodingScheme, i.fullStatement,
-                       i.abbreviatedStatement, i.listEnumInSource, i.changedAt,
-                       i.discriminator, i.extensions, i.extra,
-                       IDENTITY(i.lsDoc) as lsDoc,
-                       IDENTITY(i.itemType) as itemType
-                FROM '.LsItem::class.' i
-                WHERE i.identifier IN (:ids)
-            ');
-            $foreignQuery->setParameter('ids', array_keys($foreignItemIdentifiers));
-            $foreignResult = $foreignQuery->getResult(Query::HYDRATE_ARRAY);
+        return [
+            'parentMap' => $parentMap,
+            'assocMap' => $assocMap,
+            'childIds' => $childIds,
+            'foreignItemIdentifiers' => $foreignItemIdentifiers,
+        ];
+    }
 
-            foreach ($foreignResult as $fi) {
-                $foreignItems[$fi['identifier']] = $fi;
-            }
+    private function extractAssocData(array $row): array
+    {
+        return [
+            'assocIdentifier' => $row['assocIdentifier'],
+            'sequenceNumber' => $row['sequenceNumber'],
+            'groupIdentifier' => $row['groupIdentifier'],
+            'originFs' => $row['originFs'],
+            'originHcs' => $row['originHcs'],
+            'originAbs' => $row['originAbs'],
+            'assocExtra' => $row['assocExtra'],
+        ];
+    }
+
+    private function fetchForeignItems(EntityManagerInterface $em, array $foreignItemIdentifiers): array
+    {
+        if ([] === $foreignItemIdentifiers) {
+            return [];
         }
 
-        $itemTypeRepo = $em->getRepository(LsDefItemType::class);
-        $itemTypeCache = [];
+        $foreignQuery = $em->createQuery('
+            SELECT i.identifier, i.uri, i.humanCodingScheme, i.fullStatement,
+                   i.abbreviatedStatement, i.listEnumInSource, i.changedAt,
+                   i.discriminator, i.extensions, i.extra,
+                   IDENTITY(i.lsDoc) as lsDoc,
+                   IDENTITY(i.itemType) as itemType
+            FROM '.LsItem::class.' i
+            WHERE i.identifier IN (:ids)
+        ');
+        $foreignQuery->setParameter('ids', array_keys($foreignItemIdentifiers));
+        $foreignResult = $foreignQuery->getResult(Query::HYDRATE_ARRAY);
 
-        $buildNode = function (string $identifier, bool $isCrossFramework = false) use (
-            &$buildNode, $itemDataMap, $foreignItems , $assocMap,
-            $viewedDocId, $viewedDocIdentifier , $lightweight,
-            $itemTypeRepo, &$itemTypeCache, $em,
+        $foreignItems = [];
+        foreach ($foreignResult as $fi) {
+            $foreignItems[$fi['identifier']] = $fi;
+        }
+
+        return $foreignItems;
+    }
+
+    /**
+     * @param EntityRepository<LsDefItemType> $itemTypeRepo
+     */
+    private function createBuildNodeClosure(
+        array $itemDataMap,
+        array $foreignItems,
+        array $assocMap,
+        int $viewedDocId,
+        string $viewedDocIdentifier,
+        bool $lightweight,
+        EntityRepository $itemTypeRepo,
+        array & $itemTypeCache,
+        EntityManagerInterface $em,
+        array $itemLicenceMap,
+        array $itemSubjectMap,
+    ): \Closure {
+        return function (string $identifier, bool $isCrossFramework = false) use (
+            &$itemTypeCache, $itemDataMap, $foreignItems, $assocMap,
+            $viewedDocId, $viewedDocIdentifier, $lightweight,
+            $itemTypeRepo, $em,
             $itemLicenceMap, $itemSubjectMap
         ): ?array {
             static $visited = [];
@@ -517,107 +573,147 @@ class LsDocRepository extends ServiceEntityRepository
                 $item = $foreignItems[$identifier];
                 $isForeign = true;
             } else {
-                $assoc = $assocMap[$identifier] ?? [];
-                $node = [
-                    'identifier' => $identifier,
-                    'uri' => null,
-                    'documentIdentifier' => null,
-                    'humanCodingScheme' => $assoc['originHcs'] ?? null,
-                    'fullStatement' => $assoc['originFs'] ?? null,
-                    'isCrossFramework' => true,
-                    'isUnresolved' => true,
-                    'children' => [],
-                ];
-                if (!$lightweight) {
-                    $node['abbreviatedStatement'] = $assoc['originAbs'] ?? null;
-                    $node['listEnumeration'] = null;
-                    $node['itemType'] = null;
-                    $node['sequenceNumber'] = null;
-                    $node['lastChangeDateTime'] = null;
-                    $node['childOfAssociationIdentifier'] = $assoc['assocIdentifier'] ?? null;
-                    $node['associationGroupIdentifier'] = $assoc['groupIdentifier'] ?? null;
-                    $node['discriminator'] = 0;
-                    $node['extensions'] = [];
-                    $node['additionalFields'] = [];
-                    $node['associationAdditionalFields'] = $assoc['assocExtra']['customFields'] ?? [];
-                } else {
-                    $node['discriminator'] = 0;
-                    $node['extensions'] = [];
-                    $node['additionalFields'] = [];
-                }
-
-                return $node;
+                return $this->buildUnresolvedNode($identifier, $assocMap[$identifier] ?? [], $lightweight);
             }
 
             $itemDoc = $item['lsDoc'] ?? null;
-            $docTitle = null;
-            if (null !== $itemDoc && (int) $itemDoc !== $viewedDocId) {
-                $docEntity = $em->getRepository(LsDoc::class)->find($itemDoc);
-                if (null !== $docEntity) {
-                    $docId = $docEntity->getIdentifier();
-                    $docTitle = $docEntity->getTitle();
-                }
-            }
+            $docInfo = $this->resolveDocInfo($itemDoc, $viewedDocId, $em);
+            $docId = $docInfo['docId'] ?? $viewedDocIdentifier;
+            $docTitle = $docInfo['docTitle'];
 
             if ($lightweight) {
-                $node = [
-                    'identifier' => $identifier,
-                    'documentIdentifier' => $docId,
-                    'documentTitle' => $docTitle,
-                    'humanCodingScheme' => $item['humanCodingScheme'] ?? null,
-                    'fullStatement' => $item['fullStatement'] ?? null,
-                    'abbreviatedStatement' => $item['abbreviatedStatement'] ?? null,
-                    'isCrossFramework' => $isForeign,
-                    'discriminator' => $item['discriminator'] ?? 0,
-                    'extensions' => $item['extensions'] ?? [],
-                    'additionalFields' => $item['extra']['customFields'] ?? [],
-                    'children' => [],
-                ];
-            } else {
-                $itemTypeName = null;
-                if (isset($item['itemType'])) {
-                    $itId = $item['itemType'];
-                    if (!isset($itemTypeCache[$itId])) {
-                        $itEntity = $itemTypeRepo->find($itId);
-                        $itemTypeCache[$itId] = $itEntity?->getTitle();
-                    }
-                    $itemTypeName = $itemTypeCache[$itId];
-                }
-
-                $node = [
-                    'identifier' => $identifier,
-                    'uri' => $item['uri'] ?? null,
-                    'documentIdentifier' => $docId,
-                    'documentTitle' => $docTitle,
-                    'humanCodingScheme' => $item['humanCodingScheme'] ?? null,
-                    'fullStatement' => $item['fullStatement'] ?? null,
-                    'abbreviatedStatement' => $item['abbreviatedStatement'] ?? null,
-                    'listEnumeration' => $item['listEnumInSource'] ?? null,
-                    'itemType' => $itemTypeName,
-                    'sequenceNumber' => $assocMap[$identifier]['sequenceNumber'] ?? null,
-                    'lastChangeDateTime' => ($item['changedAt'] ?? null) instanceof \DateTimeInterface
-                        ? $item['changedAt']->format('c')
-                        : $item['changedAt'],
-                    'childOfAssociationIdentifier' => $assocMap[$identifier]['assocIdentifier'] ?? null,
-                    'associationGroupIdentifier' => $assocMap[$identifier]['groupIdentifier'] ?? null,
-                    'isCrossFramework' => $isForeign,
-                    'isUnresolved' => false,
-                    'discriminator' => $item['discriminator'] ?? 0,
-                    'extensions' => $item['extensions'] ?? [],
-                    'additionalFields' => $item['extra']['customFields'] ?? [],
-                    'associationAdditionalFields' => $assocMap[$identifier]['assocExtra']['customFields'] ?? [],
-                    'licenseURI' => $itemLicenceMap[$identifier] ?? null,
-                    'subjectURI' => $itemSubjectMap[$identifier] ?? [],
-                    'conceptKeywords' => $item['conceptKeywords'] ?? null,
-                    'language' => $item['language'] ?? null,
-                    'educationLevel' => $item['educationalAlignment'] ?? null,
-                    'children' => [],
-                ];
+                return $this->buildLightweightNode($identifier, $item, $docId, $docTitle, $isForeign);
             }
 
-            return $node;
+            return $this->buildFullNode(
+                $identifier, $item, $docId, $docTitle, $isForeign,
+                $assocMap, $itemTypeRepo, $itemTypeCache,
+                $itemLicenceMap, $itemSubjectMap
+            );
         };
+    }
 
+    private function resolveDocInfo(mixed $itemDoc, int $viewedDocId, EntityManagerInterface $em): array
+    {
+        if (null === $itemDoc || (int) $itemDoc === $viewedDocId) {
+            return ['docId' => null, 'docTitle' => null];
+        }
+        $docEntity = $em->getRepository(LsDoc::class)->find($itemDoc);
+        if (null === $docEntity) {
+            return ['docId' => null, 'docTitle' => null];
+        }
+
+        return ['docId' => $docEntity->getIdentifier(), 'docTitle' => $docEntity->getTitle()];
+    }
+
+    private function buildUnresolvedNode(string $identifier, array $assoc, bool $lightweight): array
+    {
+        $node = [
+            'identifier' => $identifier,
+            'uri' => null,
+            'documentIdentifier' => null,
+            'humanCodingScheme' => $assoc['originHcs'] ?? null,
+            'fullStatement' => $assoc['originFs'] ?? null,
+            'isCrossFramework' => true,
+            'isUnresolved' => true,
+            'children' => [],
+        ];
+        if (!$lightweight) {
+            $node['abbreviatedStatement'] = $assoc['originAbs'] ?? null;
+            $node['listEnumeration'] = null;
+            $node['itemType'] = null;
+            $node['sequenceNumber'] = null;
+            $node['lastChangeDateTime'] = null;
+            $node['childOfAssociationIdentifier'] = $assoc['assocIdentifier'] ?? null;
+            $node['associationGroupIdentifier'] = $assoc['groupIdentifier'] ?? null;
+            $node['discriminator'] = 0;
+            $node['extensions'] = [];
+            $node['additionalFields'] = [];
+            $node['associationAdditionalFields'] = $assoc['assocExtra']['customFields'] ?? [];
+        } else {
+            $node['discriminator'] = 0;
+            $node['extensions'] = [];
+            $node['additionalFields'] = [];
+        }
+
+        return $node;
+    }
+
+    private function buildLightweightNode(string $identifier, array $item, string $docId, ?string $docTitle, bool $isForeign): array
+    {
+        return [
+            'identifier' => $identifier,
+            'documentIdentifier' => $docId,
+            'documentTitle' => $docTitle,
+            'humanCodingScheme' => $item['humanCodingScheme'] ?? null,
+            'fullStatement' => $item['fullStatement'] ?? null,
+            'abbreviatedStatement' => $item['abbreviatedStatement'] ?? null,
+            'isCrossFramework' => $isForeign,
+            'discriminator' => $item['discriminator'] ?? 0,
+            'extensions' => $item['extensions'] ?? [],
+            'additionalFields' => $item['extra']['customFields'] ?? [],
+            'children' => [],
+        ];
+    }
+
+    /**
+     * @param EntityRepository<LsDefItemType> $itemTypeRepo
+     */
+    private function buildFullNode(
+        string $identifier,
+        array $item,
+        string $docId,
+        ?string $docTitle,
+        bool $isForeign,
+        array $assocMap,
+        EntityRepository $itemTypeRepo,
+        array & $itemTypeCache,
+        array $itemLicenceMap,
+        array $itemSubjectMap,
+    ): array {
+        $itemTypeName = null;
+        if (isset($item['itemType'])) {
+            $itId = $item['itemType'];
+            if (!isset($itemTypeCache[$itId])) {
+                $itEntity = $itemTypeRepo->find($itId);
+                $itemTypeCache[$itId] = $itEntity?->getTitle();
+            }
+            $itemTypeName = $itemTypeCache[$itId];
+        }
+
+        return [
+            'identifier' => $identifier,
+            'uri' => $item['uri'] ?? null,
+            'documentIdentifier' => $docId,
+            'documentTitle' => $docTitle,
+            'humanCodingScheme' => $item['humanCodingScheme'] ?? null,
+            'fullStatement' => $item['fullStatement'] ?? null,
+            'abbreviatedStatement' => $item['abbreviatedStatement'] ?? null,
+            'listEnumeration' => $item['listEnumInSource'] ?? null,
+            'itemType' => $itemTypeName,
+            'sequenceNumber' => $assocMap[$identifier]['sequenceNumber'] ?? null,
+            'lastChangeDateTime' => ($item['changedAt'] ?? null) instanceof \DateTimeInterface
+                ? $item['changedAt']->format('c')
+                : $item['changedAt'],
+            'childOfAssociationIdentifier' => $assocMap[$identifier]['assocIdentifier'] ?? null,
+            'associationGroupIdentifier' => $assocMap[$identifier]['groupIdentifier'] ?? null,
+            'isCrossFramework' => $isForeign,
+            'isUnresolved' => false,
+            'discriminator' => $item['discriminator'] ?? 0,
+            'extensions' => $item['extensions'] ?? [],
+            'additionalFields' => $item['extra']['customFields'] ?? [],
+            'associationAdditionalFields' => $assocMap[$identifier]['assocExtra']['customFields'] ?? [],
+            'licenseURI' => $itemLicenceMap[$identifier] ?? null,
+            'subjectURI' => $itemSubjectMap[$identifier] ?? [],
+            'conceptKeywords' => $item['conceptKeywords'] ?? null,
+            'language' => $item['language'] ?? null,
+            'educationLevel' => $item['educationalAlignment'] ?? null,
+            'children' => [],
+        ];
+    }
+
+    private function buildChildrenMap(array $parentMap, array $assocMap): array
+    {
         $childrenMap = [];
         foreach ($parentMap as $childId => $parentId) {
             if (!isset($childrenMap[$parentId])) {
@@ -627,175 +723,150 @@ class LsDocRepository extends ServiceEntityRepository
             $childrenMap[$parentId][] = ['id' => $childId, 'seq' => $seq];
         }
 
-        foreach ($childrenMap as $parentId => &$children) {
-            usort($children, static function (array $a, array $b): int {
-                if (null !== $a['seq'] && null !== $b['seq']) {
-                    return (int) $a['seq'] <=> (int) $b['seq'];
-                }
-                if (null !== $a['seq']) {
-                    return -1;
-                }
-                if (null !== $b['seq']) {
-                    return 1;
-                }
-
-                return 0;
-            });
+        foreach ($childrenMap as &$children) {
+            usort($children, $this->compareChildSequence(...));
         }
         unset($children);
 
-        $buildTree = function (string $parentId) use (&$buildTree, &$buildNode, $childrenMap, $itemDataMap, $foreignItems, $viewedDocId): array {
-            $result = [];
-            if (!isset($childrenMap[$parentId])) {
-                return $result;
-            }
+        return $childrenMap;
+    }
 
-            foreach ($childrenMap[$parentId] as $childInfo) {
-                $childId = $childInfo['id'];
-                $isForeign = false;
-                if (isset($itemDataMap[$childId])) {
-                    $itemDocId = $itemDataMap[$childId]['lsDoc'] ?? null;
-                    if (null !== $itemDocId && (int) $itemDocId !== $viewedDocId) {
-                        $isForeign = true;
-                    }
-                } elseif (isset($foreignItems[$childId])) {
-                    $isForeign = true;
-                }
-
-                $node = $buildNode($childId, $isForeign);
-                if (null === $node) {
-                    continue;
-                }
-
-                $node['children'] = $buildTree($childId);
-                $result[] = $node;
-            }
-
-            return $result;
-        };
-
-        $tree = $buildTree($viewedDocIdentifier);
-
-        $orphanItemIds = [];
-        foreach ($itemDataMap as $identifier => $item) {
-            if (!isset($childIds[$identifier])) {
-                $orphanItemIds[] = $identifier;
-            }
+    private function compareChildSequence(array $a, array $b): int
+    {
+        if (null !== $a['seq'] && null !== $b['seq']) {
+            return (int) $a['seq'] <=> (int) $b['seq'];
+        }
+        if (null !== $a['seq']) {
+            return -1;
+        }
+        if (null !== $b['seq']) {
+            return 1;
         }
 
-        foreach ($orphanItemIds as $orphanId) {
-            $item = $itemDataMap[$orphanId];
-            $itemTypeName = null;
-            if (isset($item['itemType'])) {
-                $itId = $item['itemType'];
-                if (!isset($itemTypeCache[$itId])) {
-                    $itEntity = $itemTypeRepo->find($itId);
-                    $itemTypeCache[$itId] = $itEntity?->getTitle();
-                }
-                $itemTypeName = $itemTypeCache[$itId];
+        return 0;
+    }
+
+    private function buildTreeRecursive(string $parentId, \Closure $buildNode, array $childrenMap, array $itemDataMap, array $foreignItems, int $viewedDocId): array
+    {
+        $result = [];
+        if (!isset($childrenMap[$parentId])) {
+            return $result;
+        }
+
+        foreach ($childrenMap[$parentId] as $childInfo) {
+            $childId = $childInfo['id'];
+            $isForeign = $this->isItemForeign($childId, $itemDataMap, $foreignItems, $viewedDocId);
+
+            $node = $buildNode($childId, $isForeign);
+            if (null === $node) {
+                continue;
+            }
+
+            $node['children'] = $this->buildTreeRecursive($childId, $buildNode, $childrenMap, $itemDataMap, $foreignItems, $viewedDocId);
+            $result[] = $node;
+        }
+
+        return $result;
+    }
+
+    private function isItemForeign(string $childId, array $itemDataMap, array $foreignItems, int $viewedDocId): bool
+    {
+        if (isset($itemDataMap[$childId])) {
+            $itemDocId = $itemDataMap[$childId]['lsDoc'] ?? null;
+
+            return null !== $itemDocId && (int) $itemDocId !== $viewedDocId;
+        }
+
+        return isset($foreignItems[$childId]);
+    }
+
+    /**
+     * @param EntityRepository<LsDefItemType> $itemTypeRepo
+     */
+    private function appendOrphanItems(
+        array $tree,
+        array $itemDataMap,
+        array $childIds,
+        string $viewedDocIdentifier,
+        bool $lightweight,
+        EntityRepository $itemTypeRepo,
+        array & $itemTypeCache,
+    ): array {
+        foreach ($itemDataMap as $identifier => $item) {
+            if (isset($childIds[$identifier])) {
+                continue;
             }
 
             if ($lightweight) {
-                $tree[] = [
-                    'identifier' => $orphanId,
-                    'documentIdentifier' => $viewedDocIdentifier,
-                    'humanCodingScheme' => $item['humanCodingScheme'] ?? null,
-                    'fullStatement' => $item['fullStatement'] ?? null,
-                    'abbreviatedStatement' => $item['abbreviatedStatement'] ?? null,
-                    'isCrossFramework' => false,
-                    'discriminator' => $item['discriminator'] ?? 0,
-                    'extensions' => $item['extensions'] ?? [],
-                    'additionalFields' => $item['extra']['customFields'] ?? [],
-                    'children' => [],
-                ];
+                $tree[] = $this->buildLightweightNode($identifier, $item, $viewedDocIdentifier, null, false);
             } else {
-                $tree[] = [
-                    'identifier' => $orphanId,
-                    'uri' => $item['uri'] ?? null,
-                    'documentIdentifier' => $viewedDocIdentifier,
-                    'humanCodingScheme' => $item['humanCodingScheme'] ?? null,
-                    'fullStatement' => $item['fullStatement'] ?? null,
-                    'abbreviatedStatement' => $item['abbreviatedStatement'] ?? null,
-                    'listEnumeration' => $item['listEnumInSource'] ?? null,
-                    'itemType' => $itemTypeName,
-                    'sequenceNumber' => null,
-                    'lastChangeDateTime' => ($item['changedAt'] ?? null) instanceof \DateTimeInterface
-                        ? $item['changedAt']->format('c')
-                        : $item['changedAt'],
-                    'childOfAssociationIdentifier' => null,
-                    'associationGroupIdentifier' => null,
-                    'isCrossFramework' => false,
-                    'isUnresolved' => false,
-                    'discriminator' => $item['discriminator'] ?? 0,
-                    'extensions' => $item['extensions'] ?? [],
-                    'additionalFields' => $item['extra']['customFields'] ?? [],
-                    'associationAdditionalFields' => [],
-                    'children' => [],
-                ];
+                $assocMap = [];
+                $tree[] = $this->buildFullNode(
+                    $identifier, $item, $viewedDocIdentifier, null, false,
+                    $assocMap, $itemTypeRepo, $itemTypeCache,
+                    [], []
+                );
             }
         }
 
+        return $tree;
+    }
+
+    private function buildTreeDefinitions(LsDoc $lsDoc): array
+    {
         $definitions = [];
-        if (!$lightweight) {
-            $groupings = $this->findAllDocAssociationGroups($lsDoc, Query::HYDRATE_ARRAY);
-            $definitions['CFAssociationGroupings'] = array_values(array_map(static function (array $g): array {
-                return [
-                    'identifier' => $g['identifier'] ?? null,
-                    'uri' => $g['uri'] ?? null,
-                    'title' => $g['title'] ?? null,
-                    'description' => $g['description'] ?? null,
-                ];
-            }, $groupings));
 
-            $itemTypes = $this->findAllUsedItemTypes($lsDoc, Query::HYDRATE_ARRAY);
-            $definitions['CFItemTypes'] = array_values(array_map(static function (array $t): array {
-                return [
-                    'identifier' => $t['identifier'] ?? null,
-                    'uri' => $t['uri'] ?? null,
-                    'title' => $t['title'] ?? null,
-                    'description' => $t['description'] ?? null,
-                ];
-            }, $itemTypes));
+        $groupings = $this->findAllDocAssociationGroups($lsDoc, Query::HYDRATE_ARRAY);
+        $definitions['CFAssociationGroupings'] = array_values(array_map(static function (array $g): array {
+            return [
+                'identifier' => $g['identifier'] ?? null,
+                'uri' => $g['uri'] ?? null,
+                'title' => $g['title'] ?? null,
+                'description' => $g['description'] ?? null,
+            ];
+        }, $groupings));
 
-            $concepts = $this->findAllUsedConcepts($lsDoc, Query::HYDRATE_ARRAY);
-            $definitions['CFConcepts'] = array_values(array_map(static function (array $c): array {
-                return [
-                    'identifier' => $c['identifier'] ?? null,
-                    'uri' => $c['uri'] ?? null,
-                    'title' => $c['title'] ?? null,
-                    'keywords' => $c['keywords'] ?? null,
-                ];
-            }, $concepts));
+        $itemTypes = $this->findAllUsedItemTypes($lsDoc, Query::HYDRATE_ARRAY);
+        $definitions['CFItemTypes'] = array_values(array_map(static function (array $t): array {
+            return [
+                'identifier' => $t['identifier'] ?? null,
+                'uri' => $t['uri'] ?? null,
+                'title' => $t['title'] ?? null,
+                'description' => $t['description'] ?? null,
+            ];
+        }, $itemTypes));
 
-            $subjects = $lsDoc->getSubjects();
-            $definitions['CFSubjects'] = array_values(array_map(static function ($s): array {
-                if (is_array($s)) {
-                    return $s;
-                }
+        $concepts = $this->findAllUsedConcepts($lsDoc, Query::HYDRATE_ARRAY);
+        $definitions['CFConcepts'] = array_values(array_map(static function (array $c): array {
+            return [
+                'identifier' => $c['identifier'] ?? null,
+                'uri' => $c['uri'] ?? null,
+                'title' => $c['title'] ?? null,
+                'keywords' => $c['keywords'] ?? null,
+            ];
+        }, $concepts));
 
-                return [
-                    'identifier' => method_exists($s, 'getIdentifier') ? $s->getIdentifier() : null,
-                    'uri' => method_exists($s, 'getUri') ? $s->getUri() : null,
-                    'title' => method_exists($s, 'getTitle') ? $s->getTitle() : null,
-                ];
-            }, is_array($subjects) ? $subjects : $subjects->toArray()));
+        $subjects = $lsDoc->getSubjects();
+        $definitions['CFSubjects'] = array_values(array_map(static function (LsDefSubject $s): array {
+            return [
+                'identifier' => $s->getIdentifier(),
+                'uri' => $s->getUri(),
+                'title' => $s->getTitle(),
+            ];
+        }, $subjects->toArray()));
 
-            $licences = $this->findAllUsedLicences($lsDoc, Query::HYDRATE_ARRAY);
-            $definitions['CFLicenses'] = array_values(array_map(static function (array $l): array {
-                return [
-                    'identifier' => $l['identifier'] ?? null,
-                    'uri' => $l['uri'] ?? null,
-                    'title' => $l['title'] ?? null,
-                    'description' => $l['description'] ?? null,
-                    'licenseText' => $l['licenseText'] ?? null,
-                ];
-            }, $licences));
-        }
+        $licences = $this->findAllUsedLicences($lsDoc, Query::HYDRATE_ARRAY);
+        $definitions['CFLicenses'] = array_values(array_map(static function (array $l): array {
+            return [
+                'identifier' => $l['identifier'] ?? null,
+                'uri' => $l['uri'] ?? null,
+                'title' => $l['title'] ?? null,
+                'description' => $l['description'] ?? null,
+                'licenseText' => $l['licenseText'] ?? null,
+            ];
+        }, $licences));
 
-        return [
-            'tree' => $tree,
-            'definitions' => $definitions,
-        ];
+        return $definitions;
     }
 
     /**
@@ -813,163 +884,31 @@ class LsDocRepository extends ServiceEntityRepository
             };
         }
 
-        $stmt = <<<'xENDx'
-DELETE FROM salt_object_lock
- WHERE doc_id = :lsDocId
-;
-xENDx;
-        $preparedStatement = $conn->prepare($stmt);
-        $preparedStatement->bindValue('lsDocId', $lsDoc->getId());
-        $preparedStatement->executeStatement();
+        $docId = $lsDoc->getId();
 
-        $progressCallback('Deleting associations');
-        $stmt = <<<'xENDx'
-DELETE FROM ls_association
- WHERE ls_doc_id = :lsDocId
-;
-xENDx;
-        $preparedStatement = $conn->prepare($stmt);
-        $preparedStatement->bindValue('lsDocId', $lsDoc->getId());
-        $preparedStatement->executeStatement();
+        $steps = [
+            ['Deleting object locks', 'DELETE FROM salt_object_lock WHERE doc_id = :lsDocId'],
+            ['Deleting associations', 'DELETE FROM ls_association WHERE ls_doc_id = :lsDocId'],
+            ['Deleting origin associations', 'DELETE FROM ls_association WHERE origin_lsitem_id IN (SELECT i.id FROM ls_item i WHERE i.ls_doc_id = :lsDocId)'],
+            ['Deleting destination associations', 'DELETE FROM ls_association WHERE destination_lsitem_id IN (SELECT i.id FROM ls_item i WHERE i.ls_doc_id = :lsDocId)'],
+            ['Deleting association groups', 'DELETE FROM ls_def_association_grouping WHERE ls_doc_id = :lsDocId'],
+            ['Deleting rubric references to items', 'UPDATE rubric_criterion SET ls_item_id = NULL WHERE ls_item_id IN (SELECT id FROM ls_item WHERE ls_doc_id = :lsDocId)'],
+            ['Deleting item subject links', 'DELETE FROM ls_item_subject WHERE ls_item_id IN (SELECT id FROM ls_item WHERE ls_doc_id = :lsDocId)'],
+            ['Deleting item concept links', 'DELETE FROM ls_item_concept WHERE ls_item_id IN (SELECT id FROM ls_item WHERE ls_doc_id = :lsDocId)'],
+            ['Deleting items', 'DELETE FROM ls_item WHERE ls_doc_id = :lsDocId'],
+            ['Deleting document subjects', 'DELETE FROM ls_doc_subject WHERE ls_doc_id = :lsDocId'],
+            ['Deleting document import logs', 'DELETE FROM import_logs WHERE ls_doc_id = :lsDocId'],
+            ['Deleting acls', 'DELETE FROM salt_user_doc_acl WHERE doc_id = :lsDocId'],
+            ['Deleting document attributes', 'DELETE FROM ls_doc_attribute WHERE ls_doc_id = :lsDocId'],
+            ['Deleting document', 'DELETE FROM ls_doc WHERE id = :lsDocId'],
+        ];
 
-        $stmt = <<<'xENDx'
-DELETE FROM ls_association
- WHERE origin_lsitem_id IN (
-      SELECT i.id
-        FROM ls_item i
-       WHERE i.ls_doc_id = :lsDocId
-    )
-;
-xENDx;
-        $preparedStatement = $conn->prepare($stmt);
-        $preparedStatement->bindValue('lsDocId', $lsDoc->getId());
-        $preparedStatement->executeStatement();
-
-        $stmt = <<<'xENDx'
-DELETE FROM ls_association
- WHERE destination_lsitem_id IN (
-      SELECT i.id
-        FROM ls_item i
-       WHERE i.ls_doc_id = :lsDocId
-    )
-;
-xENDx;
-        $preparedStatement = $conn->prepare($stmt);
-        $preparedStatement->bindValue('lsDocId', $lsDoc->getId());
-        $preparedStatement->executeStatement();
-
-        $progressCallback('Deleting association groups');
-        $stmt = <<<'xENDx'
-DELETE FROM ls_def_association_grouping
- WHERE ls_doc_id = :lsDocId
-;
-xENDx;
-        $preparedStatement = $conn->prepare($stmt);
-        $preparedStatement->bindValue('lsDocId', $lsDoc->getId());
-        $preparedStatement->executeStatement();
-
-        $progressCallback('Deleting rubric references to items');
-        $stmt = <<<'xENDx'
-UPDATE rubric_criterion
-   SET ls_item_id = NULL
- WHERE ls_item_id IN (
-   SELECT id
-     FROM ls_item
-    WHERE ls_doc_id = :lsDocId
- )
-;
-xENDx;
-        $preparedStatement = $conn->prepare($stmt);
-        $preparedStatement->bindValue('lsDocId', $lsDoc->getId());
-        $preparedStatement->executeStatement();
-
-        $progressCallback('Deleting item subject links');
-        $stmt = <<<'xENDx'
-DELETE FROM ls_item_subject
- WHERE ls_item_id IN (
-   SELECT id
-     FROM ls_item
-    WHERE ls_doc_id = :lsDocId
- )
-;
-xENDx;
-        $preparedStatement = $conn->prepare($stmt);
-        $preparedStatement->bindValue('lsDocId', $lsDoc->getId());
-        $preparedStatement->executeStatement();
-
-        $progressCallback('Deleting item concept links');
-        $stmt = <<<'xENDx'
-DELETE FROM ls_item_concept
- WHERE ls_item_id IN (
-   SELECT id
-     FROM ls_item
-    WHERE ls_doc_id = :lsDocId
- )
-;
-xENDx;
-        $preparedStatement = $conn->prepare($stmt);
-        $preparedStatement->bindValue('lsDocId', $lsDoc->getId());
-        $preparedStatement->executeStatement();
-
-        $progressCallback('Deleting items');
-        $stmt = <<<'xENDx'
-DELETE FROM ls_item
- WHERE ls_doc_id = :lsDocId
-;
-xENDx;
-        $preparedStatement = $conn->prepare($stmt);
-        $preparedStatement->bindValue('lsDocId', $lsDoc->getId());
-        $preparedStatement->executeStatement();
-
-        $progressCallback('Deleting document subjects');
-        $stmt = <<<'xENDx'
-DELETE FROM ls_doc_subject
- WHERE ls_doc_id = :lsDocId
-;
-xENDx;
-        $preparedStatement = $conn->prepare($stmt);
-        $preparedStatement->bindValue('lsDocId', $lsDoc->getId());
-        $preparedStatement->executeStatement();
-
-        $progressCallback('Deleting document import logs');
-        $stmt = <<<'xENDx'
-DELETE FROM import_logs
- WHERE ls_doc_id = :lsDocId
-;
-xENDx;
-        $preparedStatement = $conn->prepare($stmt);
-        $preparedStatement->bindValue('lsDocId', $lsDoc->getId());
-        $preparedStatement->executeStatement();
-
-        $progressCallback('Deleting acls');
-        $stmt = <<<'xENDx'
-DELETE FROM salt_user_doc_acl
- WHERE doc_id = :lsDocId
-;
-xENDx;
-        $preparedStatement = $conn->prepare($stmt);
-        $preparedStatement->bindValue('lsDocId', $lsDoc->getId());
-        $preparedStatement->executeStatement();
-
-        $progressCallback('Deleting document attributes');
-        $stmt = <<<'xENDx'
-DELETE FROM ls_doc_attribute
- WHERE ls_doc_id = :lsDocId
-;
-xENDx;
-        $preparedStatement = $conn->prepare($stmt);
-        $preparedStatement->bindValue('lsDocId', $lsDoc->getId());
-        $preparedStatement->executeStatement();
-
-        $progressCallback('Deleting document');
-        $stmt = <<<'xENDx'
-DELETE FROM ls_doc
- WHERE id = :lsDocId
-;
-xENDx;
-        $preparedStatement = $conn->prepare($stmt);
-        $preparedStatement->bindValue('lsDocId', $lsDoc->getId());
-        $preparedStatement->executeStatement();
+        foreach ($steps as [$message, $sql]) {
+            $progressCallback($message);
+            $stmt = $conn->prepare($sql);
+            $stmt->bindValue('lsDocId', $docId);
+            $stmt->executeStatement();
+        }
 
         $progressCallback('Done');
     }
@@ -986,17 +925,7 @@ xENDx;
     {
         $em = $this->getEntityManager();
         if (null === $newLsDoc) {
-            $newLsDoc = new LsDoc();
-            $newLsDoc->setTitle($oldLsDoc->getTitle().' - Derived');
-            $newLsDoc->setCreator($oldLsDoc->getCreator());
-            $newLsDoc->setVersion($oldLsDoc->getVersion());
-            $newLsDoc->setDescription($oldLsDoc->getDescription());
-            $newLsDoc->setSubject($oldLsDoc->getSubject());
-            $newLsDoc->setNote($oldLsDoc->getNote());
-            $newLsDoc->setLanguage($oldLsDoc->getLanguage());
-            $newLsDoc->setOrg($oldLsDoc->getOrg());
-            $newLsDoc->setUser($oldLsDoc->getUser());
-            $newLsDoc->setLicence($oldLsDoc->getLicence());
+            $newLsDoc = $this->createDerivedDoc($oldLsDoc);
         }
 
         foreach ($oldLsDoc->getAssociationGroupings() as $assocGroup) {
@@ -1006,6 +935,23 @@ xENDx;
         $em->persist($newLsDoc);
 
         return $newLsDoc;
+    }
+
+    private function createDerivedDoc(LsDoc $source): LsDoc
+    {
+        $new = new LsDoc();
+        $new->setTitle($source->getTitle().' - Derived');
+        $new->setCreator($source->getCreator());
+        $new->setVersion($source->getVersion());
+        $new->setDescription($source->getDescription());
+        $new->setSubject($source->getSubject());
+        $new->setNote($source->getNote());
+        $new->setLanguage($source->getLanguage());
+        $new->setOrg($source->getOrg());
+        $new->setUser($source->getUser());
+        $new->setLicence($source->getLicence());
+
+        return $new;
     }
 
     public function copyDocumentToItem(LsDoc $fromDoc, LsDoc $toDoc, ?\Closure $progressCallback = null): void
@@ -1026,6 +972,18 @@ xENDx;
         $toDoc->addTopLsItem($item);
         $em->persist($item);
 
+        $this->copyDocAssociations($fromDoc, $toDoc, $item, $em);
+
+        foreach ($fromDoc->getTopLsItems() as $oldItem) {
+            $newItem = $oldItem->duplicateToLsDoc($toDoc);
+            $item->addChild($newItem);
+        }
+
+        $progressCallback('Done');
+    }
+
+    private function copyDocAssociations(LsDoc $fromDoc, LsDoc $toDoc, LsItem $item, EntityManagerInterface $em): void
+    {
         foreach ($fromDoc->getAssociations() as $oldAssoc) {
             $newAssoc = $toDoc->createAssociation();
             $newAssoc->setOriginLsItem($item);
@@ -1034,13 +992,6 @@ xENDx;
             $item->addAssociation($newAssoc);
             $em->persist($newAssoc);
         }
-
-        foreach ($fromDoc->getTopLsItems() as $oldItem) {
-            $newItem = $oldItem->duplicateToLsDoc($toDoc);
-            $item->addChild($newItem);
-        }
-
-        $progressCallback('Done');
     }
 
     /**
@@ -1247,34 +1198,24 @@ xENDx;
      */
     public function findAllUsedLicences(LsDoc $lsDoc, int $format = AbstractQuery::HYDRATE_ARRAY): array
     {
-        // get licences for items
         $query = $this->getEntityManager()->createQuery('
             SELECT DISTINCT l
             FROM '.LsDefLicence::class.' l INDEX BY l.id, '.LsItem::class.' i
             WHERE (i.lsDoc = :lsDocId AND i.licence = l)
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
-
         $results = $query->getResult($format);
 
-        // get licence for the doc
         $query = $this->getEntityManager()->createQuery('
             SELECT DISTINCT l
             FROM '.LsDefLicence::class.' l INDEX BY l.id, '.LsDoc::class.' d
             WHERE (d.id = :lsDocId AND d.licence = l)
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
-
         $docResults = $query->getResult($format);
 
-        if (AbstractQuery::HYDRATE_ARRAY === $format) {
-            foreach ($docResults as $id => $result) {
-                $results[$id] = $result;
-            }
-        } else {
-            foreach ($docResults as $result) {
-                $results[$result->getId()] = $result;
-            }
+        foreach ($docResults as $id => $result) {
+            $results[$id] = $result;
         }
 
         return $results;
@@ -1347,117 +1288,39 @@ xENDx;
     public function findAssociatedDocs(LsDoc $lsDoc): array
     {
         $docs = [];
+        $docId = $lsDoc->getId();
 
-        // Where the framework has a destination item in the document
-        $qb = $this->createQueryBuilder('d')
-            ->select('d.id, d.identifier, d.uri, d.title')
-            ->distinct()
-            ->join('d.lsItems', 'i')
-            ->join('i.associations', 'a')
-            ->join('a.destinationLsItem', 'i2')
-            ->where('i2.lsDoc = :doc')
-            ->setParameter('doc', $lsDoc->getId())
-        ;
-        $results = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
-        foreach ($results as $doc) {
-            $docs[$doc['identifier']] = [
-                'autoLoad' => 'true',
-                'url' => $doc['uri'],
-                'title' => $doc['title'],
-            ];
-        }
+        $joinConfigs = [
+            ['d.lsItems', 'i.associations', 'a.destinationLsItem', 'ref.lsDoc = :doc'],
+            ['d.lsItems', 'i.associations', 'a.originLsItem', 'ref.lsDoc = :doc'],
+            ['d.lsItems', 'i.associations', 'a.destinationLsDoc', 'ref.id = :doc'],
+            ['d.lsItems', 'i.associations', 'a.originLsDoc', 'ref.id = :doc'],
+            ['d.docAssociations', null, 'a.destinationLsItem', 'ref.lsDoc = :doc'],
+            ['d.docAssociations', null, 'a.originLsItem', 'ref.lsDoc = :doc'],
+        ];
 
-        // Where the framework has an origin item in the document
-        $qb = $this->createQueryBuilder('d')
-            ->select('d.id, d.identifier, d.uri, d.title')
-            ->distinct()
-            ->join('d.lsItems', 'i')
-            ->join('i.associations', 'a')
-            ->join('a.originLsItem', 'i2')
-            ->where('i2.lsDoc = :doc')
-            ->setParameter('doc', $lsDoc->getId())
-        ;
-        $results = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
-        foreach ($results as $doc) {
-            $docs[$doc['identifier']] = [
-                'autoLoad' => 'true',
-                'url' => $doc['uri'],
-                'title' => $doc['title'],
-            ];
-        }
+        foreach ($joinConfigs as [$itemJoin, $assocJoinField, $targetJoinField, $where]) {
+            $qb = $this->createQueryBuilder('d')
+                ->select('d.id, d.identifier, d.uri, d.title')
+                ->distinct()
+                ->join($itemJoin, 'i');
 
-        // Where the framework has a destination document as the document
-        $qb = $this->createQueryBuilder('d')
-            ->select('d.id, d.identifier, d.uri, d.title')
-            ->distinct()
-            ->join('d.lsItems', 'i')
-            ->join('i.associations', 'a')
-            ->join('a.destinationLsDoc', 'd2')
-            ->where('d2.id = :doc')
-            ->setParameter('doc', $lsDoc->getId())
-        ;
-        $results = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
-        foreach ($results as $doc) {
-            $docs[$doc['identifier']] = [
-                'autoLoad' => 'true',
-                'url' => $doc['uri'],
-                'title' => $doc['title'],
-            ];
-        }
+            if (null !== $assocJoinField) {
+                $qb->join($assocJoinField, 'a');
+            }
 
-        // Where the framework has an origin document as the document
-        $qb = $this->createQueryBuilder('d')
-            ->select('d.id, d.identifier, d.uri, d.title')
-            ->distinct()
-            ->join('d.lsItems', 'i')
-            ->join('i.associations', 'a')
-            ->join('a.originLsDoc', 'd2')
-            ->where('d2.id = :doc')
-            ->setParameter('doc', $lsDoc->getId())
-        ;
-        $results = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
-        foreach ($results as $doc) {
-            $docs[$doc['identifier']] = [
-                'autoLoad' => 'true',
-                'url' => $doc['uri'],
-                'title' => $doc['title'],
-            ];
-        }
+            $qb->join($targetJoinField, 'ref')
+                ->where($where)
+                ->setParameter('doc', $docId);
 
-        // Where there is an association belonging to the framework to an item in the document
-        $qb = $this->createQueryBuilder('d')
-            ->select('d.id, d.identifier, d.uri, d.title')
-            ->distinct()
-            ->join('d.docAssociations', 'a')
-            ->join('a.destinationLsItem', 'i2')
-            ->where('i2.lsDoc = :doc')
-            ->setParameter('doc', $lsDoc->getId())
-        ;
-        $results = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
-        foreach ($results as $doc) {
-            $docs[$doc['identifier']] = [
-                'autoLoad' => 'true',
-                'url' => $doc['uri'],
-                'title' => $doc['title'],
-            ];
-        }
-
-        // Where there is an association belonging to the framework to an item in the document
-        $qb = $this->createQueryBuilder('d')
-            ->select('d.id, d.identifier, d.uri, d.title')
-            ->distinct()
-            ->join('d.docAssociations', 'a')
-            ->join('a.originLsItem', 'i2')
-            ->where('i2.lsDoc = :doc')
-            ->setParameter('doc', $lsDoc->getId())
-        ;
-        $results = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
-        foreach ($results as $doc) {
-            $docs[$doc['identifier']] = [
-                'autoLoad' => 'true',
-                'url' => $doc['uri'],
-                'title' => $doc['title'],
-            ];
+            $results = $qb->getQuery()->getResult(Query::HYDRATE_ARRAY);
+            foreach ($results as $doc) {
+                $docs[$doc['identifier']] = [
+                    'autoLoad' => 'true',
+                    'url' => $doc['uri'],
+                    'title' => $doc['title'],
+                ];
+            }
         }
 
         return $docs;
@@ -1507,23 +1370,26 @@ xENDx;
         $query->setParameter('lsDocId', $lsDoc->getId());
 
         return array_map(
-            function (array $rec): array {
-                $ret = $rec[0];
-                $ret['originLsItem'] = [
-                    'id' => $rec['oi_id'],
-                    'identifier' => $rec['oi_identifier'],
-                    'lsDocIdentifier' => $rec['oi_lsDocIdentifier'],
-                ];
-                $ret['destinationLsItem'] = [
-                    'id' => $rec['di_id'],
-                    'identifier' => $rec['di_identifier'],
-                    'lsDocIdentifier' => $rec['di_lsDocIdentifier'],
-                ];
-
-                return $ret;
-            },
+            $this->mapExportAssociation(...),
             $query->getResult(AbstractQuery::HYDRATE_ARRAY)
         );
+    }
+
+    private function mapExportAssociation(array $rec): array
+    {
+        $ret = $rec[0];
+        $ret['originLsItem'] = [
+            'id' => $rec['oi_id'],
+            'identifier' => $rec['oi_identifier'],
+            'lsDocIdentifier' => $rec['oi_lsDocIdentifier'],
+        ];
+        $ret['destinationLsItem'] = [
+            'id' => $rec['di_id'],
+            'identifier' => $rec['di_identifier'],
+            'lsDocIdentifier' => $rec['di_lsDocIdentifier'],
+        ];
+
+        return $ret;
     }
 
     private function getSortValue(LsDoc $doc, string $sortField): string
@@ -1549,7 +1415,45 @@ xENDx;
             ->select('d')
             ->leftJoin('d.mirroredFramework', 'm');
 
-        // Apply user/organization filtering with extended access control
+        $this->applyUserAccessConditions($qb, $user);
+        $this->applyDocumentFilters($qb, $filter);
+        $this->applyPaginationCursor($qb, $pagination, $filter);
+
+        $qb->orderBy($filter->sortField, $filter->sortOrder);
+        if ('d.creator' === $filter->sortField) {
+            $qb->addOrderBy('d.title', $filter->sortOrder);
+        }
+        $qb->addOrderBy('d.identifier', $filter->sortOrder);
+        $qb->setMaxResults($pagination->size + 1);
+
+        $documents = $qb->getQuery()->getResult() ?? [];
+
+        $documentCount = count($documents);
+        $hasMore = $documentCount > $pagination->size;
+        if ($hasMore) {
+            array_pop($documents);
+            --$documentCount;
+        }
+
+        $this->hydrateDocumentRelations($documents);
+
+        $paginationData = new DocumentPaginationResponseDto($hasMore, null, $documentCount);
+
+        if (!empty($documents) && $hasMore) {
+            $lastDoc = end($documents);
+            $title = 'd.creator' === $filter->sortField ? ($lastDoc->getTitle() ?? '') : null;
+            $paginationData->nextCursor = $pagination->encodeCursor(
+                $this->getSortValue($lastDoc, $filter->sortField),
+                $lastDoc->getIdentifier(),
+                $title
+            );
+        }
+
+        return new DocumentListResponseDto($documents, $paginationData);
+    }
+
+    private function applyUserAccessConditions(QueryBuilder $qb, ?User $user): void
+    {
         if (null !== $user) {
             if (!$this->security->isGranted(Permission::FRAMEWORK_EDIT_ALL)) {
                 $isEditor = $this->security->isGranted('ROLE_EDITOR');
@@ -1568,75 +1472,62 @@ xENDx;
                 ->andWhere('d.adoptionStatus != :privateDraft')
                 ->setParameter('privateDraft', LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT);
         }
+    }
 
-        // Apply filters
+    private function applyDocumentFilters(QueryBuilder $qb, DocumentFilterDto $filter): void
+    {
         if (null !== $filter->creator) {
             $qb->andWhere('LOWER(d.creator) LIKE LOWER(:creator)')
                ->setParameter('creator', '%'.$filter->creator.'%');
         }
-
         if (null !== $filter->title) {
             $qb->andWhere('LOWER(d.title) LIKE LOWER(:title)')
                ->setParameter('title', '%'.$filter->title.'%');
         }
-
         if (null !== $filter->adoptionStatus) {
             $qb->andWhere('LOWER(d.adoptionStatus) = LOWER(:adoptionStatus)')
                ->setParameter('adoptionStatus', $filter->adoptionStatus);
         }
-
         if (null !== $filter->subject) {
             $qb->leftJoin('d.subjects', 's');
             $qb->andWhere('LOWER(d.subject) LIKE LOWER(:subject) OR LOWER(s.title) = LOWER(:subject)')
                ->setParameter('subject', $filter->subject);
         }
-
         if (null !== $filter->language) {
             $qb->andWhere('LOWER(d.language) = LOWER(:language)')
                ->setParameter('language', $filter->language);
         }
-
         if (null !== $filter->publisher) {
             $qb->andWhere('LOWER(d.publisher) LIKE LOWER(:publisher)')
                ->setParameter('publisher', '%'.$filter->publisher.'%');
         }
+    }
 
-        // Apply cursor-based pagination
-        if (null !== $pagination->after) {
-            $decodedAfter = $pagination->decodeCursor($pagination->after);
-            if ('d.creator' === $filter->sortField) {
-                $qb->andWhere('(d.creator > :afterSortValue OR (d.creator = :afterSortValue AND (d.title > :afterTitle OR (d.title = :afterTitle AND d.identifier > :afterIdentifier))))')
-                    ->setParameter('afterSortValue', $decodedAfter['sortValue'])
-                    ->setParameter('afterTitle', $decodedAfter['title'] ?? '')
-                    ->setParameter('afterIdentifier', $decodedAfter['identifier']);
-            } else {
-                $qb->andWhere('('.$filter->sortField.' > :afterSortValue OR ('.$filter->sortField.' = :afterSortValue AND d.identifier > :afterIdentifier))')
-                    ->setParameter('afterSortValue', $decodedAfter['sortValue'])
-                    ->setParameter('afterIdentifier', $decodedAfter['identifier']);
-            }
+    private function applyPaginationCursor(QueryBuilder $qb, PaginationDto $pagination, DocumentFilterDto $filter): void
+    {
+        if (null === $pagination->after) {
+            return;
         }
 
-        // Apply sorting
-        $qb->orderBy($filter->sortField, $filter->sortOrder);
+        $decodedAfter = $pagination->decodeCursor($pagination->after);
         if ('d.creator' === $filter->sortField) {
-            $qb->addOrderBy('d.title', $filter->sortOrder);
+            $qb->andWhere('(d.creator > :afterSortValue OR (d.creator = :afterSortValue AND (d.title > :afterTitle OR (d.title = :afterTitle AND d.identifier > :afterIdentifier))))')
+                ->setParameter('afterSortValue', $decodedAfter['sortValue'])
+                ->setParameter('afterTitle', $decodedAfter['title'] ?? '')
+                ->setParameter('afterIdentifier', $decodedAfter['identifier']);
+        } else {
+            $qb->andWhere('('.$filter->sortField.' > :afterSortValue OR ('.$filter->sortField.' = :afterSortValue AND d.identifier > :afterIdentifier))')
+                ->setParameter('afterSortValue', $decodedAfter['sortValue'])
+                ->setParameter('afterIdentifier', $decodedAfter['identifier']);
         }
-        $qb->addOrderBy('d.identifier', $filter->sortOrder); // Secondary sort by identifier for consistent pagination
+    }
 
-        // Apply limit
-        $qb->setMaxResults($pagination->size + 1); // +1 to check if there are more results
-
-        $documents = $qb->getQuery()->getResult() ?? [];
-
-        // Check if there are more results
-        $documentCount = count($documents);
-        $hasMore = $documentCount > $pagination->size;
-        if ($hasMore) {
-            array_pop($documents); // Remove the extra item
-            --$documentCount;
+    private function hydrateDocumentRelations(array $documents): void
+    {
+        if (empty($documents)) {
+            return;
         }
 
-        // Add subject and licence data to objects (don't in original query to keep limit count correct)
         $this->createQueryBuilder('d')
             ->select('d', 's', 'l', 'ft')
             ->leftJoin('d.subjects', 's')
@@ -1646,31 +1537,6 @@ xENDx;
             ->setParameter('documents', $documents)
             ->getQuery()
             ->getResult();
-
-        // Create pagination metadata
-        $paginationData = new DocumentPaginationResponseDto(
-            $hasMore,
-            null,
-            $documentCount // This is approximate for performance
-        );
-
-        if (!empty($documents)) {
-            $lastDoc = end($documents);
-
-            if ($hasMore) {
-                $title = null;
-                if ('d.creator' === $filter->sortField) {
-                    $title = $lastDoc->getTitle() ?? '';
-                }
-                $paginationData->nextCursor = $pagination->encodeCursor(
-                    $this->getSortValue($lastDoc, $filter->sortField),
-                    $lastDoc->getIdentifier(),
-                    $title
-                );
-            }
-        }
-
-        return new DocumentListResponseDto($documents, $paginationData);
     }
 
     /**
@@ -1687,162 +1553,71 @@ xENDx;
     public function findRelatedDocuments(LsDoc $lsDoc, ?User $user = null): array
     {
         $docId = $lsDoc->getId();
-
-        // Collect document IDs from each query, avoiding duplicates
-        $docIds = [];
         $foundIds = [];
 
-        // Query 1: Items where the document has a destination item
-        // Original: SELECT DISTINCT i.ls_doc_id FROM ls_item i
-        //   INNER JOIN ls_association a ON a.destination_lsitem_id = i.id
-        //   INNER JOIN ls_item i2 ON i2.id = a.origin_lsitem_id
-        //   WHERE i2.ls_doc_id = :docId
-        $qb = $this->createQueryBuilder('d')
-            ->select('DISTINCT d.id')
-            ->join(LsItem::class, 'i', 'WITH', 'i.lsDoc = d')
-            ->join(LsAssociation::class, 'a', 'WITH', 'a.destinationLsItem = i')
-            ->join(LsItem::class, 'i2', 'WITH', 'a.originLsItem = i2')
-            ->where('i2.lsDoc = :docId')
-            ->setParameter('docId', $docId);
-        $this->addAclConditions($qb, $user);
-        $results = $qb->getQuery()->getResult(AbstractQuery::HYDRATE_SCALAR);
-        foreach ($results as $row) {
-            $id = (int) $row['id'];
-            $foundIds[$id] = true;
-            $docIds[] = $id;
-        }
-        $foundIds = array_unique($foundIds);
-        $docIds = array_values(array_unique($docIds));
+        $queries = [
+            $this->createItemJoinQuery($docId, 'a.destinationLsItem = i', 'a.originLsItem = i2', 'i2.lsDoc = :docId'),
+            $this->createItemJoinQuery($docId, 'a.originLsItem = i', 'a.destinationLsItem = i2', 'i2.lsDoc = :docId'),
+            $this->createItemJoinQuery($docId, 'a.originLsItem = i', null, 'a.destinationLsDoc = :docId'),
+            $this->createItemJoinQuery($docId, 'a.destinationLsItem = i', null, 'a.originLsDoc = :docId'),
+            $this->createDocAssocQuery($docId, 'a.destinationLsItem = i2', 'i2.lsDoc = :docId'),
+            $this->createDocAssocQuery($docId, 'a.originLsItem = i2', 'i2.lsDoc = :docId'),
+        ];
 
-        // Query 2: Items where the document has an origin item
-        // Original: SELECT DISTINCT i.ls_doc_id FROM ls_item i
-        //   INNER JOIN ls_association a ON a.origin_lsitem_id = i.id
-        //   INNER JOIN ls_item i2 ON i2.id = a.destination_lsitem_id
-        //   WHERE i2.ls_doc_id = :docId
-        $qb = $this->createQueryBuilder('d')
-            ->select('DISTINCT d.id')
-            ->join(LsItem::class, 'i', 'WITH', 'i.lsDoc = d')
-            ->join(LsAssociation::class, 'a', 'WITH', 'a.originLsItem = i')
-            ->join(LsItem::class, 'i2', 'WITH', 'a.destinationLsItem = i2')
-            ->where('i2.lsDoc = :docId')
-            ->setParameter('docId', $docId);
-        if (!empty($foundIds)) {
-            $qb->andWhere('NOT EXISTS (SELECT 1 FROM App\Entity\Framework\LsDoc d2 WHERE d2.id IN (:foundIds) AND d2.id = d.id)')
-                ->setParameter('foundIds', array_keys($foundIds));
-        }
-        $this->addAclConditions($qb, $user);
-        $results = $qb->getQuery()->getResult(AbstractQuery::HYDRATE_SCALAR);
-        foreach ($results as $row) {
-            $id = (int) $row['id'];
-            $foundIds[$id] = true;
-            $docIds[] = $id;
+        foreach ($queries as $qb) {
+            $this->addAclConditions($qb, $user);
+            if (!empty($foundIds)) {
+                $qb->andWhere('NOT EXISTS (SELECT 1 FROM App\Entity\Framework\LsDoc d2 WHERE d2.id IN (:foundIds) AND d2.id = d.id)')
+                    ->setParameter('foundIds', array_keys($foundIds));
+            }
+            $results = $qb->getQuery()->getResult(AbstractQuery::HYDRATE_SCALAR);
+            foreach ($results as $row) {
+                $foundIds[(int) $row['id']] = true;
+            }
         }
 
-        // Query 3: Items where association destination is the document
-        // Original: SELECT DISTINCT i.ls_doc_id FROM ls_item i
-        //   INNER JOIN ls_association a ON a.origin_lsitem_id = i.id
-        //   WHERE a.destination_lsdoc_id = :docId
-        $qb = $this->createQueryBuilder('d')
-            ->select('DISTINCT d.id')
-            ->join(LsItem::class, 'i', 'WITH', 'i.lsDoc = d')
-            ->join(LsAssociation::class, 'a', 'WITH', 'a.originLsItem = i')
-            ->where('a.destinationLsDoc = :docId')
-            ->setParameter('docId', $docId);
-        if (!empty($foundIds)) {
-            $qb->andWhere('NOT EXISTS (SELECT 1 FROM App\Entity\Framework\LsDoc d2 WHERE d2.id IN (:foundIds) AND d2.id = d.id)')
-                ->setParameter('foundIds', array_keys($foundIds));
-        }
-        $this->addAclConditions($qb, $user);
-        $results = $qb->getQuery()->getResult(AbstractQuery::HYDRATE_SCALAR);
-        foreach ($results as $row) {
-            $id = (int) $row['id'];
-            $foundIds[$id] = true;
-            $docIds[] = $id;
-        }
-
-        // Query 4: Items where association origin is the document
-        // Original: SELECT DISTINCT i.ls_doc_id FROM ls_item i
-        //   INNER JOIN ls_association a ON a.destination_lsitem_id = i.id
-        //   WHERE a.origin_lsdoc_id = :docId
-        $qb = $this->createQueryBuilder('d')
-            ->select('DISTINCT d.id')
-            ->join(LsItem::class, 'i', 'WITH', 'i.lsDoc = d')
-            ->join(LsAssociation::class, 'a', 'WITH', 'a.destinationLsItem = i')
-            ->where('a.originLsDoc = :docId')
-            ->setParameter('docId', $docId);
-        if (!empty($foundIds)) {
-            $qb->andWhere('NOT EXISTS (SELECT 1 FROM App\Entity\Framework\LsDoc d2 WHERE d2.id IN (:foundIds) AND d2.id = d.id)')
-                ->setParameter('foundIds', array_keys($foundIds));
-        }
-        $this->addAclConditions($qb, $user);
-        $results = $qb->getQuery()->getResult(AbstractQuery::HYDRATE_SCALAR);
-        foreach ($results as $row) {
-            $id = (int) $row['id'];
-            $foundIds[$id] = true;
-            $docIds[] = $id;
-        }
-
-        // Query 5: Document associations where destination is an item in the document
-        // Original: SELECT DISTINCT a.ls_doc_id FROM ls_association a
-        //   INNER JOIN ls_item i ON i.id = a.destination_lsitem_id
-        //   WHERE i.ls_doc_id = :docId
-        $qb = $this->createQueryBuilder('d')
-            ->select('DISTINCT d.id')
-            ->join(LsAssociation::class, 'a', 'WITH', 'a.lsDoc = d')
-            ->join(LsItem::class, 'i', 'WITH', 'a.destinationLsItem = i')
-            ->where('i.lsDoc = :docId')
-            ->setParameter('docId', $docId);
-        if (!empty($foundIds)) {
-            $qb->andWhere('NOT EXISTS (SELECT 1 FROM App\Entity\Framework\LsDoc d2 WHERE d2.id IN (:foundIds) AND d2.id = d.id)')
-                ->setParameter('foundIds', array_keys($foundIds));
-        }
-        $this->addAclConditions($qb, $user);
-        $results = $qb->getQuery()->getResult(AbstractQuery::HYDRATE_SCALAR);
-        foreach ($results as $row) {
-            $id = (int) $row['id'];
-            $foundIds[$id] = true;
-            $docIds[] = $id;
-        }
-
-        // Query 6: Document associations where origin is an item in the document
-        // Original: SELECT DISTINCT a.ls_doc_id FROM ls_association a
-        //   INNER JOIN ls_item i ON i.id = a.origin_lsitem_id
-        //   WHERE i.ls_doc_id = :docId
-        $qb = $this->createQueryBuilder('d')
-            ->select('DISTINCT d.id')
-            ->join(LsAssociation::class, 'a', 'WITH', 'a.lsDoc = d')
-            ->join(LsItem::class, 'i', 'WITH', 'a.originLsItem = i')
-            ->where('i.lsDoc = :docId')
-            ->setParameter('docId', $docId);
-        if (!empty($foundIds)) {
-            $qb->andWhere('NOT EXISTS (SELECT 1 FROM App\Entity\Framework\LsDoc d2 WHERE d2.id IN (:foundIds) AND d2.id = d.id)')
-                ->setParameter('foundIds', array_keys($foundIds));
-        }
-        $this->addAclConditions($qb, $user);
-        $results = $qb->getQuery()->getResult(AbstractQuery::HYDRATE_SCALAR);
-        foreach ($results as $row) {
-            $id = (int) $row['id'];
-            $foundIds[$id] = true;
-            $docIds[] = $id;
-        }
-        $foundIds = array_unique($foundIds);
-        $docIds = array_values(array_unique($docIds));
-
+        $docIds = array_keys($foundIds);
         if (empty($docIds)) {
             return [];
         }
 
-        // Fetch full entities for the filtered document IDs
-        $qb = $this->createQueryBuilder('d')
+        return $this->createQueryBuilder('d')
             ->select('d, s')
             ->leftJoin('d.subjects', 's')
             ->where('d.id IN (:docIds)')
             ->setParameter('docIds', $docIds)
             ->orderBy('d.creator', 'ASC')
             ->addOrderBy('d.title', 'ASC')
-            ->addOrderBy('d.adoptionStatus', 'ASC');
+            ->addOrderBy('d.adoptionStatus', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 
-        return $qb->getQuery()->getResult();
+    private function createItemJoinQuery(int $docId, string $assocJoin, ?string $item2Join, string $whereClause): QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('d')
+            ->select('DISTINCT d.id')
+            ->join(LsItem::class, 'i', 'WITH', 'i.lsDoc = d')
+            ->join(LsAssociation::class, 'a', 'WITH', $assocJoin);
+
+        if (null !== $item2Join) {
+            $qb->join(LsItem::class, 'i2', 'WITH', $item2Join);
+        }
+
+        $qb->where($whereClause)
+            ->setParameter('docId', $docId);
+
+        return $qb;
+    }
+
+    private function createDocAssocQuery(int $docId, string $itemJoin, string $whereClause): QueryBuilder
+    {
+        return $this->createQueryBuilder('d')
+            ->select('DISTINCT d.id')
+            ->join(LsAssociation::class, 'a', 'WITH', 'a.lsDoc = d')
+            ->join(LsItem::class, 'i2', 'WITH', $itemJoin)
+            ->where($whereClause)
+            ->setParameter('docId', $docId);
     }
 
     /**
@@ -1850,38 +1625,7 @@ xENDx;
      */
     private function addAclConditions(QueryBuilder $qb, ?User $user): void
     {
-        // If user has FRAMEWORK_EDIT_ALL permission, they can see all documents
-        if (null !== $user && $this->security->isGranted(Permission::FRAMEWORK_EDIT_ALL)) {
-            return;
-        }
-
         $qb->leftJoin('d.mirroredFramework', 'm');
-
-        // Anonymous user - only public, non-private documents
-        if (null === $user) {
-            $qb->andWhere('(m.visible IS NULL OR m.visible = 1)')
-                ->andWhere('d.adoptionStatus != :privateDraft')
-                ->setParameter('privateDraft', LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT);
-
-            return;
-        }
-
-        // Logged-in user with specific permissions
-        $isEditor = $this->security->isGranted('ROLE_EDITOR');
-
-        // Join ACLs table for user-based access checking
-        $qb->leftJoin('d.docAcls', 'acls', 'WITH', 'acls.user = :user');
-
-        // Match findForList() logic: three separate OR conditions
-        // 1. Public non-private documents
-        // 2. Editor can see visible mirrored frameworks
-        // 3. Org/user/acl positive check with negative check applied to that group only
-        $qb->orWhere('(m.visible IS NULL OR m.visible = 1) AND (d.adoptionStatus != :privateDraft)')
-            ->orWhere('(m.visible IS NOT NULL AND 1 = :isEditor)')
-            ->orWhere('(d.org = :org OR d.user = :user OR acls.access = 1) AND (acls.access IS NULL OR acls.access != 0)')
-            ->setParameter('isEditor', $isEditor ? 1 : 0)
-            ->setParameter('user', $user)
-            ->setParameter('org', $user->getOrg())
-            ->setParameter('privateDraft', LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT);
+        $this->applyUserAccessConditions($qb, $user);
     }
 }
