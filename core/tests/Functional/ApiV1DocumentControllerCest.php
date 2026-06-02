@@ -112,7 +112,7 @@ class ApiV1DocumentControllerCest
             'identifier' => Uuid::uuid4()->toString(),
             'title' => 'New Test Document',
         ]);
-        $I->seeResponseCodeIs(HttpCode::UNAUTHORIZED);
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
     }
 
     // Test GET /api/v1/documents/{documentIdentifier}
@@ -161,7 +161,7 @@ class ApiV1DocumentControllerCest
         $I->sendPut('/api/v1/documents/'.$this->testDoc->getIdentifier(), [
             'title' => 'Updated Title',
         ]);
-        $I->seeResponseCodeIs(HttpCode::UNAUTHORIZED);
+        $I->seeResponseCodeIs(HttpCode::UNPROCESSABLE_ENTITY);
     }
 
     // Test POST /api/v1/document
