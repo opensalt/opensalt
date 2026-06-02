@@ -378,12 +378,12 @@ watch(
 
 /* Cross-framework association background */
 .cross-framework-assoc {
-  background-color: #e8f0fe;
-  border-color: #a8c7fa !important;
+  background-color: #ffffdd;
+  border-color: #e6e6a8 !important;
 }
 
 .cross-framework-assoc:hover {
-  background-color: #d3e3fd;
+  background-color: #f5f5c0;
 }
 
 .association-info {
