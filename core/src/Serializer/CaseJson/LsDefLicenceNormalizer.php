@@ -52,7 +52,7 @@ final readonly class LsDefLicenceNormalizer implements NormalizerInterface
             'uri' => $this->api1Uris->getUri($data),
             'lastChangeDateTime' => $this->getLastChangeDateTime($data),
             'title' => $data->getTitle(),
-            'description' => $data->getDescription(),
+            'description' => Collection::emptyToNull($data->getDescription()),
             'licenseText' => $data->getLicenceText(),
             'extensions' => $case10 ? null : $data->getExtensions(),
         ];

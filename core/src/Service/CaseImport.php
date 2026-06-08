@@ -7,6 +7,7 @@ namespace App\Service;
 use App\DataTransformer\CaseJson\PackageTransformer;
 use App\DTO\CaseJson\CFPackage;
 use App\Entity\Framework\LsDoc;
+use App\Util\Collection;
 use Swaggest\JsonSchema\Schema;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -22,6 +23,9 @@ class CaseImport
     {
         ini_set('memory_limit', '4096M');
         set_time_limit(900); // increase time limit for large files
+
+        // Normalize empty strings to null so nullable fields are treated consistently
+        $content = $this->normalizeContent($content);
 
         try {
             $this->validate($content);
@@ -48,6 +52,22 @@ class CaseImport
         $schema = Schema::import(json5_decode(file_get_contents(__DIR__.'/../../config/schema/case-v1p1-cfpackage-schema.json') ?: ''));
         $schema->in(json5_decode($content));
         $schema = null;
+    }
+
+    /**
+     * Normalize the JSON content by removing keys with empty string values.
+     *
+     * Rather than converting "" to null (which still fails schema validation for
+     * fields like officialSourceURL that expect a URI format), we remove the key
+     * entirely. This treats the empty string as "not provided", which passes
+     * schema validation for all optional fields regardless of their type constraints.
+     */
+    private function normalizeContent(string $content): string
+    {
+        $data = json5_decode($content, true);
+        $data = Collection::removeEmptyElements($data, ['']);
+
+        return json_encode($data, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
     }
 
     private function fixupContent(string $content): string

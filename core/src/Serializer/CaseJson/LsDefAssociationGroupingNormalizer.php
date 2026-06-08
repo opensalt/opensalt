@@ -52,7 +52,7 @@ final readonly class LsDefAssociationGroupingNormalizer implements NormalizerInt
             'uri' => $this->api1Uris->getUri($data),
             'lastChangeDateTime' => $this->getLastChangeDateTime($data),
             'title' => $data->getTitle(),
-            'description' => $data->getDescription(),
+            'description' => Collection::emptyToNull($data->getDescription()),
             'extensions' => $case10 ? null : $data->getExtensions(),
         ];
 

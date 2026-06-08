@@ -53,7 +53,7 @@ final readonly class LsDefItemTypeNormalizer implements NormalizerInterface
             'title' => $data->getTitle(),
             'lastChangeDateTime' => $this->getLastChangeDateTime($data),
             'description' => $data->getDescription() ?? $data->getTitle(),
-            'typeCode' => $data->getCode(),
+            'typeCode' => Collection::emptyToNull($data->getCode()),
             'hierarchyCode' => $data->getHierarchyCode(),
             'extensions' => $case10 ? null : $data->getExtensions(),
         ];
