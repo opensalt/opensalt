@@ -3,8 +3,13 @@ on:
     branches:
       - '**'
       - '!dependabot/**'
+  pull_request:
+    branches:
+      - '**:**'
   release:
     types: [published]
+#  schedule:
+#    - cron: '0 7 * * 1'  # Weekly on Mondays at 7 AM UTC
 
 name: Build and Test
 
@@ -48,6 +53,37 @@ jobs:
       - name: Build the images
         run: |
           BUILD_NUMBER=${GITHUB_RUN_NUMBER} COMMIT=${GITHUB_SHA::8} make docker-build
+
+      - name: Run Trivy vulnerability scanner
+        if: github.event_name != 'schedule'
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'opensalt/opensalt:web-4.x'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'HIGH,CRITICAL'
+          exit-code: '1'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        if: always() && github.event_name != 'schedule'
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Generate SBOM
+        if: always() && github.event_name != 'schedule'
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'opensalt/opensalt:web-4.x'
+          format: 'cyclonedx'
+          output: 'sbom.json'
+
+      - name: Upload SBOM artifact
+        if: always() && github.event_name != 'schedule'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-cyclonedx
+          path: sbom.json
 
       - name: Bring up db container
         run: |

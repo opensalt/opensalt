@@ -36,6 +36,12 @@ services:
         condition: service_started
       t2v:
         condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
     environment:
       APP_ENV: "${APP_ENV:-prod}"
       #APP_RUNTIME: "${APP_RUNTIME:-Symfony\\Component\\Runtime\\Runner\\FrankenPhpWorkerRunner}"
