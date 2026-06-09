@@ -107,6 +107,10 @@ jobs:
       - name: Run tests
         run: ./core/bin/run-tests --debug ${RUN_TEST_ARGS:-$DEFAULT_RUN_TEST_ARGS} -x skip-ci
 
+      - name: Run PHPUnit unit tests
+        working-directory: core
+        run: ./bin/run-tests Unit
+
       - name: Failed
         if: ${{ failure() }}
         run: |

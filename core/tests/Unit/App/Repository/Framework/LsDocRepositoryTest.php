@@ -20,6 +20,10 @@ class LsDocRepositoryTest extends TestCase
         $registry = $this->createMock(ManagerRegistry::class);
         $registry->method('getManagerForClass')->willReturn($em);
 
+        $metadata = $this->createMock(\Doctrine\ORM\Mapping\ClassMetadata::class);
+        $metadata->name = LsDoc::class;
+        $em->method('getClassMetadata')->willReturn($metadata);
+
         $security = $this->createMock(Security::class);
 
         return new LsDocRepository($registry, $security);
