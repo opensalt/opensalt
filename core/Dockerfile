@@ -174,7 +174,7 @@ RUN echo ${VERSION}.${BUILD_NUMBER} > public/version.txt ; \
 #=======================================================================
 FROM salt_core_php AS salt_core_app
 
-ENV SYMFONY_PHPUNIT_VERSION=9
+ENV SYMFONY_PHPUNIT_VERSION=13
 
 ARG VERSION
 ARG BUILD_NUMBER

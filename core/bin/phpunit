@@ -1,5 +1,13 @@
-#!/bin/bash
+#!/usr/bin/env sh
+#<?php /*
 
-cd $(dirname $0)/..
+if [ ! -f /.dockerenv ]; then
+  exec $(dirname $0)/phpcli php ./bin/phpunit-real "$@"
+fi
 
-./bin/phpcli ./bin/phpunit-real "$@"
+exec php $(dirname $0)/phpunit-real "$@"
+
+*/
+
+return require __DIR__.'/phpunit-real';
+
