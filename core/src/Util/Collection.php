@@ -24,4 +24,17 @@ class Collection
 
         return $arr;
     }
+
+    /**
+     * Convert an empty string to null, leaving all other values (including null) unchanged.
+     *
+     * Used in CASE export normalizers to treat nullable fields that contain an empty
+     * string as if they were null, so removeEmptyElements() strips them from the output.
+     * Non-nullable fields with empty strings are not affected since they are not wrapped
+     * with this helper.
+     */
+    public static function emptyToNull(?string $value): ?string
+    {
+        return '' === $value ? null : $value;
+    }
 }

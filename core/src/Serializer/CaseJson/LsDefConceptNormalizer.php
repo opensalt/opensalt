@@ -52,9 +52,9 @@ final readonly class LsDefConceptNormalizer implements NormalizerInterface
             'uri' => $this->api1Uris->getUri($data),
             'title' => $data->getTitle(),
             'lastChangeDateTime' => $this->getLastChangeDateTime($data),
-            'description' => $data->getDescription(),
+            'description' => Collection::emptyToNull($data->getDescription()),
             'hierarchyCode' => $data->getHierarchyCode(),
-            'keywords' => $data->getKeywords(),
+            'keywords' => Collection::emptyToNull($data->getKeywords()),
             'extensions' => $case10 ? null : $data->getExtensions(),
         ];
 

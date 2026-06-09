@@ -57,9 +57,9 @@ final class CfRubricNormalizer implements NormalizerAwareInterface, NormalizerIn
                 : null,
             'identifier' => $data->getIdentifier(),
             'uri' => $this->api1Uris->getUri($data),
-            'title' => $data->getTitle(),
+            'title' => Collection::emptyToNull($data->getTitle()),
             'lastChangeDateTime' => $this->getLastChangeDateTime($data),
-            'description' => $data->getDescription(),
+            'description' => Collection::emptyToNull($data->getDescription()),
             'extensions' => $case10 ? null : $data->getExtensions(),
         ];
 

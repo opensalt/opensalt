@@ -1458,7 +1458,7 @@ class LsDocRepository extends ServiceEntityRepository
             if (!$this->security->isGranted(Permission::FRAMEWORK_EDIT_ALL)) {
                 $isEditor = $this->security->isGranted('ROLE_EDITOR');
                 $qb->leftJoin('d.docAcls', 'acls', 'WITH', 'acls.user = :user')
-                    ->orWhere('(m.visible IS NULL OR m.visible = 1) AND (d.adoptionStatus != :privateDraft)')
+                    ->orWhere('(m.visible IS NULL OR m.visible = 1) AND (d.adoptionStatus != :privateDraft OR d.adoptionStatus IS NULL)')
                     ->orWhere('(m.visible IS NOT NULL AND 1 = :isEditor)')
                     ->orWhere('(d.org = :org OR d.user = :user OR acls.access = 1) AND (acls.access IS NULL OR acls.access != 0)')
                     ->setParameter('isEditor', $isEditor ? 1 : 0)
@@ -1469,7 +1469,7 @@ class LsDocRepository extends ServiceEntityRepository
         }
         if (null === $user) {
             $qb->andWhere('m.visible IS NULL OR m.visible = 1')
-                ->andWhere('d.adoptionStatus != :privateDraft')
+                ->andWhere('(d.adoptionStatus != :privateDraft OR d.adoptionStatus IS NULL)')
                 ->setParameter('privateDraft', LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT);
         }
     }

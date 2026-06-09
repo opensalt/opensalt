@@ -63,8 +63,8 @@ final class CfRubricCriterionNormalizer implements NormalizerAwareInterface, Nor
             'rubricId' => in_array('CfRubricCriterion', $context['groups'] ?? [], true)
                 ? $data->getRubric()?->getIdentifier()
                 : null,
-            'category' => $data->getCategory(),
-            'description' => $data->getDescription(),
+            'category' => Collection::emptyToNull($data->getCategory()),
+            'description' => Collection::emptyToNull($data->getDescription()),
             'position' => $data->getPosition(),
             'weight' => $data->getWeight(),
             'extensions' => $case10 ? null : $data->getExtensions(),

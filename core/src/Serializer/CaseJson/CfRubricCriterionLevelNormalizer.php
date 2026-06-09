@@ -54,9 +54,9 @@ final readonly class CfRubricCriterionLevelNormalizer implements NormalizerInter
                 ? $data->getCriterion()->getIdentifier()
                 : null,
             'lastChangeDateTime' => $this->getLastChangeDateTime($data),
-            'description' => $data->getDescription(),
-            'feedback' => $data->getFeedback(),
-            'quality' => $data->getQuality(),
+            'description' => Collection::emptyToNull($data->getDescription()),
+            'feedback' => Collection::emptyToNull($data->getFeedback()),
+            'quality' => Collection::emptyToNull($data->getQuality()),
             'score' => $data->getScore(),
             'position' => $data->getPosition(),
             'extensions' => $case10 ? null : $data->getExtensions(),

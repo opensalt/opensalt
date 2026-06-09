@@ -12,6 +12,7 @@ use App\Entity\Framework\Mirror\Log;
 use App\Entity\Framework\Mirror\OAuthCredential;
 use App\Exception\MirrorAlreadyChangedException;
 use App\Exception\MirrorIdConflictException;
+use App\Util\Collection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
@@ -38,6 +39,11 @@ class MirrorFramework
     public function validate(string $json): void
     {
         try {
+            // Remove keys with empty string values so optional fields are treated as absent
+            $data = json5_decode($json, true);
+            $data = Collection::removeEmptyElements($data, ['']);
+            $json = json_encode($data, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
+
             $schema = Schema::import(json5_decode(file_get_contents(__DIR__.'/../../config/schema/case-v1p1-cfpackage-schema.json')));
             $schema->in(json5_decode($json));
             $schema = null;

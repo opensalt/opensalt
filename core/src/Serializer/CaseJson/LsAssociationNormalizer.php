@@ -60,8 +60,8 @@ final readonly class LsAssociationNormalizer implements NormalizerInterface
             'originNodeURI' => $this->createOutLink($data, 'origin', $context, null !== $addLinkUriType),
             'associationType' => $data->getNormalizedType(caseVersion: $caseVersion),
             'destinationNodeURI' => $this->createOutLink($data, 'destination', $context, null !== $addLinkUriType),
-            'notes' => $case10 ? null : $data->getNotes(),
-            'extensions' => $case10 ? null : array_merge($data->getExtensions(), ['subtype' => $data->getSubtype()]),
+            'notes' => $case10 ? null : Collection::emptyToNull($data->getNotes()),
+            'extensions' => $case10 ? null : array_merge($data->getExtensions(), ['subtype' => Collection::emptyToNull($data->getSubtype())]),
         ];
 
         if (in_array('opensalt', $context['groups'] ?? [], true)) {

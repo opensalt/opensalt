@@ -61,26 +61,26 @@ final readonly class LsItemNormalizer implements NormalizerInterface
             'uri' => $this->api1Uris->getUri($data),
             'CFDocumentURI' => $this->createDocumentLinkUri($data->getLsDoc(), 'LsItem', $context),
             'fullStatement' => $data->getFullStatement(),
-            'alternativeLabel' => $data->getAlternativeLabel(),
+            'alternativeLabel' => Collection::emptyToNull($data->getAlternativeLabel()),
             'CFItemType' => $data->getItemType()?->getTitle(),
             'CFItemTypeURI' => $this->api1Uris->getLinkUri($data->getItemType()),
-            'humanCodingScheme' => $data->getHumanCodingScheme(),
-            'listEnumeration' => $data->getListEnumInSource(),
-            'abbreviatedStatement' => $data->getAbbreviatedStatement(),
+            'humanCodingScheme' => Collection::emptyToNull($data->getHumanCodingScheme()),
+            'listEnumeration' => Collection::emptyToNull($data->getListEnumInSource()),
+            'abbreviatedStatement' => Collection::emptyToNull($data->getAbbreviatedStatement()),
             'conceptKeywords' => [] !== $conceptKeywords
                 ? $conceptKeywords
                 : null,
             'conceptKeywordsURI' => count($conceptKeywordsUri) > 0
                 ? $this->api1Uris->getLinkUri($conceptKeywordsUri[0])
                 : null,
-            'notes' => $data->getNotes(),
+            'notes' => Collection::emptyToNull($data->getNotes()),
             'subject' => $case10 ? null : (($subject ?? []) !== []
                 ? $subject
                 : null),
             'subjectURI' => $case10 ? null : (count($subjectURIs) > 0
                 ? $this->api1Uris->getLinkUriList($subjectURIs)
                 : null),
-            'language' => $data->getLanguage(),
+            'language' => Collection::emptyToNull($data->getLanguage()),
             'educationLevel' => $this->api1Uris->splitByComma($data->getEducationalAlignment()),
             'licenseURI' => $this->api1Uris->getLinkUri($data->getLicence()),
             'statusStartDate' => $this->toDate($data->getStatusStart()),

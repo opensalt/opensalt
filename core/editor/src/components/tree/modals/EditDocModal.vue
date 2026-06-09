@@ -213,6 +213,15 @@
             class="form-select"
             name="ls_doc[adoptionStatus]"
           >
+            <option
+              value=""
+              disabled
+              hidden
+            >
+              Select Adoption Status
+            </option>
+            <option value="">
+            </option>
             <option value="Private Draft">
               Private Draft
             </option>
@@ -429,7 +438,7 @@ const formData = reactive({
   description: '',
   subjects: [],
   language: '',
-  adoptionStatus: 'Draft',
+  adoptionStatus: '',
   statusStart: '',
   statusEnd: '',
   note: '',
@@ -558,7 +567,7 @@ function loadDocumentData() {
   formData.subjects = subjectIds;
 
   formData.language = props.document.language || '';
-  formData.adoptionStatus = props.document.adoptionStatus || 'Draft';
+  formData.adoptionStatus = props.document.adoptionStatus ?? '';
   formData.statusStart = props.document.statusStart || '';
   formData.statusEnd = props.document.statusEnd || '';
   formData.note = props.document.notes || props.document.note || '';
@@ -628,6 +637,14 @@ function saveDocument() {
 .modal-dialog-wide {
   max-width: 95vw;
   width: 99%;
+}
+
+select#ls_doc_adoptionStatus:has(option[value=""]:checked) {
+  color: #6c757d;
+}
+
+select#ls_doc_adoptionStatus option {
+  color: black;
 }
 
 .form-control:focus,
