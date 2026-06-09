@@ -10,6 +10,7 @@ use App\Entity\LockableInterface;
 use App\Entity\User\User;
 use App\Exception\AlreadyLockedException;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -56,7 +57,6 @@ class ObjectLockRepository extends ServiceEntityRepository
         $lock = $this->findLockFor($obj);
 
         if (null !== $lock && $lock->isExpired()) {
-            //$this->release($lock);
             $this->removeExpiredLocks();
             $lock = null;
         }
@@ -66,13 +66,26 @@ class ObjectLockRepository extends ServiceEntityRepository
         }
 
         if (null !== $lock && $lock->getUser() === $user) {
-            $lock->addTime(5);
+            $lock->addTime($timeout);
 
             return $lock;
         }
 
         $lock = new ObjectLock($obj, $user, $timeout);
         $this->getEntityManager()->persist($lock);
+
+        try {
+            $this->getEntityManager()->flush();
+        } catch (UniqueConstraintViolationException) {
+            $this->getEntityManager()->clear();
+
+            $existing = $this->findLockFor($obj);
+            if (null !== $existing && $existing->getUser() === $user) {
+                return $existing;
+            }
+
+            throw new AlreadyLockedException('Cannot acquire lock');
+        }
 
         return $lock;
     }

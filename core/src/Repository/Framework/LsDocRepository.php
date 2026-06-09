@@ -903,11 +903,18 @@ class LsDocRepository extends ServiceEntityRepository
             ['Deleting document', 'DELETE FROM ls_doc WHERE id = :lsDocId'],
         ];
 
-        foreach ($steps as [$message, $sql]) {
-            $progressCallback($message);
-            $stmt = $conn->prepare($sql);
-            $stmt->bindValue('lsDocId', $docId);
-            $stmt->executeStatement();
+        $conn->beginTransaction();
+        try {
+            foreach ($steps as [$message, $sql]) {
+                $progressCallback($message);
+                $stmt = $conn->prepare($sql);
+                $stmt->bindValue('lsDocId', $docId);
+                $stmt->executeStatement();
+            }
+            $conn->commit();
+        } catch (\Throwable $e) {
+            $conn->rollBack();
+            throw $e;
         }
 
         $progressCallback('Done');

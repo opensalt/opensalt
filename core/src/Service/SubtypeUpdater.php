@@ -133,36 +133,37 @@ class SubtypeUpdater
 
         $this->registry->getConnection()->beginTransaction();
 
-        $iterator = $sheet->getRowIterator(2, $rows);
-        foreach ($iterator as $row) {
-            $rowIndex = $row->getRowIndex();
+        try {
+            $iterator = $sheet->getRowIterator(2, $rows);
+            foreach ($iterator as $row) {
+                $rowIndex = $row->getRowIndex();
 
-            $originIdentifier = $this->getValueFromSheet($sheet, 1, $rowIndex);
-            $destinationIdentifier = $this->getValueFromSheet($sheet, 8, $rowIndex);
-            //$oldType = $this->getValueFromSheet($sheet, 5, $rowIndex);
+                $originIdentifier = $this->getValueFromSheet($sheet, 1, $rowIndex);
+                $destinationIdentifier = $this->getValueFromSheet($sheet, 8, $rowIndex);
 
-            $type = $this->getValueFromSheet($sheet, 11, $rowIndex);
-            $subtype = $this->getValueFromSheet($sheet, 12, $rowIndex);
-//            $type = trim($type);
-//            $type = preg_replace('/[^A-Za-z]*/', '', $type);
-//            $type = strtolower($type);
-//            $type = preg_replace('/^<-ispartof$/', 'haspart', $type);
-//            $type = preg_replace('/^ispartof->$/', 'ispartof', $type);
-            $types[$type] ??= [];
-            $types[$type][$subtype] = 1;
+                $type = $this->getValueFromSheet($sheet, 11, $rowIndex);
+                $subtype = $this->getValueFromSheet($sheet, 12, $rowIndex);
+                $types[$type] ??= [];
+                $types[$type][$subtype] = 1;
 
-            $annotation = $this->getValueFromSheet($sheet, 13, $rowIndex);
+                $annotation = $this->getValueFromSheet($sheet, 13, $rowIndex);
 
-            $lineOutput[] = ['row' => (string) $rowIndex, 'msg' => $this->replaceAssociation($originIdentifier, $destinationIdentifier, $type, $subtype, $annotation)];
+                $lineOutput[] = ['row' => (string) $rowIndex, 'msg' => $this->replaceAssociation($originIdentifier, $destinationIdentifier, $type, $subtype, $annotation)];
+            }
+
+            $this->registry->getManager()->flush();
+            $this->registry->getConnection()->commit();
+        } catch (\Throwable $e) {
+            $this->registry->getConnection()->rollBack();
+            throw $e;
+        } finally {
+            if (isset($phpExcelObject)) {
+                $phpExcelObject->disconnectWorksheets();
+                $phpExcelObject->garbageCollect();
+                unset($phpExcelObject);
+            }
+            $this->registry->getManager()->clear();
         }
-
-        $phpExcelObject->disconnectWorksheets();
-        $phpExcelObject->garbageCollect();
-        unset($phpExcelObject);
-
-        $this->registry->getManager()->flush();
-        $this->registry->getConnection()->commit();
-        $this->registry->getManager()->clear();
 
         return $lineOutput;
     }
