@@ -10,3 +10,4 @@ Feature: Adding an item in order to confirm the application
     And I save the item
 
     Then I should see the image in the full statement
+    And I delete the framework

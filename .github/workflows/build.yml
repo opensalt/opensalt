@@ -111,6 +111,17 @@ jobs:
         working-directory: core
         run: ./bin/run-tests Unit
 
+      # PARALLEL ALTERNATIVE:
+      #   1. Uncomment the PARALLEL_ACCEPTANCE_JOBS var below and set to 2 (or more).
+      #   2. Replace the two steps above with:
+      #        - name: Run all tests in parallel
+      #          working-directory: core
+      #          env:
+      #            PARALLEL_ACCEPTANCE_JOBS: 2
+      #          run: ./bin/run-tests-parallel --debug ${RUN_TEST_ARGS:-$DEFAULT_RUN_TEST_ARGS} -x skip-ci
+      #   The run-tests-parallel script starts the Selenium Grid automatically.
+      #   Scale chrome-node=N where N matches PARALLEL_ACCEPTANCE_JOBS (default 1).
+
       - name: Failed
         if: ${{ failure() }}
         run: |

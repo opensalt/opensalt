@@ -5,18 +5,36 @@ services:
     volumes:
       - "./core/tests:/srv/core/tests"
 
-  chrome:
-    image: selenium/standalone-chrome:130.0
+  # Selenium Grid hub — single endpoint for all WebDriver sessions.
+  # Scale Chrome nodes with: docker compose --scale chrome-node=N up
+  selenium-hub:
+    image: selenium/hub:4.44.0
+    ports:
+      - "4442:4442"
+      - "4443:4443"
+      - "4444:4444"
     environment:
+      SE_SESSION_REQUEST_TIMEOUT: 300
+      SE_NODE_SESSION_TIMEOUT: 300
+
+  chrome-node:
+    image: selenium/node-chrome:148.0
+    depends_on:
+      - selenium-hub
+    environment:
+      SE_EVENT_BUS_HOST: selenium-hub
+      SE_EVENT_BUS_PUBLISH_PORT: 4442
+      SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
+      SE_NODE_OVERRIDE_MAX_SESSIONS: "true"
+      SE_NODE_MAX_SESSIONS: 1
       DBUS_SESSION_BUS_ADDRESS: "/dev/null"
     shm_size: '2gb'
     privileged: true
     volumes:
       - "./core/tests:/srv/core/tests"
-      #- "/dev/shm:/dev/shm"
 
   firefox:
-    image: selenium/standalone-firefox:131.0
+    image: selenium/standalone-firefox:151.0
     environment:
       SE_OPTS: "-enablePassThrough false"
     shm_size: '2gb'
@@ -25,4 +43,3 @@ services:
 
   wait:
     image: jwilder/dockerize
-

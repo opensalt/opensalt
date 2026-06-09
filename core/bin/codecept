@@ -1,42 +1,56 @@
 #!/bin/bash
+set -euo pipefail
 
+# Parse browser from args (default: chrome)
 BROWSER=
-if [[ "$@" == *"=firefox"* ]]; then
-  BROWSER="${BROWSER} firefox"
-fi
+NEEDS_BROWSER=false
 
-if [[ "$@" == *"=chrome"* ]]; then
-  BROWSER="${BROWSER} chrome"
-fi
+for arg in "$@"; do
+  case "$arg" in
+    *=firefox*)   BROWSER=firefox;  NEEDS_BROWSER=true ;;
+    *=phantomjs*) BROWSER=phantomjs; NEEDS_BROWSER=true ;;
+    *=chrome*)    BROWSER=chrome;   NEEDS_BROWSER=true ;;
+    Acceptance)                    NEEDS_BROWSER=true ;;
+  esac
+done
 
-if [[ "$@" == *"=phantomjs"* ]]; then
-  BROWSER="${BROWSER} phantomjs"
-fi
-
-if [ "${BROWSER}x" == "x" ]; then
+# Default to chrome if a browser-arg wasn't given but Acceptance was
+if [[ "$NEEDS_BROWSER" == true && -z "$BROWSER" ]]; then
   BROWSER=chrome
 fi
 
-cd $(dirname $0)/../..
+# Number of Chrome nodes for parallel Acceptance tests (default: 1)
+CHROME_NODES="${PARALLEL_ACCEPTANCE_JOBS:-1}"
 
-docker compose -f docker-compose.yml -f docker-compose.browsers.yml up -d $BROWSER
+cd "$(dirname "$0")/../.."
 
-if [[ "${BROWSER}" == *"chrome"* ]]; then
-  docker compose -f docker-compose.yml -f docker-compose.browsers.yml run --rm wait dockerize -wait tcp://chrome:4444 -timeout 30s
-fi
+COMPOSE_FILES="-f docker-compose.yml -f docker-compose.browsers.yml"
 
-if [[ "${BROWSER}" == *"firefox"* ]]; then
-  docker compose -f docker-compose.yml -f docker-compose.browsers.yml run --rm wait dockerize -wait tcp://firefox:4444 -timeout 30s
-fi
+cleanup() {
+  if [[ "$BROWSER" == "chrome" ]]; then
+    docker compose $COMPOSE_FILES stop chrome-node selenium-hub 2>/dev/null || true
+    docker compose $COMPOSE_FILES rm -f -v chrome-node selenium-hub 2>/dev/null || true
+  elif [[ -n "$BROWSER" ]]; then
+    docker compose $COMPOSE_FILES stop "$BROWSER" 2>/dev/null || true
+    docker compose $COMPOSE_FILES rm -f -v "$BROWSER" 2>/dev/null || true
+  fi
+}
 
-if [[ "${BROWSER}" == *"phantomjs"* ]]; then
-  docker compose -f docker-compose.yml -f docker-compose.browsers.yml run --rm wait dockerize -wait tcp://phantomjs:8643 -timeout 30s
+if [[ "$NEEDS_BROWSER" == true ]]; then
+  trap cleanup EXIT
+
+  if [[ "$BROWSER" == "chrome" ]]; then
+    echo "Starting Selenium Grid ($CHROME_NODES Chrome node(s))..."
+    docker compose $COMPOSE_FILES up -d --scale chrome-node="$CHROME_NODES" selenium-hub chrome-node
+    docker compose $COMPOSE_FILES run --rm wait dockerize -wait tcp://selenium-hub:4444 -timeout 60s
+  elif [[ "$BROWSER" == "firefox" ]]; then
+    docker compose $COMPOSE_FILES up -d firefox
+    docker compose $COMPOSE_FILES run --rm wait dockerize -wait tcp://firefox:4444 -timeout 30s
+  elif [[ "$BROWSER" == "phantomjs" ]]; then
+    docker compose $COMPOSE_FILES up -d phantomjs
+    docker compose $COMPOSE_FILES run --rm wait dockerize -wait tcp://phantomjs:8643 -timeout 30s
+  fi
 fi
 
 ./core/bin/phpcli ./bin/codecept-wrapper "$@"
-RET=$?
-
-docker compose -f docker-compose.yml -f docker-compose.browsers.yml stop $BROWSER
-docker compose -f docker-compose.yml -f docker-compose.browsers.yml rm -f -v $BROWSER
-
-exit $RET
+exit $?

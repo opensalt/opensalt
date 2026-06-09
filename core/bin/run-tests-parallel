@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+CORE_DIR="$SCRIPT_DIR/.."
+CODECEPT="$CORE_DIR/bin/codecept"
+
+export PARALLEL_ACCEPTANCE_JOBS="${PARALLEL_ACCEPTANCE_JOBS:-1}"
+
+if [ ! -x "$CODECEPT" ]; then
+    echo "ERROR: codecept binary not found at $CODECEPT" >&2
+    exit 1
+fi
+
+cd "$CORE_DIR"
+
+OVERALL_EXIT=0
+
+echo "=== Running Unit tests ==="
+UNIT_EXIT=0
+"$CODECEPT" run Unit "$@" || UNIT_EXIT=$?
+
+if [ $UNIT_EXIT -ne 0 ]; then
+    echo "!!! Unit tests FAILED (exit code $UNIT_EXIT)" >&2
+    OVERALL_EXIT=$UNIT_EXIT
+fi
+
+echo "=== Running Functional tests ==="
+FUNC_EXIT=0
+"$CODECEPT" run Functional "$@" || FUNC_EXIT=$?
+
+if [ $FUNC_EXIT -ne 0 ]; then
+    echo "!!! Functional tests FAILED (exit code $FUNC_EXIT)" >&2
+    OVERALL_EXIT=$OVERALL_EXIT || OVERALL_EXIT=$FUNC_EXIT
+fi
+
+echo "=== Running Acceptance tests ==="
+ACC_EXIT=0
+"$CODECEPT" run Acceptance "$@" || ACC_EXIT=$?
+
+if [ $ACC_EXIT -ne 0 ]; then
+    echo "!!! Acceptance tests FAILED (exit code $ACC_EXIT)" >&2
+    OVERALL_EXIT=$OVERALL_EXIT || OVERALL_EXIT=$ACC_EXIT
+fi
+
+echo ""
+echo "=== Results ==="
+echo "Unit:        $([ $UNIT_EXIT -eq 0 ] && echo 'PASS' || echo 'FAIL')"
+echo "Functional:  $([ $FUNC_EXIT -eq 0 ] && echo 'PASS' || echo 'FAIL')"
+echo "Acceptance:  $([ $ACC_EXIT -eq 0 ] && echo 'PASS' || echo 'FAIL')"
+
+exit $OVERALL_EXIT

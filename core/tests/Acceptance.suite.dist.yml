@@ -8,14 +8,15 @@ modules:
             part: SERVICES
         - Doctrine:
             depends: Symfony
-            cleanup: false
+            cleanup: false          # Must stay false: WebDriver runs in a separate process; DB transaction rollback here would be invisible to the browser
         - REST:
             depends: PhpBrowser
             url: 'http://web'
         - WebDriver:
             url: 'http://web'
             browser: chrome
-            host: chrome
+            host: selenium-hub
+            port: 4444
             capabilities:
                 chromeOptions:
                     args: ['--headless', '--disable-gpu']

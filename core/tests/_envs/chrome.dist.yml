@@ -1,9 +1,9 @@
-# `chrome` environment config goes here
+# Chrome environment — connects to Selenium Grid hub
 modules:
     config:
         WebDriver:
             browser: chrome
-            host: chrome
+            host: selenium-hub
             port: 4444
             capabilities:
               chromeOptions:
