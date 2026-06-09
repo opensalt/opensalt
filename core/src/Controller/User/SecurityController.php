@@ -25,17 +25,17 @@ class SecurityController extends AbstractController
     {
         $redirect = $request->headers->get('referer');
 
-        // If the referer is not our site, ignore it
-        if (!str_starts_with($redirect ?? '', $this->generateUrl('salt_index', [], UrlGeneratorInterface::ABSOLUTE_URL))) {
+        if (!$this->isSameHostUrl($redirect ?? '', $request)) {
             $redirect = null;
         }
 
-        // If the redirect is to the login page, try finding _target_path
-        if (null === $redirect || str_starts_with($redirect, $this->generateUrl('login', [], UrlGeneratorInterface::ABSOLUTE_URL))) {
+        if (null === $redirect || $this->isSameHostUrl($redirect, $request) && str_starts_with($redirect, $this->generateUrl('login', [], UrlGeneratorInterface::ABSOLUTE_URL))) {
             $redirect = $request->request->getString('_target_path');
+            if ('' !== $redirect && !$this->isSameHostUrl($redirect, $request)) {
+                $redirect = '';
+            }
         }
 
-        // If no referer or _target_path check the session
         if ('' === $redirect) {
             $firewallConfig = $this->security->getFirewallConfig($request);
             $session = $request->getSession();
@@ -43,17 +43,14 @@ class SecurityController extends AbstractController
         }
 
         if ($this->security->isGranted('IS_AUTHENTICATED_FULLY')) {
-            if (null === $redirect || str_starts_with($redirect, $this->generateUrl('login', [], UrlGeneratorInterface::ABSOLUTE_URL))) {
+            if (null === $redirect || '' === $redirect || str_starts_with($redirect, $this->generateUrl('login', [], UrlGeneratorInterface::ABSOLUTE_URL))) {
                 return $this->redirectToRoute('salt_index');
             }
 
             return $this->redirect($redirect);
         }
 
-        // get the login error if there is one
         $error = $this->authenticationUtils->getLastAuthenticationError();
-
-        // last username entered by the user
         $lastUsername = $this->authenticationUtils->getLastUsername();
 
         return $this->render('user/security/login.html.twig', [
@@ -61,6 +58,31 @@ class SecurityController extends AbstractController
             'error' => $error,
             'redirect' => $redirect,
         ]);
+    }
+
+    private function isSameHostUrl(string $url, Request $request): bool
+    {
+        if ('' === $url) {
+            return false;
+        }
+
+        if (str_starts_with($url, '/')) {
+            return true;
+        }
+
+        $parsed = parse_url($url);
+        $requestHost = $request->getHost();
+
+        if (!isset($parsed['host']) || $parsed['host'] !== $requestHost) {
+            return false;
+        }
+
+        $scheme = $parsed['scheme'] ?? '';
+        if (!in_array($scheme, ['http', 'https'], true)) {
+            return false;
+        }
+
+        return true;
     }
 
     #[Route(path: '/logout', name: 'app_logout')]

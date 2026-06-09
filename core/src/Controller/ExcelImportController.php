@@ -8,7 +8,9 @@ use App\Command\CommandDispatcherTrait;
 use App\Command\Import\ImportExcelFileCommand;
 use App\Entity\User\User;
 use App\Security\Permission;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -24,6 +26,16 @@ class ExcelImportController extends AbstractController
     public function importExcel(Request $request, #[CurrentUser] User $user): Response
     {
         $file = $request->files->get('file');
+
+        if (null === $file || !$file->isValid()) {
+            return new JsonResponse(['error' => 'No valid file uploaded.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        try {
+            IOFactory::identify($file->getRealPath());
+        } catch (\PhpOffice\PhpSpreadsheet\Reader\Exception $e) {
+            return new JsonResponse(['error' => 'Invalid spreadsheet file.'], Response::HTTP_BAD_REQUEST);
+        }
 
         $command = new ImportExcelFileCommand($file->getRealPath(), null, $user->getOrg());
         $this->sendCommand($command);

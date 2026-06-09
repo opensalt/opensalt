@@ -12,6 +12,19 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 final readonly class ApiUsageLoggingSubscriber implements EventSubscriberInterface
 {
+    /**
+     * Headers whose values should be redacted from logs.
+     * Configurable via constructor for deployment-specific tuning.
+     */
+    private const SENSITIVE_HEADERS = [
+        'authorization',
+        'cookie',
+        'set-cookie',
+        'x-csrf-token',
+        'x-xsrf-token',
+        'x-api-key',
+    ];
+
     public function __construct(
         private EntityManagerInterface $em,
     ) {
@@ -51,44 +64,46 @@ final readonly class ApiUsageLoggingSubscriber implements EventSubscriberInterfa
         $response = $event->getResponse();
 
         $method = $request->getMethod();
-        $pathWithQuery = $request->getRequestUri(); // includes path + query string
-        $endpointUrl = $request->getUri(); // absolute URL
+        $pathWithQuery = $request->getRequestUri();
+        $endpointUrl = $request->getUri();
         $ip = $request->getClientIp();
         $statusCode = $response->getStatusCode();
 
-        // Construct a concise "request that was made"
         $requestSummary = sprintf('%s %s', $method, $pathWithQuery);
 
-        // Build a full HTTP-like request dump (start line + headers + body), truncated to fit DB TEXT safely
         $protocol = (string) ($request->server->get('SERVER_PROTOCOL') ?? 'HTTP/1.1');
         $startLine = sprintf('%s %s %s', $method, $pathWithQuery, $protocol);
 
+        // Build headers, redacting all sensitive ones
         $headerLines = [];
         foreach ($request->headers->all() as $hName => $values) {
             $valueOut = implode(', ', (array) $values);
-            if (0 === strcasecmp($hName, 'authorization')) {
-                // Redact sensitive token material
-                $valueOut = 'Bearer **redacted**';
+            if (in_array(strtolower($hName), self::SENSITIVE_HEADERS, true)) {
+                $valueOut = '**redacted**';
             }
             $headerLines[] = sprintf('%s: %s', $hName, $valueOut);
         }
         $headersText = implode("\n", $headerLines);
 
+        // Build body with truncation and sensitive-field masking
         $body = (string) $request->getContent();
-        /*
         $truncated = false;
         $maxLen = 60000; // TEXT is up to ~64KB; leave headroom
-        if (null !== $body && strlen($body) > $maxLen) {
+        if (strlen($body) > $maxLen) {
             $body = substr($body, 0, $maxLen);
             $truncated = true;
         }
-        */
+        // Mask sensitive fields in JSON bodies
+        $body = preg_replace(
+            '/"((?:password|secret|token|csrf|api[_-]?key)[^"]*)"\s*:\s*"[^"]*"/i',
+            '"$1":"**redacted**"',
+            $body,
+        );
 
         $requestFull = [
             'request' => $startLine,
             'headers' => $headersText,
-            // 'body' => $body.($truncated ? "\n\n-- [truncated] --" : ''),
-            'body' => $body,
+            'body' => $body . ($truncated ? "\n\n-- [truncated] --" : ''),
         ];
 
         $log = new ApiUsageLog(
@@ -102,8 +117,6 @@ final readonly class ApiUsageLoggingSubscriber implements EventSubscriberInterfa
             requestFull: $requestFull,
         );
 
-        // Persist asynchronously at end of request
-        // Using EM directly (no flush on kernel terminate here since we're in response already)
         $this->em->persist($log);
         $this->em->flush();
     }

@@ -97,6 +97,19 @@ class ApiToken
         return password_verify($token, $this->tokenHash);
     }
 
+    public function needsRehash(#[\SensitiveParameter] string $tokenHeader): bool
+    {
+        return password_needs_rehash($this->tokenHash, PASSWORD_ARGON2ID);
+    }
+
+    public function rehashToken(#[\SensitiveParameter] string $tokenHeader): void
+    {
+        if ($this->needsRehash($tokenHeader)) {
+            [, , $token] = explode('-', $tokenHeader);
+            $this->tokenHash = $this->makeTokenHash($token);
+        }
+    }
+
     private function generateToken(): string
     {
         return Multibase::encode(Multibase::BASE58FLICKR, random_bytes(20), false);
@@ -108,7 +121,7 @@ class ApiToken
             throw new \InvalidArgumentException('The token must be at least 20 characters long');
         }
 
-        return password_hash($token, PASSWORD_BCRYPT, ['cost' => 4]);
+        return password_hash($token, PASSWORD_ARGON2ID);
     }
 
     private function encodedId(string $token): string

@@ -74,7 +74,11 @@ class ItemController extends AbstractController
             return new JsonResponse(['error' => 'Access Denied.'], Response::HTTP_FORBIDDEN);
         }
 
-        $data = json_decode($request->getContent(), true);
+        try {
+            $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            return new JsonResponse(['error' => 'Invalid JSON: ' . $e->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
 
         try {
             $lsItem = $this->createItemFromRequest($data, $doc, $request);
@@ -149,8 +153,11 @@ class ItemController extends AbstractController
         Request $request,
         #[MapEntity(mapping: ['identifier' => 'identifier'])] LsItem $lsItem,
     ): Response {
-        // Parse request body
-        $data = json_decode($request->getContent(), true);
+        try {
+            $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            return new JsonResponse(['error' => 'Invalid JSON: ' . $e->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
 
         // Extract itemType from extensions.salt:type, fall back to query parameter
         $itemType = $data['extensions']['salt:type'] ?? $request->query->get('itemType');
@@ -347,9 +354,10 @@ class ItemController extends AbstractController
             return new JsonResponse(['error' => 'Access Denied.'], Response::HTTP_FORBIDDEN);
         }
 
-        $data = json_decode($request->getContent(), true);
-        if (null === $data) {
-            return new JsonResponse(['error' => 'Invalid JSON.'], Response::HTTP_BAD_REQUEST);
+        try {
+            $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            return new JsonResponse(['error' => 'Invalid JSON: ' . $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
 
         $newParentIdentifier = $data['newParentIdentifier'] ?? null;

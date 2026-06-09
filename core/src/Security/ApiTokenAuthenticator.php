@@ -39,6 +39,8 @@ final readonly class ApiTokenAuthenticator implements AccessTokenHandlerInterfac
             throw new AuthenticationException();
         }
 
+        $apiToken->rehashToken($accessToken);
+
         // Mark this request as authenticated via API token for downstream logging
         $req = $this->requestStack->getCurrentRequest();
         if (null !== $req) {

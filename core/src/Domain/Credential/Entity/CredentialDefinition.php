@@ -123,7 +123,7 @@ final class CredentialDefinition
         $this->hierarchyParent = $event->hierarchyParent;
         $this->organization = $event->organization;
 
-        $content = json_decode($event->content, true);
+        $content = json_decode($event->content, true, 512, JSON_THROW_ON_ERROR);
 
         $ver = new CredentialDefinitionVersion($event->versionId, $content, 1);
 
@@ -201,7 +201,7 @@ final class CredentialDefinition
         $lastVerNumber = $this->getLastVersionNumber();
         Assert::isTrue($this->versions[$lastVerNumber]->getId()->equals($event->versionId), 'Version id does not match draft definition version');
 
-        $this->versions[$lastVerNumber]->updateContent(json_decode($event->newContent, true));
+        $this->versions[$lastVerNumber]->updateContent(json_decode($event->newContent, true, 512, JSON_THROW_ON_ERROR));
     }
 
     #[EventSourcingHandler]
