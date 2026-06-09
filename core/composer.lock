@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "24cd029320532bf58989b47fa0daca57",
+    "content-hash": "f2b91ec400362ac27cb194e6afb557b2",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -62,16 +62,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.384.4",
+            "version": "3.384.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "8e232a5703896541a7a34691a41ece5bd6170269"
+                "reference": "c7d34f2d60515bd0c307e462268f75877842da4a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/8e232a5703896541a7a34691a41ece5bd6170269",
-                "reference": "8e232a5703896541a7a34691a41ece5bd6170269",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/c7d34f2d60515bd0c307e462268f75877842da4a",
+                "reference": "c7d34f2d60515bd0c307e462268f75877842da4a",
                 "shasum": ""
             },
             "require": {
@@ -153,9 +153,9 @@
             "support": {
                 "forum": "https://github.com/aws/aws-sdk-php/discussions",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.384.4"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.384.5"
             },
-            "time": "2026-06-05T18:05:57+00:00"
+            "time": "2026-06-08T18:25:02+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -12439,16 +12439,16 @@
         },
         {
             "name": "symfony/polyfill-deepclone",
-            "version": "v1.37.0",
+            "version": "v1.38.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-deepclone.git",
-                "reference": "2ca9e9e75ead5174f2b44613a646bdc9338b8eb4"
+                "reference": "c1b95c370cb2ee4ee221f0a317f5ae5dfae9a42e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-deepclone/zipball/2ca9e9e75ead5174f2b44613a646bdc9338b8eb4",
-                "reference": "2ca9e9e75ead5174f2b44613a646bdc9338b8eb4",
+                "url": "https://api.github.com/repos/symfony/polyfill-deepclone/zipball/c1b95c370cb2ee4ee221f0a317f5ae5dfae9a42e",
+                "reference": "c1b95c370cb2ee4ee221f0a317f5ae5dfae9a42e",
                 "shasum": ""
             },
             "require": {
@@ -12502,7 +12502,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-deepclone/tree/v1.37.0"
+                "source": "https://github.com/symfony/polyfill-deepclone/tree/v1.38.2"
             },
             "funding": [
                 {
@@ -12522,7 +12522,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-04-26T13:03:27+00:00"
+            "time": "2026-06-08T20:10:26+00:00"
         },
         {
             "name": "symfony/polyfill-intl-grapheme",
@@ -12868,16 +12868,16 @@
         },
         {
             "name": "symfony/polyfill-mbstring",
-            "version": "v1.38.1",
+            "version": "v1.38.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
-                "reference": "14c5439eec4ccff081ac14eca2dc57feb2a66d92"
+                "reference": "d3d318bad5e7a1bfbd026009c8bfb8d8f99ae6b6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/14c5439eec4ccff081ac14eca2dc57feb2a66d92",
-                "reference": "14c5439eec4ccff081ac14eca2dc57feb2a66d92",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/d3d318bad5e7a1bfbd026009c8bfb8d8f99ae6b6",
+                "reference": "d3d318bad5e7a1bfbd026009c8bfb8d8f99ae6b6",
                 "shasum": ""
             },
             "require": {
@@ -12929,7 +12929,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.38.1"
+                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.38.2"
             },
             "funding": [
                 {
@@ -12949,7 +12949,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-05-26T12:51:13+00:00"
+            "time": "2026-05-27T06:59:30+00:00"
         },
         {
             "name": "symfony/polyfill-uuid",
@@ -19015,12 +19015,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "b000295a5fd02609ee7ad31d084cfa904af8a69a"
+                "reference": "2f3bb19d3f2665d75f6bd3277835897094b86f77"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/b000295a5fd02609ee7ad31d084cfa904af8a69a",
-                "reference": "b000295a5fd02609ee7ad31d084cfa904af8a69a",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/2f3bb19d3f2665d75f6bd3277835897094b86f77",
+                "reference": "2f3bb19d3f2665d75f6bd3277835897094b86f77",
                 "shasum": ""
             },
             "conflict": {
@@ -19410,7 +19410,7 @@
                 "inter-mediator/inter-mediator": "==5.5",
                 "intercom/intercom-php": "==5.0.2",
                 "invoiceninja/invoiceninja": "<5.13.4",
-                "ipl/web": "<=0.13",
+                "ipl/web": "<=0.10.2|>=0.11,<=0.13",
                 "islandora/crayfish": "<4.1",
                 "islandora/islandora": ">=2,<2.4.1",
                 "ivankristianto/phpwhois": "<=4.3",
@@ -19651,7 +19651,7 @@
                 "phpoffice/common": "<0.2.9",
                 "phpoffice/math": "<=0.2",
                 "phpoffice/phpexcel": "<=1.8.2",
-                "phpoffice/phpspreadsheet": "<=1.30.3|>=2,<=2.1.15|>=2.2,<=2.4.4|>=3,<=3.10.4|>=4,<=5.6",
+                "phpoffice/phpspreadsheet": "<=1.30.4|>=2,<=2.1.15|>=2.2,<=2.4.4|>=3,<=3.10.4|>=4,<=5.6",
                 "phppgadmin/phppgadmin": "<=7.13",
                 "phpseclib/phpseclib": "<=2.0.53|>=3,<=3.0.51",
                 "phpservermon/phpservermon": "<3.6",
@@ -19677,6 +19677,7 @@
                 "pocketmine/bedrock-protocol": "<8.0.2",
                 "pocketmine/pocketmine-mp": "<5.42.1",
                 "pocketmine/raklib": ">=0.14,<0.14.6|>=0.15,<0.15.1",
+                "poweradmin/poweradmin": "<4.2.4|>=4.3,<4.3.3",
                 "pressbooks/pressbooks": "<5.18",
                 "prestashop/autoupgrade": ">=4,<4.10.1",
                 "prestashop/blockreassurance": "<=5.1.3",
@@ -19746,7 +19747,7 @@
                 "shopware/core": "<6.6.10.18-dev|>=6.7,<6.7.10.1-dev",
                 "shopware/platform": "<6.6.10.18-dev|>=6.7,<6.7.10.1-dev",
                 "shopware/production": "<=6.3.5.2",
-                "shopware/shopware": "<=5.7.17|>=6.4.6,<6.6.10.10-dev|>=6.7,<6.7.6.1-dev",
+                "shopware/shopware": "<=6.3.5.2|>=6.4.6,<6.6.10.10-dev|>=6.7,<6.7.6.1-dev",
                 "shopware/storefront": "<6.6.10.10-dev|>=6.7,<6.7.5.1-dev",
                 "shopxo/shopxo": "<=6.4",
                 "showdoc/showdoc": "<3.8.1",
@@ -20098,7 +20099,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-06-05T20:39:10+00:00"
+            "time": "2026-06-09T11:06:21+00:00"
         },
         {
             "name": "sebastian/cli-parser",
