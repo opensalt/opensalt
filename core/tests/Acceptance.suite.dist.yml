@@ -15,7 +15,7 @@ modules:
         - WebDriver:
             url: 'http://web'
             browser: chrome
-            host: selenium-hub
+            host: chrome
             port: 4444
             capabilities:
                 chromeOptions:

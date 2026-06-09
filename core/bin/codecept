@@ -19,18 +19,12 @@ if [[ "$NEEDS_BROWSER" == true && -z "$BROWSER" ]]; then
   BROWSER=chrome
 fi
 
-# Number of Chrome nodes for parallel Acceptance tests (default: 1)
-CHROME_NODES="${PARALLEL_ACCEPTANCE_JOBS:-1}"
-
 cd "$(dirname "$0")/../.."
 
 COMPOSE_FILES="-f docker-compose.yml -f docker-compose.browsers.yml"
 
 cleanup() {
-  if [[ "$BROWSER" == "chrome" ]]; then
-    docker compose $COMPOSE_FILES stop chrome-node selenium-hub 2>/dev/null || true
-    docker compose $COMPOSE_FILES rm -f -v chrome-node selenium-hub 2>/dev/null || true
-  elif [[ -n "$BROWSER" ]]; then
+  if [[ -n "$BROWSER" ]]; then
     docker compose $COMPOSE_FILES stop "$BROWSER" 2>/dev/null || true
     docker compose $COMPOSE_FILES rm -f -v "$BROWSER" 2>/dev/null || true
   fi
@@ -39,17 +33,9 @@ cleanup() {
 if [[ "$NEEDS_BROWSER" == true ]]; then
   trap cleanup EXIT
 
-  if [[ "$BROWSER" == "chrome" ]]; then
-    echo "Starting Selenium Grid ($CHROME_NODES Chrome node(s))..."
-    docker compose $COMPOSE_FILES up -d --scale chrome-node="$CHROME_NODES" selenium-hub chrome-node
-    docker compose $COMPOSE_FILES run --rm wait dockerize -wait tcp://selenium-hub:4444 -timeout 60s
-  elif [[ "$BROWSER" == "firefox" ]]; then
-    docker compose $COMPOSE_FILES up -d firefox
-    docker compose $COMPOSE_FILES run --rm wait dockerize -wait tcp://firefox:4444 -timeout 30s
-  elif [[ "$BROWSER" == "phantomjs" ]]; then
-    docker compose $COMPOSE_FILES up -d phantomjs
-    docker compose $COMPOSE_FILES run --rm wait dockerize -wait tcp://phantomjs:8643 -timeout 30s
-  fi
+  echo "Starting $BROWSER..."
+  docker compose $COMPOSE_FILES up -d "$BROWSER"
+  docker compose $COMPOSE_FILES run --rm wait dockerize -wait "tcp://$BROWSER:4444" -timeout 60s
 fi
 
 ./core/bin/phpcli ./bin/codecept-wrapper "$@"
