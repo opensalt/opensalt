@@ -40,6 +40,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 class LsDocRepository extends ServiceEntityRepository
 {
+    final public const MAX_RESULTS = 50_000;
+
     public function __construct(
         ManagerRegistry $registry,
         private readonly Security $security,
@@ -67,6 +69,7 @@ class LsDocRepository extends ServiceEntityRepository
         $qb->orderBy('d.creator', 'ASC')
             ->addOrderBy('d.title', 'ASC')
             ->addOrderBy('d.adoptionStatus', 'ASC');
+        $qb->setMaxResults(self::MAX_RESULTS);
 
         return $qb->getQuery()->getResult();
     }
@@ -140,7 +143,7 @@ class LsDocRepository extends ServiceEntityRepository
         $qb = $this->findAllNonPrivateQueryBuilder()
             ->andWhere('d.creator = :creator')
             ->setParameter('creator', $creator)
-            ;
+            ->setMaxResults(self::MAX_RESULTS);
 
         return $qb->getQuery()->getResult();
     }
@@ -164,6 +167,7 @@ class LsDocRepository extends ServiceEntityRepository
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
         $query->setParameter('childOfType', LsAssociation::CHILD_OF);
+        $query->setMaxResults(self::MAX_RESULTS);
 
         /** @var array $results */
         $results = $query->getResult(Query::HYDRATE_ARRAY);
@@ -236,6 +240,7 @@ class LsDocRepository extends ServiceEntityRepository
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
         $query->setParameter('childOfType', LsAssociation::CHILD_OF);
+        $query->setMaxResults(self::MAX_RESULTS);
 
         return $query->getResult(Query::HYDRATE_ARRAY);
     }
@@ -256,6 +261,7 @@ class LsDocRepository extends ServiceEntityRepository
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
         $query->setParameter('childOfType', LsAssociation::CHILD_OF);
+        $query->setMaxResults(self::MAX_RESULTS);
 
         $results = $query->getResult(Query::HYDRATE_ARRAY);
 
@@ -1049,7 +1055,9 @@ class LsDocRepository extends ServiceEntityRepository
             ORDER BY i.id
         ');
         if ($limit > 0) {
-            $query->setMaxResults($limit);
+            $query->setMaxResults(min($limit, self::MAX_RESULTS));
+        } else {
+            $query->setMaxResults(self::MAX_RESULTS);
         }
         $query->setParameter('lsDocId', $lsDoc->getId());
         $query->setParameter('start', $start);
@@ -1076,7 +1084,9 @@ class LsDocRepository extends ServiceEntityRepository
             ORDER BY i.id
         ');
         if ($limit > 0) {
-            $query->setMaxResults($limit);
+            $query->setMaxResults(min($limit, self::MAX_RESULTS));
+        } else {
+            $query->setMaxResults(self::MAX_RESULTS);
         }
         $query->setParameter('lsDocId', $lsDoc->getId());
         $query->setParameter('start', $start);
@@ -1123,6 +1133,7 @@ class LsDocRepository extends ServiceEntityRepository
             WHERE a.lsDoc = :lsDocId
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
+        $query->setMaxResults(self::MAX_RESULTS);
 
         return $query->getResult($format);
     }
@@ -1148,7 +1159,9 @@ class LsDocRepository extends ServiceEntityRepository
             ORDER BY a.id
         ');
         if ($limit > 0) {
-            $query->setMaxResults($limit);
+            $query->setMaxResults(min($limit, self::MAX_RESULTS));
+        } else {
+            $query->setMaxResults(self::MAX_RESULTS);
         }
         $query->setParameter('start', $start);
         $query->setParameter('lsDocId', $lsDoc->getId());
@@ -1288,6 +1301,7 @@ class LsDocRepository extends ServiceEntityRepository
               AND (adi.id IS NOT NULL OR add.id IS NOT NULL)
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
+        $query->setMaxResults(self::MAX_RESULTS);
 
         return $query->getResult(Query::HYDRATE_ARRAY);
     }
@@ -1354,6 +1368,7 @@ class LsDocRepository extends ServiceEntityRepository
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
         $query->setParameter('childOfType', LsAssociation::CHILD_OF);
+        $query->setMaxResults(self::MAX_RESULTS);
 
         return $query->getResult($format);
     }
@@ -1375,6 +1390,7 @@ class LsDocRepository extends ServiceEntityRepository
             ORDER BY a.sequenceNumber ASC
         ', LsAssociation::class));
         $query->setParameter('lsDocId', $lsDoc->getId());
+        $query->setMaxResults(self::MAX_RESULTS);
 
         return array_map(
             $this->mapExportAssociation(...),

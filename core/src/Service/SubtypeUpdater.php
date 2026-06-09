@@ -157,11 +157,9 @@ class SubtypeUpdater
             $this->registry->getConnection()->rollBack();
             throw $e;
         } finally {
-            if (isset($phpExcelObject)) {
-                $phpExcelObject->disconnectWorksheets();
-                $phpExcelObject->garbageCollect();
-                unset($phpExcelObject);
-            }
+            $phpExcelObject->disconnectWorksheets();
+            $phpExcelObject->garbageCollect();
+            unset($phpExcelObject);
             $this->registry->getManager()->clear();
         }
 

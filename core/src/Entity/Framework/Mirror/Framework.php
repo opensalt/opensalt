@@ -59,20 +59,20 @@ class Framework
     #[ORM\Column(name: 'status_count', type: 'integer', nullable: false, options: ['default' => 0])]
     private int $statusCount = 0;
 
-    #[ORM\Column(name: 'last_check', type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $lastCheck = null;
+    #[ORM\Column(name: 'last_check', type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $lastCheck = null;
 
-    #[ORM\Column(name: 'last_success', type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $lastSuccess = null;
+    #[ORM\Column(name: 'last_success', type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $lastSuccess = null;
 
-    #[ORM\Column(name: 'last_failure', type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $lastFailure = null;
+    #[ORM\Column(name: 'last_failure', type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $lastFailure = null;
 
-    #[ORM\Column(name: 'last_change', type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $lastChange = null;
+    #[ORM\Column(name: 'last_change', type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $lastChange = null;
 
-    #[ORM\Column(name: 'next_check', type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $nextCheck = null;
+    #[ORM\Column(name: 'next_check', type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $nextCheck = null;
 
     #[ORM\Column(name: 'error_type', type: 'string', nullable: true)]
     private ?string $errorType = null;
@@ -166,17 +166,17 @@ class Framework
         return $this;
     }
 
-    public function getLastCheck(): ?\DateTimeInterface
+    public function getLastCheck(): ?\DateTimeImmutable
     {
         return $this->lastCheck;
     }
 
-    public function getLastChange(): ?\DateTimeInterface
+    public function getLastChange(): ?\DateTimeImmutable
     {
         return $this->lastChange;
     }
 
-    public function getNextCheck(): ?\DateTimeInterface
+    public function getNextCheck(): ?\DateTimeImmutable
     {
         return $this->nextCheck;
     }
@@ -401,7 +401,7 @@ class Framework
         return !$this->logs->isEmpty();
     }
 
-    public function getLastFailure(): ?\DateTimeInterface
+    public function getLastFailure(): ?\DateTimeImmutable
     {
         return $this->lastFailure;
     }

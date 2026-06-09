@@ -16,7 +16,6 @@ use App\Util\Collection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
-use Swaggest\JsonSchema\Schema;
 
 class MirrorFramework
 {
@@ -28,6 +27,7 @@ class MirrorFramework
     public function __construct(
         private MirrorServer $mirrorServer,
         private ManagerRegistry $managerRegistry,
+        private SchemaProvider $schemaProvider,
     ) {
         $em = $managerRegistry->getManager();
         if (!$em instanceof EntityManagerInterface) {
@@ -44,9 +44,7 @@ class MirrorFramework
             $data = Collection::removeEmptyElements($data, ['']);
             $json = json_encode($data, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
 
-            $schema = Schema::import(json5_decode(file_get_contents(__DIR__.'/../../config/schema/case-v1p1-cfpackage-schema.json')));
-            $schema->in(json5_decode($json));
-            $schema = null;
+            $this->schemaProvider->getCaseV1p1Schema()->in(json5_decode($json));
         } catch (\Exception $exception) {
             throw new \RuntimeException('CFPackage not valid', 0, $exception);
         }

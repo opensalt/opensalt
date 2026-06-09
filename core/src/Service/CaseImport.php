@@ -8,7 +8,6 @@ use App\DataTransformer\CaseJson\PackageTransformer;
 use App\DTO\CaseJson\CFPackage;
 use App\Entity\Framework\LsDoc;
 use App\Util\Collection;
-use Swaggest\JsonSchema\Schema;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class CaseImport
@@ -16,6 +15,7 @@ class CaseImport
     public function __construct(
         private readonly SerializerInterface $serializer,
         private readonly PackageTransformer $packageTransformer,
+        private readonly SchemaProvider $schemaProvider,
     ) {
     }
 
@@ -49,9 +49,7 @@ class CaseImport
 
     private function validate(string $content): void
     {
-        $schema = Schema::import(json5_decode(file_get_contents(__DIR__.'/../../config/schema/case-v1p1-cfpackage-schema.json') ?: ''));
-        $schema->in(json5_decode($content));
-        $schema = null;
+        $this->schemaProvider->getCaseV1p1Schema()->in(json5_decode($content));
     }
 
     /**

@@ -8,6 +8,7 @@ use Symfony\Component\Mercure\FrankenPhpHub;
 
 class MercureAutodetectPass implements CompilerPassInterface
 {
+    #[\Override]
     public function process(ContainerBuilder $container): void
     {
         // 1. Check if the native FrankenPHP function exists

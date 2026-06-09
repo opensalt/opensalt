@@ -8,6 +8,7 @@ use App\Service\SessionDataDecoder;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\User\InMemoryUser;
+use Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken;
 
 class SessionDataDecoderTest extends TestCase
 {
@@ -81,6 +82,26 @@ class SessionDataDecoderTest extends TestCase
     {
         $serialized = serialize(new \ArrayObject());
         $this->expectException(\InvalidArgumentException::class);
+        $this->decoder->decodeSecurityToken($serialized);
+    }
+
+    public function testDecodeSecurityTokenWithPostAuthenticationTokenAndInMemoryUser(): void
+    {
+        $user = new InMemoryUser('testuser', null, ['ROLE_USER']);
+        $token = new PostAuthenticationToken($user, 'main', ['ROLE_USER']);
+        $serialized = serialize($token);
+
+        $result = $this->decoder->decodeSecurityToken($serialized);
+        $this->assertInstanceOf(PostAuthenticationToken::class, $result);
+        $this->assertSame('testuser', $result->getUserIdentifier());
+    }
+
+    public function testDecodeSecurityTokenRejectsTokenWithDisallowedEmbeddedClass(): void
+    {
+        // Create a token-like serialized string that embeds a class NOT in the allowlist
+        $serialized = 'O:75:"Symfony\\Component\\Security\\Http\\Authenticator\\Token\\PostAuthenticationToken":2:{i:0;s:4:"main";i:1;a:5:{i:0;O:8:"stdClass":0:{}i:1;b:1;i:2;N;i:3;a:0:{}i:4;a:0:{}}}';
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid authentication token in session.');
         $this->decoder->decodeSecurityToken($serialized);
     }
 }

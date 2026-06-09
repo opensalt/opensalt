@@ -88,7 +88,7 @@ final readonly class UrlSafety
         $fullMask = str_repeat("\xff", (int) floor($bits / 8));
         $remaining = $bits % 8;
         if (0 !== $remaining) {
-            $fullMask .= chr((0xff << (8 - $remaining)) & 0xff);
+            $fullMask .= chr((0xFF << (8 - $remaining)) & 0xFF);
         }
         $fullMask = str_pad($fullMask, strlen($ipBinary), "\x00");
 

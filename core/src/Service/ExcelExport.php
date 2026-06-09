@@ -7,20 +7,25 @@ namespace App\Service;
 use App\Entity\Framework\AdditionalField;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
+use App\Repository\Framework\LsDocRepository;
 use App\Util\Compare;
 use Doctrine\ORM\EntityManagerInterface;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
 final class ExcelExport
 {
     private static ?array $customItemFields = null;
 
-    public function __construct(private readonly EntityManagerInterface $entityManager)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $entityManager,
+        private readonly int $maxExportSize = LsDocRepository::MAX_RESULTS,
+    ) {
         if (null === self::$customItemFields) {
             $customFieldsArray = $this->entityManager
                 ->getRepository(AdditionalField::class)
@@ -32,6 +37,12 @@ final class ExcelExport
     public function exportExcelFile(LsDoc $doc): Spreadsheet
     {
         $repo = $this->entityManager->getRepository(LsDoc::class);
+        \assert($repo instanceof LsDocRepository);
+
+        $itemCount = $this->countItemsForDoc($doc);
+        if ($itemCount > $this->maxExportSize) {
+            throw new HttpException(Response::HTTP_REQUEST_ENTITY_TOO_LARGE, sprintf('Export exceeds maximum of %d items. This document has %d items.', $this->maxExportSize, $itemCount));
+        }
 
         $items = $repo->findAllChildrenArray($doc);
         $topChildren = $repo->findTopChildrenIds($doc);
@@ -59,6 +70,16 @@ final class ExcelExport
         $this->generateExcelFile($doc, $items, $associations, $smartLevel, $phpExcelObject);
 
         return $phpExcelObject;
+    }
+
+    private function countItemsForDoc(LsDoc $doc): int
+    {
+        $qb = $this->entityManager->getRepository(LsItem::class)->createQueryBuilder('i')
+            ->select('COUNT(i.id)')
+            ->where('i.lsDoc = :doc')
+            ->setParameter('doc', $doc->getId());
+
+        return (int) $qb->getQuery()->getSingleScalarResult();
     }
 
     private function getSmartLevel(array $items, $parentId, array $itemsArray, array &$smartLevel): void

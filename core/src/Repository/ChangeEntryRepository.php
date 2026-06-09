@@ -16,6 +16,8 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class ChangeEntryRepository extends ServiceEntityRepository
 {
+    final public const MAX_RESULTS = 50_000;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, ChangeEntry::class);
@@ -81,7 +83,7 @@ class ChangeEntryRepository extends ServiceEntityRepository
             ->setParameter('doc_id', $doc->getId())
             ->orderBy('a.id', 'DESC')
             ->setFirstResult($offset)
-            ->setMaxResults(($limit > 0) ? $limit : 1_000_000)
+            ->setMaxResults(($limit > 0) ? min($limit, self::MAX_RESULTS) : self::MAX_RESULTS)
             ->getQuery()
             ->setHydrationMode(Query::HYDRATE_ARRAY)
             ->toIterable();
@@ -116,7 +118,7 @@ class ChangeEntryRepository extends ServiceEntityRepository
             ->where('a.doc IS NULL')
             ->orderBy('a.id', 'DESC')
             ->setFirstResult($offset)
-            ->setMaxResults(($limit > 0) ? $limit : 1_000_000)
+            ->setMaxResults(($limit > 0) ? min($limit, self::MAX_RESULTS) : self::MAX_RESULTS)
             ->getQuery()
             ->setHydrationMode(Query::HYDRATE_ARRAY)
             ->toIterable();

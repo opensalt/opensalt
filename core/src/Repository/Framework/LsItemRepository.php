@@ -135,7 +135,7 @@ class LsItemRepository extends ServiceEntityRepository
 
         while (count($matched) !== $matchedCount && $depth < $maxDepth) {
             $matchedCount = count($matched);
-            $depth++;
+            ++$depth;
 
             $fromCriteria = new Criteria();
             $fromCriteria->where(Criteria::expr()->in('originLsItem', array_keys($matched)));

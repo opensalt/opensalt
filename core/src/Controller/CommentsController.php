@@ -17,6 +17,7 @@ use App\Entity\User\User;
 use App\Security\Permission;
 use App\Service\BucketService;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\EntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Novaway\Bundle\FeatureFlagBundle\Attribute\FeatureEnabled;
 use Novaway\Bundle\FeatureFlagBundle\Manager\FeatureManager;
@@ -26,6 +27,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\Requirement\Requirement;
@@ -42,6 +44,7 @@ class CommentsController extends AbstractController
         private readonly FeatureManager $featureManager,
         private readonly SerializerInterface $serializer,
         private readonly ManagerRegistry $managerRegistry,
+        private readonly int $maxExportSize = 50000,
     ) {
     }
 
@@ -147,17 +150,61 @@ class CommentsController extends AbstractController
     #[IsGranted(Permission::COMMENT_VIEW)]
     public function exportComment(string $itemType, string $itemId): Response
     {
+        $em = $this->managerRegistry->getManager();
+        $commentRepo = $em->getRepository(Comment::class);
+        \assert($commentRepo instanceof EntityRepository);
+        $lsItemRepo = $em->getRepository(LsItem::class);
+        $lsDocRepo = $em->getRepository(LsDoc::class);
+
+        $childIds = [];
+        $totalComments = 0;
+
+        switch ($itemType) {
+            case 'document':
+                $lsDoc = ctype_digit($itemId) ? $lsDocRepo->find($itemId) : $lsDocRepo->findOneBy(['identifier' => $itemId]);
+                if (null === $lsDoc) {
+                    return new Response('Document not found', Response::HTTP_NOT_FOUND);
+                }
+                $docId = $lsDoc->getId();
+                $totalComments += (int) $commentRepo->createQueryBuilder('c')
+                    ->select('COUNT(c.id)')
+                    ->where('c.document = :docId')
+                    ->setParameter('docId', $docId)
+                    ->getQuery()
+                    ->getSingleScalarResult();
+                foreach ($lsDoc->getLsItems() as $lsDocChild) {
+                    $childIds[] = $lsDocChild->getId();
+                }
+                break;
+
+            case 'item':
+                $lsItem = ctype_digit($itemId) ? $lsItemRepo->find($itemId) : $lsItemRepo->findOneBy(['identifier' => $itemId]);
+                if (null !== $lsItem) {
+                    $childIds = $lsItem->getDescendantIds();
+                    $childIds[] = $lsItem->getId();
+                }
+                break;
+        }
+
+        if (count($childIds) > 0) {
+            $totalComments += (int) $commentRepo->createQueryBuilder('c')
+                ->select('COUNT(c.id)')
+                ->where('c.item IN (:itemIds)')
+                ->setParameter('itemIds', $childIds)
+                ->getQuery()
+                ->getSingleScalarResult();
+        }
+
+        if ($totalComments > $this->maxExportSize) {
+            throw new HttpException(Response::HTTP_REQUEST_ENTITY_TOO_LARGE, sprintf('Export exceeds maximum of %d comments. Found %d.', $this->maxExportSize, $totalComments));
+        }
+
         $response = new StreamedResponse();
-        $response->setCallback(function () use ($itemType, $itemId): void {
-            $childIds = [];
+        $response->setCallback(function () use ($itemType, $itemId, $childIds, $commentRepo , $lsDocRepo): void {
             $handle = fopen('php://output', 'wb+');
             if (false === $handle) {
                 throw new \Exception('Unable to open output.');
             }
-            $em = $this->managerRegistry->getManager();
-            $repo = $em->getRepository(Comment::class);
-            $lsItemRepo = $em->getRepository(LsItem::class);
-            $lsDocRepo = $em->getRepository(LsDoc::class);
             $headers = ['Framework Name', 'Node Address', 'HumanCodingScheme', 'User', 'Organization', 'Comment', 'Attachment Url', 'Created Date', 'Updated Date'];
             fputcsv($handle, $headers, escape: '\\');
 
@@ -170,34 +217,15 @@ class CommentsController extends AbstractController
                         return;
                     }
                     $docId = $lsDoc->getId();
-                    $commentData = $repo->findBy(['document' => $docId]);
-                    $commentRows = $this->csvArray($commentData, $itemType);
-                    foreach ($commentRows as $row) {
-                        fputcsv($handle, $row, escape: '\\');
-                    }
-                    $lsDocChilds = $lsDoc->getLsItems();
-                    foreach ($lsDocChilds as $lsDocChild) {
-                        $childIds[] = $lsDocChild->getId();
-                    }
+                    $this->streamCommentsByDocument($commentRepo, $docId, $itemType, $handle);
                     break;
 
                 case 'item':
-                    /** @var ?LsItem $lsItem */
-                    $lsItem = ctype_digit($itemId) ? $lsItemRepo->find($itemId) : $lsItemRepo->findOneBy(['identifier' => $itemId]);
-
-                    if (null !== $lsItem) {
-                        $childIds = $lsItem->getDescendantIds();
-                        $childIds[] = $lsItem->getId();
-                    }
                     break;
             }
 
             if (count($childIds) > 0) {
-                $commentData = $repo->findBy(['item' => $childIds]);
-                $commentRows = $this->csvArray($commentData, 'item');
-                foreach ($commentRows as $child_row) {
-                    fputcsv($handle, $child_row, escape: '\\');
-                }
+                $this->streamCommentsByItems($commentRepo, $childIds, 'item', $handle);
             }
 
             fclose($handle);
@@ -209,29 +237,62 @@ class CommentsController extends AbstractController
         return $response;
     }
 
-    /**
-     * Get the export report data.
-     *
-     * @param array|Comment[] $commentData
-     */
-    private function csvArray(array $commentData, string $itemType): array
+    private function streamCommentsByDocument(EntityRepository $commentRepo, int $docId, string $itemType, mixed $handle): void
     {
-        $comments = [];
-        foreach ($commentData as $comment) {
-            $comments[] = [
-                ('item' === $itemType) ? $comment->getItem()->getLsDoc()->getTitle() : $comment->getDocument()->getTitle(),
-                $this->url($itemType, $comment),
-                ('item' === $itemType) ? $comment->getItem()->getHumanCodingScheme() : null,
-                $comment->getUser()->getUserIdentifier(),
-                $comment->getUser()->getOrg()->getName(),
-                $comment->getContent(),
-                $comment->getFileUrl(),
-                $comment->getCreatedAt()->format('Y-m-d H:i:s'),
-                $comment->getUpdatedAt()->format('Y-m-d H:i:s'),
-            ];
+        $batchSize = 1000;
+        $offset = 0;
+        while (true) {
+            $commentData = $commentRepo->createQueryBuilder('c')
+                ->where('c.document = :docId')
+                ->setParameter('docId', $docId)
+                ->setFirstResult($offset)
+                ->setMaxResults($batchSize)
+                ->getQuery()
+                ->toIterable();
+            $count = 0;
+            foreach ($commentData as $comment) {
+                $row = $this->csvRow($comment, $itemType);
+                fputcsv($handle, $row, escape: '\\');
+                ++$count;
+            }
+            $offset += $batchSize;
+            if ($count < $batchSize) {
+                break;
+            }
         }
+    }
 
-        return $comments;
+    private function streamCommentsByItems(EntityRepository $commentRepo, array $childIds, string $itemType, mixed $handle): void
+    {
+        $batchSize = 1000;
+        $chunks = array_chunk($childIds, 1000);
+        foreach ($chunks as $chunk) {
+            $commentData = $commentRepo->createQueryBuilder('c')
+                ->where('c.item IN (:itemIds)')
+                ->setParameter('itemIds', $chunk)
+                ->setMaxResults($batchSize)
+                ->getQuery()
+                ->toIterable();
+            foreach ($commentData as $comment) {
+                $row = $this->csvRow($comment, $itemType);
+                fputcsv($handle, $row, escape: '\\');
+            }
+        }
+    }
+
+    private function csvRow(Comment $comment, string $itemType): array
+    {
+        return [
+            ('item' === $itemType) ? $comment->getItem()->getLsDoc()->getTitle() : $comment->getDocument()->getTitle(),
+            $this->url($itemType, $comment),
+            ('item' === $itemType) ? $comment->getItem()->getHumanCodingScheme() : null,
+            $comment->getUser()->getUserIdentifier(),
+            $comment->getUser()->getOrg()->getName(),
+            $comment->getContent(),
+            $comment->getFileUrl(),
+            $comment->getCreatedAt()->format('Y-m-d H:i:s'),
+            $comment->getUpdatedAt()->format('Y-m-d H:i:s'),
+        ];
     }
 
     private function url(string $itemType, Comment $comment): ?string

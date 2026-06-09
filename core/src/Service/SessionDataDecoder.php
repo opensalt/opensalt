@@ -4,11 +4,28 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Entity\User\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
 final readonly class SessionDataDecoder
 {
+    /**
+     * Classes permitted during security token unserialization.
+     *
+     * Includes Symfony token types and the application User entity that is
+     * embedded inside serialized tokens.  Any class not listed here will be
+     * deserialised as __PHP_Incomplete_Class, which causes type-errors when
+     * the token tries to assign it to a typed property.
+     */
+    private const TOKEN_ALLOWED_CLASSES = [
+        UsernamePasswordToken::class,
+        \Symfony\Component\Security\Core\Authentication\Token\RememberMeToken::class,
+        \Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken::class,
+        \Symfony\Component\Security\Core\User\InMemoryUser::class,
+        User::class,
+    ];
+
     /**
      * Parse raw PHP session data (key|serialized_value format) into an array.
      * Uses allowed_classes => false to prevent object instantiation.
@@ -50,20 +67,19 @@ final readonly class SessionDataDecoder
 
     /**
      * Unserialize a Symfony security token with a strict class allowlist.
-     * Only permits known Symfony token types.
+     * Only permits known Symfony token types and the application User entity.
      *
      * @throws \InvalidArgumentException if the unserialized value is not a TokenInterface
      */
     public function decodeSecurityToken(string $tokenData): TokenInterface
     {
-        $token = unserialize($tokenData, [
-            'allowed_classes' => [
-                UsernamePasswordToken::class,
-                \Symfony\Component\Security\Core\Authentication\Token\RememberMeToken::class,
-                \Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken::class,
-                \Symfony\Component\Security\Core\User\InMemoryUser::class,
-            ],
-        ]);
+        try {
+            $token = unserialize($tokenData, [
+                'allowed_classes' => self::TOKEN_ALLOWED_CLASSES,
+            ]);
+        } catch (\TypeError $e) {
+            throw new \InvalidArgumentException('Invalid authentication token in session.', 0, $e);
+        }
 
         if (false === $token || !$token instanceof TokenInterface) {
             throw new \InvalidArgumentException('Invalid authentication token in session.');

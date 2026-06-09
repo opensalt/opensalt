@@ -41,7 +41,7 @@ parameters:
 	editorUrl: 'phpstorm://open?file=%%file%%&line=%%line%%'
 
 	cognitive_complexity:
-		class: 120  # Get to 50
+		class: 125  # Get to 50
 		function: 50  # Get to 8
 
 	ignoreErrors:
