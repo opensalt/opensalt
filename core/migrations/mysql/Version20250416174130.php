@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DoctrineMigrations;
 
 use Doctrine\DBAL\Schema\Schema;
-use Doctrine\Migrations\AbstractMigration;
 
 final class Version20250416174130 extends AbstractMigration
 {
@@ -46,8 +45,4 @@ final class Version20250416174130 extends AbstractMigration
         SQL);
     }
 
-    public function isTransactional(): bool
-    {
-        return false;
-    }
 }

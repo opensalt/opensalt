@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DoctrineMigrations;
 
 use Doctrine\DBAL\Schema\Schema;
-use Doctrine\Migrations\AbstractMigration;
 
 final class Version20250425190543 extends AbstractMigration
 {
@@ -54,10 +53,5 @@ final class Version20250425190543 extends AbstractMigration
             )
             WHERE JSON_EXTRACT(extra, '$.extendedItem."salt:type"') IS NOT NULL
         SQL);
-    }
-
-    public function isTransactional(): bool
-    {
-        return true;
     }
 }

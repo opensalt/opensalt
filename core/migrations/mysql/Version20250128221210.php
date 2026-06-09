@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DoctrineMigrations;
 
 use Doctrine\DBAL\Schema\Schema;
-use Doctrine\Migrations\AbstractMigration;
 
 final class Version20250128221210 extends AbstractMigration
 {
@@ -29,8 +28,4 @@ final class Version20250128221210 extends AbstractMigration
         $this->addSql('ALTER TABLE ls_item DROP discriminator');
     }
 
-    public function isTransactional(): bool
-    {
-        return false;
-    }
 }
