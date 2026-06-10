@@ -21,10 +21,10 @@ class CfRubric implements CaseApiInterface
     use ExtraDataTrait;
     use ExtensionTrait;
 
-    #[ORM\Column(name: 'title', type: 'text', length: 65535, nullable: true)]
+    #[ORM\Column(name: 'title', type: 'medium_text', nullable: true)]
     private ?string $title = null;
 
-    #[ORM\Column(name: 'description', type: 'text', length: 65535, nullable: true)]
+    #[ORM\Column(name: 'description', type: 'medium_text', nullable: true)]
     private ?string $description = null;
 
     /**

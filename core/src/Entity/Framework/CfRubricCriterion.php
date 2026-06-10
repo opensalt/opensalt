@@ -23,7 +23,7 @@ class CfRubricCriterion implements CaseApiInterface
     #[ORM\Column(name: 'category', type: 'string', nullable: true)]
     private ?string $category = null;
 
-    #[ORM\Column(name: 'description', type: 'text', length: 65535, nullable: true)]
+    #[ORM\Column(name: 'description', type: 'medium_text', nullable: true)]
     private ?string $description = null;
 
     #[ORM\ManyToOne(targetEntity: LsItem::class, inversedBy: 'criteria')]

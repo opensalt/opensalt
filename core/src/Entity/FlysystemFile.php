@@ -4,48 +4,33 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use Doctrine\DBAL\Types\Types;
-use Doctrine\ORM\Mapping as ORM;
-
 /**
- * This class represents a Flysystem file and is used for Doctrine to generate the table schema.
+ * This class represents a Flysystem file.
  *
- * The flysystem-doctrine package is used to actually work with the files.
+ * The flysystem-doctrine package creates and manages the `flysystem_files` table
+ * via DBAL directly. This class is NOT mapped as a Doctrine ORM entity to avoid
+ * schema drift from ENUM column types that DBAL 4 cannot represent without
+ * columnDefinition mismatches. The table is excluded from migration generation
+ * via the `schema_filter` regex in doctrine.yaml.
  */
-#[ORM\Entity(readOnly: true)]
-#[ORM\Table(name: 'flysystem_files')]
-#[ORM\UniqueConstraint(name: 'path_unique', columns: ['path'])]
 class FlysystemFile
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: Types::BIGINT)]
-    private int $id; // @phpstan-ignore property.unused
+    private int $id;
 
-    #[ORM\Column()]
-    private string $path; // @phpstan-ignore property.unused
+    private string $path;
 
-    #[ORM\Column(type: Types::STRING, columnDefinition: "ENUM('dir', 'file')")]
-    private string $type; // @phpstan-ignore property.unused
+    private string $type;
 
-    /**
-     * @var resource|null
-     */
-    #[ORM\Column(type: Types::BLOB, nullable: true)]
-    private $contents; // @phpstan-ignore property.unused
+    /** @var resource|null */
+    private $contents;
 
-    #[ORM\Column(options: ['default' => 0])]
-    private int $size = 0; // @phpstan-ignore property.onlyWritten
+    private int $size = 0;
 
-    #[ORM\Column()]
-    private int $level; // @phpstan-ignore property.unused
+    private int $level;
 
-    #[ORM\Column(name: 'mimetype', length: 127, nullable: true)]
-    private ?string $mimeType = null; // @phpstan-ignore property.unused
+    private ?string $mimeType = null;
 
-    #[ORM\Column(type: Types::STRING, options: ['default' => 'public'], columnDefinition: "ENUM('public', 'private')")]
-    private string $visibility = 'public'; // @phpstan-ignore property.unused
+    private string $visibility = 'public';
 
-    #[ORM\Column(options: ['default' => 0])]
-    private int $timestamp; // @phpstan-ignore property.unused
+    private int $timestamp;
 }

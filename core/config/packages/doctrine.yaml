@@ -19,7 +19,7 @@ doctrine:
                 password: '%database_password%'
                 options:  '%pdo_options%'
                 charset:  utf8mb4
-                schema_filter: ~^(?!(cache_items|LearningStandards|std_|map_|grade_level))~
+                schema_filter: ~^(?!(cache_items|LearningStandards|std_|map_|grade_level|flysystem_files|vector_search_state))~
                 # To remove ecotone tables from doctrine migration generation
                 #schema_filter: ~^(?!(cache_items|LearningStandards|std_|map_|grade_level|ecotone|event_streams$|projections$|_[0-9a-f]{40}$))~
                 server_version: 8.4.4
@@ -32,6 +32,7 @@ doctrine:
             date: App\Doctrine\Types\DateType
             datetime: App\Doctrine\Types\DateTimeType
             datetimetz_immutable: App\Doctrine\Types\DateTimeTzImmutableType
+            medium_text: App\Doctrine\Types\MediumTextType
         #mapping_types:
         #    json: string
         #    uuid: char(36)

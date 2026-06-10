@@ -94,6 +94,18 @@ jobs:
         run: |
           docker compose run --rm --no-deps web ./bin/console --env=prod doctrine:migrations:migrate --no-interaction
 
+      - name: Lint Twig templates
+        run: docker compose exec web ./bin/console --env=prod lint:twig templates/
+
+      - name: Lint YAML config
+        run: docker compose exec web ./bin/console --env=prod lint:yaml config/
+
+      - name: Lint container
+        run: docker compose exec web ./bin/console --env=prod lint:container
+
+      - name: Validate Doctrine schema
+        run: docker compose exec web ./bin/console --env=prod doctrine:schema:validate
+
       - name: Bring up the web container
         run: |
           docker compose up -d --no-recreate --wait --wait-timeout 60 web
