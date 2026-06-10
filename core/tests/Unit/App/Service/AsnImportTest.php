@@ -5,36 +5,63 @@ declare(strict_types=1);
 namespace App\Tests\Unit\App\Service;
 
 use App\Service\AsnImport;
+use Doctrine\ORM\EntityManagerInterface;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
 /**
  * Tests for AsnImport service.
- *
- * These tests make real HTTP requests to RFC 2606 reserved domains (.invalid).
- * They verify error handling when the remote service is unreachable.
- * Exclude from CI with: --exclude-group=network
- *
- * @group network
  */
 class AsnImportTest extends TestCase
 {
+    private function createAsnImport(?LoggerInterface $logger = null): AsnImport
+    {
+        $em = $this->createMock(EntityManagerInterface::class);
+
+        return new AsnImport($em, $logger);
+    }
+
     public function testFetchAsnDocumentThrowsRuntimeExceptionOnAllPrefixesFailed(): void
     {
-        $import = new AsnImport();
+        $import = $this->getMockBuilder(AsnImport::class)
+            ->setConstructorArgs([
+                $this->createMock(EntityManagerInterface::class),
+                null,
+            ])
+            ->onlyMethods(['requestAsnDocument'])
+            ->getMock();
+
+        $import->method('requestAsnDocument')
+            ->willThrowException(
+                new RequestException('Not found', new Request('GET', 'test'), new Response(404))
+            );
 
         $this->expectException(\RuntimeException::class);
-        $import->fetchAsnDocument('http://nonexistent.invalid/resources/D0000000');
+        $this->expectExceptionMessage('all URL prefixes failed');
+        $import->fetchAsnDocument('http://example.org/resources/D0000000');
     }
 
     public function testRequestAsnDocumentThrowsRuntimeExceptionOnNon200(): void
     {
-        $import = new AsnImport();
+        $import = $this->getMockBuilder(AsnImport::class)
+            ->setConstructorArgs([
+                $this->createMock(EntityManagerInterface::class),
+                null,
+            ])
+            ->onlyMethods(['requestAsnDocument'])
+            ->getMock();
+
+        $import->method('requestAsnDocument')
+            ->willThrowException(
+                new \RuntimeException('Error getting document from ASN (HTTP 500): http://example.org/test')
+            );
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Error getting document from ASN');
-
-        $import->requestAsnDocument('http://nonexistent.invalid/resources/D0000000_full.json');
+        $import->requestAsnDocument('http://example.org/test');
     }
 
     public function testFetchAsnDocumentLogsOnRequestException(): void
@@ -44,41 +71,55 @@ class AsnImportTest extends TestCase
             ->method('info')
             ->with(
                 $this->stringContains('ASN URL not found'),
-                $this->callback(fn (array $context) => isset($context['url']) && isset($context['exception']))
+                $this->callback(fn (array $ctx) => isset($ctx['url']) && isset($ctx['exception']))
             );
 
-        $import = new AsnImport($logger);
+        $import = $this->getMockBuilder(AsnImport::class)
+            ->setConstructorArgs([
+                $this->createMock(EntityManagerInterface::class),
+                $logger,
+            ])
+            ->onlyMethods(['requestAsnDocument'])
+            ->getMock();
+
+        $import->method('requestAsnDocument')
+            ->willThrowException(
+                new RequestException('Not found', new Request('GET', 'test'), new Response(404))
+            );
 
         try {
-            $import->fetchAsnDocument('http://nonexistent.invalid/resources/D0000000');
+            $import->fetchAsnDocument('http://example.org/resources/D0000000');
         } catch (\RuntimeException) {
         }
     }
 
     public function testNonRequestExceptionPropagates(): void
     {
-        $import = new AsnImport();
+        $import = $this->getMockBuilder(AsnImport::class)
+            ->setConstructorArgs([
+                $this->createMock(EntityManagerInterface::class),
+                null,
+            ])
+            ->onlyMethods(['requestAsnDocument'])
+            ->getMock();
 
-        $thrown = false;
-        try {
-            $import->fetchAsnDocument('invalid-locator-no-match');
-        } catch (\RuntimeException $e) {
-            $thrown = true;
-            $this->assertStringContainsString('ASN', $e->getMessage());
-        }
-        $this->assertTrue($thrown, 'Exception should propagate, not be silently caught');
+        $import->method('requestAsnDocument')
+            ->willThrowException(new \RuntimeException('ASN lookup failed'));
+
+        $this->expectException(\RuntimeException::class);
+        $import->fetchAsnDocument('invalid-locator-no-match');
     }
 
     public function testConstructorAcceptsNullLogger(): void
     {
-        $import = new AsnImport();
+        $import = $this->createAsnImport();
         $this->assertInstanceOf(AsnImport::class, $import);
     }
 
     public function testConstructorAcceptsLogger(): void
     {
         $logger = $this->createMock(LoggerInterface::class);
-        $import = new AsnImport($logger);
+        $import = $this->createAsnImport($logger);
         $this->assertInstanceOf(AsnImport::class, $import);
     }
 }

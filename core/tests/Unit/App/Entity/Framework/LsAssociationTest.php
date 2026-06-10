@@ -453,7 +453,8 @@ class LsAssociationTest extends \Codeception\Test\Unit
     public function testValidateTypeRejectsInvalidType(): void
     {
         $association = new LsAssociation();
-        $association->setType('Invalid Type');
+        $ref = new \ReflectionProperty(LsAssociation::class, 'type');
+        $ref->setValue($association, 'Invalid Type');
 
         $violationBuilder = $this->createMock(\Symfony\Component\Validator\Violation\ConstraintViolationBuilderInterface::class);
         $violationBuilder->expects($this->once())->method('setParameter')->willReturnSelf();
