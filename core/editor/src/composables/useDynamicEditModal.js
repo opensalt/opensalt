@@ -47,7 +47,7 @@ export function useDynamicEditModal(onUpdate, onAdd, availableTypes = ['general'
   });
 
   const handleUpdated = (updatedItem) => {
-    onUpdate(updatedItem);
+    onUpdate(updatedItem, editingItem.value?.identifier || null);
     isEditModalVisible.value = false;
     editingItem.value = null;
     modalParentItem.value = null;

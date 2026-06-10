@@ -355,12 +355,13 @@ provide('treeNavigation', {
 // ---------------------------------------------------------------------------
 // Dynamic edit modal
 // ---------------------------------------------------------------------------
-const onItemUpdate = async (updatedItem) => {
+const onItemUpdate = async (updatedItem, originalIdentifier = null) => {
   logger.debug('onItemUpdate triggered with:', updatedItem);
   try {
-    if (updatedItem && updatedItem.identifier) {
-      logger.debug('Sending update to backend for:', updatedItem.identifier);
-      const result = await currentDocumentStore.updateItem(updatedItem.identifier, updatedItem);
+    const itemIdentifier = originalIdentifier || updatedItem?.identifier;
+    if (updatedItem && itemIdentifier) {
+      logger.debug('Sending update to backend for:', itemIdentifier);
+      const result = await currentDocumentStore.updateItem(itemIdentifier, updatedItem);
       logger.debug('Backend response:', result);
       // Local update
       itemStore.updateItem(currentDoc.value, updatedItem);

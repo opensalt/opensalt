@@ -44,7 +44,9 @@ class IdentifierDto implements ItemTypeInterface
     public function applyToItem(LsItem $item, HtmlSanitizerInterface $htmlSanitizer): void
     {
         $item->setAbbreviatedStatement($this->identifier);
-        $item->setUri($this->identifier);
+        if (null !== $this->identifier && preg_match('/^[A-Za-z][A-Za-z0-9+\-.]*:/', $this->identifier)) {
+            $item->setUri($this->identifier);
+        }
         $item->setFullStatement($this->description);
         $item->setExtensionProperty(LsItem::TYPE_KEY, 'identifier');
         $item->setExtensionProperty(self::TYPE_KEY, $this->type);

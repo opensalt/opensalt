@@ -363,6 +363,15 @@ const displayHumanCodingScheme = computed(
 );
 
 const displayTitle = computed(() => {
+  // Special display for identifier items: "<type>: <identifier>" or just "<identifier>"
+  if (resolvedItem.value.discriminator === 6) {
+    const idType = resolvedItem.value.extensions?.['salt:idType'];
+    const idValue = resolvedItem.value.abbreviatedStatement || resolvedItem.value.fullStatement || resolvedItem.value.title;
+    if (idType && idValue) {
+      return `${idType}: ${idValue}`;
+    }
+  }
+
   const localTitle =
     resolvedItem.value.abbreviatedStatement ||
     resolvedItem.value.fullStatement ||

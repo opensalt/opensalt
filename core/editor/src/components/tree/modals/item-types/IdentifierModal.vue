@@ -99,14 +99,11 @@
                 <small class="text-muted">Description of the identifier.</small>
               </div>
             </div>
-            <div
-              v-if="false"
-              class="row mb-3"
-            >
+            <div class="row mb-3">
               <label
                 for="ls_identifier_type"
                 class="col-sm-3 col-form-label"
-              >Type</label>
+              >Identifier Type</label>
               <div class="col-sm-9">
                 <input
                   id="ls_identifier_type"
@@ -114,8 +111,9 @@
                   type="text"
                   class="form-control"
                   name="ls_identifier[type]"
-                  placeholder="Enter identifier type"
+                  placeholder="e.g., URI, COCI, CD-ID, DOI"
                 >
+                <small class="text-muted">The type of the identifier (e.g., URI, COCI, CD-ID).</small>
               </div>
             </div>
           </form>
@@ -249,13 +247,10 @@ function saveItem() {
       emit('updated', savedItem);
     } else {
       savedItem = {
-        identifier: 'identifier_' + Date.now(),
-        uri: formData.identifier,
+        identifier: formData.identifier,
         description: formData.description,
         type: formData.type,
-        extensions: {
-          'salt:type': 'identifier'
-        },
+        extensions: { 'salt:type': 'identifier' },
         parentId: props.parentItem?.identifier || null,
         created: new Date().toISOString(),
         children: []
