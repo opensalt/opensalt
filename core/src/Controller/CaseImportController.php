@@ -34,7 +34,14 @@ class CaseImportController extends AbstractController
     #[IsGranted(Permission::FRAMEWORK_CREATE)]
     public function import(Request $request, #[CurrentUser] User $user): JsonResponse
     {
-        $content = base64_decode($request->request->getString('fileContent'));
+        $fileContent = $request->request->getString('fileContent');
+
+        $maxBase64Size = 67 * 1024 * 1024;
+        if (\strlen($fileContent) > $maxBase64Size) {
+            return new JsonResponse(['error' => 'File too large. Maximum size is 50 MB.'], Response::HTTP_REQUEST_ENTITY_TOO_LARGE);
+        }
+
+        $content = base64_decode($fileContent);
 
         $command = new ImportCaseJsonCommand($content, $user->getOrg(), $user);
         $this->sendCommand($command);

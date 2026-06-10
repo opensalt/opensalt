@@ -7,6 +7,7 @@ namespace App\Repository\Framework\Mirror;
 use App\Entity\Framework\Mirror\Framework;
 use App\Entity\Framework\Mirror\Server;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\LockMode;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -21,7 +22,7 @@ class FrameworkRepository extends ServiceEntityRepository
 
     public function findNext(): ?Framework
     {
-        return $this->createQueryBuilder('f')
+        $qb = $this->createQueryBuilder('f')
             ->join('f.server', 's')
             ->andWhere('f.nextCheck < :now')
             ->andWhere('f.nextCheck IS NOT NULL')
@@ -30,14 +31,13 @@ class FrameworkRepository extends ServiceEntityRepository
             ->andWhere('(f.status = :framework_scheduled OR s.status != :server_suspended)')
             ->addOrderBy('f.priority', 'DESC')
             ->addOrderBy('f.lastCheck', 'ASC')
-            ->getQuery()
             ->setParameter('now', new \DateTimeImmutable())
             ->setParameter('framework_suspended', Framework::STATUS_SUSPENDED)
             ->setParameter('framework_scheduled', Framework::STATUS_SCHEDULED)
             ->setParameter('server_suspended', Server::STATUS_SUSPENDED)
-            ->setMaxResults(1)
-            ->getOneOrNullResult()
-        ;
+            ->setMaxResults(1);
+
+        return $qb->getQuery()->setLockMode(LockMode::PESSIMISTIC_WRITE)->getOneOrNullResult();
     }
 
     public function markAsProcessing(Framework $framework): bool

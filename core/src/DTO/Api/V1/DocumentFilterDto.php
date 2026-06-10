@@ -79,6 +79,9 @@ class DocumentFilterDto
     #[Ignore]
     public string $sortField {
         get {
+            // Sort field is safe from SQL injection because the match expression only
+            // returns predefined column name mappings. Invalid/unrecognized values fall
+            // through to the default 'd.identifier'. User input never reaches the query directly.
             return match ($this->sort) {
                 'title' => 'd.title',
                 'creator' => 'd.creator',

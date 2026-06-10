@@ -9,6 +9,7 @@ use App\DTO\Mirror\ServerListItem;
 use App\Entity\Framework\Mirror\Framework;
 use App\Entity\Framework\Mirror\Server;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\LockMode;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -66,18 +67,17 @@ class ServerRepository extends ServiceEntityRepository
 
     public function findNext(): ?Server
     {
-        return $this->createQueryBuilder('s')
+        $qb = $this->createQueryBuilder('s')
             ->andWhere('s.nextCheck < :now')
             ->andWhere('s.nextCheck IS NOT NULL')
             ->andWhere('s.checkServer = 1')
             ->andWhere('s.status = :status')
             ->addOrderBy('s.priority', 'DESC')
             ->addOrderBy('s.lastCheck', 'ASC')
-            ->getQuery()
             ->setParameter('now', new \DateTimeImmutable())
             ->setParameter('status', Server::STATUS_ACTIVE)
-            ->setMaxResults(1)
-            ->getOneOrNullResult()
-        ;
+            ->setMaxResults(1);
+
+        return $qb->getQuery()->setLockMode(LockMode::PESSIMISTIC_WRITE)->getOneOrNullResult();
     }
 }

@@ -21,6 +21,7 @@ use App\Entity\Framework\LsItem;
 use App\Entity\User\User;
 use App\Security\Permission;
 use App\Util\Compare;
+use App\Util\LikeQueryHelper;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\ORM\AbstractQuery;
@@ -1501,11 +1502,11 @@ class LsDocRepository extends ServiceEntityRepository
     {
         if (null !== $filter->creator) {
             $qb->andWhere('LOWER(d.creator) LIKE LOWER(:creator)')
-               ->setParameter('creator', '%'.$filter->creator.'%');
+               ->setParameter('creator', LikeQueryHelper::contains($filter->creator));
         }
         if (null !== $filter->title) {
             $qb->andWhere('LOWER(d.title) LIKE LOWER(:title)')
-               ->setParameter('title', '%'.$filter->title.'%');
+               ->setParameter('title', LikeQueryHelper::contains($filter->title));
         }
         if (null !== $filter->adoptionStatus) {
             $qb->andWhere('LOWER(d.adoptionStatus) = LOWER(:adoptionStatus)')
@@ -1514,7 +1515,7 @@ class LsDocRepository extends ServiceEntityRepository
         if (null !== $filter->subject) {
             $qb->leftJoin('d.subjects', 's');
             $qb->andWhere('LOWER(d.subject) LIKE LOWER(:subject) OR LOWER(s.title) = LOWER(:subject)')
-               ->setParameter('subject', $filter->subject);
+               ->setParameter('subject', LikeQueryHelper::escapeLike($filter->subject));
         }
         if (null !== $filter->language) {
             $qb->andWhere('LOWER(d.language) = LOWER(:language)')
@@ -1522,7 +1523,7 @@ class LsDocRepository extends ServiceEntityRepository
         }
         if (null !== $filter->publisher) {
             $qb->andWhere('LOWER(d.publisher) LIKE LOWER(:publisher)')
-               ->setParameter('publisher', '%'.$filter->publisher.'%');
+               ->setParameter('publisher', LikeQueryHelper::contains($filter->publisher));
         }
     }
 

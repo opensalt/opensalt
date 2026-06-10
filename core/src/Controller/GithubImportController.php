@@ -10,6 +10,7 @@ use App\Security\Permission;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -27,6 +28,15 @@ class GithubImportController extends AbstractController
         $lsDocId = $request->request->get('lsDocId');
         $frameworkToAssociate = $request->request->get('frameworkToAssociate');
         $missingFieldsLog = $request->request->all('missingFieldsLog');
+
+        if (empty($fileContent) || !is_string($fileContent)) {
+            return new JsonResponse(['error' => 'Missing or invalid file content.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $maxBase64Size = 67 * 1024 * 1024;
+        if (\strlen($fileContent) > $maxBase64Size) {
+            return new JsonResponse(['error' => 'File too large. Maximum size is 50 MB.'], Response::HTTP_REQUEST_ENTITY_TOO_LARGE);
+        }
 
         $command = new ParseCsvGithubDocumentCommand($lsItemKeys, base64_decode($fileContent), $lsDocId, $frameworkToAssociate, $missingFieldsLog);
         $this->sendCommand($command);

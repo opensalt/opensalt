@@ -16,12 +16,16 @@ use App\Entity\Framework\LsItem;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
+use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 
 class AsnImport
 {
-    public function __construct(private readonly EntityManagerInterface $em)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private readonly ?LoggerInterface $logger = null,
+    ) {
     }
 
     protected function getEntityManager(): EntityManagerInterface
@@ -181,7 +185,7 @@ class AsnImport
     }
 
     /**
-     * @throws \Exception
+     * @throws \RuntimeException
      */
     public function fetchAsnDocument(string $asnLocator): string
     {
@@ -211,20 +215,23 @@ class AsnImport
             try {
                 $asnDoc = $this->requestAsnDocument($urlPrefix.$asnId.'_full.json');
                 break;
-            } catch (\Exception) {
-                // If on the second ASN URL then the first will not be found
+            } catch (RequestException $e) {
+                $this->logger?->info('ASN URL not found, trying next', [
+                    'url' => $urlPrefix.$asnId.'_full.json',
+                    'exception' => $e->getMessage(),
+                ]);
             }
         }
 
         if ('' === $asnDoc) {
-            throw new \Exception('Error getting document from ASN.');
+            throw new \RuntimeException('Error getting document from ASN: all URL prefixes failed.');
         }
 
         return $asnDoc;
     }
 
     /**
-     * @throws \Exception
+     * @throws \RuntimeException
      */
     public function requestAsnDocument(string $url): string
     {
@@ -243,7 +250,7 @@ class AsnImport
         );
 
         if (200 !== $asnResponse->getStatusCode()) {
-            throw new \Exception('Error getting document from ASN.');
+            throw new \RuntimeException(sprintf('Error getting document from ASN (HTTP %d): %s', $asnResponse->getStatusCode(), $url));
         }
 
         return $asnResponse->getBody()->getContents();

@@ -94,8 +94,17 @@ function renewSession() {
 }
 
 function checkSession() {
-    fetch('/session/check')
-        .then(json => json.json())
+    fetch('/session/check', {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error('Session check failed: ' + response.status);
+            }
+            return response.json();
+        })
         .then((json) => {
             let remainingTime = json.remainingTime;
 

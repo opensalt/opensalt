@@ -28,6 +28,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         nullable: true,
     )),
 ])]
+#[Assert\Callback(callback: 'validateType')]
 class LsAssociation implements CaseApiInterface
 {
     use IdentifiableTrait;
@@ -153,6 +154,7 @@ class LsAssociation implements CaseApiInterface
     private ?LsItem $destinationLsItem = null;
 
     #[ORM\Column(name: 'type', type: 'string', length: 50, nullable: false)]
+    #[Assert\NotBlank]
     private ?string $type = null;
 
     #[ORM\Column(name: 'seq', type: 'bigint', nullable: true)]
@@ -467,6 +469,35 @@ class LsAssociation implements CaseApiInterface
         }
 
         throw new \InvalidArgumentException('Invalid association type passed: '.$type);
+    }
+
+    /**
+     * Validates that the association type is either a CASE base type or an "ext:" extension type.
+     *
+     * Relationship to setType(): setType() uses coerceType() which normalizes display names
+     * (e.g., "Is Child Of" → "isChildOf") before assigning. This callback validates the final
+     * stored value. As long as coerceType() produces only BASE_TYPES members or "ext:" strings,
+     * these two checks remain consistent.
+     */
+    public static function validateType(self $association, \Symfony\Component\Validator\Context\ExecutionContextInterface $context): void
+    {
+        $type = $association->getType();
+        if (null === $type || '' === $type) {
+            return;
+        }
+
+        if (1 === preg_match('/^ext:[a-zA-Z0-9._-]+$/', $type)) {
+            return;
+        }
+
+        if (in_array($type, self::BASE_TYPES, true)) {
+            return;
+        }
+
+        $context->buildViolation('Invalid association type "{{ type }}". Must be a CASE base type or an "ext:" prefixed extension type.')
+            ->setParameter('{{ type }}', $type)
+            ->atPath('type')
+            ->addViolation();
     }
 
     public function getType(): ?string

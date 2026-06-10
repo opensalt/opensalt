@@ -181,9 +181,20 @@ class MirrorServer
 
     public function updateNext(): ?Server
     {
-        $server = $this->em->getRepository(Server::class)->findNext();
-        if (null !== $server) {
-            $this->updateFrameworkList($server);
+        $conn = $this->em->getConnection();
+        $conn->beginTransaction();
+        try {
+            $server = $this->em->getRepository(Server::class)->findNext();
+            if (null !== $server) {
+                // updateFrameworkList() flushes internally, but the transaction
+                // here ensures atomicity of findNext() (with PESSIMISTIC_WRITE)
+                // together with the framework list update.
+                $this->updateFrameworkList($server);
+            }
+            $conn->commit();
+        } catch (\Exception $e) {
+            $conn->rollBack();
+            throw $e;
         }
 
         return $server;

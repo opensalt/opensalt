@@ -9,6 +9,7 @@ use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Repository\Framework\LsDocRepository;
 use App\Repository\Framework\LsItemRepository;
+use App\Util\LikeQueryHelper;
 use Doctrine\ORM\QueryBuilder;
 
 readonly class OpenSaltMcpQueryService
@@ -34,7 +35,7 @@ readonly class OpenSaltMcpQueryService
         $this->addPublicDocumentVisibilityFilter($qb, 'd', 'm');
 
         if (null !== $query && '' !== trim($query)) {
-            $query = '%'.mb_strtolower(trim($query)).'%';
+            $query = LikeQueryHelper::containsLower(trim($query));
             $qb->andWhere('LOWER(d.title) LIKE :query OR LOWER(d.creator) LIKE :query OR LOWER(d.publisher) LIKE :query OR LOWER(d.identifier) LIKE :query')
                 ->setParameter('query', $query);
         }
@@ -88,7 +89,7 @@ readonly class OpenSaltMcpQueryService
         }
 
         if (null !== $query && '' !== trim($query)) {
-            $query = '%'.mb_strtolower(trim($query)).'%';
+            $query = LikeQueryHelper::containsLower(trim($query));
             $qb->andWhere('LOWER(i.fullStatement) LIKE :query OR LOWER(i.abbreviatedStatement) LIKE :query OR LOWER(i.humanCodingScheme) LIKE :query OR LOWER(i.identifier) LIKE :query')
                 ->setParameter('query', $query);
         }

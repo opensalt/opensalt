@@ -28,6 +28,15 @@ class SessionController extends AbstractController
             return new JsonResponse(null, Response::HTTP_NOT_FOUND);
         }
 
+        // Require X-Requested-With header to mitigate session oracle attacks.
+        // Cannot use isCsrfTokenValid() here because this route is stateless (no session).
+        // The X-Requested-With header is automatically sent by fetch/XMLHttpRequest but
+        // cannot be set by cross-origin requests without CORS preflight — providing
+        // equivalent protection without server-side state.
+        if ('XMLHttpRequest' !== $request->headers->get('X-Requested-With')) {
+            return new JsonResponse(null, Response::HTTP_FORBIDDEN);
+        }
+
         if (null === ($session = $repo->findSession($sessionId))) {
             return new JsonResponse(null, Response::HTTP_NOT_FOUND);
         }

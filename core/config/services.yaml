@@ -19,6 +19,7 @@ parameters:
     env(MYSQL_PASSWORD): null
     env(LOCK_DSN): flock
     env(MESSENGER_TRANSPORT_DSN): 'doctrine://default?auto_setup=0'
+    env(MAILER_DSN): 'null://null'
     env(MAILER_TRANSPORT): smtp
     env(MAILER_HOST): '127.0.0.1'
     env(MAILER_USER): null
