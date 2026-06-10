@@ -198,6 +198,11 @@ services:
             $attachmentUrlPrefix: '%attachment_url_prefix%'
             $bucketPrefix: '%aws_prefix%'
 
+    App\Messenger\Retry\LowPriorityRetryStrategy:
+        arguments:
+            $maxRetries: 3
+            $delayMultiplier: 5
+
     WGG\Flysystem\Doctrine\DoctrineDBALAdapter: ~
 
     # Workarounds for 3.4 deprecations

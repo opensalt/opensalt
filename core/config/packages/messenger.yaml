@@ -46,10 +46,7 @@ framework:
                     check_delayed_interval: 30000
                     queue_name: low
                 retry_strategy:
-                    max_retries: 5
-                    multiplier: 2
-                    delay: 5000
-                    jitter: 0.1
+                    service: App\Messenger\Retry\LowPriorityRetryStrategy
                 serializer: messenger.transport.symfony_serializer
             async_priority_very_low: # Target max 1 day before handling
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'

@@ -8,8 +8,10 @@ use App\Entity\Framework\LsItem;
 use App\VectorSearch\Message\GenerateEmbeddingMessage;
 use App\VectorSearch\Service\VectorSearchService;
 use Doctrine\ORM\EntityManagerInterface;
+use GuzzleHttp\Exception\ClientException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 
 #[AsMessageHandler]
 readonly class GenerateEmbeddingMessageHandler
@@ -67,11 +69,18 @@ readonly class GenerateEmbeddingMessageHandler
             $this->logger->info('Embedding generated successfully', [
                 'ls_item_id' => $lsItemId,
             ]);
-        } catch (\Exception $e) {
-            $this->logger->error('Error processing GenerateEmbeddingMessage', [
+        } catch (UnrecoverableMessageHandlingException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            $this->logger->warning('Embedding generation failed (will retry)', [
                 'ls_item_id' => $lsItemId,
                 'error' => $e->getMessage(),
             ]);
+
+            $previous = $e->getPrevious();
+            if ($previous instanceof ClientException) {
+                throw new UnrecoverableMessageHandlingException('Embedding request failed with client error: ' . $previous->getMessage(), 0, $previous);
+            }
 
             throw $e;
         }
