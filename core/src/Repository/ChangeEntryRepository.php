@@ -44,11 +44,7 @@ class ChangeEntryRepository extends ServiceEntityRepository
         }
 
         // ID should always be available after flush — if we reach here, something is wrong upstream
-        throw new \LogicException(sprintf(
-            'ChangeEntry ID is null in updateChanged(). Description: "%s". '
-            . 'Ensure the entity is persisted and flushed before calling updateChanged().',
-            $change->getDescription()
-        ));
+        throw new \LogicException(sprintf('ChangeEntry ID is null in updateChanged(). Description: "%s". Ensure the entity is persisted and flushed before calling updateChanged().', $change->getDescription()));
     }
 
     /**

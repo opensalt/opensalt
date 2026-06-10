@@ -33,6 +33,7 @@ class MercureCreateJwtCommand
         if (null !== $secretFile) {
             if (!is_readable($secretFile)) {
                 $io->error(sprintf('Cannot read secret file: %s', $secretFile));
+
                 return Command::FAILURE;
             }
             $key = trim(file_get_contents($secretFile));
@@ -40,6 +41,7 @@ class MercureCreateJwtCommand
 
         if (null === $key || '' === $key) {
             $io->error('A signing key is required. Use --secret-file=<path> or --key=<value>.');
+
             return Command::FAILURE;
         }
 

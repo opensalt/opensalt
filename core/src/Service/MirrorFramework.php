@@ -65,6 +65,7 @@ class MirrorFramework
             $next = $this->em->getRepository(Framework::class)->findNext();
             if (null === $next) {
                 $conn->commit();
+
                 return null;
             }
 

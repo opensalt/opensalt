@@ -64,7 +64,6 @@
         "ext-mbstring": "*",
         "ext-random": "*",
         "colinodell/json5": "^3.0",
-        "composer/package-versions-deprecated": "^1.11",
         "doctrine/doctrine-bundle": "^3.0",
         "doctrine/doctrine-fixtures-bundle": "^4.2",
         "doctrine/doctrine-migrations-bundle": "^4.0",
@@ -77,7 +76,7 @@
         "endroid/qr-code": "^6.0",
         "firebase/php-jwt": "^7.0",
         "google/recaptcha": "~1.1",
-        "guzzlehttp/guzzle": "^6.5|^7.3",
+        "guzzlehttp/guzzle": "^7.3",
         "kamermans/guzzle-oauth2-subscriber": "^1.0.11",
         "laminas/laminas-code": "^4.0",
         "laminas/laminas-escaper": "^2.2",
@@ -225,7 +224,6 @@
         "sort-packages": true,
         "allow-plugins": {
             "codewithkyrian/platform-package-installer": true,
-            "composer/package-versions-deprecated": true,
             "php-http/discovery": true,
             "symfony/flex": true,
             "symfony/runtime": true
