@@ -3,9 +3,15 @@ on:
     branches:
       - '**'
       - '!dependabot/**'
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
   pull_request:
     branches:
       - '**:**'
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
   release:
     types: [published]
 #  schedule:
