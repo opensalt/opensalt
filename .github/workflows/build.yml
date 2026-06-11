@@ -100,6 +100,16 @@ jobs:
         run: |
           docker compose run --rm --no-deps web ./bin/console --env=prod doctrine:migrations:migrate --no-interaction
 
+      - name: Bring up the web container
+        run: |
+          docker compose up -d --no-recreate --wait --wait-timeout 60 web
+          sleep 10
+          docker compose ps
+
+      - name: Initialize db data
+        run: |
+          docker compose exec web ./bin/console --env=prod import:generic-csv tests/Support/Data/test_items.csv
+
       - name: Lint Twig templates
         run: docker compose exec web ./bin/console --env=prod lint:twig templates/
 
@@ -111,16 +121,6 @@ jobs:
 
       - name: Validate Doctrine schema
         run: docker compose exec web ./bin/console --env=prod doctrine:schema:validate
-
-      - name: Bring up the web container
-        run: |
-          docker compose up -d --no-recreate --wait --wait-timeout 60 web
-          sleep 10
-          docker compose ps
-
-      - name: Initialize db data
-        run: |
-          docker compose exec web ./bin/console --env=prod import:generic-csv tests/Support/Data/test_items.csv
 
       - name: Run tests
         run: ./core/bin/run-tests --debug ${RUN_TEST_ARGS:-$DEFAULT_RUN_TEST_ARGS} -x skip-ci
