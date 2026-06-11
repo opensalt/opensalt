@@ -405,7 +405,7 @@ class ItemController extends AbstractController
             $em->persist($newAssoc);
 
             // Renumber all siblings to ensure clean, sequential sequence numbers
-            $this->renumberSiblings($newParent);
+            $this->renumberSiblings($newParent, $lsItem->getIdentifier(), $targetItemIdentifier, $position);
             $em->flush();
 
             return new JsonResponse([
@@ -494,13 +494,37 @@ class ItemController extends AbstractController
      * Ensures clean, unique, sequential values for all siblings after a move,
      * in case the integer bisection algorithm produces collisions.
      */
-    private function renumberSiblings(LsItem|LsDoc $parent): void
-    {
+    private function renumberSiblings(
+        LsItem|LsDoc $parent,
+        ?string $movedItemIdentifier = null,
+        ?string $targetItemIdentifier = null,
+        ?string $position = null,
+    ): void {
         $parentIdentifier = $parent->getIdentifier();
         $childAssocs = $this->associationRepository->findAllChildAssociationsFor($parentIdentifier);
 
-        // Sort by current sequence number to preserve the relative order
-        usort($childAssocs, static fn (LsAssociation $a, LsAssociation $b) => ($a->getSequenceNumber() ?? 0) <=> ($b->getSequenceNumber() ?? 0));
+        // Sort by current sequence number to preserve the relative order,
+        // with special tie-breaking when the bisection produced a collision
+        usort($childAssocs, function (LsAssociation $a, LsAssociation $b) use ($movedItemIdentifier, $targetItemIdentifier, $position): int {
+            $seqA = $a->getSequenceNumber() ?? 0;
+            $seqB = $b->getSequenceNumber() ?? 0;
+
+            if ($seqA === $seqB && null !== $movedItemIdentifier && null !== $targetItemIdentifier) {
+                $origA = $a->getOriginLsItem()?->getIdentifier();
+                $origB = $b->getOriginLsItem()?->getIdentifier();
+
+                // If A is the moved item and B is the target, position A relative to B
+                if ($origA === $movedItemIdentifier && $origB === $targetItemIdentifier) {
+                    return 'before' === $position ? -1 : 1;
+                }
+                // If B is the moved item and A is the target, position B relative to A
+                if ($origB === $movedItemIdentifier && $origA === $targetItemIdentifier) {
+                    return 'before' === $position ? 1 : -1;
+                }
+            }
+
+            return $seqA <=> $seqB;
+        });
 
         $seq = 1;
         foreach ($childAssocs as $assoc) {
