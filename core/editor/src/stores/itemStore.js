@@ -189,7 +189,16 @@ export const useItemStore = defineStore('items', () => {
         itemToMove.childOfAssociationIdentifier = response.childOfAssociationIdentifier;
         itemToMove.childOfAssocId = response.childOfAssociationIdentifier;
       }
-      if (response?.sequenceNumber !== undefined) {
+
+      const siblingArray = position === 'inside' ? targetItem.children : targetParentArray;
+      if (response?.siblingSequenceNumbers && Array.isArray(siblingArray)) {
+        for (const sibling of siblingArray) {
+          const newSeq = response.siblingSequenceNumbers[sibling.identifier];
+          if (newSeq !== undefined) {
+            sibling.sequenceNumber = newSeq;
+          }
+        }
+      } else if (response?.sequenceNumber !== undefined) {
         itemToMove.sequenceNumber = response.sequenceNumber;
       }
 

@@ -297,7 +297,9 @@ describe('ItemStore', () => {
 
   describe('moveItem', () => {
     it('moves item before target', async () => {
-      api.post.mockResolvedValueOnce({});
+      api.post.mockResolvedValueOnce({
+        siblingSequenceNumbers: { 'item-2': 1, 'item-1': 2 }
+      });
       const currentDocument = {
         id: 'doc-1',
         items: [
@@ -315,10 +317,14 @@ describe('ItemStore', () => {
       expect(result).toBe(true);
       expect(currentDocument.items[0].identifier).toBe('item-2');
       expect(currentDocument.items[1].identifier).toBe('item-1');
+      expect(currentDocument.items[0].sequenceNumber).toBe(1);
+      expect(currentDocument.items[1].sequenceNumber).toBe(2);
     });
 
     it('moves item after target', async () => {
-      api.post.mockResolvedValueOnce({});
+      api.post.mockResolvedValueOnce({
+        siblingSequenceNumbers: { 'item-1': 1, 'item-3': 2, 'item-2': 3 }
+      });
       const currentDocument = {
         id: 'doc-1',
         items: [
@@ -336,10 +342,17 @@ describe('ItemStore', () => {
 
       expect(result).toBe(true);
       expect(currentDocument.items[1].identifier).toBe('item-3');
+      expect(currentDocument.items[0].sequenceNumber).toBe(1);
+      expect(currentDocument.items[1].sequenceNumber).toBe(2);
+      expect(currentDocument.items[2].sequenceNumber).toBe(3);
     });
 
     it('moves item inside target (as child)', async () => {
-      api.post.mockResolvedValueOnce({});
+      api.post.mockResolvedValueOnce({
+        childOfAssociationIdentifier: 'new-assoc-id',
+        sequenceNumber: 1,
+        siblingSequenceNumbers: { 'item-2': 1 }
+      });
       const currentDocument = {
         id: 'doc-1',
         items: [
@@ -361,6 +374,7 @@ describe('ItemStore', () => {
       expect(result).toBe(true);
       expect(currentDocument.items[0].children).toHaveLength(1);
       expect(currentDocument.items[0].children[0].identifier).toBe('item-2');
+      expect(currentDocument.items[0].children[0].sequenceNumber).toBe(1);
     });
 
     it('returns true when dragged item not found in local tree but API succeeds', async () => {
@@ -403,6 +417,27 @@ describe('ItemStore', () => {
           position: 'before',
         })
       );
+    });
+
+    it('falls back to response.sequenceNumber when no siblingSequenceNumbers', async () => {
+      api.post.mockResolvedValueOnce({
+        sequenceNumber: 5
+      });
+      const currentDocument = {
+        id: 'doc-1',
+        items: [
+          { identifier: 'item-1', sequenceNumber: 10 },
+          { identifier: 'item-2', sequenceNumber: 20 }
+        ]
+      };
+
+      await itemStore.moveItem(currentDocument, {
+        draggedItem: { identifier: 'item-2' },
+        targetItem: { identifier: 'item-1' },
+        position: 'before'
+      });
+
+      expect(currentDocument.items[0].sequenceNumber).toBe(5);
     });
 
     it('throws when API call fails', async () => {

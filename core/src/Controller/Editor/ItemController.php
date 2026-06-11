@@ -74,25 +74,29 @@ class ItemController extends AbstractController
             return new JsonResponse(['error' => 'Access Denied.'], Response::HTTP_FORBIDDEN);
         }
 
-        try {
-            $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
-        } catch (\JsonException $e) {
-            return new JsonResponse(['error' => 'Invalid JSON: ' . $e->getMessage()], Response::HTTP_BAD_REQUEST);
+        $data = $this->parseJsonBody($request);
+        if ($data instanceof Response) {
+            return $data;
         }
 
         try {
-            $lsItem = $this->createItemFromRequest($data, $doc, $request);
-
-            $command = new AddItemCommand($lsItem, $doc, $parent);
-            $this->sendCommand($command);
-
-            /** @var ?LsAssociation $assoc */
-            $assoc = $this->managerRegistry->getRepository(LsAssociation::class)->findOneBy(['originLsItem' => $lsItem, 'type' => LsAssociation::CHILD_OF]);
-
-            return $this->generateItemJsonResponse($lsItem, $assoc);
+            return $this->createAndAddItem($data, $doc, $parent, $request);
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
+    }
+
+    private function createAndAddItem(array $data, LsDoc $doc, ?LsItem $parent, Request $request): Response
+    {
+        $lsItem = $this->createItemFromRequest($data, $doc, $request);
+
+        $command = new AddItemCommand($lsItem, $doc, $parent);
+        $this->sendCommand($command);
+
+        /** @var ?LsAssociation $assoc */
+        $assoc = $this->managerRegistry->getRepository(LsAssociation::class)->findOneBy(['originLsItem' => $lsItem, 'type' => LsAssociation::CHILD_OF]);
+
+        return $this->generateItemJsonResponse($lsItem, $assoc);
     }
 
     private function createItemFromRequest(?array $data, LsDoc $doc, Request $request): LsItem
@@ -354,182 +358,187 @@ class ItemController extends AbstractController
             return new JsonResponse(['error' => 'Access Denied.'], Response::HTTP_FORBIDDEN);
         }
 
-        try {
-            $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
-        } catch (\JsonException $e) {
-            return new JsonResponse(['error' => 'Invalid JSON: ' . $e->getMessage()], Response::HTTP_BAD_REQUEST);
+        $data = $this->parseJsonBody($request);
+        if ($data instanceof Response) {
+            return $data;
         }
 
         $newParentIdentifier = $data['newParentIdentifier'] ?? null;
         $targetItemIdentifier = $data['targetItemIdentifier'] ?? null;
         $position = $data['position'] ?? 'inside';
-        $oldChildOfAssocIdentifier = $data['childOfAssociationIdentifier'] ?? null;
+        $existingAssocIdentifier = $data['childOfAssociationIdentifier'] ?? null;
 
         if (null === $newParentIdentifier) {
             return new JsonResponse(['error' => 'newParentIdentifier is required.'], Response::HTTP_BAD_REQUEST);
         }
 
         try {
-            $em = $this->managerRegistry->getManager();
-
-            if (null !== $oldChildOfAssocIdentifier) {
-                $oldAssoc = $this->associationRepository->findOneBy(['identifier' => $oldChildOfAssocIdentifier]);
-                if (null !== $oldAssoc) {
-                    $this->associationRepository->removeAssociation($oldAssoc);
-                    $em->flush();
-                }
-            } else {
-                $deleted = $this->associationRepository->removeAllAssociationsOfType($lsItem, LsAssociation::CHILD_OF);
-                $em->flush();
-            }
-
-            $newParent = $this->itemRepository->findOneBy(['identifier' => $newParentIdentifier]);
-            if (null === $newParent) {
-                $newParent = $this->docRepository->findOneBy(['identifier' => $newParentIdentifier]);
-            }
-
-            if (null === $newParent) {
-                return new JsonResponse(['error' => 'Parent not found.'], Response::HTTP_NOT_FOUND);
-            }
-
-            $sequenceNumber = 1;
-            if (null !== $targetItemIdentifier && 'inside' !== $position) {
-                $sequenceNumber = $this->calculateSequenceNumber(
-                    $newParent, $targetItemIdentifier, $position
-                );
-            } else {
-                $sequenceNumber = $this->getNextSequenceNumber($newParent);
-            }
-
-            $newAssoc = $lsItem->addParent($newParent, $sequenceNumber);
-            $em->persist($newAssoc);
-
-            // Renumber all siblings to ensure clean, sequential sequence numbers
-            $this->renumberSiblings($newParent, $lsItem->getIdentifier(), $targetItemIdentifier, $position);
-            $em->flush();
-
-            return new JsonResponse([
-                'childOfAssociationIdentifier' => $newAssoc->getIdentifier(),
-                'sequenceNumber' => $newAssoc->getSequenceNumber(),
-            ], Response::HTTP_OK);
+            return $this->executeMove($lsItem, $newParentIdentifier, $targetItemIdentifier, $position, $existingAssocIdentifier);
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
     }
 
-    private function calculateSequenceNumber(
-        LsItem|LsDoc $parent,
-        string $targetItemIdentifier,
+    private function executeMove(
+        LsItem $lsItem,
+        string $newParentIdentifier,
+        ?string $targetItemIdentifier,
         string $position,
-    ): int {
+        ?string $existingAssocIdentifier,
+    ): JsonResponse {
         $em = $this->managerRegistry->getManager();
-        $parentIdentifier = $parent->getIdentifier();
 
-        $childAssocs = $this->associationRepository->findAllChildAssociationsFor($parentIdentifier);
-
-        $siblings = [];
-        foreach ($childAssocs as $assoc) {
-            $childItem = $assoc->getOriginLsItem();
-            if (null !== $childItem) {
-                $siblings[] = [
-                    'identifier' => $childItem->getIdentifier(),
-                    'seq' => $assoc->getSequenceNumber() ?? 0,
-                ];
-            }
+        $existingAssoc = $this->findExistingChildOfAssociation($lsItem, $existingAssocIdentifier);
+        if (null === $existingAssoc) {
+            return new JsonResponse(['error' => 'No existing isChildOf association found for this item.'], Response::HTTP_NOT_FOUND);
         }
 
-        usort($siblings, static fn (array $a, array $b) => $a['seq'] <=> $b['seq']);
-
-        $targetIndex = null;
-        foreach ($siblings as $i => $s) {
-            if ($s['identifier'] === $targetItemIdentifier) {
-                $targetIndex = $i;
-                break;
-            }
+        $newParent = $this->resolveParent($newParentIdentifier);
+        if (null === $newParent) {
+            return new JsonResponse(['error' => 'Parent not found.'], Response::HTTP_NOT_FOUND);
         }
 
-        if (null === $targetIndex) {
-            $lastSeq = [] !== $siblings ? (int) end($siblings)['seq'] : 0;
+        $oldParent = $existingAssoc->getDestination();
+        $parentChanged = is_object($oldParent) && !$this->isSameParent($oldParent, $newParent);
 
-            return $lastSeq + 1;
+        if ($parentChanged) {
+            $this->reparentAssociation($existingAssoc, $oldParent, $newParent);
         }
 
-        if ('before' === $position) {
-            $targetSeq = (int) $siblings[$targetIndex]['seq'];
-            $prevSeq = $targetIndex > 0 ? (int) $siblings[$targetIndex - 1]['seq'] : 0;
+        $em->flush();
 
-            return max(1, (int) floor(($prevSeq + $targetSeq) / 2));
+        $siblingSequenceNumbers = $this->renumberSiblings($newParent, $lsItem->getIdentifier(), $targetItemIdentifier, $position);
+
+        if ($parentChanged) {
+            $this->renumberSiblings($oldParent);
         }
 
-        $targetSeq = (int) $siblings[$targetIndex]['seq'];
-        $nextIndex = $targetIndex + 1;
-        if ($nextIndex < count($siblings)) {
-            $nextSeq = (int) $siblings[$nextIndex]['seq'];
+        $em->flush();
 
-            return max(1, (int) floor(($targetSeq + $nextSeq) / 2));
-        }
-
-        return $targetSeq + 1;
-    }
-
-    private function getNextSequenceNumber(LsItem|LsDoc $parent): int
-    {
-        $parentIdentifier = $parent->getIdentifier();
-        $childAssocs = $this->associationRepository->findAllChildAssociationsFor($parentIdentifier);
-
-        $maxSeq = 0;
-        foreach ($childAssocs as $assoc) {
-            $seq = $assoc->getSequenceNumber();
-            if (null !== $seq && $seq > $maxSeq) {
-                $maxSeq = $seq;
-            }
-        }
-
-        return $maxSeq + 1;
+        return new JsonResponse([
+            'childOfAssociationIdentifier' => $existingAssoc->getIdentifier(),
+            'sequenceNumber' => $existingAssoc->getSequenceNumber(),
+            'siblingSequenceNumbers' => $siblingSequenceNumbers,
+        ], Response::HTTP_OK);
     }
 
     /**
      * Renumber all children of a parent with sequential integers starting from 1.
      *
-     * Ensures clean, unique, sequential values for all siblings after a move,
-     * in case the integer bisection algorithm produces collisions.
+     * Sorts by current sequence number, physically reorders the moved item
+     * to the desired position, then assigns clean sequential values.
+     *
+     * @return array<string, int> Map of item identifier => assigned sequence number
      */
     private function renumberSiblings(
         LsItem|LsDoc $parent,
         ?string $movedItemIdentifier = null,
         ?string $targetItemIdentifier = null,
         ?string $position = null,
-    ): void {
+    ): array {
         $parentIdentifier = $parent->getIdentifier();
         $childAssocs = $this->associationRepository->findAllChildAssociationsFor($parentIdentifier);
 
-        // Sort by current sequence number to preserve the relative order,
-        // with special tie-breaking when the bisection produced a collision
-        usort($childAssocs, function (LsAssociation $a, LsAssociation $b) use ($movedItemIdentifier, $targetItemIdentifier, $position): int {
-            $seqA = $a->getSequenceNumber() ?? 0;
-            $seqB = $b->getSequenceNumber() ?? 0;
+        usort($childAssocs, static fn (LsAssociation $a, LsAssociation $b): int => ($a->getSequenceNumber() ?? 0) <=> ($b->getSequenceNumber() ?? 0));
 
-            if ($seqA === $seqB && null !== $movedItemIdentifier && null !== $targetItemIdentifier) {
-                $origA = $a->getOriginLsItem()?->getIdentifier();
-                $origB = $b->getOriginLsItem()?->getIdentifier();
+        if (null !== $movedItemIdentifier && null !== $targetItemIdentifier && null !== $position && 'inside' !== $position) {
+            $this->reorderSiblings($childAssocs, $movedItemIdentifier, $targetItemIdentifier, $position);
+        }
 
-                // If A is the moved item and B is the target, position A relative to B
-                if ($origA === $movedItemIdentifier && $origB === $targetItemIdentifier) {
-                    return 'before' === $position ? -1 : 1;
-                }
-                // If B is the moved item and A is the target, position B relative to A
-                if ($origB === $movedItemIdentifier && $origA === $targetItemIdentifier) {
-                    return 'before' === $position ? 1 : -1;
-                }
-            }
-
-            return $seqA <=> $seqB;
-        });
-
+        $result = [];
         $seq = 1;
         foreach ($childAssocs as $assoc) {
             $assoc->setSequenceNumber($seq);
+            $childItem = $assoc->getOriginLsItem();
+            if (null !== $childItem) {
+                $result[$childItem->getIdentifier()] = $seq;
+            }
             ++$seq;
+        }
+
+        return $result;
+    }
+
+    private function findExistingChildOfAssociation(LsItem $lsItem, ?string $assocIdentifier): ?LsAssociation
+    {
+        if (null !== $assocIdentifier) {
+            $assoc = $this->associationRepository->findOneBy(['identifier' => $assocIdentifier]);
+            if (null !== $assoc && $assoc->getOriginLsItem()?->getIdentifier() === $lsItem->getIdentifier()) {
+                return $assoc;
+            }
+        }
+
+        foreach ($lsItem->getAssociations() as $assoc) {
+            if (LsAssociation::CHILD_OF === $assoc->getType()) {
+                return $assoc;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param array<LsAssociation> $childAssocs Passed by reference; reordered in place
+     */
+    private function reorderSiblings(array &$childAssocs, string $movedItemIdentifier, string $targetItemIdentifier, string $position): void
+    {
+        $movedIndex = null;
+        $targetIndex = null;
+        foreach ($childAssocs as $i => $assoc) {
+            $id = $assoc->getOriginLsItem()?->getIdentifier();
+            if ($id === $movedItemIdentifier) {
+                $movedIndex = $i;
+            }
+            if ($id === $targetItemIdentifier) {
+                $targetIndex = $i;
+            }
+        }
+
+        if (null === $movedIndex || null === $targetIndex) {
+            return;
+        }
+
+        $movedAssoc = array_splice($childAssocs, $movedIndex, 1)[0];
+        if ($targetIndex > $movedIndex) {
+            --$targetIndex;
+        }
+        if ('before' === $position) {
+            array_splice($childAssocs, $targetIndex, 0, [$movedAssoc]);
+        } else {
+            array_splice($childAssocs, (int) ($targetIndex + 1), 0, [$movedAssoc]);
+        }
+    }
+
+    private function isSameParent(object $a, object $b): bool
+    {
+        if ($a === $b) {
+            return true;
+        }
+
+        return $a->getIdentifier() === $b->getIdentifier();
+    }
+
+    private function reparentAssociation(LsAssociation $assoc, LsItem|LsDoc $oldParent, LsItem|LsDoc $newParent): void
+    {
+        $oldParent->removeInverseAssociation($assoc);
+        $assoc->setDestinationLsItem(null);
+        $assoc->setDestinationLsDoc(null);
+        $assoc->setDestination($newParent);
+        $newParent->addInverseAssociation($assoc);
+    }
+
+    private function resolveParent(string $identifier): LsItem|LsDoc|null
+    {
+        return $this->itemRepository->findOneBy(['identifier' => $identifier])
+            ?? $this->docRepository->findOneBy(['identifier' => $identifier]);
+    }
+
+    private function parseJsonBody(Request $request): array|Response
+    {
+        try {
+            return json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            return new JsonResponse(['error' => 'Invalid JSON: ' . $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
     }
 

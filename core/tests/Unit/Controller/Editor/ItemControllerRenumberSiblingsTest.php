@@ -98,7 +98,7 @@ final class ItemControllerRenumberSiblingsTest extends TestCase
             'Item A (moved before B) should receive a lower sequence number than B');
     }
 
-    public function testDifferentSequenceNumbersIgnorePosition(): void
+    public function testDifferentSequenceNumbersRespectsPosition(): void
     {
         $assignedSeqs = [];
         $assocA = $this->createAssoc(1, 'item-A', $assignedSeqs);
@@ -107,8 +107,8 @@ final class ItemControllerRenumberSiblingsTest extends TestCase
         $controller = $this->buildController([$assocB, $assocA]);
         $this->invokeRenumberSiblings($controller, $this->createParent(), 'item-A', 'item-B', 'after');
 
-        self::assertLessThan($assignedSeqs['item-B'], $assignedSeqs['item-A'],
-            'A (seq=1) should come before B (seq=2) regardless of position');
+        self::assertGreaterThan($assignedSeqs['item-B'], $assignedSeqs['item-A'],
+            'A explicitly moved after B should receive a higher sequence number');
     }
 
     public function testReverseDifferentSequenceNumbers(): void
@@ -120,8 +120,8 @@ final class ItemControllerRenumberSiblingsTest extends TestCase
         $controller = $this->buildController([$assocA, $assocB]);
         $this->invokeRenumberSiblings($controller, $this->createParent(), 'item-A', 'item-B', 'before');
 
-        self::assertLessThan($assignedSeqs['item-A'], $assignedSeqs['item-B'],
-            'B (seq=1) should come before A (seq=2) regardless of position');
+        self::assertLessThan($assignedSeqs['item-B'], $assignedSeqs['item-A'],
+            'A explicitly moved before B should receive a lower sequence number');
     }
 
     public function testThreeItemsCollisionMoveAfter(): void
@@ -165,5 +165,78 @@ final class ItemControllerRenumberSiblingsTest extends TestCase
 
         self::assertGreaterThan($assignedSeqs['item-B'], $assignedSeqs['item-A'],
             'A (moved after B) should sort after B when both seq are null');
+    }
+
+    public function testMoveBeforeFirstItem(): void
+    {
+        $assignedSeqs = [];
+        $assocA = $this->createAssoc(1, 'item-A', $assignedSeqs);
+        $assocB = $this->createAssoc(2, 'item-B', $assignedSeqs);
+        $assocC = $this->createAssoc(3, 'item-C', $assignedSeqs);
+
+        $controller = $this->buildController([$assocA, $assocB, $assocC]);
+        $this->invokeRenumberSiblings($controller, $this->createParent(), 'item-C', 'item-A', 'before');
+
+        self::assertSame(1, $assignedSeqs['item-C'], 'C moved before A should get seq 1');
+        self::assertSame(2, $assignedSeqs['item-A']);
+        self::assertSame(3, $assignedSeqs['item-B']);
+    }
+
+    public function testMoveAfterLastItem(): void
+    {
+        $assignedSeqs = [];
+        $assocA = $this->createAssoc(1, 'item-A', $assignedSeqs);
+        $assocB = $this->createAssoc(2, 'item-B', $assignedSeqs);
+        $assocC = $this->createAssoc(3, 'item-C', $assignedSeqs);
+
+        $controller = $this->buildController([$assocA, $assocB, $assocC]);
+        $this->invokeRenumberSiblings($controller, $this->createParent(), 'item-A', 'item-C', 'after');
+
+        self::assertSame(3, $assignedSeqs['item-A'], 'A moved after C should get seq 3');
+        self::assertSame(1, $assignedSeqs['item-B']);
+        self::assertSame(2, $assignedSeqs['item-C']);
+    }
+
+    public function testMoveBeforeMiddleItem(): void
+    {
+        $assignedSeqs = [];
+        $assocA = $this->createAssoc(1, 'item-A', $assignedSeqs);
+        $assocB = $this->createAssoc(2, 'item-B', $assignedSeqs);
+        $assocC = $this->createAssoc(3, 'item-C', $assignedSeqs);
+
+        $controller = $this->buildController([$assocA, $assocB, $assocC]);
+        $this->invokeRenumberSiblings($controller, $this->createParent(), 'item-C', 'item-B', 'before');
+
+        self::assertSame(1, $assignedSeqs['item-A']);
+        self::assertSame(2, $assignedSeqs['item-C'], 'C moved before B should get seq 2');
+        self::assertSame(3, $assignedSeqs['item-B']);
+    }
+
+    public function testMoveAfterMiddleItem(): void
+    {
+        $assignedSeqs = [];
+        $assocA = $this->createAssoc(1, 'item-A', $assignedSeqs);
+        $assocB = $this->createAssoc(2, 'item-B', $assignedSeqs);
+        $assocC = $this->createAssoc(3, 'item-C', $assignedSeqs);
+
+        $controller = $this->buildController([$assocA, $assocB, $assocC]);
+        $this->invokeRenumberSiblings($controller, $this->createParent(), 'item-A', 'item-B', 'after');
+
+        self::assertSame(2, $assignedSeqs['item-A'], 'A moved after B should get seq 2');
+        self::assertSame(1, $assignedSeqs['item-B']);
+        self::assertSame(3, $assignedSeqs['item-C']);
+    }
+
+    public function testInsidePositionDoesNotReorder(): void
+    {
+        $assignedSeqs = [];
+        $assocA = $this->createAssoc(5, 'item-A', $assignedSeqs);
+        $assocB = $this->createAssoc(2, 'item-B', $assignedSeqs);
+
+        $controller = $this->buildController([$assocA, $assocB]);
+        $this->invokeRenumberSiblings($controller, $this->createParent(), 'item-A', 'item-B', 'inside');
+
+        self::assertSame(1, $assignedSeqs['item-B'], 'B (seq=2) sorts first after renumber');
+        self::assertSame(2, $assignedSeqs['item-A'], 'A (seq=5) sorts second after renumber');
     }
 }
