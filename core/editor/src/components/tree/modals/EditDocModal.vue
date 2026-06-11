@@ -220,8 +220,7 @@
             >
               Select Adoption Status
             </option>
-            <option value="">
-            </option>
+            <option value="" />
             <option value="Private Draft">
               Private Draft
             </option>

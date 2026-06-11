@@ -1,21 +1,5 @@
 <template>
   <div class="identifier-item-details">
-    <!-- Identifier -->
-    <div class="mb-3 details-identifier item-identifier">
-      <strong>Identifier:</strong>
-      <a
-        v-if="item.identifier"
-        :href="`/uri/${item.identifier}`"
-        target="_blank"
-        class="ms-1"
-      >{{ item.identifier }}</a>
-      <span
-        v-else
-        class="text-muted ms-1"
-      >—</span>
-    </div>
-
-    <!-- Identifier Type -->
     <div
       v-if="item.extensions && item.extensions['salt:idType']"
       class="mb-3"
@@ -24,7 +8,6 @@
       <span class="ms-1">{{ item.extensions['salt:idType'] }}</span>
     </div>
 
-    <!-- Description (fullStatement in the entity) -->
     <div
       v-if="item.fullStatement"
       class="mb-3"
@@ -54,15 +37,44 @@
         {{ item.notes }}
       </p>
     </div>
+
+    <hr
+      v-if="hasContentAbove"
+      class="my-3"
+    >
+
+    <div class="mb-3 details-identifier item-identifier">
+      <strong>Item URI:</strong>
+      <a
+        v-if="item.identifier"
+        :href="`/uri/${item.identifier}`"
+        target="_blank"
+        class="ms-1"
+      >{{ item.identifier }}<span class="visually-hidden"> (opens in new window)</span></a>
+      <span
+        v-else
+        class="text-muted ms-1"
+      >—</span>
+    </div>
   </div>
 </template>
 
 <script setup>
+import { computed } from 'vue';
 const _props = defineProps({
   item: {
     type: Object,
     required: true
   }
+});
+
+const hasContentAbove = computed(() => {
+  return (
+    (_props.item.extensions && _props.item.extensions['salt:idType']) ||
+    _props.item.fullStatement ||
+    _props.item.codedNotation ||
+    _props.item.notes
+  );
 });
 </script>
 
