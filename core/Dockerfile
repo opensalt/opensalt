@@ -154,7 +154,7 @@ RUN set -eux; \
 	mkdir -p var/cache var/log; \
 	chmod 775 var/cache var/log; \
 	chown -R 1000:1000 var/cache var/log; \
-	chmod 775 tests/_output tests/Support/Data tests/Support/_generated; \
+	chmod 777 tests/_output tests/Support/Data tests/Support/_generated; \
 	chown -R 1000:1000 tests/_output tests/Support/Data tests/Support/_generated; \
 	chmod +x bin/console-real; sync; \
 	composer dump-autoload --no-interaction --classmap-authoritative; \
