@@ -9,14 +9,16 @@ use Doctrine\Migrations\AbstractMigration as BaseAbstractMigration;
 abstract class AbstractMigration extends BaseAbstractMigration
 {
     /**
-     * Transactions are re-enabled so that a failed migration rolls back cleanly
-     * instead of leaving the database in an inconsistent half-applied state.
+     * Disable transactional migrations because MySQL DDL statements
+     * (ALTER TABLE, DROP TABLE, etc.) cause implicit commits, making
+     * transactions ineffective and triggering deprecation warnings
+     * when Doctrine tries to commit an already-committed transaction.
      *
-     * The original disable was a workaround for doctrine/migrations#1104 which
-     * has been resolved upstream.
+     * @see https://www.doctrine-project.org/projects/doctrine-migrations/en/stable/explanation/implicit-commits.html
+     * @see https://github.com/doctrine/migrations/issues/1169
      */
     public function isTransactional(): bool
     {
-        return true;
+        return false;
     }
 }
