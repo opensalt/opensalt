@@ -7,6 +7,8 @@ on:
       # branches. Without this we would end up running this job twice for non
       # forked PRs, once for the push and then once for opening the PR.
     - '**:**'
+#  schedule:
+#    - cron: '0 6 * * 1'
 
 name: Symfony Security Checker
 
@@ -17,14 +19,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Cache
-        uses: actions/cache@v3
-        id: cache-db
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          path: ~/.symfony/cache
-          key: db
+          php-version: '8.5'
+          tools: composer
       - name: Check
-        uses: symfonycorp/security-checker-action@v3
-        with:
-          lock: core/composer.lock
-
+        run: composer audit --locked --no-cache --working-dir=core

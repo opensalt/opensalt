@@ -63,7 +63,7 @@ export function useSideDocument(options = {}) {
       sideDocument.value = {
         id: doc.identifier,
         title: doc.title || 'Untitled',
-        items: treeResponse.tree || []
+        items: treeResponse.tree || [],
       };
 
       await nextTick();

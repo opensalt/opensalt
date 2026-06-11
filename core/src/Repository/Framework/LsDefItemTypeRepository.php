@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\LsDefItemType;
+use App\Util\LikeQueryHelper;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -65,7 +66,7 @@ class LsDefItemTypeRepository extends ServiceEntityRepository
 
         if (null !== $search && '' !== $search) {
             $qb->andWhere('t.title LIKE :search')
-                ->setParameter('search', '%'.$search.'%')
+                ->setParameter('search', LikeQueryHelper::contains($search))
             ;
         }
 

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DoctrineMigrations;
 
 use Doctrine\DBAL\Schema\Schema;
-use Doctrine\Migrations\AbstractMigration;
 
 final class Version20250725195429 extends AbstractMigration
 {
@@ -26,8 +25,4 @@ final class Version20250725195429 extends AbstractMigration
         $this->addSql('RENAME TABLE salt_group TO salt_org');
     }
 
-    public function isTransactional(): bool
-    {
-        return false;
-    }
 }

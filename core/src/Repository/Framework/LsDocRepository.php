@@ -21,6 +21,7 @@ use App\Entity\Framework\LsItem;
 use App\Entity\User\User;
 use App\Security\Permission;
 use App\Util\Compare;
+use App\Util\LikeQueryHelper;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Driver\Exception;
 use Doctrine\ORM\AbstractQuery;
@@ -40,6 +41,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 class LsDocRepository extends ServiceEntityRepository
 {
+    final public const MAX_RESULTS = 50_000;
+
     public function __construct(
         ManagerRegistry $registry,
         private readonly Security $security,
@@ -67,6 +70,7 @@ class LsDocRepository extends ServiceEntityRepository
         $qb->orderBy('d.creator', 'ASC')
             ->addOrderBy('d.title', 'ASC')
             ->addOrderBy('d.adoptionStatus', 'ASC');
+        $qb->setMaxResults(self::MAX_RESULTS);
 
         return $qb->getQuery()->getResult();
     }
@@ -140,7 +144,7 @@ class LsDocRepository extends ServiceEntityRepository
         $qb = $this->findAllNonPrivateQueryBuilder()
             ->andWhere('d.creator = :creator')
             ->setParameter('creator', $creator)
-            ;
+            ->setMaxResults(self::MAX_RESULTS);
 
         return $qb->getQuery()->getResult();
     }
@@ -164,6 +168,7 @@ class LsDocRepository extends ServiceEntityRepository
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
         $query->setParameter('childOfType', LsAssociation::CHILD_OF);
+        $query->setMaxResults(self::MAX_RESULTS);
 
         /** @var array $results */
         $results = $query->getResult(Query::HYDRATE_ARRAY);
@@ -236,6 +241,7 @@ class LsDocRepository extends ServiceEntityRepository
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
         $query->setParameter('childOfType', LsAssociation::CHILD_OF);
+        $query->setMaxResults(self::MAX_RESULTS);
 
         return $query->getResult(Query::HYDRATE_ARRAY);
     }
@@ -256,6 +262,7 @@ class LsDocRepository extends ServiceEntityRepository
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
         $query->setParameter('childOfType', LsAssociation::CHILD_OF);
+        $query->setMaxResults(self::MAX_RESULTS);
 
         $results = $query->getResult(Query::HYDRATE_ARRAY);
 
@@ -582,7 +589,7 @@ class LsDocRepository extends ServiceEntityRepository
             $docTitle = $docInfo['docTitle'];
 
             if ($lightweight) {
-                return $this->buildLightweightNode($identifier, $item, $docId, $docTitle, $isForeign);
+                return $this->buildLightweightNode($identifier, $item, $docId, $docTitle, $isForeign, $assocMap);
             }
 
             return $this->buildFullNode(
@@ -634,12 +641,14 @@ class LsDocRepository extends ServiceEntityRepository
             $node['discriminator'] = 0;
             $node['extensions'] = [];
             $node['additionalFields'] = [];
+            $node['listEnumeration'] = null;
+            $node['sequenceNumber'] = null;
         }
 
         return $node;
     }
 
-    private function buildLightweightNode(string $identifier, array $item, string $docId, ?string $docTitle, bool $isForeign): array
+    private function buildLightweightNode(string $identifier, array $item, string $docId, ?string $docTitle, bool $isForeign, array $assocMap = []): array
     {
         return [
             'identifier' => $identifier,
@@ -648,6 +657,8 @@ class LsDocRepository extends ServiceEntityRepository
             'humanCodingScheme' => $item['humanCodingScheme'] ?? null,
             'fullStatement' => $item['fullStatement'] ?? null,
             'abbreviatedStatement' => $item['abbreviatedStatement'] ?? null,
+            'listEnumeration' => $item['listEnumInSource'] ?? null,
+            'sequenceNumber' => $assocMap[$identifier]['sequenceNumber'] ?? null,
             'isCrossFramework' => $isForeign,
             'discriminator' => $item['discriminator'] ?? 0,
             'extensions' => $item['extensions'] ?? [],
@@ -903,11 +914,18 @@ class LsDocRepository extends ServiceEntityRepository
             ['Deleting document', 'DELETE FROM ls_doc WHERE id = :lsDocId'],
         ];
 
-        foreach ($steps as [$message, $sql]) {
-            $progressCallback($message);
-            $stmt = $conn->prepare($sql);
-            $stmt->bindValue('lsDocId', $docId);
-            $stmt->executeStatement();
+        $conn->beginTransaction();
+        try {
+            foreach ($steps as [$message, $sql]) {
+                $progressCallback($message);
+                $stmt = $conn->prepare($sql);
+                $stmt->bindValue('lsDocId', $docId);
+                $stmt->executeStatement();
+            }
+            $conn->commit();
+        } catch (\Throwable $e) {
+            $conn->rollBack();
+            throw $e;
         }
 
         $progressCallback('Done');
@@ -1042,7 +1060,9 @@ class LsDocRepository extends ServiceEntityRepository
             ORDER BY i.id
         ');
         if ($limit > 0) {
-            $query->setMaxResults($limit);
+            $query->setMaxResults(min($limit, self::MAX_RESULTS));
+        } else {
+            $query->setMaxResults(self::MAX_RESULTS);
         }
         $query->setParameter('lsDocId', $lsDoc->getId());
         $query->setParameter('start', $start);
@@ -1069,7 +1089,9 @@ class LsDocRepository extends ServiceEntityRepository
             ORDER BY i.id
         ');
         if ($limit > 0) {
-            $query->setMaxResults($limit);
+            $query->setMaxResults(min($limit, self::MAX_RESULTS));
+        } else {
+            $query->setMaxResults(self::MAX_RESULTS);
         }
         $query->setParameter('lsDocId', $lsDoc->getId());
         $query->setParameter('start', $start);
@@ -1116,6 +1138,7 @@ class LsDocRepository extends ServiceEntityRepository
             WHERE a.lsDoc = :lsDocId
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
+        $query->setMaxResults(self::MAX_RESULTS);
 
         return $query->getResult($format);
     }
@@ -1141,7 +1164,9 @@ class LsDocRepository extends ServiceEntityRepository
             ORDER BY a.id
         ');
         if ($limit > 0) {
-            $query->setMaxResults($limit);
+            $query->setMaxResults(min($limit, self::MAX_RESULTS));
+        } else {
+            $query->setMaxResults(self::MAX_RESULTS);
         }
         $query->setParameter('start', $start);
         $query->setParameter('lsDocId', $lsDoc->getId());
@@ -1281,6 +1306,7 @@ class LsDocRepository extends ServiceEntityRepository
               AND (adi.id IS NOT NULL OR add.id IS NOT NULL)
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
+        $query->setMaxResults(self::MAX_RESULTS);
 
         return $query->getResult(Query::HYDRATE_ARRAY);
     }
@@ -1347,6 +1373,7 @@ class LsDocRepository extends ServiceEntityRepository
         ');
         $query->setParameter('lsDocId', $lsDoc->getId());
         $query->setParameter('childOfType', LsAssociation::CHILD_OF);
+        $query->setMaxResults(self::MAX_RESULTS);
 
         return $query->getResult($format);
     }
@@ -1368,6 +1395,7 @@ class LsDocRepository extends ServiceEntityRepository
             ORDER BY a.sequenceNumber ASC
         ', LsAssociation::class));
         $query->setParameter('lsDocId', $lsDoc->getId());
+        $query->setMaxResults(self::MAX_RESULTS);
 
         return array_map(
             $this->mapExportAssociation(...),
@@ -1478,11 +1506,11 @@ class LsDocRepository extends ServiceEntityRepository
     {
         if (null !== $filter->creator) {
             $qb->andWhere('LOWER(d.creator) LIKE LOWER(:creator)')
-               ->setParameter('creator', '%'.$filter->creator.'%');
+               ->setParameter('creator', LikeQueryHelper::contains($filter->creator));
         }
         if (null !== $filter->title) {
             $qb->andWhere('LOWER(d.title) LIKE LOWER(:title)')
-               ->setParameter('title', '%'.$filter->title.'%');
+               ->setParameter('title', LikeQueryHelper::contains($filter->title));
         }
         if (null !== $filter->adoptionStatus) {
             $qb->andWhere('LOWER(d.adoptionStatus) = LOWER(:adoptionStatus)')
@@ -1491,7 +1519,7 @@ class LsDocRepository extends ServiceEntityRepository
         if (null !== $filter->subject) {
             $qb->leftJoin('d.subjects', 's');
             $qb->andWhere('LOWER(d.subject) LIKE LOWER(:subject) OR LOWER(s.title) = LOWER(:subject)')
-               ->setParameter('subject', $filter->subject);
+               ->setParameter('subject', LikeQueryHelper::escapeLike($filter->subject));
         }
         if (null !== $filter->language) {
             $qb->andWhere('LOWER(d.language) = LOWER(:language)')
@@ -1499,7 +1527,7 @@ class LsDocRepository extends ServiceEntityRepository
         }
         if (null !== $filter->publisher) {
             $qb->andWhere('LOWER(d.publisher) LIKE LOWER(:publisher)')
-               ->setParameter('publisher', '%'.$filter->publisher.'%');
+               ->setParameter('publisher', LikeQueryHelper::contains($filter->publisher));
         }
     }
 

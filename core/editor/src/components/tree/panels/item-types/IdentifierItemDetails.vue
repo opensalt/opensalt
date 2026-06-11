@@ -1,43 +1,37 @@
 <template>
   <div class="identifier-item-details">
-    <!-- Identifier link -->
+    <!-- Identifier -->
     <div class="mb-3 details-identifier item-identifier">
       <strong>Identifier:</strong>
       <a
+        v-if="item.identifier"
         :href="`/uri/${item.identifier}`"
         target="_blank"
         class="ms-1"
       >{{ item.identifier }}</a>
+      <span
+        v-else
+        class="text-muted ms-1"
+      >—</span>
     </div>
 
-    <!-- Identifier-specific fields -->
+    <!-- Identifier Type -->
+    <div
+      v-if="item.extensions && item.extensions['salt:idType']"
+      class="mb-3"
+    >
+      <strong>Identifier Type:</strong>
+      <span class="ms-1">{{ item.extensions['salt:idType'] }}</span>
+    </div>
+
+    <!-- Description (fullStatement in the entity) -->
     <div
       v-if="item.fullStatement"
       class="mb-3"
     >
-      <strong>Identifier Name:</strong>
-      <p class="mt-1">
-        {{ item.fullStatement }}
-      </p>
-    </div>
-
-    <div
-      v-if="item.description"
-      class="mb-3"
-    >
       <strong>Description:</strong>
       <p class="mt-1">
-        {{ item.description }}
-      </p>
-    </div>
-
-    <div
-      v-if="item.extensions && item.extensions['salt:identifier']"
-      class="mb-3"
-    >
-      <strong>Identifier:</strong>
-      <p class="mt-1">
-        {{ item.extensions['salt:identifier'] }}
+        {{ item.fullStatement }}
       </p>
     </div>
 

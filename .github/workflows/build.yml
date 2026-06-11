@@ -3,8 +3,19 @@ on:
     branches:
       - '**'
       - '!dependabot/**'
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+  pull_request:
+    branches:
+      - '**:**'
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
   release:
     types: [published]
+#  schedule:
+#    - cron: '0 7 * * 1'  # Weekly on Mondays at 7 AM UTC
 
 name: Build and Test
 
@@ -49,6 +60,37 @@ jobs:
         run: |
           BUILD_NUMBER=${GITHUB_RUN_NUMBER} COMMIT=${GITHUB_SHA::8} make docker-build
 
+      - name: Run Trivy vulnerability scanner
+        if: github.event_name != 'schedule'
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'opensalt/opensalt:web-4.x'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'HIGH,CRITICAL'
+          exit-code: '1'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        if: always() && github.event_name != 'schedule'
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Generate SBOM
+        if: always() && github.event_name != 'schedule'
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'opensalt/opensalt:web-4.x'
+          format: 'cyclonedx'
+          output: 'sbom.json'
+
+      - name: Upload SBOM artifact
+        if: always() && github.event_name != 'schedule'
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-cyclonedx
+          path: sbom.json
+
       - name: Bring up db container
         run: |
           docker compose up -d --wait --wait-timeout 60 db
@@ -57,6 +99,18 @@ jobs:
       - name: Initialize db schema
         run: |
           docker compose run --rm --no-deps web ./bin/console --env=prod doctrine:migrations:migrate --no-interaction
+
+      - name: Lint Twig templates
+        run: docker compose exec web ./bin/console --env=prod lint:twig templates/
+
+      - name: Lint YAML config
+        run: docker compose exec web ./bin/console --env=prod lint:yaml config/
+
+      - name: Lint container
+        run: docker compose exec web ./bin/console --env=prod lint:container
+
+      - name: Validate Doctrine schema
+        run: docker compose exec web ./bin/console --env=prod doctrine:schema:validate
 
       - name: Bring up the web container
         run: |
@@ -70,6 +124,21 @@ jobs:
 
       - name: Run tests
         run: ./core/bin/run-tests --debug ${RUN_TEST_ARGS:-$DEFAULT_RUN_TEST_ARGS} -x skip-ci
+
+      - name: Run PHPUnit unit tests
+        working-directory: core
+        run: ./bin/run-tests Unit
+
+      # PARALLEL ALTERNATIVE:
+      #   1. Uncomment the PARALLEL_ACCEPTANCE_JOBS var below and set to 2 (or more).
+      #   2. Replace the two steps above with:
+      #        - name: Run all tests in parallel
+      #          working-directory: core
+      #          env:
+      #            PARALLEL_ACCEPTANCE_JOBS: 2
+      #          run: ./bin/run-tests-parallel --debug ${RUN_TEST_ARGS:-$DEFAULT_RUN_TEST_ARGS} -x skip-ci
+      #   The run-tests-parallel script starts the Selenium Grid automatically.
+      #   Scale chrome-node=N where N matches PARALLEL_ACCEPTANCE_JOBS (default 1).
 
       - name: Failed
         if: ${{ failure() }}

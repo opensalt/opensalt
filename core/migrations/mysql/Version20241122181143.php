@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DoctrineMigrations;
 
 use Doctrine\DBAL\Schema\Schema;
-use Doctrine\Migrations\AbstractMigration;
 
 final class Version20241122181143 extends AbstractMigration
 {
@@ -24,8 +23,4 @@ final class Version20241122181143 extends AbstractMigration
         $this->addSql('ALTER TABLE mirror_server DROP status');
     }
 
-    public function isTransactional(): bool
-    {
-        return false;
-    }
 }

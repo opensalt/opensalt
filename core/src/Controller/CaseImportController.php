@@ -8,6 +8,7 @@ use App\Command\CommandDispatcherTrait;
 use App\Command\Import\ImportCaseJsonCommand;
 use App\Entity\User\User;
 use App\Security\Permission;
+use App\Service\UrlSafety;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,11 +25,23 @@ class CaseImportController extends AbstractController
 {
     use CommandDispatcherTrait;
 
+    public function __construct(
+        private readonly UrlSafety $urlSafety,
+    ) {
+    }
+
     #[Route(path: '/salt/case/import', name: 'import_case_file')]
     #[IsGranted(Permission::FRAMEWORK_CREATE)]
     public function import(Request $request, #[CurrentUser] User $user): JsonResponse
     {
-        $content = base64_decode($request->request->getString('fileContent'));
+        $fileContent = $request->request->getString('fileContent');
+
+        $maxBase64Size = 67 * 1024 * 1024;
+        if (\strlen($fileContent) > $maxBase64Size) {
+            return new JsonResponse(['error' => 'File too large. Maximum size is 50 MB.'], Response::HTTP_REQUEST_ENTITY_TOO_LARGE);
+        }
+
+        $content = base64_decode($fileContent);
 
         $command = new ImportCaseJsonCommand($content, $user->getOrg(), $user);
         $this->sendCommand($command);
@@ -57,6 +70,10 @@ class CaseImportController extends AbstractController
 
             $data = $form->getData();
 
+            if (!$this->urlSafety->isSafe($data['url'])) {
+                return new JsonResponse(['error' => ['url' => $data['url'], 'message' => 'URL is not allowed: only public HTTPS URLs are permitted.']]);
+            }
+
             $jsonClient = new Client();
             try {
                 $response = $jsonClient->request(
@@ -64,7 +81,15 @@ class CaseImportController extends AbstractController
                     $data['url'],
                     [
                         RequestOptions::AUTH => null,
-                        RequestOptions::ALLOW_REDIRECTS => true,
+                        RequestOptions::ALLOW_REDIRECTS => [
+                            'max' => 3,
+                            'strict' => true,
+                            'on_redirect' => function ($request, $response, $uri) {
+                                if (!$this->urlSafety->isSafe((string) $uri)) {
+                                    throw new \RuntimeException('Redirect target is not allowed: ' . $uri);
+                                }
+                            },
+                        ],
                         RequestOptions::TIMEOUT => 300,
                         RequestOptions::HEADERS => [
                             'Accept' => 'application/vnd.opensalt+json, application/json;q=0.8, text/plain;q=0.2, */*;q=0.1',

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DoctrineMigrations;
 
 use Doctrine\DBAL\Schema\Schema;
-use Doctrine\Migrations\AbstractMigration;
 
 final class Version20250822203533 extends AbstractMigration
 {
@@ -38,8 +37,4 @@ final class Version20250822203533 extends AbstractMigration
         $this->addSql('CREATE UNIQUE INDEX UNIQ_D8D02498841CB121 ON ls_item (uri)');
     }
 
-    public function isTransactional(): bool
-    {
-        return false;
-    }
 }

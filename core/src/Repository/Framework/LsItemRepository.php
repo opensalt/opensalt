@@ -119,7 +119,7 @@ class LsItemRepository extends ServiceEntityRepository
     /**
      * @return LsItem[]
      */
-    public function findExactMatches(string $identifier): array
+    public function findExactMatches(string $identifier, int $maxDepth = 5): array
     {
         $assocRepo = $this->getEntityManager()->getRepository(LsAssociation::class);
 
@@ -131,9 +131,11 @@ class LsItemRepository extends ServiceEntityRepository
         /** @psalm-suppress InvalidArrayOffset */
         $matched = [$item->getId() => $item];
         $matchedCount = 0;
+        $depth = 0;
 
-        while (count($matched) !== $matchedCount) {
+        while (count($matched) !== $matchedCount && $depth < $maxDepth) {
             $matchedCount = count($matched);
+            ++$depth;
 
             $fromCriteria = new Criteria();
             $fromCriteria->where(Criteria::expr()->in('originLsItem', array_keys($matched)));

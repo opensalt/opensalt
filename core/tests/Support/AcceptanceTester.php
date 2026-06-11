@@ -334,10 +334,6 @@ class AcceptanceTester extends \Codeception\Actor implements Context
         $this->waitForText($content, 30);
     }
 
-    public function iAmOnAFrameworkPage()
-    {
-    }
-
     /**
      * @Given /^I am on the page "([^"]*)"$/
      */

@@ -6,4 +6,5 @@ Feature: Visualize a document with D3 library
     Given I log in as a user with role "Super-Editor"
     Given I am on a framework page
     Then I should see the visualization view button
+    And I delete the framework
 

@@ -77,7 +77,7 @@ COPY frankenphp/Caddyfile /etc/caddy/Caddyfile
 
 ENTRYPOINT ["docker-entrypoint"]
 
-HEALTHCHECK --start-period=5s --interval=5s --timeout=3s --retries=1 CMD curl -f http://localhost:2019/metrics || exit 1
+HEALTHCHECK --start-period=60s --interval=30s --timeout=5s --retries=3 CMD curl -fsS http://localhost/healthz || exit 1
 CMD [ "frankenphp", "run", "--config", "/etc/caddy/Caddyfile" ]
 
 
@@ -147,8 +147,10 @@ COPY --chown=1000:1000 --from=salt_core_js_build /srv/core/public/ ./public/
 
 RUN set -eux; \
 	mkdir -p var/cache var/log; \
-	chmod 777 var/cache var/log; \
-	chmod 777 tests/_output tests/Support/Data tests/Support/_generated; \
+	chmod 775 var/cache var/log; \
+	chown -R 1000:1000 var/cache var/log; \
+	chmod 775 tests/_output tests/Support/Data tests/Support/_generated; \
+	chown -R 1000:1000 tests/_output tests/Support/Data tests/Support/_generated; \
 	chmod +x bin/console-real; sync; \
 	composer dump-autoload --no-interaction --classmap-authoritative; \
 	composer dump-env prod; \
@@ -157,8 +159,9 @@ RUN set -eux; \
 USER root
 RUN set -eux; \
 	mkdir -p public/attachments; \
-	chmod 777 public/attachments; \
-    chown -R www-data:www-data var public/attachments
+	chmod 775 public/attachments; \
+	chown -R 1000:1000 var public/attachments; \
+	find public/attachments -type f -exec chmod 0664 {} \;
 USER 1000:1000
 
 ARG VERSION
@@ -171,7 +174,7 @@ RUN echo ${VERSION}.${BUILD_NUMBER} > public/version.txt ; \
 #=======================================================================
 FROM salt_core_php AS salt_core_app
 
-ENV SYMFONY_PHPUNIT_VERSION=9
+ENV SYMFONY_PHPUNIT_VERSION=13
 
 ARG VERSION
 ARG BUILD_NUMBER
@@ -186,7 +189,7 @@ COPY --chown=1000:1000 --from=salt_code_layer /srv/core/ ./
 COPY --chown=1000:1000 --from=salt_editor_build /editor/dist/ ./public/editor/
 
 USER root
-RUN chown -R www-data:www-data var public/attachments
+RUN chown -R 1000:1000 var public/attachments
 USER 1000:1000
 
 VOLUME /srv/core/var
@@ -227,9 +230,10 @@ COPY frankenphp/conf.d/app.prod.ini $PHP_INI_DIR/conf.d/
 
 RUN rm -Rf frankenphp/
 
+USER 1000:1000
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
 
-#=======================================================================
+#========================================================================
 # Prod FrankenPHP image
 FROM salt_core_app AS salt_core_prod
 
@@ -244,4 +248,6 @@ COPY frankenphp/conf.d/app.prod.ini $PHP_INI_DIR/conf.d/
 #COPY frankenphp/worker.Caddyfile /etc/caddy/worker.Caddyfile
 
 RUN rm -Rf frankenphp/
+
+USER 1000:1000
 

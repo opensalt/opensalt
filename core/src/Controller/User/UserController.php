@@ -16,6 +16,7 @@ use App\Entity\User\User;
 use App\Form\Type\UserType;
 use App\Repository\User\UserRepository;
 use App\Security\Permission;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -39,6 +40,7 @@ class UserController extends AbstractController
         private readonly UserPasswordHasherInterface $passwordEncoder,
         private readonly UserRepository $userRepository,
         private readonly FormFactoryInterface $formBuilder,
+        private readonly ?LoggerInterface $logger = null,
     ) {
     }
 
@@ -208,8 +210,11 @@ class UserController extends AbstractController
         try {
             $command = new SendUserApprovedEmailCommand($targetUser->getUserIdentifier());
             $this->sendCommand($command);
-        } catch (\Exception) {
-            // Do not throw an error to the client if the email could not be sent
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+            $this->logger?->warning('Welcome email send failed', [
+                'message' => $e->getMessage(),
+                'user' => $targetUser->getUserIdentifier(),
+            ]);
         }
 
         return $this->redirectToRoute('admin_user_index');

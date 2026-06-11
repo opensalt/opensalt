@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Repository\System;
 
 use App\Entity\System\ApiUsageLog;
+use App\Util\LikeQueryHelper;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -54,7 +55,7 @@ class ApiUsageLogRepository extends ServiceEntityRepository
 
         if (null !== $endpointLike && '' !== $endpointLike) {
             $qb->andWhere('LOWER(l.endpointUrl) LIKE :endpoint')
-               ->setParameter('endpoint', '%'.mb_strtolower($endpointLike).'%');
+               ->setParameter('endpoint', LikeQueryHelper::containsLower($endpointLike));
         }
 
         return $qb->getQuery()->getResult();
@@ -99,7 +100,7 @@ class ApiUsageLogRepository extends ServiceEntityRepository
 
         if (null !== $endpointLike && '' !== $endpointLike) {
             $qb->andWhere('LOWER(l.endpointUrl) LIKE :endpoint')
-               ->setParameter('endpoint', '%'.mb_strtolower($endpointLike).'%');
+               ->setParameter('endpoint', LikeQueryHelper::containsLower($endpointLike));
         }
 
         // Apply cursor conditions

@@ -33,8 +33,8 @@ class GithubOauthController extends AbstractController
         }
 
         if (!in_array($currentUser->getGithubToken(), [null, ''], true)) {
-            $page = $request->query->get('page');
-            $perPage = $request->query->get('perPage');
+            $page = filter_var($request->query->get('page', 1), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'default' => 1]]);
+            $perPage = filter_var($request->query->get('perPage', 30), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 100, 'default' => 30]]);
 
             $token = new Token($currentUser->getGithubToken());
             $api = new Api();

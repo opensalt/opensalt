@@ -400,6 +400,82 @@ class LsAssociationTest extends \Codeception\Test\Unit
         $this->assertEquals('exemplar', LsAssociation::EXEMPLAR);
     }
 
+    public function testTypePropertyHasNotBlankConstraint(): void
+    {
+        $reflection = new \ReflectionClass(LsAssociation::class);
+        $property = $reflection->getProperty('type');
+        $attributes = $property->getAttributes(\Symfony\Component\Validator\Constraints\NotBlank::class);
+
+        $this->assertNotEmpty($attributes, 'The $type property should have a NotBlank constraint');
+    }
+
+    public function testClassHasCallbackConstraintForTypeValidation(): void
+    {
+        $reflection = new \ReflectionClass(LsAssociation::class);
+        $attributes = $reflection->getAttributes(\Symfony\Component\Validator\Constraints\Callback::class);
+
+        $this->assertNotEmpty($attributes, 'The LsAssociation class should have a Callback constraint');
+    }
+
+    public function testBaseTypesContainsAllExpectedTypes(): void
+    {
+        $expectedTypes = [
+            'isChildOf', 'isRelatedTo', 'exactMatchOf', 'isPartOf',
+            'replacedBy', 'precedes', 'hasSkillLevel', 'isPeerOf',
+            'isTranslationOf', 'exemplar',
+        ];
+
+        foreach ($expectedTypes as $type) {
+            $this->assertContains($type, LsAssociation::BASE_TYPES, "BASE_TYPES should contain $type");
+        }
+    }
+
+    public function testValidateTypeAcceptsBaseTypes(): void
+    {
+        $association = new LsAssociation();
+        $association->setType(LsAssociation::CHILD_OF);
+        $context = $this->createMock(\Symfony\Component\Validator\Context\ExecutionContextInterface::class);
+        $context->expects($this->never())->method('buildViolation');
+
+        LsAssociation::validateType($association, $context);
+    }
+
+    public function testValidateTypeAcceptsExtTypes(): void
+    {
+        $association = new LsAssociation();
+        $association->setType('ext:customType');
+        $context = $this->createMock(\Symfony\Component\Validator\Context\ExecutionContextInterface::class);
+        $context->expects($this->never())->method('buildViolation');
+
+        LsAssociation::validateType($association, $context);
+    }
+
+    public function testValidateTypeRejectsInvalidType(): void
+    {
+        $association = new LsAssociation();
+        $ref = new \ReflectionProperty(LsAssociation::class, 'type');
+        $ref->setValue($association, 'Invalid Type');
+
+        $violationBuilder = $this->createMock(\Symfony\Component\Validator\Violation\ConstraintViolationBuilderInterface::class);
+        $violationBuilder->expects($this->once())->method('setParameter')->willReturnSelf();
+        $violationBuilder->expects($this->once())->method('atPath')->willReturnSelf();
+        $violationBuilder->expects($this->once())->method('addViolation');
+
+        $context = $this->createMock(\Symfony\Component\Validator\Context\ExecutionContextInterface::class);
+        $context->expects($this->once())->method('buildViolation')->willReturn($violationBuilder);
+
+        LsAssociation::validateType($association, $context);
+    }
+
+    public function testValidateTypeAllowsNullType(): void
+    {
+        $association = new LsAssociation();
+        $context = $this->createMock(\Symfony\Component\Validator\Context\ExecutionContextInterface::class);
+        $context->expects($this->never())->method('buildViolation');
+
+        LsAssociation::validateType($association, $context);
+    }
+
     /**
      * @param string $uri Uri to be split
      * @param array $expectedResult What we expect the result to be

@@ -16,6 +16,8 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class ChangeEntryRepository extends ServiceEntityRepository
 {
+    final public const MAX_RESULTS = 50_000;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, ChangeEntry::class);
@@ -24,12 +26,14 @@ class ChangeEntryRepository extends ServiceEntityRepository
     public function updateChanged(ChangeEntry $change, NotificationEvent $notification): void
     {
         if (null !== $change->getId()) {
+            // Table name from Doctrine metadata — safe from injection (not user input)
             $this->getEntityManager()->getConnection()->executeStatement(
                 sprintf('UPDATE %s SET changed = ? WHERE id = ?', $this->getClassMetadata()->getTableName()),
                 [json_encode($notification->getChanged(), JSON_THROW_ON_ERROR), $change->getId()]
             );
 
             if (null === $change->getDocId() && null !== $notification->getDoc()) {
+                // Table name from Doctrine metadata — safe from injection (not user input)
                 $this->getEntityManager()->getConnection()->executeStatement(
                     sprintf('UPDATE %s SET doc_id = ? WHERE id = ?', $this->getClassMetadata()->getTableName()),
                     [$notification->getDoc()->getId(), $change->getId()]
@@ -39,10 +43,8 @@ class ChangeEntryRepository extends ServiceEntityRepository
             return;
         }
 
-        $this->getEntityManager()->getConnection()->executeStatement(
-            sprintf('UPDATE %s SET changed = ? WHERE changed_at = ? and description = ?', $this->getClassMetadata()->getTableName()),
-            [json_encode($notification->getChanged(), JSON_THROW_ON_ERROR), $change->getChangedAt()->format('Y-m-d H:i:s.u'), $change->getDescription()]
-        );
+        // ID should always be available after flush — if we reach here, something is wrong upstream
+        throw new \LogicException(sprintf('ChangeEntry ID is null in updateChanged(). Description: "%s". Ensure the entity is persisted and flushed before calling updateChanged().', $change->getDescription()));
     }
 
     /**
@@ -81,7 +83,7 @@ class ChangeEntryRepository extends ServiceEntityRepository
             ->setParameter('doc_id', $doc->getId())
             ->orderBy('a.id', 'DESC')
             ->setFirstResult($offset)
-            ->setMaxResults(($limit > 0) ? $limit : 1_000_000)
+            ->setMaxResults(($limit > 0) ? min($limit, self::MAX_RESULTS) : self::MAX_RESULTS)
             ->getQuery()
             ->setHydrationMode(Query::HYDRATE_ARRAY)
             ->toIterable();
@@ -116,7 +118,7 @@ class ChangeEntryRepository extends ServiceEntityRepository
             ->where('a.doc IS NULL')
             ->orderBy('a.id', 'DESC')
             ->setFirstResult($offset)
-            ->setMaxResults(($limit > 0) ? $limit : 1_000_000)
+            ->setMaxResults(($limit > 0) ? min($limit, self::MAX_RESULTS) : self::MAX_RESULTS)
             ->getQuery()
             ->setHydrationMode(Query::HYDRATE_ARRAY)
             ->toIterable();

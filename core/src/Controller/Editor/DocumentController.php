@@ -37,7 +37,12 @@ class DocumentController extends AbstractController
         Request $request,
         #[MapEntity(mapping: ['identifier' => 'identifier'])] LsDoc $lsDoc,
     ): Response {
-        $data = json_decode($request->getContent(), true);
+        try {
+            $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            return new JsonResponse(['error' => 'Invalid JSON: ' . $e->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
+
         if (null !== $data) {
             $this->applyScalarFields($lsDoc, $data);
 

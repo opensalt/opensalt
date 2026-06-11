@@ -30,9 +30,10 @@ class AssociationGroupController extends AbstractController
         Request $request,
         #[MapEntity(mapping: ['identifier' => 'identifier'])] LsDoc $lsDoc,
     ): Response {
-        $data = json_decode($request->getContent(), true);
-        if (null === $data) {
-            return new JsonResponse(['error' => 'Invalid JSON.'], Response::HTTP_BAD_REQUEST);
+        try {
+            $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            return new JsonResponse(['error' => 'Invalid JSON: ' . $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
 
         $group = new LsDefAssociationGrouping();
@@ -63,7 +64,12 @@ class AssociationGroupController extends AbstractController
         Request $request,
         #[MapEntity(mapping: ['identifier' => 'identifier'])] LsDefAssociationGrouping $group,
     ): Response {
-        $data = json_decode($request->getContent(), true);
+        try {
+            $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            return new JsonResponse(['error' => 'Invalid JSON: ' . $e->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
+
         if (null !== $data) {
             if (isset($data['title'])) {
                 $group->setTitle($data['title']);

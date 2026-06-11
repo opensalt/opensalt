@@ -1,4 +1,4 @@
-# `chrome` environment config goes here
+# Chrome environment — connects to standalone Chrome container
 modules:
     config:
         WebDriver:

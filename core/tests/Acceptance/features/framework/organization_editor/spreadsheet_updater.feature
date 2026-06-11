@@ -10,3 +10,4 @@ Feature: Updating a framework via spreadsheet
         Then I should see the framework
         Then I download the framework excel file
         Then I update the framework via spreadsheet
+        And I delete the framework

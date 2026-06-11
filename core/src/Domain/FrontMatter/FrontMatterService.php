@@ -19,6 +19,9 @@ readonly class FrontMatterService
     public function deleteFrontMatter(FrontMatter $template): void
     {
         $delete = $this->em->find(FrontMatter::class, $template->getId());
+        if (null === $delete) {
+            return;
+        }
         $this->em->remove($delete);
         $this->em->flush();
     }

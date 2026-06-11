@@ -42,11 +42,11 @@ class Server
     #[ORM\Column(name: 'priority', type: 'integer', options: ['default' => 0])]
     private int $priority = 0;
 
-    #[ORM\Column(name: 'next_check', type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $nextCheck = null;
+    #[ORM\Column(name: 'next_check', type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $nextCheck = null;
 
-    #[ORM\Column(name: 'last_check', type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $lastCheck = null;
+    #[ORM\Column(name: 'last_check', type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $lastCheck = null;
 
     #[ORM\Column(name: 'updated_at', type: Types::DATETIMETZ_IMMUTABLE, precision: 6)]
     #[Gedmo\Timestampable(on: 'update')]
@@ -125,12 +125,12 @@ class Server
         $this->credentials = $credentials;
     }
 
-    public function getNextCheck(): ?\DateTimeInterface
+    public function getNextCheck(): ?\DateTimeImmutable
     {
         return $this->nextCheck;
     }
 
-    public function setNextCheck(?\DateTimeInterface $nextCheck): void
+    public function setNextCheck(?\DateTimeImmutable $nextCheck): void
     {
         $this->nextCheck = $nextCheck;
     }
@@ -173,12 +173,12 @@ class Server
         $this->priority = $priority;
     }
 
-    public function getLastCheck(): ?\DateTimeInterface
+    public function getLastCheck(): ?\DateTimeImmutable
     {
         return $this->lastCheck;
     }
 
-    public function setLastCheck(\DateTimeInterface $lastCheck): void
+    public function setLastCheck(\DateTimeImmutable $lastCheck): void
     {
         $this->lastCheck = $lastCheck;
     }

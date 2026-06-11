@@ -104,6 +104,12 @@
 		file_server
 	}
 
+	# Block script execution in attachments directory
+	@forbiddenExt {
+		path *.php *.phtml *.phar *.pht *.phps *.php3 *.php4 *.php5 *.php7 *.php8
+	}
+	respond @forbiddenExt 403
+
 	{$CADDY_SERVER_EXTRA_DIRECTIVES}
 
 	# Disable Topics tracking if not enabled explicitly: https://github.com/jkarlin/topics

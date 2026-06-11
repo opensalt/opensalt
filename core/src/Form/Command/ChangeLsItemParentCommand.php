@@ -24,7 +24,17 @@ class ChangeLsItemParentCommand
     public function perform(ChangeLsItemParentDTO $dto, LsAssociationRepository $associationRepository): LsItem
     {
         $associationRepository->removeAllAssociationsOfType($dto->lsItem, LsAssociation::CHILD_OF);
-        $dto->lsItem->addParent($dto->parentItem);
+
+        $existingAssocs = $associationRepository->findAllChildAssociationsFor($dto->parentItem->getIdentifier());
+        $maxSeq = 0;
+        foreach ($existingAssocs as $assoc) {
+            $seq = $assoc->getSequenceNumber();
+            if (null !== $seq && $seq > $maxSeq) {
+                $maxSeq = $seq;
+            }
+        }
+
+        $dto->lsItem->addParent($dto->parentItem, $maxSeq + 1);
 
         return $dto->lsItem;
     }

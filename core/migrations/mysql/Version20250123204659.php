@@ -6,7 +6,6 @@ namespace DoctrineMigrations;
 
 use App\Entity\Framework\LsDefItemType;
 use Doctrine\DBAL\Schema\Schema;
-use Doctrine\Migrations\AbstractMigration;
 
 final class Version20250123204659 extends AbstractMigration
 {
@@ -36,8 +35,4 @@ final class Version20250123204659 extends AbstractMigration
         $this->addSql('DELETE IGNORE FROM ls_def_item_type WHERE identifier = :identifier', ['identifier' => '27b1b616-d9cb-11ef-881e-b04f1302c2ee']);
     }
 
-    public function isTransactional(): bool
-    {
-        return false;
-    }
 }

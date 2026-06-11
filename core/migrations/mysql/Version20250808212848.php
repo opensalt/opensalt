@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace DoctrineMigrations;
 
 use Doctrine\DBAL\Schema\Schema;
-use Doctrine\Migrations\AbstractMigration;
 
 final class Version20250808212848 extends AbstractMigration
 {
@@ -39,8 +38,4 @@ final class Version20250808212848 extends AbstractMigration
         $this->addSql('DROP TABLE api_usage_log');
     }
 
-    public function isTransactional(): bool
-    {
-        return false;
-    }
 }

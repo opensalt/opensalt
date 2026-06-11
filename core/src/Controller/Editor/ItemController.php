@@ -74,7 +74,11 @@ class ItemController extends AbstractController
             return new JsonResponse(['error' => 'Access Denied.'], Response::HTTP_FORBIDDEN);
         }
 
-        $data = json_decode($request->getContent(), true);
+        try {
+            $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            return new JsonResponse(['error' => 'Invalid JSON: ' . $e->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
 
         try {
             $lsItem = $this->createItemFromRequest($data, $doc, $request);
@@ -149,8 +153,11 @@ class ItemController extends AbstractController
         Request $request,
         #[MapEntity(mapping: ['identifier' => 'identifier'])] LsItem $lsItem,
     ): Response {
-        // Parse request body
-        $data = json_decode($request->getContent(), true);
+        try {
+            $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            return new JsonResponse(['error' => 'Invalid JSON: ' . $e->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
 
         // Extract itemType from extensions.salt:type, fall back to query parameter
         $itemType = $data['extensions']['salt:type'] ?? $request->query->get('itemType');
@@ -347,9 +354,10 @@ class ItemController extends AbstractController
             return new JsonResponse(['error' => 'Access Denied.'], Response::HTTP_FORBIDDEN);
         }
 
-        $data = json_decode($request->getContent(), true);
-        if (null === $data) {
-            return new JsonResponse(['error' => 'Invalid JSON.'], Response::HTTP_BAD_REQUEST);
+        try {
+            $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            return new JsonResponse(['error' => 'Invalid JSON: ' . $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
 
         $newParentIdentifier = $data['newParentIdentifier'] ?? null;
@@ -395,6 +403,9 @@ class ItemController extends AbstractController
 
             $newAssoc = $lsItem->addParent($newParent, $sequenceNumber);
             $em->persist($newAssoc);
+
+            // Renumber all siblings to ensure clean, sequential sequence numbers
+            $this->renumberSiblings($newParent);
             $em->flush();
 
             return new JsonResponse([
@@ -447,7 +458,7 @@ class ItemController extends AbstractController
             $targetSeq = (int) $siblings[$targetIndex]['seq'];
             $prevSeq = $targetIndex > 0 ? (int) $siblings[$targetIndex - 1]['seq'] : 0;
 
-            return (int) floor(($prevSeq + $targetSeq) / 2);
+            return max(1, (int) floor(($prevSeq + $targetSeq) / 2));
         }
 
         $targetSeq = (int) $siblings[$targetIndex]['seq'];
@@ -455,7 +466,7 @@ class ItemController extends AbstractController
         if ($nextIndex < count($siblings)) {
             $nextSeq = (int) $siblings[$nextIndex]['seq'];
 
-            return (int) floor(($targetSeq + $nextSeq) / 2);
+            return max(1, (int) floor(($targetSeq + $nextSeq) / 2));
         }
 
         return $targetSeq + 1;
@@ -475,6 +486,27 @@ class ItemController extends AbstractController
         }
 
         return $maxSeq + 1;
+    }
+
+    /**
+     * Renumber all children of a parent with sequential integers starting from 1.
+     *
+     * Ensures clean, unique, sequential values for all siblings after a move,
+     * in case the integer bisection algorithm produces collisions.
+     */
+    private function renumberSiblings(LsItem|LsDoc $parent): void
+    {
+        $parentIdentifier = $parent->getIdentifier();
+        $childAssocs = $this->associationRepository->findAllChildAssociationsFor($parentIdentifier);
+
+        // Sort by current sequence number to preserve the relative order
+        usort($childAssocs, static fn (LsAssociation $a, LsAssociation $b) => ($a->getSequenceNumber() ?? 0) <=> ($b->getSequenceNumber() ?? 0));
+
+        $seq = 1;
+        foreach ($childAssocs as $assoc) {
+            $assoc->setSequenceNumber($seq);
+            ++$seq;
+        }
     }
 
     private function applyDataToItem(LsItem $lsItem, array $data, ?string $itemType): void

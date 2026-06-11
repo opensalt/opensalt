@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Repository\Framework;
 
 use App\Entity\Framework\LsDefSubject;
+use App\Util\LikeQueryHelper;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -30,7 +31,7 @@ class LsDefSubjectRepository extends ServiceEntityRepository
 
         if (null !== $search) {
             $qb->andWhere('s.title LIKE :search')
-                ->setParameter('search', sprintf('%%%s%%', $search));
+                ->setParameter('search', LikeQueryHelper::contains($search));
         }
 
         return $qb->getQuery()->getResult();

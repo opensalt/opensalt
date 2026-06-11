@@ -18,7 +18,7 @@ class CloneController extends AbstractController
 {
     use CommandDispatcherTrait;
 
-    #[Route(path: '/clone/framework/{id}', name: 'clone_framework', requirements: ['id' => '\d+'], methods: ['GET'])]
+    #[Route(path: '/clone/framework/{id}', name: 'clone_framework', requirements: ['id' => '\d+'], methods: ['POST'])]
     #[Route(path: '/clone/framework/{identifier}', name: 'clone_framework_by_identifier', requirements: ['identifier' => '[a-fA-F0-9]{8}-([a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}'], methods: ['POST'])]
     #[IsGranted(Permission::FRAMEWORK_EDIT, 'lsDoc')]
     #[IsGranted(Permission::FRAMEWORK_CREATE)]

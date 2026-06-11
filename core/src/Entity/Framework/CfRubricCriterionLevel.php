@@ -18,16 +18,16 @@ class CfRubricCriterionLevel implements CaseApiInterface
     use ExtraDataTrait;
     use ExtensionTrait;
 
-    #[ORM\Column(name: 'description', type: 'text', length: 65535, nullable: true)]
+    #[ORM\Column(name: 'description', type: 'medium_text', nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column(name: 'quality', type: 'text', length: 65535, nullable: true)]
+    #[ORM\Column(name: 'quality', type: 'medium_text', nullable: true)]
     private ?string $quality = null;
 
     #[ORM\Column(name: 'score', type: 'float', nullable: true)]
     private ?float $score = null;
 
-    #[ORM\Column(name: 'feedback', type: 'text', length: 65535, nullable: true)]
+    #[ORM\Column(name: 'feedback', type: 'medium_text', nullable: true)]
     private ?string $feedback = null;
 
     #[ORM\Column(name: 'position', type: 'integer', nullable: true)]

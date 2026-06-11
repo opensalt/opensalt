@@ -101,6 +101,12 @@
 	@editor_vite path /editor/@vite/* /editor/@vite-hmr /editor/@id/* /editor/@fs/* /editor/src/* /editor/node_modules/* /editor/__vite_ping
 	reverse_proxy @editor_vite editor:5173
 
+	# Block script execution in attachments directory
+	@forbiddenExt {
+        path *.php *.phtml *.phar *.pht *.phps *.php3 *.php4 *.php5 *.php7 *.php8
+    }
+	respond @forbiddenExt 403
+
 	{$CADDY_SERVER_EXTRA_DIRECTIVES}
 
 	# Disable Topics tracking if not enabled explicitly: https://github.com/jkarlin/topics

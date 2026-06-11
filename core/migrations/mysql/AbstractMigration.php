@@ -9,12 +9,14 @@ use Doctrine\Migrations\AbstractMigration as BaseAbstractMigration;
 abstract class AbstractMigration extends BaseAbstractMigration
 {
     /**
-     * Temporary fix for Doctrine Migrations issues with MySQL on PHP 8.0.
+     * Transactions are re-enabled so that a failed migration rolls back cleanly
+     * instead of leaving the database in an inconsistent half-applied state.
      *
-     * https://github.com/doctrine/migrations/issues/1104
+     * The original disable was a workaround for doctrine/migrations#1104 which
+     * has been resolved upstream.
      */
     public function isTransactional(): bool
     {
-        return false;
+        return true;
     }
 }

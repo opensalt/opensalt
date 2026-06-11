@@ -13,6 +13,10 @@ class JsonExtension
     #[AsTwigFunction('json_decode')]
     public function jsonDecode(string $string): string|array|null
     {
-        return json_decode($string, true);
+        try {
+            return json_decode($string, true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            return null;
+        }
     }
 }

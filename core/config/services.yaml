@@ -19,6 +19,7 @@ parameters:
     env(MYSQL_PASSWORD): null
     env(LOCK_DSN): flock
     env(MESSENGER_TRANSPORT_DSN): 'doctrine://default?auto_setup=0'
+    env(MAILER_DSN): 'null://null'
     env(MAILER_TRANSPORT): smtp
     env(MAILER_HOST): '127.0.0.1'
     env(MAILER_USER): null
@@ -65,6 +66,7 @@ parameters:
     env(VECTOR_SEARCH_QDRANT_ALIAS): 'ls_item_embeddings_active'
     env(VECTOR_SEARCH_QDRANT_API_KEY): ''
     env(VECTOR_SEARCH_QDRANT_TIMEOUT): '10'
+    env(MAX_EXPORT_SIZE): '50000'
 
     locale: en
     database_type: '%env(DB_TYPE)%'
@@ -113,6 +115,7 @@ parameters:
     mfa_issuer: '%env(MFA_ISSUER)%'
     use_mfa: '%env(feature_flag:USE_MFA)%'
     issuer_signing_key: '%env(ISSUER_SIGNING_KEY)%'
+    max_export_size: '%env(int:MAX_EXPORT_SIZE)%'
 
 services:
     # default configuration for services in *this* file
@@ -128,6 +131,7 @@ services:
             $kernelEnv: '%kernel.environment%'
             $externalDocCache: '@salt.cache.external_docs'
             $assetsVersion: '%assets_version%'
+            $maxExportSize: '%max_export_size%'
             $caseNetworkClientId: '%case_network_client_id%'
             $caseNetworkClientSecret: '%case_network_client_secret%'
             $caseNetworkScope: '%case_network_scope%'
@@ -194,6 +198,11 @@ services:
         arguments:
             $attachmentUrlPrefix: '%attachment_url_prefix%'
             $bucketPrefix: '%aws_prefix%'
+
+    App\Messenger\Retry\LowPriorityRetryStrategy:
+        arguments:
+            $maxRetries: 3
+            $delayMultiplier: 5
 
     WGG\Flysystem\Doctrine\DoctrineDBALAdapter: ~
 

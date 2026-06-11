@@ -13,6 +13,7 @@ use App\Entity\User\AccessGroup;
 use App\Entity\User\User;
 use App\Form\Type\SignupType;
 use Novaway\Bundle\FeatureFlagBundle\Attribute\FeatureEnabled;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,6 +29,7 @@ class SignupController extends AbstractController
 
     public function __construct(
         private readonly UserPasswordHasherInterface $passwordEncoder,
+        private readonly ?LoggerInterface $logger = null,
         private readonly ?string $mailFromEmail = null,
         private readonly ?string $kernelEnv = null,
     ) {
@@ -80,13 +82,17 @@ class SignupController extends AbstractController
                 try {
                     $command = new SendSignupReceivedEmailCommand($targetUser->getUserIdentifier());
                     $this->sendCommand($command);
+                } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+                    $this->logger?->warning('Signup welcome email send failed', [
+                        'message' => $e->getMessage(),
+                        'user' => $targetUser->getUserIdentifier(),
+                    ]);
                 } catch (\Exception $e) {
                     if ($command->hasValidationErrors()) {
                         $errors = $command->getValidationErrors();
                         $form->addError(new FormError($errors[0]->getMessage()));
                         $form->get('username')->addError(new FormError($errors[0]->getMessage()));
                     }
-                    // Do not throw an error to the client if the email could not be sent
                 }
 
                 // send email to admin about this user creation
@@ -95,8 +101,13 @@ class SignupController extends AbstractController
                     $from_email = $this->mailFromEmail;
                     $command = new SendAdminNotificationEmailCommand($from_email, $targetUser->getUserIdentifier(), $targetUser->getOrg()->getName());
                     $this->sendCommand($command);
+                } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+                    $this->logger?->warning('Signup admin notification email send failed', [
+                        'message' => $e->getMessage(),
+                        'user' => $targetUser->getUserIdentifier(),
+                    ]);
                 } catch (\Exception $e) {
-                    // Do not throw an error to the client if the email could not be sent
+                    // Do not throw an error to the client if the admin notification email could not be sent
                 }
 
                 return $this->redirectToRoute('lsdoc_index');

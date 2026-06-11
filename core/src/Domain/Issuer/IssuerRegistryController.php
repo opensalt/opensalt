@@ -86,7 +86,12 @@ class IssuerRegistryController extends AbstractController
 
         $keys = [];
         foreach ($issuerInfo['keys'] as $issuerKey) {
-            $keys[] = JWKFactory::createFromValues(json_decode($issuerKey->publicKey, true))->toPublic();
+            try {
+                $keyData = json_decode($issuerKey->publicKey, true, 512, JSON_THROW_ON_ERROR);
+            } catch (\JsonException $e) {
+                throw new \InvalidArgumentException('Invalid key data: ' . $e->getMessage(), 0, $e);
+            }
+            $keys[] = JWKFactory::createFromValues($keyData)->toPublic();
         }
         $keySet = new JWKSet($keys);
 

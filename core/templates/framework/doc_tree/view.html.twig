@@ -261,7 +261,10 @@
                                                 <button type="button" id="js-copy-framework-modal-button" class="btn btn-default btn-sm" data-bs-toggle="modal" data-bs-target="#copyFrameworkModal" data-alt-document-disabled="true">
                                                     Copy Framework
                                                 </button>
-                                                <a href="{{ path('clone_framework', {'id':lsDocId}) }}" class="btn btn-default btn-sm" data-alt-document-disabled="true">Clone Framework</a>
+                                                <form action="{{ path('clone_framework', {'id': lsDocId}) }}" method="POST" style="display:inline;">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('clone') }}">
+                                                    <button type="submit" class="btn btn-default btn-sm" data-alt-document-disabled="true">Clone Framework</button>
+                                                </form>
                                             {% endif %}
                                             {% if lsDoc.importLogs is not empty %}
                                                 <button type="button" class="btn btn-default btn-sm" data-bs-toggle="modal" data-bs-target="#seeImportLogs" data-alt-document-disabled="true">

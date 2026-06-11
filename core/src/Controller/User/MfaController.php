@@ -25,6 +25,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class MfaController extends AbstractController
 {
+    public const string SESSION_PENDING_SECRET = 'pending_totp_secret';
+
     public function __construct(
         private readonly TotpAuthenticatorInterface $totpAuthenticator,
         private readonly EntityManagerInterface $entityManager,
@@ -44,16 +46,29 @@ class MfaController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $session = $request->getSession();
+            $pendingSecret = $session->get(self::SESSION_PENDING_SECRET);
+
+            if (null === $pendingSecret) {
+                $this->addFlash('warning', 'Your 2FA setup session expired. Please try again.');
+
+                return $this->redirectToRoute('app_2fa_enable');
+            }
+
+            $user->setTotpSecret($pendingSecret);
             $user->setIsTotpEnabled(true);
             $this->entityManager->flush();
+
+            $session->remove(self::SESSION_PENDING_SECRET);
 
             return $this->redirectToRoute('salt_index');
         }
 
         if (!$form->isSubmitted()) {
             $secret = Base32::encodeUpperUnpadded(random_bytes(16));
-            $user->setTotpSecret($secret); // 10/16/20 for 80/128/160 bits
-            $this->entityManager->flush();
+            $user->setTotpSecret($secret);
+
+            $request->getSession()->set(self::SESSION_PENDING_SECRET, $secret);
 
             $qrCode = new QrCode(
                 data: $this->totpAuthenticator->getQRContent($user),

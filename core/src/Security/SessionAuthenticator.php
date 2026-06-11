@@ -6,6 +6,7 @@ namespace App\Security;
 
 use App\Repository\SessionRepository;
 use App\Repository\User\UserRepository;
+use App\Service\SessionDataDecoder;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,6 +35,7 @@ final readonly class SessionAuthenticator implements AuthenticatorInterface
         private TokenStorageInterface $tokenStorage,
         private SessionRepository $sessionRepository,
         private UserRepository $userProvider,
+        private SessionDataDecoder $sessionDataDecoder,
         #[Autowire(param: 'session_max_idle_time')] private int $sessionMaxIdleTime = 3600,
     ) {
     }
@@ -85,7 +87,7 @@ final readonly class SessionAuthenticator implements AuthenticatorInterface
         }
 
         // Decode session data to extract the user
-        $sessionData = $this->decodeSessionData($session->getData());
+        $sessionData = $this->sessionDataDecoder->decodeSessionData($session->getData());
 
         // Extract the security token from the session (stored by the main firewall)
         $tokenData = $sessionData['_sf2_attributes']['_security_main'] ?? null;
@@ -94,10 +96,10 @@ final readonly class SessionAuthenticator implements AuthenticatorInterface
             throw new AuthenticationException('No authentication token found in session.');
         }
 
-        // Unserialize the token to get the user
-        $token = @unserialize($tokenData);
-
-        if (false === $token || !$token instanceof TokenInterface) {
+        // Unserialize the token with a strict class allowlist
+        try {
+            $token = $this->sessionDataDecoder->decodeSecurityToken($tokenData);
+        } catch (\InvalidArgumentException) {
             throw new AuthenticationException('Invalid authentication token in session.');
         }
 
@@ -153,56 +155,5 @@ final readonly class SessionAuthenticator implements AuthenticatorInterface
             $firewallName,
             $passport->getUser()->getRoles()
         );
-    }
-
-    /**
-     * Decode PHP session data format (key|serialized_value).
-     *
-     * @param string $sessionData The raw session data string
-     *
-     * @return array<string, mixed> The decoded session data as an array
-     */
-    private function decodeSessionData(string $sessionData): array
-    {
-        if (empty($sessionData)) {
-            return [];
-        }
-
-        $result = [];
-        $offset = 0;
-        $length = strlen($sessionData);
-
-        while ($offset < $length) {
-            // Find the position of the pipe character (key separator)
-            $pipePos = strpos($sessionData, '|', $offset);
-
-            if (false === $pipePos) {
-                break;
-            }
-
-            // Extract the key
-            $key = substr($sessionData, $offset, $pipePos - $offset);
-            $offset = $pipePos + 1;
-
-            // Now we need to unserialize the value
-            // PHP session format uses standard serialize() for values
-            // We need to find where the serialized value ends
-            $temp = substr($sessionData, $offset);
-            $value = @unserialize($temp);
-
-            if (false === $value && 'b:0;' !== substr($temp, 0, 4)) {
-                // Failed to unserialize, try to skip this entry
-                break;
-            }
-
-            $result[$key] = $value;
-
-            // Calculate how many bytes were consumed by serialize()
-            // We need to determine the actual length of the serialized string
-            $serializedLength = strlen(serialize($value));
-            $offset += $serializedLength;
-        }
-
-        return $result;
     }
 }

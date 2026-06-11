@@ -16,7 +16,6 @@ use App\Util\Collection;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
-use Swaggest\JsonSchema\Schema;
 
 class MirrorFramework
 {
@@ -28,6 +27,7 @@ class MirrorFramework
     public function __construct(
         private MirrorServer $mirrorServer,
         private ManagerRegistry $managerRegistry,
+        private SchemaProvider $schemaProvider,
     ) {
         $em = $managerRegistry->getManager();
         if (!$em instanceof EntityManagerInterface) {
@@ -44,9 +44,7 @@ class MirrorFramework
             $data = Collection::removeEmptyElements($data, ['']);
             $json = json_encode($data, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
 
-            $schema = Schema::import(json5_decode(file_get_contents(__DIR__.'/../../config/schema/case-v1p1-cfpackage-schema.json')));
-            $schema->in(json5_decode($json));
-            $schema = null;
+            $this->schemaProvider->getCaseV1p1Schema()->in(json5_decode($json));
         } catch (\Exception $exception) {
             throw new \RuntimeException('CFPackage not valid', 0, $exception);
         }
@@ -59,15 +57,20 @@ class MirrorFramework
 
     public function mirrorNext(): ?Framework
     {
-        // Get next framework to mirror, based on schedule and priority
-        /** @var ?Framework $next */
-        $next = $this->em->getRepository(Framework::class)->findNext();
-        if (null === $next) {
-            return null;
-        }
-
+        $conn = $this->em->getConnection();
+        $conn->beginTransaction();
         try {
+            // Get next framework to mirror, based on schedule and priority
+            /** @var ?Framework $next */
+            $next = $this->em->getRepository(Framework::class)->findNext();
+            if (null === $next) {
+                $conn->commit();
+
+                return null;
+            }
+
             if (!$this->em->getRepository(Framework::class)->markAsProcessing($next)) {
+                $conn->commit();
                 throw new MirrorAlreadyChangedException('Could not mark framework as being processed, possibly already being processed.');
             }
             $this->em->refresh($next);
@@ -81,9 +84,12 @@ class MirrorFramework
             }
 
             $this->em->flush();
+            $conn->commit();
         } catch (MirrorAlreadyChangedException $e) {
+            $conn->commit();
             throw $e;
         } catch (\Exception $e) {
+            $conn->rollBack();
             // Don't try to save anything we've done if an error occurred (such as partial document loaded)
             $this->em->clear();
             if (!$this->em->isOpen()) {
@@ -94,12 +100,8 @@ class MirrorFramework
                 $em = $this->managerRegistry->getManager();
                 $this->em = $em;
             }
-            $next = $this->em->getRepository(Framework::class)->find($next->getId());
 
-            if (null === $next) {
-                throw new \RuntimeException('Error mirroring framework: Mirrored framework went missing.', $e->getCode(), $e);
-            }
-
+            // Compute error metadata before the inner transaction
             $msg = $e->getMessage();
             $errorType = Framework::ERROR_GENERAL;
             if ($e instanceof UniqueConstraintViolationException) {
@@ -113,13 +115,31 @@ class MirrorFramework
                 $errorType = Framework::ERROR_ID_CONFLICT;
             }
 
-            $next->markFailure($errorType);
-            $log = $next->addLog(Log::STATUS_FAILURE, $msg);
-            $this->em->persist($log);
-            $this->em->flush();
+            // Use a new transaction for error-recording writes
+            $conn->beginTransaction();
+            try {
+                $next = $this->em->getRepository(Framework::class)->find($next->getId());
+
+                if (null === $next) {
+                    $conn->rollBack();
+                    throw new \RuntimeException('Error mirroring framework: Mirrored framework went missing.', $e->getCode(), $e);
+                }
+
+                $next->markFailure($errorType);
+                $log = $next->addLog(Log::STATUS_FAILURE, $msg);
+                $this->em->persist($log);
+                $this->em->flush();
+                $conn->commit();
+            } catch (\Exception $innerException) {
+                $conn->rollBack();
+                // Log the failure to record the error, but still throw the original
+                $this->warning('Failed to record mirror error', [
+                    'error' => $innerException->getMessage(),
+                ]);
+            }
 
             $this->warning('Error mirroring framework.', [
-                'identifier' => $next->getIdentifier(),
+                'identifier' => $next?->getIdentifier(),
                 'error' => $msg,
             ]);
 
