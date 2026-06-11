@@ -589,7 +589,7 @@ class LsDocRepository extends ServiceEntityRepository
             $docTitle = $docInfo['docTitle'];
 
             if ($lightweight) {
-                return $this->buildLightweightNode($identifier, $item, $docId, $docTitle, $isForeign);
+                return $this->buildLightweightNode($identifier, $item, $docId, $docTitle, $isForeign, $assocMap);
             }
 
             return $this->buildFullNode(
@@ -641,12 +641,14 @@ class LsDocRepository extends ServiceEntityRepository
             $node['discriminator'] = 0;
             $node['extensions'] = [];
             $node['additionalFields'] = [];
+            $node['listEnumeration'] = null;
+            $node['sequenceNumber'] = null;
         }
 
         return $node;
     }
 
-    private function buildLightweightNode(string $identifier, array $item, string $docId, ?string $docTitle, bool $isForeign): array
+    private function buildLightweightNode(string $identifier, array $item, string $docId, ?string $docTitle, bool $isForeign, array $assocMap = []): array
     {
         return [
             'identifier' => $identifier,
@@ -655,6 +657,8 @@ class LsDocRepository extends ServiceEntityRepository
             'humanCodingScheme' => $item['humanCodingScheme'] ?? null,
             'fullStatement' => $item['fullStatement'] ?? null,
             'abbreviatedStatement' => $item['abbreviatedStatement'] ?? null,
+            'listEnumeration' => $item['listEnumInSource'] ?? null,
+            'sequenceNumber' => $assocMap[$identifier]['sequenceNumber'] ?? null,
             'isCrossFramework' => $isForeign,
             'discriminator' => $item['discriminator'] ?? 0,
             'extensions' => $item['extensions'] ?? [],

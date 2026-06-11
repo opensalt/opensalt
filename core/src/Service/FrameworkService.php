@@ -102,6 +102,13 @@ class FrameworkService
 
     public function persistAssociation(LsAssociation $association): void
     {
+        if (LsAssociation::CHILD_OF === $association->getType() && $association->getSequenceNumber() <= 0) {
+            $destEntity = $association->getDestination();
+            if ($destEntity instanceof LsItem || $destEntity instanceof LsDoc) {
+                $association->setSequenceNumber($this->getNextChildSequenceNumber($destEntity));
+            }
+        }
+
         $this->em->persist($association);
     }
 
@@ -199,6 +206,13 @@ class FrameworkService
             /** @var ?LsDefAssociationGrouping $assocGroupObj */
             $assocGroupObj = $this->associationGroupingRepository->findOneBy(['id' => $assocGroup]);
             $association->setGroup($assocGroupObj);
+        }
+
+        if (LsAssociation::CHILD_OF === $association->getType()) {
+            $destEntity = $association->getDestination();
+            if (($destEntity instanceof LsItem || $destEntity instanceof LsDoc) && $association->getSequenceNumber() === null) {
+                $association->setSequenceNumber($this->getNextChildSequenceNumber($destEntity));
+            }
         }
 
         $this->em->persist($association);

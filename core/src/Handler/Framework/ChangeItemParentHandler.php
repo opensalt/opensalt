@@ -33,9 +33,19 @@ class ChangeItemParentHandler extends BaseDoctrineHandler
             $changedItems[$parent->getId()] = $parent->getIdentifier();
         }
 
-        $this->em->getRepository(LsAssociation::class)
-            ->removeAllAssociationsOfType($dto->lsItem, LsAssociation::CHILD_OF);
-        $dto->lsItem->addParent($dto->parentItem);
+        $assocRepo = $this->em->getRepository(LsAssociation::class);
+        $assocRepo->removeAllAssociationsOfType($dto->lsItem, LsAssociation::CHILD_OF);
+
+        $existingAssocs = $assocRepo->findAllChildAssociationsFor($dto->parentItem->getIdentifier());
+        $maxSeq = 0;
+        foreach ($existingAssocs as $assoc) {
+            $seq = $assoc->getSequenceNumber();
+            if (null !== $seq && $seq > $maxSeq) {
+                $maxSeq = $seq;
+            }
+        }
+        $seqNum = $maxSeq + 1;
+        $dto->lsItem->addParent($dto->parentItem, $seqNum);
 
         if (null !== $dto->parentItem) {
             $changedItems[$dto->parentItem->getId()] = $dto->parentItem->getIdentifier();

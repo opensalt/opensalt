@@ -403,6 +403,9 @@ class ItemController extends AbstractController
 
             $newAssoc = $lsItem->addParent($newParent, $sequenceNumber);
             $em->persist($newAssoc);
+
+            // Renumber all siblings to ensure clean, sequential sequence numbers
+            $this->renumberSiblings($newParent);
             $em->flush();
 
             return new JsonResponse([
@@ -455,7 +458,7 @@ class ItemController extends AbstractController
             $targetSeq = (int) $siblings[$targetIndex]['seq'];
             $prevSeq = $targetIndex > 0 ? (int) $siblings[$targetIndex - 1]['seq'] : 0;
 
-            return (int) floor(($prevSeq + $targetSeq) / 2);
+            return max(1, (int) floor(($prevSeq + $targetSeq) / 2));
         }
 
         $targetSeq = (int) $siblings[$targetIndex]['seq'];
@@ -463,7 +466,7 @@ class ItemController extends AbstractController
         if ($nextIndex < count($siblings)) {
             $nextSeq = (int) $siblings[$nextIndex]['seq'];
 
-            return (int) floor(($targetSeq + $nextSeq) / 2);
+            return max(1, (int) floor(($targetSeq + $nextSeq) / 2));
         }
 
         return $targetSeq + 1;
@@ -483,6 +486,27 @@ class ItemController extends AbstractController
         }
 
         return $maxSeq + 1;
+    }
+
+    /**
+     * Renumber all children of a parent with sequential integers starting from 1.
+     *
+     * Ensures clean, unique, sequential values for all siblings after a move,
+     * in case the integer bisection algorithm produces collisions.
+     */
+    private function renumberSiblings(LsItem|LsDoc $parent): void
+    {
+        $parentIdentifier = $parent->getIdentifier();
+        $childAssocs = $this->associationRepository->findAllChildAssociationsFor($parentIdentifier);
+
+        // Sort by current sequence number to preserve the relative order
+        usort($childAssocs, static fn (LsAssociation $a, LsAssociation $b) => ($a->getSequenceNumber() ?? 0) <=> ($b->getSequenceNumber() ?? 0));
+
+        $seq = 1;
+        foreach ($childAssocs as $assoc) {
+            $assoc->setSequenceNumber($seq);
+            ++$seq;
+        }
     }
 
     private function applyDataToItem(LsItem $lsItem, array $data, ?string $itemType): void
