@@ -210,7 +210,7 @@ class FrameworkService
 
         if (LsAssociation::CHILD_OF === $association->getType()) {
             $destEntity = $association->getDestination();
-            if (($destEntity instanceof LsItem || $destEntity instanceof LsDoc) && $association->getSequenceNumber() === null) {
+            if (($destEntity instanceof LsItem || $destEntity instanceof LsDoc) && null === $association->getSequenceNumber()) {
                 $association->setSequenceNumber($this->getNextChildSequenceNumber($destEntity));
             }
         }
