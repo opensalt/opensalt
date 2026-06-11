@@ -10,6 +10,5 @@ string=''; for i in {0..31}; do string+=$(printf "%x" $(($RANDOM%16)) ); done;
 CONTAINER_NAME=php_${string}
 
 docker compose run --rm --no-deps \
-    -u $(id -u):$(id -g) \
     -v "$(pwd)/core/docker/data/composer:/.composer" \
     --name $CONTAINER_NAME web composer "$@"
