@@ -85,7 +85,9 @@ CMD [ "frankenphp", "run", "--config", "/etc/caddy/Caddyfile" ]
 # "php" stage
 FROM frankenphp_base AS salt_core_php
 
-USER 1000:1000
+RUN groupadd -g 1000 opensalt && \
+	useradd -u 1000 -g opensalt -m -s /bin/bash opensalt
+USER opensalt:opensalt
 WORKDIR /srv/core
 
 #=======================================================================
@@ -215,6 +217,7 @@ RUN set -eux; \
 
 COPY frankenphp/conf.d/app.dev.ini $PHP_INI_DIR/conf.d/
 
+USER 1000:1000
 CMD [ "frankenphp", "run", "--config", "/etc/caddy/Caddyfile", "--watch" ]
 
 #=======================================================================
