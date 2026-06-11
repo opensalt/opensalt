@@ -75,6 +75,9 @@ COPY frankenphp/conf.d/app.ini $PHP_INI_DIR/conf.d/
 COPY --chmod=755 frankenphp/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
 COPY frankenphp/Caddyfile /etc/caddy/Caddyfile
 
+# Ensure Caddy data/config dirs are writable by the non-root user
+RUN mkdir -p /data/caddy /config/caddy && chown -R 1000:1000 /data/caddy /config/caddy
+
 ENTRYPOINT ["docker-entrypoint"]
 
 HEALTHCHECK --start-period=60s --interval=30s --timeout=5s --retries=3 CMD curl -fsS http://localhost/healthz || exit 1
