@@ -34,6 +34,20 @@
         Association View
       </button>
       <button
+        id="displayCrosswalkBtn"
+        type="button"
+        class="btn btn-sm"
+        :class="{ 'btn-primary': currentView === 'crosswalk', 'btn-outline-primary': currentView !== 'crosswalk' }"
+        :aria-pressed="currentView === 'crosswalk'"
+        @click="switchView('crosswalk')"
+      >
+        <i
+          class="bi bi-arrow-left-right me-1"
+          aria-hidden="true"
+        />
+        Crosswalk
+      </button>
+      <button
         v-if="sessionStore.isAuthenticated"
         id="displayLogBtn"
         type="button"
@@ -73,6 +87,7 @@ const currentFrameworkId = computed(() => currentDocumentStore.currentDocument?.
 const currentView = computed(() => {
   const path = route.path;
   if (path.includes('/association')) return 'association';
+  if (path.includes('/crosswalk')) return 'crosswalk';
   if (path.includes('/log')) return 'log';
   return 'tree';
 });
@@ -109,6 +124,8 @@ async function switchView(view) {
     }
   } else if (view === 'association') {
     path = `/${currentFrameworkId.value}/association`;
+  } else if (view === 'crosswalk') {
+    path = `/${currentFrameworkId.value}/crosswalk`;
   } else if (view === 'log') {
     path = `/${currentFrameworkId.value}/log`;
   }

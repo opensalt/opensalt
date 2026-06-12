@@ -9,6 +9,11 @@ const routes = [
     component: () => import('../components/association/AssociationView.vue')
   },
   {
+    path: '/:frameworkId/crosswalk',
+    name: 'CrosswalkView',
+    component: () => import('../components/crosswalk/CrosswalkView.vue')
+  },
+  {
     path: '/:frameworkId/log',
     name: 'LogView',
     component: () => import('../components/log/LogView.vue')
