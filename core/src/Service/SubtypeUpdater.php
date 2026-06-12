@@ -181,7 +181,7 @@ class SubtypeUpdater
 
         if (null === $origin || '' === $origin || (null === $destination || '' === $destination)) {
             // Skip row if both identifiers are not there
-//            $this->io->comment('Missing identifiers');
+            //            $this->io->comment('Missing identifiers');
             return "Missing identifiers\n";
         }
 
@@ -190,9 +190,9 @@ class SubtypeUpdater
             $newType = 'Identifiers Differ';
         }
 
-//        if ('haspart' === preg_replace('/[^a-zA-Z]/', '', strtolower($newType))) {
-//            $newType = '<-isPartOf';
-//        }
+        //        if ('haspart' === preg_replace('/[^a-zA-Z]/', '', strtolower($newType))) {
+        //            $newType = '<-isPartOf';
+        //        }
 
         if (!array_key_exists($subtype, self::MAP_SUBTYPES)) {
             return 'Bad subtype: "'.$subtype.'" ('.$newType.')'."\n";
@@ -219,9 +219,9 @@ class SubtypeUpdater
         $newType = self::MAP_SUBTYPES[$subtype];
 
         if ('' === $newType) {
-//            $this->io->comment('Missing new type');
+            //            $this->io->comment('Missing new type');
             foreach ($assocs as $assoc) {
-//                dump(['found one maybe removable?' => [$origin, $destination, $assoc->getType(), $newType, $subtype]]);
+                //                dump(['found one maybe removable?' => [$origin, $destination, $assoc->getType(), $newType, $subtype]]);
                 $doc = $assoc->getLsDoc();
                 if (null !== $doc->getMirroredFramework() && $doc->getMirroredFramework()->isInclude()) {
                     $ret .= "Left association with empty new type from Read-Only framework\n";

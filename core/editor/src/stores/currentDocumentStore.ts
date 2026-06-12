@@ -225,6 +225,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     currentDocument.value = normalizedDocument;
     contextStore.activeWriteDocumentId = documentIdentifier;
     contextStore.isAdmin = response.permissions?.isAdmin ?? false;
+    contextStore.canEdit = response.permissions?.canEdit ?? false;
 
     currentDocumentDefinitions.value = response.definitions
       ? {

@@ -11,38 +11,47 @@
               @change="toggleSelectAll"
             >
           </th>
-          <th>Origin Item</th>
-          <th style="width: 80px;">
-            Confidence
-          </th>
-          <th>Destination Item</th>
-          <th style="width: 120px;">
-            Type
-          </th>
-          <th style="width: 120px;">
-            Subtype
-          </th>
-          <th style="width: 100px;">
-            Status
-          </th>
-          <th style="width: 100px;">
-            Actions
-          </th>
+          <th class="col-origin">Origin Item</th>
+          <th style="width: 60px;"></th>
+          <th style="width: 80px;">Confidence</th>
+          <th style="width: 100px;">Type</th>
+          <th class="col-destination">Destination Item</th>
+          <th style="width: 100px;">Status</th>
+          <th style="width: 100px;">Actions</th>
         </tr>
       </thead>
       <tbody>
-        <template
-          v-for="assoc in associations"
-          :key="assoc.identifier || assoc.id"
-        >
+        <template v-if="loading">
+          <tr>
+            <td
+              colspan="8"
+              class="text-center text-muted py-4"
+            >
+              Loading items...
+            </td>
+          </tr>
+        </template>
+        <template v-else>
           <CrosswalkReviewRow
-            :association="assoc"
-            :is-selected="isSelected(assoc)"
+            v-for="pair in matchedPairs"
+            :key="pair.id"
+            :pair="pair"
+            :is-selected="isSelected(pair.id)"
             @select="onSelect"
             @approve="onApprove"
             @reject="onReject"
-            @update-type="onUpdateType"
-            @update-subtype="onUpdateSubtype"
+          />
+          <CrosswalkReviewRow
+            v-for="item in unmatchedOrigin"
+            :key="'unmatched-origin-' + item.identifier"
+            :unmatched-origin-item="item"
+            @select="onSelectUnmatchedOrigin"
+          />
+          <CrosswalkReviewRow
+            v-for="item in unmatchedDestination"
+            :key="'unmatched-dest-' + item.identifier"
+            :unmatched-destination-item="item"
+            @select="onSelectUnmatchedDestination"
           />
         </template>
       </tbody>
@@ -55,45 +64,54 @@ import { computed } from 'vue';
 import CrosswalkReviewRow from './CrosswalkReviewRow.vue';
 
 const props = defineProps({
-  associations: { type: Array, required: true },
+  matchedPairs: { type: Array, default: () => [] },
+  unmatchedOrigin: { type: Array, default: () => [] },
+  unmatchedDestination: { type: Array, default: () => [] },
   selectedIds: { type: Set, required: true },
+  loading: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(['select', 'approve', 'reject', 'bulk-approve', 'bulk-reject', 'update-type', 'update-subtype']);
+const emit = defineEmits(['select', 'approve', 'reject']);
 
 const allSelected = computed(() => {
-  return props.associations.length > 0 && props.associations.every(a => isSelected(a));
+  const total = props.matchedPairs.length + props.unmatchedOrigin.length + props.unmatchedDestination.length;
+  if (total === 0) return false;
+  return props.matchedPairs.every(p => props.selectedIds.has(p.id)) &&
+         props.unmatchedOrigin.every(i => props.selectedIds.has('unmatched-origin-' + i.identifier)) &&
+         props.unmatchedDestination.every(i => props.selectedIds.has('unmatched-dest-' + i.identifier));
 });
 
-function isSelected(assoc) {
-  return props.selectedIds.has(assoc.identifier || assoc.id);
+function isSelected(id) {
+  return props.selectedIds.has(id);
 }
 
-function onSelect(assoc) {
-  emit('select', assoc);
+function onSelect(id) {
+  emit('select', id);
 }
 
-function onApprove(assoc) {
-  emit('approve', assoc);
+function onApprove(id) {
+  emit('approve', id);
 }
 
-function onReject(assoc) {
-  emit('reject', assoc);
+function onReject(id) {
+  emit('reject', id);
 }
 
-function onUpdateType(assoc, type) {
-  emit('update-type', assoc, type);
+function onSelectUnmatchedOrigin(item) {
+  emit('select', 'unmatched-origin-' + item.identifier);
 }
 
-function onUpdateSubtype(assoc, subtype) {
-  emit('update-subtype', assoc, subtype);
+function onSelectUnmatchedDestination(item) {
+  emit('select', 'unmatched-dest-' + item.identifier);
 }
 
 function toggleSelectAll() {
   if (allSelected.value) {
     props.selectedIds.clear();
   } else {
-    props.associations.forEach(a => props.selectedIds.add(a.identifier || a.id));
+    props.matchedPairs.forEach(p => props.selectedIds.add(p.id));
+    props.unmatchedOrigin.forEach(i => props.selectedIds.add('unmatched-origin-' + i.identifier));
+    props.unmatchedDestination.forEach(i => props.selectedIds.add('unmatched-dest-' + i.identifier));
   }
 }
 </script>

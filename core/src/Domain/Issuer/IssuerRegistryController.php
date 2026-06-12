@@ -31,7 +31,7 @@ class IssuerRegistryController extends AbstractController
 {
     public function __construct(
         #[Autowire(param: 'issuer_signing_key')] private readonly ?string $issuerSigningKey,
-       private readonly JWSSerializerManagerFactory $serializerManagerFactory,
+        private readonly JWSSerializerManagerFactory $serializerManagerFactory,
     ) {
     }
 

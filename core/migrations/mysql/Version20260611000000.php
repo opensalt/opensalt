@@ -31,6 +31,7 @@ final class Version20260611000000 extends AbstractMigration
                 exact_match_items INT NOT NULL DEFAULT 0,
                 related_items INT NOT NULL DEFAULT 0,
                 skipped_no_embedding INT NOT NULL DEFAULT 0,
+                skipped_below_threshold INT NOT NULL DEFAULT 0,
                 failed_items INT NOT NULL DEFAULT 0,
                 queued_at DATETIME NOT NULL,
                 started_at DATETIME DEFAULT NULL,

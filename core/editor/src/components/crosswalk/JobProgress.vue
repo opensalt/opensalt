@@ -61,7 +61,9 @@
       class="alert alert-danger"
     >
       <h6><i class="bi bi-exclamation-triangle me-2" />Crosswalk Failed</h6>
-      <p class="mb-0">{{ jobState.error || 'An error occurred during processing.' }}</p>
+      <p class="mb-0">
+        {{ jobState.error || 'An error occurred during processing.' }}
+      </p>
     </div>
 
     <div
@@ -69,7 +71,9 @@
       class="alert alert-warning"
     >
       <h6><i class="bi bi-x-circle me-2" />Crosswalk Cancelled</h6>
-      <p class="mb-0">Processing was cancelled. {{ jobState.progress.matched }} matches were created before cancellation.</p>
+      <p class="mb-0">
+        Processing was cancelled. {{ jobState.progress.matched }} matches were created before cancellation.
+      </p>
     </div>
   </div>
 </template>

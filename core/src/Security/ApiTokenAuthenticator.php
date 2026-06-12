@@ -15,10 +15,10 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 final readonly class ApiTokenAuthenticator implements AccessTokenHandlerInterface
 {
     public function __construct(
-            private ApiTokenRepository $apiTokenRepository,
-            private EntityManagerInterface $em,
-            private RequestStack $requestStack,
-        ) {
+        private ApiTokenRepository $apiTokenRepository,
+        private EntityManagerInterface $em,
+        private RequestStack $requestStack,
+    ) {
     }
 
     #[\Override]

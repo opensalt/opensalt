@@ -10,9 +10,9 @@ use App\Crosswalk\Message\CreateCrosswalkMessage;
 use App\Crosswalk\Repository\CrosswalkJobRepository;
 use App\Crosswalk\Service\CrosswalkService;
 use App\Entity\Framework\LsItem;
-use App\VectorSearch\Service\VectorSearchService;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Uid\Uuid;
 
 final class CreateCrosswalkMessageHandlerTest extends TestCase
 {
@@ -27,10 +27,11 @@ final class CreateCrosswalkMessageHandlerTest extends TestCase
             exactMatchThreshold: 0.90,
         );
 
-        $job = $this->createMock(CrosswalkJob::class);
-        $job->method('getId')->willReturn('test-job-id');
-        $job->expects($this->once())->method('markStarted');
-        $job->expects($this->once())->method('markCompleted');
+        // Use a real CrosswalkJob so property hooks are initialized
+        $job = new CrosswalkJob(42, 87, 156);
+        // Override the id to match the message jobId for the repository lookup
+        $jobRef = new \ReflectionProperty($job, 'id');
+        $jobRef->setValue($job, Uuid::fromString('550e8400-e29b-41d4-a716-446655440000'));
 
         $jobRepo = $this->createMock(CrosswalkJobRepository::class);
         $jobRepo->method('find')->willReturn($job);
@@ -41,11 +42,9 @@ final class CreateCrosswalkMessageHandlerTest extends TestCase
         $destItem = $this->createMock(LsItem::class);
         $destItem->method('getId')->willReturn(200);
 
-        $vectorSearchService = $this->createMock(VectorSearchService::class);
-        $vectorSearchService->method('searchByLsItem')
-            ->willReturn([['lsItem' => $destItem, 'similarity' => 0.95]]);
-
         $crosswalkService = $this->createMock(CrosswalkService::class);
+        $crosswalkService->method('findBestMatch')
+            ->willReturn(['lsItem' => $destItem, 'similarity' => 0.95]);
         $crosswalkService->method('processItem')
             ->willReturn(CrosswalkService::RESULT_CREATED_EXACT);
 
@@ -61,9 +60,13 @@ final class CreateCrosswalkMessageHandlerTest extends TestCase
         $hub = $this->createMock(\Symfony\Component\Mercure\HubInterface::class);
 
         $handler = new CreateCrosswalkMessageHandler(
-            $jobRepo, $vectorSearchService, $crosswalkService, $em, $hub,
+            $jobRepo, $crosswalkService, $em, $hub,
         );
 
         $handler->__invoke($message);
+
+        $this->assertSame('completed', $job->status);
+        $this->assertSame(1, $job->processedItems);
+        $this->assertSame(1, $job->exactMatchItems);
     }
 }

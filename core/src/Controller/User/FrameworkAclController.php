@@ -205,6 +205,6 @@ class FrameworkAclController extends AbstractController
             ->setAction($this->generateUrl($deleteRoute, $deleteParams))
             ->setMethod(Request::METHOD_DELETE)
             ->getForm()
-            ;
+        ;
     }
 }

@@ -93,6 +93,7 @@ export const useEditorContextStore = defineStore('editorContext', () => {
     const activeWriteDocumentId = ref<UUID | null>(null);
     const viewedDocumentId = ref<UUID | null>(null);
     const isAdmin = ref<boolean>(false);
+    const canEdit = ref<boolean>(false);
     const registryVersion = ref(0);
 
     const frameworkSelectionState = reactive<FrameworkSelectionMap>({
@@ -305,6 +306,7 @@ export const useEditorContextStore = defineStore('editorContext', () => {
         activeWriteDocumentId,
         viewedDocumentId,
         isAdmin,
+        canEdit,
         isViewingDifferentFramework,
         initialize,
         loadPackage,

@@ -1,9 +1,9 @@
 <template>
   <div class="crosswalk-wizard">
-    <!-- Step 1: Origin & Destination -->
+    <!-- Step 1: Origin & Destination Selection -->
     <div class="mb-4">
       <h5>Step 1: Select Frameworks</h5>
-      <div class="row g-3">
+      <div class="row g-3 mb-3">
         <div class="col-md-6">
           <label
             for="originFramework"
@@ -11,16 +11,23 @@
           >Origin Framework</label>
           <select
             id="originFramework"
-            v-model="form.originId"
+            v-model="form.originIdentifier"
             class="form-select"
           >
-            <option
-              v-for="doc in availableDocuments"
-              :key="doc.id"
-              :value="doc.id"
+            <option value="">— Select origin framework —</option>
+            <optgroup
+              v-for="group in groupedDocuments"
+              :key="'origin-' + group.creator"
+              :label="group.creator"
             >
-              {{ doc.title }}
-            </option>
+              <option
+                v-for="doc in group.documents"
+                :key="'origin-' + doc.identifier"
+                :value="doc.identifier"
+              >
+                {{ doc.title || 'Unknown Name' }} ({{ doc.identifier || 'No Identifier' }})
+              </option>
+            </optgroup>
           </select>
         </div>
         <div class="col-md-6">
@@ -30,60 +37,36 @@
           >Destination Framework</label>
           <select
             id="destinationFramework"
-            v-model="form.destinationId"
+            v-model="form.destinationIdentifier"
             class="form-select"
           >
-            <option
-              v-for="doc in availableDocuments"
-              :key="doc.id"
-              :value="doc.id"
+            <option value="">— Select destination framework —</option>
+            <optgroup
+              v-for="group in groupedDocuments"
+              :key="'dest-' + group.creator"
+              :label="group.creator"
             >
-              {{ doc.title }}
-            </option>
+              <option
+                v-for="doc in group.documents"
+                :key="'dest-' + doc.identifier"
+                :value="doc.identifier"
+              >
+                {{ doc.title || 'Unknown Name' }} ({{ doc.identifier || 'No Identifier' }})
+              </option>
+            </optgroup>
           </select>
         </div>
       </div>
-      <small class="text-muted">
+      <div class="alert alert-info small mb-0">
+        <i class="bi bi-info-circle me-1" />
+        Crosswalk associations will be stored in: <strong>{{ crosswalkFrameworkTitle }}</strong>.
         Both frameworks should have vector embeddings generated. Items without embeddings will be skipped.
-      </small>
+      </div>
     </div>
 
-    <!-- Step 2: Crosswalk Framework & Thresholds -->
+    <!-- Step 2: Thresholds & Preview -->
     <div class="mb-4">
-      <h5>Step 2: Configure Crosswalk</h5>
-      <div class="mb-3">
-        <div class="form-check">
-          <input
-            id="createNewFramework"
-            v-model="form.createNewFramework"
-            type="radio"
-            :value="true"
-            class="form-check-input"
-          >
-          <label
-            for="createNewFramework"
-            class="form-check-label"
-          >
-            Create new crosswalk framework
-          </label>
-        </div>
-        <div class="form-check">
-          <input
-            id="useExistingFramework"
-            v-model="form.createNewFramework"
-            type="radio"
-            :value="false"
-            class="form-check-input"
-          >
-          <label
-            for="useExistingFramework"
-            class="form-check-label"
-          >
-            Use existing framework
-          </label>
-        </div>
-      </div>
-
+      <h5>Step 2: Configure Thresholds</h5>
       <div class="row g-3">
         <div class="col-md-6">
           <label
@@ -120,7 +103,7 @@
 
     <!-- Step 3: Preview & Submit -->
     <div class="mb-4">
-      <h5>Step 3: Review & Create</h5>
+      <h5>Step 3: Review &amp; Create</h5>
       <div class="d-flex gap-2">
         <button
           type="button"
@@ -157,6 +140,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useDocumentStore } from '@/stores/documentStore';
+import { useDocumentGroups } from '@/composables/useDocumentGroups.js';
 import { api } from '@/services/api.js';
 import EstimationResults from './EstimationResults.vue';
 
@@ -165,20 +149,34 @@ const documentStore = useDocumentStore();
 
 const emit = defineEmits(['create']);
 
-const availableDocuments = ref([]);
 const estimateResult = ref(null);
 
+const crosswalkIdentifier = computed(() => {
+  return route.params.frameworkId || null;
+});
+
+const crosswalkFrameworkTitle = computed(() => {
+  const doc = documentStore.documents.find(d => d.identifier === crosswalkIdentifier.value);
+  return doc?.title || 'Current Framework';
+});
+
+const allDocuments = computed(() => documentStore.documents);
+const { groupedDocuments } = useDocumentGroups(allDocuments);
+
 const form = ref({
-  originId: '',
-  destinationId: '',
-  createNewFramework: true,
-  existingFrameworkId: null,
+  originIdentifier: '',
+  destinationIdentifier: '',
   threshold: 0.75,
   exactMatchThreshold: 0.90,
 });
 
 const canPreview = computed(() => {
-  return form.value.originId && form.value.destinationId && form.value.originId !== form.value.destinationId;
+  return (
+    form.value.originIdentifier &&
+    form.value.destinationIdentifier &&
+    form.value.originIdentifier !== form.value.destinationIdentifier &&
+    crosswalkIdentifier.value
+  );
 });
 
 const canCreate = computed(() => {
@@ -189,14 +187,12 @@ onMounted(async () => {
   if (documentStore.documents.length === 0) {
     await documentStore.fetchDocuments();
   }
-  availableDocuments.value = documentStore.documents;
-  form.value.originId = route.params.frameworkId || '';
 });
 
 async function onPreview() {
   try {
     const data = await api.get(
-      `/api/vector-search/crosswalk/estimate?origin=${form.value.originId}&destination=${form.value.destinationId}&threshold=${form.value.threshold}`
+      `/api/vector-search/crosswalk/estimate?origin=${form.value.originIdentifier}&destination=${form.value.destinationIdentifier}&threshold=${form.value.threshold}`
     );
     estimateResult.value = data;
   } catch (err) {
@@ -206,9 +202,9 @@ async function onPreview() {
 
 function onCreate() {
   emit('create', {
-    originId: form.value.originId,
-    destinationId: form.value.destinationId,
-    crosswalkId: form.value.createNewFramework ? null : form.value.existingFrameworkId,
+    originIdentifier: form.value.originIdentifier,
+    destinationIdentifier: form.value.destinationIdentifier,
+    crosswalkIdentifier: crosswalkIdentifier.value,
     threshold: form.value.threshold,
     exactMatchThreshold: form.value.exactMatchThreshold,
   });

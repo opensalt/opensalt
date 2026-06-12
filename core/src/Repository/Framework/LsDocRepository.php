@@ -107,7 +107,7 @@ class LsDocRepository extends ServiceEntityRepository
         return $this->createQueryBuilder($alias)
             ->where(sprintf('(%s.adoptionStatus != :status OR %s.adoptionStatus IS NULL)', $alias, $alias))
             ->setParameter('status', LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT)
-            ;
+        ;
     }
 
     /**

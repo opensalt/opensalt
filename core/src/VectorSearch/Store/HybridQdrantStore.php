@@ -310,6 +310,21 @@ readonly class HybridQdrantStore
         return $this->countCollection($this->getActiveCollectionReference());
     }
 
+    public function countByFrameworkId(int $frameworkId): int
+    {
+        $filter = $this->buildFilter($frameworkId, false, null);
+        $response = $this->request(
+            'POST',
+            sprintf('/collections/%s/points/count', rawurlencode($this->getActiveCollectionReference())),
+            ['filter' => $filter, 'exact' => true],
+            true,
+        );
+
+        $count = $response['result']['count'] ?? 0;
+
+        return is_numeric($count) ? (int) $count : 0;
+    }
+
     public function pointExists(int $lsItemId): bool
     {
         $response = $this->request(

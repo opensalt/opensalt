@@ -77,6 +77,7 @@
 <script setup>
 import { ref, watch, computed } from 'vue';
 import { useDocumentStore } from '@/stores/documentStore';
+import { useDocumentGroups } from '@/composables/useDocumentGroups.js';
 
 const props = defineProps({
   currentDoc: {
@@ -109,34 +110,9 @@ const props = defineProps({
 // Use the document store
 const documentStore = useDocumentStore();
 
-// Get grouped documents
-const groupedDocuments = computed(() => {
-  const grouped = new Map();
-
-  // Group documents by creator
-  documentStore.documents.forEach(doc => {
-    const creator = doc.creator || 'Unknown Creator';
-    if (!grouped.has(creator)) {
-      grouped.set(creator, []);
-    }
-    grouped.get(creator).push(doc);
-  });
-
-  // Sort creators alphabetically
-  const sortedCreators = Array.from(grouped.keys()).sort();
-
-  // Sort documents within each creator group alphabetically by title
-  const result = [];
-  sortedCreators.forEach(creator => {
-    const docs = grouped.get(creator).sort((a, b) => a.title.localeCompare(b.title));
-    result.push({
-      creator,
-      documents: docs
-    });
-  });
-
-  return result;
-});
+// Grouped documents using shared composable
+const allDocuments = computed(() => documentStore.documents);
+const { groupedDocuments } = useDocumentGroups(allDocuments);
 
 // NEW: Changed from 'document-changed' to 'viewed-document-changed' for dual framework edit/view separation
 const emit = defineEmits(['viewed-document-changed', 'external-document-requested']);

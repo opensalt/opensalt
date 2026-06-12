@@ -284,6 +284,6 @@ class LsAssociationController extends AbstractController
             ->setAction($this->generateUrl('lsassociation_delete', ['id' => $lsAssociation->getId()]))
             ->setMethod(Request::METHOD_DELETE)
             ->getForm()
-            ;
+        ;
     }
 }

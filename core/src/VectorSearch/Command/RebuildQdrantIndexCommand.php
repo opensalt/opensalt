@@ -139,6 +139,8 @@ EOF
         $lastLsItemId = $afterId;
 
         if ('qdrant' === $effectiveSource) {
+            // resolveSource() only returns 'qdrant' when currentActiveCollection is non-null
+            assert(null !== $currentActiveCollection);
             $io->section('Fast Copy');
             $rebuilt = $this->qdrantStore->cloneCollection(
                 $currentActiveCollection,

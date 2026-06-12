@@ -90,7 +90,7 @@ class SystemLogController extends AbstractController
                     $line['description'],
                     $line['username'],
                 ],
-                escape: '\\');
+                    escape: '\\');
             }
 
             fclose($fd);

@@ -52,6 +52,8 @@ final class CrosswalkServiceTest extends TestCase
             similarity: 0.95,
             exactMatchThreshold: 0.90,
             crosswalkDocId: 156,
+            threshold: 0.75,
+            jobId: 'test-job-id',
         );
 
         $this->assertSame(CrosswalkService::RESULT_CREATED_EXACT, $result);
@@ -90,6 +92,8 @@ final class CrosswalkServiceTest extends TestCase
             similarity: 0.80,
             exactMatchThreshold: 0.90,
             crosswalkDocId: 156,
+            threshold: 0.75,
+            jobId: 'test-job-id',
         );
 
         $this->assertSame(CrosswalkService::RESULT_CREATED_RELATED, $result);
@@ -107,6 +111,8 @@ final class CrosswalkServiceTest extends TestCase
             similarity: 0.50,
             exactMatchThreshold: 0.90,
             crosswalkDocId: 156,
+            threshold: 0.75,
+            jobId: 'test-job-id',
         );
 
         $this->assertSame(CrosswalkService::RESULT_SKIPPED_BELOW_THRESHOLD, $result);

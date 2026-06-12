@@ -25,7 +25,7 @@ class CloneController extends AbstractController
     public function framework(
         string $_route,
         #[MapEntity(expr: '((id ?? null) == null) ? repository.findOneByIdentifier(identifier ?? null) : repository.find(id ?? null)')] LsDoc $lsDoc,
-        ): Response {
+    ): Response {
         $command = new CloneFrameworkCommand($lsDoc);
         $this->sendCommand($command);
         $newLsDoc = $command->getNotificationEvent()->getDoc();

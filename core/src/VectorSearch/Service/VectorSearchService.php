@@ -334,6 +334,11 @@ readonly class VectorSearchService
         return $count;
     }
 
+    public function getVectorCountForFramework(int $frameworkId): int
+    {
+        return $this->qdrantStore->countByFrameworkId($frameworkId);
+    }
+
     public function getEmbeddingGenerationCursor(): ?int
     {
         return $this->getStateInt(self::EMBEDDING_GENERATION_CURSOR_KEY);

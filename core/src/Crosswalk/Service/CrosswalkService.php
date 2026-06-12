@@ -9,7 +9,6 @@ use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\VectorSearch\Service\VectorSearchService;
 use Doctrine\ORM\EntityManagerInterface;
-use Ramsey\Uuid\Uuid;
 
 readonly class CrosswalkService
 {
@@ -29,8 +28,10 @@ readonly class CrosswalkService
         float $similarity,
         float $exactMatchThreshold,
         int $crosswalkDocId,
+        float $threshold = 0.75,
+        string $jobId = '',
     ): string {
-        if ($similarity < 0.75) {
+        if ($similarity < $threshold) {
             return self::RESULT_SKIPPED_BELOW_THRESHOLD;
         }
 
@@ -50,6 +51,7 @@ readonly class CrosswalkService
             'crosswalk:confidence' => $similarity,
             'crosswalk:subtype' => $subtype,
             'crosswalk:status' => 'pending',
+            'crosswalk:jobId' => $jobId,
         ]);
 
         $this->entityManager->persist($association);

@@ -108,6 +108,14 @@ function checkSession() {
         .then((json) => {
             let remainingTime = json.remainingTime;
 
+            if (undefined === remainingTime) {
+                setTimeout(() => {
+                        checkSession();
+                    },
+                    10000+100
+                );
+            }
+
             if (1 > remainingTime) {
                 showWarning('expired');
 

@@ -59,7 +59,7 @@ export interface CrosswalkEstimateResult {
 export interface CrosswalkCreateRequest {
   originId: number;
   destinationId: number;
-  crosswalkId: number | null;
+  crosswalkId: number;
   threshold: number;
   exactMatchThreshold: number;
 }

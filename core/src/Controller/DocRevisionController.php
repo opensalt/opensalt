@@ -83,7 +83,7 @@ class DocRevisionController extends AbstractController
                     $line['description'],
                     $line['username'],
                 ],
-                escape: '\\');
+                    escape: '\\');
             }
 
             fclose($fd);

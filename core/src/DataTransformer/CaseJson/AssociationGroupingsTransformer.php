@@ -59,7 +59,7 @@ final readonly class AssociationGroupingsTransformer
         $grouping = $this->findOrCreateAssociationGrouping($cfAssociationGrouping, $existingAssociationGroups);
         $grouping->setUri($cfAssociationGrouping->uri);
         $grouping->setTitle($cfAssociationGrouping->title);
-//        $grouping->setLsDoc($lsDoc); // TODO
+        // $grouping->setLsDoc($lsDoc); // TODO
         $grouping->setDescription($cfAssociationGrouping->description);
         $grouping->setChangedAt($cfAssociationGrouping->lastChangeDateTime);
         $grouping->setExtensions($cfAssociationGrouping->extensions);

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Crosswalk\MessageHandler;
 
+use App\Crosswalk\Entity\CrosswalkJob;
 use App\Crosswalk\Message\CreateCrosswalkMessage;
 use App\Crosswalk\Repository\CrosswalkJobRepository;
 use App\Crosswalk\Service\CrosswalkService;
 use App\Entity\Framework\LsItem;
-use App\VectorSearch\Service\VectorSearchService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Mercure\Update;
@@ -19,7 +19,6 @@ readonly class CreateCrosswalkMessageHandler
 {
     public function __construct(
         private CrosswalkJobRepository $jobRepository,
-        private VectorSearchService $vectorSearchService,
         private CrosswalkService $crosswalkService,
         private EntityManagerInterface $entityManager,
         private HubInterface $hub,
@@ -28,13 +27,13 @@ readonly class CreateCrosswalkMessageHandler
 
     public function __invoke(CreateCrosswalkMessage $message): void
     {
-        $job = $this->jobRepository->find($message->getJobId());
+        $job = $this->jobRepository->find($message->jobId);
         if (null === $job) {
             return;
         }
 
         $sourceItems = $this->entityManager->getRepository(LsItem::class)->findBy([
-            'lsDoc' => $message->getOriginFrameworkId(),
+            'lsDoc' => $message->originFrameworkId,
         ]);
 
         $job->markStarted(\count($sourceItems));
@@ -46,12 +45,19 @@ readonly class CreateCrosswalkMessageHandler
         foreach ($sourceItems as $sourceItem) {
             $match = $this->crosswalkService->findBestMatch(
                 $sourceItem,
-                $message->getDestinationFrameworkId(),
-                $message->getThreshold(),
+                $message->destinationFrameworkId,
+                $message->threshold,
             );
 
             if (null === $match) {
-                $job->recordItemSkipped();
+                $job->recordItemNoEmbedding();
+                ++$batchCount;
+                if (0 === $batchCount % $batchSize) {
+                    $this->flushBatch($job, $message);
+                    if ('cancelled' === $job->status) {
+                        return;
+                    }
+                }
                 continue;
             }
 
@@ -59,24 +65,26 @@ readonly class CreateCrosswalkMessageHandler
                 $sourceItem,
                 $match['lsItem'],
                 $match['similarity'],
-                $message->getExactMatchThreshold(),
-                $message->getCrosswalkFrameworkId(),
+                $message->exactMatchThreshold,
+                $message->crosswalkFrameworkId,
+                $message->threshold,
+                $message->jobId,
             );
 
-            if ($result === CrosswalkService::RESULT_CREATED_EXACT) {
+            if (CrosswalkService::RESULT_CREATED_EXACT === $result) {
                 $job->recordItemProcessed($match['similarity'], true);
-            } elseif ($result === CrosswalkService::RESULT_CREATED_RELATED) {
+            } elseif (CrosswalkService::RESULT_CREATED_RELATED === $result) {
                 $job->recordItemProcessed($match['similarity'], false);
             } else {
-                $job->recordItemSkipped();
+                $job->recordItemBelowThreshold();
             }
 
             ++$batchCount;
-            if ($batchCount % $batchSize === 0) {
-                $this->publishProgress($job);
-                $this->jobRepository->save($job);
-                $this->entityManager->flush();
-                $this->entityManager->clear();
+            if (0 === $batchCount % $batchSize) {
+                $this->flushBatch($job, $message);
+                if ('cancelled' === $job->status) {
+                    return;
+                }
             }
         }
 
@@ -86,21 +94,38 @@ readonly class CreateCrosswalkMessageHandler
         $this->publishProgress($job);
     }
 
-    private function publishProgress($job): void
+    private function flushBatch(CrosswalkJob &$job, CreateCrosswalkMessage $message): void
+    {
+        $this->publishProgress($job);
+        $this->jobRepository->save($job);
+        $this->entityManager->flush();
+        $this->entityManager->clear();
+
+        $freshJob = $this->jobRepository->find($message->jobId);
+        if ($freshJob && 'cancelled' === $freshJob->status) {
+            $job = $freshJob;
+
+            return;
+        }
+        $job = $freshJob ?? $job;
+    }
+
+    private function publishProgress(CrosswalkJob $job): void
     {
         $this->hub->publish(new Update(
-            "crosswalk-progress/{$job->getId()}",
+            "crosswalk-progress/{$job->id}",
             json_encode([
-                'jobId' => $job->getId(),
-                'status' => $job->getStatus(),
+                'jobId' => (string) $job->id,
+                'status' => $job->status,
                 'progress' => [
-                    'total' => $job->getTotalItems(),
-                    'processed' => $job->getProcessedItems(),
-                    'matched' => $job->getMatchedItems(),
-                    'exact_match_items' => $job->getExactMatchItems(),
-                    'related_items' => $job->getRelatedItems(),
-                    'skipped' => $job->getSkippedNoEmbedding(),
-                    'failed' => $job->getFailedItems(),
+                    'total' => $job->totalItems,
+                    'processed' => $job->processedItems,
+                    'matched' => $job->matchedItems,
+                    'exact_match_items' => $job->exactMatchItems,
+                    'related_items' => $job->relatedItems,
+                    'skipped_no_embedding' => $job->skippedNoEmbedding,
+                    'skipped_below_threshold' => $job->skippedBelowThreshold,
+                    'failed' => $job->failedItems,
                 ],
             ]),
         ));

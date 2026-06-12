@@ -211,6 +211,6 @@ class FrameworkController extends AbstractController
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('mirror_framework_resolve_conflict', ['id' => $framework->getId()]))
             ->getForm()
-            ;
+        ;
     }
 }

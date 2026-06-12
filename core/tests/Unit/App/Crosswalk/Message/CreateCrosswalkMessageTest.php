@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 final class CreateCrosswalkMessageTest extends TestCase
 {
-    public function testConstructorAndGetters(): void
+    public function testConstructorAndPropertyAccess(): void
     {
         $message = new CreateCrosswalkMessage(
             jobId: '550e8400-e29b-41d4-a716-446655440000',
@@ -20,12 +20,12 @@ final class CreateCrosswalkMessageTest extends TestCase
             exactMatchThreshold: 0.90,
         );
 
-        $this->assertSame('550e8400-e29b-41d4-a716-446655440000', $message->getJobId());
-        $this->assertSame(42, $message->getOriginFrameworkId());
-        $this->assertSame(87, $message->getDestinationFrameworkId());
-        $this->assertSame(156, $message->getCrosswalkFrameworkId());
-        $this->assertSame(0.75, $message->getThreshold());
-        $this->assertSame(0.90, $message->getExactMatchThreshold());
+        $this->assertSame('550e8400-e29b-41d4-a716-446655440000', $message->jobId);
+        $this->assertSame(42, $message->originFrameworkId);
+        $this->assertSame(87, $message->destinationFrameworkId);
+        $this->assertSame(156, $message->crosswalkFrameworkId);
+        $this->assertSame(0.75, $message->threshold);
+        $this->assertSame(0.90, $message->exactMatchThreshold);
     }
 
     public function testCustomThresholds(): void
@@ -39,7 +39,7 @@ final class CreateCrosswalkMessageTest extends TestCase
             exactMatchThreshold: 0.85,
         );
 
-        $this->assertSame(0.60, $message->getThreshold());
-        $this->assertSame(0.85, $message->getExactMatchThreshold());
+        $this->assertSame(0.60, $message->threshold);
+        $this->assertSame(0.85, $message->exactMatchThreshold);
     }
 }

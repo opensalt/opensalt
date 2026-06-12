@@ -34,6 +34,7 @@
         Association View
       </button>
       <button
+        v-if="false && showCrosswalk"
         id="displayCrosswalkBtn"
         type="button"
         class="btn btn-sm"
@@ -83,6 +84,8 @@ const viewStore = useViewStore();
 const editorContextStore = useEditorContextStore();
 
 const currentFrameworkId = computed(() => currentDocumentStore.currentDocument?.id || '');
+
+const showCrosswalk = computed(() => sessionStore.isAuthenticated && editorContextStore.canEdit);
 
 const currentView = computed(() => {
   const path = route.path;

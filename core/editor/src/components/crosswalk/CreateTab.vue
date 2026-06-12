@@ -19,9 +19,9 @@
       <button
         type="button"
         class="btn btn-primary"
-        @click="openCrosswalk"
+        @click="openReviewTab"
       >
-        Open Crosswalk Framework
+        Review Crosswalk
       </button>
     </div>
   </div>
@@ -29,11 +29,12 @@
 
 <script setup>
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { api } from '@/services/api.js';
 import CrosswalkWizard from './CrosswalkWizard.vue';
 import JobProgress from './JobProgress.vue';
 
+const route = useRoute();
 const router = useRouter();
 const state = ref('wizard');
 const jobId = ref(null);
@@ -41,7 +42,13 @@ const summary = ref('');
 
 async function onCreate(config) {
   try {
-    const data = await api.post('/api/vector-search/crosswalk', config);
+    const data = await api.post('/api/vector-search/crosswalk', {
+      origin_identifier: config.originIdentifier,
+      destination_identifier: config.destinationIdentifier,
+      crosswalk_identifier: config.crosswalkIdentifier,
+      threshold: config.threshold,
+      exact_match_threshold: config.exactMatchThreshold,
+    });
     jobId.value = data.job_id;
     state.value = 'progress';
   } catch (err) {
@@ -59,7 +66,7 @@ function onCancel() {
   jobId.value = null;
 }
 
-function openCrosswalk() {
-  router.push(`/${jobId.value}/crosswalk?tab=review`);
+function openReviewTab() {
+  router.push({ path: `/${route.params.frameworkId}/crosswalk`, query: { tab: 'review' } });
 }
 </script>

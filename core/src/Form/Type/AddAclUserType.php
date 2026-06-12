@@ -43,10 +43,10 @@ class AddAclUserType extends AbstractType
                         ->addOrderBy('u.username')
                         ->setParameter('orgId', $orgId)
                         ->setParameter('docId', $lsDoc->getId())
-                        ;
+                    ;
                 },
             ])
-            ;
+        ;
     }
 
     #[\Override]
