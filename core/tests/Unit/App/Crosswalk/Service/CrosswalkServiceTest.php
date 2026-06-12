@@ -38,10 +38,11 @@ final class CrosswalkServiceTest extends TestCase
         $crosswalkDoc = $this->createMock(LsDoc::class);
 
         $entityManager = $this->createMock(EntityManagerInterface::class);
-        $entityManager->method('getConnection')->willReturn($this->createMock(\Doctrine\DBAL\Connection::class));
         $entityManager->method('getReference')
             ->with(LsDoc::class, 156)
             ->willReturn($crosswalkDoc);
+        $entityManager->expects($this->once())
+            ->method('persist');
 
         $service = new CrosswalkService($vectorSearchService, $entityManager);
 
@@ -77,7 +78,6 @@ final class CrosswalkServiceTest extends TestCase
 
         $vectorSearchService = $this->createMock(VectorSearchService::class);
         $entityManager = $this->createMock(EntityManagerInterface::class);
-        $entityManager->method('getConnection')->willReturn($this->createMock(\Doctrine\DBAL\Connection::class));
         $entityManager->method('getReference')
             ->with(LsDoc::class, 156)
             ->willReturn($crosswalkDoc);

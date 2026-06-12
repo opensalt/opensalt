@@ -47,10 +47,9 @@ readonly class CrosswalkService
         $association->setType($associationType);
         $association->setSubtype($subtype);
         $association->setExtensions([
-            'similarity' => $similarity,
-            'sourceHumanCodingScheme' => $sourceItem->getHumanCodingScheme(),
-            'destHumanCodingScheme' => $destItem->getHumanCodingScheme(),
-            'destFullStatement' => $destItem->getFullStatement(),
+            'crosswalk:confidence' => $similarity,
+            'crosswalk:subtype' => $subtype,
+            'crosswalk:status' => 'pending',
         ]);
 
         $this->entityManager->persist($association);
