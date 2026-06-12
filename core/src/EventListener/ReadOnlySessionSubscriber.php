@@ -36,16 +36,20 @@ class ReadOnlySessionSubscriber implements EventSubscriberInterface
         [$controllerClass, $methodName] = $controller;
 
         // Check if the attribute exists on the class or the specific method
-        if ($this->hasReadOnlyAttribute($controllerClass, $methodName)) {
-            $request = $event->getRequest();
+        if (!$this->hasReadOnlyAttribute($controllerClass, $methodName)) {
+            return;
+        }
 
-            // Access the session safely without triggering an autostart exception
-            if ($request->hasSession()) {
-                $session = $request->getSession();
-                if ($session->isStarted()) {
-                    $session->save();
-                }
-            }
+        $request = $event->getRequest();
+
+        // Access the session safely without triggering an autostart exception
+        if (!$request->hasSession()) {
+            return;
+        }
+
+        $session = $request->getSession();
+        if ($session->isStarted()) {
+            $session->save();
         }
     }
 

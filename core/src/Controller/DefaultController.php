@@ -10,6 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Profiler\Profiler;
 use Symfony\Component\Routing\Attribute\Route;
 
 class DefaultController extends AbstractController
@@ -30,8 +31,12 @@ class DefaultController extends AbstractController
     }
 
     #[Route(path: '/healthz', name: 'app_health', methods: ['GET'])]
-    public function health(Connection $connection): JsonResponse
+    public function health(Connection $connection, ?Profiler $profiler): JsonResponse
     {
+        if (null !== $profiler) {
+            $profiler->disable();
+        }
+
         try {
             $connection->executeQuery('SELECT 1');
             $dbStatus = 'ok';

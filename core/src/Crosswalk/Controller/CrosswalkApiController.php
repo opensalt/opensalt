@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Crosswalk\Controller;
 
+use App\Attribute\ReadOnlySession;
 use App\Crosswalk\Entity\CrosswalkJob;
 use App\Crosswalk\Message\CreateCrosswalkMessage;
 use App\Crosswalk\Repository\CrosswalkJobRepository;
@@ -67,6 +68,7 @@ class CrosswalkApiController extends AbstractController
     }
 
     #[Route('/api/vector-search/crosswalk', name: 'api_crosswalk_create', methods: ['POST'])]
+    #[ReadOnlySession]
     public function create(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);

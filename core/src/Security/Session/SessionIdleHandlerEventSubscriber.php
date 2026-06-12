@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Security\Session;
 
+use Symfony\Bundle\SecurityBundle\Security\FirewallMap;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -18,6 +19,7 @@ class SessionIdleHandlerEventSubscriber implements EventSubscriberInterface
         private readonly AuthorizationCheckerInterface $securityContext,
         private readonly TokenStorageInterface $securityToken,
         private readonly int $sessionMaxIdleTime = 0,
+        private readonly ?FirewallMap $firewallMap = null,
     ) {
     }
 
@@ -53,6 +55,17 @@ class SessionIdleHandlerEventSubscriber implements EventSubscriberInterface
     {
         if (!$event->isMainRequest()) {
             return false;
+        }
+
+        // Skip session handling for stateless firewalls (e.g. API routes)
+        // Starting the session on stateless firewalls acquires a FOR UPDATE
+        // lock on the session row, which blocks concurrent requests and causes
+        // timeouts when the controller does heavy work like messenger dispatch.
+        if (null !== $this->firewallMap) {
+            $firewallConfig = $this->firewallMap->getFirewallConfig($event->getRequest());
+            if (null !== $firewallConfig && $firewallConfig->isStateless()) {
+                return false;
+            }
         }
 
         if (null === $this->securityToken->getToken()) {
