@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Api;
 
+use App\Attribute\ReadOnlySession;
 use App\Entity\ChangeEntry;
 use App\Entity\Framework\CaseApiInterface;
 use App\Entity\Framework\CfRubric;
@@ -32,6 +33,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 
 #[Route(path: '/ims/case/v1p1')]
+#[ReadOnlySession]
 class CaseV1P1Controller extends AbstractController
 {
     use LoggerTrait;

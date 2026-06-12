@@ -6,8 +6,9 @@ namespace App\Crosswalk\Entity;
 
 use App\Crosswalk\Repository\CrosswalkJobRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Types\UuidType;
-use Symfony\Component\Uid\Uuid;
+use Ramsey\Uuid\Doctrine\UuidType;
+use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 
 #[ORM\Entity(repositoryClass: CrosswalkJobRepository::class)]
 #[ORM\Table(name: 'crosswalk_job')]
@@ -17,7 +18,7 @@ class CrosswalkJob
 {
     #[ORM\Id]
     #[ORM\Column(type: UuidType::NAME, unique: true)]
-    public private(set) Uuid $id;
+    public private(set) UuidInterface $id;
 
     #[ORM\Column(length: 20, options: ['default' => 'queued'])]
     public private(set) string $status = 'queued';
@@ -80,7 +81,7 @@ class CrosswalkJob
         float $threshold = 0.75,
         float $exactMatchThreshold = 0.90,
     ) {
-        $this->id = Uuid::v7();
+        $this->id = Uuid::uuid7();
         $this->originFrameworkId = $originFrameworkId;
         $this->destinationFrameworkId = $destinationFrameworkId;
         $this->crosswalkFrameworkId = $crosswalkFrameworkId;

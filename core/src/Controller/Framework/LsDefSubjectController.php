@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Framework;
 
+use App\Attribute\ReadOnlySession;
 use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\AddSubjectCommand;
 use App\Command\Framework\DeleteSubjectCommand;
@@ -48,6 +49,7 @@ class LsDefSubjectController extends AbstractController
      * Lists all LsDefSubject entities.
      */
     #[Route(path: '/list.{_format}', name: 'lsdef_subject_index_json', defaults: ['_format' => 'json'], methods: ['GET'])]
+    #[ReadOnlySession]
     public function jsonList(Request $request, string $_format = 'json'): Response
     {
         // ?page_limit=N&q=SEARCHTEXT

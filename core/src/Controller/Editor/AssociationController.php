@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Editor;
 
+use App\Attribute\ReadOnlySession;
 use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\AddTreeAssociationCommand;
 use App\Command\Framework\DeleteAssociationCommand;
@@ -32,6 +33,7 @@ class AssociationController extends AbstractController
     }
 
     #[Route(path: '/associations/item/{identifier}', name: 'editor_api_item_associations', methods: ['GET'])]
+    #[ReadOnlySession]
     public function getItemAssociations(
         #[MapEntity(mapping: ['identifier' => 'identifier'])] LsItem $item,
         Request $request,
@@ -67,6 +69,7 @@ class AssociationController extends AbstractController
 
     #[Route(path: '/associations/document/{identifier}', name: 'editor_api_document_associations', methods: ['GET'])]
     #[IsGranted(Permission::FRAMEWORK_VIEW, 'doc')]
+    #[ReadOnlySession]
     public function getDocumentAssociations(
         #[MapEntity(mapping: ['identifier' => 'identifier'])] LsDoc $doc,
         Request $request,
@@ -75,7 +78,7 @@ class AssociationController extends AbstractController
         $offset = (int) $request->query->get('offset', 0);
 
         $associations = $this->associationRepository->findByDocument(
-            $doc->getIdentifier(),
+            $doc,
             $limit,
             $offset
         );
@@ -99,6 +102,7 @@ class AssociationController extends AbstractController
 
     #[Route(path: '/associations/framework/{identifier}', name: 'editor_api_framework_associations', methods: ['GET'])]
     #[IsGranted(Permission::FRAMEWORK_VIEW, 'doc')]
+    #[ReadOnlySession]
     public function getFrameworkAssociations(
         #[MapEntity(mapping: ['identifier' => 'identifier'])] LsDoc $doc,
         Request $request,

@@ -52,6 +52,10 @@ doctrine:
                         prefix: App\Entity
                         dir: "%kernel.project_dir%/src/Entity"
                         is_bundle: false
+                    AppCrosswalkEntity:
+                        prefix: App\Crosswalk\Entity
+                        dir: "%kernel.project_dir%/src/Crosswalk/Entity"
+                        is_bundle: false
                     Domain:
                         prefix: App\Domain
                         dir: "%kernel.project_dir%/src/Domain"

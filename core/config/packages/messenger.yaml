@@ -67,6 +67,7 @@ framework:
             # Route your messages to the transports
             # 'App\Message\YourMessage': async
             'App\VectorSearch\Message\GenerateEmbeddingMessage': async_priority_low
+            'App\Crosswalk\Message\CreateCrosswalkMessage': async_priority_medium
 
 # when@test:
 #    framework:

@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api;
 
+use App\Attribute\ReadOnlySession;
 use App\DTO\Api\V1\DocumentDto;
 use App\Entity\Framework\LsDoc;
 use App\Entity\User\User;
@@ -19,6 +20,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
 
+#[ReadOnlySession]
 final class CaseV1P1EditorController extends AbstractController
 {
     public function __construct(

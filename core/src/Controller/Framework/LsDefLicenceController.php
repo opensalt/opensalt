@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Framework;
 
+use App\Attribute\ReadOnlySession;
 use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\AddLicenceCommand;
 use App\Command\Framework\DeleteLicenceCommand;
@@ -48,6 +49,7 @@ class LsDefLicenceController extends AbstractController
      * Lists all LsDefLicence entities.
      */
     #[Route(path: '/list.{_format}', name: 'lsdef_licence_index_json', defaults: ['_format' => 'json'], methods: ['GET'])]
+    #[ReadOnlySession]
     public function jsonList(): Response
     {
         $objects = $this->licenceRepository->getList();

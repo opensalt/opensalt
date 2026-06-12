@@ -192,18 +192,23 @@ class LsAssociationRepository extends ServiceEntityRepository
      * @phpstan-return array{total: int, items: array<int, array{0: LsAssociation, origin_human_coding_scheme: string|null, origin_abbreviated_statement: string|null, origin_full_statement: string|null, destination_human_coding_scheme: string|null, destination_abbreviated_statement: string|null, destination_full_statement: string|null}>}
      */
     public function findByDocument(
-        string $docId,
+        LsDoc|string $docId,
         int $limit = 1000,
         int $offset = 0,
     ): array {
         $qb = $this->createQueryBuilder('a')
             ->leftJoin('a.originLsItem', 'i1')
             ->leftJoin('a.destinationLsItem', 'i2')
-            ->where('a.lsDocIdentifier = :docId')
-            ->setParameter('docId', $docId)
             ->setMaxResults($limit)
             ->setFirstResult($offset)
             ->orderBy('a.sequenceNumber', 'ASC');
+
+        if ($docId instanceof LsDoc) {
+            $qb->where('a.lsDoc = :docId');
+        } else {
+            $qb->where('a.lsDocIdentifier = :docId');
+        }
+        $qb->setParameter('docId', $docId);
 
         $qb->select('a, i1.humanCodingScheme as origin_human_coding_scheme, i1.abbreviatedStatement as origin_abbreviated_statement, i1.fullStatement as origin_full_statement,
                           i2.humanCodingScheme as destination_human_coding_scheme, i2.abbreviatedStatement as destination_abbreviated_statement, i2.fullStatement as destination_full_statement');

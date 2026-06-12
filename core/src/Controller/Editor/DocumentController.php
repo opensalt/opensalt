@@ -86,7 +86,11 @@ class DocumentController extends AbstractController
 
         foreach ($scalars as $field => $setter) {
             if (isset($data[$field])) {
-                $lsDoc->$setter($data[$field]);
+                $value = $data[$field];
+                if ('' === $value) {
+                    $value = null;
+                }
+                $lsDoc->$setter($value);
             }
         }
 

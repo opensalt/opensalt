@@ -622,7 +622,13 @@ function saveDocument() {
   error.value = '';
 
   try {
-    emit('saved', { ...formData });
+    const payload = { ...formData };
+    // adoptionStatus has a Choice constraint on the backend; send null instead of
+    // an empty string so the validator's nullable handling applies correctly.
+    if (payload.adoptionStatus === '') {
+      payload.adoptionStatus = null;
+    }
+    emit('saved', payload);
     closeModal();
   } catch (e) {
     error.value = 'Failed to save document: ' + e.message;
