@@ -85,24 +85,95 @@ class CrosswalkJob
         $this->queuedAt = new \DateTimeImmutable();
     }
 
-    public function getId(): string { return $this->id; }
-    public function getStatus(): string { return $this->status; }
-    public function getOriginFrameworkId(): int { return $this->originFrameworkId; }
-    public function getDestinationFrameworkId(): int { return $this->destinationFrameworkId; }
-    public function getCrosswalkFrameworkId(): int { return $this->crosswalkFrameworkId; }
-    public function getThreshold(): float { return $this->threshold; }
-    public function getExactMatchThreshold(): float { return $this->exactMatchThreshold; }
-    public function getTotalItems(): int { return $this->totalItems; }
-    public function getProcessedItems(): int { return $this->processedItems; }
-    public function getMatchedItems(): int { return $this->matchedItems; }
-    public function getExactMatchItems(): int { return $this->exactMatchItems; }
-    public function getRelatedItems(): int { return $this->relatedItems; }
-    public function getSkippedNoEmbedding(): int { return $this->skippedNoEmbedding; }
-    public function getFailedItems(): int { return $this->failedItems; }
-    public function getQueuedAt(): \DateTimeImmutable { return $this->queuedAt; }
-    public function getStartedAt(): ?\DateTimeImmutable { return $this->startedAt; }
-    public function getCompletedAt(): ?\DateTimeImmutable { return $this->completedAt; }
-    public function getErrorMessage(): ?string { return $this->errorMessage; }
+    public function getId(): string
+    {
+    return $this->id;
+    }
+
+    public function getStatus(): string
+    {
+    return $this->status;
+    }
+
+    public function getOriginFrameworkId(): int
+    {
+    return $this->originFrameworkId;
+    }
+
+    public function getDestinationFrameworkId(): int
+    {
+    return $this->destinationFrameworkId;
+    }
+
+    public function getCrosswalkFrameworkId(): int
+    {
+    return $this->crosswalkFrameworkId;
+    }
+
+    public function getThreshold(): float
+    {
+    return $this->threshold;
+    }
+
+    public function getExactMatchThreshold(): float
+    {
+    return $this->exactMatchThreshold;
+    }
+
+    public function getTotalItems(): int
+    {
+    return $this->totalItems;
+    }
+
+    public function getProcessedItems(): int
+    {
+    return $this->processedItems;
+    }
+
+    public function getMatchedItems(): int
+    {
+    return $this->matchedItems;
+    }
+
+    public function getExactMatchItems(): int
+    {
+    return $this->exactMatchItems;
+    }
+
+    public function getRelatedItems(): int
+    {
+    return $this->relatedItems;
+    }
+
+    public function getSkippedNoEmbedding(): int
+    {
+    return $this->skippedNoEmbedding;
+    }
+
+    public function getFailedItems(): int
+    {
+    return $this->failedItems;
+    }
+
+    public function getQueuedAt(): \DateTimeImmutable
+    {
+    return $this->queuedAt;
+    }
+
+    public function getStartedAt(): ?\DateTimeImmutable
+    {
+    return $this->startedAt;
+    }
+
+    public function getCompletedAt(): ?\DateTimeImmutable
+    {
+    return $this->completedAt;
+    }
+
+    public function getErrorMessage(): ?string
+    {
+    return $this->errorMessage;
+    }
 
     public function markStarted(int $totalItems): void
     {
@@ -111,7 +182,7 @@ class CrosswalkJob
         $this->startedAt = new \DateTimeImmutable();
     }
 
-    public function recordItemProcessed(float $similarity, bool $isExactMatch): void
+    public function recordItemProcessed(bool $isExactMatch): void
     {
         ++$this->processedItems;
         ++$this->matchedItems;

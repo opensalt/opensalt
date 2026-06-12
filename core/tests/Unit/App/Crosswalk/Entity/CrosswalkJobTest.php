@@ -41,7 +41,7 @@ final class CrosswalkJobTest extends TestCase
     {
         $job = new CrosswalkJob(42, 87, 156);
         $job->markStarted(100);
-        $job->recordItemProcessed(similarity: 0.95, isExactMatch: true);
+        $job->recordItemProcessed(isExactMatch: true);
 
         $this->assertSame(1, $job->getProcessedItems());
         $this->assertSame(1, $job->getMatchedItems());
@@ -53,7 +53,7 @@ final class CrosswalkJobTest extends TestCase
     {
         $job = new CrosswalkJob(42, 87, 156);
         $job->markStarted(100);
-        $job->recordItemProcessed(similarity: 0.80, isExactMatch: false);
+        $job->recordItemProcessed(isExactMatch: false);
 
         $this->assertSame(1, $job->getProcessedItems());
         $this->assertSame(1, $job->getMatchedItems());
