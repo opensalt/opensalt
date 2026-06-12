@@ -182,7 +182,7 @@ class CrosswalkJob
         $this->startedAt = new \DateTimeImmutable();
     }
 
-    public function recordItemProcessed(bool $isExactMatch): void
+    public function recordItemProcessed(float $score, bool $isExactMatch): void
     {
         ++$this->processedItems;
         ++$this->matchedItems;
