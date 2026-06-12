@@ -172,6 +172,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
   const currentDocumentRubrics = ref<CFRubric[]>([]);
   const currentDocumentAssociationGroupings = ref<EditorAssociationGrouping[]>([]);
   const currentDocumentTree = ref<TreeNode[]>([]);
+  const currentDocumentAssociations = ref<CFAssociation[]>([]);
 
   const itemDetailsCache = new Map<string, { data: ItemDetailsResponse; timestamp: number }>();
   const pendingItemDetailsRequests = new Map<string, Promise<ItemDetailsResponse>>();
@@ -854,6 +855,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     currentDocumentRubrics,
     currentDocumentAssociationGroupings,
     currentDocumentTree,
+    currentDocumentAssociations,
     associationGroups,
     selectDocument,
     reloadActiveDocument,
