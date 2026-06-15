@@ -61,7 +61,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import CreateTab from './CreateTab.vue';
 import ReviewTab from './ReviewTab.vue';
@@ -70,11 +70,13 @@ const route = useRoute();
 const router = useRouter();
 const activeTab = ref('create');
 
-onMounted(() => {
-  if (route.query.tab === 'review') {
+watch(() => route.query.tab, (newTab) => {
+  if (newTab === 'review') {
     activeTab.value = 'review';
+  } else if (newTab === 'create' || !newTab) {
+    activeTab.value = 'create';
   }
-});
+}, { immediate: true });
 
 function switchTab(tab) {
   activeTab.value = tab;
