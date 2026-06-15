@@ -5,37 +5,18 @@ import CrosswalkReviewTable from '@/components/crosswalk/CrosswalkReviewTable.vu
 vi.mock('@/components/crosswalk/CrosswalkReviewRow.vue', () => ({
   default: {
     name: 'CrosswalkReviewRow',
-    props: ['pair', 'unmatchedOriginItem', 'unmatchedDestinationItem', 'isSelected'],
-    template: '<tr><td>{{ pair?.id || "unmatched" }}</td></tr>',
+    props: ['row', 'isSelected'],
+    template: '<tr><td>{{ row.id }}</td></tr>',
   },
 }));
 
 describe('CrosswalkReviewTable', () => {
-  const mockPairs = [
-    {
-      id: 'pair-1',
-      originItem: { identifier: 'o1', fullStatement: 'Origin 1' },
-      destinationItem: { identifier: 'd1', fullStatement: 'Dest 1' },
-      confidence: 0.95,
-      status: 'pending',
-      type: 'exactMatchOf',
-    },
-    {
-      id: 'pair-2',
-      originItem: { identifier: 'o2', fullStatement: 'Origin 2' },
-      destinationItem: { identifier: 'd2', fullStatement: 'Dest 2' },
-      confidence: 0.80,
-      status: 'pending',
-      type: 'isRelatedTo',
-    },
-  ];
+  const matchedRow = (id) => ({ type: 'matched', id, pair: { id } });
 
-  it('renders all associations', () => {
+  it('renders all rows', () => {
     const wrapper = mount(CrosswalkReviewTable, {
       props: {
-        matchedPairs: mockPairs,
-        unmatchedOrigin: [],
-        unmatchedDestination: [],
+        rows: [matchedRow('pair-1'), matchedRow('pair-2')],
         selectedIds: new Set(),
         loading: false,
       },
@@ -43,24 +24,39 @@ describe('CrosswalkReviewTable', () => {
     expect(wrapper.findAll('tbody tr')).toHaveLength(2);
   });
 
-  it('renders unmatched items alongside matched', () => {
-    const unmatchedOrigin = [
-      { identifier: 'uo1', fullStatement: 'Unmatched Origin 1' },
-    ];
-    const unmatchedDest = [
-      { identifier: 'ud1', fullStatement: 'Unmatched Dest 1' },
+  it('renders matched and unmatched rows together', () => {
+    const rows = [
+      matchedRow('pair-1'),
+      matchedRow('pair-2'),
+      { type: 'unmatched-origin', id: 'unmatched-origin-uo1', item: { identifier: 'uo1', fullStatement: 'Unmatched Origin 1' } },
+      { type: 'unmatched-destination', id: 'unmatched-dest-ud1', item: { identifier: 'ud1', fullStatement: 'Unmatched Dest 1' } },
     ];
 
     const wrapper = mount(CrosswalkReviewTable, {
       props: {
-        matchedPairs: mockPairs,
-        unmatchedOrigin,
-        unmatchedDestination: unmatchedDest,
+        rows,
         selectedIds: new Set(),
         loading: false,
       },
     });
     // 2 matched + 1 unmatched origin + 1 unmatched dest = 4 rows
     expect(wrapper.findAll('tbody tr')).toHaveLength(4);
+  });
+
+  it('selects all rows when the header checkbox is toggled on', async () => {
+    const selectedIds = new Set();
+    const rows = [matchedRow('pair-1'), matchedRow('pair-2')];
+
+    const wrapper = mount(CrosswalkReviewTable, {
+      props: {
+        rows,
+        selectedIds,
+        loading: false,
+      },
+    });
+
+    await wrapper.find('thead input[type="checkbox"]').setValue(true);
+    expect(selectedIds.has('pair-1')).toBe(true);
+    expect(selectedIds.has('pair-2')).toBe(true);
   });
 });

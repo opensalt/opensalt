@@ -198,6 +198,7 @@ EOF
                     }
                     unset($subBatches, $deferredResults);
                 }
+                unset($texts);
 
                 $payloadRows = [];
                 foreach ($chunk as $index => $row) {
@@ -211,9 +212,11 @@ EOF
                         'vector' => $vector,
                     ];
                 }
+                unset($vectors, $chunk);
 
                 $imported = $this->qdrantStore->importEmbeddings($payloadRows, $targetCollection);
                 $frameworkImported += $imported;
+                unset($payloadRows);
 
                 $io->text(sprintf(
                     '  Batch %d/%d: %d/%d items imported',
@@ -222,6 +225,8 @@ EOF
                     $frameworkImported,
                     count($rows)
                 ));
+
+                gc_collect_cycles();
             }
 
             $totalImported += $frameworkImported;

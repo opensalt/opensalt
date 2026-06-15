@@ -8,6 +8,7 @@ use App\Crosswalk\Service\CrosswalkService;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\VectorSearch\Service\VectorSearchService;
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -37,7 +38,11 @@ final class CrosswalkServiceTest extends TestCase
 
         $crosswalkDoc = $this->createMock(LsDoc::class);
 
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchOne')->willReturn(false);
+
         $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->method('getConnection')->willReturn($connection);
         $entityManager->method('getReference')
             ->with(LsDoc::class, 156)
             ->willReturn($crosswalkDoc);
@@ -78,8 +83,12 @@ final class CrosswalkServiceTest extends TestCase
 
         $crosswalkDoc = $this->createMock(LsDoc::class);
 
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchOne')->willReturn(false);
+
         $vectorSearchService = $this->createMock(VectorSearchService::class);
         $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->method('getConnection')->willReturn($connection);
         $entityManager->method('getReference')
             ->with(LsDoc::class, 156)
             ->willReturn($crosswalkDoc);
@@ -116,5 +125,90 @@ final class CrosswalkServiceTest extends TestCase
         );
 
         $this->assertSame(CrosswalkService::RESULT_SKIPPED_BELOW_THRESHOLD, $result);
+    }
+
+    public function testProcessItemSkipsDuplicateAssociation(): void
+    {
+        $sourceItem = $this->createMock(LsItem::class);
+        $sourceItem->method('getId')->willReturn(100);
+        $sourceItem->method('getLsDoc')->willReturn($this->createMock(LsDoc::class));
+
+        $destItem = $this->createMock(LsItem::class);
+        $destItem->method('getId')->willReturn(200);
+        $destItem->method('getLsDoc')->willReturn($this->createMock(LsDoc::class));
+        $destItem->method('getIdentifier')->willReturn('dest-uuid');
+        $destItem->method('getUri')->willReturn('https://example.com/item/200');
+        $destItem->method('getFullStatement')->willReturn('Destination full statement');
+        $destItem->method('getHumanCodingScheme')->willReturn('1.MA.2');
+
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchOne')->willReturn('1');
+
+        $vectorSearchService = $this->createMock(VectorSearchService::class);
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->method('getConnection')->willReturn($connection);
+        $entityManager->expects($this->never())->method('persist');
+        $entityManager->expects($this->never())->method('getReference');
+
+        $service = new CrosswalkService($vectorSearchService, $entityManager);
+
+        $result = $service->processItem(
+            $sourceItem,
+            $destItem,
+            similarity: 0.95,
+            exactMatchThreshold: 0.90,
+            crosswalkDocId: 156,
+            threshold: 0.75,
+            jobId: 'test-job-id',
+        );
+
+        $this->assertSame(CrosswalkService::RESULT_SKIPPED_DUPLICATE, $result);
+    }
+
+    public function testFindBestMatchPassesLeafOnlyThroughToVectorSearch(): void
+    {
+        $sourceItem = $this->createMock(LsItem::class);
+
+        $destItem = $this->createMock(LsItem::class);
+
+        $vectorSearchService = $this->createMock(VectorSearchService::class);
+        $vectorSearchService->expects($this->once())
+            ->method('searchByLsItem')
+            ->with($sourceItem, 1, 87, true)
+            ->willReturn([['lsItem' => $destItem, 'similarity' => 0.85]]);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+
+        $service = new CrosswalkService($vectorSearchService, $entityManager);
+
+        $match = $service->findBestMatch(
+            $sourceItem,
+            destinationFrameworkId: 87,
+            threshold: 0.75,
+            leafOnly: true,
+        );
+
+        $this->assertNotNull($match);
+        $this->assertSame($destItem, $match['lsItem']);
+        $this->assertSame(0.85, $match['similarity']);
+    }
+
+    public function testGetLeafItemIdsExcludesItemsThatAreParents(): void
+    {
+        $connection = $this->createMock(\Doctrine\DBAL\Connection::class);
+        $connection->method('fetchAllAssociative')
+            ->willReturn([
+                ['id' => '10'],
+                ['id' => '12'],
+            ]);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->method('getConnection')->willReturn($connection);
+
+        $vectorSearchService = $this->createMock(VectorSearchService::class);
+        $service = new CrosswalkService($vectorSearchService, $entityManager);
+
+        $this->assertSame([10, 12], $service->getLeafItemIds(42));
+        $this->assertSame(2, $service->countLeafItems(42));
     }
 }

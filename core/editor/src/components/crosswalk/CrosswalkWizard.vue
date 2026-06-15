@@ -14,7 +14,9 @@
             v-model="form.originIdentifier"
             class="form-select"
           >
-            <option value="">— Select origin framework —</option>
+            <option value="">
+              — Select origin framework —
+            </option>
             <optgroup
               v-for="group in groupedDocuments"
               :key="'origin-' + group.creator"
@@ -29,6 +31,18 @@
               </option>
             </optgroup>
           </select>
+          <div class="form-check mt-2">
+            <input
+              id="originLeafOnly"
+              v-model="form.originLeafOnly"
+              type="checkbox"
+              class="form-check-input"
+            >
+            <label
+              for="originLeafOnly"
+              class="form-check-label"
+            >Only match origin leaf items (no children)</label>
+          </div>
         </div>
         <div class="col-md-6">
           <label
@@ -40,7 +54,9 @@
             v-model="form.destinationIdentifier"
             class="form-select"
           >
-            <option value="">— Select destination framework —</option>
+            <option value="">
+              — Select destination framework —
+            </option>
             <optgroup
               v-for="group in groupedDocuments"
               :key="'dest-' + group.creator"
@@ -55,6 +71,18 @@
               </option>
             </optgroup>
           </select>
+          <div class="form-check mt-2">
+            <input
+              id="destinationLeafOnly"
+              v-model="form.destinationLeafOnly"
+              type="checkbox"
+              class="form-check-input"
+            >
+            <label
+              for="destinationLeafOnly"
+              class="form-check-label"
+            >Only match against destination leaf items (no children)</label>
+          </div>
         </div>
       </div>
       <div class="alert alert-info small mb-0">
@@ -168,6 +196,8 @@ const form = ref({
   destinationIdentifier: '',
   threshold: 0.75,
   exactMatchThreshold: 0.90,
+  originLeafOnly: false,
+  destinationLeafOnly: false,
 });
 
 const canPreview = computed(() => {
@@ -191,8 +221,19 @@ onMounted(async () => {
 
 async function onPreview() {
   try {
+    const params = new URLSearchParams({
+      origin: form.value.originIdentifier,
+      destination: form.value.destinationIdentifier,
+      threshold: String(form.value.threshold),
+    });
+    if (form.value.originLeafOnly) {
+      params.set('origin_leaf_only', '1');
+    }
+    if (form.value.destinationLeafOnly) {
+      params.set('destination_leaf_only', '1');
+    }
     const data = await api.get(
-      `/api/vector-search/crosswalk/estimate?origin=${form.value.originIdentifier}&destination=${form.value.destinationIdentifier}&threshold=${form.value.threshold}`
+      `/api/vector-search/crosswalk/estimate?${params.toString()}`
     );
     estimateResult.value = data;
   } catch (err) {
@@ -207,6 +248,8 @@ function onCreate() {
     crosswalkIdentifier: crosswalkIdentifier.value,
     threshold: form.value.threshold,
     exactMatchThreshold: form.value.exactMatchThreshold,
+    originLeafOnly: form.value.originLeafOnly,
+    destinationLeafOnly: form.value.destinationLeafOnly,
   });
 }
 </script>

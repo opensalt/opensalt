@@ -59,6 +59,9 @@ export function useCrosswalkJob() {
     if (data.progress) {
       jobState.value.progress = data.progress;
     }
+    if (data.error !== undefined) {
+      jobState.value.error = data.error;
+    }
   }
 
   function startPolling(jobId) {

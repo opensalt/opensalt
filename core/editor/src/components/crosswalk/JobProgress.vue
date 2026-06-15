@@ -1,7 +1,19 @@
 <template>
   <div class="job-progress">
+    <!-- Queued: waiting for the async worker to pick up the job -->
     <div
-      v-if="jobState.status === 'running'"
+      v-if="jobState.status === 'queued'"
+      class="d-flex align-items-center gap-2 mb-3"
+    >
+      <div
+        class="spinner-border spinner-border-sm text-primary"
+        role="status"
+      />
+      <span>Queued — waiting for processing to start…</span>
+    </div>
+
+    <div
+      v-else-if="jobState.status === 'running'"
       class="mb-3"
     >
       <div class="d-flex justify-content-between mb-1">
@@ -31,10 +43,10 @@
         </span>
       </p>
       <p
-        v-if="jobState.progress.skipped"
+        v-if="jobState.progress.skipped_no_embedding"
         class="text-muted small"
       >
-        Items skipped (no embedding): {{ jobState.progress.skipped }}
+        Items skipped (no embedding): {{ jobState.progress.skipped_no_embedding }}
       </p>
       <button
         type="button"
@@ -46,14 +58,28 @@
     </div>
 
     <div
-      v-else-if="jobState.status === 'completed'"
+      v-else-if="['completed', 'partial'].includes(jobState.status)"
       class="alert alert-success"
     >
       <h6><i class="bi bi-check-circle me-2" />Crosswalk Complete!</h6>
-      <p class="mb-0">
+      <p class="mb-2">
         {{ jobState.progress.matched }} matches created from {{ jobState.progress.total }} origin items
         ({{ jobState.progress.exact_match_items }} exact, {{ jobState.progress.related_items }} related).
       </p>
+      <p
+        v-if="jobState.status === 'partial' && jobState.error"
+        class="mb-2 text-warning small"
+      >
+        Completed with warnings: {{ jobState.error }}
+      </p>
+      <button
+        type="button"
+        class="btn btn-primary btn-sm"
+        @click="emit('review')"
+      >
+        <i class="bi bi-check2-square me-1" />
+        Review Crosswalk
+      </button>
     </div>
 
     <div
@@ -79,7 +105,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, watch } from 'vue';
 import { useCrosswalkJob } from '@/composables/useCrosswalkJob.js';
 
 const props = defineProps({
@@ -89,9 +115,9 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['complete', 'cancel']);
+const emit = defineEmits(['complete', 'cancel', 'review']);
 
-const { jobState, startJob, resumeJob, cancelJob } = useCrosswalkJob();
+const { jobState, resumeJob, cancelJob } = useCrosswalkJob();
 
 const percentage = computed(() => {
   if (!jobState.value.progress.total) return 0;
@@ -109,6 +135,15 @@ onMounted(() => {
     resumeJob(props.jobId);
   }
 });
+
+watch(
+  () => jobState.value.status,
+  (status) => {
+    if (['completed', 'partial'].includes(status)) {
+      emit('complete', { ...jobState.value.progress });
+    }
+  }
+);
 
 function onCancel() {
   cancelJob();

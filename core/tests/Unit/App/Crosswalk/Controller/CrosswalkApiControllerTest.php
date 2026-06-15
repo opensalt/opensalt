@@ -8,6 +8,7 @@ use App\Crosswalk\Controller\CrosswalkApiController;
 use App\Crosswalk\Entity\CrosswalkJob;
 use App\Crosswalk\Message\CreateCrosswalkMessage;
 use App\Crosswalk\Repository\CrosswalkJobRepository;
+use App\Crosswalk\Service\CrosswalkService;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Repository\Framework\LsDocRepository;
@@ -27,9 +28,10 @@ final class CrosswalkApiControllerTest extends TestCase
         EntityManagerInterface $em,
         ?CrosswalkJobRepository $jobRepository = null,
         ?MessageBusInterface $messageBus = null,
+        ?CrosswalkService $crosswalkService = null,
     ): CrosswalkApiController {
         $controller = $this->getMockBuilder(CrosswalkApiController::class)
-            ->setConstructorArgs([$vectorSearchService, $em, $jobRepository, $messageBus])
+            ->setConstructorArgs([$vectorSearchService, $crosswalkService ?? $this->createMock(CrosswalkService::class), $em, $jobRepository, $messageBus])
             ->onlyMethods(['isGranted', 'denyAccessUnlessGranted'])
             ->getMock();
 
@@ -81,8 +83,8 @@ final class CrosswalkApiControllerTest extends TestCase
 
         $vectorSearchService = $this->createMock(VectorSearchService::class);
         $vectorSearchService->method('getVectorCountForFramework')->willReturnMap([
-            [42, 150],
-            [87, 200],
+            [42, false, 150],
+            [87, false, 200],
         ]);
 
         $lsItemRepo = $this->createMock(EntityRepository::class);
@@ -105,9 +107,54 @@ final class CrosswalkApiControllerTest extends TestCase
         $this->assertSame('uuid-origin-42', $data['origin_framework_identifier']);
         $this->assertSame('uuid-dest-87', $data['destination_framework_identifier']);
         $this->assertSame(0.75, $data['threshold']);
+        $this->assertFalse($data['origin_leaf_only']);
+        $this->assertFalse($data['destination_leaf_only']);
         $this->assertSame(150, $data['origin_items_with_embeddings']);
         $this->assertSame(30, $data['origin_items_without_embeddings']);
         $this->assertSame(200, $data['destination_items_with_embeddings']);
+    }
+
+    public function testEstimateRespectsLeafOnlyFlags(): void
+    {
+        $lsDocOg = $this->createMock(LsDoc::class);
+        $lsDocOg->method('getId')->willReturn(42);
+        $lsDocOg->method('getIdentifier')->willReturn('uuid-origin-42');
+
+        $lsDocDest = $this->createMock(LsDoc::class);
+        $lsDocDest->method('getId')->willReturn(87);
+        $lsDocDest->method('getIdentifier')->willReturn('uuid-dest-87');
+
+        $vectorSearchService = $this->createMock(VectorSearchService::class);
+        $vectorSearchService->method('getVectorCountForFramework')->willReturnMap([
+            [42, true, 120],
+            [87, true, 180],
+        ]);
+
+        $crosswalkService = $this->createMock(CrosswalkService::class);
+        $crosswalkService->method('countLeafItems')->with(42)->willReturn(130);
+
+        $em = $this->createEmWithDocRepos(
+            ['uuid-origin-42' => $lsDocOg, 'uuid-dest-87' => $lsDocDest],
+        );
+
+        $controller = $this->createController($vectorSearchService, $em, null, null, $crosswalkService);
+
+        $request = new Request([
+            'origin' => 'uuid-origin-42',
+            'destination' => 'uuid-dest-87',
+            'threshold' => '0.75',
+            'origin_leaf_only' => '1',
+            'destination_leaf_only' => 'true',
+        ]);
+        $response = $controller->estimate($request);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $data = json_decode($response->getContent(), true);
+        $this->assertTrue($data['origin_leaf_only']);
+        $this->assertTrue($data['destination_leaf_only']);
+        $this->assertSame(120, $data['origin_items_with_embeddings']);
+        $this->assertSame(10, $data['origin_items_without_embeddings']);
+        $this->assertSame(180, $data['destination_items_with_embeddings']);
     }
 
     public function testEstimateReturns400ForMissingParams(): void

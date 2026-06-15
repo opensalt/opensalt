@@ -42,7 +42,10 @@
       </li>
     </ul>
 
-    <div class="tab-content flex-grow-1 overflow-hidden d-flex flex-column">
+    <div
+      class="tab-content flex-grow-1 overflow-hidden d-flex flex-column"
+      style="min-height: 0;"
+    >
       <CreateTab
         v-if="activeTab === 'create'"
         role="tabpanel"

@@ -17,6 +17,7 @@ readonly class HybridQdrantStore
 {
     private const EMBEDDING_DIMENSION = 384;
     private const DEFAULT_BATCH_SIZE = 250;
+    private const UPSERT_BATCH_SIZE = 50;
 
     public function __construct(
         private HttpClientInterface $httpClient,
@@ -310,9 +311,9 @@ readonly class HybridQdrantStore
         return $this->countCollection($this->getActiveCollectionReference());
     }
 
-    public function countByFrameworkId(int $frameworkId): int
+    public function countByFrameworkId(int $frameworkId, bool $leafOnly = false): int
     {
-        $filter = $this->buildFilter($frameworkId, false, null);
+        $filter = $this->buildFilter($frameworkId, $leafOnly, null);
         $response = $this->request(
             'POST',
             sprintf('/collections/%s/points/count', rawurlencode($this->getActiveCollectionReference())),
@@ -358,22 +359,27 @@ readonly class HybridQdrantStore
             return 0;
         }
 
-        $points = [];
-        foreach ($rows as $row) {
-            $points[] = $this->buildPoint(
-                $row['lsItemId'],
-                $row['frameworkId'],
-                $row['kind'],
-                $row['text'],
-                $row['isLeafNode'],
-                $row['sourceHierarchyUpdatedAt'],
-                $row['vector']
-            );
+        $total = 0;
+        foreach (array_chunk($rows, self::UPSERT_BATCH_SIZE) as $chunk) {
+            $points = [];
+            foreach ($chunk as $row) {
+                $points[] = $this->buildPoint(
+                    $row['lsItemId'],
+                    $row['frameworkId'],
+                    $row['kind'],
+                    $row['text'],
+                    $row['isLeafNode'],
+                    $row['sourceHierarchyUpdatedAt'],
+                    $row['vector']
+                );
+            }
+
+            $this->upsertPoints($points, $collectionName);
+            $total += count($points);
+            unset($points);
         }
 
-        $this->upsertPoints($points, $collectionName);
-
-        return count($points);
+        return $total;
     }
 
     public function cloneCollection(
@@ -609,7 +615,7 @@ readonly class HybridQdrantStore
         $targetCollection = $collectionName ?? $this->getActiveCollectionReference();
         $this->ensureCollection($targetCollection);
 
-        foreach (array_chunk($points, self::DEFAULT_BATCH_SIZE) as $chunk) {
+        foreach (array_chunk($points, self::UPSERT_BATCH_SIZE) as $chunk) {
             $this->request(
                 'PUT',
                 sprintf('/collections/%s/points?wait=true', rawurlencode($targetCollection)),
@@ -617,6 +623,7 @@ readonly class HybridQdrantStore
                     'points' => $chunk,
                 ]
             );
+            unset($chunk);
         }
     }
 

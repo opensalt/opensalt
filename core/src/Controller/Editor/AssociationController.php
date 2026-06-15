@@ -231,6 +231,7 @@ class AssociationController extends AbstractController
             'annotation' => $assocEntity->getNotes(),
             'CFAssociationGroupingURI' => $groupObj,
             'additionalFields' => $assocEntity->getAdditionalFields(),
+            'extensions' => $assocEntity->getExtensions(),
             'canEdit' => $this->isGranted(Permission::ASSOCIATION_EDIT, $assocEntity),
         ];
     }
@@ -311,6 +312,11 @@ class AssociationController extends AbstractController
             if (isset($data['additionalFields']) && is_array($data['additionalFields'])) {
                 foreach ($data['additionalFields'] as $fieldName => $value) {
                     $lsAssociation->setAdditionalField($fieldName, $value);
+                }
+            }
+            if (isset($data['extensions']) && is_array($data['extensions'])) {
+                foreach ($data['extensions'] as $key => $value) {
+                    $lsAssociation->setExtensionProperty((string) $key, $value);
                 }
             }
             // assocGroup might be complex if it's an entity,

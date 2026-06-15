@@ -136,4 +136,47 @@ describe('CrosswalkWizard', () => {
     expect(options[0].text()).toContain('ELA Standards');
     expect(options[1].text()).toContain('Math Standards');
   });
+
+  it('includes leaf-only params in estimate when checked', async () => {
+    mockGet.mockResolvedValueOnce({ origin_items_with_embeddings: 10 });
+
+    const wrapper = mount(CrosswalkWizard);
+    await flushPromises();
+
+    wrapper.vm.form.originIdentifier = 'uuid-99';
+    wrapper.vm.form.destinationIdentifier = 'uuid-100';
+    wrapper.vm.form.originLeafOnly = true;
+    wrapper.vm.form.destinationLeafOnly = true;
+    await wrapper.vm.$nextTick();
+
+    await wrapper.find('[data-testid="preview-btn"]').trigger('click');
+    await flushPromises();
+
+    expect(mockGet).toHaveBeenCalledWith(
+      expect.stringContaining('origin_leaf_only=1')
+    );
+    expect(mockGet).toHaveBeenCalledWith(
+      expect.stringContaining('destination_leaf_only=1')
+    );
+  });
+
+  it('emits leaf-only flags with create payload', async () => {
+    const wrapper = mount(CrosswalkWizard);
+    await flushPromises();
+
+    wrapper.vm.form.originIdentifier = 'uuid-99';
+    wrapper.vm.form.destinationIdentifier = 'uuid-100';
+    wrapper.vm.form.originLeafOnly = true;
+    await wrapper.vm.$nextTick();
+
+    await wrapper.find('[data-testid="create-crosswalk-btn"]').trigger('click');
+
+    expect(wrapper.emitted('create')).toBeTruthy();
+    expect(wrapper.emitted('create')[0][0]).toEqual(
+      expect.objectContaining({
+        originLeafOnly: true,
+        destinationLeafOnly: false,
+      })
+    );
+  });
 });

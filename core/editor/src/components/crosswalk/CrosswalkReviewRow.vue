@@ -18,7 +18,21 @@
           v-if="pair.originItem?.humanCodingScheme"
           class="text-muted small"
         >{{ pair.originItem.humanCodingScheme }}</span>
-        <span>{{ truncatedOriginTitle }}</span>
+        <a
+          v-if="originItemLink"
+          :href="originItemLink"
+          target="_blank"
+          class="text-decoration-none"
+        >{{ truncatedOriginTitle }}<i
+          v-if="originHasChildren"
+          class="bi bi-diagram-3 text-muted ms-1 cw-has-children"
+          title="Has child items"
+        /></a>
+        <span v-else>{{ truncatedOriginTitle }}<i
+          v-if="originHasChildren"
+          class="bi bi-diagram-3 text-muted ms-1 cw-has-children"
+          title="Has child items"
+        /></span>
       </div>
     </td>
     <td class="text-center">
@@ -42,7 +56,21 @@
           v-if="pair.destinationItem?.humanCodingScheme"
           class="text-muted small"
         >{{ pair.destinationItem.humanCodingScheme }}</span>
-        <span>{{ truncatedDestTitle }}</span>
+        <a
+          v-if="destItemLink"
+          :href="destItemLink"
+          target="_blank"
+          class="text-decoration-none"
+        >{{ truncatedDestTitle }}<i
+          v-if="destHasChildren"
+          class="bi bi-diagram-3 text-muted ms-1 cw-has-children"
+          title="Has child items"
+        /></a>
+        <span v-else>{{ truncatedDestTitle }}<i
+          v-if="destHasChildren"
+          class="bi bi-diagram-3 text-muted ms-1 cw-has-children"
+          title="Has child items"
+        /></span>
       </div>
     </td>
     <td>
@@ -55,19 +83,38 @@
       <div class="btn-group btn-group-sm">
         <button
           type="button"
-          class="btn btn-outline-success"
-          title="Approve"
-          @click="$emit('approve', pair.id)"
+          class="btn btn-outline-secondary"
+          title="Edit"
+          @click="$emit('edit', pair.association)"
         >
-          <i class="bi bi-check" />
+          <i class="bi bi-pencil" />
         </button>
+        <template v-if="!isApproved">
+          <button
+            type="button"
+            class="btn btn-outline-success"
+            title="Approve"
+            @click="$emit('approve', pair.id)"
+          >
+            <i class="bi bi-check" />
+          </button>
+          <button
+            type="button"
+            class="btn btn-outline-danger"
+            title="Reject"
+            @click="$emit('reject', pair.id)"
+          >
+            <i class="bi bi-x" />
+          </button>
+        </template>
         <button
+          v-else
           type="button"
           class="btn btn-outline-danger"
-          title="Reject"
-          @click="$emit('reject', pair.id)"
+          title="Delete"
+          @click="$emit('delete', pair.association)"
         >
-          <i class="bi bi-x" />
+          <i class="bi bi-trash" />
         </button>
       </div>
     </td>
@@ -81,7 +128,7 @@
         type="checkbox"
         :checked="isSelectedUnmatched"
         class="form-check-input"
-        @change="toggleSelectUnmatchedOrigin"
+        @change="toggleSelect"
       >
     </td>
     <td class="col-origin">
@@ -90,12 +137,32 @@
           v-if="unmatchedOriginItem.humanCodingScheme"
           class="text-muted small"
         >{{ unmatchedOriginItem.humanCodingScheme }}</span>
-        <span>{{ truncatedUnmatchedOriginTitle }}</span>
+        <a
+          v-if="originItemLink"
+          :href="originItemLink"
+          target="_blank"
+          class="text-decoration-none"
+        >{{ truncatedUnmatchedOriginTitle }}<i
+          v-if="unmatchedOriginHasChildren"
+          class="bi bi-diagram-3 text-muted ms-1 cw-has-children"
+          title="Has child items"
+        /></a>
+        <span v-else>{{ truncatedUnmatchedOriginTitle }}<i
+          v-if="unmatchedOriginHasChildren"
+          class="bi bi-diagram-3 text-muted ms-1 cw-has-children"
+          title="Has child items"
+        /></span>
       </div>
     </td>
-    <td class="text-center text-muted">&mdash;</td>
-    <td class="text-muted">—</td>
-    <td class="text-muted">—</td>
+    <td class="text-center text-muted">
+      &mdash;
+    </td>
+    <td class="text-muted">
+      —
+    </td>
+    <td class="text-muted">
+      —
+    </td>
     <td class="col-destination text-muted">
       <em>No match found</em>
     </td>
@@ -106,8 +173,8 @@
       <button
         type="button"
         class="btn btn-sm btn-outline-primary"
-        disabled
-        title="Find match will be available in a future update"
+        title="Find a match in the destination framework"
+        @click="onFindMatch"
       >
         <i class="bi bi-search me-1" />
         Find Match
@@ -123,28 +190,58 @@
         type="checkbox"
         :checked="isSelectedUnmatched"
         class="form-check-input"
-        @change="toggleSelectUnmatchedDest"
+        @change="toggleSelect"
       >
     </td>
     <td class="col-origin text-muted">
       <em>No match from origin</em>
     </td>
-    <td class="text-center text-muted">&mdash;</td>
-    <td class="text-muted">—</td>
-    <td class="text-muted">—</td>
+    <td class="text-center text-muted">
+      &mdash;
+    </td>
+    <td class="text-muted">
+      —
+    </td>
+    <td class="text-muted">
+      —
+    </td>
     <td class="col-destination">
       <div class="d-flex flex-column">
         <span
           v-if="unmatchedDestinationItem.humanCodingScheme"
           class="text-muted small"
         >{{ unmatchedDestinationItem.humanCodingScheme }}</span>
-        <span>{{ truncatedUnmatchedDestTitle }}</span>
+        <a
+          v-if="destItemLink"
+          :href="destItemLink"
+          target="_blank"
+          class="text-decoration-none"
+        >{{ truncatedUnmatchedDestTitle }}<i
+          v-if="unmatchedDestHasChildren"
+          class="bi bi-diagram-3 text-muted ms-1 cw-has-children"
+          title="Has child items"
+        /></a>
+        <span v-else>{{ truncatedUnmatchedDestTitle }}<i
+          v-if="unmatchedDestHasChildren"
+          class="bi bi-diagram-3 text-muted ms-1 cw-has-children"
+          title="Has child items"
+        /></span>
       </div>
     </td>
     <td>
       <span class="badge bg-secondary">unmatched</span>
     </td>
-    <td></td>
+    <td>
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-primary"
+        title="Find a match in the origin framework"
+        @click="onFindMatch"
+      >
+        <i class="bi bi-search me-1" />
+        Find Match
+      </button>
+    </td>
   </tr>
 </template>
 
@@ -152,18 +249,23 @@
 import { computed } from 'vue';
 
 const props = defineProps({
-  pair: { type: Object, default: null },
-  unmatchedOriginItem: { type: Object, default: null },
-  unmatchedDestinationItem: { type: Object, default: null },
+  row: { type: Object, required: true },
   isSelected: { type: Boolean, default: false },
+  originFrameworkId: { type: String, default: null },
+  destinationFrameworkId: { type: String, default: null },
 });
 
-const emit = defineEmits(['select', 'approve', 'reject']);
+const emit = defineEmits(['select', 'approve', 'reject', 'edit', 'delete', 'find-match']);
 
-const confidence = computed(() => props.pair?.confidence || 0);
+const pair = computed(() => (props.row.type === 'matched' ? props.row.pair : null));
+const unmatchedOriginItem = computed(() => (props.row.type === 'unmatched-origin' ? props.row.item : null));
+const unmatchedDestinationItem = computed(() => (props.row.type === 'unmatched-destination' ? props.row.item : null));
+
+const confidence = computed(() => pair.value?.confidence || 0);
 const confidencePercentage = computed(() => Math.round(confidence.value * 100));
 
-const status = computed(() => props.pair?.status || 'pending');
+const status = computed(() => pair.value?.status || 'pending');
+const isApproved = computed(() => status.value === 'approved');
 
 const confidenceBadgeClass = computed(() => {
   if (confidencePercentage.value >= 90) return 'bg-success';
@@ -183,45 +285,54 @@ const rowClass = computed(() => {
 });
 
 const truncatedOriginTitle = computed(() => {
-  const t = props.pair?.originItem?.fullStatement || props.pair?.originItem?.title || 'Unknown';
+  const t = pair.value?.originItem?.fullStatement || pair.value?.originItem?.title || 'Unknown';
   return t.length > 80 ? t.substring(0, 80) + '...' : t;
 });
 
 const truncatedDestTitle = computed(() => {
-  const t = props.pair?.destinationItem?.fullStatement || props.pair?.destinationItem?.title || 'Unknown';
+  const t = pair.value?.destinationItem?.fullStatement || pair.value?.destinationItem?.title || 'Unknown';
   return t.length > 80 ? t.substring(0, 80) + '...' : t;
 });
 
 const truncatedUnmatchedOriginTitle = computed(() => {
-  const t = props.unmatchedOriginItem?.fullStatement || props.unmatchedOriginItem?.title || 'Unknown';
+  const t = unmatchedOriginItem.value?.fullStatement || unmatchedOriginItem.value?.title || 'Unknown';
   return t.length > 80 ? t.substring(0, 80) + '...' : t;
 });
 
 const truncatedUnmatchedDestTitle = computed(() => {
-  const t = props.unmatchedDestinationItem?.fullStatement || props.unmatchedDestinationItem?.title || 'Unknown';
+  const t = unmatchedDestinationItem.value?.fullStatement || unmatchedDestinationItem.value?.title || 'Unknown';
   return t.length > 80 ? t.substring(0, 80) + '...' : t;
 });
 
-const isSelectedUnmatched = computed(() => {
-  if (props.unmatchedOriginItem) {
-    return props.isSelected;
-  }
-  if (props.unmatchedDestinationItem) {
-    return props.isSelected;
-  }
-  return false;
+const isSelectedUnmatched = computed(() => Boolean(unmatchedOriginItem.value || unmatchedDestinationItem.value) && props.isSelected);
+
+function hasChildren(item) {
+  return Boolean(item?.children?.length);
+}
+
+const originHasChildren = computed(() => hasChildren(pair.value?.originItem));
+const destHasChildren = computed(() => hasChildren(pair.value?.destinationItem));
+const unmatchedOriginHasChildren = computed(() => hasChildren(unmatchedOriginItem.value));
+const unmatchedDestHasChildren = computed(() => hasChildren(unmatchedDestinationItem.value));
+
+const originItemLink = computed(() => {
+  const item = pair.value?.originItem || unmatchedOriginItem.value;
+  if (!item?.identifier || !props.originFrameworkId) return null;
+  return `/editor/${props.originFrameworkId}/${item.identifier}`;
+});
+
+const destItemLink = computed(() => {
+  const item = pair.value?.destinationItem || unmatchedDestinationItem.value;
+  if (!item?.identifier || !props.destinationFrameworkId) return null;
+  return `/editor/${props.destinationFrameworkId}/${item.identifier}`;
 });
 
 function toggleSelect() {
-  emit('select', props.pair.id);
+  emit('select', props.row.id);
 }
 
-function toggleSelectUnmatchedOrigin() {
-  emit('select', props.unmatchedOriginItem);
-}
-
-function toggleSelectUnmatchedDest() {
-  emit('select', props.unmatchedDestinationItem);
+function onFindMatch() {
+  emit('find-match', props.row);
 }
 </script>
 
@@ -231,5 +342,9 @@ function toggleSelectUnmatchedDest() {
 }
 .col-destination {
   width: 35%;
+}
+.cw-has-children {
+  font-size: 0.7rem;
+  opacity: 0.5;
 }
 </style>

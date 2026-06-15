@@ -6,6 +6,7 @@ namespace App\Crosswalk\MessageHandler;
 
 use App\Crosswalk\Entity\CrosswalkJob;
 use App\Crosswalk\Message\CreateCrosswalkMessage;
+use App\Crosswalk\Message\ProcessCrosswalkBatchMessage;
 use App\Crosswalk\Repository\CrosswalkJobRepository;
 use App\Crosswalk\Service\CrosswalkService;
 use App\Entity\Framework\LsItem;
@@ -13,15 +14,19 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Mercure\HubInterface;
 use Symfony\Component\Mercure\Update;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 #[AsMessageHandler]
 readonly class CreateCrosswalkMessageHandler
 {
+    private const BATCH_SIZE = 50;
+
     public function __construct(
         private CrosswalkJobRepository $jobRepository,
         private CrosswalkService $crosswalkService,
         private EntityManagerInterface $entityManager,
         private HubInterface $hub,
+        private MessageBusInterface $messageBus,
     ) {
     }
 
@@ -36,78 +41,39 @@ readonly class CreateCrosswalkMessageHandler
             'lsDoc' => $message->originFrameworkId,
         ]);
 
-        $job->markStarted(\count($sourceItems));
-        $this->jobRepository->save($job);
-
-        $batchSize = 50;
-        $batchCount = 0;
-
-        foreach ($sourceItems as $sourceItem) {
-            $match = $this->crosswalkService->findBestMatch(
-                $sourceItem,
-                $message->destinationFrameworkId,
-                $message->threshold,
+        if ($message->originLeafOnly) {
+            $leafIds = array_flip($this->crosswalkService->getLeafItemIds($message->originFrameworkId));
+            $sourceItems = array_filter(
+                $sourceItems,
+                static fn (LsItem $item): bool => null !== $item->getId() && isset($leafIds[$item->getId()]),
             );
-
-            if (null === $match) {
-                $job->recordItemNoEmbedding();
-                ++$batchCount;
-                if (0 === $batchCount % $batchSize) {
-                    $this->flushBatch($job, $message);
-                    if ('cancelled' === $job->status) {
-                        return;
-                    }
-                }
-                continue;
-            }
-
-            $result = $this->crosswalkService->processItem(
-                $sourceItem,
-                $match['lsItem'],
-                $match['similarity'],
-                $message->exactMatchThreshold,
-                $message->crosswalkFrameworkId,
-                $message->threshold,
-                $message->jobId,
-            );
-
-            if (CrosswalkService::RESULT_CREATED_EXACT === $result) {
-                $job->recordItemProcessed($match['similarity'], true);
-            } elseif (CrosswalkService::RESULT_CREATED_RELATED === $result) {
-                $job->recordItemProcessed($match['similarity'], false);
-            } else {
-                $job->recordItemBelowThreshold();
-            }
-
-            ++$batchCount;
-            if (0 === $batchCount % $batchSize) {
-                $this->flushBatch($job, $message);
-                if ('cancelled' === $job->status) {
-                    return;
-                }
-            }
         }
 
-        $this->entityManager->flush();
-        $job->markCompleted();
+        $itemCount = \count($sourceItems);
+        $job->markStarted($itemCount);
         $this->jobRepository->save($job);
         $this->publishProgress($job);
-    }
 
-    private function flushBatch(CrosswalkJob &$job, CreateCrosswalkMessage $message): void
-    {
-        $this->publishProgress($job);
-        $this->jobRepository->save($job);
-        $this->entityManager->flush();
-        $this->entityManager->clear();
-
-        $freshJob = $this->jobRepository->find($message->jobId);
-        if ($freshJob && 'cancelled' === $freshJob->status) {
-            $job = $freshJob;
+        if (0 === $itemCount) {
+            $job->markCompleted();
+            $this->jobRepository->save($job);
+            $this->publishProgress($job);
 
             return;
         }
-        $job = $freshJob ?? $job;
+
+        $itemIds = array_map(
+            static fn (LsItem $item): int => (int) $item->getId(),
+            array_values($sourceItems),
+        );
+
+        foreach (array_chunk($itemIds, self::BATCH_SIZE) as $batchIds) {
+            $this->messageBus->dispatch(new ProcessCrosswalkBatchMessage(
+                jobId: $message->jobId,
+                itemIds: $batchIds,
+                destinationLeafOnly: $message->destinationLeafOnly,
+            ));
+        }
     }
 
     private function publishProgress(CrosswalkJob $job): void

@@ -1,7 +1,7 @@
 <template>
-  <div class="crosswalk-review-table flex-grow-1 overflow-auto">
+  <div class="crosswalk-review-table border rounded bg-white shadow-sm">
     <table class="table table-hover table-sm mb-0">
-      <thead class="table-light sticky-top">
+      <thead class="table-light">
         <tr>
           <th style="width: 40px;">
             <input
@@ -11,13 +11,25 @@
               @change="toggleSelectAll"
             >
           </th>
-          <th class="col-origin">Origin Item</th>
-          <th style="width: 60px;"></th>
-          <th style="width: 80px;">Confidence</th>
-          <th style="width: 100px;">Type</th>
-          <th class="col-destination">Destination Item</th>
-          <th style="width: 100px;">Status</th>
-          <th style="width: 100px;">Actions</th>
+          <th class="col-origin">
+            Origin Item
+          </th>
+          <th style="width: 60px;" />
+          <th style="width: 80px;">
+            Confidence
+          </th>
+          <th style="width: 100px;">
+            Type
+          </th>
+          <th class="col-destination">
+            Destination Item
+          </th>
+          <th style="width: 100px;">
+            Status
+          </th>
+          <th style="width: 100px;">
+            Actions
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -31,27 +43,30 @@
             </td>
           </tr>
         </template>
+        <template v-else-if="rows.length === 0">
+          <tr>
+            <td
+              colspan="8"
+              class="text-center text-muted py-4"
+            >
+              No items match the current filters.
+            </td>
+          </tr>
+        </template>
         <template v-else>
           <CrosswalkReviewRow
-            v-for="pair in matchedPairs"
-            :key="pair.id"
-            :pair="pair"
-            :is-selected="isSelected(pair.id)"
+            v-for="row in rows"
+            :key="row.id"
+            :row="row"
+            :is-selected="selectedIds.has(row.id)"
+            :origin-framework-id="originFrameworkId"
+            :destination-framework-id="destinationFrameworkId"
             @select="onSelect"
             @approve="onApprove"
             @reject="onReject"
-          />
-          <CrosswalkReviewRow
-            v-for="item in unmatchedOrigin"
-            :key="'unmatched-origin-' + item.identifier"
-            :unmatched-origin-item="item"
-            @select="onSelectUnmatchedOrigin"
-          />
-          <CrosswalkReviewRow
-            v-for="item in unmatchedDestination"
-            :key="'unmatched-dest-' + item.identifier"
-            :unmatched-destination-item="item"
-            @select="onSelectUnmatchedDestination"
+            @edit="onEdit"
+            @delete="onDelete"
+            @find-match="onFindMatch"
           />
         </template>
       </tbody>
@@ -64,26 +79,19 @@ import { computed } from 'vue';
 import CrosswalkReviewRow from './CrosswalkReviewRow.vue';
 
 const props = defineProps({
-  matchedPairs: { type: Array, default: () => [] },
-  unmatchedOrigin: { type: Array, default: () => [] },
-  unmatchedDestination: { type: Array, default: () => [] },
+  rows: { type: Array, default: () => [] },
   selectedIds: { type: Set, required: true },
   loading: { type: Boolean, default: false },
+  originFrameworkId: { type: String, default: null },
+  destinationFrameworkId: { type: String, default: null },
 });
 
-const emit = defineEmits(['select', 'approve', 'reject']);
+const emit = defineEmits(['select', 'approve', 'reject', 'edit', 'delete', 'find-match']);
 
 const allSelected = computed(() => {
-  const total = props.matchedPairs.length + props.unmatchedOrigin.length + props.unmatchedDestination.length;
-  if (total === 0) return false;
-  return props.matchedPairs.every(p => props.selectedIds.has(p.id)) &&
-         props.unmatchedOrigin.every(i => props.selectedIds.has('unmatched-origin-' + i.identifier)) &&
-         props.unmatchedDestination.every(i => props.selectedIds.has('unmatched-dest-' + i.identifier));
+  if (props.rows.length === 0) return false;
+  return props.rows.every(row => props.selectedIds.has(row.id));
 });
-
-function isSelected(id) {
-  return props.selectedIds.has(id);
-}
 
 function onSelect(id) {
   emit('select', id);
@@ -97,21 +105,35 @@ function onReject(id) {
   emit('reject', id);
 }
 
-function onSelectUnmatchedOrigin(item) {
-  emit('select', 'unmatched-origin-' + item.identifier);
+function onEdit(assoc) {
+  emit('edit', assoc);
 }
 
-function onSelectUnmatchedDestination(item) {
-  emit('select', 'unmatched-dest-' + item.identifier);
+function onDelete(assoc) {
+  emit('delete', assoc);
+}
+
+function onFindMatch(row) {
+  emit('find-match', row);
 }
 
 function toggleSelectAll() {
   if (allSelected.value) {
     props.selectedIds.clear();
   } else {
-    props.matchedPairs.forEach(p => props.selectedIds.add(p.id));
-    props.unmatchedOrigin.forEach(i => props.selectedIds.add('unmatched-origin-' + i.identifier));
-    props.unmatchedDestination.forEach(i => props.selectedIds.add('unmatched-dest-' + i.identifier));
+    props.rows.forEach(row => props.selectedIds.add(row.id));
   }
 }
 </script>
+
+<style scoped>
+.crosswalk-review-table {
+  overflow-x: visible;
+}
+
+.crosswalk-review-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+</style>

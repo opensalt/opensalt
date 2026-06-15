@@ -334,9 +334,9 @@ readonly class VectorSearchService
         return $count;
     }
 
-    public function getVectorCountForFramework(int $frameworkId): int
+    public function getVectorCountForFramework(int $frameworkId, bool $leafOnly = false): int
     {
-        return $this->qdrantStore->countByFrameworkId($frameworkId);
+        return $this->qdrantStore->countByFrameworkId($frameworkId, $leafOnly);
     }
 
     public function getEmbeddingGenerationCursor(): ?int

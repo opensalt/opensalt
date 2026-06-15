@@ -13,6 +13,8 @@ readonly class CreateCrosswalkMessage
         public int $crosswalkFrameworkId,
         public float $threshold = 0.75,
         public float $exactMatchThreshold = 0.90,
+        public bool $originLeafOnly = false,
+        public bool $destinationLeafOnly = false,
     ) {
     }
 }

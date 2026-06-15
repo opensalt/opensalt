@@ -1,27 +1,41 @@
 import { describe, it, expect, vi } from 'vitest';
 
 vi.mock('pinia', () => ({ defineStore: vi.fn(), storeToRefs: vi.fn() }));
-vi.mock('../../src/stores/currentDocumentStore.ts', () => ({
-  useCurrentDocumentStore: vi.fn(() => ({
-    currentDocument: { id: '156', title: 'Crosswalk Framework' },
-    currentDocumentAssociations: [
-      {
-        identifier: 'assoc-1',
-        associationType: 'exactMatchOf',
-        originNodeURI: { identifier: 'origin-uuid', title: 'Origin Item', uri: 'https://example.com/1', documentIdentifier: 'fw-origin' },
-        destinationNodeURI: { identifier: 'dest-uuid', title: 'Dest Item', uri: 'https://example.com/2', documentIdentifier: 'fw-dest' },
-        extensions: { 'crosswalk:confidence': 0.95, 'crosswalk:status': 'pending', 'crosswalk:subtype': 'exact' },
-      },
-      {
-        identifier: 'assoc-2',
-        associationType: 'isRelatedTo',
-        originNodeURI: { identifier: 'origin-uuid-2', title: 'Origin Item 2', uri: 'https://example.com/3', documentIdentifier: 'fw-origin' },
-        destinationNodeURI: { identifier: 'dest-uuid-2', title: 'Dest Item 2', uri: 'https://example.com/4', documentIdentifier: 'fw-dest' },
-        extensions: { 'crosswalk:confidence': 0.80, 'crosswalk:status': 'pending', 'crosswalk:subtype': 'related' },
-      },
-    ],
-  }))
+
+// Singleton store so the composable and the test share the same mock instance.
+const mockStore = vi.hoisted(() => ({
+  currentDocument: { identifier: '156', id: '156', title: 'Crosswalk Framework' },
+  fetchFrameworkAssociations: vi.fn(),
+  invalidateItemDetailsCache: vi.fn(),
+  updateAssociation: vi.fn(),
+  removeAssociation: vi.fn(),
 }));
+
+vi.mock('../../src/stores/currentDocumentStore.ts', () => ({
+  useCurrentDocumentStore: vi.fn(() => mockStore),
+}));
+
+const crosswalkAssociations = [
+  {
+    identifier: 'assoc-1',
+    associationType: 'exactMatchOf',
+    originNodeURI: { identifier: 'origin-uuid', title: 'Origin Item', uri: 'https://example.com/1', documentIdentifier: 'fw-origin' },
+    destinationNodeURI: { identifier: 'dest-uuid', title: 'Dest Item', uri: 'https://example.com/2', documentIdentifier: 'fw-dest' },
+    extensions: { 'crosswalk:confidence': 0.95, 'crosswalk:status': 'pending', 'crosswalk:subtype': 'exact' },
+  },
+  {
+    identifier: 'assoc-2',
+    associationType: 'isRelatedTo',
+    originNodeURI: { identifier: 'origin-uuid-2', title: 'Origin Item 2', uri: 'https://example.com/3', documentIdentifier: 'fw-origin' },
+    destinationNodeURI: { identifier: 'dest-uuid-2', title: 'Dest Item 2', uri: 'https://example.com/4', documentIdentifier: 'fw-dest' },
+    extensions: { 'crosswalk:confidence': 0.80, 'crosswalk:status': 'pending', 'crosswalk:subtype': 'related' },
+  },
+];
+
+// Configure return values after crosswalkAssociations is defined.
+mockStore.fetchFrameworkAssociations.mockResolvedValue(crosswalkAssociations);
+mockStore.updateAssociation.mockResolvedValue(true);
+mockStore.removeAssociation.mockResolvedValue(true);
 
 const originTreeItems = [
   { identifier: 'origin-uuid', fullStatement: 'Origin Item', humanCodingScheme: 'MATH.1' },
@@ -53,7 +67,8 @@ vi.mock('../../src/stores/documentStore.ts', () => ({
 describe('useCrosswalkReview', () => {
   it('loads associations from current document', async () => {
     const { useCrosswalkReview } = await import('../../src/composables/useCrosswalkReview.js');
-    const { allAssociations } = useCrosswalkReview();
+    const { allAssociations, loadCrosswalkAssociations } = useCrosswalkReview();
+    await loadCrosswalkAssociations();
     expect(allAssociations.value).toHaveLength(2);
   });
 
@@ -116,10 +131,89 @@ describe('useCrosswalkReview', () => {
     expect(filteredUnmatchedDestination.value).toHaveLength(1);
   });
 
-  it('supports bulk approve without error', async () => {
+  it('hides approved associations when hideApproved filter is set', async () => {
     const { useCrosswalkReview } = await import('../../src/composables/useCrosswalkReview.js');
-    const { bulkApprove } = useCrosswalkReview();
-    await bulkApprove();
-    expect(typeof bulkApprove).toBe('function');
+    const { filters, filteredPairs, approveAssociation, loadOriginAndDestinationItems } = useCrosswalkReview();
+    await loadOriginAndDestinationItems();
+
+    crosswalkAssociations[0].extensions['crosswalk:status'] = 'pending';
+    crosswalkAssociations[1].extensions['crosswalk:status'] = 'pending';
+
+    expect(filteredPairs.value).toHaveLength(2);
+
+    await approveAssociation('assoc-1');
+    expect(filteredPairs.value).toHaveLength(2);
+
+    filters.value.hideApproved = true;
+    expect(filteredPairs.value).toHaveLength(1);
+    expect(filteredPairs.value[0].id).toBe('assoc-2');
+
+    crosswalkAssociations[0].extensions['crosswalk:status'] = 'pending';
+  });
+
+  it('persists bulk approve for selected associations', async () => {
+    const { useCrosswalkReview } = await import('../../src/composables/useCrosswalkReview.js');
+    const { bulkApprove, loadOriginAndDestinationItems } = useCrosswalkReview();
+    await loadOriginAndDestinationItems();
+
+    mockStore.updateAssociation.mockClear();
+
+    await bulkApprove(new Set(['assoc-1', 'assoc-2']));
+
+    expect(mockStore.updateAssociation).toHaveBeenCalledTimes(2);
+    expect(mockStore.updateAssociation).toHaveBeenCalledWith('assoc-1', expect.objectContaining({
+      extensions: { 'crosswalk:status': 'approved' },
+    }));
+    expect(mockStore.updateAssociation).toHaveBeenCalledWith('assoc-2', expect.objectContaining({
+      extensions: { 'crosswalk:status': 'approved' },
+    }));
+  });
+
+  it('ignores unmatched row IDs in bulk approve', async () => {
+    const { useCrosswalkReview } = await import('../../src/composables/useCrosswalkReview.js');
+    const { bulkApprove, loadOriginAndDestinationItems } = useCrosswalkReview();
+    await loadOriginAndDestinationItems();
+
+    mockStore.updateAssociation.mockClear();
+
+    await bulkApprove(new Set(['assoc-1', 'unmatched-origin-xyz']));
+
+    expect(mockStore.updateAssociation).toHaveBeenCalledTimes(1);
+    expect(mockStore.updateAssociation).toHaveBeenCalledWith('assoc-1', expect.anything());
+  });
+
+  it('deletes associations in bulk reject for selected ids', async () => {
+    const { useCrosswalkReview } = await import('../../src/composables/useCrosswalkReview.js');
+    const { bulkReject, loadOriginAndDestinationItems } = useCrosswalkReview();
+    await loadOriginAndDestinationItems();
+
+    mockStore.removeAssociation.mockClear();
+
+    await bulkReject(new Set(['assoc-1', 'assoc-2']));
+
+    expect(mockStore.removeAssociation).toHaveBeenCalledTimes(2);
+    expect(mockStore.removeAssociation).toHaveBeenCalledWith('assoc-1');
+    expect(mockStore.removeAssociation).toHaveBeenCalledWith('assoc-2');
+  });
+
+  it('persists edited association via store then reloads', async () => {
+    const { useCrosswalkReview } = await import('../../src/composables/useCrosswalkReview.js');
+    const { editAssociation, loadOriginAndDestinationItems } = useCrosswalkReview();
+    await loadOriginAndDestinationItems();
+
+    mockStore.updateAssociation.mockClear();
+
+    await editAssociation({
+      identifier: 'assoc-1',
+      type: 'isRelatedTo',
+      annotation: 'Updated note',
+    });
+
+    expect(mockStore.updateAssociation).toHaveBeenCalledTimes(1);
+    expect(mockStore.updateAssociation).toHaveBeenCalledWith('assoc-1', expect.objectContaining({
+      type: 'isRelatedTo',
+      annotation: 'Updated note',
+    }));
+    expect(mockStore.fetchFrameworkAssociations).toHaveBeenCalled();
   });
 });
