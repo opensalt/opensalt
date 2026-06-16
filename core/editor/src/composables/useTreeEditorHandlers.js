@@ -222,18 +222,33 @@ export function useTreeEditorHandlers({
     // ---------------------------------------------------------------------------
     // Viewed document
     // ---------------------------------------------------------------------------
+    function announceViewedFrameworkChange(documentId, isResetToEditedFramework) {
+        const doc = documentId
+            ? contextStore.documentRegistry.get(documentId)
+            : currentDoc.value;
+
+        const title = doc?.title || (isResetToEditedFramework ? 'edited framework' : 'selected framework');
+        const message = isResetToEditedFramework
+            ? `Viewing edited framework: ${title}. This framework is editable.`
+            : `Now viewing ${title}. This framework is read-only.`;
+
+        announcer.announce?.(message, 'polite');
+    }
+
     async function onViewedDocumentChanged(id) {
         const documentId = id && typeof id === 'object' ? id.documentId : id;
 
         if (!documentId) {
             contextStore.viewedDocumentId = null;
             contextStore.setFrameworkSelection('treeView', null);
+            announceViewedFrameworkChange(null, true);
             return;
         }
 
         if (documentId === currentDoc.value?.identifier) {
             contextStore.viewedDocumentId = null;
             contextStore.setFrameworkSelection('treeView', null);
+            announceViewedFrameworkChange(null, true);
             return;
         }
 
@@ -243,6 +258,7 @@ export function useTreeEditorHandlers({
                 contextStore.viewedDocumentId = documentId;
                 // Save framework selection for treeView mode
                 contextStore.setFrameworkSelection('treeView', documentId);
+                announceViewedFrameworkChange(documentId, false);
             }
         } catch (err) {
             logger.error('Failed to switch viewed document:', err);

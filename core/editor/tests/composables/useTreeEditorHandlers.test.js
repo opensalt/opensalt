@@ -12,7 +12,7 @@ function createMockContext(overrides = {}) {
   const reloadActiveDocumentMock = vi.fn().mockResolvedValue(undefined);
 
   const currentDocumentStore = {
-    currentDocument: { id: 'doc-1', identifier: 'doc-1' },
+    currentDocument: { id: 'doc-1', identifier: 'doc-1', title: 'Edited Framework' },
     createItem: createItemMock,
     ...overrides.currentDocumentStore,
   };
@@ -58,7 +58,7 @@ function createMockContext(overrides = {}) {
       ...overrides.contextStore,
     },
     router,
-    currentDoc: ref({ id: 'doc-1', identifier: 'doc-1', items: [] }),
+    currentDoc: ref({ id: 'doc-1', identifier: 'doc-1', title: 'Edited Framework', items: [] }),
     viewedDoc: ref(null),
     isViewingDifferentFramework: ref(false),
     rightPanelMode: ref('itemDetails'),
@@ -84,7 +84,10 @@ function createMockContext(overrides = {}) {
     documentLoaderOnExternalDocumentUrlLoaded: vi.fn(),
     sideDocument: ref(null),
     onSideDocumentSelect: vi.fn(),
-    announcer: { announceNavigation: vi.fn() },
+    announcer: {
+      announceNavigation: vi.fn(),
+      announce: vi.fn(),
+    },
     openDeleteAssociationModal: vi.fn(),
     closeDeleteAssociationModal: vi.fn(),
     _connectMercure: vi.fn(),
@@ -98,7 +101,7 @@ describe('useTreeEditorHandlers', () => {
     it('should select the newly added child item after creation', async () => {
       // Arrange
       const { ctx, createItemMock, reloadActiveDocumentMock, router } = createMockContext();
-      const { handleAddChild, onSelect } = useTreeEditorHandlers(ctx);
+      const { handleAddChild } = useTreeEditorHandlers(ctx);
 
       const newItem = { fullStatement: 'New Child Item' };
       const parentItem = { identifier: 'parent-1' };
@@ -191,6 +194,58 @@ describe('useTreeEditorHandlers', () => {
       await handleAddRootItem({ fullStatement: 'Test' });
 
       expect(createItemMock).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('onViewedDocumentChanged', () => {
+    it('loads and stores a different viewed framework and announces read-only viewing', async () => {
+      const fetchTree = vi.fn().mockResolvedValue({ document: { identifier: 'doc-2' } });
+      const setFrameworkSelection = vi.fn();
+      const { ctx } = createMockContext({
+        documentStore: { fetchTree },
+        contextStore: {
+          documentRegistry: new Map([['doc-2', { identifier: 'doc-2', title: 'Other Framework' }]]),
+          viewedDocumentId: ref(null),
+          activeWriteDocumentId: ref('doc-1'),
+          setFrameworkSelection,
+        },
+      });
+      const { onViewedDocumentChanged } = useTreeEditorHandlers(ctx);
+
+      await onViewedDocumentChanged('doc-2');
+
+      expect(fetchTree).toHaveBeenCalledWith('doc-2');
+      expect(ctx.contextStore.viewedDocumentId).toBe('doc-2');
+      expect(setFrameworkSelection).toHaveBeenCalledWith('treeView', 'doc-2');
+      expect(ctx.announcer.announce).toHaveBeenCalledWith(
+        'Now viewing Other Framework. This framework is read-only.',
+        'polite',
+      );
+    });
+
+    it('clears viewed framework when selecting the edited framework and announces editable viewing', async () => {
+      const fetchTree = vi.fn().mockResolvedValue({ document: { identifier: 'doc-1' } });
+      const setFrameworkSelection = vi.fn();
+      const { ctx } = createMockContext({
+        documentStore: { fetchTree },
+        contextStore: {
+          documentRegistry: new Map([['doc-1', { identifier: 'doc-1', title: 'Edited Framework' }]]),
+          viewedDocumentId: ref('doc-2'),
+          activeWriteDocumentId: ref('doc-1'),
+          setFrameworkSelection,
+        },
+      });
+      const { onViewedDocumentChanged } = useTreeEditorHandlers(ctx);
+
+      await onViewedDocumentChanged('doc-1');
+
+      expect(fetchTree).not.toHaveBeenCalled();
+      expect(ctx.contextStore.viewedDocumentId).toBeNull();
+      expect(setFrameworkSelection).toHaveBeenCalledWith('treeView', null);
+      expect(ctx.announcer.announce).toHaveBeenCalledWith(
+        'Viewing edited framework: Edited Framework. This framework is editable.',
+        'polite',
+      );
     });
   });
 });

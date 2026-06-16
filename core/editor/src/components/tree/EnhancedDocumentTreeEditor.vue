@@ -50,6 +50,7 @@
         :class="['col-5', { 'viewing-different-framework': isViewingDifferentFramework }]"
         :current-doc="currentDoc"
         :filtered-doc="filteredDoc"
+        :filtered-viewed-doc="filteredViewedDoc"
         :available-documents="availableDocuments"
         :selected-id="selectedId"
         :tree-search-query="treeSearchQuery"
@@ -58,8 +59,8 @@
         :association-groups="associationGroups"
         :selected-association-group="selectedAssociationGroupValue"
         :available-subjects="availableSubjects"
+        :can-switch-viewed-framework="canSwitchViewedFramework"
         @viewed-document-changed="onViewedDocumentChanged"
-        @external-document-requested="onExternalDocumentRequested"
         @select="onSelect"
         @dblclick="onDblClick"
         @tree-change="onTreeChange"
@@ -281,6 +282,20 @@ const filteredDoc = computed(() => ({
   ),
 }));
 
+const filteredViewedDoc = computed(() => {
+  if (!viewedDoc.value) return null;
+
+  return {
+    ...viewedDoc.value,
+    items: filterStore.filterItemsRecursively(
+      viewedDoc.value.items || [],
+      treeSearchQuery.value,
+      filterStore.selectedFilters,
+      filterStore.selectedAssociationGroup
+    ),
+  };
+});
+
 const treeItems = computed(() => {
   if (!filteredDoc.value) return [];
   return [{
@@ -469,6 +484,9 @@ const { matchCount, matchingItemIds } = useFrameworkSearch({
 // Store-derived computed
 // ---------------------------------------------------------------------------
 const availableDocuments = computed(() => documentStore.documents);
+const canSwitchViewedFramework = computed(() =>
+  !!contextStore.activeWriteDocumentId && contextStore.canEdit && availableDocuments.value.length > 1,
+);
 const availableSubjects = computed(() => filterStore.availableSubjects);
 const associationGroups = computed(() => currentDocumentStore.associationGroups);
 const selectedAssociationGroupValue = computed({
@@ -663,6 +681,11 @@ watch(() => viewStore.currentItem, (newItem) => {
 });
 
 watch(() => doc.value?.id, (newDocId, oldDocId) => {
+  if (newDocId && newDocId !== oldDocId && contextStore.viewedDocumentId && contextStore.viewedDocumentId !== newDocId) {
+    contextStore.viewedDocumentId = null;
+    contextStore.setFrameworkSelection('treeView', null);
+  }
+
   if (newDocId) {
     expandItem(newDocId);
     initializeFocus();

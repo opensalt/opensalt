@@ -101,29 +101,23 @@ async function switchView(view) {
     return;
   }
 
+  // The in-panel "viewed framework" overlay is a tree-panel-only concept. Reset
+  // it when leaving the tree panel so returning to Tree View shows the framework
+  // being edited; it must never be used as a navigation target.
+  if (view !== 'tree') {
+    editorContextStore.setFrameworkSelection('treeView', null);
+  }
+
   let path;
 
   if (view === 'tree') {
-    // Check if there's a saved framework selection for treeView
-    const treeViewSelection = editorContextStore.getFrameworkSelection('treeView');
-
-    if (treeViewSelection?.documentId && treeViewSelection.documentId !== currentFrameworkId.value) {
-      // Use the saved framework selection
-      const lastItemId = viewStore.getLastItemIdForDocument(treeViewSelection.documentId);
-      if (lastItemId) {
-        path = `/${treeViewSelection.documentId}/${lastItemId}`;
-      } else {
-        path = `/${treeViewSelection.documentId}`;
-      }
-      logger.debug('[ViewSwitcher] Using saved treeView framework:', treeViewSelection.documentId);
+    // Always return to the framework being edited (the overlay, if any, is
+    // restored separately by the tree panel via the editor context store).
+    const lastItemId = viewStore.getLastItemIdForDocument(currentFrameworkId.value);
+    if (lastItemId) {
+      path = `/${currentFrameworkId.value}/${lastItemId}`;
     } else {
-      // Use current framework
-      const lastItemId = viewStore.getLastItemIdForDocument(currentFrameworkId.value);
-      if (lastItemId) {
-        path = `/${currentFrameworkId.value}/${lastItemId}`;
-      } else {
-        path = `/${currentFrameworkId.value}`;
-      }
+      path = `/${currentFrameworkId.value}`;
     }
   } else if (view === 'association') {
     path = `/${currentFrameworkId.value}/association`;

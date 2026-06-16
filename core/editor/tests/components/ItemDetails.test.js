@@ -122,6 +122,7 @@ describe('ItemDetails.vue - isReadOnly computed property logic', () => {
     // Reset mocks before each test
     mockContextStore.activeWriteDocumentId.value = null;
     mockContextStore.isEditable.mockReturnValue(false);
+    mockContextStore.canEdit = true;
     mockSessionStore.isAuthenticated = false;
     mockContextStore.isViewingDifferentFramework = false;
     mockContextStore.viewedDocumentId = null;
@@ -527,6 +528,186 @@ describe('ItemDetails.vue - isReadOnly computed property logic', () => {
       await nextTick();
 
       expect(wrapper.find('[data-test="detail-text"]').text()).toBe('Hydrated external item details');
+    });
+
+    it('treats items outside the active write framework as read-only', async () => {
+      mockSessionStore.isAuthenticated = true;
+      mockContextStore.canEdit = true;
+      mockContextStore.activeWriteDocumentId.value = 'doc-1';
+      mockContextStore.viewedDocumentId = 'doc-2';
+      mockContextStore.isViewingDifferentFramework = true;
+      mockContextStore.isEditable.mockImplementation((id) => id === 'doc-1' || id === 'item-1');
+
+      const wrapper = shallowMount(ItemDetails, {
+        props: {
+          item: {
+            identifier: 'item-2',
+            documentId: 'doc-2',
+            title: 'Non-Main Item',
+            fullStatement: 'Non-main item statement',
+          },
+          currentDocument: {
+            identifier: 'doc-1',
+            title: 'Edited Framework',
+          },
+        },
+        global: {
+          stubs: {
+            ItemCrossFrameworkBanner: true,
+            ItemHeaderCard: {
+              props: ['canEditItem'],
+              template: '<div><div data-test="header-can-edit">{{ canEditItem }}</div><slot /></div>',
+            },
+            ItemDefaultDetails: {
+              props: ['item'],
+              template: '<div data-test="detail-text">{{ item.fullStatement || item.title }}</div>',
+            },
+            ItemActionsCard: {
+              props: ['canEditItem'],
+              template: '<div data-test="actions-can-edit">{{ canEditItem }}</div>',
+            },
+            ItemAssociationsCard: {
+              props: ['isReadOnly', 'canManageAssociationActions'],
+              template: '<div data-test="assoc-readonly">{{ isReadOnly }} {{ canManageAssociationActions }}</div>',
+            },
+            CommentModule: true,
+            DeleteAssociationModal: true,
+            JobItemDetails: true,
+            CourseItemDetails: true,
+            AssessmentItemDetails: true,
+            CredentialItemDetails: true,
+            OrganizationItemDetails: true,
+            IdentifierItemDetails: true,
+            PublicKeyItemDetails: true,
+          },
+        },
+      });
+
+      await nextTick();
+
+      expect(wrapper.find('[data-test="header-can-edit"]').text()).toBe('false');
+      expect(wrapper.find('[data-test="actions-can-edit"]').text()).toBe('false');
+      expect(wrapper.find('[data-test="assoc-readonly"]').text()).toBe('true false');
+    });
+
+    it('blocks read-only viewers from editing even when the item is in the active write framework', async () => {
+      mockSessionStore.isAuthenticated = true;
+      mockContextStore.canEdit = false;
+      mockContextStore.activeWriteDocumentId.value = 'doc-1';
+      mockContextStore.viewedDocumentId = 'doc-2';
+      mockContextStore.isViewingDifferentFramework = true;
+      mockContextStore.isEditable.mockImplementation((id) => id === 'doc-1' || id === 'item-1');
+
+      const wrapper = shallowMount(ItemDetails, {
+        props: {
+          item: {
+            identifier: 'item-1',
+            documentId: 'doc-1',
+            title: 'Main Item',
+            fullStatement: 'Main item statement',
+          },
+          currentDocument: {
+            identifier: 'doc-1',
+            title: 'Edited Framework',
+          },
+        },
+        global: {
+          stubs: {
+            ItemCrossFrameworkBanner: true,
+            ItemHeaderCard: {
+              props: ['canEditItem'],
+              template: '<div><div data-test="header-can-edit">{{ canEditItem }}</div><slot /></div>',
+            },
+            ItemDefaultDetails: {
+              props: ['item'],
+              template: '<div data-test="detail-text">{{ item.fullStatement || item.title }}</div>',
+            },
+            ItemActionsCard: {
+              props: ['canEditItem'],
+              template: '<div data-test="actions-can-edit">{{ canEditItem }}</div>',
+            },
+            ItemAssociationsCard: {
+              props: ['isReadOnly', 'canManageAssociationActions'],
+              template: '<div data-test="assoc-readonly">{{ isReadOnly }} {{ canManageAssociationActions }}</div>',
+            },
+            CommentModule: true,
+            DeleteAssociationModal: true,
+            JobItemDetails: true,
+            CourseItemDetails: true,
+            AssessmentItemDetails: true,
+            CredentialItemDetails: true,
+            OrganizationItemDetails: true,
+            IdentifierItemDetails: true,
+            PublicKeyItemDetails: true,
+          },
+        },
+      });
+
+      await nextTick();
+
+      expect(wrapper.find('[data-test="header-can-edit"]').text()).toBe('false');
+      expect(wrapper.find('[data-test="actions-can-edit"]').text()).toBe('false');
+      expect(wrapper.find('[data-test="assoc-readonly"]').text()).toBe('true false');
+    });
+
+    it('keeps same-framework editable items editable while viewing another framework', async () => {
+      mockSessionStore.isAuthenticated = true;
+      mockContextStore.canEdit = true;
+      mockContextStore.activeWriteDocumentId.value = 'doc-1';
+      mockContextStore.viewedDocumentId = 'doc-2';
+      mockContextStore.isViewingDifferentFramework = true;
+      mockContextStore.isEditable.mockImplementation((id) => id === 'doc-1' || id === 'item-1');
+
+      const wrapper = shallowMount(ItemDetails, {
+        props: {
+          item: {
+            identifier: 'item-1',
+            documentId: 'doc-1',
+            title: 'Main Item',
+            fullStatement: 'Main item statement',
+          },
+          currentDocument: {
+            identifier: 'doc-1',
+            title: 'Edited Framework',
+          },
+        },
+        global: {
+          stubs: {
+            ItemCrossFrameworkBanner: true,
+            ItemHeaderCard: {
+              props: ['canEditItem'],
+              template: '<div><div data-test="header-can-edit">{{ canEditItem }}</div><slot /></div>',
+            },
+            ItemDefaultDetails: {
+              props: ['item'],
+              template: '<div data-test="detail-text">{{ item.fullStatement || item.title }}</div>',
+            },
+            ItemActionsCard: {
+              props: ['canEditItem'],
+              template: '<div data-test="actions-can-edit">{{ canEditItem }}</div>',
+            },
+            ItemAssociationsCard: {
+              props: ['isReadOnly', 'canManageAssociationActions'],
+              template: '<div data-test="assoc-readonly">{{ isReadOnly }} {{ canManageAssociationActions }}</div>',
+            },
+            CommentModule: true,
+            DeleteAssociationModal: true,
+            JobItemDetails: true,
+            CourseItemDetails: true,
+            AssessmentItemDetails: true,
+            CredentialItemDetails: true,
+            OrganizationItemDetails: true,
+            IdentifierItemDetails: true,
+            PublicKeyItemDetails: true,
+          },
+        },
+      });
+
+      await nextTick();
+
+      expect(wrapper.find('[data-test="header-can-edit"]').text()).toBe('true');
+      expect(wrapper.find('[data-test="actions-can-edit"]').text()).toBe('true');
+      expect(wrapper.find('[data-test="assoc-readonly"]').text()).toBe('false true');
     });
   });
 });

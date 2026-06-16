@@ -1,23 +1,28 @@
 <template>
-  <div class="document-selector card mt-0 mb-3">
-    <div class="card-header d-flex justify-content-between align-items-center">
+  <div :class="compact ? 'document-selector document-selector-compact mb-2' : 'document-selector card mt-0 mb-3'">
+    <div
+      v-if="!compact"
+      class="card-header d-flex justify-content-between align-items-center"
+    >
       <h6 class="mb-0">
         {{ label }}
       </h6>
-      <!-- Visual indicator when viewing a different framework -->
       <span
         v-if="isViewingDifferentFramework"
         class="badge bg-warning text-dark"
+        role="status"
+        aria-live="polite"
         title="You are viewing a different framework than the one being edited"
       >
         <i
           class="bi bi-eye me-1"
           aria-hidden="true"
-        />Viewing
+        />Read-only
       </span>
       <button
         type="button"
         class="btn btn-sm btn-outline-primary"
+        aria-label="Change document"
         title="Change document"
         @click="changeDocument"
       >
@@ -27,8 +32,41 @@
         />
       </button>
     </div>
-    <div class="card-body">
+
+    <div :class="compact ? 'mx-2' : 'card-body'">
+      <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
+      <label
+        v-if="compact"
+        class="form-label fw-semibold small mb-0"
+      >
+        <select
+          :id="selectorId"
+          v-model="selectedDoc"
+          class="form-select form-select-sm"
+          :class="{ 'viewing-different-framework': isViewingDifferentFramework }"
+          @change="onDocumentChange"
+        >
+          <optgroup
+            v-for="group in groupedDocuments"
+            :key="group.creator"
+            :label="group.creator"
+          >
+            <option
+              v-for="doc in group.documents"
+              :key="doc.identifier"
+              :value="doc.identifier"
+              :class="doc.identifier === (currentDoc?.identifier || currentDoc?.id) ? 'text-primary fw-semibold' : ''"
+            >
+              {{ doc.identifier === (currentDoc?.identifier || currentDoc?.id) ? 'Main framework - ' : '' }}
+              {{ doc.title || 'Unknown Name' }} ({{ doc.identifier || 'No Identifier' }})
+              {{ (doc.identifier === selectedDoc && isViewingDifferentFramework) ? ' - Read-only' : '' }}
+            </option>
+          </optgroup>
+        </select>
+      </label>
       <select
+        v-else
+        :id="selectorId"
         v-model="selectedDoc"
         class="form-select"
         :class="{ 'viewing-different-framework': isViewingDifferentFramework }"
@@ -46,36 +84,35 @@
             v-for="doc in group.documents"
             :key="doc.identifier"
             :value="doc.identifier"
-            :selected="doc.identifier === (currentDoc?.identifier || currentDoc?.id)"
-            :style="(doc.identifier === (currentDoc?.identifier || currentDoc?.id)) ? 'color: blue;' : ''"
+            :class="doc.identifier === (currentDoc?.identifier || currentDoc?.id) ? 'text-primary fw-semibold' : ''"
           >
-            {{ doc.identifier === (currentDoc?.identifier || currentDoc?.id) ? '** Current Document ** - ' : '' }}
+            {{ doc.identifier === (currentDoc?.identifier || currentDoc?.id) ? 'Main Document - ' : '' }}
             {{ doc.title || 'Unknown Name' }} ({{ doc.identifier || 'No Identifier' }})
           </option>
         </optgroup>
-        <optgroup label="External Documents">
+        <optgroup
+          v-if="!hideExternal"
+          label="External Documents"
+        >
           <option value="external">
             Load external document...
           </option>
         </optgroup>
       </select>
-      <!-- Viewing indicator text -->
+
       <div
-        v-if="isViewingDifferentFramework && viewedDoc"
+        v-if="!compact && isViewingDifferentFramework && viewedDoc"
         class="mt-2 small text-muted"
       >
         <i class="bi bi-info-circle me-1" />
-        Viewing: <strong>{{ viewedDoc.title || 'Untitled' }}</strong>
+        Viewed framework: <strong>{{ viewedDoc.title || 'Untitled' }}</strong>
       </div>
     </div>
-
-    <!-- External Document Modal (Global check needed or move to parent?) -->
-    <!-- Ideally, this modal should be at the page level, but for now we keep it here or handle it via event -->
   </div>
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, useId, isReadonly } from 'vue';
 import { useDocumentStore } from '@/stores/documentStore';
 import { useDocumentGroups } from '@/composables/useDocumentGroups.js';
 
@@ -93,10 +130,9 @@ const props = defineProps({
     default: 'Document'
   },
   side: {
-    type: String, // 'left' or 'right'
+    type: String,
     default: 'left'
   },
-  // NEW: Props for dual framework edit/view separation
   viewedDoc: {
     type: Object,
     default: null
@@ -104,17 +140,23 @@ const props = defineProps({
   isViewingDifferentFramework: {
     type: Boolean,
     default: false
+  },
+  hideExternal: {
+    type: Boolean,
+    default: false
+  },
+  compact: {
+    type: Boolean,
+    default: false
   }
 });
 
-// Use the document store
 const documentStore = useDocumentStore();
-
-// Grouped documents using shared composable
-const allDocuments = computed(() => documentStore.documents);
+const allDocuments = computed(() =>
+  props.availableDocuments?.length ? props.availableDocuments : documentStore.documents,
+);
 const { groupedDocuments } = useDocumentGroups(allDocuments);
 
-// NEW: Changed from 'document-changed' to 'viewed-document-changed' for dual framework edit/view separation
 const emit = defineEmits(['viewed-document-changed', 'external-document-requested']);
 
 const selectedDoc = ref('');
@@ -123,9 +165,15 @@ function getDocumentId(document) {
   return document?.identifier || document?.id || '';
 }
 
+// Unique per-instance suffix so co-rendered selectors never collide on id
+const instanceId = useId();
+const selectorId = computed(() => `documentSelector-${props.side}-${instanceId}`);
+
 watch(() => props.currentDoc, (newDoc) => {
+  // Don't clobber an active viewed-framework selection when the edited doc updates
+  if (getDocumentId(props.viewedDoc)) return;
   selectedDoc.value = getDocumentId(newDoc);
-  if (selectedDoc.value) {
+  if (!props.compact && selectedDoc.value) {
     emit('viewed-document-changed', {
       side: props.side,
       documentId: selectedDoc.value
@@ -133,26 +181,23 @@ watch(() => props.currentDoc, (newDoc) => {
   }
 }, { immediate: true });
 
-// NEW: Watch for viewed document changes to update selection
 watch(() => props.viewedDoc, (newViewedDoc) => {
   const viewedDocumentId = getDocumentId(newViewedDoc);
   if (viewedDocumentId) {
     selectedDoc.value = viewedDocumentId;
+  } else {
+    // Falling back to the edited framework keeps the dropdown in sync
+    selectedDoc.value = getDocumentId(props.currentDoc);
   }
-});
+}, { immediate: true });
 
 function onDocumentChange() {
   const selectedValue = selectedDoc.value;
 
   if (selectedValue === 'external') {
-    // Emit event to request external document loading UI
     emit('external-document-requested', { side: props.side });
-
-    // Reset selection
     selectedDoc.value = getDocumentId(props.currentDoc);
   } else if (selectedValue) {
-    // NEW: Emit 'viewed-document-changed' instead of 'document-changed'
-    // This supports the dual framework edit/view separation feature
     emit('viewed-document-changed', {
       side: props.side,
       documentId: selectedValue
@@ -166,9 +211,6 @@ function changeDocument() {
 </script>
 
 <style scoped>
-.document-selector {
-  /* margin-bottom: 1rem; */
-}
 .card-header {
   padding: 0.5rem 1rem;
 }

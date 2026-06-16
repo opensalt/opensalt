@@ -217,44 +217,32 @@ const externalFrameworkTitle = computed(() => {
 // ---------------------------------------------------------------------------
 // Read-only / edit permission
 // ---------------------------------------------------------------------------
-const isReadOnly = computed(() => {
-  // Document is read-only if it's not the active write document or user is not authenticated
-  const docId = props.currentDocument?.identifier;
-  const result = !docId || !contextStore.isEditable(docId) || !sessionStore.isAuthenticated;
-  return result;
-});
-const isAdopted = computed(() => props.currentDocument?.adoptionStatus === 'Adopted');
-const canEditItem = computed(() => {
-  if (isReadOnly.value) return false;
-  if (!props.item) return false;
-  const result = contextStore.isEditable(props.item.identifier);
-  return result;
-});
-
-const canManageAssociationActions = computed(() => {
-  if (!sessionStore.isAuthenticated) return false;
-
-  const activeDocumentId =
-    contextStore.activeWriteDocumentId ||
-    props.currentDocument?.identifier ||
-    props.currentDocument?.id ||
-    null;
-
-  if (!activeDocumentId) return false;
-  return contextStore.isEditable(activeDocumentId);
-});
-
 const isViewingDifferentFramework = computed(() => contextStore.isViewingDifferentFramework);
+
+const isItemFromViewedFramework = computed(() => {
+  if (!isViewingDifferentFramework.value) return false;
+
+  const itemDocId = props.item?.documentId || props.item?.CFDocumentURI?.identifier;
+  return itemDocId === contextStore.viewedDocumentId;
+});
+
+const canEditItem = computed(() => {
+  if (!sessionStore.isAuthenticated) return false;
+  if (!contextStore.canEdit) return false;
+  if (!props.item) return false;
+
+  return contextStore.isEditable(props.item.identifier);
+});
+
+const isReadOnly = computed(() => !canEditItem.value);
+
+const canManageAssociationActions = computed(() => canEditItem.value);
+
+const isAdopted = computed(() => props.currentDocument?.adoptionStatus === 'Adopted');
 
 const viewedDoc = computed(() => {
   if (!contextStore.viewedDocumentId) return null;
   return contextStore.documentRegistry.get(contextStore.viewedDocumentId);
-});
-
-const isItemFromViewedFramework = computed(() => {
-  if (!isViewingDifferentFramework.value) return false;
-  const itemDocId = props.item?.documentId || props.item?.CFDocumentURI?.identifier;
-  return itemDocId === contextStore.viewedDocumentId;
 });
 
 function handleDropdownClick(type) {

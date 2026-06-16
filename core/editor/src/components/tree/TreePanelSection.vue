@@ -5,21 +5,30 @@
     aria-labelledby="tree-heading"
   >
     <h2
+      v-if="isViewingDifferentFramework"
       id="tree-heading"
       class="visually-hidden"
     >
-      Document Tree
+      Viewed framework tree. Read-only.
+    </h2>
+    <h2
+      v-else
+      id="tree-heading"
+      class="visually-hidden"
+    >
+      Edited framework tree.
     </h2>
 
-    <!-- Document Selector -->
     <DocumentSelector
-      v-if="false /* Removed for now */"
+      v-if="canSwitchViewedFramework"
       :current-doc="currentDoc"
       :available-documents="availableDocuments"
       :viewed-doc="viewedDoc"
       :is-viewing-different-framework="isViewingDifferentFramework"
+      :side="'treeView'"
+      :hide-external="true"
+      :compact="true"
       @viewed-document-changed="onViewedDocumentChanged"
-      @external-document-requested="onExternalDocumentRequested"
     />
 
     <!-- Tree Filter -->
@@ -54,6 +63,7 @@
         :matching-item-ids="matchingItemIds"
         :is-view-mode="isViewingDifferentFramework"
         :is-viewing-different-framework="isViewingDifferentFramework"
+        :disable-drop="isViewingDifferentFramework"
         @select="onSelect"
         @dblclick="onDblClick"
         @tree-change="onTreeChange"
@@ -88,6 +98,11 @@ const props = defineProps({
   filteredDoc: {
     type: Object,
     required: true
+  },
+
+  filteredViewedDoc: {
+    type: Object,
+    default: null
   },
 
   /**
@@ -152,6 +167,11 @@ const props = defineProps({
   availableSubjects: {
     type: Array,
     default: () => []
+  },
+
+  canSwitchViewedFramework: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -159,7 +179,6 @@ const props = defineProps({
 // NEW: Changed 'document-changed' to 'viewed-document-changed' for dual framework edit/view separation
 const emit = defineEmits([
   'viewed-document-changed',
-  'external-document-requested',
   'select',
   'dblclick',
   'tree-change',
@@ -183,7 +202,7 @@ const { viewedDoc, isViewingDifferentFramework } = useViewedDoc({ transformItems
 // When viewing a different framework, use viewed document; otherwise use filtered document
 const displayedDoc = computed(() => {
   if (isViewingDifferentFramework.value && viewedDoc.value) {
-    return viewedDoc.value;
+    return props.filteredViewedDoc || viewedDoc.value;
   }
   return props.filteredDoc;
 });
@@ -197,10 +216,6 @@ const selectedAssociationGroupModel = computed({
 // NEW: Changed to emit 'viewed-document-changed' for dual framework edit/view separation
 function onViewedDocumentChanged(event) {
   emit('viewed-document-changed', event);
-}
-
-function onExternalDocumentRequested() {
-  emit('external-document-requested');
 }
 
 function onSelect(id) {
