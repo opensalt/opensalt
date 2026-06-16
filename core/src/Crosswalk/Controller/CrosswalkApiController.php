@@ -99,8 +99,6 @@ class CrosswalkApiController extends AbstractController
         $item = $this->entityManager->getRepository(LsItem::class)->findOneBy(['identifier' => $itemIdentifier]);
         $framework = $this->entityManager->getRepository(LsDoc::class)->findOneBy(['identifier' => $frameworkIdentifier]);
 
-        $this->denyAccessUnlessGranted(Permission::FRAMEWORK_EDIT, $framework);
-
         if (!$item || !$framework) {
             return new JsonResponse(['error' => 'Item or framework not found'], 404);
         }
