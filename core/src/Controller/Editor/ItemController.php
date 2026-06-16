@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Editor;
 
+use App\Attribute\ReadOnlySession;
 use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\AddItemCommand;
 use App\Command\Framework\CopyItemToDocCommand;
@@ -202,6 +203,7 @@ class ItemController extends AbstractController
     }
 
     #[Route(path: '/item/{identifier}/details', name: 'editor_item_details', methods: ['GET'])]
+    #[ReadOnlySession]
     public function getItemDetails(
         #[MapEntity(mapping: ['identifier' => 'identifier'])] LsItem $lsItem,
     ): Response {

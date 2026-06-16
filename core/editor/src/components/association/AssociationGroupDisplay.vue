@@ -21,9 +21,12 @@
       </h6>
     </div>
 
-    <div class="association-group-items">
+    <div
+      ref="scrollEl"
+      class="association-group-items"
+    >
       <AssociationItem
-        v-for="assoc in associations"
+        v-for="assoc in visibleAssociations"
         :key="assoc.identifier || assoc.id"
         :association="assoc"
         :association-groups="associationGroups"
@@ -33,15 +36,28 @@
         @edit="!isReadOnly ? $emit('edit-association', $event) : null"
         @delete="!isReadOnly ? $emit('delete-association', $event) : null"
       />
+      <!-- Sentinel: when it scrolls into view, reveal another batch -->
+      <div
+        v-if="hasMore"
+        ref="sentinelEl"
+        class="infinite-sentinel"
+        aria-hidden="true"
+      />
+      <small
+        v-if="hasMore"
+        class="text-muted d-block text-center pt-1"
+      >Showing {{ visibleAssociations.length }} of {{ associations.length }}</small>
     </div>
   </div>
 </template>
 
 <script setup>
+import { computed, ref, watch, onMounted } from 'vue';
 import AssociationItem from './AssociationItem.vue';
 import { formatAssociationType, getAssociationIcon } from '../../utils/associationHelpers.js';
+import { useInfiniteList } from '../../composables/useInfiniteList.js';
 
-const _props = defineProps({
+const props = defineProps({
   associationType: {
     type: String,
     required: true
@@ -73,7 +89,37 @@ const _emit = defineEmits([
   'delete-association'
 ]);
 
+// Incremental mounting: only render associations as they scroll into view, so a
+// group with many associations doesn't mount (and fetch) hundreds of rows at once.
+const pageSize = 10;
+const scrollEl = ref(null);
+const sentinelEl = ref(null);
 
+const { visibleCount, bindSentinel, reset } = useInfiniteList(
+  () => props.associations.length,
+  { containerRef: scrollEl, pageSize }
+);
+
+const visibleAssociations = computed(() => props.associations.slice(0, visibleCount.value));
+const hasMore = computed(() => visibleCount.value < props.associations.length);
+
+// If the list is replaced in place (e.g. filters change), restart pagination.
+watch(() => props.associations, () => {
+  reset();
+});
+
+// Bind/re-bind the sentinel whenever it (re)appears.
+onMounted(() => {
+  if (sentinelEl.value) {
+    bindSentinel(sentinelEl.value);
+  }
+});
+
+watch([sentinelEl, hasMore], () => {
+  if (sentinelEl.value) {
+    bindSentinel(sentinelEl.value);
+  }
+}, { flush: 'post' });
 </script>
 
 <style scoped>
@@ -100,6 +146,10 @@ const _emit = defineEmits([
   padding: 0.5rem;
   max-height: 300px;
   overflow-y: auto;
+}
+
+.infinite-sentinel {
+  height: 1px;
 }
 
 .association-group-items:deep(.association-item) {

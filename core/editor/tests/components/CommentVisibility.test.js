@@ -22,6 +22,16 @@ vi.mock('@/config/editorConfig.js', () => ({
   },
 }));
 
+vi.mock('@/utils/render-md.js', () => ({
+  default: {
+    block: vi.fn((value) => value),
+  },
+}));
+
+vi.mock('@/utils/markdownRenderer.js', () => ({
+  hasMarkdown: vi.fn(() => false),
+}));
+
 vi.mock('@/stores/sessionStore', () => ({
   useSessionStore: vi.fn(() => mockSessionStore),
 }));
