@@ -6,7 +6,7 @@ namespace Tests\Unit\App\Crosswalk\Entity;
 
 use App\Crosswalk\Entity\CrosswalkJob;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Uid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 
 final class CrosswalkJobTest extends TestCase
 {
@@ -18,7 +18,7 @@ final class CrosswalkJobTest extends TestCase
             crosswalkFrameworkId: 156,
         );
 
-        $this->assertInstanceOf(Uuid::class, $job->id);
+        $this->assertInstanceOf(UuidInterface::class, $job->id);
         $this->assertSame('queued', $job->status);
         $this->assertSame(0.75, $job->threshold);
         $this->assertSame(0.90, $job->exactMatchThreshold);

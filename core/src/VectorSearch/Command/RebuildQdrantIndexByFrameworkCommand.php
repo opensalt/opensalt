@@ -233,7 +233,7 @@ EOF
             $io->text(sprintf('  Framework %d complete: %d items processed.', $fwId, $frameworkImported));
 
             // Free memory between frameworks
-            unset($rows, $payloadRows, $chunks, $vectors);
+            unset($rows, $chunks);
             gc_collect_cycles();
         }
 

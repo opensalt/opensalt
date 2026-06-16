@@ -19,6 +19,20 @@ readonly class HybridQdrantStore
     private const DEFAULT_BATCH_SIZE = 250;
     private const UPSERT_BATCH_SIZE = 50;
 
+    /**
+     * Payload fields that should be indexed. These are exactly the fields used
+     * by {@see buildFilter()} for filtered searches and exact counts. Without a
+     * payload index, Qdrant must scan every (on-disk) payload to evaluate a
+     * filter; with the index, filtered counts/searches are served from the index.
+     *
+     * @var array<string, string> field name => Qdrant field schema
+     */
+    private const PAYLOAD_INDICES = [
+        'framework_id' => 'integer',
+        'is_leaf_node' => 'bool',
+        'kind' => 'integer',
+    ];
+
     public function __construct(
         private HttpClientInterface $httpClient,
         private LoggerInterface $logger,
@@ -682,6 +696,86 @@ readonly class HybridQdrantStore
             ],
             'on_disk_payload' => true,
         ]);
+
+        // Create payload indices so filtered searches and exact counts are fast.
+        // On a freshly created (empty) collection this is instantaneous.
+        $this->createPayloadIndices($collectionName);
+    }
+
+    /**
+     * Ensure that all filterable payload fields ({@see PAYLOAD_INDICES}) have an
+     * index on the active (or given) collection. This is idempotent: Qdrant
+     * returns success when an index already exists. Use it to backfill indices
+     * on collections that were created before payload indices were configured,
+     * or after importing data into a collection created via another path.
+     *
+     * Index creation is requested without `wait`, so the call returns
+     * immediately and Qdrant builds the index in the background for any
+     * existing points. For empty collections (e.g. right after creation) the
+     * index is available immediately.
+     *
+     * @return list<string> the field names for which an index was ensured
+     */
+    public function ensurePayloadIndices(?string $collectionName = null): array
+    {
+        $collectionName ??= $this->getResolvedActiveCollectionName()
+            ?? $this->getActiveCollectionReference();
+
+        $ensured = [];
+        foreach (self::PAYLOAD_INDICES as $fieldName => $fieldSchema) {
+            $this->createPayloadIndex($collectionName, $fieldName, $fieldSchema);
+            $ensured[] = $fieldName;
+        }
+
+        return $ensured;
+    }
+
+    private function createPayloadIndices(string $collectionName): void
+    {
+        foreach (self::PAYLOAD_INDICES as $fieldName => $fieldSchema) {
+            $this->createPayloadIndex($collectionName, $fieldName, $fieldSchema);
+        }
+    }
+
+    private function createPayloadIndex(string $collectionName, string $fieldName, string $fieldSchema): void
+    {
+        $this->request(
+            'PUT',
+            sprintf('/collections/%s/index', rawurlencode($collectionName)),
+            [
+                'field_name' => $fieldName,
+                'field_schema' => $fieldSchema,
+            ],
+            true
+        );
+    }
+
+    /**
+     * Count how many of the expected payload indices ({@see PAYLOAD_INDICES})
+     * are present on the given collection. Used to poll index build progress.
+     */
+    public function countIndexedPayloadFields(string $collectionName): int
+    {
+        $response = $this->request(
+            'GET',
+            sprintf('/collections/%s', rawurlencode($collectionName)),
+            null,
+            true
+        );
+
+        $schema = $response['result']['payload_schema'] ?? [];
+        if (!is_array($schema)) {
+            return 0;
+        }
+
+        $present = 0;
+        foreach (array_keys(self::PAYLOAD_INDICES) as $fieldName) {
+            if (isset($schema[$fieldName]) && is_array($schema[$fieldName])) {
+                ++$present;
+            }
+        }
+
+        return $present;
     }
 
     /**

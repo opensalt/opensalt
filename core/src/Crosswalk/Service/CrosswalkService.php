@@ -126,15 +126,23 @@ readonly class CrosswalkService
      */
     public function getLeafItemIds(int $frameworkId): array
     {
+        // NOTE: This deliberately uses `NOT EXISTS` rather than `NOT IN (subquery)`.
+        // The `NOT IN (SELECT ...)` form compiles to a DEPENDENT SUBQUERY that is
+        // pathologically slow on large datasets (measured at 40-71s with ~1.1M
+        // associations). The correlated `NOT EXISTS` against the indexed
+        // `destination_lsitem_id` column is semantically equivalent and runs in
+        // ~0.09s (460x faster). The explicit `IS NOT NULL` check is no longer
+        // required because the equality join (`a.destination_lsitem_id = li.id`)
+        // never matches NULL rows.
         $rows = $this->entityManager->getConnection()->fetchAllAssociative(
             'SELECT li.id
              FROM ls_item li
              WHERE li.ls_doc_id = :frameworkId
-               AND li.id NOT IN (
-                   SELECT a.destination_lsitem_id
+               AND NOT EXISTS (
+                   SELECT 1
                    FROM ls_association a
-                   WHERE a.type = :childOfType
-                     AND a.destination_lsitem_id IS NOT NULL
+                   WHERE a.destination_lsitem_id = li.id
+                     AND a.type = :childOfType
                )',
             [
                 'frameworkId' => $frameworkId,

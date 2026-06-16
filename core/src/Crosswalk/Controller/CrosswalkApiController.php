@@ -32,6 +32,7 @@ class CrosswalkApiController extends AbstractController
     }
 
     #[Route('/api/vector-search/crosswalk/estimate', name: 'api_crosswalk_estimate', methods: ['GET'])]
+    #[ReadOnlySession]
     public function estimate(Request $request): JsonResponse
     {
         $originIdentifier = $request->query->get('origin');
