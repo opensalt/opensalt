@@ -1,7 +1,10 @@
 <template>
   <div
     class="association-item d-flex justify-content-between align-items-center p-2 border rounded"
-    :class="{ 'cross-framework-assoc': isAssociationFromDifferentDisplayedFramework }"
+    :class="{
+      'cross-framework-assoc': isAssociationFromDifferentDisplayedFramework,
+      'crosswalk-owned-assoc': isCrosswalkOwnedAssociation
+    }"
     :data-identifier="association.identifier"
   >
     <div class="association-info flex-grow-1">
@@ -248,6 +251,14 @@ const {
   direction: toRef(props, 'direction')
 });
 
+// Check if this association is owned by the displayed framework (crosswalk's own association)
+const isCrosswalkOwnedAssociation = computed(() => {
+  const displayedId = displayedFrameworkId.value;
+  if (!displayedId) return false;
+  const assocDocId = props.association?._sourceFrameworkId || props.association?.associationDocumentIdentifier;
+  return assocDocId === displayedId;
+});
+
 // Determine if association is reversed (item is destination, not origin)
 const isReversed = computed(() => {
     return props.direction === 'reversed';
@@ -384,6 +395,17 @@ watch(
 
 .cross-framework-assoc:hover {
   background-color: #f5f5c0;
+}
+
+/* Crosswalk-owned association — subtle left border accent */
+.crosswalk-owned-assoc {
+  border-left: 3px solid #6f42c1 !important;
+}
+
+/* When both cross-framework and crosswalk-owned apply, keep both indicators */
+.cross-framework-assoc.crosswalk-owned-assoc {
+  background-color: #ffffdd;
+  border-color: #e6e6a8 #e6e6a8 #e6e6a8 #6f42c1 !important;
 }
 
 .association-info {

@@ -148,6 +148,22 @@ export function useAssociationList({ mode, item = null, displayItem: _displayIte
       grouped[key].associations.push(enriched);
     });
 
+    // Sort associations within each group: the displayed framework's own
+    // associations first, then others. This surfaces crosswalk-owned
+    // associations at the top of each group.
+    for (const key of Object.keys(grouped)) {
+      const group = grouped[key];
+      if (!group.associations || group.associations.length <= 1) continue;
+      const displayedId = displayedFrameworkId.value;
+      if (!displayedId) continue;
+
+      group.associations.sort((a, b) => {
+        const aIsOwned = (a._sourceFrameworkId || a.associationDocumentIdentifier) === displayedId ? 0 : 1;
+        const bIsOwned = (b._sourceFrameworkId || b.associationDocumentIdentifier) === displayedId ? 0 : 1;
+        return aIsOwned - bIsOwned;
+      });
+    }
+
     return Object.values(grouped);
   }
 

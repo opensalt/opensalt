@@ -60,6 +60,7 @@
         :selected-association-group="selectedAssociationGroupValue"
         :available-subjects="availableSubjects"
         :can-switch-viewed-framework="canSwitchViewedFramework"
+        :related-framework-ids="relatedFrameworkIds"
         @viewed-document-changed="onViewedDocumentChanged"
         @select="onSelect"
         @dblclick="onDblClick"
@@ -492,6 +493,12 @@ const associationGroups = computed(() => currentDocumentStore.associationGroups)
 const selectedAssociationGroupValue = computed({
   get: () => filterStore.selectedAssociationGroup,
   set: (value) => filterStore.setSelectedAssociationGroup(value),
+});
+
+// Crosswalk: identify frameworks referenced by this framework's associations
+const relatedFrameworkIds = computed(() => {
+  const ids = currentDocumentStore.identifyAssociatedFrameworks();
+  return new Set(ids);
 });
 
 // ---------------------------------------------------------------------------

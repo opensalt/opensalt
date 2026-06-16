@@ -253,6 +253,21 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
 
     currentDocumentTree.value = response.tree || [];
 
+    // Fetch framework associations for the current document so that
+    // identifyAssociatedFrameworks() can use them to discover related frameworks.
+    if (documentIdentifier) {
+      fetchFrameworkAssociations(documentIdentifier).then(associations => {
+        // Guard: only apply if the document is still the current one
+        if (contextStore.activeWriteDocumentId === documentIdentifier) {
+          currentDocumentAssociations.value = associations;
+        }
+      }).catch(() => {
+        if (contextStore.activeWriteDocumentId === documentIdentifier) {
+          currentDocumentAssociations.value = [];
+        }
+      });
+    }
+
     function registerForeignDocs(nodes: TreeNode[]) {
       for (const node of nodes) {
         if (node.isCrossFramework && node.documentIdentifier && !contextStore.documentRegistry.has(node.documentIdentifier)) {
@@ -317,6 +332,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     currentDocumentRubrics.value = [];
     currentDocumentAssociationGroupings.value = [];
     currentDocumentTree.value = [];
+    currentDocumentAssociations.value = [];
     contextStore.viewedDocumentId = null;
 
     if (prevDocId) {
@@ -789,7 +805,38 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
   }
 
   function identifyAssociatedFrameworks(): UUID[] {
-    return [];
+    const extensions = currentDocument.value?.extensions;
+    if (extensions && typeof extensions === 'object') {
+      const related = extensions['salt:relatedFrameworks'];
+      if (Array.isArray(related) && related.length > 0) {
+        return related.filter(id => typeof id === 'string' && id.length > 0);
+      }
+    }
+
+    const associations = currentDocumentAssociations.value;
+    if (!Array.isArray(associations) || associations.length === 0) return [];
+
+    const currentFrameworkId = currentDocument.value?.identifier;
+    if (!currentFrameworkId) return [];
+
+    const relatedIds = new Set<string>();
+
+    for (const assoc of associations) {
+      const assocDocId = assoc.associationDocumentIdentifier || null;
+      if (assocDocId && assocDocId !== currentFrameworkId) continue;
+
+      const originDocId = assoc.originNodeURI?.documentIdentifier;
+      if (originDocId && originDocId !== currentFrameworkId) {
+        relatedIds.add(originDocId);
+      }
+
+      const destDocId = assoc.destinationNodeURI?.documentIdentifier;
+      if (destDocId && destDocId !== currentFrameworkId) {
+        relatedIds.add(destDocId);
+      }
+    }
+
+    return Array.from(relatedIds);
   }
 
   function setHighPriorityForAssociatedFrameworks() {
@@ -880,6 +927,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     updateDocument,
     deleteDocument,
     updateAssociation,
+    identifyAssociatedFrameworks,
     currentItem: computed(() => viewStore.currentItem),
     setSelectedItem,
     draggedItem: computed(() => viewStore.draggedItem),

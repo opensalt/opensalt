@@ -28,6 +28,7 @@
       :side="'treeView'"
       :hide-external="true"
       :compact="true"
+      :related-framework-ids="relatedFrameworkIds"
       @viewed-document-changed="onViewedDocumentChanged"
     />
 
@@ -172,6 +173,16 @@ const props = defineProps({
   canSwitchViewedFramework: {
     type: Boolean,
     default: false
+  },
+
+  /**
+   * Set of framework identifiers that are referenced by the current crosswalk
+   * framework's associations. When shown in the document selector, these
+   * frameworks are grouped at the top under "Mapped Frameworks".
+   */
+  relatedFrameworkIds: {
+    type: Set,
+    default: () => new Set()
   }
 });
 

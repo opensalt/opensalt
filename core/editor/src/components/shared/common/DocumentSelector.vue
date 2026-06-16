@@ -47,7 +47,22 @@
           @change="onDocumentChange"
         >
           <optgroup
-            v-for="group in groupedDocuments"
+            v-if="mappedFrameworks.length > 0"
+            label="Mapped Frameworks"
+          >
+            <option
+              v-for="doc in mappedFrameworks"
+              :key="doc.identifier"
+              :value="doc.identifier"
+              :class="doc.identifier === (currentDoc?.identifier || currentDoc?.id) ? 'text-primary fw-semibold' : ''"
+            >
+              {{ doc.identifier === (currentDoc?.identifier || currentDoc?.id) ? 'Main framework - ' : '' }}
+              {{ doc.title || 'Unknown Name' }} ({{ doc.identifier || 'No Identifier' }})
+              {{ (doc.identifier === selectedDoc && isViewingDifferentFramework) ? ' - Read-only' : '' }}
+            </option>
+          </optgroup>
+          <optgroup
+            v-for="group in otherGroupedDocuments"
             :key="group.creator"
             :label="group.creator"
           >
@@ -76,7 +91,21 @@
           Select a document...
         </option>
         <optgroup
-          v-for="group in groupedDocuments"
+          v-if="mappedFrameworks.length > 0"
+          label="Mapped Frameworks"
+        >
+          <option
+            v-for="doc in mappedFrameworks"
+            :key="doc.identifier"
+            :value="doc.identifier"
+            :class="doc.identifier === (currentDoc?.identifier || currentDoc?.id) ? 'text-primary fw-semibold' : ''"
+          >
+            {{ doc.identifier === (currentDoc?.identifier || currentDoc?.id) ? 'Main Document - ' : '' }}
+            {{ doc.title || 'Unknown Name' }} ({{ doc.identifier || 'No Identifier' }})
+          </option>
+        </optgroup>
+        <optgroup
+          v-for="group in otherGroupedDocuments"
           :key="group.creator"
           :label="group.creator"
         >
@@ -112,7 +141,7 @@
 </template>
 
 <script setup>
-import { ref, watch, computed, useId, isReadonly } from 'vue';
+import { ref, watch, computed, useId } from 'vue';
 import { useDocumentStore } from '@/stores/documentStore';
 import { useDocumentGroups } from '@/composables/useDocumentGroups.js';
 
@@ -148,6 +177,15 @@ const props = defineProps({
   compact: {
     type: Boolean,
     default: false
+  },
+  /**
+   * Set of framework identifiers that are referenced by the current crosswalk
+   * framework's associations. When non-empty, these frameworks are shown in a
+   * "Mapped Frameworks" optgroup at the top of the selector.
+   */
+  relatedFrameworkIds: {
+    type: Set,
+    default: () => new Set()
   }
 });
 
@@ -155,7 +193,24 @@ const documentStore = useDocumentStore();
 const allDocuments = computed(() =>
   props.availableDocuments?.length ? props.availableDocuments : documentStore.documents,
 );
-const { groupedDocuments } = useDocumentGroups(allDocuments);
+
+// Split documents into "mapped" (related to crosswalk) and "other" groups
+const mappedFrameworks = computed(() => {
+  if (props.relatedFrameworkIds.size === 0) return [];
+  const docs = allDocuments.value.filter(doc =>
+    props.relatedFrameworkIds.has(doc.identifier)
+  );
+  return docs.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+});
+
+const otherDocuments = computed(() => {
+  if (props.relatedFrameworkIds.size === 0) return allDocuments.value;
+  return allDocuments.value.filter(doc =>
+    !props.relatedFrameworkIds.has(doc.identifier)
+  );
+});
+
+const { groupedDocuments: otherGroupedDocuments } = useDocumentGroups(otherDocuments);
 
 const emit = defineEmits(['viewed-document-changed', 'external-document-requested']);
 
