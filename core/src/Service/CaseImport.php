@@ -62,8 +62,12 @@ class CaseImport
      */
     private function normalizeContent(string $content): string
     {
-        $data = json5_decode($content, true);
-        $data = Collection::removeEmptyElements($data, ['']);
+        // Decode with objects preserved (assoc=false) so empty JSON objects such as
+        // "extensions": {} round-trip back to {} instead of becoming [] (which would
+        // fail schema validation for object-typed fields like Extensions).
+        $data = json5_decode($content, false);
+        $data = Collection::removeEmptyStrings($data);
+        $data = Collection::stripUnsupportedExtensions($data);
 
         return json_encode($data, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
     }

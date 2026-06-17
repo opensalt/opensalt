@@ -39,9 +39,13 @@ class MirrorFramework
     public function validate(string $json): void
     {
         try {
-            // Remove keys with empty string values so optional fields are treated as absent
-            $data = json5_decode($json, true);
-            $data = Collection::removeEmptyElements($data, ['']);
+            // Remove keys with empty string values so optional fields are treated as absent.
+            // Decode with objects preserved (assoc=false) so empty JSON objects such as
+            // "extensions": {} round-trip back to {} instead of becoming [] (which would
+            // fail schema validation for object-typed fields like Extensions).
+            $data = json5_decode($json, false);
+            $data = Collection::removeEmptyStrings($data);
+            $data = Collection::stripUnsupportedExtensions($data);
             $json = json_encode($data, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
 
             $this->schemaProvider->getCaseV1p1Schema()->in(json5_decode($json));
