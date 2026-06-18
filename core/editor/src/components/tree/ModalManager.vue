@@ -114,6 +114,14 @@
       @confirmed="onCloneFrameworkConfirmed"
       @hidden="onCloneFrameworkModalHidden"
     />
+
+    <!-- JSON Viewer Modal -->
+    <JsonViewerModal
+      :show="showJsonViewerModal"
+      :json-type="jsonViewerObject?.type"
+      :json-identifier="jsonViewerObject?.identifier"
+      @hidden="onJsonViewerModalHidden"
+    />
   </div>
 </template>
 
@@ -134,6 +142,7 @@ const LoadExternalDocumentModal = defineAsyncComponent(() => import('./modals/Lo
 const UpdateFrameworkModal = defineAsyncComponent(() => import('./modals/UpdateFrameworkModal.vue'));
 const ExportModal = defineAsyncComponent(() => import('./modals/ExportModal.vue'));
 const CloneFrameworkModal = defineAsyncComponent(() => import('./modals/CloneFrameworkModal.vue'));
+const JsonViewerModal = defineAsyncComponent(() => import('./modals/JsonViewerModal.vue'));
 const DeleteAssociationModal = defineAsyncComponent(() => import('../association/DeleteAssociationModal.vue'));
 
 // Props
@@ -226,6 +235,14 @@ const _props = defineProps({
   showCloneFrameworkModal: {
     type: Boolean,
     default: false
+  },
+  showJsonViewerModal: {
+    type: Boolean,
+    default: false
+  },
+  jsonViewerObject: {
+    type: Object,
+    default: null
   },
 
   // Modal data
@@ -333,6 +350,7 @@ const emit = defineEmits([
   // Clone Framework modal events
   'clone-framework-confirmed',
   'clone-framework-modal-hidden',
+  'json-viewer-modal-hidden',
 
   // Dynamic edit modal events
   'dynamic-edit-updated',
@@ -447,6 +465,10 @@ function onCloneFrameworkConfirmed() {
 
 function onCloneFrameworkModalHidden() {
   emit('clone-framework-modal-hidden');
+}
+
+function onJsonViewerModalHidden() {
+  emit('json-viewer-modal-hidden');
 }
 </script>
 

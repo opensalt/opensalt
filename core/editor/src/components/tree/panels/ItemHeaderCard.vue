@@ -54,6 +54,7 @@
             />
           </button>
         </div>
+        <slot name="header-actions-end" />
       </div>
     </div>
 

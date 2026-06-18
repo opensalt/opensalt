@@ -61,8 +61,22 @@
           :is-read-only="isReadOnly"
         />
       </template>
+      <template #header-actions-end>
+        <!-- View JSON button -->
+        <button
+          type="button"
+          class="btn btn-outline-secondary btn-sm"
+          title="View JSON"
+          aria-label="View JSON"
+          @click="$emit('view-json', { type: 'item', identifier: displayItem.identifier })"
+        >
+          <i
+            class="bi bi-code-slash"
+            aria-hidden="true"
+          />
+        </button>
+      </template>
     </ItemHeaderCard>
-
 
     <!-- Associations card -->
     <ItemAssociationsCard
@@ -148,6 +162,7 @@ const emit = defineEmits([
   'edit-association',
   'delete-association',
   'update-item',
+  'view-json',
 ]);
 
 // ---------------------------------------------------------------------------
@@ -351,6 +366,7 @@ const licenseName = computed(() => {
   if (licenseDef?.title) return licenseDef.title;
   return displayItem.value.licenseURI.uri || displayItem.value.licenseURI.identifier;
 });
+
 </script>
 
 <style scoped>

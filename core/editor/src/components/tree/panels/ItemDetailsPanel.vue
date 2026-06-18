@@ -20,6 +20,7 @@
       @edit-association="$emit('edit-association', $event)"
       @delete-association="$emit('delete-association', $event)"
       @add-association="$emit('add-association', $event)"
+      @view-json="$emit('view-json', $event)"
     />
 
     <!-- No Document Loaded -->
@@ -48,6 +49,7 @@
       @edit-association="$emit('edit-association', $event)"
       @delete-association="$emit('delete-association', $event)"
       @update-item="$emit('update-item', $event)"
+      @view-json="$emit('view-json', $event)"
     />
   </section>
 </template>
@@ -88,7 +90,8 @@ const _emit = defineEmits([
   'manage-association-groups',
   'update-framework',
   'export-document',
-  'clone-framework'
+  'clone-framework',
+  'view-json'
 ]);
 
 const contextStore = useEditorContextStore();

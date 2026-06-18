@@ -105,6 +105,7 @@
           @update-framework="showUpdateFrameworkModal = true"
           @export-document="showExportModal = true"
           @clone-framework="onCloneFramework"
+          @view-json="onViewJson"
           @side-document-select="onSideDocumentSelect"
           @external-document-requested="onExternalDocumentRequested"
           @side-select="onSideSelect"
@@ -144,6 +145,8 @@
       :show-update-framework-modal="showUpdateFrameworkModal"
       :show-export-modal="showExportModal"
       :show-clone-framework-modal="showCloneFrameworkModal"
+      :show-json-viewer-modal="showJsonViewerModal"
+      :json-viewer-object="jsonViewerObject"
       :show-delete-association-modal="showDeleteAssociationModal"
       :association-to-delete="associationToDelete"
       :clone-framework-title="cloneFrameworkTitle"
@@ -182,6 +185,7 @@
       @export-modal-hidden="showExportModal = false"
       @clone-framework-confirmed="onCloneFrameworkConfirmed"
       @clone-framework-modal-hidden="showCloneFrameworkModal = false"
+      @json-viewer-modal-hidden="onJsonViewerModalHidden"
       @delete-association-confirmed="onDeleteAssociationConfirmed"
       @delete-association-modal-hidden="showDeleteAssociationModal = false"
       @dynamic-edit-updated="handleUpdated"
@@ -411,6 +415,15 @@ const {
   availableTypes
 );
 const modalState = useModalState();
+const { showJsonViewerModal, jsonViewerObject, openJsonViewerModal } = modalState;
+
+function onViewJson(obj) {
+  openJsonViewerModal(obj);
+}
+
+function onJsonViewerModalHidden() {
+  showJsonViewerModal.value = false;
+}
 const {
   showEditDocModal,
   showEditAssociationModal,

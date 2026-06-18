@@ -15,45 +15,64 @@
           >
           Document Details
         </h5>
-        <div
-          v-if="!isReadOnly"
-          class="btn-group btn-group-sm"
-        >
-          <button
-            type="button"
-            class="btn btn-outline-primary"
-            title="Edit document"
-            aria-label="Edit document"
-            data-bs-target="#editDocModal"
-            @click="$emit('edit-document')"
+        <div class="d-flex align-items-center gap-2">
+          <!-- Edit and Delete buttons (only when not read-only) -->
+          <div
+            v-if="!isReadOnly"
+            class="btn-group btn-group-sm"
+          >
+            <button
+              type="button"
+              class="btn btn-outline-primary"
+              title="Edit document"
+              aria-label="Edit document"
+              data-bs-target="#editDocModal"
+              @click="$emit('edit-document')"
+            >
+              <i
+                class="bi bi-pencil"
+                aria-hidden="true"
+              />
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-danger"
+              title="Delete document"
+              aria-label="Delete document"
+              @click="$emit('delete-document')"
+            >
+              <i
+                class="bi bi-trash"
+                aria-hidden="true"
+              />
+            </button>
+          </div>
+
+          <!-- Read-only indicator (when read-only) -->
+          <div
+            v-else
+            class="text-muted small"
+            title="Document is read-only"
           >
             <i
-              class="bi bi-pencil"
+              class="bi bi-lock-fill"
+              aria-hidden="true"
+            /> Read-only
+          </div>
+
+          <!-- View JSON button (always visible) -->
+          <button
+            type="button"
+            class="btn btn-outline-secondary btn-sm"
+            title="View JSON"
+            aria-label="View JSON"
+            @click="$emit('view-json', { type: 'document', identifier: document.identifier })"
+          >
+            <i
+              class="bi bi-code-slash"
               aria-hidden="true"
             />
           </button>
-          <button
-            type="button"
-            class="btn btn-outline-danger"
-            title="Delete document"
-            aria-label="Delete document"
-            @click="$emit('delete-document')"
-          >
-            <i
-              class="bi bi-trash"
-              aria-hidden="true"
-            />
-          </button>
-        </div>
-        <div
-          v-else
-          class="text-muted small"
-          title="Document is read-only"
-        >
-          <i
-            class="bi bi-lock-fill"
-            aria-hidden="true"
-          /> Read-only
         </div>
       </div>
       <div class="card-body">
@@ -355,172 +374,172 @@
     />
 
 
-
     <!-- Comments -->
     <CommentModule
       v-if="commentsEnabled && document?.identifier"
       item-type="document"
       :item-identifier="document.identifier"
     />
-  </div>
 
-  <!-- Dynamic Modal -->
-  <div v-if="isModalVisible">
-    <component
-      :is="modalComponent"
-      :parent-item="null"
-      :show="isModalVisible"
-      :item-type="selectedType"
-      @created="handleCreated"
-      @hidden="handleHidden"
-    />
+    <!-- Dynamic Modal (for adding items) -->
+    <div v-if="isModalVisible">
+      <component
+        :is="modalComponent"
+        :parent-item="null"
+        :show="isModalVisible"
+        :item-type="selectedType"
+        @created="handleCreated"
+        @hidden="handleHidden"
+      />
+    </div>
   </div>
 </template>
 
-<script setup>
-import { computed, onMounted } from 'vue';
-import { useDynamicModal } from '../../../composables/useDynamicModal.js';
-import { useDocumentAssociations } from '../../../composables/useDocumentAssociations.js';
-import { useAdditionalFields } from '../../../composables/useAdditionalFields.js';
-import { editorConfig } from '../../../config/editorConfig.js';
-import CommentModule from '../CommentModule.vue';
-import ItemAssociationsCard from './ItemAssociationsCard.vue';
-import docIcon from '@/assets/icons/ph/graph-fill.svg';
+  <script setup>
+  import { computed, onMounted } from 'vue';
+  import { useDynamicModal } from '../../../composables/useDynamicModal.js';
+  import { useDocumentAssociations } from '../../../composables/useDocumentAssociations.js';
+  import { useAdditionalFields } from '../../../composables/useAdditionalFields.js';
+  import { editorConfig } from '../../../config/editorConfig.js';
+  import CommentModule from '../CommentModule.vue';
+  import ItemAssociationsCard from './ItemAssociationsCard.vue';
+    import docIcon from '@/assets/icons/ph/graph-fill.svg';
 
-const props = defineProps({
-  document: {
-    type: Object,
-    required: true
-  },
-  associationGroups: {
-    type: Array,
-    default: () => []
-  },
-  isViewingDifferentFramework: {
-    type: Boolean,
-    default: false
-  }
-});
+  const props = defineProps({
+    document: {
+      type: Object,
+      required: true
+    },
+    associationGroups: {
+      type: Array,
+      default: () => []
+    },
+    isViewingDifferentFramework: {
+      type: Boolean,
+      default: false
+    }
+  });
 
-import { useSessionStore } from '../../../stores/sessionStore';
-import { useCurrentDocumentStore } from '../../../stores/currentDocumentStore';
-import { useEditorContextStore } from '../../../stores/editorContextStore';
+  import { useSessionStore } from '../../../stores/sessionStore';
+  import { useCurrentDocumentStore } from '../../../stores/currentDocumentStore';
+  import { useEditorContextStore } from '../../../stores/editorContextStore';
 
-const sessionStore = useSessionStore();
+  const sessionStore = useSessionStore();
 const contextStore = useEditorContextStore();
 const isReadOnly = computed(() => props.isViewingDifferentFramework || props.document?.isReadOnly || !sessionStore.isAuthenticated);
-const isAdopted = computed(() => props.document?.adoptionStatus === 'Adopted');
-const isAdmin = computed(() => contextStore.isAdmin);
-const commentsEnabled = editorConfig.features.comments;
+  const isAdopted = computed(() => props.document?.adoptionStatus === 'Adopted');
+  const isAdmin = computed(() => contextStore.isAdmin);
+  const commentsEnabled = editorConfig.features.comments;
+  // Get license name from definitions
+  const currentDocumentStore = useCurrentDocumentStore();
 
-// Get license name from definitions
-const currentDocumentStore = useCurrentDocumentStore();
+  const {
+    mergedAssociations,
+    isProcessingAssociations,
+  } = useDocumentAssociations({
+    document: computed(() => props.document),
+  });
 
-const {
-  mergedAssociations,
-  isProcessingAssociations,
-} = useDocumentAssociations({
-  document: computed(() => props.document),
-});
+  const licenseName = computed(() => {
+    if (!props.document?.licenseURI?.identifier) {
+      return null;
+    }
 
-const licenseName = computed(() => {
-  if (!props.document?.licenseURI?.identifier) {
-    return null;
+    const licenseId = props.document.licenseURI.identifier;
+    const licenses = currentDocumentStore.currentDocumentDefinitions?.CFLicenses || [];
+
+    // Find license by identifier in definitions
+    const licenseDef = licenses.find(lic => lic.identifier === licenseId);
+
+    // Return license title if found, otherwise fall back to the URI
+    if (licenseDef?.title) {
+      return licenseDef.title;
+    }
+
+    // Fallback to the license URI or identifier
+    return props.document.licenseURI.uri || props.document.licenseURI.identifier;
+  });
+
+  const canManageAssociationActions = computed(() => {
+    if (!sessionStore.isAuthenticated) return false;
+
+    const activeDocumentId =
+      contextStore.activeWriteDocumentId ||
+      currentDocumentStore.currentDocument?.identifier ||
+      currentDocumentStore.currentDocument?.id ||
+      null;
+
+    if (!activeDocumentId) return false;
+    return contextStore.isEditable(activeDocumentId);
+  });
+
+  const emit = defineEmits([
+    'edit-document',
+    'delete-document',
+    'add-root-item',
+    'manage-association-groups',
+    'update-framework',
+    'export-document',
+    'clone-framework',
+    'edit-association',
+    'delete-association',
+    'add-association',
+  'view-json'
+  ]);
+
+  const availableTypes = ['general', 'assessment', 'course', 'credential', 'job', 'organization', 'public_key', 'identifier'];
+
+  const { showModal, selectedType, isModalVisible, handleCreated, modalComponent, handleHidden } = useDynamicModal(
+    props.document?.identifier || null,
+    (newItem) => { emit('add-root-item', newItem); },
+    availableTypes
+  );
+
+  // Additional fields for documents
+  const { fieldDefinitions: docFieldDefinitions, fetchFields: fetchDocFields } = useAdditionalFields();
+
+  onMounted(() => {
+    fetchDocFields('doc');
+  });
+
+  const hasAdditionalFieldValues = computed(() => {
+    if (!docFieldDefinitions.value?.length) return false;
+    const af = props.document?.additionalFields;
+    return docFieldDefinitions.value.some(f => af?.[f.name]);
+  });
+
+  function getDocDisplayValue(fieldName) {
+    const af = props.document?.additionalFields;
+    if (!af || typeof af !== 'object') return undefined;
+    return af[fieldName] || undefined;
   }
 
-  const licenseId = props.document.licenseURI.identifier;
-  const licenses = currentDocumentStore.currentDocumentDefinitions?.CFLicenses || [];
-
-  // Find license by identifier in definitions
-  const licenseDef = licenses.find(lic => lic.identifier === licenseId);
-
-  // Return license title if found, otherwise fall back to the URI
-  if (licenseDef?.title) {
-    return licenseDef.title;
+  function getDisplayName(type) {
+    const displayNames = {
+      general: 'General Item',
+      assessment: 'Assessment',
+      course: 'Course',
+      credential: 'Credential',
+      job: 'Job',
+      organization: 'Organization',
+      'public_key': 'Public Key',
+      identifier: 'Identifier'
+    };
+    return displayNames[type] || type;
   }
 
-  // Fallback to the license URI or identifier
-  return props.document.licenseURI.uri || props.document.licenseURI.identifier;
-});
-
-const canManageAssociationActions = computed(() => {
-  if (!sessionStore.isAuthenticated) return false;
-
-  const activeDocumentId =
-    contextStore.activeWriteDocumentId ||
-    currentDocumentStore.currentDocument?.identifier ||
-    currentDocumentStore.currentDocument?.id ||
-    null;
-
-  if (!activeDocumentId) return false;
-  return contextStore.isEditable(activeDocumentId);
-});
-
-const emit = defineEmits([
-  'edit-document',
-  'delete-document',
-  'add-root-item',
-  'manage-association-groups',
-  'update-framework',
-  'export-document',
-  'clone-framework',
-  'edit-association',
-  'delete-association',
-  'add-association'
-]);
-
-const availableTypes = ['general', 'assessment', 'course', 'credential', 'job', 'organization', 'public_key', 'identifier'];
-
-const { showModal, selectedType, isModalVisible, handleCreated, modalComponent, handleHidden } = useDynamicModal(
-  props.document?.identifier || null,
-  (newItem) => { emit('add-root-item', newItem); },
-  availableTypes
-);
-
-// Additional fields for documents
-const { fieldDefinitions: docFieldDefinitions, fetchFields: fetchDocFields } = useAdditionalFields();
-
-onMounted(() => {
-  fetchDocFields('doc');
-});
-
-const hasAdditionalFieldValues = computed(() => {
-  if (!docFieldDefinitions.value?.length) return false;
-  const af = props.document?.additionalFields;
-  return docFieldDefinitions.value.some(f => af?.[f.name]);
-});
-
-function getDocDisplayValue(fieldName) {
-  const af = props.document?.additionalFields;
-  if (!af || typeof af !== 'object') return undefined;
-  return af[fieldName] || undefined;
-}
-
-function getDisplayName(type) {
-  const displayNames = {
-    general: 'General Item',
-    assessment: 'Assessment',
-    course: 'Course',
-    credential: 'Credential',
-    job: 'Job',
-    organization: 'Organization',
-    'public_key': 'Public Key',
-    identifier: 'Identifier'
-  };
-  return displayNames[type] || type;
-}
-
-function formatDate(dateString) {
-  if (!dateString) return '';
-  return new Date(dateString).toLocaleDateString();
-}
-
-function manageAccess() {
-  if (props.document?.identifier) {
-    window.location.href = `/cfdoc/${props.document.identifier}/acl`;
+  function formatDate(dateString) {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString();
   }
-}
-</script>
 
-<style scoped>
-</style>
+  function manageAccess() {
+    if (props.document?.identifier) {
+      window.location.href = `/cfdoc/${props.document.identifier}/acl`;
+    }
+  }
+
+  </script>
+
+  <style scoped>
+  </style>

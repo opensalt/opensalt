@@ -19,6 +19,102 @@
 
 ---
 
+## 1) Architecture: Modal system (READ BEFORE TOUCHING MODALS)
+
+The editor uses a **centralized modal system**. Understanding the event chain is essential — mistakes here cause subtle, hard-to-debug bugs.
+
+### Components involved
+
+| Layer | File | Responsibility |
+|-------|------|----------------|
+| State composable | `src/composables/useModalState.js` | Owns all modal `show*` refs + data refs + open/close functions |
+| Modal renderer | `src/components/tree/ModalManager.vue` | Renders every modal; receives props from parent, forwards emits |
+| Top-level editor | `src/components/tree/EnhancedDocumentTreeEditor.vue` | Wires `useModalState()`, passes props to `ModalManager`, handles events |
+| Individual modals | `src/components/tree/modals/*.vue` | Self-contained modal components with `show` prop and `hidden` emit |
+
+### Event chain (critical to get right)
+
+```
+Child panel (e.g. ItemDetails.vue)
+  └─ emits event (e.g. 'view-json', 'edit-item')
+     └─ ItemDetailsPanel.vue forwards the emit
+        └─ RightSidePanel.vue forwards the emit
+           └─ EnhancedDocumentTreeEditor.vue
+              └─ calls modalState.openXxxModal(data)
+                 └─ ModalManager.vue renders the modal
+```
+
+**Panels must never call `useModalState()` directly.** Each call to `useModalState()` creates **independent refs** — they do not share state. Only `EnhancedDocumentTreeEditor.vue` should call `useModalState()`. Panels emit events that bubble up; the editor calls the open/close methods.
+
+### Modal component pattern (Bootstrap Modal JS API)
+
+Every modal follows the `ExportModal.vue` pattern:
+
+```vue
+<script setup>
+import { ref, watch, onMounted } from 'vue';
+import Modal from 'bootstrap/js/dist/modal';
+
+const props = defineProps({
+  show: Boolean,
+  /* other props */
+});
+const emit = defineEmits(['hidden', /* other emits */]);
+
+const modalElement = ref(null);
+let bsModal = null;
+
+onMounted(() => {
+  bsModal = new Modal(modalElement.value);
+  modalElement.value.addEventListener('hidden.bs.modal', () => emit('hidden'));
+});
+
+watch(() => props.show, (val) => {
+  if (!bsModal) return;
+  val ? bsModal.show() : bsModal.hide();
+});
+</script>
+```
+
+- **`show` prop** (Boolean): controlled by parent; parent flips it to `true` then waits for the `hidden` emit to flip it back to `false`.
+- **`hidden` emit**: fired when Bootstrap finishes hiding; the parent's handler resets `show` to `false`.
+
+### Adding a new modal
+
+1. Create `src/components/tree/modals/MyModal.vue` following the pattern above.
+2. In `useModalState.js`: add `showMyModal` ref, a data ref if needed, `openMyModal()` / `closeMyModal()` functions, add them to the `return` statement and `resetModalData()`.
+3. In `ModalManager.vue`: lazy-import the component, add it to the template with `:show`/data props/`@hidden`, add the `show*` prop to `defineProps`, add `<name>-modal-hidden` to `defineEmits`, and add an `onMyModalHidden()` handler.
+4. In `EnhancedDocumentTreeEditor.vue`: destructure the new refs/functions from `modalState`, pass the `:show-*` props to `<ModalManager>`, add the `@*-modal-hidden` handler, and add an `onMyXxx()` trigger function.
+5. In the child panel: **emit an event** (do not call `useModalState()`). Forward it through `ItemDetailsPanel` → `RightSidePanel` → `EnhancedDocumentTreeEditor`.
+
+### Lazy loading
+
+All modals in `ModalManager.vue` use `defineAsyncComponent()` so they are code-split and only loaded when first shown.
+
+---
+
+## 2) Architecture: API service
+
+All HTTP requests go through the singleton `api` instance from `src/services/api.js`.
+
+- **Base URL:** relative (same host); `this.baseUrl = ''`.
+- **Auth:** `Authorization: Bearer <token>` from `localStorage.getItem('saltApiToken')` (optional for public content).
+- **Usage:** `import { api } from '@/services/api.js'` then `await api.get(endpoint)`.
+- **Error handling:** throws `ApiError` with `.status` and `.message`.
+
+### Key CASE v1.1 endpoints
+
+| Purpose | Endpoint |
+|---------|----------|
+| Single document (CASE JSON) | `GET /ims/case/v1p1/CFDocuments/{identifier}` |
+| Single item (CASE JSON) | `GET /ims/case/v1p1/CFItems/{identifier}` |
+| Document + all children (package) | `GET /ims/case/v1p1/CFPackages/{id}.json` |
+| Related documents | `GET /ims/case/v1p1/CFDocuments/{id}/related` |
+
+> **Note:** The editor uses its own non-CASE endpoints for most tree/item operations (`/framework/editor/...`). Use CASE endpoints only when you need the spec-compliant JSON representation.
+
+---
+
 ## 3) Tests
 
 - **Framework:** Vitest with Vue Test Utils

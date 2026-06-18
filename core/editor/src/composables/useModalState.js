@@ -21,6 +21,8 @@ export function useModalState() {
   const showUpdateFrameworkModal = ref(false);
   const showExportModal = ref(false);
   const showDeleteAssociationModal = ref(false);
+  const showJsonViewerModal = ref(false);
+  const jsonViewerObject = ref(null);
 
   // Modal data states
   const associationOrigin = ref(null);
@@ -76,6 +78,7 @@ export function useModalState() {
     crossTreeSource.value = null;
     crossTreeTarget.value = null;
     crossTreePosition.value = null;
+    jsonViewerObject.value = null;
   }
 
   /**
@@ -190,6 +193,27 @@ export function useModalState() {
   }
 
   /**
+   * Open the JSON viewer modal
+   * @param {Object} obj - The object to display as JSON
+   */
+  function openJsonViewerModal(obj) {
+    jsonViewerObject.value = obj;
+    showJsonViewerModal.value = true;
+  }
+
+  /**
+   * Close the JSON viewer modal
+   */
+  function closeJsonViewerModal() {
+    showJsonViewerModal.value = false;
+    jsonViewerObject.value = null;
+  }
+
+  /**
+   * Open the exemplar modal
+   */
+
+  /**
    * Open the exemplar modal
    */
   function openExemplarModal() {
@@ -252,6 +276,7 @@ export function useModalState() {
     crossTreeSource.value = null;
     crossTreeTarget.value = null;
     crossTreePosition.value = null;
+    jsonViewerObject.value = null;
   }
 
   /**
@@ -294,6 +319,8 @@ export function useModalState() {
     showUpdateFrameworkModal,
     showExportModal,
     showDeleteAssociationModal,
+    showJsonViewerModal,
+    jsonViewerObject,
 
     // Modal data states
     associationOrigin,
@@ -337,6 +364,8 @@ export function useModalState() {
     openExportModal,
     closeExportModal,
     openDeleteAssociationModal,
-    closeDeleteAssociationModal
+    closeDeleteAssociationModal,
+    closeJsonViewerModal,
+    openJsonViewerModal
   };
 }

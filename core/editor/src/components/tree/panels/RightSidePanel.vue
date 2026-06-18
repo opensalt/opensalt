@@ -72,6 +72,7 @@
           @update-framework="$emit('update-framework')"
           @export-document="$emit('export-document')"
           @clone-framework="$emit('clone-framework')"
+          @view-json="$emit('view-json', $event)"
         />
       </div>
 
@@ -171,7 +172,8 @@ const emit = defineEmits([
   'side-document-select',
   'external-document-requested',
   'side-select',
-  'action'
+  'action',
+  'view-json'
 ]);
 
 const currentMode = ref(props.initialMode);
