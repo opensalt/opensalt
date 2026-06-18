@@ -32,10 +32,10 @@ class CrosswalkJob
     #[ORM\Column]
     public private(set) int $crosswalkFrameworkId;
 
-    #[ORM\Column(options: ['default' => 0.75])]
+    #[ORM\Column(options: ['default' => '0.75'])]
     public private(set) float $threshold = 0.75;
 
-    #[ORM\Column(options: ['default' => 0.90])]
+    #[ORM\Column(options: ['default' => '0.9'])]
     public private(set) float $exactMatchThreshold = 0.90;
 
     #[ORM\Column(options: ['default' => 0])]
