@@ -22,7 +22,7 @@
             class="bi bi-info-circle me-1"
             aria-hidden="true"
           />
-          Item Details
+          Details
         </button>
         <button
           id="side-tab-externalDocument"

@@ -9,7 +9,7 @@
           aria-hidden="true"
           alt=""
         >
-        Item Details
+        Details
         <!-- Read-only badge for viewed framework items -->
         <span
           v-if="isItemFromViewedFramework"

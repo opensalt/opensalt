@@ -29,7 +29,7 @@ class Notification implements Context
             function (\Tests\Support\AcceptanceTester $I) {
                 $framework = new Framework($I);
                 $framework->iGoToTheFrameworkDocument();
-                $I->see('Item Details');
+                $I->see('Details');
             }
         );
     }
@@ -46,7 +46,7 @@ class Notification implements Context
             function (\Tests\Support\AcceptanceTester $I) {
                 $item = new Item($I);
                 $item->iAmOnAnItemPage();
-                $I->see('Item Details');
+                $I->see('Details');
             }
         );
     }

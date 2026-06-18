@@ -13,7 +13,7 @@
             aria-hidden="true"
             alt=""
           >
-          Document Details
+          Details
         </h5>
         <div class="d-flex align-items-center gap-2">
           <!-- Edit and Delete buttons (only when not read-only) -->
