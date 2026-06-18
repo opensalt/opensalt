@@ -248,4 +248,73 @@ describe('useTreeEditorHandlers', () => {
       );
     });
   });
+
+  describe('onRightPanelModeChanged', () => {
+    it('does not reload the side document when it already matches the saved selection', async () => {
+      const { ctx } = createMockContext({
+        contextStore: {
+          viewedDocumentId: ref(null),
+          activeWriteDocumentId: ref('doc-1'),
+          getFrameworkSelection: vi.fn().mockReturnValue({ documentId: 'doc-2', isLoaded: true }),
+        },
+      });
+      ctx.sideDocument = ref({ id: 'doc-2', title: 'Other Framework', items: [] });
+      const { onRightPanelModeChanged } = useTreeEditorHandlers(ctx);
+
+      await onRightPanelModeChanged('externalDocument');
+
+      expect(ctx.rightPanelMode.value).toBe('externalDocument');
+      expect(ctx.onSideDocumentSelect).not.toHaveBeenCalled();
+    });
+
+    it('reloads the side document when the saved selection differs from the loaded one', async () => {
+      const { ctx } = createMockContext({
+        contextStore: {
+          viewedDocumentId: ref(null),
+          activeWriteDocumentId: ref('doc-1'),
+          getFrameworkSelection: vi.fn().mockReturnValue({ documentId: 'doc-3', isLoaded: true }),
+        },
+      });
+      ctx.sideDocument = ref({ id: 'doc-2', title: 'Other Framework', items: [] });
+      const { onRightPanelModeChanged } = useTreeEditorHandlers(ctx);
+
+      await onRightPanelModeChanged('externalDocument');
+
+      expect(ctx.onSideDocumentSelect).toHaveBeenCalledWith('doc-3');
+    });
+
+    it('reloads the side document when none is loaded yet but a selection is saved', async () => {
+      const { ctx } = createMockContext({
+        contextStore: {
+          viewedDocumentId: ref(null),
+          activeWriteDocumentId: ref('doc-1'),
+          getFrameworkSelection: vi.fn().mockReturnValue({ documentId: 'doc-2', isLoaded: true }),
+        },
+      });
+      ctx.sideDocument = ref(null);
+      const { onRightPanelModeChanged } = useTreeEditorHandlers(ctx);
+
+      await onRightPanelModeChanged('externalDocument');
+
+      expect(ctx.onSideDocumentSelect).toHaveBeenCalledWith('doc-2');
+    });
+
+    it('does not touch framework selection when switching to itemDetails', async () => {
+      const getFrameworkSelection = vi.fn();
+      const { ctx } = createMockContext({
+        contextStore: {
+          viewedDocumentId: ref(null),
+          activeWriteDocumentId: ref('doc-1'),
+          getFrameworkSelection,
+        },
+      });
+      const { onRightPanelModeChanged } = useTreeEditorHandlers(ctx);
+
+      await onRightPanelModeChanged('itemDetails');
+
+      expect(ctx.rightPanelMode.value).toBe('itemDetails');
+      expect(getFrameworkSelection).not.toHaveBeenCalled();
+      expect(ctx.onSideDocumentSelect).not.toHaveBeenCalled();
+    });
+  });
 });

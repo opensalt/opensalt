@@ -377,8 +377,10 @@ export function useTreeEditorHandlers({
         // Restore framework selection for the new mode
         if (mode === 'externalDocument') {
             const selection = contextStore.getFrameworkSelection(mode);
-            if (selection?.documentId) {
-                // Trigger side document loading
+            // Only (re)load when the persisted selection differs from the document
+            // already held by the parent. The side document survives tab switches,
+            // so reloading the same one would null it out and cause a flash.
+            if (selection?.documentId && sideDocument.value?.id !== selection.documentId) {
                 await onSideDocumentSelect(selection.documentId);
             }
         }

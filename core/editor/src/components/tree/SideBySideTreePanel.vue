@@ -252,6 +252,16 @@ const editorContextStore = useEditorContextStore();
 const { selectedDocumentId, currentDocForSelector, onDocumentSelected } = useSideTreePanel(props);
 const sideSelectedId = ref(null);
 
+// Restore the previously selected external document on (re)mount. Because this
+// panel is unmounted/remounted when toggling to "Item Details" and back, the
+// local selectedDocumentId would otherwise reset to '' and DocumentSelector's
+// immediate watcher would emit the main framework instead. Restoring from the
+// centralized state happens synchronously in setup, before the selector mounts.
+const restoredSelection = editorContextStore.getFrameworkSelection('externalDocument');
+if (restoredSelection?.documentId) {
+  selectedDocumentId.value = restoredSelection.documentId;
+}
+
 // Ref for the side tree container element (used for scoping DOM queries)
 const sideTreeContainerRef = ref(null);
 
@@ -290,7 +300,11 @@ function onDocumentChanged(event) {
   const { side: _side, documentId } = event;
   if (documentId) {
     onDocumentSelected(documentId);
-    emit('document-select', documentId);
+    // Avoid a redundant load when the document is already displayed, e.g. when
+    // DocumentSelector re-emits its value on remount during a selection restore.
+    if (props.sideDocument?.id !== documentId) {
+      emit('document-select', documentId);
+    }
     // Save framework selection to centralized state
     if (props.mode === 'externalDocument') {
       editorContextStore.setFrameworkSelection(props.mode, documentId);
