@@ -39,3 +39,19 @@ describe('useExtensionsEditor', () => {
     expect(ext.buildExtensions()).toEqual({});
   });
 });
+  it('buildExtensions preserves reserved keys even when seed() was never called', () => {
+    // Regression: the host modal saves even if the overlay was never opened.
+    // Reserved keys must never be lost.
+    const raw = { 'salt:type': 'organization', 'ceterms:agentType': 'orgType:Business' };
+    const ext = useExtensionsEditor({ scope: 'item', kind: 'organization', getRawExtensions: () => raw });
+    expect(ext.buildExtensions()).toEqual({ 'salt:type': 'organization', 'ceterms:agentType': 'orgType:Business' });
+  });
+
+  it('seed() captures pre-existing editable keys so they survive a save without opening the overlay', () => {
+    const raw = { 'salt:type': 'general', 'acme:keep': 1, 'acme:also': 'x' };
+    const ext = useExtensionsEditor({ scope: 'item', kind: 'general', getRawExtensions: () => raw });
+    ext.seed();
+    expect(ext.editable.value).toEqual({ 'acme:keep': 1, 'acme:also': 'x' });
+    // Saving without ever opening the overlay must round-trip the full set.
+    expect(ext.buildExtensions()).toEqual(raw);
+  });

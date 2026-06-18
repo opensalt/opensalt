@@ -60,4 +60,24 @@ describe('EditDocModal extensions integration', () => {
       'acme:added': true
     });
   });
+
+
+  it('preserves existing extensions when saved without opening the overlay', async () => {
+    const doc = {
+      identifier: 'd1',
+      title: 'T',
+      adoptionStatus: 'Draft',
+      extensions: { 'salt:relatedFrameworks': ['uuid-1'], 'acme:note': 'keep' }
+    };
+    const wrapper = mountDoc({ show: true, document: doc });
+
+    // Do NOT open the extensions overlay — just save.
+    await wrapper.find('[data-testid="save-doc"]').trigger('click');
+
+    const saved = wrapper.emitted('saved')[0][0];
+    expect(saved.extensions).toEqual({
+      'salt:relatedFrameworks': ['uuid-1'],
+      'acme:note': 'keep'
+    });
+  });
 });

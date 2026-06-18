@@ -55,4 +55,19 @@ describe('EditAssociationModal extensions integration', () => {
       'acme:note': 'new'
     });
   });
+
+
+  it('preserves existing extensions when saved without opening the overlay', async () => {
+    const wrapper = mountAssoc();
+
+    // Do NOT open the extensions overlay — just save.
+    await wrapper.find('[data-testid="save-association"]').trigger('click');
+
+    const updated = wrapper.emitted('updated')[0][0];
+    // crosswalk:status (reserved) + acme:note (editable) both preserved
+    expect(updated.extensions).toEqual({
+      'crosswalk:status': 'approved',
+      'acme:note': 'old'
+    });
+  });
 });

@@ -270,6 +270,9 @@ watch(() => props.itemType, (newType) => {
 }, { immediate: true });
 
 function loadFormData() {
+  // Seed extensions working copy so saves preserve existing extensions even
+  // when the overlay is never opened.
+  extensionsEditor.seed();
   loading.value = true;
   error.value = '';
 

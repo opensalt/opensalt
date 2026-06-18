@@ -406,6 +406,9 @@ watch(() => props.show, async (newVal) => {
   if (newVal) {
     error.value = '';
     loadAssociationData();
+    // Seed extensions working copy so saves preserve existing extensions even
+    // when the overlay is never opened.
+    extensionsEditor.seed();
     resetDirection();
     // Fetch additional field definitions
     await fetchAssocFields('association');
@@ -433,6 +436,7 @@ watch(() => props.show, async (newVal) => {
 watch(() => props.association, (newAssoc) => {
   if (newAssoc && props.mode === 'edit') {
     loadAssociationData();
+    extensionsEditor.seed();
   }
 }, { immediate: true });
 

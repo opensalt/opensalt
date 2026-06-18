@@ -170,6 +170,9 @@ const formData = reactive({
 
 // Load existing achievement data for edit mode
 function loadAchievementData() {
+  // Seed extensions working copy so saves preserve existing extensions even
+  // when the overlay is never opened.
+  extensionsEditor.seed();
   loading.value = true;
   error.value = '';
 

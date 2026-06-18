@@ -47,4 +47,21 @@ describe('ChildModal extensions integration', () => {
     const updated = wrapper.emitted('updated')[0][0];
     expect(updated.extensions).toEqual({ 'salt:type': 'general', 'acme:x': 'new', 'acme:y': 5 });
   });
+
+
+  it('preserves existing extensions when saved without opening the overlay', async () => {
+    const item = {
+      identifier: 'i1',
+      fullStatement: 'Statement',
+      humanCodingScheme: '1',
+      extensions: { 'salt:type': 'general', 'acme:keep': 'v', 'acme:num': 7 }
+    };
+    const wrapper = mountChild({ item });
+
+    // Do NOT open the extensions overlay — just save.
+    await wrapper.find('[data-testid="save-item"]').trigger('click');
+
+    const updated = wrapper.emitted('updated')[0][0];
+    expect(updated.extensions).toEqual({ 'salt:type': 'general', 'acme:keep': 'v', 'acme:num': 7 });
+  });
 });

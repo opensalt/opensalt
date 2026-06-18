@@ -576,6 +576,10 @@ watch(() => props.document, (newDoc) => {
 function loadDocumentData() {
   if (!props.document) return;
 
+  // Seed the extensions working copy so saving without opening the overlay
+  // still round-trips the document's existing extensions.
+  extensionsEditor.seed();
+
   loading.value = true;
   error.value = '';
 
