@@ -35,6 +35,7 @@
         :is-read-only="isReadOnly"
         @edit="!isReadOnly ? $emit('edit-association', $event) : null"
         @delete="!isReadOnly ? $emit('delete-association', $event) : null"
+        @view-json="$emit('view-json', $event)"
       />
       <!-- Sentinel: when it scrolls into view, reveal another batch -->
       <div
@@ -86,7 +87,8 @@ const props = defineProps({
 
 const _emit = defineEmits([
   'edit-association',
-  'delete-association'
+  'delete-association',
+  'view-json'
 ]);
 
 // Incremental mounting: only render associations as they scroll into view, so a

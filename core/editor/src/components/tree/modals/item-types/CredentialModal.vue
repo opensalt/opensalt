@@ -64,6 +64,30 @@
               id="ob3-definer"
               data-submit-text="Save"
             />
+
+            <div class="row mb-3">
+              <div class="col-sm-2 col-form-label">
+                Extensions
+              </div>
+              <div class="col-sm-10">
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary btn-sm"
+                  data-testid="open-extensions"
+                  @click="extensionsEditor.open()"
+                >
+                  Edit extensions
+                </button>
+                <small class="text-muted d-block">View or edit proprietary extension values for this credential.</small>
+              </div>
+            </div>
+
+            <ExtensionsEditor
+              v-model="extensionsEditor.editable.value"
+              v-model:show="extensionsEditor.show.value"
+              entity-label="Credential"
+              :reserved-keys="extensionsEditor.reservedKeys"
+            />
           </div>
         </div>
         <div class="modal-footer">
@@ -77,6 +101,7 @@
           <button
             type="button"
             class="btn btn-primary"
+            data-testid="save-item"
             :disabled="saving"
             @click="saveItem"
           >
@@ -100,6 +125,8 @@ import '@opensalt/ob3-definer/dist/ob3-definer.js';
 import '@opensalt/ob3-definer/dist/ob3-definer.css';
 import { logger } from '../../../../utils/logger.js';
 import { useItemTypeModal } from '../../../../composables/useItemTypeModal';
+import ExtensionsEditor from '../../../shared/ExtensionsEditor.vue';
+import { useExtensionsEditor } from '../../../../composables/useExtensionsEditor.js';
 
 const props = defineProps({
   parentItem: {
@@ -123,6 +150,12 @@ const props = defineProps({
 const emit = defineEmits(['created', 'updated', 'hidden']);
 
 const { loading, error, saving, isEdit, resetState } = useItemTypeModal(props, emit, { typeName: 'credential' });
+
+const extensionsEditor = useExtensionsEditor({
+  scope: 'item',
+  kind: 'credential',
+  getRawExtensions: () => props.item?.extensions
+});
 
 // Store the achievement definition JSON from the widget
 const achievementData = ref(null);
@@ -270,7 +303,7 @@ async function saveItem() {
         conceptKeywords: credentialInfo.tag || props.item.conceptKeywords,
         credential: formData.credential,
         extensions: {
-          ...(props.item.extensions || {}),
+          ...extensionsEditor.buildExtensions(),
           'ob3': formData.credential
         },
         updated: new Date().toISOString()
@@ -287,6 +320,7 @@ async function saveItem() {
         conceptKeywords: credentialInfo.tag || [],
         credential: formData.credential,
         extensions: {
+          ...extensionsEditor.buildExtensions(),
           'ob3': formData.credential
         },
         parentId: props.parentItem?.identifier || null,

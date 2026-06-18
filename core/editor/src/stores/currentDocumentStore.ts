@@ -173,6 +173,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
   const currentDocumentAssociationGroupings = ref<EditorAssociationGrouping[]>([]);
   const currentDocumentTree = ref<TreeNode[]>([]);
   const currentDocumentAssociations = ref<CFAssociation[]>([]);
+  const associationRevision = ref(0);
 
   const itemDetailsCache = new Map<string, { data: ItemDetailsResponse; timestamp: number }>();
   const pendingItemDetailsRequests = new Map<string, Promise<ItemDetailsResponse>>();
@@ -703,6 +704,8 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     try {
       const data = await api.post(`/framework/editor/association/new/${documentIdentifier}`, associationData);
       documentStore.invalidateTreeCache(documentIdentifier);
+      invalidateItemDetailsCache();
+      associationRevision.value++;
       return data;
     } catch (e) {
       logger.error("Error creating association:", e);
@@ -714,6 +717,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     try {
       await api.delete(`/framework/editor/association/${associationIdentifier}`);
       invalidateCurrentDocumentCache();
+      associationRevision.value++;
       return true;
     } catch (e) {
       logger.error("Error removing association:", e);
@@ -890,6 +894,8 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     try {
       await api.put(`/framework/editor/association/${associationIdentifier}`, data);
       invalidateCurrentDocumentCache();
+      invalidateItemDetailsCache();
+      associationRevision.value++;
       return true;
     } catch (e) {
       logger.error("Error updating association:", e);
@@ -904,6 +910,7 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     currentDocumentAssociationGroupings,
     currentDocumentTree,
     currentDocumentAssociations,
+    associationRevision,
     associationGroups,
     selectDocument,
     reloadActiveDocument,

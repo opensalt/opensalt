@@ -262,6 +262,30 @@
               v-model="formData.additionalFields"
               :field-definitions="itemFieldDefinitions"
             />
+
+            <div class="row mb-3">
+              <div class="col-sm-2 col-form-label">
+                Extensions
+              </div>
+              <div class="col-sm-10">
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary btn-sm"
+                  data-testid="open-extensions"
+                  @click="extensionsEditor.open()"
+                >
+                  Edit extensions
+                </button>
+                <small class="text-muted d-block">View or edit proprietary extension values for this item.</small>
+              </div>
+            </div>
+
+            <ExtensionsEditor
+              v-model="extensionsEditor.editable.value"
+              v-model:show="extensionsEditor.show.value"
+              entity-label="Item"
+              :reserved-keys="extensionsEditor.reservedKeys"
+            />
           </form>
         </div>
         <div class="modal-footer">
@@ -275,6 +299,7 @@
           <button
             type="button"
             class="btn btn-primary"
+            data-testid="save-item"
             :disabled="saving"
             @click="saveItem"
           >
@@ -302,6 +327,8 @@ import AdditionalFields from '../../fields/AdditionalFields.vue';
 import { logger } from '../../../../utils/logger.js';
 import { useItemTypeModal } from '../../../../composables/useItemTypeModal';
 import { useAdditionalFields } from '../../../../composables/useAdditionalFields.js';
+import ExtensionsEditor from '../../../shared/ExtensionsEditor.vue';
+import { useExtensionsEditor } from '../../../../composables/useExtensionsEditor.js';
 import educationLevels from '../../../../data/EducationLevel.json';
 
 const props = defineProps({
@@ -326,6 +353,12 @@ const props = defineProps({
 const emit = defineEmits(['created', 'updated', 'hidden']);
 
 const { loading, error, saving, isEdit, closeModal } = useItemTypeModal(props, emit, { typeName: 'child' });
+
+const extensionsEditor = useExtensionsEditor({
+  scope: 'item',
+  kind: 'general',
+  getRawExtensions: () => props.item?.extensions
+});
 
 const { fieldDefinitions: itemFieldDefinitions, fetchFields: fetchItemFields } = useAdditionalFields();
 
@@ -512,7 +545,7 @@ function saveItem() {
         notes: formData.notes,
         additionalFields: formData.additionalFields,
         extensions: {
-          ...(props.item.extensions || {}),
+          ...extensionsEditor.buildExtensions(),
         },
         updated: new Date().toISOString()
       };
@@ -532,6 +565,7 @@ function saveItem() {
         notes: formData.notes,
         additionalFields: formData.additionalFields,
         extensions: {
+          ...extensionsEditor.buildExtensions(),
         },
         children: [],
         associations: []

@@ -371,6 +371,7 @@
       @add-association="$emit('add-association', document)"
       @edit-association="$emit('edit-association', $event)"
       @delete-association="$emit('delete-association', $event)"
+      @view-json="$emit('view-json', $event)"
     />
 
 

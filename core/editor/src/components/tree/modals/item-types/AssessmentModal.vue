@@ -193,6 +193,29 @@
                 <small class="text-muted">Webpage that describes this job</small>
               </div>
             </div>
+            <div class="row mb-3">
+              <div class="col-sm-2 col-form-label">
+                Extensions
+              </div>
+              <div class="col-sm-10">
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary btn-sm"
+                  data-testid="open-extensions"
+                  @click="extensionsEditor.open()"
+                >
+                  Edit extensions
+                </button>
+                <small class="text-muted d-block">View or edit proprietary extension values for this assessment.</small>
+              </div>
+            </div>
+
+            <ExtensionsEditor
+              v-model="extensionsEditor.editable.value"
+              v-model:show="extensionsEditor.show.value"
+              entity-label="Assessment"
+              :reserved-keys="extensionsEditor.reservedKeys"
+            />
           </form>
         </div>
         <div class="modal-footer">
@@ -206,6 +229,7 @@
           <button
             type="button"
             class="btn btn-primary"
+            data-testid="save-item"
             :disabled="saving"
             @click="saveItem"
           >
@@ -224,6 +248,8 @@
 
 <script setup>
 import { ref, reactive, watch, computed } from 'vue';
+import ExtensionsEditor from '../../../shared/ExtensionsEditor.vue';
+import { useExtensionsEditor } from '../../../../composables/useExtensionsEditor.js';
 
 const props = defineProps({
   parentItem: {
@@ -251,6 +277,12 @@ const error = ref('');
 const saving = ref(false);
 
 const isEdit = computed(() => !!props.item);
+
+const extensionsEditor = useExtensionsEditor({
+  scope: 'item',
+  kind: 'assessment',
+  getRawExtensions: () => props.item?.extensions
+});
 
 const formData = reactive({
   name: '',
@@ -335,7 +367,7 @@ function saveItem() {
         deliveryType: formData.deliveryType,
         webpage: formData.webpage,
         extensions: {
-          ...props.item?.extensions,
+          ...extensionsEditor.buildExtensions(),
           'salt:type': 'assessment'
         },
         updated: new Date().toISOString()
@@ -351,6 +383,7 @@ function saveItem() {
         deliveryType: formData.deliveryType,
         webpage: formData.webpage,
         extensions: {
+          ...extensionsEditor.buildExtensions(),
           'salt:type': 'assessment'
         },
         parentId: props.parentItem?.identifier || null,

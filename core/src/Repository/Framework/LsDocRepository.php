@@ -347,7 +347,8 @@ class LsDocRepository extends ServiceEntityRepository
                    a.destinationNodeIdentifier as destNodeIdentifier,
                    di.identifier as destIdentifier, di.uri as destUri,
                    IDENTITY(di.lsDoc) as destDocId,
-                   a.extra as assocExtra
+                   a.extra as assocExtra,
+                   a.extensions as assocExtensions
             FROM '.LsAssociation::class.' a
             LEFT JOIN a.group g
             JOIN a.originLsItem oi
@@ -372,7 +373,9 @@ class LsDocRepository extends ServiceEntityRepository
                    IDENTITY(oi.lsDoc) as originDocId,
                    IDENTITY(oi.itemType) as originItemTypeId,
                    oi.changedAt as originChangedAt,
-                   a.extra as assocExtra
+                   a.destinationNodeIdentifier as destNodeIdentifier,
+                   a.extra as assocExtra,
+                   a.extensions as assocExtensions
             FROM '.LsAssociation::class.' a
             LEFT JOIN a.group g
             JOIN a.originLsItem oi
@@ -510,6 +513,7 @@ class LsDocRepository extends ServiceEntityRepository
             'originHcs' => $row['originHcs'],
             'originAbs' => $row['originAbs'],
             'assocExtra' => $row['assocExtra'],
+            'extensions' => $row['assocExtensions'] ?? [],
         ];
     }
 

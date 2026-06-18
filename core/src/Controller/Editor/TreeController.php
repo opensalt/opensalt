@@ -75,6 +75,7 @@ class TreeController extends AbstractController
             'subjects' => $subjectURIs,
             'licence' => $licence?->getIdentifier(),
             'additionalFields' => $lsDoc->getAdditionalFields(),
+            'extensions' => $lsDoc->getExtensions(),
         ];
 
         $response = [

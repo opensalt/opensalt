@@ -20,13 +20,17 @@ export function useItemTypeModal(props, emit, options = {}) {
 
     try {
       const timestamp = new Date().toISOString();
-      
+      const editableExtensions = options.getEditableExtensions
+        ? options.getEditableExtensions()
+        : {};
+
       if (isEdit.value) {
         const updatedItem = {
           ...props.item,
           ...fields,
           extensions: {
             ...(props.item?.extensions || {}),
+            ...editableExtensions,
             'salt:type': options.typeName || props.itemType || 'general'
           },
           updated: timestamp
@@ -36,6 +40,7 @@ export function useItemTypeModal(props, emit, options = {}) {
         const newItem = {
           ...fields,
           extensions: {
+            ...editableExtensions,
             'salt:type': options.typeName || props.itemType || 'general'
           },
           parentId: props.parentItem?.identifier || null,

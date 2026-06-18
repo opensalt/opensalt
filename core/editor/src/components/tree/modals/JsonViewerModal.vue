@@ -84,7 +84,7 @@ const props = defineProps({
   jsonType: {
     type: String,
     default: null,
-    validator: (v) => v === null || v === 'document' || v === 'item'
+    validator: (v) => v === null || v === 'document' || v === 'item' || v === 'association'
   },
   jsonIdentifier: {
     type: String,
@@ -104,6 +104,7 @@ const jsonData = ref(null);
 const title = computed(() => {
   if (props.jsonType === 'document') return 'Document JSON';
   if (props.jsonType === 'item') return 'Item JSON';
+  if (props.jsonType === 'association') return 'Association JSON';
   return 'JSON View';
 });
 
@@ -123,7 +124,28 @@ function buildApiUrl() {
   if (props.jsonType === 'item') {
     return `/ims/case/v1p1/CFItems/${props.jsonIdentifier}`;
   }
+  if (props.jsonType === 'association') {
+    return `/ims/case/v1p1/CFAssociations/${props.jsonIdentifier}`;
+  }
   return null;
+}
+
+const STRIPPED_KEYS = ['CFPackageURI', 'CFDocumentURI'];
+
+function stripSensitiveKeys(obj) {
+  if (!obj || typeof obj !== 'object') return;
+  if (Array.isArray(obj)) {
+    obj.forEach(item => stripSensitiveKeys(item));
+    return;
+  }
+  for (const key of STRIPPED_KEYS) {
+    delete obj[key];
+  }
+  for (const value of Object.values(obj)) {
+    if (value && typeof value === 'object') {
+      stripSensitiveKeys(value);
+    }
+  }
 }
 
 async function fetchJson() {
@@ -138,7 +160,11 @@ async function fetchJson() {
   jsonData.value = null;
 
   try {
-    jsonData.value = await api.get(url);
+    const raw = await api.get(url);
+    if (raw && typeof raw === 'object') {
+      stripSensitiveKeys(raw);
+    }
+    jsonData.value = raw;
   } catch (e) {
     logger.error('JsonViewerModal: failed to fetch JSON:', e);
     error.value = e.message || 'Failed to load JSON from the API.';

@@ -79,7 +79,7 @@ async function fetchSubjects() {
       }
 
       const text = await response.text();
-      logger.debug('Raw subjects response:', text);
+      // logger.debug('Raw subjects response:', text);
 
       const data = JSON.parse(text);
       logger.debug('Parsed subjects response:', data);

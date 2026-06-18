@@ -46,6 +46,8 @@ class DocumentController extends AbstractController
         if (null !== $data) {
             $this->applyScalarFields($lsDoc, $data);
 
+            $this->applyExtensions($lsDoc, $data);
+
             $this->applyLicence($lsDoc, $data);
 
             $this->applySubjects($lsDoc, $data);
@@ -200,6 +202,22 @@ class DocumentController extends AbstractController
 
         foreach ($data['additionalFields'] as $fieldName => $value) {
             $lsDoc->setAdditionalField($fieldName, $value);
+        }
+    }
+
+    private function applyExtensions(LsDoc $lsDoc, array $data): void
+    {
+        if (!isset($data['extensions']) || !is_array($data['extensions'])) {
+            return;
+        }
+
+        // Replace extensions entirely: clear existing then set new ones
+        foreach ($lsDoc->getExtensions() as $existingKey => $_) {
+            $lsDoc->setExtensionProperty((string) $existingKey, null);
+        }
+
+        foreach ($data['extensions'] as $key => $value) {
+            $lsDoc->setExtensionProperty((string) $key, $value);
         }
     }
 

@@ -256,7 +256,7 @@ class ItemController extends AbstractController
             'subjectURI' => $subjectURIs,
             'licenseURI' => $licenceObj,
             'licence' => $licence?->getIdentifier(),
-            'extensions' => $lsItem->getExtra(),
+            'extensions' => $lsItem->getExtensions(),
             'lastChangeDateTime' => $lsItem->getChangedAt()->format('c'),
             'documentIdentifier' => $lsItem->getLsDoc()->getIdentifier(),
             'permissions' => [
@@ -546,6 +546,7 @@ class ItemController extends AbstractController
 
     private function applyDataToItem(LsItem $lsItem, array $data, ?string $itemType): void
     {
+        $this->applyItemExtensions($lsItem, $data);
         $this->applyItemLicence($lsItem, $data);
         $this->applyItemSubjects($lsItem, $data);
         $this->applyItemItemType($lsItem, $data);
@@ -556,6 +557,20 @@ class ItemController extends AbstractController
 
         $this->applyItemScalarFields($lsItem, $data);
         $this->applyItemAdditionalFields($lsItem, $data);
+    }
+
+    private function applyItemExtensions(LsItem $lsItem, array $data): void
+    {
+        if (!isset($data['extensions']) || !is_array($data['extensions'])) {
+            return;
+        }
+
+        // Clear existing extensions if extensions are provided, replacing them entirely
+        $lsItem->setExtensions(null);
+
+        foreach ($data['extensions'] as $key => $value) {
+            $lsItem->setExtensionProperty((string) $key, $value);
+        }
     }
 
     private function applyItemLicence(LsItem $lsItem, array $data): void

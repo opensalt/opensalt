@@ -422,6 +422,14 @@ export function useTreeEditorHandlers({
 
     async function onAssociationUpdated(association) {
         if (!association?.identifier) return;
+        // Update association in tree in-place FIRST (before clearing editingAssociation) to prevent stale reads
+        if (itemStore && currentDoc.value) {
+            itemStore.updateAssociationInTree(currentDoc.value, association);
+        }
+        // Clear editingAssociation to prevent Vue from using stale reference
+        if (editingAssociation) {
+            editingAssociation.value = null;
+        }
         try {
             await currentDocumentStore.updateAssociation(association.identifier, association);
             addingAssociation.value = false;
@@ -430,7 +438,7 @@ export function useTreeEditorHandlers({
             if (currentDoc.value?.id) {
                 await documentStore.revalidatePackage(currentDoc.value.id, true);
             }
-            currentDocumentStore.reloadActiveDocument();
+            await currentDocumentStore.reloadActiveDocument();
         } catch (error) {
             logger.error('Failed to update association:', error);
         }

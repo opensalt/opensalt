@@ -195,6 +195,29 @@
                 <small class="text-muted">Webpage that describes this course.</small>
               </div>
             </div>
+            <div class="row mb-3">
+              <div class="col-sm-2 col-form-label">
+                Extensions
+              </div>
+              <div class="col-sm-10">
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary btn-sm"
+                  data-testid="open-extensions"
+                  @click="extensionsEditor.open()"
+                >
+                  Edit extensions
+                </button>
+                <small class="text-muted d-block">View or edit proprietary extension values for this course.</small>
+              </div>
+            </div>
+
+            <ExtensionsEditor
+              v-model="extensionsEditor.editable.value"
+              v-model:show="extensionsEditor.show.value"
+              entity-label="Course"
+              :reserved-keys="extensionsEditor.reservedKeys"
+            />
           </form>
         </div>
         <div class="modal-footer">
@@ -227,6 +250,8 @@
 <script setup>
 import { reactive, watch } from 'vue';
 import { useItemTypeModal } from '../../../../composables/useItemTypeModal';
+import ExtensionsEditor from '../../../shared/ExtensionsEditor.vue';
+import { useExtensionsEditor } from '../../../../composables/useExtensionsEditor.js';
 
 const props = defineProps({
   parentItem: {
@@ -249,7 +274,15 @@ const props = defineProps({
 
 const emit = defineEmits(['created', 'updated', 'hidden']);
 
-const { loading, error, saving, isEdit, saveItem: doSaveItem, closeModal } = useItemTypeModal(props, emit, { typeName: 'course' });
+const extensionsEditor = useExtensionsEditor({
+  scope: 'item',
+  kind: 'course',
+  getRawExtensions: () => props.item?.extensions
+});
+const { loading, error, saving, isEdit, saveItem: doSaveItem, closeModal } = useItemTypeModal(props, emit, {
+  typeName: 'course',
+  getEditableExtensions: () => extensionsEditor.editable.value
+});
 
 const formData = reactive({
   name: '',

@@ -292,6 +292,29 @@
                 <small class="text-muted">Geographic or political region of the organization.</small>
               </div>
             </div>
+            <div class="row mb-3">
+              <div class="col-sm-2 col-form-label">
+                Extensions
+              </div>
+              <div class="col-sm-10">
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary btn-sm"
+                  data-testid="open-extensions"
+                  @click="extensionsEditor.open()"
+                >
+                  Edit extensions
+                </button>
+                <small class="text-muted d-block">View or edit proprietary extension values for this organization.</small>
+              </div>
+            </div>
+
+            <ExtensionsEditor
+              v-model="extensionsEditor.editable.value"
+              v-model:show="extensionsEditor.show.value"
+              entity-label="Organization"
+              :reserved-keys="extensionsEditor.reservedKeys"
+            />
           </form>
         </div>
         <div class="modal-footer">
@@ -305,6 +328,7 @@
           <button
             type="button"
             class="btn btn-primary"
+            data-testid="save-item"
             :disabled="saving"
             @click="saveItem"
           >
@@ -323,6 +347,8 @@
 
 <script setup>
 import { ref, reactive, watch, computed } from 'vue';
+import ExtensionsEditor from '../../../shared/ExtensionsEditor.vue';
+import { useExtensionsEditor } from '../../../../composables/useExtensionsEditor.js';
 
 const props = defineProps({
   parentItem: {
@@ -350,6 +376,12 @@ const error = ref('');
 const saving = ref(false);
 
 const isEdit = computed(() => !!props.item);
+
+const extensionsEditor = useExtensionsEditor({
+  scope: 'item',
+  kind: 'organization',
+  getRawExtensions: () => props.item?.extensions
+});
 
 const formData = reactive({
   name: '',
@@ -446,7 +478,7 @@ function saveItem() {
         legalName: formData.legalName,
         ctid: formData.ctid,
         extensions: {
-          ...(props.item?.extensions || {}),
+          ...extensionsEditor.buildExtensions(),
           'salt:type': 'organization'
         },
         updated: new Date().toISOString()
@@ -464,6 +496,7 @@ function saveItem() {
         legalName: formData.legalName,
         ctid: formData.ctid,
         extensions: {
+          ...extensionsEditor.buildExtensions(),
           'salt:type': 'organization'
         },
         parentId: props.parentItem?.identifier || null,

@@ -74,6 +74,7 @@
         :is-read-only="associationActionsReadOnly === true"
         @edit-association="$emit('edit-association', $event)"
         @delete-association="$emit('delete-association', $event)"
+        @view-json="$emit('view-json', $event)"
       />
     </div>
   </div>
@@ -97,5 +98,5 @@ const _props = defineProps({
   showAddButton: { type: Boolean, default: true },
 });
 
-defineEmits(['add-association', 'edit-association', 'delete-association']);
+defineEmits(['add-association', 'edit-association', 'delete-association', 'view-json']);
 </script>

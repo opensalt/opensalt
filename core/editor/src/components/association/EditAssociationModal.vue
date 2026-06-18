@@ -168,6 +168,30 @@
               v-model="additionalFields"
               :field-definitions="assocFieldDefinitions"
             />
+
+            <div class="row mb-3">
+              <div class="col-sm-3 col-form-label text-end">
+                Extensions
+              </div>
+              <div class="col-sm-9">
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary btn-sm"
+                  data-testid="open-extensions"
+                  @click="extensionsEditor.open()"
+                >
+                  Edit extensions
+                </button>
+                <small class="text-muted d-block">View or edit proprietary extension values for this association.</small>
+              </div>
+            </div>
+
+            <ExtensionsEditor
+              v-model="extensionsEditor.editable.value"
+              v-model:show="extensionsEditor.show.value"
+              entity-label="Association"
+              :reserved-keys="extensionsEditor.reservedKeys"
+            />
           </div>
         </div>
         <div class="modal-footer">
@@ -181,6 +205,7 @@
           <button
             type="button"
             class="btn btn-primary"
+            data-testid="save-association"
             :disabled="saving || !isFormValid"
             @click="saveAssociation"
           >
@@ -205,6 +230,8 @@ import Modal from 'bootstrap/js/dist/modal';
 import { useAssociationDirection } from '../../composables/useAssociationDirection';
 import { useAssociationForm } from '../../composables/useAssociationForm';
 import { useAdditionalFields } from '../../composables/useAdditionalFields.js';
+import ExtensionsEditor from '../shared/ExtensionsEditor.vue';
+import { useExtensionsEditor } from '../../composables/useExtensionsEditor.js';
 
 // Import components
 import AssociationItemDisplay from './AssociationItemDisplay.vue';
@@ -265,6 +292,11 @@ const modal = ref(null);
 
 // Additional fields managed separately from the composable's formData
 const additionalFields = ref({});
+
+const extensionsEditor = useExtensionsEditor({
+  scope: 'association',
+  getRawExtensions: () => props.association?.extensions
+});
 
 // Use the form composable
 const {
@@ -434,11 +466,16 @@ function saveAssociation() {
       // Create new association
       const newAssociation = createAssociationData(finalType);
       newAssociation.additionalFields = additionalFields.value;
+      newAssociation.extensions = {
+        ...(newAssociation.extensions || {}),
+        ...extensionsEditor.buildExtensions()
+      };
       emit('created', newAssociation);
     } else {
       // Update existing association
       const updatedAssociation = updateAssociationData(finalType);
       updatedAssociation.additionalFields = additionalFields.value;
+      updatedAssociation.extensions = extensionsEditor.buildExtensions();
       emit('updated', updatedAssociation);
     }
     if (modal.value) {

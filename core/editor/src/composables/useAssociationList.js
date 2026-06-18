@@ -239,12 +239,14 @@ export function useAssociationList({ mode, item = null, displayItem: _displayIte
       return [
         itemIdentifier.value || '',
         displayedFrameworkId.value || '',
+        currentDocumentStore.associationRevision,
       ].join('|');
     }
 
     return [
       documentIdentifier.value || '',
       displayedFrameworkId.value || '',
+      currentDocumentStore.associationRevision,
     ].join('|');
   });
 

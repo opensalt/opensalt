@@ -38,16 +38,17 @@ class Collection
     public static function removeEmptyStrings(mixed $data): mixed
     {
         if ($data instanceof \stdClass) {
+            $data = get_object_vars($data);
             foreach ($data as $key => $value) {
                 $value = self::removeEmptyStrings($value);
                 if ('' === $value) {
-                    unset($data->{$key});
+                    unset($data[$key]);
                 } else {
-                    $data->{$key} = $value;
+                    $data[$key] = $value;
                 }
             }
 
-            return $data;
+            return (object) $data;
         }
 
         if (is_array($data)) {
@@ -83,15 +84,16 @@ class Collection
     public static function stripUnsupportedExtensions(mixed $data): mixed
     {
         if ($data instanceof \stdClass) {
+            $data = get_object_vars($data);
             // Always strip extensions from the top-level package object (it has
             // additionalProperties: false and does not define extensions).
-            unset($data->extensions);
+            unset($data['extensions']);
 
             foreach ($data as $key => $value) {
-                $data->{$key} = self::stripExtensionsFromLinkUris($value);
+                $data[$key] = self::stripExtensionsFromLinkUris($value);
             }
 
-            return $data;
+            return (object) $data;
         }
 
         if (is_array($data)) {
@@ -115,25 +117,21 @@ class Collection
     private static function stripExtensionsFromLinkUris(mixed $data): mixed
     {
         if ($data instanceof \stdClass) {
-            if (property_exists($data, 'extensions')) {
-                $keys = array_keys(get_object_vars($data));
+            $data = get_object_vars($data);
+            if (array_key_exists('extensions', $data)) {
                 $linkUriKeys = ['title', 'identifier', 'uri', 'targetType'];
-                // A LinkURI/LinkGenURI has title + identifier + uri as required
-                // properties, optionally targetType, and nothing else (besides
-                // the extensions we're checking). CF objects always have other
-                // distinguishing properties.
-                if (property_exists($data, 'identifier') && property_exists($data, 'uri')
-                    && [] === array_diff($keys, $linkUriKeys, ['extensions'])
+                if (array_key_exists('identifier', $data) && array_key_exists('uri', $data)
+                    && [] === array_diff(array_keys($data), $linkUriKeys, ['extensions'])
                 ) {
-                    unset($data->extensions);
+                    unset($data['extensions']);
                 }
             }
 
             foreach ($data as $key => $value) {
-                $data->{$key} = self::stripExtensionsFromLinkUris($value);
+                $data[$key] = self::stripExtensionsFromLinkUris($value);
             }
 
-            return $data;
+            return (object) $data;
         }
 
         if (is_array($data)) {

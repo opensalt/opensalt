@@ -15,7 +15,7 @@
   3. `npm run test:coverage` — run tests with coverage report
   4. `npm run lint` — run ESLint
 - **Typical PR workflow:** create branch `feature/<scope>-<short-desc>`, commit in small diffs, open PR linked to an issue, include migration notes, test results, and a brief change log (see §6).
-- **Guardrails:** do **not** commit secrets, DB data, or container volumes; prefer minimal diffs; never bypass CI failures; ask for human review for schema or API changes (see §7).
+- **Guardrails:** do **not** commit secrets, DB data, or container volumes; prefer minimal diffs; never bypass CI failures; ask for human review for schema or API changes (see §7).  Do **NOT** commit anything unless explicitly requested, let the developer manage git.
 
 ---
 

@@ -363,6 +363,31 @@
         :field-definitions="docFieldDefinitions"
         :disabled="isAdopted"
       />
+
+      <div class="row mb-3">
+        <div class="col-sm-2 col-form-label">
+          Extensions
+        </div>
+        <div class="col-sm-10">
+          <button
+            type="button"
+            class="btn btn-outline-secondary btn-sm"
+            data-testid="open-extensions"
+            :disabled="isAdopted"
+            @click="extensionsEditor.open()"
+          >
+            Edit extensions
+          </button>
+          <small class="text-muted d-block">View or edit proprietary extension values for this document.</small>
+        </div>
+      </div>
+
+      <ExtensionsEditor
+        v-model="extensionsEditor.editable.value"
+        v-model:show="extensionsEditor.show.value"
+        entity-label="Document"
+        :reserved-keys="extensionsEditor.reservedKeys"
+      />
     </form>
 
     <template #footer>
@@ -376,6 +401,7 @@
       <button
         type="button"
         class="btn btn-primary"
+        data-testid="save-doc"
         :disabled="saving"
         @click="saveDocument"
       >
@@ -398,6 +424,8 @@ import LicenseSelector from '../common/LicenseSelector.vue';
 import AdditionalFields from '../fields/AdditionalFields.vue';
 import { logger } from '../../../utils/logger.js';
 import { useAdditionalFields } from '../../../composables/useAdditionalFields.js';
+import ExtensionsEditor from '../../shared/ExtensionsEditor.vue';
+import { useExtensionsEditor } from '../../../composables/useExtensionsEditor.js';
 
 const props = defineProps({
   document: {
@@ -417,6 +445,11 @@ const props = defineProps({
 const emit = defineEmits(['saved', 'hidden', 'update:show']);
 
 const { fieldDefinitions: docFieldDefinitions, fetchFields: fetchDocFields } = useAdditionalFields();
+
+const extensionsEditor = useExtensionsEditor({
+  scope: 'document',
+  getRawExtensions: () => props.document?.extensions
+});
 
 const loading = ref(false);
 const error = ref('');
@@ -628,6 +661,7 @@ function saveDocument() {
     if (payload.adoptionStatus === '') {
       payload.adoptionStatus = null;
     }
+    payload.extensions = extensionsEditor.buildExtensions();
     emit('saved', payload);
     closeModal();
   } catch (e) {

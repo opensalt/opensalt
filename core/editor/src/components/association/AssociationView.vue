@@ -301,7 +301,10 @@ async function refreshDbAssociations() {
 }
 
 watch(
-  () => currentDocumentStore.currentDocument?.identifier,
+  () => [
+    currentDocumentStore.currentDocument?.identifier,
+    currentDocumentStore.associationRevision,
+  ],
   () => {
     void refreshDbAssociations();
   },
@@ -515,9 +518,20 @@ function editAssoc(assoc) {
 
 function handleAssociationUpdated(updatedAssoc) {
   logger.debug('Association updated:', updatedAssoc);
+  const matchId = updatedAssoc.id || updatedAssoc.identifier;
+  // Update dbAssociations in-place so the table reflects the change immediately
+  const dbIndex = dbAssociations.value.findIndex(
+    a => (a.id || a.identifier) === matchId
+  );
+  if (dbIndex !== -1) {
+    dbAssociations.value[dbIndex] = {
+      ...dbAssociations.value[dbIndex],
+      ...updatedAssoc
+    };
+  }
   // Update the association in the current document's associations list
   const index = currentDocumentStore.currentDocumentAssociations.findIndex(
-    a => (a.id || a.identifier) === (updatedAssoc.id || updatedAssoc.identifier)
+    a => (a.id || a.identifier) === matchId
   );
   if (index !== -1) {
     currentDocumentStore.currentDocumentAssociations[index] = {

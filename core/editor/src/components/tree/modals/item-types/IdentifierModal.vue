@@ -116,6 +116,29 @@
                 <small class="text-muted">The type of the identifier (e.g., URI, COCI, CD-ID).</small>
               </div>
             </div>
+            <div class="row mb-3">
+              <div class="col-sm-2 col-form-label">
+                Extensions
+              </div>
+              <div class="col-sm-10">
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary btn-sm"
+                  data-testid="open-extensions"
+                  @click="extensionsEditor.open()"
+                >
+                  Edit extensions
+                </button>
+                <small class="text-muted d-block">View or edit proprietary extension values for this identifier.</small>
+              </div>
+            </div>
+
+            <ExtensionsEditor
+              v-model="extensionsEditor.editable.value"
+              v-model:show="extensionsEditor.show.value"
+              entity-label="Identifier"
+              :reserved-keys="extensionsEditor.reservedKeys"
+            />
           </form>
         </div>
         <div class="modal-footer">
@@ -129,6 +152,7 @@
           <button
             type="button"
             class="btn btn-primary"
+            data-testid="save-item"
             :disabled="saving"
             @click="saveItem"
           >
@@ -147,6 +171,8 @@
 
 <script setup>
 import { ref, reactive, watch, computed } from 'vue';
+import ExtensionsEditor from '../../../shared/ExtensionsEditor.vue';
+import { useExtensionsEditor } from '../../../../composables/useExtensionsEditor.js';
 
 const props = defineProps({
   parentItem: {
@@ -174,6 +200,12 @@ const error = ref('');
 const saving = ref(false);
 
 const isEdit = computed(() => !!props.item);
+
+const extensionsEditor = useExtensionsEditor({
+  scope: 'item',
+  kind: 'identifier',
+  getRawExtensions: () => props.item?.extensions
+});
 
 const formData = reactive({
   identifier: '',
@@ -239,7 +271,7 @@ function saveItem() {
         description: formData.description,
         type: formData.type,
         extensions: {
-          ...(props.item?.extensions || {}),
+          ...extensionsEditor.buildExtensions(),
           'salt:type': 'identifier'
         },
         updated: new Date().toISOString()
@@ -250,7 +282,7 @@ function saveItem() {
         identifier: formData.identifier,
         description: formData.description,
         type: formData.type,
-        extensions: { 'salt:type': 'identifier' },
+        extensions: { ...extensionsEditor.buildExtensions(), 'salt:type': 'identifier' },
         parentId: props.parentItem?.identifier || null,
         created: new Date().toISOString(),
         children: []

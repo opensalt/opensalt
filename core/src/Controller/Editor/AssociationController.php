@@ -315,6 +315,10 @@ class AssociationController extends AbstractController
                 }
             }
             if (isset($data['extensions']) && is_array($data['extensions'])) {
+                // Replace extensions entirely: clear existing then set new ones
+                foreach ($lsAssociation->getExtensions() as $existingKey => $_) {
+                    $lsAssociation->setExtensionProperty((string) $existingKey, null);
+                }
                 foreach ($data['extensions'] as $key => $value) {
                     $lsAssociation->setExtensionProperty((string) $key, $value);
                 }

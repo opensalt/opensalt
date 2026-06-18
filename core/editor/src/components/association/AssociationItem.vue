@@ -163,6 +163,20 @@
         />
       </button>
     </div>
+    <div class="association-actions btn-group btn-group-sm ms-2">
+      <button
+        type="button"
+        class="btn btn-outline-secondary"
+        title="View association JSON"
+        aria-label="View association JSON"
+        @click="$emit('view-json', { type: 'association', identifier: association.identifier })"
+      >
+        <i
+          class="bi bi-code-slash"
+          aria-hidden="true"
+        />
+      </button>
+    </div>
   </div>
 </template>
 
@@ -220,7 +234,7 @@ const props = defineProps({
   }
 });
 
-const _emit = defineEmits(['edit', 'delete']);
+const _emit = defineEmits(['edit', 'delete', 'view-json']);
 
 const treeNavigation = inject('treeNavigation', null);
 

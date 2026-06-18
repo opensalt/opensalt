@@ -56,25 +56,60 @@ export const useItemStore = defineStore('items', () => {
     return updated;
   }
 
-  function updateItemRecursively(items, updatedItem) {
-    if (!Array.isArray(items)) return false;
+function updateItemRecursively(items, updatedItem) {
+     if (!Array.isArray(items)) return false;
 
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      if (item.identifier === updatedItem.identifier) {
-        // Update the item properties, preserving structure
-        Object.assign(item, updatedItem);
-        // Ensure children and associations are preserved if not overwritten
-        if (!updatedItem.children) item.children = item.children || [];
-        if (!updatedItem.associations) item.associations = item.associations || [];
-        return true;
-      }
-      if (item.children && updateItemRecursively(item.children, updatedItem)) {
-        return true;
-      }
-    }
-    return false;
-  }
+     for (let i = 0; i < items.length; i++) {
+       const item = items[i];
+       if (item.identifier === updatedItem.identifier) {
+         // Update the item properties, preserving structure
+         Object.assign(item, updatedItem);
+         // Ensure children and associations are preserved if not overwritten
+         if (!updatedItem.children) item.children = item.children || [];
+         if (!updatedItem.associations) item.associations = item.associations || [];
+         return true;
+       }
+       if (item.children && updateItemRecursively(item.children, updatedItem)) {
+         return true;
+       }
+     }
+     return false;
+   }
+
+function updateAssociationInTree(currentDocument, updatedAssociation) {
+     if (!currentDocument || !updatedAssociation || !updatedAssociation.identifier) {
+       return false;
+     }
+
+     function updateAssocRecursively(items) {
+       if (!Array.isArray(items)) return false;
+
+       for (const item of items) {
+         if (item.associations && Array.isArray(item.associations)) {
+           const assocIndex = item.associations.findIndex(a => a.identifier === updatedAssociation.identifier);
+           if (assocIndex !== -1) {
+             // Clear properties that might have been removed
+             // Find keys in existing that are not in updated and remove them
+             const existing = item.associations[assocIndex];
+             for (const key of Object.keys(existing)) {
+               if (!(key in updatedAssociation)) {
+                 delete existing[key];
+               }
+             }
+             // Now update with new values
+             Object.assign(existing, updatedAssociation);
+             return true;
+           }
+         }
+         if (item.children && updateAssocRecursively(item.children)) {
+           return true;
+         }
+       }
+       return false;
+     }
+
+     return updateAssocRecursively(currentDocument.items || []);
+   }
 
   function findItemByIdentifier(items, identifier) {
     const fastMatch = getItemByIdentifierFast(identifier);
@@ -220,10 +255,11 @@ export const useItemStore = defineStore('items', () => {
     updateItem,
     addItem,
     findItemByIdentifier,
-    getItemByIdentifierFast,
-    buildItemLookupMap,
-    invalidateCache,
-    getMaxSequence,
-    moveItem
+getItemByIdentifierFast,
+     buildItemLookupMap,
+     invalidateCache,
+     getMaxSequence,
+     moveItem,
+     updateAssociationInTree
   };
 });
