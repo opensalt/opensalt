@@ -53,7 +53,7 @@ return ECSConfig::configure()
        \PhpCsFixer\Fixer\Phpdoc\PhpdocSummaryFixer::class => null,
        \PhpCsFixer\Fixer\Phpdoc\PhpdocToCommentFixer::class => null,
        \PhpCsFixer\Fixer\Phpdoc\PhpdocVarWithoutNameFixer::class => null,
-       \PhpCsFixer\Fixer\Whitespace\StatementIndentationFixer::class => null,
+       // \PhpCsFixer\Fixer\Whitespace\StatementIndentationFixer::class => null,
        \PhpCsFixer\Fixer\FunctionNotation\MethodArgumentSpaceFixer::class => null,
        \PhpCsFixer\Fixer\Whitespace\ArrayIndentationFixer::class => null,
        \PhpCsFixer\Fixer\Comment\SingleLineCommentSpacingFixer::class => null,
