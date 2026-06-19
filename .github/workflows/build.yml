@@ -122,12 +122,17 @@ jobs:
       - name: Validate Doctrine schema
         run: docker compose exec web ./bin/console --env=prod doctrine:schema:validate
 
-      - name: Run tests
-        run: ./core/bin/run-tests --debug ${RUN_TEST_ARGS:-$DEFAULT_RUN_TEST_ARGS} -x skip-ci
-
-      - name: Run PHPUnit unit tests
+      - name: Run unit tests
         working-directory: core
         run: ./bin/run-tests Unit
+
+      - name: Run functional tests
+        working-directory: core
+        run: ./bin/run-tests Functional
+
+      - name: Run Acceptance tests
+        working-directory: core
+        run: ./bin/run-tests Acceptance --debug ${RUN_TEST_ARGS:-$DEFAULT_RUN_TEST_ARGS} -x skip-ci
 
       # PARALLEL ALTERNATIVE:
       #   1. Uncomment the PARALLEL_ACCEPTANCE_JOBS var below and set to 2 (or more).
