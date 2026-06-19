@@ -261,6 +261,12 @@
         </div>
       </div>
 
+      <!-- salt:display extension values -->
+      <ExtensionDisplayRows
+        :config="document.extensions?.['salt:display']"
+        :extensions="document.extensions"
+      />
+
       <!-- Document Actions -->
       <div class="card mt-0 border-0">
         <div
@@ -404,6 +410,7 @@
   import { editorConfig } from '../../../config/editorConfig.js';
   import CommentModule from '../CommentModule.vue';
   import ItemAssociationsCard from './ItemAssociationsCard.vue';
+  import ExtensionDisplayRows from './ExtensionDisplayRows.vue';
     import docIcon from '@/assets/icons/ph/graph-fill.svg';
 
   const props = defineProps({
