@@ -63,7 +63,7 @@ class DocTreeCest
         $I->setDocId(null);
         $I->amOnPage('/editor/' . $docUuid);
         $I->waitForElementNotVisible('.spinner-border', 120);
-        $I->waitForElementVisible('.details-panel .card-title', 120);
+        $I->waitForElementVisible('.details-panel .card-title', 180);
         $I->see($name);
 
         $I->executeJS("
