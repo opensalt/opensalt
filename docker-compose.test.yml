@@ -1,5 +1,8 @@
 services:
   web:
+    environment:
+      APP_ENV: "test"
+      APP_DEBUG: "0"
     depends_on: !reset []
 
   db:
