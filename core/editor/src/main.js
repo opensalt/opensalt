@@ -6,6 +6,8 @@ import { logger } from './utils/logger.js';
 import { useDocumentStore } from './stores/documentStore.ts';
 import { useCurrentDocumentStore } from './stores/currentDocumentStore.ts';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import * as bootstrap from 'bootstrap/dist/js/bootstrap.esm.min.js';
+window.bootstrap = window.bootstrap || bootstrap;
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import 'katex/dist/katex.min.css';
 import "github-markdown-css/github-markdown.css"
