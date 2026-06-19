@@ -1,9 +1,5 @@
 #!/bin/bash
 
-if [ -f /.dockerenv ]; then
-    exec php "$@"
-fi
-
 cd $(dirname $0)/../..
 
 string=''; for i in {0..31}; do string+=$(printf "%x" $(($RANDOM%16)) ); done;
