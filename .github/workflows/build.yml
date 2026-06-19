@@ -145,10 +145,21 @@ jobs:
       #   The run-tests-parallel script starts the Selenium Grid automatically.
       #   Scale chrome-node=N where N matches PARALLEL_ACCEPTANCE_JOBS (default 1).
 
-      - name: Failed
+      - name: Failed web logs
         if: ${{ failure() }}
         run: |
           docker compose logs web db
+
+      - name: Upload failed test output
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: failed-test-output
+          path: |
+            core/tests/_output/
+            core/tests/Support/Data/
+          if-no-files-found: warn
+          retention-days: 3
 
       - name: Check DockerHub credentials
         id: check_docker_credentials
