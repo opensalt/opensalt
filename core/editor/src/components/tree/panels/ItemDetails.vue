@@ -41,6 +41,12 @@
         :license-name="licenseName"
       />
 
+      <!-- salt:display extension values -->
+      <ExtensionDisplayRows
+        :config="currentDocument?.extensions?.['salt:display']"
+        :extensions="displayItem.extensions"
+      />
+
       <!-- Actions card (inside the outer card-body "shell", after the header card) -->
       <ItemActionsCard
         :can-edit-item="canEditItem"
@@ -118,6 +124,7 @@ import ItemDefaultDetails from './ItemDefaultDetails.vue';
 import ItemActionsCard from './ItemActionsCard.vue';
 import ItemMovementCard from './ItemMovementCard.vue';
 import ItemAssociationsCard from './ItemAssociationsCard.vue';
+import ExtensionDisplayRows from './ExtensionDisplayRows.vue';
 import CommentModule from '../CommentModule.vue';
 
 import { useItemAssociations } from '../../../composables/useItemAssociations.js';
