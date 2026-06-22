@@ -41,6 +41,7 @@ final class EditorShellController extends AbstractController
 
         $isDev = $this->getParameter('kernel.debug');
         $entry = 'src/main.js';
+
         return $this->render('editor/shell.html.twig', [
             'editorDevMode' => $isDev,
             'editorDevClient' => '/editor/@vite/client',
