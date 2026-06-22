@@ -18,16 +18,16 @@ describe('IdentifierItemDetails.vue', () => {
       props: { item: sampleItem },
     });
     const html = wrapper.html();
-    expect(html).toContain('Item URI:');
-    expect(html).not.toContain('<strong>Identifier:</strong>');
+    expect(html).toContain('Item URI');
+    expect(html).not.toContain('>Identifier<');
   });
 
-  it('renders fields in the expected order', () => {
+  it('renders fields in the expected order using dt elements', () => {
     const wrapper = mount(IdentifierItemDetails, {
       props: { item: sampleItem },
     });
-    const strongs = wrapper.findAll('strong');
-    const labels = strongs.map((s) => s.text());
+    const dts = wrapper.findAll('dt');
+    const labels = dts.map((dt) => dt.text());
     expect(labels).toEqual([
       'Identifier Type:',
       'Description:',
@@ -42,11 +42,11 @@ describe('IdentifierItemDetails.vue', () => {
       props: { item: sampleItem },
     });
     const hr = wrapper.find('hr');
-    const itemUriStrong = wrapper.findAll('strong').at(-1);
+    const itemUriDt = wrapper.findAll('dt').at(-1);
     expect(hr.exists()).toBe(true);
-    expect(itemUriStrong.text()).toBe('Item URI:');
+    expect(itemUriDt.text()).toBe('Item URI:');
     const hrEl = hr.element;
-    const itemUriEl = itemUriStrong.element;
+    const itemUriEl = itemUriDt.element;
     const comparison = hrEl.compareDocumentPosition(itemUriEl);
     expect(comparison & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
@@ -66,11 +66,11 @@ describe('IdentifierItemDetails.vue', () => {
       props: { item: sampleItem },
     });
     const html = wrapper.html();
-    expect(html).toContain('Identifier Type:');
-    expect(html).toContain('Description:');
-    expect(html).toContain('Coded Notation:');
-    expect(html).toContain('Notes:');
-    expect(html).toContain('Item URI:');
+    expect(html).toContain('Identifier Type');
+    expect(html).toContain('Description');
+    expect(html).toContain('Coded Notation');
+    expect(html).toContain('Notes');
+    expect(html).toContain('Item URI');
   });
 
   it('shows dash when item has no identifier', () => {
@@ -89,7 +89,7 @@ describe('IdentifierItemDetails.vue', () => {
       props: { item: minimalItem },
     });
     expect(wrapper.find('hr').exists()).toBe(false);
-    expect(wrapper.html()).toContain('Item URI:');
+    expect(wrapper.html()).toContain('Item URI');
   });
 
   it('does not render Identifier Type when salt:idType is absent', () => {
@@ -100,8 +100,8 @@ describe('IdentifierItemDetails.vue', () => {
     const wrapper = mount(IdentifierItemDetails, {
       props: { item: noTypeItem },
     });
-    expect(wrapper.html()).not.toContain('Identifier Type:');
-    const labels = wrapper.findAll('strong').map((s) => s.text());
-    expect(labels[0]).toBe('Description:');
+    expect(wrapper.html()).not.toContain('Identifier Type');
+    const dts = wrapper.findAll('dt');
+    expect(dts[0].text()).toBe('Description:');
   });
 });

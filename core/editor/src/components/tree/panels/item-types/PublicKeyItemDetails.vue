@@ -1,44 +1,46 @@
 <template>
   <div class="public-key-item-details">
-    <!-- Identifier link -->
-    <div class="mb-3 details-identifier item-identifier">
-      <strong>Identifier:</strong>
-      <a
-        :href="`/uri/${item.identifier}`"
-        target="_blank"
-        class="ms-1"
-      >{{ item.identifier }}</a>
-    </div>
-
-    <!-- Public Key-specific fields -->
-    <div
-      v-if="item.fullStatement"
-      class="mb-3"
-    >
-      <strong>Public Key:</strong>
-      <div class="mt-1">
-        <code class="d-block p-2 bg-light border rounded">{{ item.fullStatement }}</code>
+    <dl class="details-list">
+      <!-- Public Key-specific fields -->
+      <div
+        v-if="item.fullStatement"
+        class="details-entry--full"
+      >
+        <dt>Public Key:</dt>
+        <dd>
+          <code class="d-block p-2 bg-light border rounded">{{ item.fullStatement }}</code>
+        </dd>
       </div>
-    </div>
 
-    <div
-      v-if="item.notes"
-      class="mb-3"
-    >
-      <strong>Notes:</strong>
-      <p class="mt-1">
-        {{ item.notes }}
-      </p>
-    </div>
+      <ItemNotesField
+        v-if="item.notes"
+        :raw-notes="item.notes"
+        :rendered-notes="renderedNotes"
+      />
+
+      <hr v-if="item.fullStatement || item.notes">
+
+      <ItemIdentifierRow
+        label="Item URI"
+        :identifier="item.identifier"
+      />
+    </dl>
   </div>
 </template>
 
 <script setup>
-const _props = defineProps({
+import ItemIdentifierRow from '../ItemIdentifierRow.vue';
+import ItemNotesField from '../ItemNotesField.vue';
+
+defineProps({
   item: {
     type: Object,
-    required: true
-  }
+    required: true,
+  },
+  renderedNotes: {
+    type: String,
+    default: '',
+  },
 });
 </script>
 
@@ -47,12 +49,7 @@ const _props = defineProps({
   padding: 0.5rem 0;
 }
 
-.public-key-item-details strong {
-  color: #495057;
-  font-weight: 600;
-}
-
-.public-key-item-details code {
+.public-key-item-details :deep(code) {
   font-family: 'Courier New', Courier, monospace;
   font-size: 0.875rem;
   word-break: break-all;

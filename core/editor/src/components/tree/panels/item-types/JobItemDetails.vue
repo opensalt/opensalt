@@ -2,35 +2,26 @@
   <div class="job-item-details">
     <dl class="details-list">
       <!-- Identifier link -->
-      <div class="details-identifier item-identifier">
-        <dt>Identifier</dt>
-        <dd>
-          <a
-            :href="`/uri/${item.identifier}`"
-            target="_blank"
-            class="ms-1"
-          >{{ item.identifier }}<span class="visually-hidden"> (opens in new window)</span></a>
-        </dd>
-      </div>
+      <ItemIdentifierRow :identifier="item.identifier" />
 
       <!-- Job-specific fields -->
       <div v-if="item.fullStatement">
-        <dt>Job Title</dt>
+        <dt>Job Title:</dt>
         <dd>{{ item.fullStatement }}</dd>
       </div>
 
       <div v-if="item.humanCodingLanguage">
-        <dt>Human Coding Language</dt>
+        <dt>Human Coding Language:</dt>
         <dd>{{ item.humanCodingLanguage }}</dd>
       </div>
 
       <div v-if="item.codedNotation">
-        <dt>Coded Notation</dt>
+        <dt>Coded Notation:</dt>
         <dd>{{ item.codedNotation }}</dd>
       </div>
 
       <div v-if="item.keywords">
-        <dt>Keywords</dt>
+        <dt>Keywords:</dt>
         <dd>
           <span
             v-for="keyword in parsedKeywords"
@@ -43,47 +34,53 @@
       </div>
 
       <div
-        v-if="item.uri"
+        v-if="webpage.href"
         class="text-truncate"
       >
-        <dt>Webpage</dt>
+        <dt>Webpage:</dt>
         <dd>
           <a
-            :href="item.uri"
+            :href="webpage.href"
             target="_blank"
             class="ms-1"
-          >{{ item.uri }}<span class="visually-hidden"> (opens in new window)</span></a>
+          >{{ webpage.display }}<span class="visually-hidden"> (opens in new window)</span></a>
         </dd>
       </div>
 
-      <div v-if="item.notes">
-        <dt>Notes</dt>
-        <dd>{{ item.notes }}</dd>
-      </div>
+      <ItemNotesField
+        v-if="item.notes"
+        :raw-notes="item.notes"
+        :rendered-notes="renderedNotes"
+      />
     </dl>
   </div>
 </template>
 
 <script setup>
 import { computed } from 'vue';
+import ItemIdentifierRow from '../ItemIdentifierRow.vue';
+import ItemNotesField from '../ItemNotesField.vue';
+import { resolveItemWebpage } from '../../../../utils/resolveItemWebpage.js';
 
 const props = defineProps({
   item: {
     type: Object,
-    required: true
-  }
+    required: true,
+  },
+  renderedNotes: {
+    type: String,
+    default: '',
+  },
 });
 
-// Parse keywords from comma-separated string or array
 const parsedKeywords = computed(() => {
   if (!props.item.keywords) return [];
-
-  if (Array.isArray(props.item.keywords)) {
-    return props.item.keywords;
-  }
-
-  // If it's a string, split by comma
+  if (Array.isArray(props.item.keywords)) return props.item.keywords;
   return props.item.keywords.split(',').map(k => k.trim()).filter(k => k.length > 0);
+});
+
+const webpage = computed(() => {
+  return resolveItemWebpage(props.item.uri, null);
 });
 </script>
 

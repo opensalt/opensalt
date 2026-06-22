@@ -30,6 +30,7 @@
         :is="itemDetailsComponent"
         v-if="itemDetailsComponent"
         :item="displayItem"
+        :rendered-notes="renderedNotes"
       />
 
       <!-- Default Item Details -->

@@ -92,9 +92,9 @@
         <dl class="details-list">
           <div
             v-if="document.identifier"
-            class="mb-3 details-identifier document-identifier"
+            class="details-identifier document-identifier"
           >
-            <dt>Identifier</dt>
+            <dt>Identifier:</dt>
             <dd>
               <a
                 :href="`/uri/${document.identifier}`"
@@ -106,22 +106,21 @@
 
           <div
             v-if="document.description"
-            class="mb-3"
           >
-            <dt>Description</dt>
+            <dt>Description:</dt>
             <dd>{{ document.description }}</dd>
           </div>
 
           <div class="row">
             <div class="col-sm-6">
-              <dt>Creator</dt>
+              <dt>Creator:</dt>
               <dd>{{ document.creator || 'Unknown' }}</dd>
             </div>
             <div
               v-if="document.language?.length"
               class="col-sm-6"
             >
-              <dt>Language</dt>
+              <dt>Language:</dt>
               <dd>{{ document.language || '' }}</dd>
             </div>
           </div>
@@ -131,27 +130,26 @@
               v-if="document.version?.length"
               class="col-sm-6"
             >
-              <dt>Version</dt>
+              <dt>Version:</dt>
               <dd>{{ document.version || '' }}</dd>
             </div>
             <div class="col-sm-6">
-              <dt>Framework Type</dt>
+              <dt>Framework Type:</dt>
               <dd>{{ document.frameworkType || 'Standard' }}</dd>
             </div>
           </div>
 
           <div class="row mt-2">
             <div class="col-sm-6">
-              <dt>Adoption Status</dt>
+              <dt>Adoption Status:</dt>
               <dd>{{ document.adoptionStatus || 'Draft' }}</dd>
             </div>
           </div>
 
           <div
             v-if="(document.subjects && document.subjects.length > 0) || (document.subject && document.subject.length > 0)"
-            class="mt-3"
           >
-            <dt>Subject</dt>
+            <dt>Subject:</dt>
             <dd>
               <div class="d-inline-flex">
                 <template v-if="document.subjects && document.subjects.length > 0">
@@ -178,9 +176,8 @@
 
           <div
             v-if="document.publisher"
-            class="mt-2"
           >
-            <dt>Publisher</dt>
+            <dt>Publisher:</dt>
             <dd>{{ document.publisher }}</dd>
           </div>
 
@@ -188,41 +185,37 @@
             v-if="false && isAdmin && document.orgName"
             class="mt-2"
           >
-            <dt>Owning Access Group</dt>
+            <dt>Owning Access Group:</dt>
             <dd>{{ document.orgName }}</dd>
           </div>
 
           <div
             v-if="document.licenseURI"
-            class="mt-2 text-truncate"
+            class="text-truncate"
           >
-            <dt>License</dt>
+            <dt>License:</dt>
             <dd><span class="ms-1">{{ licenseName }}</span></dd>
           </div>
 
           <div
             v-if="document.officialSourceURL"
-            class="mt-2"
           >
-            <dt>Official URL</dt>
+            <dt>Official URL:</dt>
             <dd>
               <a
                 :href="document.officialSourceURL"
                 target="_blank"
-                class="text-decoration-none"
               >
                 {{ document.officialSourceURL }}<span class="visually-hidden"> (opens in new window)</span>
               </a>
             </dd>
           </div>
 
-          <div
+          <ItemNotesField
             v-if="document.notes"
-            class="mt-3"
-          >
-            <dt>Notes</dt>
-            <dd>{{ document.notes }}</dd>
-          </div>
+            :raw-notes="document.notes"
+            :rendered-notes="renderedDocNotes"
+          />
         </dl>
 
         <div
@@ -235,30 +228,10 @@
         </div>
 
         <!-- Additional Fields (read-only) -->
-        <div
-          v-if="hasAdditionalFieldValues"
-          class="mt-3 additional-fields-section"
-        >
-          <h6 class="mb-2">
-            Additional Fields
-          </h6>
-          <dl class="details-list">
-            <div
-              v-for="field in docFieldDefinitions"
-              :key="field.id || field.name"
-              class="row mb-1"
-            >
-              <template v-if="getDocDisplayValue(field.name)">
-                <dt class="col-sm-4 text-muted">
-                  {{ field.displayName || field.name }}
-                </dt>
-                <dd class="col-sm-8">
-                  {{ getDocDisplayValue(field.name) }}
-                </dd>
-              </template>
-            </div>
-          </dl>
-        </div>
+        <AdditionalFieldsDisplay
+          :additional-fields="document.additionalFields || {}"
+          scope="doc"
+        />
       </div>
 
       <!-- salt:display extension values -->
@@ -403,15 +376,17 @@
 </template>
 
   <script setup>
-  import { computed, onMounted } from 'vue';
+  import { computed } from 'vue';
   import { useDynamicModal } from '../../../composables/useDynamicModal.js';
   import { useDocumentAssociations } from '../../../composables/useDocumentAssociations.js';
-  import { useAdditionalFields } from '../../../composables/useAdditionalFields.js';
   import { editorConfig } from '../../../config/editorConfig.js';
   import CommentModule from '../CommentModule.vue';
   import ItemAssociationsCard from './ItemAssociationsCard.vue';
   import ExtensionDisplayRows from './ExtensionDisplayRows.vue';
+  import ItemNotesField from './ItemNotesField.vue';
+  import AdditionalFieldsDisplay from './AdditionalFieldsDisplay.vue';
     import docIcon from '@/assets/icons/ph/graph-fill.svg';
+  import renderMd from '../../../utils/render-md.js';
 
   const props = defineProps({
     document: {
@@ -503,24 +478,10 @@ const isReadOnly = computed(() => props.isViewingDifferentFramework || props.doc
     availableTypes
   );
 
-  // Additional fields for documents
-  const { fieldDefinitions: docFieldDefinitions, fetchFields: fetchDocFields } = useAdditionalFields();
-
-  onMounted(() => {
-    fetchDocFields('doc');
+  const renderedDocNotes = computed(() => {
+    if (!props.document?.notes) return '';
+    return renderMd.block(props.document.notes);
   });
-
-  const hasAdditionalFieldValues = computed(() => {
-    if (!docFieldDefinitions.value?.length) return false;
-    const af = props.document?.additionalFields;
-    return docFieldDefinitions.value.some(f => af?.[f.name]);
-  });
-
-  function getDocDisplayValue(fieldName) {
-    const af = props.document?.additionalFields;
-    if (!af || typeof af !== 'object') return undefined;
-    return af[fieldName] || undefined;
-  }
 
   function getDisplayName(type) {
     const displayNames = {

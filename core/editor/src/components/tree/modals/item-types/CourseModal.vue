@@ -124,7 +124,7 @@
               <label
                 for="course_item_inLanguage"
                 class="col-sm-2 col-form-label"
-              >In Language</label>
+              >Language</label>
               <div class="col-sm-10">
                 <select
                   id="course_item_inLanguage"

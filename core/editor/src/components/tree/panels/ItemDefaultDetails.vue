@@ -1,194 +1,114 @@
 <template>
-  <div>
+  <div class="default-item-details">
     <dl class="details-list">
       <div
         v-if="item.fullStatement"
-        class="mb-3 details-entry--full"
+        class="details-entry--full"
       >
-        <dt>Full Statement</dt>
+        <dt>Full Statement:</dt>
         <dd>
           <div
-            class="mt-1 markdown-body"
+            class="markdown-body"
             v-html="renderedFullStatement"
           />
         </dd>
       </div>
 
-      <div class="details-identifier item-identifier">
-        <dt>Identifier</dt>
-        <dd>
-          <a
-            :href="`/uri/${item.identifier}`"
-            target="_blank"
-            class="ms-1"
-          >{{ item.identifier }}<span class="visually-hidden"> (opens in new window)</span></a>
-        </dd>
-      </div>
+      <ItemIdentifierRow :identifier="item.identifier" />
 
-      <div
-        v-if="item.itemType"
-        class="col-sm-6"
-      >
-        <dt>Item Type</dt>
+      <div v-if="item.itemType">
+        <dt>Item Type:</dt>
         <dd>{{ item.itemType || 'General' }}</dd>
       </div>
-      <div
-        v-if="item.language"
-        class="col-sm-6"
-      >
-        <dt>Language</dt>
+      <div v-if="item.language">
+        <dt>Language:</dt>
         <dd>{{ item.language || 'en' }}</dd>
       </div>
 
-      <div
-        v-if="item.listEnumeration"
-        class="mt-2"
-      >
-        <dt>List Enumeration</dt>
+      <div v-if="item.listEnumeration">
+        <dt>List Enumeration:</dt>
         <dd>{{ item.listEnumeration }}</dd>
       </div>
 
-      <div
-        v-if="item.educationLevel && item.educationLevel.length > 0"
-        class="mt-2"
-      >
-        <dt>Education Level</dt>
+      <div v-if="item.educationLevel && item.educationLevel.length > 0">
+        <dt>Education Level:</dt>
         <dd>
-          <span class="ms-1">
-            <span
-              v-for="level in item.educationLevel"
-              :key="level"
-              class="badge bg-info text-dark me-1"
-            >
-              {{ level }}
-            </span>
+          <span
+            v-for="level in item.educationLevel"
+            :key="level"
+            class="badge bg-info text-dark me-1"
+          >
+            {{ level }}
           </span>
         </dd>
       </div>
 
-      <div
-        v-if="item.conceptKeywords && item.conceptKeywords.length > 0"
-        class="mt-2"
-      >
-        <dt>Keywords</dt>
+      <div v-if="item.conceptKeywords && item.conceptKeywords.length > 0">
+        <dt>Keywords:</dt>
         <dd>
-          <span class="ms-1">
-            <span
-              v-for="keyword in item.conceptKeywords"
-              :key="keyword"
-              class="badge bg-secondary me-1"
-            >
-              {{ keyword }}
-            </span>
+          <span
+            v-for="keyword in item.conceptKeywords"
+            :key="keyword"
+            class="badge bg-secondary me-1"
+          >
+            {{ keyword }}
           </span>
         </dd>
       </div>
 
-      <div
-        v-if="item.subjectURI && item.subjectURI.length > 0"
-        class="mt-2"
-      >
-        <dt>Subject</dt>
+      <div v-if="item.subjectURI && item.subjectURI.length > 0">
+        <dt>Subject:</dt>
         <dd>
-          <span class="ms-1">
-            <span
-              v-for="subject in item.subjectURI"
-              :key="subject.identifier"
-              class="badge bg-secondary me-1"
-            >
-              {{ subject.title }}
-            </span>
+          <span
+            v-for="subject in item.subjectURI"
+            :key="subject.identifier"
+            class="badge bg-secondary me-1"
+          >
+            {{ subject.title }}
           </span>
         </dd>
       </div>
 
       <div
         v-if="item.licenseURI"
-        class="mt-2 text-truncate"
+        class="text-truncate"
       >
-        <dt>License</dt>
-        <dd><span class="ms-1">{{ licenseName }}</span></dd>
+        <dt>License:</dt>
+        <dd>{{ licenseName }}</dd>
       </div>
 
-      <div
+      <ItemNotesField
         v-if="item.notes"
-        class="mt-3"
-      >
-        <dt>Notes</dt>
-        <dd>
-          <div
-            class="mt-1 markdown-body"
-            v-html="renderedNotes"
-          />
-        </dd>
-      </div>
+        :raw-notes="item.notes"
+        :rendered-notes="renderedNotes"
+      />
     </dl>
 
-    <div
-      v-if="item.lastChanged"
-      class="mt-2"
-    >
+    <div v-if="item.lastChanged">
       <small class="text-muted">
         Last changed: {{ formatDate(item.lastChanged) }}
       </small>
     </div>
 
     <!-- Additional Fields (read-only) -->
-    <div
-      v-if="hasAdditionalFieldValues"
-      class="mt-3 additional-fields-section"
-    >
-      <h6 class="mb-2">
-        Additional Fields
-      </h6>
-      <dl class="details-list">
-        <div
-          v-for="field in fieldDefinitions"
-          :key="field.id || field.name"
-          class="row mb-1"
-        >
-          <template v-if="getDisplayValue(field.name)">
-            <dt class="col-sm-4 text-muted">
-              {{ field.displayName || field.name }}
-            </dt>
-            <dd class="col-sm-8">
-              {{ getDisplayValue(field.name) }}
-            </dd>
-          </template>
-        </div>
-      </dl>
-    </div>
+    <AdditionalFieldsDisplay
+      :additional-fields="item.additionalFields || {}"
+      scope="item"
+    />
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue';
-import { useAdditionalFields } from '../../../composables/useAdditionalFields.js';
+import ItemIdentifierRow from './ItemIdentifierRow.vue';
+import ItemNotesField from './ItemNotesField.vue';
+import AdditionalFieldsDisplay from './AdditionalFieldsDisplay.vue';
 
-const props = defineProps({
+defineProps({
   item: { type: Object, required: true },
   renderedFullStatement: { type: String, default: '' },
   renderedNotes: { type: String, default: '' },
   licenseName: { type: String, default: null },
 });
-
-const { fieldDefinitions, fetchFields } = useAdditionalFields();
-
-onMounted(() => {
-  fetchFields('item');
-});
-
-const hasAdditionalFieldValues = computed(() => {
-  if (!fieldDefinitions.value?.length) return false;
-  const af = props.item?.additionalFields;
-  return fieldDefinitions.value.some(f => af?.[f.name]);
-});
-
-function getDisplayValue(fieldName) {
-  const af = props.item?.additionalFields;
-  if (!af || typeof af !== 'object') return undefined;
-  return af[fieldName] || undefined;
-}
 
 function formatDate(dateString) {
   if (!dateString) return '';
@@ -197,7 +117,12 @@ function formatDate(dateString) {
 </script>
 
 <style scoped>
-/* Markdown content styling */
+.default-item-details {
+  padding: 0.5rem 0;
+}
+
+/* Keep markdown-body for Full Statement display (not moved to ItemNotesField
+   since this component still renders fullStatement as markdown inline) */
 .markdown-body {
   padding: 0.75rem;
   background-color: #f8f9fa;

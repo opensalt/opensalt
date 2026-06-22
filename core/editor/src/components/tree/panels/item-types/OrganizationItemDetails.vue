@@ -1,121 +1,106 @@
 <template>
   <div class="organization-item-details">
-    <!-- Identifier link -->
-    <div class="mb-3 details-identifier item-identifier">
-      <strong>Identifier:</strong>
-      <a
-        :href="`/uri/${item.identifier}`"
-        target="_blank"
-        class="ms-1"
-      >{{ item.identifier }}</a>
-    </div>
+    <dl class="details-list">
+      <!-- Identifier link -->
+      <ItemIdentifierRow :identifier="item.identifier" />
 
-    <!-- Organization-specific fields -->
-    <div
-      v-if="item.abbreviatedStatement"
-      class="mb-3"
-    >
-      <strong>Organization Name:</strong>
-      <p class="mt-1">
-        {{ item.abbreviatedStatement }}
-      </p>
-    </div>
+      <!-- Organization-specific fields -->
+      <div v-if="item.abbreviatedStatement">
+        <dt>Organization Name:</dt>
+        <dd>{{ item.abbreviatedStatement }}</dd>
+      </div>
 
-    <div
-      v-if="item.fullStatement"
-      class="mb-3"
-    >
-      <strong>Description:</strong>
-      <p class="mt-1">
-        {{ item.fullStatement }}
-      </p>
-    </div>
+      <div
+        v-if="item.fullStatement"
+        class="details-entry--full"
+      >
+        <dt>Description:</dt>
+        <dd>{{ item.fullStatement }}</dd>
+      </div>
 
-    <div
-      v-if="item.extensions && item.extensions['ceterms:agentType']"
-      class="mb-3"
-    >
-      <strong>Type:</strong>
-      <p class="mt-1">
-        {{ item.extensions['ceterms:agentType'] }}
-      </p>
-    </div>
+      <div v-if="item.extensions && item.extensions['ceterms:agentType']">
+        <dt>Type:</dt>
+        <dd>{{ item.extensions['ceterms:agentType'] }}</dd>
+      </div>
 
-    <div
-      v-if="item.extensions && item.extensions['salt:legalName']"
-      class="mb-3"
-    >
-      <strong>Legal Name:</strong>
-      <p class="mt-1">
-        {{ item.extensions['salt:legalName'] }}
-      </p>
-    </div>
+      <div v-if="legalName">
+        <dt>Legal Name:</dt>
+        <dd>{{ legalName }}</dd>
+      </div>
 
-    <div
-      v-if="item.extensions && item.extensions['salt:ctid']"
-      class="mb-3"
-    >
-      <strong>CTID:</strong>
-      <p class="mt-1">
-        {{ item.extensions['salt:ctid'] }}
-      </p>
-    </div>
+      <div v-if="ctid">
+        <dt>CTID:</dt>
+        <dd>{{ ctid }}</dd>
+      </div>
 
-    <div
-      v-if="item.extensions && item.extensions['ceterms:subjectWebpage']"
-      class="mb-3 text-truncate"
-    >
-      <strong>Webpage:</strong>
-      <a
-        :href="item.uri"
-        target="_blank"
-        class="ms-1"
-      >{{ item.extensions?.['ceterms:subjectWebpage'] }}</a>
-    </div>
+      <div
+        v-if="webpage.href"
+        class="text-truncate"
+      >
+        <dt>Webpage:</dt>
+        <dd>
+          <a
+            :href="webpage.href"
+            target="_blank"
+            class="ms-1"
+          >{{ webpage.display }}<span class="visually-hidden"> (opens in new window)</span></a>
+        </dd>
+      </div>
 
-    <div
-      v-if="item.extensions && item.extensions['ceterms:jurisdiction']"
-      class="mb-3"
-    >
-      <strong>Jurisdiction:</strong>
-      <p class="mt-1">
-        {{ item.extensions['ceterms:jurisdiction'] }}
-      </p>
-    </div>
+      <div v-if="item.extensions && item.extensions['ceterms:jurisdiction']">
+        <dt>Jurisdiction:</dt>
+        <dd>{{ item.extensions['ceterms:jurisdiction'] }}</dd>
+      </div>
 
-    <div
-      v-if="item.notes"
-      class="mb-3"
-    >
-      <strong>Notes:</strong>
-      <p class="mt-1">
-        {{ item.notes }}
-      </p>
-    </div>
+      <ItemNotesField
+        v-if="item.notes"
+        :raw-notes="item.notes"
+        :rendered-notes="renderedNotes"
+      />
+    </dl>
   </div>
 </template>
 
 <script setup>
-const _props = defineProps({
+import { computed } from 'vue';
+import ItemIdentifierRow from '../ItemIdentifierRow.vue';
+import ItemNotesField from '../ItemNotesField.vue';
+import { resolveItemWebpage } from '../../../../utils/resolveItemWebpage.js';
+
+const props = defineProps({
   item: {
     type: Object,
-    required: true
-  }
+    required: true,
+  },
+  renderedNotes: {
+    type: String,
+    default: '',
+  },
+});
+
+// Dual-key check for extension resilience
+const legalName = computed(() => {
+  return props.item.extensions?.['salt:legalName']
+    || props.item.extensions?.['sdo:legalName']
+    || '';
+});
+
+const ctid = computed(() => {
+  return props.item.extensions?.['salt:ctid']
+    || props.item.extensions?.['ceterms:ctid']
+    || '';
+});
+
+const webpage = computed(() => {
+  return resolveItemWebpage(
+    props.item.uri,
+    props.item.extensions?.['ceterms:subjectWebpage'],
+  );
 });
 </script>
 
 <style scoped>
 .organization-item-details {
   padding: 0.5rem 0;
-}
-
-.organization-item-details strong {
-  color: #495057;
-  font-weight: 600;
-}
-
-.organization-item-details p {
-  margin-bottom: 0.5rem;
-  color: #212529;
 }
 </style>
