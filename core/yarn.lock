@@ -745,7 +745,7 @@
     schema-utils "^3.0.0 || ^4.0.0"
 
 "@symfony/ux-vue@file:vendor/symfony/ux-vue/assets":
-  version "3.0.0"
+  version "3.2.0"
 
 "@types/codemirror@^5.60.10":
   version "5.60.17"
@@ -2177,9 +2177,9 @@ supports-color@^8.1.1:
     has-flag "^4.0.0"
 
 swagger-ui-dist@^5.18.2:
-  version "5.32.6"
-  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-5.32.6.tgz#4a6a56786915ea4bfea43f00ff17890df8124d4c"
-  integrity sha512-75ttZNaYCLoFPnozPZcTUU6mS3wKT8l7WLjU5zJSHFeJa23i5vtnze6IiCl4jDMPeQTXVXIgovq4M11NNfQvSA==
+  version "5.32.7"
+  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-5.32.7.tgz#57af055fc18d3804c86c64d3b19c03af6aa70f9c"
+  integrity sha512-RH5WRnTpcgN/dWcmohrxdEKdNVOQ/ebas1+A6Zfqqz4Z1gj3VH48iyM59Zru+PwLB/rkOgWGOu0VQW6ODiwJNQ==
   dependencies:
     "@scarf/scarf" "=1.4.0"
 
