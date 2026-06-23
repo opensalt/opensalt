@@ -311,7 +311,8 @@ async function saveItem() {
         credential: formData.credential,
         extensions: {
           ...extensionsEditor.buildExtensions(),
-          'ob3': formData.credential
+          'ob3': formData.credential,
+          'salt:type': 'credential'
         },
         updated: new Date().toISOString()
       };
@@ -328,7 +329,8 @@ async function saveItem() {
         credential: formData.credential,
         extensions: {
           ...extensionsEditor.buildExtensions(),
-          'ob3': formData.credential
+          'ob3': formData.credential,
+          'salt:type': 'credential'
         },
         parentId: props.parentItem?.identifier || null,
         created: new Date().toISOString(),

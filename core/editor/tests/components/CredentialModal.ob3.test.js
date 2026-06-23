@@ -66,6 +66,9 @@ describe('CredentialModal ob3 encoding', () => {
 
     // extensions.ob3 must also be single-encoded.
     expect(JSON.parse(updated.extensions.ob3)).toEqual(achievement);
+
+    // The item kind discriminator must be preserved on update.
+    expect(updated.extensions['salt:type']).toBe('credential');
   });
 
   it('passes an object payload through unchanged (no extra encoding)', async () => {
@@ -87,5 +90,23 @@ describe('CredentialModal ob3 encoding', () => {
     const updated = wrapper.emitted('updated')[0][0];
     expect(JSON.parse(updated.credential)).toEqual(achievement);
     expect(updated.fullStatement).toBe('Object payload');
+  });
+
+  it('marks a new credential with the credential kind (salt:type) on create', async () => {
+    const wrapper = mountModal({ parentItem: { identifier: 'parent-1' } });
+    await nextTick();
+
+    const achievement = { name: 'New Badge', description: 'Fresh credential' };
+
+    await wrapper.find('[data-testid="save-item"]').trigger('click');
+    window.dispatchEvent(new CustomEvent('saveDefinition', { detail: achievement }));
+    await vi.advanceTimersByTimeAsync(600);
+
+    const created = wrapper.emitted('created')[0][0];
+    // Without salt:type the backend creates a general item instead of a credential.
+    expect(created.extensions['salt:type']).toBe('credential');
+    expect(JSON.parse(created.extensions.ob3)).toEqual(achievement);
+    expect(created.fullStatement).toBe('Fresh credential');
+    expect(created.parentId).toBe('parent-1');
   });
 });
