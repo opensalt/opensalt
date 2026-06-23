@@ -44,9 +44,21 @@
       </p>
       <p
         v-if="jobState.progress.skipped_no_embedding"
+        class="text-muted small mb-0"
+      >
+        Items with no embedding: {{ jobState.progress.skipped_no_embedding }}
+      </p>
+      <p
+        v-if="jobState.progress.skipped_below_threshold"
+        class="text-muted small mb-0"
+      >
+        Items below threshold: {{ jobState.progress.skipped_below_threshold }}
+      </p>
+      <p
+        v-if="jobState.progress.failed"
         class="text-muted small"
       >
-        Items skipped (no embedding): {{ jobState.progress.skipped_no_embedding }}
+        Items failed: {{ jobState.progress.failed }}
       </p>
       <button
         type="button"
@@ -66,6 +78,20 @@
         {{ jobState.progress.matched }} matches created from {{ jobState.progress.total }} origin items
         ({{ jobState.progress.exact_match_items }} exact, {{ jobState.progress.related_items }} related).
       </p>
+      <div
+        v-if="hasNonMatched"
+        class="small text-muted mb-2"
+      >
+        <div v-if="jobState.progress.skipped_no_embedding">
+          Items with no embedding: {{ jobState.progress.skipped_no_embedding }}
+        </div>
+        <div v-if="jobState.progress.skipped_below_threshold">
+          Items below threshold: {{ jobState.progress.skipped_below_threshold }}
+        </div>
+        <div v-if="jobState.progress.failed">
+          Items failed: {{ jobState.progress.failed }}
+        </div>
+      </div>
       <p
         v-if="jobState.status === 'partial' && jobState.error"
         class="mb-2 text-warning small"
@@ -129,6 +155,12 @@ const progressBarClass = computed(() => {
   if (percentage.value >= 40) return 'bg-info';
   return 'bg-primary';
 });
+
+const hasNonMatched = computed(() =>
+  jobState.value.progress.skipped_no_embedding > 0
+  || jobState.value.progress.skipped_below_threshold > 0
+  || jobState.value.progress.failed > 0
+);
 
 onMounted(() => {
   if (props.jobId) {
