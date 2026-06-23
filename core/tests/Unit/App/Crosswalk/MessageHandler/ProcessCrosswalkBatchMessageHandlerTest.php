@@ -359,4 +359,61 @@ final class ProcessCrosswalkBatchMessageHandlerTest extends TestCase
         $this->assertSame(0, $job->skippedNoEmbedding);
         $this->assertSame(1, $job->skippedBelowThreshold);
     }
+
+    public function testRecordsFailedItemAndContinuesOnException(): void
+    {
+        $job = $this->createJob(2);
+
+        $jobRepo = $this->createMock(CrosswalkJobRepository::class);
+        $jobRepo->method('find')->willReturn($job);
+
+        $sourceItem1 = $this->createMock(LsItem::class);
+        $sourceItem1->method('getId')->willReturn(100);
+        $sourceItem2 = $this->createMock(LsItem::class);
+        $sourceItem2->method('getId')->willReturn(101);
+
+        $destItem = $this->createMock(LsItem::class);
+
+        $crosswalkService = $this->createMock(CrosswalkService::class);
+        $crosswalkService->method('findBestMatch')
+            ->willReturn(['lsItem' => $destItem, 'similarity' => 0.95]);
+
+        // First item throws, second succeeds — the batch must continue.
+        $callCount = 0;
+        $crosswalkService->method('processItem')
+            ->willReturnCallback(function () use (&$callCount) {
+                if (0 === $callCount++) {
+                    throw new \RuntimeException('boom');
+                }
+
+                return CrosswalkService::RESULT_CREATED_EXACT;
+            });
+
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchOne')->willReturn('running');
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('getConnection')->willReturn($connection);
+        $em->method('getRepository')->willReturnCallback(function () use ($sourceItem1, $sourceItem2) {
+            $repo = $this->createMock(EntityRepository::class);
+            $repo->method('findBy')->willReturn([$sourceItem1, $sourceItem2]);
+
+            return $repo;
+        });
+
+        $hub = $this->createMock(HubInterface::class);
+
+        $handler = new ProcessCrosswalkBatchMessageHandler($jobRepo, $crosswalkService, $em, $hub);
+
+        $handler->__invoke(new ProcessCrosswalkBatchMessage(
+            jobId: '550e8400-e29b-41d4-a716-446655440000',
+            itemIds: [100, 101],
+        ));
+
+        $this->assertSame('completed', $job->status);
+        $this->assertSame(2, $job->processedItems);
+        $this->assertSame(1, $job->failedItems);
+        $this->assertSame(1, $job->matchedItems);
+        $this->assertSame(1, $job->exactMatchItems);
+    }
 }

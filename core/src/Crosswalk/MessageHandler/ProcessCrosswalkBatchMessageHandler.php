@@ -57,37 +57,39 @@ readonly class ProcessCrosswalkBatchMessageHandler
                 }
             }
 
-            $match = $this->crosswalkService->findBestMatch(
-                $sourceItem,
-                $job->destinationFrameworkId,
-                $message->destinationLeafOnly,
-            );
+            try {
+                $match = $this->crosswalkService->findBestMatch(
+                    $sourceItem,
+                    $job->destinationFrameworkId,
+                    $message->destinationLeafOnly,
+                );
 
-            if (null === $match) {
-                $job->recordItemNoEmbedding();
-                ++$count;
-                continue;
-            }
+                if (null === $match) {
+                    $job->recordItemNoEmbedding();
+                } else {
+                    $result = $this->crosswalkService->processItem(
+                        $sourceItem,
+                        $match['lsItem'],
+                        $match['similarity'],
+                        $job->exactMatchThreshold,
+                        $job->crosswalkFrameworkId,
+                        $job->threshold,
+                        $message->jobId,
+                    );
 
-            $result = $this->crosswalkService->processItem(
-                $sourceItem,
-                $match['lsItem'],
-                $match['similarity'],
-                $job->exactMatchThreshold,
-                $job->crosswalkFrameworkId,
-                $job->threshold,
-                $message->jobId,
-            );
-
-            if (CrosswalkService::RESULT_CREATED_EXACT === $result) {
-                $job->recordItemProcessed($match['similarity'], true);
-            } elseif (CrosswalkService::RESULT_CREATED_RELATED === $result) {
-                $job->recordItemProcessed($match['similarity'], false);
-            } elseif (CrosswalkService::RESULT_SKIPPED_DUPLICATE === $result) {
-                $isExact = $match['similarity'] >= $job->exactMatchThreshold;
-                $job->recordItemProcessed($match['similarity'], $isExact);
-            } else {
-                $job->recordItemBelowThreshold();
+                    if (CrosswalkService::RESULT_CREATED_EXACT === $result) {
+                        $job->recordItemProcessed($match['similarity'], true);
+                    } elseif (CrosswalkService::RESULT_CREATED_RELATED === $result) {
+                        $job->recordItemProcessed($match['similarity'], false);
+                    } elseif (CrosswalkService::RESULT_SKIPPED_DUPLICATE === $result) {
+                        $isExact = $match['similarity'] >= $job->exactMatchThreshold;
+                        $job->recordItemProcessed($match['similarity'], $isExact);
+                    } elseif (CrosswalkService::RESULT_SKIPPED_BELOW_THRESHOLD === $result) {
+                        $job->recordItemBelowThreshold();
+                    }
+                }
+            } catch (\Throwable) {
+                $job->recordItemFailed();
             }
 
             ++$count;
