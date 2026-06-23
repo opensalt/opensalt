@@ -54,8 +54,6 @@
         style="cursor:pointer"
         @click.stop.prevent="select"
         @dblclick.stop="dblClick"
-        @mouseenter="onMouseEnter"
-        @mouseleave="onMouseLeave"
       >
         <TreeNodeLabel
           :is-cross-framework-item="isCrossFrameworkItem"
@@ -66,8 +64,8 @@
           :has-match="hasMatch"
           :highlighted-title="highlightedTitle"
           :display-title="displayTitle"
-          :show-popover="showPopover"
-          :full-statement-html="fullStatementHtml"
+          :statement="resolvedItem.fullStatement || resolvedItem.title || ''"
+          :popover-disabled="!!viewStore.draggedItem"
         />
       </div>
       <slot
@@ -164,8 +162,6 @@
         style="cursor:pointer"
         @click="select"
         @dblclick="dblClick"
-        @mouseenter="onMouseEnter"
-        @mouseleave="onMouseLeave"
       >
         <TreeNodeLabel
           :is-cross-framework-item="isCrossFrameworkItem"
@@ -176,8 +172,8 @@
           :has-match="hasMatch"
           :highlighted-title="highlightedTitle"
           :display-title="displayTitle"
-          :show-popover="showPopover"
-          :full-statement-html="fullStatementHtml"
+          :statement="resolvedItem.fullStatement || resolvedItem.title || ''"
+          :popover-disabled="!!viewStore.draggedItem"
         />
       </div>
       <slot
@@ -209,23 +205,6 @@ import organizationIcon from '@/assets/icons/f7/building-columns-fill.svg';
 import identifierIcon from '@/assets/icons/lucide/id-card.svg';
 import publicKeyIcon from '@/assets/icons/lucide/key-round.svg';
 import folderIcon from '@/assets/icons/material-symbols/folder.svg';
-
-// ---------------------------------------------------------------------------
-// Lazy markdown renderer
-// ---------------------------------------------------------------------------
-let markdownRendererPromise = null;
-let cachedRenderMarkdown = null;
-
-async function getMarkdownRenderer() {
-  if (cachedRenderMarkdown) return cachedRenderMarkdown;
-  if (!markdownRendererPromise) {
-    markdownRendererPromise = import('@/utils/markdownRenderer').then((m) => {
-      cachedRenderMarkdown = m.renderMarkdown;
-      return cachedRenderMarkdown;
-    });
-  }
-  return markdownRendererPromise;
-}
 
 // ---------------------------------------------------------------------------
 // Props / emits
@@ -398,40 +377,9 @@ const { hasMatch, isVisible, isAncestorOnlyMatch, highlightedTitle } = useTreeNo
 });
 
 // ---------------------------------------------------------------------------
-// Popover (hover tooltip with full statement)
+// View store (used by drag-drop composable)
 // ---------------------------------------------------------------------------
 const viewStore = useViewStore();
-const showPopover = ref(false);
-const popoverTimeout = ref(null);
-const fullStatementHtml = ref('');
-
-const onMouseEnter = () => {
-  if (viewStore.draggedItem) return;
-  if (popoverTimeout.value) clearTimeout(popoverTimeout.value);
-  popoverTimeout.value = setTimeout(async () => {
-    showPopover.value = true;
-    const text = resolvedItem.value.fullStatement || resolvedItem.value.title || '';
-    if (text) {
-      const renderMarkdownText = await getMarkdownRenderer();
-      fullStatementHtml.value = renderMarkdownText(text);
-    }
-  }, 500);
-};
-
-const onMouseLeave = () => {
-  if (popoverTimeout.value) {
-    clearTimeout(popoverTimeout.value);
-    popoverTimeout.value = null;
-  }
-  showPopover.value = false;
-};
-
-onUnmounted(() => {
-  if (popoverTimeout.value) {
-    clearTimeout(popoverTimeout.value);
-    popoverTimeout.value = null;
-  }
-});
 
 // ---------------------------------------------------------------------------
 // Icon resolution
@@ -587,6 +535,11 @@ const { dropPosition, onDragStart, onDragOver, onDragLeave, onDrop } = useTreeNo
   user-select: text;
 }
 
+.tree-node-label :deep(.item-statement-popover-trigger) {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
 .tree-node-label:hover {
   background-color: #f8f9fa;
 }
@@ -643,47 +596,6 @@ const { dropPosition, onDragStart, onDragOver, onDragLeave, onDrop } = useTreeNo
   height: 16px;
   flex-shrink: 0;
   margin-right: 4px;
-}
-
-.popover {
-  position: absolute;
-  z-index: 9999;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 8px;
-  max-width: 400px;
-  max-height: 300px;
-  overflow-y: auto;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  top: 100%;
-  left: 0;
-  margin-top: 5px;
-  pointer-events: none;
-}
-
-.popover::before {
-  content: '';
-  position: absolute;
-  top: -6px;
-  left: 12px;
-  border-left: 6px solid transparent;
-  border-right: 6px solid transparent;
-  border-bottom: 6px solid #ddd;
-  pointer-events: none;
-}
-
-.popover::after {
-  content: '';
-  position: absolute;
-  top: -5px;
-  left: 13px;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-bottom: 5px solid white;
-  pointer-events: none;
 }
 
 .drop-before {

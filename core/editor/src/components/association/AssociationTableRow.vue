@@ -20,85 +20,90 @@
           </template>
           <template v-else>
             <div class="d-flex align-items-center flex-wrap gap-1">
-              <a
-                v-if="originLinkInfo.type === 'same-framework'"
-                :href="originLinkInfo.href"
-                class="association-title-link"
-                @click.prevent="onOriginClick"
+              <ItemStatementPopover
+                :statement="originDisplay.popoverStatement"
+                :disabled="originDisplay.isLoading || !originDisplay.popoverStatement"
               >
-                <span
-                  v-if="originDisplay.humanCodingScheme"
-                  class="item-human-coding-scheme"
-                >{{ originDisplay.humanCodingScheme }}:</span>
-                <span
-                  v-if="originDisplay.statement"
-                  class="item-statement"
-                >{{ originDisplay.truncatedStatement }}</span>
-                <span
-                  v-if="!originDisplay.humanCodingScheme && !originDisplay.statement"
-                  class="text-muted"
-                >Unknown</span>
-              </a>
-              <a
-                v-else-if="originLinkInfo.type === 'cross-framework'"
-                :href="originLinkInfo.href"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="association-title-link"
-              >
-                <span
-                  v-if="originDisplay.humanCodingScheme"
-                  class="item-human-coding-scheme"
-                >{{ originDisplay.humanCodingScheme }}:</span>
-                <span
-                  v-if="originDisplay.statement"
-                  class="item-statement"
-                >{{ originDisplay.truncatedStatement }}</span>
-                <span
-                  v-if="!originDisplay.humanCodingScheme && !originDisplay.statement"
-                  class="text-muted"
-                >Unknown</span>
-              </a>
-              <a
-                v-else-if="originLinkInfo.type === 'external'"
-                :href="originLinkInfo.href"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="association-title-link"
-              >
-                <span
-                  v-if="originDisplay.humanCodingScheme"
-                  class="item-human-coding-scheme"
-                >{{ originDisplay.humanCodingScheme }}:</span>
-                <span
-                  v-if="originDisplay.statement"
-                  class="item-statement"
-                >{{ originDisplay.truncatedStatement }}</span>
-                <span
-                  v-if="!originDisplay.humanCodingScheme && !originDisplay.statement"
-                  class="text-muted"
-                >Unknown</span>
-              </a>
-              <template v-else>
-                <span
-                  v-if="originDisplay.humanCodingScheme"
-                  class="item-human-coding-scheme"
+                <a
+                  v-if="originLinkInfo.type === 'same-framework'"
+                  :href="originLinkInfo.href"
+                  class="association-title-link"
+                  @click.prevent="onOriginClick"
                 >
-                  {{ originDisplay.humanCodingScheme }}:
-                </span>
-                <span
-                  v-if="originDisplay.statement"
-                  class="item-statement"
+                  <span
+                    v-if="originDisplay.humanCodingScheme"
+                    class="item-human-coding-scheme"
+                  >{{ originDisplay.humanCodingScheme }}:</span>
+                  <span
+                    v-if="originDisplay.statement"
+                    class="item-statement"
+                  >{{ originDisplay.truncatedStatement }}</span>
+                  <span
+                    v-if="!originDisplay.humanCodingScheme && !originDisplay.statement"
+                    class="text-muted"
+                  >Unknown</span>
+                </a>
+                <a
+                  v-else-if="originLinkInfo.type === 'cross-framework'"
+                  :href="originLinkInfo.href"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="association-title-link"
                 >
-                  {{ originDisplay.truncatedStatement }}
-                </span>
-                <span
-                  v-if="!originDisplay.humanCodingScheme && !originDisplay.statement"
-                  class="text-muted"
+                  <span
+                    v-if="originDisplay.humanCodingScheme"
+                    class="item-human-coding-scheme"
+                  >{{ originDisplay.humanCodingScheme }}:</span>
+                  <span
+                    v-if="originDisplay.statement"
+                    class="item-statement"
+                  >{{ originDisplay.truncatedStatement }}</span>
+                  <span
+                    v-if="!originDisplay.humanCodingScheme && !originDisplay.statement"
+                    class="text-muted"
+                  >Unknown</span>
+                </a>
+                <a
+                  v-else-if="originLinkInfo.type === 'external'"
+                  :href="originLinkInfo.href"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="association-title-link"
                 >
-                  Unknown
-                </span>
-              </template>
+                  <span
+                    v-if="originDisplay.humanCodingScheme"
+                    class="item-human-coding-scheme"
+                  >{{ originDisplay.humanCodingScheme }}:</span>
+                  <span
+                    v-if="originDisplay.statement"
+                    class="item-statement"
+                  >{{ originDisplay.truncatedStatement }}</span>
+                  <span
+                    v-if="!originDisplay.humanCodingScheme && !originDisplay.statement"
+                    class="text-muted"
+                  >Unknown</span>
+                </a>
+                <template v-else>
+                  <span
+                    v-if="originDisplay.humanCodingScheme"
+                    class="item-human-coding-scheme"
+                  >
+                    {{ originDisplay.humanCodingScheme }}:
+                  </span>
+                  <span
+                    v-if="originDisplay.statement"
+                    class="item-statement"
+                  >
+                    {{ originDisplay.truncatedStatement }}
+                  </span>
+                  <span
+                    v-if="!originDisplay.humanCodingScheme && !originDisplay.statement"
+                    class="text-muted"
+                  >
+                    Unknown
+                  </span>
+                </template>
+              </ItemStatementPopover>
               <!-- Framework badge for cross-framework CASE items -->
               <span
                 v-if="originFrameworkTitle && !isOriginLoading && originTargetTypeInfo.isCase"
@@ -116,10 +121,7 @@
                 class="badge external-uri-badge"
                 title="External URI"
               >
-                <i
-                  class="bi bi-link-45deg me-1"
-                  aria-hidden="true"
-                />External
+                <i class="bi bi-link-45deg me-1" aria-hidden="true" />External
               </span>
             </div>
             <!-- Source framework tag moved to Origin column -->
@@ -171,85 +173,90 @@
           </template>
           <template v-else>
             <div class="d-flex align-items-center flex-wrap gap-1">
-              <a
-                v-if="destinationLinkInfo.type === 'same-framework'"
-                :href="destinationLinkInfo.href"
-                class="association-title-link"
-                @click.prevent="onDestinationClick"
+              <ItemStatementPopover
+                :statement="destinationDisplay.popoverStatement"
+                :disabled="destinationDisplay.isLoading || !destinationDisplay.popoverStatement"
               >
-                <span
-                  v-if="destinationDisplay.humanCodingScheme"
-                  class="item-human-coding-scheme"
-                >{{ destinationDisplay.humanCodingScheme }}:</span>
-                <span
-                  v-if="destinationDisplay.statement"
-                  class="item-statement"
-                >{{ destinationDisplay.truncatedStatement }}</span>
-                <span
-                  v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement"
-                  class="text-muted"
-                >Unknown</span>
-              </a>
-              <a
-                v-else-if="destinationLinkInfo.type === 'cross-framework'"
-                :href="destinationLinkInfo.href"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="association-title-link"
-              >
-                <span
-                  v-if="destinationDisplay.humanCodingScheme"
-                  class="item-human-coding-scheme"
-                >{{ destinationDisplay.humanCodingScheme }}:</span>
-                <span
-                  v-if="destinationDisplay.statement"
-                  class="item-statement"
-                >{{ destinationDisplay.truncatedStatement }}</span>
-                <span
-                  v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement"
-                  class="text-muted"
-                >Unknown</span>
-              </a>
-              <a
-                v-else-if="destinationLinkInfo.type === 'external'"
-                :href="destinationLinkInfo.href"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="association-title-link"
-              >
-                <span
-                  v-if="destinationDisplay.humanCodingScheme"
-                  class="item-human-coding-scheme"
-                >{{ destinationDisplay.humanCodingScheme }}:</span>
-                <span
-                  v-if="destinationDisplay.statement"
-                  class="item-statement"
-                >{{ destinationDisplay.truncatedStatement }}</span>
-                <span
-                  v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement"
-                  class="text-muted"
-                >Unknown</span>
-              </a>
-              <template v-else>
-                <span
-                  v-if="destinationDisplay.humanCodingScheme"
-                  class="item-human-coding-scheme"
+                <a
+                  v-if="destinationLinkInfo.type === 'same-framework'"
+                  :href="destinationLinkInfo.href"
+                  class="association-title-link"
+                  @click.prevent="onDestinationClick"
                 >
-                  {{ destinationDisplay.humanCodingScheme }}:
-                </span>
-                <span
-                  v-if="destinationDisplay.statement"
-                  class="item-statement"
+                  <span
+                    v-if="destinationDisplay.humanCodingScheme"
+                    class="item-human-coding-scheme"
+                  >{{ destinationDisplay.humanCodingScheme }}:</span>
+                  <span
+                    v-if="destinationDisplay.statement"
+                    class="item-statement"
+                  >{{ destinationDisplay.truncatedStatement }}</span>
+                  <span
+                    v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement"
+                    class="text-muted"
+                  >Unknown</span>
+                </a>
+                <a
+                  v-else-if="destinationLinkInfo.type === 'cross-framework'"
+                  :href="destinationLinkInfo.href"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="association-title-link"
                 >
-                  {{ destinationDisplay.truncatedStatement }}
-                </span>
-                <span
-                  v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement"
-                  class="text-muted"
+                  <span
+                    v-if="destinationDisplay.humanCodingScheme"
+                    class="item-human-coding-scheme"
+                  >{{ destinationDisplay.humanCodingScheme }}:</span>
+                  <span
+                    v-if="destinationDisplay.statement"
+                    class="item-statement"
+                  >{{ destinationDisplay.truncatedStatement }}</span>
+                  <span
+                    v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement"
+                    class="text-muted"
+                  >Unknown</span>
+                </a>
+                <a
+                  v-else-if="destinationLinkInfo.type === 'external'"
+                  :href="destinationLinkInfo.href"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="association-title-link"
                 >
-                  Unknown
-                </span>
-              </template>
+                  <span
+                    v-if="destinationDisplay.humanCodingScheme"
+                    class="item-human-coding-scheme"
+                  >{{ destinationDisplay.humanCodingScheme }}:</span>
+                  <span
+                    v-if="destinationDisplay.statement"
+                    class="item-statement"
+                  >{{ destinationDisplay.truncatedStatement }}</span>
+                  <span
+                    v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement"
+                    class="text-muted"
+                  >Unknown</span>
+                </a>
+                <template v-else>
+                  <span
+                    v-if="destinationDisplay.humanCodingScheme"
+                    class="item-human-coding-scheme"
+                  >
+                    {{ destinationDisplay.humanCodingScheme }}:
+                  </span>
+                  <span
+                    v-if="destinationDisplay.statement"
+                    class="item-statement"
+                  >
+                    {{ destinationDisplay.truncatedStatement }}
+                  </span>
+                  <span
+                    v-if="!destinationDisplay.humanCodingScheme && !destinationDisplay.statement"
+                    class="text-muted"
+                  >
+                    Unknown
+                  </span>
+                </template>
+              </ItemStatementPopover>
               <!-- Framework badge for cross-framework CASE items -->
               <span
                 v-if="destinationFrameworkTitle && !isDestinationLoading && destinationTargetTypeInfo.isCase"
@@ -338,6 +345,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useCrossFrameworkItem } from '../../composables/useCrossFrameworkItem';
 import { useAssociationPermissions } from '../../composables/useAssociationPermissions';
 import { formatAssociationType, getAssociationIcon } from '../../utils/associationHelpers.js';
+import ItemStatementPopover from '@/components/common/ItemStatementPopover.vue';
 
 // Lazy-loaded markdown renderer with caching
 let markdownRendererPromise = null;
@@ -545,7 +553,8 @@ const originDisplay = computed(() => {
       statement: item.abbreviatedStatement || item.fullStatement || '',
       truncatedStatement: truncateText(item.abbreviatedStatement || item.fullStatement || ''),
       identifier: item.identifier,
-      isLoading: false
+      isLoading: false,
+      popoverStatement: item.fullStatement || item.abbreviatedStatement || ''
     };
   }
 
@@ -555,7 +564,8 @@ const originDisplay = computed(() => {
     statement: title || '',
     truncatedStatement: truncateText(title || ''),
     identifier: nodeUri?.identifier,
-    isLoading: false
+    isLoading: false,
+    popoverStatement: title || ''
   };
 });
 
@@ -584,7 +594,8 @@ const destinationDisplay = computed(() => {
       statement: item.abbreviatedStatement || item.fullStatement || '',
       truncatedStatement: truncateText(item.abbreviatedStatement || item.fullStatement || ''),
       identifier: item.identifier,
-      isLoading: false
+      isLoading: false,
+      popoverStatement: item.fullStatement || item.abbreviatedStatement || ''
     };
   }
 
@@ -594,7 +605,8 @@ const destinationDisplay = computed(() => {
     statement: title || '',
     truncatedStatement: truncateText(title || ''),
     identifier: nodeUri?.identifier,
-    isLoading: false
+    isLoading: false,
+    popoverStatement: title || ''
   };
 });
 

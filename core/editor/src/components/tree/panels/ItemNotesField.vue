@@ -7,7 +7,9 @@
         class="markdown-body"
         v-html="renderedNotes"
       />
-      <div v-else>{{ rawNotes }}</div>
+      <div v-else>
+        {{ rawNotes }}
+      </div>
     </dd>
   </div>
 </template>

@@ -13,27 +13,32 @@
       >
     </td>
     <td class="col-origin">
-      <div class="d-flex flex-column">
-        <span
-          v-if="pair.originItem?.humanCodingScheme"
-          class="text-muted small"
-        >{{ pair.originItem.humanCodingScheme }}</span>
-        <a
-          v-if="originItemLink"
-          :href="originItemLink"
-          target="_blank"
-          class="text-decoration-none"
-        >{{ truncatedOriginTitle }}<i
-          v-if="originHasChildren"
-          class="bi bi-diagram-3 text-muted ms-1 cw-has-children"
-          title="Has child items"
-        /></a>
-        <span v-else>{{ truncatedOriginTitle }}<i
-          v-if="originHasChildren"
-          class="bi bi-diagram-3 text-muted ms-1 cw-has-children"
-          title="Has child items"
-        /></span>
-      </div>
+      <ItemStatementPopover
+        :statement="originStatement"
+        :disabled="!originStatement"
+      >
+        <div class="d-flex flex-column">
+          <span
+            v-if="pair.originItem?.humanCodingScheme"
+            class="text-muted small"
+          >{{ pair.originItem.humanCodingScheme }}</span>
+          <a
+            v-if="originItemLink"
+            :href="originItemLink"
+            target="_blank"
+            class="text-decoration-none"
+          >{{ truncatedOriginTitle }}<i
+            v-if="originHasChildren"
+            class="bi bi-diagram-3 text-muted ms-1 cw-has-children"
+            title="Has child items"
+          /></a>
+          <span v-else>{{ truncatedOriginTitle }}<i
+            v-if="originHasChildren"
+            class="bi bi-diagram-3 text-muted ms-1 cw-has-children"
+            title="Has child items"
+          /></span>
+        </div>
+      </ItemStatementPopover>
     </td>
     <td class="text-center">
       <span class="text-muted">&leftrightarrow;</span>
@@ -51,27 +56,32 @@
       >{{ pair.type === 'exactMatchOf' ? 'Exact' : 'Related' }}</span>
     </td>
     <td class="col-destination">
-      <div class="d-flex flex-column">
-        <span
-          v-if="pair.destinationItem?.humanCodingScheme"
-          class="text-muted small"
-        >{{ pair.destinationItem.humanCodingScheme }}</span>
-        <a
-          v-if="destItemLink"
-          :href="destItemLink"
-          target="_blank"
-          class="text-decoration-none"
-        >{{ truncatedDestTitle }}<i
-          v-if="destHasChildren"
-          class="bi bi-diagram-3 text-muted ms-1 cw-has-children"
-          title="Has child items"
-        /></a>
-        <span v-else>{{ truncatedDestTitle }}<i
-          v-if="destHasChildren"
-          class="bi bi-diagram-3 text-muted ms-1 cw-has-children"
-          title="Has child items"
-        /></span>
-      </div>
+      <ItemStatementPopover
+        :statement="destStatement"
+        :disabled="!destStatement"
+      >
+        <div class="d-flex flex-column">
+          <span
+            v-if="pair.destinationItem?.humanCodingScheme"
+            class="text-muted small"
+          >{{ pair.destinationItem.humanCodingScheme }}</span>
+          <a
+            v-if="destItemLink"
+            :href="destItemLink"
+            target="_blank"
+            class="text-decoration-none"
+          >{{ truncatedDestTitle }}<i
+            v-if="destHasChildren"
+            class="bi bi-diagram-3 text-muted ms-1 cw-has-children"
+            title="Has child items"
+          /></a>
+          <span v-else>{{ truncatedDestTitle }}<i
+            v-if="destHasChildren"
+            class="bi bi-diagram-3 text-muted ms-1 cw-has-children"
+            title="Has child items"
+          /></span>
+        </div>
+      </ItemStatementPopover>
     </td>
     <td>
       <span
@@ -132,27 +142,32 @@
       >
     </td>
     <td class="col-origin">
-      <div class="d-flex flex-column">
-        <span
-          v-if="unmatchedOriginItem.humanCodingScheme"
-          class="text-muted small"
-        >{{ unmatchedOriginItem.humanCodingScheme }}</span>
-        <a
-          v-if="originItemLink"
-          :href="originItemLink"
-          target="_blank"
-          class="text-decoration-none"
-        >{{ truncatedUnmatchedOriginTitle }}<i
-          v-if="unmatchedOriginHasChildren"
-          class="bi bi-diagram-3 text-muted ms-1 cw-has-children"
-          title="Has child items"
-        /></a>
-        <span v-else>{{ truncatedUnmatchedOriginTitle }}<i
-          v-if="unmatchedOriginHasChildren"
-          class="bi bi-diagram-3 text-muted ms-1 cw-has-children"
-          title="Has child items"
-        /></span>
-      </div>
+      <ItemStatementPopover
+        :statement="originStatement"
+        :disabled="!originStatement"
+      >
+        <div class="d-flex flex-column">
+          <span
+            v-if="unmatchedOriginItem.humanCodingScheme"
+            class="text-muted small"
+          >{{ unmatchedOriginItem.humanCodingScheme }}</span>
+          <a
+            v-if="originItemLink"
+            :href="originItemLink"
+            target="_blank"
+            class="text-decoration-none"
+          >{{ truncatedUnmatchedOriginTitle }}<i
+            v-if="unmatchedOriginHasChildren"
+            class="bi bi-diagram-3 text-muted ms-1 cw-has-children"
+            title="Has child items"
+          /></a>
+          <span v-else>{{ truncatedUnmatchedOriginTitle }}<i
+            v-if="unmatchedOriginHasChildren"
+            class="bi bi-diagram-3 text-muted ms-1 cw-has-children"
+            title="Has child items"
+          /></span>
+        </div>
+      </ItemStatementPopover>
     </td>
     <td class="text-center text-muted">
       &mdash;
@@ -206,27 +221,32 @@
       —
     </td>
     <td class="col-destination">
-      <div class="d-flex flex-column">
-        <span
-          v-if="unmatchedDestinationItem.humanCodingScheme"
-          class="text-muted small"
-        >{{ unmatchedDestinationItem.humanCodingScheme }}</span>
-        <a
-          v-if="destItemLink"
-          :href="destItemLink"
-          target="_blank"
-          class="text-decoration-none"
-        >{{ truncatedUnmatchedDestTitle }}<i
-          v-if="unmatchedDestHasChildren"
-          class="bi bi-diagram-3 text-muted ms-1 cw-has-children"
-          title="Has child items"
-        /></a>
-        <span v-else>{{ truncatedUnmatchedDestTitle }}<i
-          v-if="unmatchedDestHasChildren"
-          class="bi bi-diagram-3 text-muted ms-1 cw-has-children"
-          title="Has child items"
-        /></span>
-      </div>
+      <ItemStatementPopover
+        :statement="destStatement"
+        :disabled="!destStatement"
+      >
+        <div class="d-flex flex-column">
+          <span
+            v-if="unmatchedDestinationItem.humanCodingScheme"
+            class="text-muted small"
+          >{{ unmatchedDestinationItem.humanCodingScheme }}</span>
+          <a
+            v-if="destItemLink"
+            :href="destItemLink"
+            target="_blank"
+            class="text-decoration-none"
+          >{{ truncatedUnmatchedDestTitle }}<i
+            v-if="unmatchedDestHasChildren"
+            class="bi bi-diagram-3 text-muted ms-1 cw-has-children"
+            title="Has child items"
+          /></a>
+          <span v-else>{{ truncatedUnmatchedDestTitle }}<i
+            v-if="unmatchedDestHasChildren"
+            class="bi bi-diagram-3 text-muted ms-1 cw-has-children"
+            title="Has child items"
+          /></span>
+        </div>
+      </ItemStatementPopover>
     </td>
     <td>
       <span class="badge bg-secondary">unmatched</span>
@@ -247,6 +267,7 @@
 
 <script setup>
 import { computed } from 'vue';
+import ItemStatementPopover from '@/components/common/ItemStatementPopover.vue';
 
 const props = defineProps({
   row: { type: Object, required: true },
@@ -302,6 +323,16 @@ const truncatedUnmatchedOriginTitle = computed(() => {
 const truncatedUnmatchedDestTitle = computed(() => {
   const t = unmatchedDestinationItem.value?.fullStatement || unmatchedDestinationItem.value?.title || 'Unknown';
   return t.length > 80 ? t.substring(0, 80) + '...' : t;
+});
+
+const originStatement = computed(() => {
+  const item = pair.value?.originItem || unmatchedOriginItem.value;
+  return item?.fullStatement || item?.title || '';
+});
+
+const destStatement = computed(() => {
+  const item = pair.value?.destinationItem || unmatchedDestinationItem.value;
+  return item?.fullStatement || item?.title || '';
 });
 
 const isSelectedUnmatched = computed(() => Boolean(unmatchedOriginItem.value || unmatchedDestinationItem.value) && props.isSelected);
