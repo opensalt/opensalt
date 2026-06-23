@@ -272,4 +272,91 @@ final class ProcessCrosswalkBatchMessageHandlerTest extends TestCase
         $this->assertSame(1, $job->matchedItems);
         $this->assertSame(1, $job->exactMatchItems);
     }
+
+    public function testRecordsNoEmbeddingWhenNoMatchFound(): void
+    {
+        $job = $this->createJob(1);
+
+        $jobRepo = $this->createMock(CrosswalkJobRepository::class);
+        $jobRepo->method('find')->willReturn($job);
+
+        $sourceItem = $this->createMock(LsItem::class);
+        $sourceItem->method('getId')->willReturn(100);
+
+        $crosswalkService = $this->createMock(CrosswalkService::class);
+        $crosswalkService->method('findBestMatch')->willReturn(null);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchOne')->willReturn('running');
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('getConnection')->willReturn($connection);
+        $em->method('getRepository')->willReturnCallback(function () use ($sourceItem) {
+            $repo = $this->createMock(EntityRepository::class);
+            $repo->method('findBy')->willReturn([$sourceItem]);
+
+            return $repo;
+        });
+
+        $hub = $this->createMock(HubInterface::class);
+
+        $handler = new ProcessCrosswalkBatchMessageHandler($jobRepo, $crosswalkService, $em, $hub);
+
+        $handler->__invoke(new ProcessCrosswalkBatchMessage(
+            jobId: '550e8400-e29b-41d4-a716-446655440000',
+            itemIds: [100],
+        ));
+
+        $this->assertSame('completed', $job->status);
+        $this->assertSame(1, $job->processedItems);
+        $this->assertSame(0, $job->matchedItems);
+        $this->assertSame(1, $job->skippedNoEmbedding);
+        $this->assertSame(0, $job->skippedBelowThreshold);
+    }
+
+    public function testRecordsBelowThresholdForWeakMatch(): void
+    {
+        $job = $this->createJob(1);
+
+        $jobRepo = $this->createMock(CrosswalkJobRepository::class);
+        $jobRepo->method('find')->willReturn($job);
+
+        $sourceItem = $this->createMock(LsItem::class);
+        $sourceItem->method('getId')->willReturn(100);
+
+        $destItem = $this->createMock(LsItem::class);
+
+        $crosswalkService = $this->createMock(CrosswalkService::class);
+        $crosswalkService->method('findBestMatch')
+            ->willReturn(['lsItem' => $destItem, 'similarity' => 0.50]);
+        $crosswalkService->method('processItem')
+            ->willReturn(CrosswalkService::RESULT_SKIPPED_BELOW_THRESHOLD);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->method('fetchOne')->willReturn('running');
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('getConnection')->willReturn($connection);
+        $em->method('getRepository')->willReturnCallback(function () use ($sourceItem) {
+            $repo = $this->createMock(EntityRepository::class);
+            $repo->method('findBy')->willReturn([$sourceItem]);
+
+            return $repo;
+        });
+
+        $hub = $this->createMock(HubInterface::class);
+
+        $handler = new ProcessCrosswalkBatchMessageHandler($jobRepo, $crosswalkService, $em, $hub);
+
+        $handler->__invoke(new ProcessCrosswalkBatchMessage(
+            jobId: '550e8400-e29b-41d4-a716-446655440000',
+            itemIds: [100],
+        ));
+
+        $this->assertSame('completed', $job->status);
+        $this->assertSame(1, $job->processedItems);
+        $this->assertSame(0, $job->matchedItems);
+        $this->assertSame(0, $job->skippedNoEmbedding);
+        $this->assertSame(1, $job->skippedBelowThreshold);
+    }
 }

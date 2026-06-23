@@ -92,12 +92,16 @@ readonly class CrosswalkService
     /**
      * Find the best matching item in the destination framework for a given source item.
      *
+     * Returns the highest-scoring candidate regardless of score; null only when no
+     * candidate exists (e.g. the source item has no embedding). Threshold filtering
+     * is delegated to processItem() so callers can distinguish "no embedding"
+     * from "below threshold".
+     *
      * @return array{lsItem: LsItem, similarity: float}|null
      */
     public function findBestMatch(
         LsItem $sourceItem,
         int $destinationFrameworkId,
-        float $threshold,
         bool $leafOnly = false,
     ): ?array {
         $results = $this->vectorSearchService->searchByLsItem(
@@ -111,12 +115,7 @@ readonly class CrosswalkService
             return null;
         }
 
-        $best = $results[0];
-        if ($best['similarity'] < $threshold) {
-            return null;
-        }
-
-        return $best;
+        return $results[0];
     }
 
     /**

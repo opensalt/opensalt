@@ -60,7 +60,6 @@ readonly class ProcessCrosswalkBatchMessageHandler
             $match = $this->crosswalkService->findBestMatch(
                 $sourceItem,
                 $job->destinationFrameworkId,
-                $job->threshold,
                 $message->destinationLeafOnly,
             );
 

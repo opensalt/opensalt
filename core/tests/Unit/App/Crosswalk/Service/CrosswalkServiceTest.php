@@ -184,13 +184,36 @@ final class CrosswalkServiceTest extends TestCase
         $match = $service->findBestMatch(
             $sourceItem,
             destinationFrameworkId: 87,
-            threshold: 0.75,
             leafOnly: true,
         );
 
         $this->assertNotNull($match);
         $this->assertSame($destItem, $match['lsItem']);
         $this->assertSame(0.85, $match['similarity']);
+    }
+
+    public function testFindBestMatchReturnsBelowThresholdMatch(): void
+    {
+        $sourceItem = $this->createMock(LsItem::class);
+        $destItem = $this->createMock(LsItem::class);
+
+        $vectorSearchService = $this->createMock(VectorSearchService::class);
+        $vectorSearchService->expects($this->once())
+            ->method('searchByLsItem')
+            ->with($sourceItem, 1, 87, false)
+            ->willReturn([['lsItem' => $destItem, 'similarity' => 0.50]]);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+
+        $service = new CrosswalkService($vectorSearchService, $entityManager);
+
+        // findBestMatch no longer filters by threshold; it returns the best
+        // candidate regardless of score so the handler can categorize it.
+        $match = $service->findBestMatch($sourceItem, destinationFrameworkId: 87);
+
+        $this->assertNotNull($match);
+        $this->assertSame($destItem, $match['lsItem']);
+        $this->assertSame(0.50, $match['similarity']);
     }
 
     public function testGetLeafItemIdsExcludesItemsThatAreParents(): void
