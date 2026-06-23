@@ -107,6 +107,52 @@ describe('ApiService', () => {
     });
   });
 
+  describe('error response bodies', () => {
+    it('uses the backend error message when the body has one', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        statusText: 'Bad Request',
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: () => Promise.resolve({ error: 'Cannot delete an item with children.' })
+      });
+
+      await expect(api.delete('/framework/editor/item/x')).rejects.toMatchObject({
+        status: 400,
+        message: 'Cannot delete an item with children.'
+      });
+    });
+
+    it('falls back to the generic message for non-JSON error bodies', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 400,
+        statusText: 'Bad Request',
+        headers: new Headers({ 'content-type': 'text/html' })
+      });
+
+      await expect(api.get('/x')).rejects.toMatchObject({
+        status: 400,
+        message: 'Invalid request. Please check your input.'
+      });
+    });
+
+    it('falls back when the JSON body has no error field', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 403,
+        statusText: 'Forbidden',
+        headers: new Headers({ 'content-type': 'application/json' }),
+        json: () => Promise.resolve({ unrelated: true })
+      });
+
+      await expect(api.get('/x')).rejects.toMatchObject({
+        status: 403,
+        message: 'Access denied. You do not have permission.'
+      });
+    });
+  });
+
   describe('POST requests', () => {
     it('creates new document successfully', async () => {
       const newDoc = { title: 'New Document', creator: 'Test User' };

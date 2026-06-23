@@ -305,8 +305,10 @@ export function useTreeEditorHandlers({
     }
 
     function onDeleteItem(item) {
-        itemsToDelete.value = [item];
-        deleteType.value = 'single';
+        const canonical = itemStore.getItemByIdentifierFast?.(item.identifier) || item;
+        const hasChildren = canonical.children && canonical.children.length > 0;
+        itemsToDelete.value = [canonical];
+        deleteType.value = hasChildren ? 'with-children' : 'single';
         showDeleteModal.value = true;
     }
 
@@ -470,30 +472,26 @@ export function useTreeEditorHandlers({
         }
     }
 
-    async function onItemsDeleted({ items, deleteType }) {
-        try {
-            if (deleteType === 'framework') {
-                const framework = Array.isArray(items) ? items[0] : null;
-                const documentId = framework?.identifier || framework?.id;
-                if (!documentId) {
-                    logger.error('Failed to delete framework: missing document identifier', { items });
-                    return;
-                }
-                await currentDocumentStore.deleteDocument(documentId);
-                window.location.href = '/';
-                return;
+    async function confirmDeleteHandler({ items, deleteType }) {
+        if (deleteType === 'framework') {
+            const framework = Array.isArray(items) ? items[0] : null;
+            const documentId = framework?.identifier || framework?.id;
+            if (!documentId) {
+                throw new Error('Missing document identifier');
             }
-
-            for (const item of items) {
-                await currentDocumentStore.deleteItem(item.identifier);
-            }
-            if (currentDoc.value?.id) {
-                await documentStore.revalidatePackage(currentDoc.value.id, true);
-            }
-            currentDocumentStore.reloadActiveDocument();
-        } catch (error) {
-            logger.error('Failed to delete items:', error);
+            await currentDocumentStore.deleteDocument(documentId);
+            window.location.href = '/';
+            return;
         }
+
+        const includeChildren = deleteType === 'with-children';
+        for (const item of items) {
+            await currentDocumentStore.deleteItem(item.identifier, { includeChildren });
+        }
+        if (currentDoc.value?.id) {
+            await documentStore.revalidatePackage(currentDoc.value.id, true);
+        }
+        await currentDocumentStore.reloadActiveDocument();
     }
 
     async function onAssocGroupSaved(group) {
@@ -601,7 +599,7 @@ export function useTreeEditorHandlers({
         onAssociationUpdated,
         onEditAssociationModalHidden,
         onExemplarAdded,
-        onItemsDeleted,
+        confirmDeleteHandler,
         onAssocGroupSaved,
         onAssocGroupDeleted,
         onEditDocument,

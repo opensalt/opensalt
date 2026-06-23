@@ -42,9 +42,9 @@ class ApiService {
   /**
    * Create an appropriate error object based on response status
    * @param {Response} response - The fetch response object
-   * @returns {ApiError} - Formatted error object
+   * @returns {Promise<ApiError>} - Formatted error object
    */
-  createApiError(response) {
+  async createApiError(response) {
     const errorMessages = {
       400: 'Invalid request. Please check your input.',
       401: 'Authentication failed. Please check your token.',
@@ -58,10 +58,23 @@ class ApiService {
       503: 'Service temporarily unavailable. Please try again later.'
     };
 
-    const message = errorMessages[response.status] ||
+    const fallback = errorMessages[response.status] ||
       `Request failed: ${response.statusText} (${response.status})`;
 
-    return new ApiError(message, response.status, response);
+    try {
+      const contentType = response.headers?.get?.('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const body = await response.json();
+        const serverMessage = body?.error || body?.message || body?.detail;
+        if (serverMessage) {
+          return new ApiError(serverMessage, response.status, response);
+        }
+      }
+    } catch (_e) {
+      // Body could not be parsed; fall back to the generic message.
+    }
+
+    return new ApiError(fallback, response.status, response);
   }
 
   /**
@@ -115,7 +128,7 @@ class ApiService {
       }
 
       if (!response.ok) {
-        throw this.createApiError(response);
+        throw await this.createApiError(response);
       }
 
       const contentType = response.headers.get('content-type');

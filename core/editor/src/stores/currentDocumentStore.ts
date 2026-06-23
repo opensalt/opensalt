@@ -725,9 +725,10 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     }
   }
 
-  async function deleteItem(itemIdentifier: UUID) {
+  async function deleteItem(itemIdentifier: UUID, options: { includeChildren?: boolean } = {}) {
     try {
-      await api.delete(`/framework/editor/item/${itemIdentifier}`);
+      const query = options.includeChildren ? "?includingChildren=1" : "";
+      await api.delete(`/framework/editor/item/${itemIdentifier}${query}`);
       invalidateItemDetailsCache(itemIdentifier);
       invalidateCurrentDocumentCache();
       return true;

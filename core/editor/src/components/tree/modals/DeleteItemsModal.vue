@@ -58,18 +58,6 @@
             >
               <strong>DANGER:</strong> Are you sure you want to delete this framework?
             </div>
-            <form>
-              <div class="form-group">
-                <label for="deleteFrameworkAcknowledgement">If yes, please type "DELETE" into the text box:</label>
-                <input
-                  id="deleteFrameworkAcknowledgement"
-                  v-model="deleteConfirmation"
-                  type="text"
-                  class="form-control"
-                  @input="checkDeleteConfirmation"
-                >
-              </div>
-            </form>
           </div>
 
           <div v-else-if="isDeleteMultiple">
@@ -113,11 +101,8 @@
                     </span>
                     {{ itemsToDelete[0]?.title || itemsToDelete[0]?.abbreviatedTitle || itemsToDelete[0]?.identifier }}
                   </h6>
-                  <div
-                    v-if="itemsToDelete[0]?.children && itemsToDelete[0].children.length > 0"
-                    class="mt-2"
-                  >
-                    <small class="text-muted">This will also delete {{ itemsToDelete[0].children.length }} child items.</small>
+                  <div class="mt-2">
+                    <small class="text-muted">This will remove this item and {{ descendantCount }} descendant(s).</small>
                   </div>
                 </div>
               </div>
@@ -143,6 +128,21 @@
               </div>
             </div>
           </div>
+          <form
+            v-if="requiresTypeConfirmation"
+            class="mt-3"
+          >
+            <div class="form-group">
+              <label for="deleteAcknowledgement">If yes, please type "DELETE" into the text box:</label>
+              <input
+                id="deleteAcknowledgement"
+                v-model="deleteConfirmation"
+                type="text"
+                class="form-control"
+                @input="checkDeleteConfirmation"
+              >
+            </div>
+          </form>
         </div>
         <div class="modal-footer">
           <button
@@ -156,7 +156,7 @@
             type="button"
             class="btn btn-delete"
             :class="buttonClass"
-            :disabled="!canDelete"
+            :disabled="!canDelete || deleting"
             @click="confirmDelete"
           >
             <span
@@ -196,10 +196,14 @@ const props = defineProps({
   show: {
     type: Boolean,
     default: false
+  },
+  confirmHandler: {
+    type: Function,
+    default: null
   }
 });
 
-const emit = defineEmits(['confirmed', 'hidden']);
+const emit = defineEmits(['hidden']);
 
 const modalRef = ref(null);
 const previousFocusElement = ref(null);
@@ -238,19 +242,33 @@ const itemsToDelete = computed(() => {
   return props.items || [];
 });
 
+function countDescendants(node) {
+  let count = 0;
+  for (const child of node?.children || []) {
+    count += 1 + countDescendants(child);
+  }
+  return count;
+}
+
+const descendantCount = computed(() => countDescendants(itemsToDelete.value[0]));
+
 const isDeleteFramework = computed(() => props.deleteType === 'framework');
 const isDeleteMultiple = computed(() => props.deleteType === 'multiple');
 const isDeleteWithChildren = computed(() => props.deleteType === 'with-children');
 
+const requiresTypeConfirmation = computed(
+  () => isDeleteFramework.value || isDeleteWithChildren.value
+);
+
 const canDelete = computed(() => {
-  if (isDeleteFramework.value) {
+  if (requiresTypeConfirmation.value) {
     return deleteConfirmation.value === 'DELETE';
   }
   return true;
 });
 
 const buttonClass = computed(() => {
-  return isDeleteFramework.value && !canDelete.value ? 'btn-danger btn-disabled' : 'btn-danger';
+  return requiresTypeConfirmation.value && !canDelete.value ? 'btn-danger btn-disabled' : 'btn-danger';
 });
 
 const buttonText = computed(() => {
@@ -337,20 +355,17 @@ function checkDeleteConfirmation() {
   // This is handled by the computed property
 }
 
-function confirmDelete() {
+async function confirmDelete() {
   if (!canDelete.value) return;
+  if (typeof props.confirmHandler !== 'function') return;
 
   deleting.value = true;
   error.value = '';
-
   try {
-    emit('confirmed', {
-      items: itemsToDelete.value,
-      deleteType: props.deleteType
-    });
+    await props.confirmHandler({ items: itemsToDelete.value, deleteType: props.deleteType });
     emit('hidden');
   } catch (e) {
-    error.value = 'Failed to delete: ' + e.message;
+    error.value = e?.message || 'Failed to delete.';
   } finally {
     deleting.value = false;
   }

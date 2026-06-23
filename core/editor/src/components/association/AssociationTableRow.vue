@@ -121,7 +121,10 @@
                 class="badge external-uri-badge"
                 title="External URI"
               >
-                <i class="bi bi-link-45deg me-1" aria-hidden="true" />External
+                <i
+                  class="bi bi-link-45deg me-1"
+                  aria-hidden="true"
+                />External
               </span>
             </div>
             <!-- Source framework tag moved to Origin column -->

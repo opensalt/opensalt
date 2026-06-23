@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { ref } from 'vue';
+import { ref, shallowRef } from 'vue';
 import { useTreeEditorHandlers } from '../../src/composables/useTreeEditorHandlers';
 
 /**
@@ -315,6 +315,59 @@ describe('useTreeEditorHandlers', () => {
       expect(ctx.rightPanelMode.value).toBe('itemDetails');
       expect(getFrameworkSelection).not.toHaveBeenCalled();
       expect(ctx.onSideDocumentSelect).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('onDeleteItem', () => {
+    it('sets with-children and stores the canonical node when the item has children', () => {
+      const canonical = { identifier: 'p', title: 'Parent', children: [{ identifier: 'c' }] };
+      const { ctx } = createMockContext();
+      ctx.itemsToDelete = shallowRef([]);
+      ctx.itemStore = { getItemByIdentifierFast: vi.fn(() => canonical) };
+      const { onDeleteItem } = useTreeEditorHandlers(ctx);
+
+      onDeleteItem({ identifier: 'p', title: 'filtered view' });
+
+      expect(ctx.deleteType.value).toBe('with-children');
+      expect(ctx.itemsToDelete.value[0]).toBe(canonical);
+      expect(ctx.showDeleteModal.value).toBe(true);
+    });
+
+    it('sets single when the item has no children', () => {
+      const canonical = { identifier: 'leaf', children: [] };
+      const { ctx } = createMockContext();
+      ctx.itemStore = { getItemByIdentifierFast: vi.fn(() => canonical) };
+      const { onDeleteItem } = useTreeEditorHandlers(ctx);
+
+      onDeleteItem({ identifier: 'leaf' });
+
+      expect(ctx.deleteType.value).toBe('single');
+    });
+  });
+
+  describe('confirmDeleteHandler', () => {
+    it('deletes with includeChildren for with-children', async () => {
+      const deleteItemMock = vi.fn().mockResolvedValue(undefined);
+      const { ctx } = createMockContext({
+        currentDocumentStore: { deleteItem: deleteItemMock, deleteDocument: vi.fn() }
+      });
+      const { confirmDeleteHandler } = useTreeEditorHandlers(ctx);
+
+      await confirmDeleteHandler({ items: [{ identifier: 'p' }], deleteType: 'with-children' });
+
+      expect(deleteItemMock).toHaveBeenCalledWith('p', { includeChildren: true });
+    });
+
+    it('deletes without the flag for single', async () => {
+      const deleteItemMock = vi.fn().mockResolvedValue(undefined);
+      const { ctx } = createMockContext({
+        currentDocumentStore: { deleteItem: deleteItemMock, deleteDocument: vi.fn() }
+      });
+      const { confirmDeleteHandler } = useTreeEditorHandlers(ctx);
+
+      await confirmDeleteHandler({ items: [{ identifier: 'leaf' }], deleteType: 'single' });
+
+      expect(deleteItemMock).toHaveBeenCalledWith('leaf', { includeChildren: false });
     });
   });
 });

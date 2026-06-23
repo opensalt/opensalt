@@ -153,6 +153,7 @@
       :editing-association="editingAssociation"
       :items-to-delete="itemsToDelete"
       :delete-type="deleteType"
+      :confirm-delete-handler="confirmDeleteHandler"
       :adding-association="addingAssociation"
       :adding-association-type="addingAssociationType"
       :adding-association-origin="addingAssociationOrigin"
@@ -166,7 +167,6 @@
       @doc-saved="onDocSaved"
       @association-created="onAssociationCreated"
       @association-updated="onAssociationUpdated"
-      @items-deleted="onItemsDeleted"
       @exemplar-added="onExemplarAdded"
       @assoc-group-saved="onAssocGroupSaved"
       @assoc-group-deleted="onAssocGroupDeleted"
@@ -545,7 +545,7 @@ const {
   onAssociationUpdated,
   onEditAssociationModalHidden,
   onExemplarAdded,
-  onItemsDeleted,
+  confirmDeleteHandler,
   onAssocGroupSaved,
   onAssocGroupDeleted,
   onEditDocument,

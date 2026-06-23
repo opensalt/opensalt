@@ -34,7 +34,7 @@
       :items="itemsToDelete"
       :delete-type="deleteType"
       :show="showDeleteModal"
-      @confirmed="onItemsDeleted"
+      :confirm-handler="confirmDeleteHandler"
       @hidden="onDeleteModalHidden"
     />
 
@@ -258,6 +258,10 @@ const _props = defineProps({
     type: String,
     default: 'single'
   },
+  confirmDeleteHandler: {
+    type: Function,
+    default: null
+  },
   addingAssociation: {
     type: Boolean,
     default: false
@@ -316,7 +320,6 @@ const emit = defineEmits([
   'association-updated',
 
   // Item events
-  'items-deleted',
   'delete-association-confirmed',
   'delete-association-modal-hidden',
   'exemplar-added',
@@ -377,10 +380,6 @@ function onAssociationUpdated(association) {
 
 function onEditAssociationModalHidden() {
   emit('edit-association-modal-hidden');
-}
-
-function onItemsDeleted(data) {
-  emit('items-deleted', data);
 }
 
 function onDeleteModalHidden() {

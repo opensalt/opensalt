@@ -3,6 +3,7 @@ import { setActivePinia, createPinia } from 'pinia';
 import { useCurrentDocumentStore } from '@/stores/currentDocumentStore';
 import { useFilterStore } from '@/stores/filterStore.js';
 import { useEditorContextStore } from '@/stores/editorContextStore';
+import { api } from '@/services/api.js';
 
 vi.mock('@/composables/useRelatedFrameworksQueue.js', () => ({
   useRelatedFrameworksQueue: () => ({})
@@ -303,5 +304,26 @@ describe('CurrentDocumentStore transformCASEItems', () => {
     expect(currentDocumentStore.currentDocument?.id).toBe('doc-1');
     expect(contextStore.activeWriteDocumentId).toBe('doc-1');
     expect(contextStore.documentRegistry.get('doc-1')?.identifier).toBe('doc-1');
+  });
+});
+
+describe('deleteItem', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia());
+    api.delete.mockReset();
+  });
+
+  it('appends ?includingChildren=1 when includeChildren is true', async () => {
+    api.delete.mockResolvedValue({ status: 'OK' });
+    const store = useCurrentDocumentStore();
+    await store.deleteItem('item-1', { includeChildren: true });
+    expect(api.delete).toHaveBeenCalledWith('/framework/editor/item/item-1?includingChildren=1');
+  });
+
+  it('omits the query when includeChildren is not set', async () => {
+    api.delete.mockResolvedValue({ status: 'OK' });
+    const store = useCurrentDocumentStore();
+    await store.deleteItem('item-2');
+    expect(api.delete).toHaveBeenCalledWith('/framework/editor/item/item-2');
   });
 });
