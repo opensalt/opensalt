@@ -5,8 +5,8 @@ services:
     healthcheck:
       test: ["CMD", "pgrep",  "-af",  "^php.*bin/console.*messenger:consume"]
     build: !reset []
-    networks:
-      external: !reset []
+    networks: !override
+      default: {}
     volumes: !reset []
     sysctls: !reset []
     cap_add: !reset []
