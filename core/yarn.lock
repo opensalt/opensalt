@@ -1773,9 +1773,9 @@ object-inspect@^1.13.3:
   integrity sha512-W67iLl4J2EXEGTbfeHCffrjDfitvLANg0UlX3wFUUSTx92KXRFegMHUVgSqE+wvhAbi4WqjGg9czysTV2Epbew==
 
 papaparse@^5.2.0:
-  version "5.5.3"
-  resolved "https://registry.yarnpkg.com/papaparse/-/papaparse-5.5.3.tgz#07f8994dec516c6dab266e952bed68e1de59fa9a"
-  integrity sha512-5QvjGxYVjxO59MGU2lHVYpRWBBtKHnlIAcSe1uNFCkkptUh63NFRj0FJQm7nR67puEruUci/ZkjmEFrjCAyP4A==
+  version "5.5.4"
+  resolved "https://registry.yarnpkg.com/papaparse/-/papaparse-5.5.4.tgz#7923f375a5d43850fd313160371c9567e5608c11"
+  integrity sha512-SwzWD9gl/ElwYLCI0nUja1mFJzjq2D8ziShfNBa7zCHzkOozeOGDwHWQ+tvCzEZcewecWZ5U7kUopDnG+DFYEQ==
 
 parse-srcset@^1.0.2:
   version "1.0.2"
@@ -2177,9 +2177,9 @@ supports-color@^8.1.1:
     has-flag "^4.0.0"
 
 swagger-ui-dist@^5.18.2:
-  version "5.32.7"
-  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-5.32.7.tgz#57af055fc18d3804c86c64d3b19c03af6aa70f9c"
-  integrity sha512-RH5WRnTpcgN/dWcmohrxdEKdNVOQ/ebas1+A6Zfqqz4Z1gj3VH48iyM59Zru+PwLB/rkOgWGOu0VQW6ODiwJNQ==
+  version "5.32.8"
+  resolved "https://registry.yarnpkg.com/swagger-ui-dist/-/swagger-ui-dist-5.32.8.tgz#14a5e6ba016875dfb31de26cff5c3bea725a3c89"
+  integrity sha512-dgMdWXIgnI4zX4OPhKEdWnlDODbgm8W3AX0Ivn/BBqcUh6xZsBxhZMnvk6DJyRz1BTrj8dPxtarmEGgkz30oyA==
   dependencies:
     "@scarf/scarf" "=1.4.0"
 
