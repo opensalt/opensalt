@@ -36,7 +36,7 @@ const displayText = computed(() => {
   if (!props.identifier) return '';
   if (props.identifier.startsWith('local:')) {
     const id = props.identifier.slice(6);
-    const base = window.location.origin + window.location.pathname;
+    const base = window.location.origin;
     return `${base.replace(/\/$/, '')}/uri/${id}`;
   }
   return props.identifier;

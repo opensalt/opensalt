@@ -15,7 +15,7 @@ export function resolveItemWebpage(uri, subjectWebpage) {
   // Rewrite local: prefix to a resolvable URL
   if (uri && uri.startsWith('local:')) {
     const identifier = uri.slice(6); // strip 'local:'
-    const base = window.location.origin + window.location.pathname;
+    const base = window.location.origin;
     const resolved = `${base.replace(/\/$/, '')}/uri/${identifier}`;
     return { href: resolved, display: resolved };
   }

@@ -56,8 +56,8 @@ describe('ItemIdentifierRow', () => {
       props: { identifier: 'local:abc123' },
     });
     const link = wrapper.find('a');
-    expect(link.attributes('href')).toBe('http://localhost/cftree/doc/123/uri/abc123');
-    expect(link.text()).toContain('http://localhost/cftree/doc/123/uri/abc123');
+    expect(link.attributes('href')).toBe('http://localhost/uri/abc123');
+    expect(link.text()).toContain('http://localhost/uri/abc123');
   });
 
   it('uses custom href when provided', () => {

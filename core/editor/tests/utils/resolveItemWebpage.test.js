@@ -41,16 +41,16 @@ describe('resolveItemWebpage', () => {
   it('rewrites local: prefix to base URL + /uri/<identifier>', () => {
     const result = resolveItemWebpage('local:abc123', null);
     expect(result).toEqual({
-      href: 'http://localhost/cftree/doc/123/uri/abc123',
-      display: 'http://localhost/cftree/doc/123/uri/abc123',
+      href: 'http://localhost/uri/abc123',
+      display: 'http://localhost/uri/abc123',
     });
   });
 
   it('rewrites local: prefix with long identifier', () => {
     const result = resolveItemWebpage('local:urn:opensalt:item:uuid-9999', '');
     expect(result).toEqual({
-      href: 'http://localhost/cftree/doc/123/uri/urn:opensalt:item:uuid-9999',
-      display: 'http://localhost/cftree/doc/123/uri/urn:opensalt:item:uuid-9999',
+      href: 'http://localhost/uri/urn:opensalt:item:uuid-9999',
+      display: 'http://localhost/uri/urn:opensalt:item:uuid-9999',
     });
   });
 
