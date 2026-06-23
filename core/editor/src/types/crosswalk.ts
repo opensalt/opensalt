@@ -12,7 +12,8 @@ export interface CrosswalkJob {
     matched: number;
     exactMatchItems: number;
     relatedItems: number;
-    skipped: number;
+    skipped_no_embedding: number;
+    skipped_below_threshold: number;
     failed: number;
   };
   startedAt: string | null;

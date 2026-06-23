@@ -13,7 +13,8 @@ export function useCrosswalkJob() {
       matched: 0,
       exactMatchItems: 0,
       relatedItems: 0,
-      skipped: 0,
+      skipped_no_embedding: 0,
+      skipped_below_threshold: 0,
       failed: 0,
     },
   });
@@ -99,7 +100,7 @@ export function useCrosswalkJob() {
       status: 'running',
       jobId,
       error: null,
-      progress: { total: 0, processed: 0, matched: 0, exactMatchItems: 0, relatedItems: 0, skipped: 0, failed: 0 },
+      progress: { total: 0, processed: 0, matched: 0, exactMatchItems: 0, relatedItems: 0, skipped_no_embedding: 0, skipped_below_threshold: 0, failed: 0 },
     };
     connectToMercure(jobId);
   }

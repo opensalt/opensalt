@@ -35,6 +35,16 @@ describe('useCrosswalkJob', () => {
     expect(jobState.value.status).toBe('idle');
   });
 
+  it('initializes progress with the three non-matched counters', async () => {
+    const { useCrosswalkJob } = await import('../../src/composables/useCrosswalkJob.js');
+    const { jobState } = useCrosswalkJob();
+
+    expect(jobState.value.progress).toHaveProperty('skipped_no_embedding', 0);
+    expect(jobState.value.progress).toHaveProperty('skipped_below_threshold', 0);
+    expect(jobState.value.progress).toHaveProperty('failed', 0);
+    expect(jobState.value.progress).not.toHaveProperty('skipped');
+  });
+
   it('transitions to running on job start', async () => {
     const { useCrosswalkJob } = await import('../../src/composables/useCrosswalkJob.js');
     const { jobState, startJob } = useCrosswalkJob();
@@ -54,7 +64,7 @@ describe('useCrosswalkJob', () => {
       data: JSON.stringify({
         jobId: 'test-job-id',
         status: 'running',
-        progress: { total: 100, processed: 50, matched: 40, exact_match_items: 10, related_items: 30, skipped: 5, failed: 0 }
+        progress: { total: 100, processed: 50, matched: 40, exact_match_items: 10, related_items: 30, skipped_no_embedding: 5, skipped_below_threshold: 0, failed: 0 }
       })
     });
 
@@ -72,7 +82,7 @@ describe('useCrosswalkJob', () => {
       data: JSON.stringify({
         jobId: 'test-job-id',
         status: 'completed',
-        progress: { total: 100, processed: 100, matched: 85, exact_match_items: 20, related_items: 65, skipped: 10, failed: 0 }
+        progress: { total: 100, processed: 100, matched: 85, exact_match_items: 20, related_items: 65, skipped_no_embedding: 8, skipped_below_threshold: 2, failed: 0 }
       })
     });
 
