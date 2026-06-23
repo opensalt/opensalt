@@ -223,8 +223,12 @@ async function openWidget() {
 
 // Handle saveDefinition event from the widget
 function handleSaveDefinition(event) {
-  achievementData.value = event.detail;
-  formData.credential = JSON.stringify(event.detail);
+  // The widget may emit either a plain object or an already-stringified JSON
+  // string; normalize to an object so we never double-encode the stored value.
+  const detail = event.detail;
+  const data = typeof detail === 'string' ? JSON.parse(detail) : detail;
+  achievementData.value = data;
+  formData.credential = JSON.stringify(data);
 
   // Resolve the promise if we're waiting for it
   if (saveDefinitionResolve.value) {

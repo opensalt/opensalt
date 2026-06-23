@@ -38,7 +38,7 @@ class CredentialDto implements ItemTypeInterface
     #[\Override]
     public function applyToItem(LsItem $item, HtmlSanitizerInterface $htmlSanitizer): void
     {
-        $credentialInfo = json5_decode($this->credential, true);
+        $credentialInfo = $this->decodeCredentialInfo();
         $description = $credentialInfo['description'] ?? null;
         if (null !== $description) {
             $credentialInfo['description'] = $htmlSanitizer->sanitizeFor('div', $description);
@@ -49,11 +49,35 @@ class CredentialDto implements ItemTypeInterface
         }
 
         $item->setAbbreviatedStatement($credentialInfo['name'] ?? null);
-        $item->setFullStatement($credentialInfo['description'] ?? null);
+        $item->setFullStatement($credentialInfo['description'] ?? '');
         $item->setHumanCodingScheme($credentialInfo['humanCode'] ?? null);
         $item->setLanguage($credentialInfo['inLanguage'] ?? null);
         $item->setConceptKeywordsArray($credentialInfo['tag'] ?? null);
         $item->setExtensionProperty(LsItem::TYPE_KEY, 'credential');
         $item->setExtensionProperty(self::CREDENTIAL_KEY, json_encode($credentialInfo, JSON_THROW_ON_ERROR|JSON_UNESCAPED_SLASHES));
+    }
+
+    /**
+     * Decode the credential JSON into an array, tolerating double-encoded
+     * (pre-stringified) values and malformed input without throwing.
+     *
+     * @return array<string, mixed>
+     */
+    private function decodeCredentialInfo(): array
+    {
+        if (null === $this->credential || '' === $this->credential) {
+            return [];
+        }
+
+        try {
+            $decoded = json5_decode($this->credential, true);
+            if (is_string($decoded)) {
+                $decoded = json5_decode($decoded, true);
+            }
+        } catch (\Throwable) {
+            return [];
+        }
+
+        return is_array($decoded) ? $decoded : [];
     }
 }
