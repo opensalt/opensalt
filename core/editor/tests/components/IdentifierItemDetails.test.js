@@ -104,4 +104,22 @@ describe('IdentifierItemDetails.vue', () => {
     const dts = wrapper.findAll('dt');
     expect(dts[0].text()).toBe('Description:');
   });
+
+  it('renders fullStatement as markdown when renderedFullStatement is provided', () => {
+    const renderedHtml = '<p>A digital object <strong>identifier</strong> for the parent resource</p>';
+    const wrapper = mount(IdentifierItemDetails, {
+      props: { item: sampleItem, renderedFullStatement: renderedHtml },
+    });
+    const markdownBody = wrapper.find('.markdown-body');
+    expect(markdownBody.exists()).toBe(true);
+    expect(markdownBody.html()).toContain('<strong>identifier</strong>');
+  });
+
+  it('falls back to raw fullStatement when renderedFullStatement is empty', () => {
+    const wrapper = mount(IdentifierItemDetails, {
+      props: { item: sampleItem, renderedFullStatement: '' },
+    });
+    expect(wrapper.html()).toContain('A digital object identifier for the parent resource');
+    expect(wrapper.find('.markdown-body').exists()).toBe(false);
+  });
 });
