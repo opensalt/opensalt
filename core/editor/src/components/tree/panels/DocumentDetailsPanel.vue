@@ -111,39 +111,33 @@
             <dd>{{ document.description }}</dd>
           </div>
 
-          <div class="row">
-            <div class="col-sm-6">
-              <dt>Creator:</dt>
-              <dd>{{ document.creator || 'Unknown' }}</dd>
-            </div>
-            <div
-              v-if="document.language?.length"
-              class="col-sm-6"
-            >
-              <dt>Language:</dt>
-              <dd>{{ document.language || '' }}</dd>
-            </div>
+          <div>
+            <dt>Creator:</dt>
+            <dd>{{ document.creator || 'Unknown' }}</dd>
+          </div>
+          <div
+            v-if="document.language?.length"
+          >
+            <dt>Language:</dt>
+            <dd>{{ document.language || '' }}</dd>
           </div>
 
-          <div class="row mt-2">
-            <div
-              v-if="document.version?.length"
-              class="col-sm-6"
-            >
-              <dt>Version:</dt>
-              <dd>{{ document.version || '' }}</dd>
-            </div>
-            <div class="col-sm-6">
-              <dt>Framework Type:</dt>
-              <dd>{{ document.frameworkType || 'Standard' }}</dd>
-            </div>
+          <div
+            v-if="document.version?.length"
+          >
+            <dt>Version:</dt>
+            <dd>{{ document.version || '' }}</dd>
+          </div>
+          <div
+            v-if="document.frameworkType?.length"
+          >
+            <dt>Framework Type:</dt>
+            <dd>{{ document.frameworkType || '' }}</dd>
           </div>
 
-          <div class="row mt-2">
-            <div class="col-sm-6">
-              <dt>Adoption Status:</dt>
-              <dd>{{ document.adoptionStatus || 'Draft' }}</dd>
-            </div>
+          <div>
+            <dt>Adoption Status:</dt>
+            <dd>{{ document.adoptionStatus || 'Draft' }}</dd>
           </div>
 
           <div
