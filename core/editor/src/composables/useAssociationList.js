@@ -21,24 +21,29 @@ function getDestinationId(association) {
   return association?.destinationNodeURI?.identifier || association?.destinationNodeIdentifier || null;
 }
 
-function collectDocumentItemIds(document) {
-  const ids = new Set();
-  if (!document) return ids;
+/**
+ * Determines the display direction for an association in document-details mode.
+ *
+ * Only associations where the document itself is one of the nodes are shown at
+ * the document level. Item-to-item associations (even cross-document ones)
+ * belong to their items and are displayed in item-details, not here.
+ *
+ * @returns {'normal'|'reversed'|null} 'normal' if the document is the origin
+ *   node, 'reversed' if it is the destination node, or null to hide the
+ *   association (it is not a document-level association).
+ */
+export function getDocumentAssociationDirection(association, documentIdentifier) {
+  if (!documentIdentifier) return null;
 
-  if (document.identifier) {
-    ids.add(document.identifier);
-  }
+  const originId = getOriginId(association);
+  const destinationId = getDestinationId(association);
 
-  (function collect(items) {
-    if (!Array.isArray(items)) return;
-    items.forEach((item) => {
-      if (!item?.identifier) return;
-      ids.add(item.identifier);
-      if (item.children?.length) collect(item.children);
-    });
-  })(document.items || []);
+  const originIsDocument = originId === documentIdentifier;
+  const destinationIsDocument = destinationId === documentIdentifier;
 
-  return ids;
+  if (originIsDocument && !destinationIsDocument) return 'normal';
+  if (destinationIsDocument && !originIsDocument) return 'reversed';
+  return null;
 }
 
 export function useAssociationList({ mode, item = null, displayItem: _displayItem = null, document = null }) {
@@ -73,24 +78,14 @@ export function useAssociationList({ mode, item = null, displayItem: _displayIte
     toValue(document)?.id ||
     null
   ));
-  const documentItemIds = computed(() => collectDocumentItemIds(toValue(document)));
 
-  function mapApiAssociationsToEntries(apiData, queryDocId) {
+  function mapApiAssociationsToEntries(apiData) {
     if (!Array.isArray(apiData)) return [];
 
-    return apiData.map((assoc) => {
-      const entry = {
-        association: assoc,
-        frameworkId: assoc.associationDocumentIdentifier || null,
-      };
-
-      if (mode === 'document' && queryDocId) {
-        entry.originInDocument = assoc.originNodeURI?.documentIdentifier === queryDocId;
-        entry.destinationInDocument = assoc.destinationNodeURI?.documentIdentifier === queryDocId;
-      }
-
-      return entry;
-    });
+    return apiData.map((assoc) => ({
+      association: assoc,
+      frameworkId: assoc.associationDocumentIdentifier || null,
+    }));
   }
 
   function groupAssociations(entries) {
@@ -108,27 +103,15 @@ export function useAssociationList({ mode, item = null, displayItem: _displayIte
         if (displayedFrameworkId.value && sourceFrameworkId === displayedFrameworkId.value) return;
       }
 
-      const originId = getOriginId(association);
       const destinationId = getDestinationId(association);
 
       let direction = 'normal';
       if (mode === 'item') {
         direction = destinationId === itemIdentifier.value ? 'reversed' : 'normal';
       } else if (mode === 'document') {
-        const hasDocumentFlags = typeof entry.originInDocument === 'boolean' && typeof entry.destinationInDocument === 'boolean';
-        const originInDoc = hasDocumentFlags
-          ? entry.originInDocument
-          : documentItemIds.value.has(originId);
-        const destinationInDoc = hasDocumentFlags
-          ? entry.destinationInDocument
-          : documentItemIds.value.has(destinationId);
-        if (originInDoc && !destinationInDoc) {
-          direction = 'normal';
-        } else if (destinationInDoc && !originInDoc) {
-          direction = 'reversed';
-        } else {
-          return;
-        }
+        const docDirection = getDocumentAssociationDirection(association, documentIdentifier.value);
+        if (!docDirection) return;
+        direction = docDirection;
       }
 
       const enriched = {
@@ -172,14 +155,14 @@ export function useAssociationList({ mode, item = null, displayItem: _displayIte
       const response = await api.get(`/framework/editor/associations/item/${itemIdentifier.value}`);
       const associations = response?.data;
       if (!Array.isArray(associations)) return [];
-      return mapApiAssociationsToEntries(associations, null);
+      return mapApiAssociationsToEntries(associations);
     }
 
     if (mode === 'document' && documentIdentifier.value) {
       const response = await api.get(`/framework/editor/associations/document/${documentIdentifier.value}`);
       const associations = response?.data;
       if (!Array.isArray(associations)) return [];
-      return mapApiAssociationsToEntries(associations, documentIdentifier.value);
+      return mapApiAssociationsToEntries(associations);
     }
 
     return [];
