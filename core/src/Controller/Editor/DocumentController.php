@@ -87,7 +87,7 @@ class DocumentController extends AbstractController
         ];
 
         foreach ($scalars as $field => $setter) {
-            if (isset($data[$field])) {
+            if (array_key_exists($field, $data)) {
                 $value = $data[$field];
                 if ('' === $value) {
                     $value = null;
