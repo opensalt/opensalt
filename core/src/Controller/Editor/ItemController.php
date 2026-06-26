@@ -697,34 +697,34 @@ class ItemController extends AbstractController
         if (isset($data['fullStatement'])) {
             $lsItem->setFullStatement($data['fullStatement']);
         }
-        if (isset($data['abbreviatedStatement'])) {
-            $lsItem->setAbbreviatedStatement($data['abbreviatedStatement']);
+        if (array_key_exists('abbreviatedStatement', $data)) {
+            $lsItem->setAbbreviatedStatement($this->nullableString($data['abbreviatedStatement']));
         }
-        if (isset($data['humanCodingScheme'])) {
-            $lsItem->setHumanCodingScheme($data['humanCodingScheme']);
+        if (array_key_exists('humanCodingScheme', $data)) {
+            $lsItem->setHumanCodingScheme($this->nullableString($data['humanCodingScheme']));
         }
-        if (isset($data['listEnumeration'])) {
-            $lsItem->setListEnumInSource($data['listEnumeration']);
-        } elseif (isset($data['listEnumInSource'])) {
-            $lsItem->setListEnumInSource($data['listEnumInSource']);
+        if (array_key_exists('listEnumeration', $data)) {
+            $lsItem->setListEnumInSource($this->nullableString($data['listEnumeration']));
+        } elseif (array_key_exists('listEnumInSource', $data)) {
+            $lsItem->setListEnumInSource($this->nullableString($data['listEnumInSource']));
         }
-        if (isset($data['conceptKeywords'])) {
+        if (array_key_exists('conceptKeywords', $data)) {
             $conceptKeywords = $data['conceptKeywords'];
             if (is_array($conceptKeywords)) {
                 $conceptKeywords = implode(', ', $conceptKeywords);
             }
-            $lsItem->setConceptKeywords($conceptKeywords);
+            $lsItem->setConceptKeywords($this->nullableString((string) $conceptKeywords));
         }
-        if (isset($data['notes'])) {
-            $lsItem->setNotes($data['notes']);
+        if (array_key_exists('notes', $data)) {
+            $lsItem->setNotes($this->nullableString($data['notes']));
         }
-        if (isset($data['language'])) {
-            $lsItem->setLanguage($data['language']);
+        if (array_key_exists('language', $data)) {
+            $lsItem->setLanguage($this->nullableString($data['language']));
         }
-        if (isset($data['educationalAlignment'])) {
-            $lsItem->setEducationalAlignment($this->flattenArrayValue($data['educationalAlignment']));
-        } elseif (isset($data['educationLevel'])) {
-            $lsItem->setEducationalAlignment($this->flattenArrayValue($data['educationLevel']));
+        if (array_key_exists('educationalAlignment', $data)) {
+            $lsItem->setEducationalAlignment($this->nullableString($this->flattenArrayValue($data['educationalAlignment'] ?? '')));
+        } elseif (array_key_exists('educationLevel', $data)) {
+            $lsItem->setEducationalAlignment($this->nullableString($this->flattenArrayValue($data['educationLevel'] ?? '')));
         }
     }
 
@@ -735,6 +735,15 @@ class ItemController extends AbstractController
         }
 
         return $value;
+    }
+
+    private function nullableString(mixed $value): ?string
+    {
+        if (null === $value || '' === $value) {
+            return null;
+        }
+
+        return (string) $value;
     }
 
     private function applyItemAdditionalFields(LsItem $lsItem, array $data): void

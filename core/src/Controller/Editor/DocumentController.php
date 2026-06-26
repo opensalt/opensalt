@@ -96,17 +96,17 @@ class DocumentController extends AbstractController
             }
         }
 
-        if (isset($data['statusStart'])) {
+        if (array_key_exists('statusStart', $data)) {
             $lsDoc->setStatusStart($data['statusStart'] ? new \DateTime($data['statusStart']) : null);
         }
-        if (isset($data['statusEnd'])) {
+        if (array_key_exists('statusEnd', $data)) {
             $lsDoc->setStatusEnd($data['statusEnd'] ? new \DateTime($data['statusEnd']) : null);
         }
-        if (isset($data['note'])) {
-            $lsDoc->setNote($data['note']);
+        if (array_key_exists('note', $data)) {
+            $lsDoc->setNote('' === $data['note'] ? null : $data['note']);
         }
-        if (isset($data['notes'])) {
-            $lsDoc->setNote($data['notes']);
+        if (array_key_exists('notes', $data)) {
+            $lsDoc->setNote('' === $data['notes'] ? null : $data['notes']);
         }
     }
 

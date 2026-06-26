@@ -59,4 +59,81 @@ class DocumentControllerTest extends TestCase
         $this->assertSame('Adopted', $lsDoc->getAdoptionStatus());
         $this->assertSame('Updated', $lsDoc->getTitle());
     }
+
+    public function testUpdateDocumentClearsNoteWhenNull(): void
+    {
+        $lsDoc = new LsDoc();
+        $lsDoc->setTitle('Test');
+        $lsDoc->setNote('Existing note');
+
+        $controller = $this->createDocumentController();
+
+        $request = new Request(
+            content: json_encode(['note' => null], JSON_THROW_ON_ERROR)
+        );
+
+        $controller->updateDocument($request, $lsDoc);
+
+        $this->assertNull($lsDoc->getNote());
+    }
+
+    public function testUpdateDocumentClearsNoteWhenEmptyString(): void
+    {
+        $lsDoc = new LsDoc();
+        $lsDoc->setTitle('Test');
+        $lsDoc->setNote('Existing note');
+
+        $controller = $this->createDocumentController();
+
+        $request = new Request(
+            content: json_encode(['note' => ''], JSON_THROW_ON_ERROR)
+        );
+
+        $controller->updateDocument($request, $lsDoc);
+
+        $this->assertNull($lsDoc->getNote());
+    }
+
+    public function testUpdateDocumentClearsStatusStartWhenNull(): void
+    {
+        $lsDoc = new LsDoc();
+        $lsDoc->setTitle('Test');
+        $lsDoc->setStatusStart(new \DateTime('2020-01-01'));
+
+        $controller = $this->createDocumentController();
+
+        $request = new Request(
+            content: json_encode(['statusStart' => null], JSON_THROW_ON_ERROR)
+        );
+
+        $controller->updateDocument($request, $lsDoc);
+
+        $this->assertNull($lsDoc->getStatusStart());
+    }
+
+    public function testUpdateDocumentDoesNotClearNoteWhenAbsent(): void
+    {
+        $lsDoc = new LsDoc();
+        $lsDoc->setTitle('Test');
+        $lsDoc->setNote('Keep me');
+
+        $controller = $this->createDocumentController();
+
+        $request = new Request(
+            content: json_encode(['title' => 'Updated'], JSON_THROW_ON_ERROR)
+        );
+
+        $controller->updateDocument($request, $lsDoc);
+
+        $this->assertSame('Keep me', $lsDoc->getNote());
+    }
+
+    private function createDocumentController(): DocumentController
+    {
+        $em = $this->createMock(EntityManagerInterface::class);
+        $controller = new DocumentController($em);
+        $controller->setDispatcher($this->createMock(EventDispatcherInterface::class));
+
+        return $controller;
+    }
 }
