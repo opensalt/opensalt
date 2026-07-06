@@ -124,5 +124,8 @@ return RectorConfig::configure()
     ])
     //->withTypeCoverageLevel(1)
     //->withDeadCodeLevel(1)
-    ->withImportNames(true, true, false, true)
+    ->withImportNames(
+        importShortClasses: false,
+        removeUnusedImports: true,
+    )
 ;
