@@ -136,6 +136,7 @@ services:
             $caseNetworkClientSecret: '%case_network_client_secret%'
             $caseNetworkScope: '%case_network_scope%'
             $caseNetworkTokenEndpoint: '%case_network_token_endpoint%'
+            $paginationLimit: '%mcp.pagination_limit%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
