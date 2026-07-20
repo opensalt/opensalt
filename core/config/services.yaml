@@ -234,3 +234,21 @@ services:
     Enqueue\Dbal\DbalConnectionFactory:
         factory: [ 'Ecotone\Dbal\DbalConnection', 'createForManagerRegistry' ]
         arguments: [ "@doctrine","default" ]
+
+    # Override the symfony/mcp-bundle HTTP controller so the MCP endpoint
+    # (/_mcp) is reachable behind the fronting reverse proxy/firewall on any
+    # hostname. Host validation is handled by the proxy; the SDK's default
+    # DNS-rebinding host allowlist (localhost only) is dropped here.
+    mcp.server.controller:
+        class: App\Mcp\McpController
+        arguments:
+            - '@mcp.server'
+            - '@mcp.psr_http_factory'
+            - '@mcp.http_foundation_factory'
+            - '@mcp.psr17_factory'
+            - '@mcp.psr17_factory'
+            - '@logger'
+        public: true
+        tags:
+            - { name: controller.service_arguments }
+            - { name: monolog.logger, channel: mcp }
