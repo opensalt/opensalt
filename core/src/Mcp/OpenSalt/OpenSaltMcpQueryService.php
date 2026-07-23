@@ -9,7 +9,6 @@ use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Repository\Framework\LsDocRepository;
 use App\Repository\Framework\LsItemRepository;
-use App\Util\LikeQueryHelper;
 use Doctrine\ORM\QueryBuilder;
 
 readonly class OpenSaltMcpQueryService
@@ -25,25 +24,63 @@ readonly class OpenSaltMcpQueryService
      */
     public function listPublicDocuments(int $limit = 25, int $offset = 0, ?string $query = null): array
     {
-        $qb = $this->documentRepository->createQueryBuilder('d')
-            ->select('d')
-            ->orderBy('d.changedAt', 'DESC')
-            ->addOrderBy('d.id', 'DESC')
-            ->setFirstResult(max(0, $offset))
-            ->setMaxResults($this->normalizeLimit($limit, 25, 100));
+        $limit = $this->normalizeLimit($limit, 25, 100);
+        $offset = max(0, $offset);
 
-        $this->addPublicDocumentVisibilityFilter($qb, 'd', 'm');
+        $conn = $this->documentRepository->getEntityManager()->getConnection();
+        $sql = 'SELECT d.id
+                FROM ls_doc d
+                STRAIGHT_JOIN mirror_framework m ON m.id = d.mirrored_framework_id
+                WHERE (d.adoption_status IS NULL OR d.adoption_status <> :privateDraft)
+                  AND (m.visible IS NULL OR m.visible = 1)';
+        $params = ['privateDraft' => LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT];
+        $types = ['privateDraft' => \PDO::PARAM_STR];
 
         if (null !== $query && '' !== trim($query)) {
-            $query = LikeQueryHelper::containsLower(trim($query));
-            $qb->andWhere('LOWER(d.title) LIKE :query OR LOWER(d.creator) LIKE :query OR LOWER(d.publisher) LIKE :query OR LOWER(d.identifier) LIKE :query')
-                ->setParameter('query', $query);
+            $like = '%'.strtolower(trim($query)).'%';
+            $sql .= ' AND (LOWER(d.title) LIKE :q1 OR LOWER(d.creator) LIKE :q2 OR LOWER(d.publisher) LIKE :q3 OR LOWER(d.identifier) LIKE :q4)';
+            $params['q1'] = $like;
+            $params['q2'] = $like;
+            $params['q3'] = $like;
+            $params['q4'] = $like;
+            $types['q1'] = \PDO::PARAM_STR;
+            $types['q2'] = \PDO::PARAM_STR;
+            $types['q3'] = \PDO::PARAM_STR;
+            $types['q4'] = \PDO::PARAM_STR;
         }
 
-        /** @var list<LsDoc> $documents */
-        $documents = $qb->getQuery()->getResult();
+        $sql .= ' ORDER BY d.changed_at DESC, d.id DESC LIMIT :limit OFFSET :offset';
+        $params['limit'] = $limit;
+        $params['offset'] = $offset;
+        $types['limit'] = \PDO::PARAM_INT;
+        $types['offset'] = \PDO::PARAM_INT;
 
-        return $documents;
+        $ids = $conn->executeQuery($sql, $params, $types)->fetchFirstColumn();
+
+        if ([] === $ids) {
+            return [];
+        }
+
+        $documents = $this->documentRepository->createQueryBuilder('d')
+            ->select('d')
+            ->where('d.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->getQuery()
+            ->getResult();
+
+        $byId = [];
+        foreach ($documents as $document) {
+            $byId[$document->getId()] = $document;
+        }
+
+        $ordered = [];
+        foreach ($ids as $id) {
+            if (isset($byId[$id])) {
+                $ordered[] = $byId[$id];
+            }
+        }
+
+        return $ordered;
     }
 
     public function getPublicDocumentByIdentifier(string $documentIdentifier): ?LsDoc
@@ -71,33 +108,70 @@ readonly class OpenSaltMcpQueryService
         ?string $documentIdentifier = null,
         ?string $query = null,
     ): array {
-        $qb = $this->itemRepository->createQueryBuilder('i')
-            ->select('i', 'd')
-            ->innerJoin('i.lsDoc', 'd')
-            ->leftJoin('d.mirroredFramework', 'm')
-            ->andWhere('(d.adoptionStatus IS NULL OR d.adoptionStatus != :privateDraft)')
-            ->andWhere('(m.visible IS NULL OR m.visible = 1)')
-            ->setParameter('privateDraft', LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT)
-            ->orderBy('i.changedAt', 'DESC')
-            ->addOrderBy('i.id', 'DESC')
-            ->setFirstResult(max(0, $offset))
-            ->setMaxResults($this->normalizeLimit($limit, 25, 100));
+        $limit = $this->normalizeLimit($limit, 25, 100);
+        $offset = max(0, $offset);
+
+        $conn = $this->itemRepository->getEntityManager()->getConnection();
+        $sql = 'SELECT i.id
+                FROM ls_item i
+                STRAIGHT_JOIN ls_doc d ON d.id = i.ls_doc_id
+                LEFT JOIN mirror_framework m ON m.id = d.mirrored_framework_id
+                WHERE (d.adoption_status IS NULL OR d.adoption_status <> :privateDraft)
+                  AND (m.visible IS NULL OR m.visible = 1)';
+        $params = ['privateDraft' => LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT];
+        $types = ['privateDraft' => \PDO::PARAM_STR];
 
         if (null !== $documentIdentifier && '' !== trim($documentIdentifier)) {
-            $qb->andWhere('d.identifier = :documentIdentifier')
-                ->setParameter('documentIdentifier', trim($documentIdentifier));
+            $sql .= ' AND d.identifier = :documentIdentifier';
+            $params['documentIdentifier'] = trim($documentIdentifier);
+            $types['documentIdentifier'] = \PDO::PARAM_STR;
         }
 
         if (null !== $query && '' !== trim($query)) {
-            $query = LikeQueryHelper::containsLower(trim($query));
-            $qb->andWhere('LOWER(i.fullStatement) LIKE :query OR LOWER(i.abbreviatedStatement) LIKE :query OR LOWER(i.humanCodingScheme) LIKE :query OR LOWER(i.identifier) LIKE :query')
-                ->setParameter('query', $query);
+            $like = '%'.strtolower(trim($query)).'%';
+            $sql .= ' AND (LOWER(i.full_statement) LIKE :q1 OR LOWER(i.abbreviated_statement) LIKE :q2 OR LOWER(i.human_coding_scheme) LIKE :q3 OR LOWER(i.identifier) LIKE :q4)';
+            $params['q1'] = $like;
+            $params['q2'] = $like;
+            $params['q3'] = $like;
+            $params['q4'] = $like;
+            $types['q1'] = \PDO::PARAM_STR;
+            $types['q2'] = \PDO::PARAM_STR;
+            $types['q3'] = \PDO::PARAM_STR;
+            $types['q4'] = \PDO::PARAM_STR;
         }
 
-        /** @var list<LsItem> $items */
-        $items = $qb->getQuery()->getResult();
+        $sql .= ' ORDER BY i.changed_at DESC, i.id DESC LIMIT :limit OFFSET :offset';
+        $params['limit'] = $limit;
+        $params['offset'] = $offset;
+        $types['limit'] = \PDO::PARAM_INT;
+        $types['offset'] = \PDO::PARAM_INT;
 
-        return $items;
+        $ids = $conn->executeQuery($sql, $params, $types)->fetchFirstColumn();
+
+        if ([] === $ids) {
+            return [];
+        }
+
+        $items = $this->itemRepository->createQueryBuilder('i')
+            ->select('i')
+            ->where('i.id IN (:ids)')
+            ->setParameter('ids', $ids)
+            ->getQuery()
+            ->getResult();
+
+        $byId = [];
+        foreach ($items as $item) {
+            $byId[$item->getId()] = $item;
+        }
+
+        $ordered = [];
+        foreach ($ids as $id) {
+            if (isset($byId[$id])) {
+                $ordered[] = $byId[$id];
+            }
+        }
+
+        return $ordered;
     }
 
     public function getPublicItemByIdentifier(string $itemIdentifier, ?string $documentIdentifier = null): ?LsItem
