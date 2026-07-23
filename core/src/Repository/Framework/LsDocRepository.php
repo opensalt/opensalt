@@ -396,6 +396,7 @@ class LsDocRepository extends ServiceEntityRepository
                    i.abbreviatedStatement, i.listEnumInSource, i.changedAt,
                    i.discriminator, i.extensions, i.extra,
                    i.conceptKeywords, i.language, i.educationalAlignment,
+                   i.itemTypeText,
                    IDENTITY(i.lsDoc) as lsDoc,
                    IDENTITY(i.itemType) as itemType
             FROM '.LsItem::class.' i
@@ -527,6 +528,7 @@ class LsDocRepository extends ServiceEntityRepository
             SELECT i.identifier, i.uri, i.humanCodingScheme, i.fullStatement,
                    i.abbreviatedStatement, i.listEnumInSource, i.changedAt,
                    i.discriminator, i.extensions, i.extra,
+                   i.itemTypeText,
                    IDENTITY(i.lsDoc) as lsDoc,
                    IDENTITY(i.itemType) as itemType
             FROM '.LsItem::class.' i
@@ -694,6 +696,9 @@ class LsDocRepository extends ServiceEntityRepository
                 $itemTypeCache[$itId] = $itEntity?->getTitle();
             }
             $itemTypeName = $itemTypeCache[$itId];
+        }
+        if (null === $itemTypeName && !empty($item['itemTypeText'])) {
+            $itemTypeName = $item['itemTypeText'];
         }
 
         return [

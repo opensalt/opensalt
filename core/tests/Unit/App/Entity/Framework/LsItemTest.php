@@ -210,6 +210,26 @@ class LsItemTest extends \Codeception\Test\Unit
         $this->assertEquals($itemTypeText, $lsItem->getItemTypeText());
     }
 
+    public function testGetItemTypeTitlePrefersLinkedItemType(): void
+    {
+        $lsItem = new LsItem();
+        $itemType = new LsDefItemType();
+        $itemType->setTitle('Linked Type');
+
+        $lsItem->setItemType($itemType);
+        $lsItem->setItemTypeText('Text Type');
+
+        $this->assertSame('Linked Type', $lsItem->getItemTypeTitle());
+    }
+
+    public function testGetItemTypeTitleFallsBackToItemTypeText(): void
+    {
+        $lsItem = new LsItem();
+        $lsItem->setItemTypeText('Learning Objective');
+
+        $this->assertSame('Learning Objective', $lsItem->getItemTypeTitle());
+    }
+
     public function testSetAndGetAlternativeLabel()
     {
         $lsItem = new LsItem();

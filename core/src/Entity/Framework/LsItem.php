@@ -890,6 +890,17 @@ class LsItem implements CaseApiInterface, LockableInterface, ItemTypeInterface
     }
 
     /**
+     * Resolved item type label for editor UI display.
+     *
+     * Items imported with CFItemType but no CFItemTypeURI store the label in itemTypeText.
+     * Not used for CASE API export — see LsItemNormalizer.
+     */
+    public function getItemTypeTitle(): ?string
+    {
+        return $this->itemType?->getTitle() ?? $this->itemTypeText;
+    }
+
+    /**
      * @return Collection<array-key, LsDefConcept>
      */
     public function getConcepts(): Collection
