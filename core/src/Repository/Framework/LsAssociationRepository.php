@@ -8,6 +8,7 @@ use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\Persistence\ManagerRegistry;
 use Ramsey\Uuid\Uuid;
 
@@ -65,6 +66,103 @@ class LsAssociationRepository extends ServiceEntityRepository
         }
 
         return $deleted;
+    }
+
+    /**
+     * @param list<string> $types
+     *
+     * @return list<LsAssociation>
+     */
+    public function findByLsDocAndTypes(LsDoc $doc, array $types): array
+    {
+        if ([] === $types) {
+            return [];
+        }
+
+        return $this->createQueryBuilder('a')
+            ->where('a.lsDoc = :doc')
+            ->andWhere('a.type IN (:types)')
+            ->setParameter('doc', $doc)
+            ->setParameter('types', $types)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return list<int>
+     */
+    public function findArticulationDocIdsForInstitutionItems(
+        LsItem $sendingOrg,
+        LsItem $receivingOrg,
+    ): array {
+        $sendingOrgId = $sendingOrg->getId();
+        $sendingIdentifier = $sendingOrg->getIdentifier();
+        $receivingOrgId = $receivingOrg->getId();
+        $receivingIdentifier = $receivingOrg->getIdentifier();
+
+        if (
+            null === $sendingOrgId
+            || null === $receivingOrgId
+            || null === $sendingIdentifier
+            || '' === $sendingIdentifier
+            || null === $receivingIdentifier
+            || '' === $receivingIdentifier
+        ) {
+            return [];
+        }
+
+        // Prefer destination_* predicates so MySQL can use dest_id_idx / destination_lsitem_id
+        // instead of a full scan on association type (no type index).
+        $sql = <<<'SQL'
+            SELECT DISTINCT sd.ls_doc_id AS docId
+            FROM ls_association sd
+            INNER JOIN ls_association rd ON sd.ls_doc_id = rd.ls_doc_id
+            WHERE (
+                sd.destination_lsitem_id = :sendingOrgId
+                OR sd.destination_node_identifier = :sendingIdentifier
+              )
+              AND sd.type = :sendingType
+              AND (
+                rd.destination_lsitem_id = :receivingOrgId
+                OR rd.destination_node_identifier = :receivingIdentifier
+              )
+              AND rd.type = :receivingType
+            SQL;
+
+        /** @var list<array{docId: string|int}> $rows */
+        $rows = $this->getEntityManager()->getConnection()->fetchAllAssociative(
+            $sql,
+            [
+                'sendingType' => 'ext:sendingInstitution',
+                'receivingType' => 'ext:receivingInstitution',
+                'sendingOrgId' => $sendingOrgId,
+                'sendingIdentifier' => $sendingIdentifier,
+                'receivingOrgId' => $receivingOrgId,
+                'receivingIdentifier' => $receivingIdentifier,
+            ],
+            [
+                'sendingOrgId' => ParameterType::INTEGER,
+                'receivingOrgId' => ParameterType::INTEGER,
+            ],
+        );
+
+        return array_map(static fn (array $row): int => (int) $row['docId'], $rows);
+    }
+
+    /**
+     * @return list<int>
+     */
+    public function findDocIdsByAssociationType(string $type): array
+    {
+        /** @var list<array{docId: string|int}> $rows */
+        $rows = $this->createQueryBuilder('a')
+            ->select('DISTINCT IDENTITY(a.lsDoc) AS docId')
+            ->where('a.type = :type')
+            ->setParameter('type', $type)
+            ->getQuery()
+            ->getScalarResult();
+
+        return array_map(static fn (array $row): int => (int) $row['docId'], $rows);
     }
 
     /**

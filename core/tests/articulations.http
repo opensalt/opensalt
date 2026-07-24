@@ -1,0 +1,208 @@
+# Articulation evaluate API — exploration requests
+#
+# Requires the REST Client extension (humao.rest-client) or VS Code built-in HTTP client.
+# Set @token to a bearer token for a user with FRAMEWORK_VIEW on the articulation package.
+#
+# Local stack (default): http://web.salt-default
+# Example identifiers: Foothill → SJSU (foothill-to-sjsu-articulation-2025-2026)
+# SJSU org in this package uses identifier / ais:institutionId (not codes:etsCode).
+
+@baseUrl = http://web.salt-default
+@token = t1-6J4FQk-47ZbHef3A8F7Ei8tBqBERcLmEn8Z
+
+### Single sending course (typical happy path)
+POST {{baseUrl}}/api/v1/articulations/evaluate
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "sendingInstitution": {
+    "identifiers": [
+      { "type": "coci:schoolId", "value": "46" },
+      { "type": "codes:etsCode", "value": "4315" }
+    ]
+  },
+  "receivingInstitution": {
+    "identifiers": [
+      { "type": "identifier", "value": "833e47a4-a238-5af4-ab79-c6df319df869" },
+      { "type": "ais:institutionId", "value": "39" }
+    ]
+  },
+  "sendingCourses": [
+    {
+      "identifiers": [
+        { "type": "courseCode", "value": "MATH 12" }
+      ]
+    }
+  ]
+}
+
+### Single sending course (typical happy path)
+POST {{baseUrl}}/api/v1/articulations/evaluate
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "sendingInstitution": {
+    "identifiers": [
+      { "type": "coci:schoolId", "value": "46" },
+      { "type": "codes:etsCode", "value": "4315" }
+    ]
+  },
+  "receivingInstitution": {
+    "identifiers": [
+      { "type": "ais:institutionCode", "value": "SJSU" }
+    ]
+  },
+  "sendingCourses": [
+    {
+      "identifiers": [
+        { "type": "courseCode", "value": "MATH 12" }
+      ]
+    }
+  ]
+}
+
+### Multiple sending courses
+POST {{baseUrl}}/api/v1/articulations/evaluate
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "sendingInstitution": {
+    "identifiers": [
+      { "type": "coci:schoolId", "value": "46" }
+    ]
+  },
+  "receivingInstitution": {
+    "identifiers": [
+      { "type": "identifier", "value": "833e47a4-a238-5af4-ab79-c6df319df869" }
+    ]
+  },
+  "sendingCourses": [
+    {
+      "identifiers": [
+        { "type": "courseCode", "value": "MATH 12" }
+      ]
+    },
+    {
+      "identifiers": [
+        { "type": "courseCode", "value": "CHEM 12A" }
+      ]
+    },
+    {
+      "identifiers": [
+        { "type": "courseCode", "value": "CHEM 12B" }
+      ]
+    }
+  ]
+}
+
+### Multiple sending courses
+POST {{baseUrl}}/api/v1/articulations/evaluate
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "sendingInstitution": {
+    "identifiers": [
+      { "type": "coci:schoolId", "value": "46" }
+    ]
+  },
+  "receivingInstitution": {
+    "identifiers": [
+      { "type": "identifier", "value": "833e47a4-a238-5af4-ab79-c6df319df869" }
+    ]
+  },
+  "sendingCourses": [
+    {
+      "identifiers": [
+        { "type": "courseCode", "value": "MATH 10" }
+      ]
+    },
+    {
+      "identifiers": [
+        { "type": "courseCode", "value": "PSYC 7" }
+      ]
+    },
+    {
+      "identifiers": [
+        { "type": "courseCode", "value": "CHEM 12A" }
+      ]
+    },
+    {
+      "identifiers": [
+        { "type": "courseCode", "value": "CHEM 12B" }
+      ]
+    }
+  ]
+}
+
+### Framework resolution only (empty sendingCourses)
+POST {{baseUrl}}/api/v1/articulations/evaluate
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "sendingInstitution": {
+    "identifiers": [
+      { "type": "coci:schoolId", "value": "46" }
+    ]
+  },
+  "receivingInstitution": {
+    "identifiers": [
+      { "type": "ais:institutionId", "value": "39" }
+    ]
+  },
+  "sendingCourses": []
+}
+
+### Unknown institution pair (expect 404)
+POST {{baseUrl}}/api/v1/articulations/evaluate
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "sendingInstitution": {
+    "identifiers": [
+      { "type": "coci:schoolId", "value": "UNKNOWN_SENDING" }
+    ]
+  },
+  "receivingInstitution": {
+    "identifiers": [
+      { "type": "ais:institutionId", "value": "UNKNOWN_RECEIVING" }
+    ]
+  },
+  "sendingCourses": [
+    {
+      "identifiers": [
+        { "type": "courseCode", "value": "MATH 12" }
+      ]
+    }
+  ]
+}
+
+### Missing auth (expect 401)
+POST {{baseUrl}}/api/v1/articulations/evaluate
+Content-Type: application/json
+Accept: application/json
+
+{
+  "sendingInstitution": {
+    "identifiers": [
+      { "type": "coci:schoolId", "value": "46" }
+    ]
+  },
+  "receivingInstitution": {
+    "identifiers": [
+      { "type": "identifier", "value": "833e47a4-a238-5af4-ab79-c6df319df869" }
+    ]
+  },
+  "sendingCourses": []
+}
