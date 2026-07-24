@@ -37,4 +37,5 @@ nelmio_api_doc:
                 #- ^/api/v1(?!(/doc|/lor)$)
                 - ^/api/v1/documents
                 - ^/api/v1/packages
+                - ^/api/v1/articulations
 
