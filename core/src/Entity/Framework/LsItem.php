@@ -22,6 +22,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: LsItemRepository::class)]
 #[UniqueEntity('uri')]
 #[ORM\Index(name: 'type_idx', columns: ['discriminator'])]
+#[ORM\Index(name: 'ls_item_changed_at_idx', columns: ['changed_at'])]
 #[ORM\UniqueConstraint(name: 'ls_item_identifier', columns: ['identifier', 'ls_doc_identifier'])]
 #[ORM\UniqueConstraint(name: 'ls_item_uri', columns: ['uri', 'ls_doc_identifier'])]
 #[ORM\AttributeOverrides([

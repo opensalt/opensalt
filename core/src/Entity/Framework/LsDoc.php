@@ -19,6 +19,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Table(name: 'ls_doc')]
+#[ORM\Index(name: 'ls_doc_changed_at_idx', columns: ['changed_at'])]
 #[ORM\Entity(repositoryClass: LsDocRepository::class)]
 #[UniqueEntity('uri')]
 #[UniqueEntity('urlName')]
