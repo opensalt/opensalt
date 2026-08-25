@@ -24,7 +24,7 @@ readonly class MirrorNextFramework
         $lock = $this->lockFactory->createLock('mirror-next-framework', ttl: 3600);
         if (!$lock->acquire(blocking: false)) {
             $this->logger->debug('Skipped {task}: lock held by previous run', [
-                'task' => __CLASS__,
+                'task' => self::class,
             ]);
 
             return;
@@ -34,7 +34,7 @@ readonly class MirrorNextFramework
             $this->mirrorFramework->mirrorNext();
         } catch (\Throwable $e) {
             $this->logger->error('Scheduler task failed', [
-                'task' => __CLASS__,
+                'task' => self::class,
                 'exception' => $e,
             ]);
             throw $e;

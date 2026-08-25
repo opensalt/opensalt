@@ -24,6 +24,7 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
@@ -210,7 +211,7 @@ class UserController extends AbstractController
         try {
             $command = new SendUserApprovedEmailCommand($targetUser->getUserIdentifier());
             $this->sendCommand($command);
-        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+        } catch (TransportExceptionInterface $e) {
             $this->logger?->warning('Welcome email send failed', [
                 'message' => $e->getMessage(),
                 'user' => $targetUser->getUserIdentifier(),

@@ -9,10 +9,10 @@ use App\Articulations\Model\InstitutionMatch;
 use App\Entity\Framework\LsItem;
 use App\Repository\Framework\LsItemRepository;
 
-final class EntityIdentifierResolver
+final readonly class EntityIdentifierResolver
 {
     public function __construct(
-        private readonly LsItemRepository $itemRepository,
+        private LsItemRepository $itemRepository,
     ) {
     }
 

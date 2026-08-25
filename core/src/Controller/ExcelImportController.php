@@ -9,6 +9,7 @@ use App\Command\Import\ImportExcelFileCommand;
 use App\Entity\User\User;
 use App\Security\Permission;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Reader\Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,7 +34,7 @@ class ExcelImportController extends AbstractController
 
         try {
             IOFactory::identify($file->getRealPath());
-        } catch (\PhpOffice\PhpSpreadsheet\Reader\Exception $e) {
+        } catch (Exception $e) {
             return new JsonResponse(['error' => 'Invalid spreadsheet file.'], Response::HTTP_BAD_REQUEST);
         }
 

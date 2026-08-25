@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Entity\User\User;
+use Symfony\Component\Security\Core\Authentication\Token\RememberMeToken;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+use Symfony\Component\Security\Core\User\InMemoryUser;
+use Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken;
 
 final readonly class SessionDataDecoder
 {
@@ -20,9 +23,9 @@ final readonly class SessionDataDecoder
      */
     private const TOKEN_ALLOWED_CLASSES = [
         UsernamePasswordToken::class,
-        \Symfony\Component\Security\Core\Authentication\Token\RememberMeToken::class,
-        \Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken::class,
-        \Symfony\Component\Security\Core\User\InMemoryUser::class,
+        RememberMeToken::class,
+        PostAuthenticationToken::class,
+        InMemoryUser::class,
         User::class,
     ];
 

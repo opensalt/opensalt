@@ -443,7 +443,7 @@ class ItemController extends AbstractController
 
         usort($childAssocs, static fn (LsAssociation $a, LsAssociation $b): int => ($a->getSequenceNumber() ?? 0) <=> ($b->getSequenceNumber() ?? 0));
 
-        if (null !== $movedItemIdentifier && null !== $targetItemIdentifier && null !== $position && 'inside' !== $position) {
+        if (!in_array(null, [$movedItemIdentifier, $targetItemIdentifier, $position], true) && 'inside' !== $position) {
             $this->reorderSiblings($childAssocs, $movedItemIdentifier, $targetItemIdentifier, $position);
         }
 

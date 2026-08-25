@@ -14,18 +14,18 @@ use App\Repository\Framework\LsAssociationRepository;
 use App\Repository\Framework\LsItemRepository;
 use App\Service\Api1Uris;
 
-final class ArticulationEvaluateService
+final readonly class ArticulationEvaluateService
 {
     private const string ASSOC_TYPE_ARTICULATION = 'ext:articulation';
     private const string EXT_ARTICULATION_KEY = 'ais:articulationKey';
 
     public function __construct(
-        private readonly RequirementTreeBuilder $treeBuilder,
-        private readonly RequirementEvaluator $evaluator,
-        private readonly LsItemRepository $itemRepository,
-        private readonly LsAssociationRepository $associationRepository,
-        private readonly SendingCourseMatcher $sendingCourseMatcher,
-        private readonly Api1Uris $api1Uris,
+        private RequirementTreeBuilder $treeBuilder,
+        private RequirementEvaluator $evaluator,
+        private LsItemRepository $itemRepository,
+        private LsAssociationRepository $associationRepository,
+        private SendingCourseMatcher $sendingCourseMatcher,
+        private Api1Uris $api1Uris,
     ) {
     }
 

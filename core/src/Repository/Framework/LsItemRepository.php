@@ -365,8 +365,8 @@ class LsItemRepository extends ServiceEntityRepository
         string $column,
         string $paramName,
         string $value,
-        array &$params,
-        array &$types,
+        array & $params,
+        array & $types,
     ): string {
         $params[$paramName] = $value;
         $types[$paramName] = ParameterType::STRING;

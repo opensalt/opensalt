@@ -10,12 +10,12 @@ use App\Entity\Framework\LsDoc;
 use App\Repository\Framework\LsAssociationRepository;
 use App\Repository\Framework\LsDocRepository;
 
-final class ArticulationFrameworkResolver
+final readonly class ArticulationFrameworkResolver
 {
     public function __construct(
-        private readonly EntityIdentifierResolver $identifierResolver,
-        private readonly LsAssociationRepository $associationRepository,
-        private readonly LsDocRepository $docRepository,
+        private EntityIdentifierResolver $identifierResolver,
+        private LsAssociationRepository $associationRepository,
+        private LsDocRepository $docRepository,
     ) {
     }
 

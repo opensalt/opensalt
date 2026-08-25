@@ -18,7 +18,7 @@ final class EntityIdentifierIndex
         ];
 
         $uri = $item->getUri();
-        if (null !== $uri && '' !== $uri) {
+        if ('' !== $uri) {
             $known['uri'] = [$uri];
         }
 

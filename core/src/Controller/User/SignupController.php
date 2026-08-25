@@ -18,6 +18,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -82,7 +83,7 @@ class SignupController extends AbstractController
                 try {
                     $command = new SendSignupReceivedEmailCommand($targetUser->getUserIdentifier());
                     $this->sendCommand($command);
-                } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+                } catch (TransportExceptionInterface $e) {
                     $this->logger?->warning('Signup welcome email send failed', [
                         'message' => $e->getMessage(),
                         'user' => $targetUser->getUserIdentifier(),
@@ -101,7 +102,7 @@ class SignupController extends AbstractController
                     $from_email = $this->mailFromEmail;
                     $command = new SendAdminNotificationEmailCommand($from_email, $targetUser->getUserIdentifier(), $targetUser->getOrg()->getName());
                     $this->sendCommand($command);
-                } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+                } catch (TransportExceptionInterface $e) {
                     $this->logger?->warning('Signup admin notification email send failed', [
                         'message' => $e->getMessage(),
                         'user' => $targetUser->getUserIdentifier(),

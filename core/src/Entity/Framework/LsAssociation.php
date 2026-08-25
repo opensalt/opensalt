@@ -8,6 +8,7 @@ use App\Repository\Framework\LsAssociationRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ORM\Table(name: 'ls_association')]
 #[ORM\Index(name: 'dest_id_idx', columns: ['destination_node_identifier'])]
@@ -480,7 +481,7 @@ class LsAssociation implements CaseApiInterface
      * stored value. As long as coerceType() produces only BASE_TYPES members or "ext:" strings,
      * these two checks remain consistent.
      */
-    public static function validateType(self $association, \Symfony\Component\Validator\Context\ExecutionContextInterface $context): void
+    public static function validateType(self $association, ExecutionContextInterface $context): void
     {
         $type = $association->getType();
         if (null === $type || '' === $type) {

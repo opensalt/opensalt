@@ -84,7 +84,7 @@ class CaseImportController extends AbstractController
                         RequestOptions::ALLOW_REDIRECTS => [
                             'max' => 3,
                             'strict' => true,
-                            'on_redirect' => function ($request, $response, $uri) {
+                            'on_redirect' => function ($request, $response, string $uri): void {
                                 if (!$this->urlSafety->isSafe((string) $uri)) {
                                     throw new \RuntimeException('Redirect target is not allowed: ' . $uri);
                                 }

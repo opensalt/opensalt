@@ -24,7 +24,7 @@ readonly class UpdateNextMirrorServer
         $lock = $this->lockFactory->createLock('update-next-mirror-server', ttl: 3600);
         if (!$lock->acquire(blocking: false)) {
             $this->logger->debug('Skipped {task}: lock held by previous run', [
-                'task' => __CLASS__,
+                'task' => self::class,
             ]);
 
             return;
@@ -34,7 +34,7 @@ readonly class UpdateNextMirrorServer
             $this->mirrorServer->updateNext();
         } catch (\Throwable $e) {
             $this->logger->error('Scheduler task failed', [
-                'task' => __CLASS__,
+                'task' => self::class,
                 'exception' => $e,
             ]);
             throw $e;

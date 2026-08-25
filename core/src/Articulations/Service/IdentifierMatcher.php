@@ -6,10 +6,10 @@ namespace App\Articulations\Service;
 
 use App\Articulations\Model\EntityIdentifiers;
 
-final class IdentifierMatcher
+final readonly class IdentifierMatcher
 {
     public function __construct(
-        private readonly CourseCodeNormalizer $courseCodeNormalizer = new CourseCodeNormalizer(),
+        private CourseCodeNormalizer $courseCodeNormalizer = new CourseCodeNormalizer(),
     ) {
     }
 

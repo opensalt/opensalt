@@ -17,6 +17,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -42,18 +43,18 @@ class CrosswalkApiController extends AbstractController
         $destinationLeafOnly = filter_var($request->query->get('destination_leaf_only', false), \FILTER_VALIDATE_BOOL);
 
         if (!$originIdentifier || !$destinationIdentifier) {
-            return new JsonResponse(['error' => 'origin and destination parameters are required'], 400);
+            return new JsonResponse(['error' => 'origin and destination parameters are required'], Response::HTTP_BAD_REQUEST);
         }
 
         $originDoc = $this->entityManager->getRepository(LsDoc::class)->findOneBy(['identifier' => $originIdentifier]);
         $destinationDoc = $this->entityManager->getRepository(LsDoc::class)->findOneBy(['identifier' => $destinationIdentifier]);
 
         if (!$originDoc || !$destinationDoc) {
-            return new JsonResponse(['error' => 'Framework not found'], 404);
+            return new JsonResponse(['error' => 'Framework not found'], Response::HTTP_NOT_FOUND);
         }
 
         if (!$this->isGranted(Permission::FRAMEWORK_VIEW, $originDoc) || !$this->isGranted(Permission::FRAMEWORK_VIEW, $destinationDoc)) {
-            return new JsonResponse(['error' => 'Access denied'], 403);
+            return new JsonResponse(['error' => 'Access denied'], Response::HTTP_FORBIDDEN);
         }
 
         $originId = (int) $originDoc->getId();
@@ -94,18 +95,18 @@ class CrosswalkApiController extends AbstractController
         $leafOnly = filter_var($request->query->get('leaf_only', false), \FILTER_VALIDATE_BOOL);
 
         if (!$itemIdentifier || !$frameworkIdentifier) {
-            return new JsonResponse(['error' => 'item and framework parameters are required'], 400);
+            return new JsonResponse(['error' => 'item and framework parameters are required'], Response::HTTP_BAD_REQUEST);
         }
 
         $item = $this->entityManager->getRepository(LsItem::class)->findOneBy(['identifier' => $itemIdentifier]);
         $framework = $this->entityManager->getRepository(LsDoc::class)->findOneBy(['identifier' => $frameworkIdentifier]);
 
         if (!$item || !$framework) {
-            return new JsonResponse(['error' => 'Item or framework not found'], 404);
+            return new JsonResponse(['error' => 'Item or framework not found'], Response::HTTP_NOT_FOUND);
         }
 
         if (!$this->isGranted(Permission::FRAMEWORK_VIEW, $framework)) {
-            return new JsonResponse(['error' => 'Access denied'], 403);
+            return new JsonResponse(['error' => 'Access denied'], Response::HTTP_FORBIDDEN);
         }
 
         $results = $this->vectorSearchService->searchByLsItem($item, $limit, (int) $framework->getId(), $leafOnly);
@@ -140,7 +141,7 @@ class CrosswalkApiController extends AbstractController
         $destinationLeafOnly = (bool) ($data['destination_leaf_only'] ?? false);
 
         if (!$originIdentifier || !$destinationIdentifier || !$crosswalkIdentifier) {
-            return new JsonResponse(['error' => 'origin_identifier, destination_identifier, and crosswalk_identifier are required'], 400);
+            return new JsonResponse(['error' => 'origin_identifier, destination_identifier, and crosswalk_identifier are required'], Response::HTTP_BAD_REQUEST);
         }
 
         $originDoc = $this->entityManager->getRepository(LsDoc::class)->findOneBy(['identifier' => $originIdentifier]);
@@ -148,14 +149,14 @@ class CrosswalkApiController extends AbstractController
         $crosswalkDoc = $this->entityManager->getRepository(LsDoc::class)->findOneBy(['identifier' => $crosswalkIdentifier]);
 
         if (!$originDoc || !$destinationDoc || !$crosswalkDoc) {
-            return new JsonResponse(['error' => 'Framework not found'], 404);
+            return new JsonResponse(['error' => 'Framework not found'], Response::HTTP_NOT_FOUND);
         }
 
         if (!$this->isGranted(Permission::FRAMEWORK_VIEW, $originDoc) || !$this->isGranted(Permission::FRAMEWORK_VIEW, $destinationDoc)) {
-            return new JsonResponse(['error' => 'Access denied to origin or destination framework'], 403);
+            return new JsonResponse(['error' => 'Access denied to origin or destination framework'], Response::HTTP_FORBIDDEN);
         }
         if (!$this->isGranted(Permission::FRAMEWORK_EDIT, $crosswalkDoc)) {
-            return new JsonResponse(['error' => 'Edit access denied for crosswalk framework'], 403);
+            return new JsonResponse(['error' => 'Edit access denied for crosswalk framework'], Response::HTTP_FORBIDDEN);
         }
 
         $originId = (int) $originDoc->getId();
@@ -186,7 +187,7 @@ class CrosswalkApiController extends AbstractController
         return new JsonResponse([
             'job_id' => (string) $job->id,
             'status' => 'queued',
-        ], 202);
+        ], Response::HTTP_ACCEPTED);
     }
 
     #[Route('/api/vector-search/crosswalk/{jobId}', name: 'api_crosswalk_status', methods: ['GET'])]
@@ -196,13 +197,13 @@ class CrosswalkApiController extends AbstractController
 
         $job = $this->jobRepository->find($jobId);
 
-        if (!$job) {
-            return new JsonResponse(['error' => 'Job not found'], 404);
+        if (!$job instanceof CrosswalkJob) {
+            return new JsonResponse(['error' => 'Job not found'], Response::HTTP_NOT_FOUND);
         }
 
         $crosswalkDoc = $this->entityManager->getRepository(LsDoc::class)->find($job->crosswalkFrameworkId);
         if (!$this->isGranted(Permission::FRAMEWORK_VIEW, $crosswalkDoc)) {
-            return new JsonResponse(['error' => 'Access denied'], 403);
+            return new JsonResponse(['error' => 'Access denied'], Response::HTTP_FORBIDDEN);
         }
 
         return new JsonResponse([
@@ -233,13 +234,13 @@ class CrosswalkApiController extends AbstractController
 
         $job = $this->jobRepository->find($jobId);
 
-        if (!$job) {
-            return new JsonResponse(['error' => 'Job not found'], 404);
+        if (!$job instanceof CrosswalkJob) {
+            return new JsonResponse(['error' => 'Job not found'], Response::HTTP_NOT_FOUND);
         }
 
         $crosswalkDoc = $this->entityManager->getRepository(LsDoc::class)->find($job->crosswalkFrameworkId);
         if (!$this->isGranted(Permission::FRAMEWORK_EDIT, $crosswalkDoc)) {
-            return new JsonResponse(['error' => 'Access denied'], 403);
+            return new JsonResponse(['error' => 'Access denied'], Response::HTTP_FORBIDDEN);
         }
 
         $job->markCancelled();

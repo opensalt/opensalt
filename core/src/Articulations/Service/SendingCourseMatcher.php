@@ -8,11 +8,11 @@ use App\Articulations\Model\EntityIdentifiers;
 use App\Articulations\Model\Identifier;
 use App\Entity\Framework\LsItem;
 
-final class SendingCourseMatcher
+final readonly class SendingCourseMatcher
 {
     public function __construct(
-        private readonly EntityIdentifierIndex $identifierIndex,
-        private readonly IdentifierMatcher $identifierMatcher,
+        private EntityIdentifierIndex $identifierIndex,
+        private IdentifierMatcher $identifierMatcher,
     ) {
     }
 
