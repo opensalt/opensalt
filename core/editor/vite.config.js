@@ -12,7 +12,6 @@ const manualChunkGroups = [
   ['vendor-markdown', ['markdown-it', 'markdown-it-underline', 'sanitize-html']],
   ['vendor-katex', ['katex', '@vscode/markdown-it-katex']],
   ['vendor-editor', ['easymde']],
-  ['vendor-tables', ['datatables.net', 'datatables.net-bs5']],
 ];
 
 function manualChunks(id) {

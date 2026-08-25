@@ -233,7 +233,7 @@
                 </li>
               </ul>
             </nav>
-            <div class="d-flex align-items-center gap-2 dataTables_wrapper">
+            <div class="d-flex align-items-center gap-2 log-pagination-size">
               <label class="small text-muted mb-0">Per page:</label>
               <select
                 v-model="pageSize"
