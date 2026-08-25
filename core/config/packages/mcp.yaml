@@ -10,10 +10,9 @@ mcp:
     client_transports:
         stdio: true
         http: true
-    discovery:
-        scan_dirs: ['src/Mcp']
     http:
         path: /_mcp
+        allowed_hosts: false
         session:
             store: file
             directory: '%kernel.cache_dir%/mcp-sessions'
