@@ -131,7 +131,7 @@ function mapTreeNodeToEditorNode(node: TreeNode, parentIdentifier?: string): Edi
     CFItemTypeURI: undefined,
     conceptKeywords,
     conceptKeywordsURI: undefined,
-    notes: undefined,
+    notes: node.notes || undefined,
     language: node.language || undefined,
     educationLevel,
     licenseURI: (node as any).licenseURI || undefined,

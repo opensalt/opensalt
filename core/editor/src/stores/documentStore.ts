@@ -60,6 +60,7 @@ export interface TreeNode {
   fullStatement?: string;
   abbreviatedStatement?: string;
   listEnumeration?: string;
+  notes?: string | null;
   itemType?: string;
   sequenceNumber?: number | null;
   lastChangeDateTime?: string;

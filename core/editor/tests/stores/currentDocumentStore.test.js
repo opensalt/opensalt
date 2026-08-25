@@ -305,6 +305,29 @@ describe('CurrentDocumentStore transformCASEItems', () => {
     expect(contextStore.activeWriteDocumentId).toBe('doc-1');
     expect(contextStore.documentRegistry.get('doc-1')?.identifier).toBe('doc-1');
   });
+
+  it('keeps notes from the tree payload so the details panel and edit form can show them', () => {
+    currentDocumentStore.selectDocument({
+      document: {
+        identifier: 'doc-1',
+        uri: 'https://example.org/documents/doc-1',
+        title: 'Doc 1',
+        lastChangeDateTime: '2024-01-01T00:00:00Z'
+      },
+      tree: [
+        {
+          identifier: 'item-1',
+          fullStatement: 'An item with notes',
+          notes: 'Limit the category counts to less than or equal to 10.',
+          isCrossFramework: false,
+          children: []
+        }
+      ]
+    });
+
+    const item = findNode(currentDocumentStore.currentDocument.items, 'item-1');
+    expect(item?.notes).toBe('Limit the category counts to less than or equal to 10.');
+  });
 });
 
 describe('deleteItem', () => {
