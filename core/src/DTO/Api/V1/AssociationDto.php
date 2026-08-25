@@ -45,12 +45,12 @@ class AssociationDto
     public ?LinkURI $CFDocumentURI = null;
 
     #[Groups(['create', 'update', 'view'])]
-    #[Assert\NotNull(message: 'The associationType is required')]
-    #[Assert\NotBlank(message: 'The associationType is required')]
+    #[Assert\NotNull(message: 'The associationType is required', groups: ['create', 'update'])]
+    #[Assert\NotBlank(message: 'The associationType is required', groups: ['create', 'update'])]
     #[Assert\AtLeastOneOf([
         new Assert\Choice(choices: LsAssociation::BASE_TYPES),
         new Assert\Regex(pattern: '/^ext:[a-zA-Z0-9._-]+$/'),
-    ], message: 'The associationType must be a defined type or an extended type of the regex form /^ext:[a-zA-Z0-9._-]+$/')]
+    ], message: 'The associationType must be a defined type or an extended type of the regex form /^ext:[a-zA-Z0-9._-]+$/', groups: ['create', 'update'])]
     #[OA\Property(
         description: 'The way the origin is associated with the destination.',
         type: 'string',

@@ -114,7 +114,7 @@ class ApiV1AssociationController extends AbstractController
     )]
     public function postAssociation(
         #[MapEntity(mapping: ['documentIdentifier' => 'identifier'])] LsDoc $doc,
-        #[MapRequestPayload(validationGroups: ['create'])] AssociationDto $association,
+        #[MapRequestPayload(validationGroups: ['create'], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)] AssociationDto $association,
     ): Response {
         $lsAssociation = $doc->createAssociation($association->identifier->toString());
         $association->uri = $lsAssociation->getUri();
@@ -165,7 +165,7 @@ class ApiV1AssociationController extends AbstractController
     public function putAssociation(
         #[MapEntity(mapping: ['documentIdentifier' => 'lsDocIdentifier', 'associationIdentifier' => 'identifier'])] LsAssociation $lsAssociation,
         #[MapEntity(mapping: ['documentIdentifier' => 'identifier'])] LsDoc $doc,
-        #[MapRequestPayload(validationGroups: ['update'])] AssociationDto $association,
+        #[MapRequestPayload(validationGroups: ['update'], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)] AssociationDto $association,
     ): Response {
         if (null === $association->identifier) {
             $association->identifier = Uuid::fromString($lsAssociation->getIdentifier());
