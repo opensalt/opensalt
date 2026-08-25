@@ -394,6 +394,7 @@ class LsDocRepository extends ServiceEntityRepository
         $allItemsQuery = $em->createQuery('
             SELECT i.identifier, i.uri, i.humanCodingScheme, i.fullStatement,
                    i.abbreviatedStatement, i.listEnumInSource, i.changedAt,
+                   i.notes,
                    i.discriminator, i.extensions, i.extra,
                    i.conceptKeywords, i.language, i.educationalAlignment,
                    i.itemTypeText,
@@ -710,6 +711,7 @@ class LsDocRepository extends ServiceEntityRepository
             'fullStatement' => $item['fullStatement'] ?? null,
             'abbreviatedStatement' => $item['abbreviatedStatement'] ?? null,
             'listEnumeration' => $item['listEnumInSource'] ?? null,
+            'notes' => $item['notes'] ?? null,
             'itemType' => $itemTypeName,
             'sequenceNumber' => $assocMap[$identifier]['sequenceNumber'] ?? null,
             'lastChangeDateTime' => ($item['changedAt'] ?? null) instanceof \DateTimeInterface

@@ -125,4 +125,39 @@ class LsDocRepositoryTest extends TestCase
             $this->assertTrue($rolledBack, 'rollBack should have been called');
         }
     }
+
+    public function testBuildFullNodeIncludesNotes(): void
+    {
+        $em = $this->createMock(EntityManagerInterface::class);
+        $repo = $this->createRepository($em);
+
+        $itemTypeRepo = $this->createMock(\Doctrine\ORM\EntityRepository::class);
+        $itemTypeCache = [];
+
+        $method = new \ReflectionMethod(LsDocRepository::class, 'buildFullNode');
+
+        $args = [
+            'item-1',
+            [
+                'identifier' => 'item-1',
+                'uri' => 'https://example.org/uri/item-1',
+                'fullStatement' => 'An item with notes',
+                'notes' => 'Denominators are limited to 2, 3, 4, 6, and 8 in third grade',
+                'changedAt' => new \DateTimeImmutable('2024-01-01T00:00:00Z'),
+            ],
+            'doc-1',
+            null,
+            false,
+            [],
+            $itemTypeRepo,
+        ];
+        $args[] = &$itemTypeCache;
+        $args[] = [];
+        $args[] = [];
+
+        $node = $method->invokeArgs($repo, $args);
+
+        $this->assertArrayHasKey('notes', $node);
+        $this->assertSame('Denominators are limited to 2, 3, 4, 6, and 8 in third grade', $node['notes']);
+    }
 }
