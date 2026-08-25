@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\App\Articulations\Service;
 
 use App\Articulations\Service\CourseCodeNormalizer;
-use PHPUnit\Framework\Attributes\DataProvider;
+use Codeception\Attribute\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class CourseCodeNormalizerTest extends TestCase
