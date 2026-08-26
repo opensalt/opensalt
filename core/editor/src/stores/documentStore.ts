@@ -138,6 +138,17 @@ export const useDocumentStore = defineStore('documents', () => {
 
   const treeCache = new Map<UUID, TreeResponse>();
   const pendingTreeRequests = new Map<UUID, Promise<TreeResponse>>();
+  const treeRequestGeneration = new Map<UUID, number>();
+
+  function currentGeneration(key: UUID): number {
+    return treeRequestGeneration.get(key) ?? 0;
+  }
+
+  function bumpGeneration(key: UUID): number {
+    const next = currentGeneration(key) + 1;
+    treeRequestGeneration.set(key, next);
+    return next;
+  }
 
   async function fetchDocuments(): Promise<void> {
     loading.value = true;
@@ -207,13 +218,18 @@ export const useDocumentStore = defineStore('documents', () => {
       return pendingTreeRequests.get(identifier)!;
     }
 
+    const generation = currentGeneration(identifier);
     const promise = (async (): Promise<TreeResponse> => {
       try {
         const response = await api.get(`/framework/editor/tree/${identifier}`) as TreeResponse;
-        treeCache.set(identifier, response);
+        if (currentGeneration(identifier) === generation) {
+          treeCache.set(identifier, response);
+        }
         return response;
       } finally {
-        pendingTreeRequests.delete(identifier);
+        if (pendingTreeRequests.get(identifier) === promise) {
+          pendingTreeRequests.delete(identifier);
+        }
       }
     })();
 
@@ -320,6 +336,8 @@ export const useDocumentStore = defineStore('documents', () => {
   function invalidateTreeCache(identifier: UUID): void {
     treeCache.delete(identifier);
     treeCache.delete(`lw:${identifier}`);
+    pendingTreeRequests.delete(identifier);
+    bumpGeneration(identifier);
   }
 
   async function revalidatePackage(identifier: UUID, refetch = false): Promise<TreeResponse | null> {

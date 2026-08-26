@@ -383,7 +383,12 @@ class AcceptanceTester extends \Codeception\Actor implements Context
         ];
 
         $I = $this;
-        $I->waitForElementVisible('#documentOptions', 30);
+        try {
+            $I->waitForElementVisible('#documentOptions', 5);
+        } catch (\Exception $e) {
+            $I->click('.tree-container [role="treeitem"][aria-level="1"] .tree-node-label');
+            $I->waitForElementVisible('#documentOptions', 30);
+        }
         try {
             $I->click('Add Root Item');
         } catch (\Exception $e) {
@@ -394,7 +399,8 @@ class AcceptanceTester extends \Codeception\Actor implements Context
         $I->waitForElementVisible('#ls_item_listEnumInSource');
         $I->waitForElementVisible('#ls_item_fullStatement + .EasyMDEContainer .CodeMirror', 30);
 
-        $I->executeJS("document.querySelector('#ls_item_fullStatement + .EasyMDEContainer .CodeMirror').CodeMirror.getDoc().setValue('{$fullStatement}')");
+        $fullStatementJson = json_encode($fullStatement, JSON_THROW_ON_ERROR);
+        $I->executeJS("document.querySelector('#ls_item_fullStatement + .EasyMDEContainer .CodeMirror').CodeMirror.getDoc().setValue({$fullStatementJson})");
         $I->fillField('#ls_item_humanCodingScheme', $item);
         $I->fillField('#ls_item_listEnumInSource', $enum);
         $I->fillField('#ls_item_abbreviatedStatement', $statement);
@@ -408,8 +414,8 @@ class AcceptanceTester extends \Codeception\Actor implements Context
         }
 
         $I->click('Create');
-        $I->waitForElementNotVisible('#addNewChildModal');
-        $I->waitForText($item, 30, '.tree-container');
+        $I->waitForElementNotVisible('#addNewChildModal', 30);
+        $I->waitForText($item, 30, '.tree-container .item-humanCodingScheme');
 
         $I->waitForElementVisible('.item-humanCodingScheme', 30);
         $I->wait(2);

@@ -393,4 +393,44 @@ describe('DocumentStore', () => {
       expect(documentStore.error).toBe('Global error');
     });
   });
+
+  describe('revalidatePackage', () => {
+    it('does not reuse an in-flight tree request after invalidation', async () => {
+      const staleTree = {
+        document: { identifier: 'doc-1', title: 'Old' },
+        tree: []
+      };
+      const freshTree = {
+        document: { identifier: 'doc-1', title: 'New' },
+        tree: [{ identifier: 'item-6', humanCodingScheme: 'Something 6', children: [] }]
+      };
+
+      let resolveStale;
+      let resolveFresh;
+      api.get
+        .mockImplementationOnce(() => new Promise((resolve) => {
+          resolveStale = resolve;
+        }))
+        .mockImplementationOnce(() => new Promise((resolve) => {
+          resolveFresh = resolve;
+        }));
+
+      const stalePromise = documentStore.fetchTree('doc-1');
+      const freshPromise = documentStore.revalidatePackage('doc-1', true);
+
+      expect(api.get).toHaveBeenCalledTimes(2);
+
+      resolveFresh(freshTree);
+      const freshResult = await freshPromise;
+      expect(freshResult.tree).toHaveLength(1);
+      expect(freshResult.tree[0].humanCodingScheme).toBe('Something 6');
+
+      resolveStale(staleTree);
+      await stalePromise;
+
+      const cached = await documentStore.fetchTree('doc-1');
+      expect(cached.tree).toHaveLength(1);
+      expect(api.get).toHaveBeenCalledTimes(2);
+    });
+  });
 });
