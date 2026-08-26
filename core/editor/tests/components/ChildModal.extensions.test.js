@@ -1,7 +1,13 @@
-import { describe, it, expect } from 'vitest';
-import { mount } from '@vue/test-utils';
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import { mount, flushPromises } from '@vue/test-utils';
 import { defineComponent } from 'vue';
 import ChildModal from '@/components/tree/modals/item-types/ChildModal.vue';
+
+vi.mock('@/services/api.js', () => ({
+  api: {
+    get: vi.fn().mockResolvedValue([])
+  }
+}));
 
 const ExtensionsEditorStub = defineComponent({
   name: 'ExtensionsEditor',
@@ -27,6 +33,32 @@ function mountChild(props = {}) {
 }
 
 describe('ChildModal extensions integration', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('does not show the create form until setup finishes', async () => {
+    let release;
+    const gate = new Promise((resolve) => {
+      release = resolve;
+    });
+    vi.stubGlobal('fetch', vi.fn(() => gate.then(() => ({
+      ok: true,
+      text: async () => JSON.stringify({ results: [] })
+    }))));
+
+    const wrapper = mountChild({ show: true });
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.find('#ls_item').exists()).toBe(false);
+
+    release();
+    await flushPromises();
+
+    expect(wrapper.find('#ls_item').exists()).toBe(true);
+    wrapper.unmount();
+  });
+
   it('renders an Edit extensions button and merges edited extensions on update', async () => {
     const item = {
       identifier: 'i1',

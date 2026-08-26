@@ -222,6 +222,9 @@ export const useDocumentStore = defineStore('documents', () => {
     const promise = (async (): Promise<TreeResponse> => {
       try {
         const response = await api.get(`/framework/editor/tree/${identifier}`) as TreeResponse;
+        if (!response || typeof response !== 'object') {
+          throw new Error('Empty tree response');
+        }
         if (currentGeneration(identifier) === generation) {
           treeCache.set(identifier, response);
         }

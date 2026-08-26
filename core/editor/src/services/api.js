@@ -114,7 +114,8 @@ class ApiService {
       ...options,
       method: options.method || 'GET',
       headers,
-      signal: controller.signal
+      signal: controller.signal,
+      cache: options.cache ?? 'no-store'
     };
 
     try {

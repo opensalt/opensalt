@@ -413,20 +413,21 @@ class AcceptanceTester extends \Codeception\Actor implements Context
             $I->fillField('#additional_field_'.$additionalField, $value);
         }
 
-        $I->click('Create');
+        $I->click('[data-testid="save-item"]');
         $I->waitForElementNotVisible('#addNewChildModal', 30);
 
-        $codingScheme = sprintf(
-            "//section[@id='tree1Section']//span[contains(concat(' ',normalize-space(@class),' '),' item-humanCodingScheme ')][contains(normalize-space(.), '%s')]",
+        $I->waitForText($item, 30, '#tree1Section .tree-container');
+        $itemLabel = sprintf(
+            "//section[@id='tree1Section']//*[contains(concat(' ',normalize-space(@class),' '),' tree-node-label ')][contains(normalize-space(.), '%s')]",
             str_replace("'", "''", (string) $item)
         );
-        $I->waitForElementVisible($codingScheme, 30);
+        $I->waitForElementVisible($itemLabel, 30);
         $I->wait(2);
         try {
-            $I->see($item, $codingScheme);
+            $I->see($item, $itemLabel);
         } catch (StaleElementReferenceException $e) {
             $I->wait(1);
-            $I->see($item, $codingScheme);
+            $I->see($item, $itemLabel);
         }
 
         $I->remember($requestedItem, $item);
@@ -438,7 +439,7 @@ class AcceptanceTester extends \Codeception\Actor implements Context
         $I->remember($requestedItem.'-identifier', $this->lsItemId);
 
 
-        $I->click($codingScheme);
+        $I->click($itemLabel);
         $I->wait(2);
 
         $I->amOnPage('/editor/' . $I->getDocId());

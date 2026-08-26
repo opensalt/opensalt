@@ -444,14 +444,26 @@ async function fetchItemTypes() {
 
 watch(() => props.show, async (newVal) => {
   if (newVal) {
-    await nextTick();
-    await Promise.all([
-      fetchItemTypes(),
-      fetchItemFields('item'),
-      subjectSelectorRef.value?.ensureLoaded(),
-      licenseSelectorRef.value?.ensureLoaded()
-    ]);
-    loadFormData();
+    loading.value = true;
+    error.value = '';
+    try {
+      await Promise.all([
+        fetchItemTypes(),
+        fetchItemFields('item'),
+      ]);
+      loadFormData();
+      await nextTick();
+      await Promise.all([
+        subjectSelectorRef.value?.ensureLoaded(),
+        licenseSelectorRef.value?.ensureLoaded()
+      ]);
+      if (isEdit.value) {
+        loadFormData();
+      }
+    } catch (err) {
+      logger.error('Failed to prepare item form:', err);
+      loadFormData();
+    }
   }
 }, { immediate: true });
 
@@ -465,7 +477,6 @@ function loadFormData() {
   // Seed extensions working copy so saves preserve existing extensions even
   // when the overlay is never opened.
   extensionsEditor.seed();
-  loading.value = true;
   error.value = '';
 
   if (isEdit.value) {
