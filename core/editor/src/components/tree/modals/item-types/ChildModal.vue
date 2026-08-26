@@ -444,14 +444,13 @@ async function fetchItemTypes() {
 
 watch(() => props.show, async (newVal) => {
   if (newVal) {
-    loading.value = true;
     error.value = '';
+    loadFormData();
     try {
       await Promise.all([
         fetchItemTypes(),
         fetchItemFields('item'),
       ]);
-      loadFormData();
       await nextTick();
       await Promise.all([
         subjectSelectorRef.value?.ensureLoaded(),
@@ -462,7 +461,6 @@ watch(() => props.show, async (newVal) => {
       }
     } catch (err) {
       logger.error('Failed to prepare item form:', err);
-      loadFormData();
     }
   }
 }, { immediate: true });

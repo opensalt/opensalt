@@ -37,7 +37,7 @@ describe('ChildModal extensions integration', () => {
     vi.unstubAllGlobals();
   });
 
-  it('does not show the create form until setup finishes', async () => {
+  it('does not reset create-form fields after background setup finishes', async () => {
     let release;
     const gate = new Promise((resolve) => {
       release = resolve;
@@ -50,12 +50,13 @@ describe('ChildModal extensions integration', () => {
     const wrapper = mountChild({ show: true });
     await wrapper.vm.$nextTick();
 
-    expect(wrapper.find('#ls_item').exists()).toBe(false);
+    expect(wrapper.find('#ls_item').exists()).toBe(true);
+    await wrapper.find('#ls_item_humanCodingScheme').setValue('Something 6');
 
     release();
     await flushPromises();
 
-    expect(wrapper.find('#ls_item').exists()).toBe(true);
+    expect(wrapper.find('#ls_item_humanCodingScheme').element.value).toBe('Something 6');
     wrapper.unmount();
   });
 
