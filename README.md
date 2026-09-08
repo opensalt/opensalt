@@ -7,12 +7,42 @@ Standards Alignment Tool (SALT)
 Overview
 --------
 
-This is a prototype for testing the IMS Global Learning Consortium® [CASE™ Specification](https://www.imsglobal.org/case) and proving its use
-in real-world scenarios based on various proof of concept and pilot projects.
+OpenSALT 4.0 (beta) is an open-source Learning and Employment Record (LER) Registry platform developed by Public Consulting Group in partnership with its public sector clients that enables organizations to define, manage, align, publish, and exchange competencies, standards, credentials, learning opportunities, jobs, pathways, and issuer information using open standards and interoperable APIs. OpenSALT has evolved from a competency framework management system into a standards-based registry service designed to support modern digital credentialing ecosystems. 
 
-The code is intended to run using a set of docker containers using
-docker-compose so that it can be easily deployed in any Linux environment
-with docker installed.
+
+Built on the extensibility of 1EdTech CASE® and aligned with emerging LER, credentialing, and verifiable credential standards, OpenSALT serves as a trusted source of semantic metadata that can be consumed by awarding systems, digital wallets, transcript services, learner records platforms, student information systems, workforce applications, and verification services. The platform enables organizations to create rich relationships among competencies, credentials, learning opportunities, occupations, and pathways, providing the foundation for skills-based education and workforce development initiatives. 
+OpenSALT 4.0 supports both interactive administration through a web application and headless integration through secure REST APIs. The platform is designed for multi-tenant deployments, regional and statewide registries, consortium-based governance models, and enterprise implementations that require a shared registry of trusted issuers and awardable achievements. 
+</br>
+</br>
+**Key Capabilities**
+*	Competency and standards framework management
+*	Learning and Employment Record (LER) registry services
+*	Trusted issuer and organization registry management
+*	Credential, learning opportunity, and job definition services
+*	Pathway modeling and semantic alignment management
+*	CASE® 1.1 compatible content structures and extensions
+*	Standards-based import, export, and publishing services
+*	Secure REST APIs for system-to-system integration
+*	Multi-tenant governance and access control
+*	Support for digital credential, transcript, wallet, and verification ecosystems
+
+
+**Open Standards First**
+
+OpenSALT is committed to interoperability and open ecosystems. The platform is designed to support and align with standards including:
+
+*	1EdTech CASE®
+*	IEEE 1484.2 Learning and Employment Records (LER)
+*	Open Badges 3.0
+*	Comprehensive Learner Record (CLR)
+*	Credential Engine CTDL
+*	CEDS-LER Profiles
+*	W3C Verifiable Credentials (VCs)
+*	Decentralized Identifiers (DIDs)
+
+**Mission**
+ 	
+OpenSALT helps education, workforce, credentialing, licensing, and employment organizations create transparent, connected, and interoperable learning and career pathways. By providing a standards-based registry foundation, OpenSALT enables institutions and communities to build learner-centered ecosystems where achievements, skills, credentials, and opportunities can be discovered, trusted, exchanged, and verified across organizational boundaries.
 
 
 Installation
