@@ -5,8 +5,16 @@
       <ItemIdentifierRow :identifier="item.identifier" />
 
       <!-- Job-specific fields -->
-      <div v-if="item.fullStatement">
+      <div v-if="item.abbreviatedStatement">
         <dt>Job Title:</dt>
+        <dd>{{ item.abbreviatedStatement }}</dd>
+      </div>
+
+      <div
+        v-if="item.fullStatement"
+        class="details-entry--full"
+      >
+        <dt>Description:</dt>
         <dd>
           <div
             v-if="renderedFullStatement"

@@ -5,8 +5,16 @@
       <ItemIdentifierRow :identifier="item.identifier" />
 
       <!-- Credential-specific fields -->
-      <div v-if="item.fullStatement">
+      <div v-if="item.abbreviatedStatement">
         <dt>Credential Name:</dt>
+        <dd>{{ item.abbreviatedStatement }}</dd>
+      </div>
+
+      <div
+        v-if="item.fullStatement"
+        class="details-entry--full"
+      >
+        <dt>Description:</dt>
         <dd>
           <div
             v-if="renderedFullStatement"
@@ -17,14 +25,6 @@
             {{ item.fullStatement }}
           </div>
         </dd>
-      </div>
-
-      <div
-        v-if="item.description"
-        class="details-entry--full"
-      >
-        <dt>Description:</dt>
-        <dd>{{ item.description }}</dd>
       </div>
 
       <div v-if="item.extensions && item.extensions['salt:credential']">
