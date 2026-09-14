@@ -423,11 +423,11 @@ class AcceptanceTester extends \Codeception\Actor implements Context
         $I->waitForElementVisible('#ls_item_fullStatement + .EasyMDEContainer .CodeMirror', 30);
 
         $fullStatementJson = json_encode($fullStatement, JSON_THROW_ON_ERROR);
+        // Use CodeMirror#setValue so EasyMDE's change listener updates Vue v-model (getDoc().setValue alone does not).
         $I->executeJS(<<<JS
 (function () {
   const cm = document.querySelector('#ls_item_fullStatement + .EasyMDEContainer .CodeMirror').CodeMirror;
-  cm.getDoc().setValue({$fullStatementJson});
-  cm.trigger('change');
+  cm.setValue({$fullStatementJson});
 })();
 JS);
         $I->fillField('#ls_item_humanCodingScheme', $item);
