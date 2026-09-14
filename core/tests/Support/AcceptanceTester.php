@@ -358,6 +358,29 @@ class AcceptanceTester extends \Codeception\Actor implements Context
         $this->fillField($input, $data);
     }
 
+    /**
+     * The editor closes the add-item modal before the async save finishes; poll the CASE package
+     * so acceptance steps do not race the tree reload.
+     */
+    private function waitForHumanCodingSchemeInPackage(string $humanCodingScheme, int $timeoutSeconds = 60): string
+    {
+        for ($elapsed = 0; $elapsed < $timeoutSeconds; ++$elapsed) {
+            $framework = $this->fetchJson(self::$packagesApi.$this->getDocId());
+            foreach ($framework['CFItems'] ?? [] as $cfItem) {
+                if (($cfItem['humanCodingScheme'] ?? null) === $humanCodingScheme) {
+                    return $cfItem['identifier'];
+                }
+            }
+            $this->wait(1);
+        }
+
+        throw new \RuntimeException(sprintf(
+            'Item with human coding scheme "%s" was not found in the framework package after %d seconds',
+            $humanCodingScheme,
+            $timeoutSeconds
+        ));
+    }
+
     public function createItem($item = 'Test Item', $additionalField = null, $value = null)
     {
         $requestedItem = $item;
@@ -400,7 +423,13 @@ class AcceptanceTester extends \Codeception\Actor implements Context
         $I->waitForElementVisible('#ls_item_fullStatement + .EasyMDEContainer .CodeMirror', 30);
 
         $fullStatementJson = json_encode($fullStatement, JSON_THROW_ON_ERROR);
-        $I->executeJS("document.querySelector('#ls_item_fullStatement + .EasyMDEContainer .CodeMirror').CodeMirror.getDoc().setValue({$fullStatementJson})");
+        $I->executeJS(<<<JS
+(function () {
+  const cm = document.querySelector('#ls_item_fullStatement + .EasyMDEContainer .CodeMirror').CodeMirror;
+  cm.getDoc().setValue({$fullStatementJson});
+  cm.trigger('change');
+})();
+JS);
         $I->fillField('#ls_item_humanCodingScheme', $item);
         $I->fillField('#ls_item_listEnumInSource', $enum);
         $I->fillField('#ls_item_abbreviatedStatement', $statement);
@@ -414,32 +443,33 @@ class AcceptanceTester extends \Codeception\Actor implements Context
         }
 
         $I->click('[data-testid="save-item"]');
-        $I->waitForElementNotVisible('#addNewChildModal', 30);
+        $I->waitForElementNotVisible('#addNewChildModal', 60);
 
-        $I->waitForText($item, 30, '#tree1Section .tree-container');
-        $itemLabel = sprintf(
-            "//section[@id='tree1Section']//*[contains(concat(' ',normalize-space(@class),' '),' tree-node-label ')][contains(normalize-space(.), '%s')]",
+        $itemIdentifier = $this->waitForHumanCodingSchemeInPackage($item);
+
+        $codingSchemeXpath = sprintf(
+            "//section[@id='tree1Section']//span[contains(concat(' ',normalize-space(@class),' '),' item-humanCodingScheme ')][contains(normalize-space(.), '%s')]",
             str_replace("'", "''", (string) $item)
         );
-        $I->waitForElementVisible($itemLabel, 30);
+
+        $I->amOnPage('/editor/'.$I->getDocId().'/'.$itemIdentifier);
+        $I->waitForElementVisible('.details-panel .card-title', 60);
+        $I->waitForElementVisible($codingSchemeXpath, 60);
         $I->wait(2);
         try {
-            $I->see($item, $itemLabel);
+            $I->see($item, $codingSchemeXpath);
         } catch (StaleElementReferenceException $e) {
             $I->wait(1);
-            $I->see($item, $itemLabel);
+            $I->see($item, $codingSchemeXpath);
         }
 
         $I->remember($requestedItem, $item);
 
-        $itemPage = $I->grabAttributeFrom('.item-identifier a', 'href');
-        preg_match('#/uri/([a-zA-Z0-9\-]+)#', $itemPage, $matches);
-        self::$staticLsItemId = $matches[1];
-        $this->lsItemId = $matches[1];
+        self::$staticLsItemId = $itemIdentifier;
+        $this->lsItemId = $itemIdentifier;
         $I->remember($requestedItem.'-identifier', $this->lsItemId);
 
-
-        $I->click($itemLabel);
+        $I->click($codingSchemeXpath);
         $I->wait(2);
 
         $I->amOnPage('/editor/' . $I->getDocId());
