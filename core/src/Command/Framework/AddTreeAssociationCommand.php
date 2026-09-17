@@ -132,7 +132,10 @@ class AddTreeAssociationCommand extends BaseCommand
         }
 
         $types = explode('|', $this->type, 2);
-        if (!in_array($types[0], LsAssociation::allTypes(), true)) {
+        $baseType = $types[0];
+        $isBaseType = in_array($baseType, LsAssociation::allTypes(), true);
+        $isExtensionType = 1 === preg_match('/^ext:[a-zA-Z0-9._-]+$/', $baseType);
+        if (!$isBaseType && !$isExtensionType) {
             $context->buildViolation('Invalid association type supplied.')
                 ->atPath('type')
                 ->addViolation();
