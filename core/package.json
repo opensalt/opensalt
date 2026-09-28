@@ -70,6 +70,8 @@
     "vite-plugin-symfony": "^8",
     "vue": "^3.0"
   },
-  "resolutions": {},
+  "resolutions": {
+    "linkify-it": "5.0.2"
+  },
   "peerDependencies": {}
 }
