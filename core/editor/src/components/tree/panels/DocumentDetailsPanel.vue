@@ -394,6 +394,10 @@
     isViewingDifferentFramework: {
       type: Boolean,
       default: false
+    },
+    addRootItem: {
+      type: Function,
+      default: null
     }
   });
 
@@ -468,7 +472,13 @@ const isReadOnly = computed(() => props.isViewingDifferentFramework || props.doc
 
   const { showModal, selectedType, isModalVisible, handleCreated, modalComponent, handleHidden } = useDynamicModal(
     props.document?.identifier || null,
-    (newItem) => { emit('add-root-item', newItem); },
+    async (newItem) => {
+      if (props.addRootItem) {
+        await props.addRootItem(newItem);
+        return;
+      }
+      emit('add-root-item', newItem);
+    },
     availableTypes
   );
 

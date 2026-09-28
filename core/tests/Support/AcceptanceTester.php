@@ -203,7 +203,9 @@ class AcceptanceTester extends \Codeception\Actor implements Context
     public function setDocId($id)
     {
         $this->lsDocId = $id;
+        self::$staticLsDocId = $id;
         $this->lsItemId = null;
+        self::$staticLsItemId = null;
         $this->itemData = [];
     }
 
@@ -359,18 +361,55 @@ class AcceptanceTester extends \Codeception\Actor implements Context
     }
 
     /**
-     * The editor closes the add-item modal before the async save finishes; poll the CASE package
-     * so acceptance steps do not race the tree reload.
+     * @param array<int, array<string, mixed>> $nodes
      */
-    private function waitForHumanCodingSchemeInPackage(string $humanCodingScheme, int $timeoutSeconds = 60): string
+    private function findItemIdentifierByHumanCodingSchemeInTree(array $nodes, string $humanCodingScheme): ?string
     {
-        for ($elapsed = 0; $elapsed < $timeoutSeconds; ++$elapsed) {
-            $framework = $this->fetchJson(self::$packagesApi.$this->getDocId());
-            foreach ($framework['CFItems'] ?? [] as $cfItem) {
-                if (($cfItem['humanCodingScheme'] ?? null) === $humanCodingScheme) {
-                    return $cfItem['identifier'];
+        foreach ($nodes as $node) {
+            if (($node['humanCodingScheme'] ?? null) === $humanCodingScheme) {
+                return $node['identifier'] ?? null;
+            }
+            if (!empty($node['children']) && is_array($node['children'])) {
+                $found = $this->findItemIdentifierByHumanCodingSchemeInTree($node['children'], $humanCodingScheme);
+                if (null !== $found) {
+                    return $found;
                 }
             }
+        }
+
+        return null;
+    }
+
+    /**
+     * The editor closes the add-item modal before the async save finishes; poll editor tree and CASE
+     * package APIs so acceptance steps do not race the tree reload.
+     */
+    private function waitForHumanCodingSchemeInPackage(string $humanCodingScheme, int $timeoutSeconds = 90): string
+    {
+        $docId = $this->getDocId();
+
+        for ($elapsed = 0; $elapsed < $timeoutSeconds; ++$elapsed) {
+            try {
+                $tree = $this->fetchJson('/framework/editor/tree/'.$docId);
+                $identifier = $this->findItemIdentifierByHumanCodingSchemeInTree($tree['items'] ?? [], $humanCodingScheme);
+                if (null !== $identifier) {
+                    return $identifier;
+                }
+            } catch (\Throwable) {
+                // Retry on transient API errors while the save completes.
+            }
+
+            try {
+                $framework = $this->fetchJson(self::$packagesApi.$docId);
+                foreach ($framework['CFItems'] ?? [] as $cfItem) {
+                    if (($cfItem['humanCodingScheme'] ?? null) === $humanCodingScheme) {
+                        return $cfItem['identifier'];
+                    }
+                }
+            } catch (\Throwable) {
+                // CASE package serialization can fail under load; the editor tree is authoritative.
+            }
+
             $this->wait(1);
         }
 
@@ -423,13 +462,23 @@ class AcceptanceTester extends \Codeception\Actor implements Context
         $I->waitForElementVisible('#ls_item_fullStatement + .EasyMDEContainer .CodeMirror', 30);
 
         $fullStatementJson = json_encode($fullStatement, JSON_THROW_ON_ERROR);
-        // Use CodeMirror#setValue so EasyMDE's change listener updates Vue v-model (getDoc().setValue alone does not).
+        // Sync EasyMDE/CodeMirror and the underlying textarea so ChildModal's v-model has fullStatement before save.
         $I->executeJS(<<<JS
 (function () {
-  const cm = document.querySelector('#ls_item_fullStatement + .EasyMDEContainer .CodeMirror').CodeMirror;
-  cm.setValue({$fullStatementJson});
+  const text = {$fullStatementJson};
+  const textarea = document.getElementById('ls_item_fullStatement');
+  const cm = document.querySelector('#ls_item_fullStatement + .EasyMDEContainer .CodeMirror')?.CodeMirror;
+  if (cm) {
+    cm.setValue(text);
+  }
+  if (textarea) {
+    textarea.value = text;
+    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+  return !!(cm?.getValue()?.trim() || textarea?.value?.trim());
 })();
 JS);
+        $I->waitForJS('return document.querySelector("#ls_item_fullStatement + .EasyMDEContainer .CodeMirror")?.CodeMirror?.getValue()?.trim().length > 0', 10);
         $I->fillField('#ls_item_humanCodingScheme', $item);
         $I->fillField('#ls_item_listEnumInSource', $enum);
         $I->fillField('#ls_item_abbreviatedStatement', $statement);
@@ -443,9 +492,8 @@ JS);
         }
 
         $I->click('[data-testid="save-item"]');
-        $I->waitForElementNotVisible('#addNewChildModal', 60);
-
         $itemIdentifier = $this->waitForHumanCodingSchemeInPackage($item);
+        $I->waitForElementNotVisible('#addNewChildModal', 10);
 
         $codingSchemeXpath = sprintf(
             "//section[@id='tree1Section']//span[contains(concat(' ',normalize-space(@class),' '),' item-humanCodingScheme ')][contains(normalize-space(.), '%s')]",

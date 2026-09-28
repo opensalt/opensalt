@@ -6,9 +6,10 @@
 ## 0) TL;DR
 - **Environment:** Docker + Docker Compose; Vuejs 3 application for viewing and editing frameworks
 - **Build & run (local/CI containers):**
-  - `npm run dev` — start development application
+  - **Docker dev (default with `docker-compose.override.yml`):** the `editor` service runs `npm run dev` (Vite on port 5173). Caddy in the `web` container (`core/frankenphp/Caddyfile.dev`) reverse-proxies `/editor/@vite/*`, `/editor/src/*`, and related Vite paths to `editor:5173`. With `APP_ENV=dev` / `kernel.debug`, the PHP editor shell loads the Vite client and `src/main.js` from that proxy—**edit files under `core/editor/src` and the UI hot-reloads; do not copy `dist/` into `public/editor` for day-to-day dev.**
+  - `npm run dev` — start development application (also used inside the `editor` container via `run_dev.sh`)
   - `npm install` - install dependencies
-  - `npm run build` — build application
+  - `npm run build` — production build (output copied into `public/editor/` in the image build; needed for `APP_DEBUG=0` / prod, including Codeception with `docker-compose.test.yml`)
 - **Testing & quality (do in this order):**
   1. `npm run test` — run all tests with Vitest
   2. `npm run test:watch` — run tests in watch mode

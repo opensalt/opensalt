@@ -99,7 +99,7 @@
           @delete-association="onDeleteAssociation"
           @edit-document="onEditDocument"
           @delete-document="onDeleteDocument"
-          @add-root-item="handleAddRootItem"
+          :add-root-item="handleAddRootItem"
           @manage-association-groups="onManageAssociationGroups"
           @update-item="onItemUpdate"
           @update-framework="showUpdateFrameworkModal = true"

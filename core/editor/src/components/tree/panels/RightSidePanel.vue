@@ -57,6 +57,7 @@
           :selected-item="selectedItem"
           :current-document="currentDocument"
           :association-groups="associationGroups"
+          :add-root-item="addRootItem"
           @edit-item="$emit('edit-item', $event)"
           @delete-item="$emit('delete-item', $event)"
           @add-child="(...args) => $emit('add-child', ...args)"
@@ -149,6 +150,10 @@ const props = defineProps({
   sideDocError: {
     type: String,
     default: ''
+  },
+  addRootItem: {
+    type: Function,
+    default: null
   }
 });
 

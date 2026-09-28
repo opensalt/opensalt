@@ -544,6 +544,7 @@ export function useTreeEditorHandlers({
                 }
             } catch (error) {
                 logger.error('Failed to add root item:', error);
+                throw error;
             }
         }
     }

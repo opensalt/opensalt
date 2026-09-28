@@ -195,6 +195,19 @@ describe('useTreeEditorHandlers', () => {
 
       expect(createItemMock).not.toHaveBeenCalled();
     });
+
+    it('should rethrow when createItem fails so the modal can stay open', async () => {
+      const error = new Error('save failed');
+      const { ctx } = createMockContext({
+        currentDocumentStore: {
+          createItem: vi.fn().mockRejectedValue(error),
+          reloadActiveDocument: vi.fn().mockResolvedValue(undefined),
+        },
+      });
+      const { handleAddRootItem } = useTreeEditorHandlers(ctx);
+
+      await expect(handleAddRootItem({ fullStatement: 'Test' })).rejects.toThrow('save failed');
+    });
   });
 
   describe('onViewedDocumentChanged', () => {

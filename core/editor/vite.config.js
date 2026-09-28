@@ -33,11 +33,6 @@ export default defineConfig({
   plugins: [
     vue(),
   ],
-  optimizeDeps: {
-    esbuildOptions: {
-      sourcemap: false,
-    },
-  },
   resolve: {
     alias: [
       // Preserve the @ alias
@@ -54,7 +49,10 @@ export default defineConfig({
     tsconfigPaths: true
   },
   server: {
+    // Listen on all interfaces so the web container (Caddy) can reverse_proxy to editor:5173.
+    host: '0.0.0.0',
     port: 5173,
+    strictPort: true,
     allowedHosts: true,
     hmr: {
       path: '/@vite-hmr',

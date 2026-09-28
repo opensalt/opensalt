@@ -30,9 +30,16 @@ export function useDynamicModal(parent, onCreate, _types) {
     return defineAsyncComponent(loader);
   });
 
-  const handleCreated = (newItem) => {
-    onCreated.value(newItem);
-    isModalVisible.value = false;
+  const handleCreated = async (newItem) => {
+    try {
+      const result = onCreated.value(newItem);
+      if (result !== null && result !== undefined && typeof result.then === 'function') {
+        await result;
+      }
+      isModalVisible.value = false;
+    } catch {
+      // Keep the modal open so the user can fix validation or retry after a failed save.
+    }
   };
 
   const handleHidden = () => {

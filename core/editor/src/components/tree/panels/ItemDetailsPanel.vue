@@ -10,6 +10,7 @@
       :document="displayDocument"
       :association-groups="associationGroups"
       :is-viewing-different-framework="contextStore.isViewingDifferentFramework"
+      :add-root-item="addRootItem"
       @edit-document="$emit('edit-document')"
       @delete-document="$emit('delete-document')"
       @add-root-item="$emit('add-root-item', $event)"
@@ -72,6 +73,10 @@ const props = defineProps({
   associationGroups: {
     type: Array,
     default: () => []
+  },
+  addRootItem: {
+    type: Function,
+    default: null
   }
 });
 
