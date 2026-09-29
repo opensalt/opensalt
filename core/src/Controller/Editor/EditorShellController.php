@@ -10,6 +10,7 @@ use Novaway\Bundle\FeatureFlagBundle\Manager\FeatureManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Requirement\Requirement;
 
 final class EditorShellController extends AbstractController
 {
@@ -19,7 +20,7 @@ final class EditorShellController extends AbstractController
     }
 
     #[Route(path: '/editor', name: 'editor_shell', methods: ['GET'])]
-    #[Route(path: '/editor/{path}', name: 'editor_shell_path', requirements: ['path' => '.+'], methods: ['GET'])]
+    #[Route(path: '/editor/{path}', name: 'editor_shell_path', requirements: ['path' => Requirement::CATCH_ALL], methods: ['GET'])]
     public function index(
         LsDocRepository $docRepository,
         ?string $path = null,

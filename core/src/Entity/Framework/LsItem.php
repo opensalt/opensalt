@@ -350,9 +350,7 @@ class LsItem implements CaseApiInterface, LockableInterface, ItemTypeInterface
         foreach ($typeList as $type) {
             $groups[$type] = new ArrayCollection();
             $assocName = LsAssociation::inverseName($type);
-            if (null === $assocName) {
-                $assocName = 'Inverse '.$type;
-            }
+            $assocName ??= 'Inverse '.$type;
             $groups[$assocName] = new ArrayCollection();
         }
 
@@ -375,9 +373,7 @@ class LsItem implements CaseApiInterface, LockableInterface, ItemTypeInterface
             }
             */
             $assocName = LsAssociation::inverseName($association->getType());
-            if (null === $assocName) {
-                $assocName = 'Inverse '.$association->getType();
-            }
+            $assocName ??= 'Inverse '.$association->getType();
 
             /** @psalm-suppress InvalidArgument */
             $groups[$assocName]->add($association);
@@ -506,9 +502,7 @@ class LsItem implements CaseApiInterface, LockableInterface, ItemTypeInterface
      */
     public function setConceptKeywordsArray(?array $conceptKeywords): static
     {
-        if (null === $conceptKeywords) {
-            $conceptKeywords = [];
-        }
+        $conceptKeywords ??= [];
 
         $this->conceptKeywords = $conceptKeywords;
 
@@ -534,9 +528,7 @@ class LsItem implements CaseApiInterface, LockableInterface, ItemTypeInterface
 
     public function setConceptKeywordsString(?string $conceptKeywords): static
     {
-        if (null === $conceptKeywords) {
-            $conceptKeywords = '';
-        }
+        $conceptKeywords ??= '';
 
         $values = preg_split('/ *, */', $conceptKeywords, -1, PREG_SPLIT_NO_EMPTY);
 

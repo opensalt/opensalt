@@ -9,6 +9,8 @@ use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Repository\Framework\LsDocRepository;
 use App\Repository\Framework\LsItemRepository;
+use Doctrine\DBAL\ParameterType;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 
 readonly class OpenSaltMcpQueryService
@@ -16,6 +18,7 @@ readonly class OpenSaltMcpQueryService
     public function __construct(
         private LsDocRepository $documentRepository,
         private LsItemRepository $itemRepository,
+        private EntityManagerInterface $entityManager,
     ) {
     }
 
@@ -27,14 +30,14 @@ readonly class OpenSaltMcpQueryService
         $limit = $this->normalizeLimit($limit, 25, 100);
         $offset = max(0, $offset);
 
-        $conn = $this->documentRepository->getEntityManager()->getConnection();
+        $conn = $this->entityManager->getConnection();
         $sql = 'SELECT d.id
                 FROM ls_doc d
                 STRAIGHT_JOIN mirror_framework m ON m.id = d.mirrored_framework_id
                 WHERE (d.adoption_status IS NULL OR d.adoption_status <> :privateDraft)
                   AND (m.visible IS NULL OR m.visible = 1)';
         $params = ['privateDraft' => LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT];
-        $types = ['privateDraft' => \PDO::PARAM_STR];
+        $types = ['privateDraft' => ParameterType::STRING];
 
         if (null !== $query && '' !== trim($query)) {
             $like = '%'.strtolower(trim($query)).'%';
@@ -43,17 +46,17 @@ readonly class OpenSaltMcpQueryService
             $params['q2'] = $like;
             $params['q3'] = $like;
             $params['q4'] = $like;
-            $types['q1'] = \PDO::PARAM_STR;
-            $types['q2'] = \PDO::PARAM_STR;
-            $types['q3'] = \PDO::PARAM_STR;
-            $types['q4'] = \PDO::PARAM_STR;
+            $types['q1'] = ParameterType::STRING;
+            $types['q2'] = ParameterType::STRING;
+            $types['q3'] = ParameterType::STRING;
+            $types['q4'] = ParameterType::STRING;
         }
 
         $sql .= ' ORDER BY d.changed_at DESC, d.id DESC LIMIT :limit OFFSET :offset';
         $params['limit'] = $limit;
         $params['offset'] = $offset;
-        $types['limit'] = \PDO::PARAM_INT;
-        $types['offset'] = \PDO::PARAM_INT;
+        $types['limit'] = ParameterType::INTEGER;
+        $types['offset'] = ParameterType::INTEGER;
 
         $ids = $conn->executeQuery($sql, $params, $types)->fetchFirstColumn();
 
@@ -111,7 +114,7 @@ readonly class OpenSaltMcpQueryService
         $limit = $this->normalizeLimit($limit, 25, 100);
         $offset = max(0, $offset);
 
-        $conn = $this->itemRepository->getEntityManager()->getConnection();
+        $conn = $this->entityManager->getConnection();
         $sql = 'SELECT i.id
                 FROM ls_item i
                 STRAIGHT_JOIN ls_doc d ON d.id = i.ls_doc_id
@@ -119,12 +122,12 @@ readonly class OpenSaltMcpQueryService
                 WHERE (d.adoption_status IS NULL OR d.adoption_status <> :privateDraft)
                   AND (m.visible IS NULL OR m.visible = 1)';
         $params = ['privateDraft' => LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT];
-        $types = ['privateDraft' => \PDO::PARAM_STR];
+        $types = ['privateDraft' => ParameterType::STRING];
 
         if (null !== $documentIdentifier && '' !== trim($documentIdentifier)) {
             $sql .= ' AND d.identifier = :documentIdentifier';
             $params['documentIdentifier'] = trim($documentIdentifier);
-            $types['documentIdentifier'] = \PDO::PARAM_STR;
+            $types['documentIdentifier'] = ParameterType::STRING;
         }
 
         if (null !== $query && '' !== trim($query)) {
@@ -134,17 +137,17 @@ readonly class OpenSaltMcpQueryService
             $params['q2'] = $like;
             $params['q3'] = $like;
             $params['q4'] = $like;
-            $types['q1'] = \PDO::PARAM_STR;
-            $types['q2'] = \PDO::PARAM_STR;
-            $types['q3'] = \PDO::PARAM_STR;
-            $types['q4'] = \PDO::PARAM_STR;
+            $types['q1'] = ParameterType::STRING;
+            $types['q2'] = ParameterType::STRING;
+            $types['q3'] = ParameterType::STRING;
+            $types['q4'] = ParameterType::STRING;
         }
 
         $sql .= ' ORDER BY i.changed_at DESC, i.id DESC LIMIT :limit OFFSET :offset';
         $params['limit'] = $limit;
         $params['offset'] = $offset;
-        $types['limit'] = \PDO::PARAM_INT;
-        $types['offset'] = \PDO::PARAM_INT;
+        $types['limit'] = ParameterType::INTEGER;
+        $types['offset'] = ParameterType::INTEGER;
 
         $ids = $conn->executeQuery($sql, $params, $types)->fetchFirstColumn();
 
@@ -331,13 +334,11 @@ readonly class OpenSaltMcpQueryService
         }
 
         $key = $relatedItem->getLsDocIdentifier().'::'.$relatedItem->getIdentifier();
-        if (!isset($related[$key])) {
-            $related[$key] = [
-                'item' => $relatedItem,
-                'relationCount' => 0,
-                'relations' => [],
-            ];
-        }
+        $related[$key] ??= [
+            'item' => $relatedItem,
+            'relationCount' => 0,
+            'relations' => [],
+        ];
 
         ++$related[$key]['relationCount'];
         $related[$key]['relations'][] = [

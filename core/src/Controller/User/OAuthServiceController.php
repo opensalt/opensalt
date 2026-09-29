@@ -43,13 +43,11 @@ class OAuthServiceController extends AbstractController
         if (null !== $this->githubRedirectUri && '' !== $this->githubRedirectUri) {
             $redirectUri = $this->githubRedirectUri;
         }
-        if (null === $redirectUri) {
-            $redirectUri = $this->generateUrl(
-                'github_login',
-                [],
-                UrlGeneratorInterface::ABSOLUTE_URL
-            );
-        }
+        $redirectUri ??= $this->generateUrl(
+            'github_login',
+            [],
+            UrlGeneratorInterface::ABSOLUTE_URL
+        );
 
         $provider = new Github([
             'clientId' => $this->githubClientId,

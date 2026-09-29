@@ -261,9 +261,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, Equatab
         }
 
         if (!in_array($role, $this->roles ?? [], true)) {
-            if (null === $this->roles) {
-                $this->roles = [];
-            }
+            $this->roles ??= [];
             $this->roles[] = $role;
         }
     }

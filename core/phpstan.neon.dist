@@ -9,7 +9,7 @@ includes:
 rules:
 	# https://tomasvotruba.com/blog/custom-phpstan-rules-to-improve-every-symfony-project
 	# - Symplify\PHPStanRules\Rules\Symfony\NoRequiredOutsideClassRule
-	- Symplify\PHPStanRules\Rules\Symfony\NoAbstractControllerConstructorRule
+	# NoAbstractControllerConstructorRule removed in symplify/phpstan-rules 14.x
 	- Symplify\PHPStanRules\Rules\Symfony\NoConstructorAndRequiredTogetherRule
 	- Symplify\PHPStanRules\Rules\Symfony\NoFindTaggedServiceIdsCallRule
 	- Symplify\PHPStanRules\Rules\Symfony\NoGetInControllerRule

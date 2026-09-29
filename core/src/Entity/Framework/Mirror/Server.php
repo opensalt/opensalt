@@ -185,13 +185,9 @@ class Server
 
     public function scheduleNextCheck(?\DateTimeInterface $when = null, int $in = 604800, ?int $variance = null): void
     {
-        if (null === $variance) {
-            $variance = (int) ($in / 2);
-        }
+        $variance ??= (int) ($in / 2);
 
-        if (null === $when) {
-            $when = new \DateTimeImmutable();
-        }
+        $when ??= new \DateTimeImmutable();
 
         $ts = $when->getTimestamp() + $in;
 

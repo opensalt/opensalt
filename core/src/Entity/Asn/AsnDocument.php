@@ -124,9 +124,6 @@ final class AsnDocument
         $this->standards->add($standard);
     }
 
-    /**
-     * @return AsnStandard[]|ArrayCollection
-     */
     public function getStandards(): ArrayCollection
     {
         return $this->standards;

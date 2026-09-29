@@ -18,10 +18,19 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[AsCommand(
-    name: 'vector:qdrant:rebuild-by-framework',
-    description: 'Rebuild the Qdrant vector index framework-by-framework into a fresh collection'
-)]
+#[AsCommand(name: 'vector:qdrant:rebuild-by-framework', description: 'Rebuild the Qdrant vector index framework-by-framework into a fresh collection', help: <<<'TXT'
+The <info>vector:qdrant:rebuild-by-framework</info> command builds a fresh Qdrant collection
+by iterating framework-by-framework instead of by item ID. Each framework's graph is loaded
+exactly once, eliminating redundant SQL queries and maximizing the text-building cache.
+
+Examples:
+  <info>php bin/console vector:qdrant:rebuild-by-framework</info>
+  <info>php bin/console vector:qdrant:rebuild-by-framework --activate</info>
+  <info>php bin/console vector:qdrant:rebuild-by-framework --activate --drop-old</info>
+  <info>php bin/console vector:qdrant:rebuild-by-framework --framework-id=42</info>
+  <info>php bin/console vector:qdrant:rebuild-by-framework --after-framework-id=100</info>
+  <info>php bin/console vector:qdrant:rebuild-by-framework --batch-size=500 --activate</info>
+TXT)]
 class RebuildQdrantIndexByFrameworkCommand extends Command
 {
     public function __construct(
@@ -43,22 +52,7 @@ class RebuildQdrantIndexByFrameworkCommand extends Command
             ->addOption('drop-old', null, InputOption::VALUE_NONE, 'Delete the previously active collection after activation')
             ->addOption('recreate', null, InputOption::VALUE_NONE, 'Delete the target shadow collection first if it already exists')
             ->addOption('framework-id', null, InputOption::VALUE_OPTIONAL, 'Process only a single framework by its ls_doc ID')
-            ->addOption('after-framework-id', null, InputOption::VALUE_OPTIONAL, 'Resume processing after this framework ID', '0')
-            ->setHelp(
-                <<<'EOF'
-The <info>vector:qdrant:rebuild-by-framework</info> command builds a fresh Qdrant collection
-by iterating framework-by-framework instead of by item ID. Each framework's graph is loaded
-exactly once, eliminating redundant SQL queries and maximizing the text-building cache.
-
-Examples:
-  <info>php bin/console vector:qdrant:rebuild-by-framework</info>
-  <info>php bin/console vector:qdrant:rebuild-by-framework --activate</info>
-  <info>php bin/console vector:qdrant:rebuild-by-framework --activate --drop-old</info>
-  <info>php bin/console vector:qdrant:rebuild-by-framework --framework-id=42</info>
-  <info>php bin/console vector:qdrant:rebuild-by-framework --after-framework-id=100</info>
-  <info>php bin/console vector:qdrant:rebuild-by-framework --batch-size=500 --activate</info>
-EOF
-            );
+            ->addOption('after-framework-id', null, InputOption::VALUE_OPTIONAL, 'Resume processing after this framework ID', '0');
     }
 
     #[\Override]

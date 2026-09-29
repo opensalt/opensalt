@@ -10,7 +10,6 @@ final class RequirementTreeBuilder
 
     private const ITEM_TYPE_REQUIREMENT_SET = 'Requirement Set';
     private const ITEM_TYPE_REQUIREMENT_GROUP = 'Requirement Group';
-    private const ITEM_TYPE_COURSE = 'Course';
     private const ITEM_TYPE_SERIES = 'Series';
 
     /**

@@ -53,9 +53,7 @@ readonly class Api1p1Uris
             return $this->uriGenerator->getUri($obj, $route);
         }
 
-        if (null === $route) {
-            $route = Api1p1RouteMap::getForObject($obj);
-        }
+        $route ??= Api1p1RouteMap::getForObject($obj);
 
         return $this->getApiUriForIdentifier($obj->getIdentifier(), $route);
     }

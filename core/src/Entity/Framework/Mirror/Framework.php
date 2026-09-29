@@ -408,9 +408,7 @@ class Framework
 
     private function scheduleNextCheck(\DateTimeInterface $when, int $in = 86400, ?int $variance = null): void
     {
-        if (null === $variance) {
-            $variance = (int) ($in / 2);
-        }
+        $variance ??= (int) ($in / 2);
 
         $ts = $when->getTimestamp() + $in;
 

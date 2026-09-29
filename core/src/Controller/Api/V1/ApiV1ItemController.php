@@ -188,12 +188,8 @@ class ApiV1ItemController extends AbstractController
         #[MapEntity(mapping: ['documentIdentifier' => 'identifier'])] LsDoc $doc,
         #[MapRequestPayload(validationGroups: ['update'])] ItemDto $item,
     ): Response {
-        if (null === $item->identifier) {
-            $item->identifier = Uuid::fromString($lsItem->getIdentifier());
-        }
-        if (null === $item->uri) {
-            $item->uri = $lsItem->getUri();
-        }
+        $item->identifier ??= Uuid::fromString($lsItem->getIdentifier());
+        $item->uri ??= $lsItem->getUri();
         $item->lastChangeDateTime ??= new \DateTimeImmutable();
 
         if ($item->identifier->toString() !== $lsItem->getIdentifier()) {

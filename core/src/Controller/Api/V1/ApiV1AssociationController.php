@@ -167,12 +167,8 @@ class ApiV1AssociationController extends AbstractController
         #[MapEntity(mapping: ['documentIdentifier' => 'identifier'])] LsDoc $doc,
         #[MapRequestPayload(validationGroups: ['update'], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)] AssociationDto $association,
     ): Response {
-        if (null === $association->identifier) {
-            $association->identifier = Uuid::fromString($lsAssociation->getIdentifier());
-        }
-        if (null === $association->uri) {
-            $association->uri = $lsAssociation->getUri();
-        }
+        $association->identifier ??= Uuid::fromString($lsAssociation->getIdentifier());
+        $association->uri ??= $lsAssociation->getUri();
         $association->lastChangeDateTime ??= new \DateTimeImmutable();
 
         if ($association->identifier->toString() !== $lsAssociation->getIdentifier()) {

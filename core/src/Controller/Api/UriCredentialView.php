@@ -35,24 +35,22 @@ class UriCredentialView extends AbstractController
             $credential = json5_decode($credential, true);
         }
 
-        if (null === $credential) {
-            $credential = [
-                'type' => ['Achievement'],
-                'achievementType' => null,
-                'name' => $obj->getAbbreviatedStatement() ?? $obj->getFullStatement(),
-                'description' => $obj->getFullStatement(),
-                'humanCode' => $obj->getHumanCodingScheme() ?? '',
-                'criteria' => [
-                    'narrative' => '',
-                    'id' => $this->uriGenerator->getUri($obj).'.html',
-                ],
-                'alignment' => [],
-                'image' => [
-                    'id' => '',
-                    'type' => 'Image',
-                ],
-            ];
-        }
+        $credential ??= [
+            'type' => ['Achievement'],
+            'achievementType' => null,
+            'name' => $obj->getAbbreviatedStatement() ?? $obj->getFullStatement(),
+            'description' => $obj->getFullStatement(),
+            'humanCode' => $obj->getHumanCodingScheme() ?? '',
+            'criteria' => [
+                'narrative' => '',
+                'id' => $this->uriGenerator->getUri($obj).'.html',
+            ],
+            'alignment' => [],
+            'image' => [
+                'id' => '',
+                'type' => 'Image',
+            ],
+        ];
 
         $iri = $this->api1Uris->getUri($obj);
         $credential = array_merge(['@context' => [], 'id' => $iri], $credential);

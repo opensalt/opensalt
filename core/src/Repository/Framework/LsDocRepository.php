@@ -115,9 +115,7 @@ class LsDocRepository extends ServiceEntityRepository
      */
     public function findAllNonPrivate(?CfDocQuery $query = null): array
     {
-        if (null === $query) {
-            $query = new CfDocQuery();
-        }
+        $query ??= new CfDocQuery();
 
         $sortBy = match ($query->getSort()) {
             'updatedAt' => 'd.updatedAt',
@@ -738,9 +736,7 @@ class LsDocRepository extends ServiceEntityRepository
     {
         $childrenMap = [];
         foreach ($parentMap as $childId => $parentId) {
-            if (!isset($childrenMap[$parentId])) {
-                $childrenMap[$parentId] = [];
-            }
+            $childrenMap[$parentId] ??= [];
             $seq = $assocMap[$childId]['sequenceNumber'] ?? null;
             $childrenMap[$parentId][] = ['id' => $childId, 'seq' => $seq];
         }
@@ -901,10 +897,8 @@ class LsDocRepository extends ServiceEntityRepository
     {
         $conn = $this->getEntityManager()->getConnection();
 
-        if (null === $progressCallback) {
-            $progressCallback = static function (string $message = ''): void {
-            };
-        }
+        $progressCallback ??= static function (string $message = ''): void {
+        };
 
         $docId = $lsDoc->getId();
 
@@ -953,9 +947,7 @@ class LsDocRepository extends ServiceEntityRepository
     public function makeDerivative(LsDoc $oldLsDoc, ?LsDoc $newLsDoc = null): LsDoc
     {
         $em = $this->getEntityManager();
-        if (null === $newLsDoc) {
-            $newLsDoc = $this->createDerivedDoc($oldLsDoc);
-        }
+        $newLsDoc ??= $this->createDerivedDoc($oldLsDoc);
 
         foreach ($oldLsDoc->getAssociationGroupings() as $assocGroup) {
             $assocGroup->duplicateToLsDoc($newLsDoc);
@@ -987,10 +979,8 @@ class LsDocRepository extends ServiceEntityRepository
     {
         $em = $this->getEntityManager();
 
-        if (null === $progressCallback) {
-            $progressCallback = static function ($message = ''): void {
-            };
-        }
+        $progressCallback ??= static function ($message = ''): void {
+        };
 
         $progressCallback('Adding framework as an item in another framework');
 

@@ -32,9 +32,7 @@ class SubtypeUpdateController extends AbstractController
                 'mapped' => false,
                 'required' => true,
                 'constraints' => [
-                    new File([
-                        'maxSize' => '10M',
-                    ]),
+                    new File(maxSize: '10M'),
                 ],
             ])
             ->getForm()

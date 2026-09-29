@@ -103,9 +103,7 @@ class LsAssociationRepository extends ServiceEntityRepository
         if (
             null === $sendingOrgId
             || null === $receivingOrgId
-            || null === $sendingIdentifier
             || '' === $sendingIdentifier
-            || null === $receivingIdentifier
             || '' === $receivingIdentifier
         ) {
             return [];

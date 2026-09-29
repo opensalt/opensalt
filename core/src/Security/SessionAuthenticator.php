@@ -110,7 +110,7 @@ final readonly class SessionAuthenticator implements AuthenticatorInterface
         }
 
         return new SelfValidatingPassport(
-            new UserBadge($user->getUserIdentifier(), function ($userIdentifier) {
+            new UserBadge($user->getUserIdentifier(), function (string $userIdentifier) {
                 return $this->userProvider->loadUserByIdentifier($userIdentifier);
             })
         );

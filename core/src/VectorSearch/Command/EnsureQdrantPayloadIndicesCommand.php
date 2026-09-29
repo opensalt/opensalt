@@ -13,10 +13,18 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[AsCommand(
-    name: 'vector:qdrant:ensure-indices',
-    description: 'Ensure Qdrant payload indices exist on the active (or a given) collection'
-)]
+#[AsCommand(name: 'vector:qdrant:ensure-indices', description: 'Ensure Qdrant payload indices exist on the active (or a given) collection', help: <<<'TXT'
+The <info>vector:qdrant:ensure-indices</info> command ensures that the payload indices used for
+filtered searches and exact counts exist on the active (or a given) Qdrant collection.
+
+This is idempotent and safe to run at any time. It is primarily used to backfill indices on
+collections that were created before payload indices were configured, or after importing data.
+
+Examples:
+  <info>php bin/console vector:qdrant:ensure-indices</info>
+  <info>php bin/console vector:qdrant:ensure-indices --wait</info>
+  <info>php bin/console vector:qdrant:ensure-indices ls_item_embeddings__rebuild__manual</info>
+TXT)]
 class EnsureQdrantPayloadIndicesCommand extends Command
 {
     public function __construct(
@@ -30,21 +38,7 @@ class EnsureQdrantPayloadIndicesCommand extends Command
     {
         $this
             ->addArgument('collection', InputArgument::OPTIONAL, 'Collection name; defaults to the active collection')
-            ->addOption('wait', 'w', InputOption::VALUE_NONE, 'Poll until the indices report as fully built before exiting')
-            ->setHelp(
-                <<<'EOF'
-The <info>vector:qdrant:ensure-indices</info> command ensures that the payload indices used for
-filtered searches and exact counts exist on the active (or a given) Qdrant collection.
-
-This is idempotent and safe to run at any time. It is primarily used to backfill indices on
-collections that were created before payload indices were configured, or after importing data.
-
-Examples:
-  <info>php bin/console vector:qdrant:ensure-indices</info>
-  <info>php bin/console vector:qdrant:ensure-indices --wait</info>
-  <info>php bin/console vector:qdrant:ensure-indices ls_item_embeddings__rebuild__manual</info>
-EOF
-            );
+            ->addOption('wait', 'w', InputOption::VALUE_NONE, 'Poll until the indices report as fully built before exiting');
     }
 
     #[\Override]

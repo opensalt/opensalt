@@ -318,9 +318,9 @@ class LsItemRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param callable(string, array<string, mixed>, array<string, int|string>): string $appendScope
+     * @param callable(string, array<string, mixed>, array<string, ParameterType|int|string>): string $appendScope
      * @param array<string, mixed> $scopeParams
-     * @param array<string, int|string> $scopeTypes
+     * @param array<string, ParameterType|int|string> $scopeTypes
      */
     private function findItemIdMatchingIdentifier(
         string $type,
@@ -345,7 +345,7 @@ class LsItemRepository extends ServiceEntityRepository
 
     /**
      * @param array<string, mixed> $params
-     * @param array<string, int|string> $types
+     * @param array<string, ParameterType|int|string> $types
      */
     private function identifierMatchSql(string $type, string $value, array &$params, array &$types): string
     {
@@ -359,7 +359,7 @@ class LsItemRepository extends ServiceEntityRepository
 
     /**
      * @param array<string, mixed> $params
-     * @param array<string, int|string> $types
+     * @param array<string, ParameterType|int|string> $types
      */
     private function bindScalarMatch(
         string $column,
@@ -376,7 +376,7 @@ class LsItemRepository extends ServiceEntityRepository
 
     /**
      * @param array<string, mixed> $params
-     * @param array<string, int|string> $types
+     * @param array<string, ParameterType|int|string> $types
      */
     private function courseCodeMatchSql(string $value, array &$params, array &$types): string
     {
@@ -396,7 +396,7 @@ class LsItemRepository extends ServiceEntityRepository
 
     /**
      * @param array<string, mixed> $params
-     * @param array<string, int|string> $types
+     * @param array<string, ParameterType|int|string> $types
      */
     private function extensionMatchSql(string $type, string $value, array &$params, array &$types): string
     {

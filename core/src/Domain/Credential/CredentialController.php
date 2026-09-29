@@ -74,9 +74,7 @@ class CredentialController extends AbstractController
     public function new(Request $request, #[CurrentUser] User $user): Response
     {
         $credential = new CredentialDefinitionDto();
-        if (null === $credential->organization) {
-            $credential->organization = $user->getOrg();
-        }
+        $credential->organization ??= $user->getOrg();
         $form = $this->createForm(CredentialDefinitionCreateType::class, $credential);
         $form->handleRequest($request);
 

@@ -186,19 +186,19 @@ class UriController extends AbstractController
     {
         $this->addLink(
             $request,
-            new Link('canonical', '/uri/'.$originalUri)
+            new Link(Link::REL_CANONICAL, '/uri/'.$originalUri)
         );
         $this->addLink(
             $request,
-            new Link('alternate', sprintf('/uri/%s.json', $originalUri))->withAttribute('type', 'application/json')
+            new Link(Link::REL_ALTERNATE, sprintf('/uri/%s.json', $originalUri))->withAttribute('type', 'application/json')
         );
         $this->addLink(
             $request,
-            new Link('alternate', sprintf('/uri/%s.jsonld', $originalUri))->withAttribute('type', 'application/ld+json')
+            new Link(Link::REL_ALTERNATE, sprintf('/uri/%s.jsonld', $originalUri))->withAttribute('type', 'application/ld+json')
         );
         $this->addLink(
             $request,
-            new Link('alternate', sprintf('/uri/%s.html', $originalUri))->withAttribute('type', 'text/html')
+            new Link(Link::REL_ALTERNATE, sprintf('/uri/%s.html', $originalUri))->withAttribute('type', 'text/html')
         );
     }
 

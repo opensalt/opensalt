@@ -31,9 +31,7 @@ class UserManager
             $plainPassword = rtrim(strtr(base64_encode(random_bytes(15)), '+/', '-_'), '=');
         }
 
-        if (null === $role) {
-            $role = 'ROLE_USER';
-        }
+        $role ??= 'ROLE_USER';
         if (!str_starts_with($role, 'ROLE_')) {
             $role = 'ROLE_'.preg_replace('/[^A-Z]/', '_', strtoupper($role));
         }

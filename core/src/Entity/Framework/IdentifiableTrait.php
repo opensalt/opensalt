@@ -37,9 +37,7 @@ trait IdentifiableTrait
 
     public function setIdentifierOrNew(UuidInterface|string|null $identifier = null): void
     {
-        if (null === $identifier) {
-            $identifier = Uuid::uuid1()->toString();
-        }
+        $identifier ??= Uuid::uuid1()->toString();
 
         $this->setIdentifier($identifier);
         $this->uri = 'local:'.$this->identifier;

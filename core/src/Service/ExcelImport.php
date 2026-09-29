@@ -143,9 +143,7 @@ final class ExcelImport
         $docRepo = $this->entityManager->getRepository(LsDoc::class);
         $doc = $docRepo->findOneByIdentifier($this->getCellValueOrNull($sheet, 1, 2));
 
-        if (null === $doc) {
-            $doc = new LsDoc();
-        }
+        $doc ??= new LsDoc();
 
         /* $doc->setIdentifier($this->getCellValueOrNull($sheet, 1, 2)); */
         $doc->setCreator($this->getCellValueOrNull($sheet, 2, 2));
@@ -316,9 +314,7 @@ final class ExcelImport
                 'destinationNodeIdentifier' => $fields['destinationNodeIdentifier'],
             ]);
 
-            if (null === $association) {
-                $association = $doc->createAssociation($fields['identifier']);
-            }
+            $association ??= $doc->createAssociation($fields['identifier']);
         }
 
         if (array_key_exists($fields['originNodeIdentifier'], $items)) {

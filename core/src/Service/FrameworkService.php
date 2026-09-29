@@ -150,9 +150,7 @@ class FrameworkService
         $originItem = null;
         if (null !== $originIdentifier) {
             $originItem = $itemRepo->findOneBy(['identifier' => $originIdentifier]);
-            if (null === $originItem) {
-                $originItem = $docRepo->findOneBy(['identifier' => $originIdentifier]);
-            }
+            $originItem ??= $docRepo->findOneBy(['identifier' => $originIdentifier]);
         }
 
         if (null !== $originItem) {
@@ -174,9 +172,7 @@ class FrameworkService
         $destItem = null;
         if (null !== $destIdentifier) {
             $destItem = $itemRepo->findOneBy(['identifier' => $destIdentifier]);
-            if (null === $destItem) {
-                $destItem = $docRepo->findOneBy(['identifier' => $destIdentifier]);
-            }
+            $destItem ??= $docRepo->findOneBy(['identifier' => $destIdentifier]);
         }
 
         if (null !== $destItem) {

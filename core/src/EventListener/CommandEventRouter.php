@@ -154,9 +154,7 @@ class CommandEventRouter implements EventSubscriberInterface
     protected function resolveNotification(CommandInterface $command): NotificationEvent
     {
         $notification = $command->getNotificationEvent();
-        if (null === $notification) {
-            $notification = new NotificationEvent('X01', 'Command '.$command::class.' handled', null, [], false);
-        }
+        $notification ??= new NotificationEvent('X01', 'Command '.$command::class.' handled', null, [], false);
 
         if (null === $notification->getUsername()) {
             $notification->setUsername($this->getCurrentUsername());

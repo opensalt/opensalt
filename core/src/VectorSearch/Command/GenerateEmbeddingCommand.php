@@ -15,10 +15,18 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[AsCommand(
-    name: 'vector:generate-embeddings',
-    description: 'Generate vector embeddings for LsItems'
-)]
+#[AsCommand(name: 'vector:generate-embeddings', description: 'Generate vector embeddings for LsItems', help: <<<'TXT'
+The <info>vector:generate-embeddings</info> command generates embeddings for LsItems.
+
+Examples:
+  <info>php bin/console vector:generate-embeddings</info>
+  <info>php bin/console vector:generate-embeddings 500</info>
+  <info>php bin/console vector:generate-embeddings --reset-progress</info>
+  <info>php bin/console vector:generate-embeddings --offset=1000 --limit=500</info>
+  <info>php bin/console vector:generate-embeddings --ls-item-id=123</info>
+  <info>php bin/console vector:generate-embeddings --force</info>
+  <info>php bin/console vector:generate-embeddings --batch-size=100</info>
+TXT)]
 class GenerateEmbeddingCommand extends Command
 {
     public function __construct(
@@ -37,21 +45,7 @@ class GenerateEmbeddingCommand extends Command
             ->addOption('ls-item-id', 'i', InputOption::VALUE_OPTIONAL, 'Process specific LsItem by ID')
             ->addOption('force', 'f', InputOption::VALUE_NONE, 'Force regeneration of existing embeddings')
             ->addOption('reset-progress', null, InputOption::VALUE_NONE, 'Reset the automatic incremental cursor')
-            ->addOption('batch-size', 'b', InputOption::VALUE_OPTIONAL, 'Batch size for processing', 50)
-            ->setHelp(
-                <<<'EOF'
-The <info>vector:generate-embeddings</info> command generates embeddings for LsItems.
-
-Examples:
-  <info>php bin/console vector:generate-embeddings</info>
-  <info>php bin/console vector:generate-embeddings 500</info>
-  <info>php bin/console vector:generate-embeddings --reset-progress</info>
-  <info>php bin/console vector:generate-embeddings --offset=1000 --limit=500</info>
-  <info>php bin/console vector:generate-embeddings --ls-item-id=123</info>
-  <info>php bin/console vector:generate-embeddings --force</info>
-  <info>php bin/console vector:generate-embeddings --batch-size=100</info>
-EOF
-            );
+            ->addOption('batch-size', 'b', InputOption::VALUE_OPTIONAL, 'Batch size for processing', 50);
     }
 
     #[\Override]
