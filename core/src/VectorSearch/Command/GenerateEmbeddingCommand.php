@@ -7,12 +7,10 @@ namespace App\VectorSearch\Command;
 use App\Entity\Framework\LsItem;
 use App\VectorSearch\Service\VectorSearchService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(name: 'vector:generate-embeddings', description: 'Generate vector embeddings for LsItems', help: <<<'TXT'
@@ -27,39 +25,26 @@ Examples:
   <info>php bin/console vector:generate-embeddings --force</info>
   <info>php bin/console vector:generate-embeddings --batch-size=100</info>
 TXT)]
-class GenerateEmbeddingCommand extends Command
+class GenerateEmbeddingCommand
 {
     public function __construct(
         private readonly VectorSearchService $vectorSearchService,
         private readonly EntityManagerInterface $entityManager,
     ) {
-        parent::__construct();
     }
 
-    #[\Override]
-    protected function configure(): void
-    {
-        $this
-            ->addArgument('limit', InputArgument::OPTIONAL, 'Limit number of items to process', '100')
-            ->addOption('offset', 'o', InputOption::VALUE_OPTIONAL, 'Offset for batch processing', 0)
-            ->addOption('ls-item-id', 'i', InputOption::VALUE_OPTIONAL, 'Process specific LsItem by ID')
-            ->addOption('force', 'f', InputOption::VALUE_NONE, 'Force regeneration of existing embeddings')
-            ->addOption('reset-progress', null, InputOption::VALUE_NONE, 'Reset the automatic incremental cursor')
-            ->addOption('batch-size', 'b', InputOption::VALUE_OPTIONAL, 'Batch size for processing', 50);
-    }
-
-    #[\Override]
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $io = new SymfonyStyle($input, $output);
+    public function __invoke(
+        SymfonyStyle $io,
+        #[Argument(description: 'Limit number of items to process')] int $limit = 100,
+        #[Option(description: 'Offset for batch processing', shortcut: 'o')] int $offset = 0,
+        #[Option(description: 'Process specific LsItem by ID', name: 'ls-item-id', shortcut: 'i')] ?string $lsItemId = null,
+        #[Option(description: 'Force regeneration of existing embeddings', shortcut: 'f')] bool $force = false,
+        #[Option(description: 'Reset the automatic incremental cursor', name: 'reset-progress')] bool $resetProgress = false,
+        #[Option(description: 'Batch size for processing', name: 'batch-size', shortcut: 'b')] int $batchSize = 50,
+    ): int {
         ini_set('memory_limit', '1024M');
 
-        $limit = (int) $input->getArgument('limit');
-        $offset = (int) $input->getOption('offset');
-        $lsItemId = $input->getOption('ls-item-id');
-        $force = (bool) $input->getOption('force');
-        $resetProgress = (bool) $input->getOption('reset-progress');
-        $batchSize = max(1, (int) $input->getOption('batch-size'));
+        $batchSize = max(1, $batchSize);
         $useCursor = null === $lsItemId && !$force && 0 === $offset;
 
         $io->title('Vector Embedding Generation');

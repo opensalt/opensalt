@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace App\VectorSearch\Command;
 
 use App\VectorSearch\Store\HybridQdrantStore;
+use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(name: 'vector:qdrant:ensure-indices', description: 'Ensure Qdrant payload indices exist on the active (or a given) collection', help: <<<'TXT'
@@ -25,28 +23,19 @@ Examples:
   <info>php bin/console vector:qdrant:ensure-indices --wait</info>
   <info>php bin/console vector:qdrant:ensure-indices ls_item_embeddings__rebuild__manual</info>
 TXT)]
-class EnsureQdrantPayloadIndicesCommand extends Command
+class EnsureQdrantPayloadIndicesCommand
 {
     public function __construct(
         private readonly HybridQdrantStore $qdrantStore,
     ) {
-        parent::__construct();
     }
 
-    #[\Override]
-    protected function configure(): void
-    {
-        $this
-            ->addArgument('collection', InputArgument::OPTIONAL, 'Collection name; defaults to the active collection')
-            ->addOption('wait', 'w', InputOption::VALUE_NONE, 'Poll until the indices report as fully built before exiting');
-    }
-
-    #[\Override]
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $io = new SymfonyStyle($input, $output);
-        $collection = trim((string) $input->getArgument('collection'));
-        $wait = (bool) $input->getOption('wait');
+    public function __invoke(
+        SymfonyStyle $io,
+        #[Argument(description: 'Collection name; defaults to the active collection')] string $collection = '',
+        #[Option(description: 'Poll until the indices report as fully built before exiting', shortcut: 'w')] bool $wait = false,
+    ): int {
+        $collection = trim($collection);
 
         $target = '' !== $collection ? $collection : ($this->qdrantStore->getResolvedActiveCollectionName() ?? $this->qdrantStore->getActiveCollectionReference());
 
