@@ -44,7 +44,6 @@ COPY --from=ghcr.io/php/pie:bin /pie /usr/bin/pie
 RUN set -eux; \
 	install-php-extensions \
 		@composer \
-		apcu \
 		gd \
 		intl \
 		opcache \
