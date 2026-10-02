@@ -643,6 +643,8 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
     return promise;
   }
 
+  const FRAMEWORK_ASSOCIATIONS_PAGE_SIZE = 1000;
+
   async function fetchFrameworkAssociations(identifier: UUID): Promise<AssociationDetails[]> {
     const cached = frameworkAssociationsCache.get(identifier);
     if (cached && Date.now() - cached.timestamp < ITEM_DETAILS_CACHE_TTL) {
@@ -655,10 +657,41 @@ export const useCurrentDocumentStore = defineStore('currentDocument', () => {
 
     const promise = (async (): Promise<AssociationDetails[]> => {
       try {
-        const response = await api.get(`/framework/editor/associations/framework/${identifier}`) as { data: AssociationDetails[] };
-        const data = Array.isArray(response?.data) ? response.data : (Array.isArray(response) ? response : []);
-        frameworkAssociationsCache.set(identifier, { data, timestamp: Date.now() });
-        return data;
+        const all: AssociationDetails[] = [];
+        let offset = 0;
+        let total: number | null = null;
+        const limit = FRAMEWORK_ASSOCIATIONS_PAGE_SIZE;
+
+        while (true) {
+          const response = await api.get(
+            `/framework/editor/associations/framework/${identifier}?limit=${limit}&offset=${offset}`,
+          ) as { data?: AssociationDetails[]; total?: number };
+          const page = Array.isArray(response?.data)
+            ? response.data
+            : (Array.isArray(response) ? response as AssociationDetails[] : []);
+
+          if (total === null) {
+            total = typeof response?.total === 'number' ? response.total : null;
+          }
+
+          if (page.length === 0) {
+            break;
+          }
+
+          all.push(...page);
+          offset += page.length;
+
+          if (total !== null && all.length >= total) {
+            break;
+          }
+          // When total is unknown, a short page means there is no next page.
+          if (total === null && page.length < limit) {
+            break;
+          }
+        }
+
+        frameworkAssociationsCache.set(identifier, { data: all, timestamp: Date.now() });
+        return all;
       } finally {
         pendingFrameworkAssociationsRequests.delete(identifier);
       }

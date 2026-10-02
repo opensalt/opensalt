@@ -330,6 +330,47 @@ describe('CurrentDocumentStore transformCASEItems', () => {
   });
 });
 
+describe('fetchFrameworkAssociations', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia());
+    api.get.mockReset();
+  });
+
+  it('loads all API pages when total exceeds one page', async () => {
+    api.get
+      .mockResolvedValueOnce({ data: [{ identifier: 'assoc-1' }], total: 2 })
+      .mockResolvedValueOnce({ data: [{ identifier: 'assoc-2' }], total: 2 });
+
+    const store = useCurrentDocumentStore();
+    const result = await store.fetchFrameworkAssociations('fw-crosswalk');
+
+    expect(result).toHaveLength(2);
+    expect(result.map((a) => a.identifier)).toEqual(['assoc-1', 'assoc-2']);
+    expect(api.get).toHaveBeenCalledTimes(2);
+    expect(api.get).toHaveBeenNthCalledWith(
+      1,
+      '/framework/editor/associations/framework/fw-crosswalk?limit=1000&offset=0',
+    );
+    expect(api.get).toHaveBeenNthCalledWith(
+      2,
+      '/framework/editor/associations/framework/fw-crosswalk?limit=1000&offset=1',
+    );
+  });
+
+  it('stops after a single request when all rows fit in one page', async () => {
+    api.get.mockResolvedValueOnce({
+      data: [{ identifier: 'only-one' }],
+      total: 1,
+    });
+
+    const store = useCurrentDocumentStore();
+    const result = await store.fetchFrameworkAssociations('fw-small');
+
+    expect(result).toHaveLength(1);
+    expect(api.get).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe('deleteItem', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
