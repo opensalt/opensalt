@@ -64,8 +64,7 @@
             @select="onSelect"
             @approve="onApprove"
             @reject="onReject"
-            @edit="onEdit"
-            @delete="onDelete"
+            @review="onReview"
             @find-match="onFindMatch"
           />
         </template>
@@ -86,7 +85,7 @@ const props = defineProps({
   destinationFrameworkId: { type: String, default: null },
 });
 
-const emit = defineEmits(['select', 'approve', 'reject', 'edit', 'delete', 'find-match']);
+const emit = defineEmits(['select', 'approve', 'reject', 'review', 'find-match']);
 
 const allSelected = computed(() => {
   if (props.rows.length === 0) return false;
@@ -105,12 +104,8 @@ function onReject(id) {
   emit('reject', id);
 }
 
-function onEdit(assoc) {
-  emit('edit', assoc);
-}
-
-function onDelete(assoc) {
-  emit('delete', assoc);
+function onReview(id) {
+  emit('review', id);
 }
 
 function onFindMatch(row) {

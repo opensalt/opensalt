@@ -7,6 +7,11 @@
         <span class="badge bg-primary">Origin Items: {{ stats.originTotal }}</span>
         <span class="badge bg-info">Destination Items: {{ stats.destinationTotal }}</span>
         <span class="badge bg-success">Matched: {{ stats.matched }}</span>
+        <span
+          v-if="filters.showAllAssociations && stats.listedPairs > stats.matched"
+          class="badge bg-secondary"
+          title="Includes existing cross-framework associations shown in the table"
+        >Listed: {{ stats.listedPairs }}</span>
         <span class="badge bg-warning text-dark">Unmatched Origin: {{ stats.unmatchedOrigin }}</span>
         <span class="badge bg-secondary">Unmatched Destination: {{ stats.unmatchedDestination }}</span>
         <span
@@ -26,6 +31,20 @@
           class="badge bg-info"
         >Modified: {{ stats.modified }}</span>
       </div>
+    </div>
+
+    <div
+      v-if="actionError"
+      class="alert alert-danger small mb-3 flex-shrink-0"
+      role="alert"
+    >
+      {{ actionError }}
+      <button
+        type="button"
+        class="btn-close float-end"
+        aria-label="Dismiss"
+        @click="actionError = ''"
+      />
     </div>
 
     <div class="alert alert-secondary small mb-3 flex-shrink-0">
@@ -63,7 +82,7 @@
           </option>
         </select>
       </div>
-      <div class="col-md-2 d-flex align-items-center">
+      <div class="col-md-3 d-flex flex-column gap-1">
         <div class="form-check">
           <input
             id="hideApproved"
@@ -75,6 +94,18 @@
             for="hideApproved"
             class="form-check-label small"
           >Hide approved</label>
+        </div>
+        <div class="form-check">
+          <input
+            id="showAllAssociations"
+            v-model="filters.showAllAssociations"
+            type="checkbox"
+            class="form-check-input"
+          >
+          <label
+            for="showAllAssociations"
+            class="form-check-label small"
+          >Show all cross-framework associations</label>
         </div>
       </div>
       <div class="col-md-2">
@@ -102,12 +133,17 @@
     <!-- Bulk actions -->
     <div
       v-if="selectedIds.size > 0"
-      class="mb-2 d-flex gap-2 align-items-center flex-shrink-0"
+      class="mb-2 d-flex flex-wrap gap-2 align-items-center flex-shrink-0"
     >
       <span class="text-muted">{{ selectedIds.size }} selected</span>
+      <span
+        v-if="bulkSelectionHint"
+        class="text-muted small"
+      >{{ bulkSelectionHint }}</span>
       <button
         type="button"
         class="btn btn-sm btn-success"
+        :disabled="selectedCrosswalkCount === 0"
         @click="onBulkApprove"
       >
         <i class="bi bi-check me-1" />Approve
@@ -115,6 +151,7 @@
       <button
         type="button"
         class="btn btn-sm btn-danger"
+        :disabled="selectedCrosswalkCount === 0"
         @click="onBulkReject"
       >
         <i class="bi bi-x me-1" />Reject
@@ -164,8 +201,7 @@
             @select="onSelect"
             @approve="onApprove"
             @reject="onReject"
-            @edit="onEdit"
-            @delete="onDelete"
+            @review="onReview"
             @find-match="onFindMatch"
           />
         </div>
@@ -282,14 +318,20 @@
       @confirm="onConfirmReject"
     />
 
-    <!-- Edit association modal -->
-    <EditAssociationModal
-      v-if="editModal.association"
-      :association="editModal.association"
+    <!-- Review match modal -->
+    <ReviewMatchModal
+      v-model:show="reviewModal.show"
+      :pair="reviewModal.pair"
       :available-groups="associationGroups"
-      :show="editModal.show"
-      @updated="onAssociationUpdated"
-      @hidden="onEditModalHidden"
+      :origin-framework-id="originFrameworkId"
+      :destination-framework-id="destinationFrameworkId"
+      :acting="reviewModal.acting"
+      :save-error="reviewModal.error"
+      @save="onReviewSave"
+      @approve="onReviewApprove"
+      @reject="onReviewReject"
+      @delete="onReviewDelete"
+      @hidden="onReviewModalHidden"
     />
 
     <!-- Delete association modal -->
@@ -303,11 +345,11 @@
 </template>
 
 <script setup>
-import { computed, reactive } from 'vue';
+import { computed, reactive, ref } from 'vue';
 import CrosswalkReviewTable from './CrosswalkReviewTable.vue';
 import FindMatchModal from './FindMatchModal.vue';
 import RejectMatchModal from './RejectMatchModal.vue';
-import EditAssociationModal from '../association/EditAssociationModal.vue';
+import ReviewMatchModal from './ReviewMatchModal.vue';
 import DeleteAssociationModal from '../association/DeleteAssociationModal.vue';
 import { useCrosswalkReview } from '@/composables/useCrosswalkReview.js';
 import { useCurrentDocumentStore } from '@/stores/currentDocumentStore.ts';
@@ -363,15 +405,19 @@ const findMatch = reactive({
   targetFramework: null,
 });
 
-const editModal = reactive({
+const reviewModal = reactive({
   show: false,
-  association: null,
+  pair: null,
+  acting: false,
+  error: '',
 });
 
 const deleteModal = reactive({
   show: false,
   association: null,
 });
+
+const actionError = ref('');
 
 const associationGroups = computed(() => currentDocumentStore.associationGroups || []);
 
@@ -483,24 +529,76 @@ function onSelect(id) {
   }
 }
 
-function onApprove(id) {
-  approveAssociation(id);
+async function onApprove(id) {
+  actionError.value = '';
+  const result = await approveAssociation(id);
+  if (!result.success) {
+    actionError.value = result.error || 'Failed to approve association.';
+  }
 }
 
-function onEdit(assoc) {
-  editModal.association = assoc;
-  editModal.show = true;
+function onReview(id) {
+  const pair = matchedPairs.value.find(p => p.id === id);
+  if (!pair) {
+    return;
+  }
+  reviewModal.error = '';
+  reviewModal.pair = pair;
+  reviewModal.show = true;
 }
 
-async function onAssociationUpdated(updatedAssoc) {
-  editModal.show = false;
-  await editAssociation(updatedAssoc);
-  editModal.association = null;
+async function onReviewSave(updatedAssoc) {
+  reviewModal.acting = true;
+  reviewModal.error = '';
+  try {
+    const result = await editAssociation(updatedAssoc);
+    if (!result.success) {
+      reviewModal.error = result.error || 'Failed to save association changes.';
+      return;
+    }
+    reviewModal.show = false;
+  } finally {
+    reviewModal.acting = false;
+  }
 }
 
-function onEditModalHidden() {
-  editModal.show = false;
-  editModal.association = null;
+async function onReviewApprove({ id, updated }) {
+  reviewModal.acting = true;
+  reviewModal.error = '';
+  try {
+    if (updated) {
+      const result = await editAssociation(updated);
+      if (!result.success) {
+        reviewModal.error = result.error || 'Failed to save association changes.';
+        return;
+      }
+    }
+    const approveResult = await approveAssociation(id);
+    if (!approveResult.success) {
+      reviewModal.error = approveResult.error || 'Failed to approve association.';
+      return;
+    }
+    reviewModal.show = false;
+  } finally {
+    reviewModal.acting = false;
+  }
+}
+
+function onReviewReject(id) {
+  reviewModal.show = false;
+  onReject(id);
+}
+
+function onReviewDelete(assoc) {
+  reviewModal.show = false;
+  onDelete(assoc);
+}
+
+function onReviewModalHidden() {
+  reviewModal.show = false;
+  reviewModal.pair = null;
+  reviewModal.acting = false;
+  reviewModal.error = '';
 }
 
 function onDelete(assoc) {
@@ -520,21 +618,54 @@ function onDeleteModalHidden() {
   deleteModal.association = null;
 }
 
-/**
- * Filter the current selection down to IDs that correspond to matched pairs
- * (association identifiers). Unmatched rows have IDs prefixed with 'unmatched-'.
- */
-function selectedMatchedIds() {
-  const pairIds = new Set(matchedPairs.value.map(p => p.id));
+function selectedCrosswalkMatchedIds() {
+  const pairIds = new Set(
+    matchedPairs.value.filter(p => p.isCrosswalkSuggestion).map(p => p.id)
+  );
   return [...selectedIds.value].filter(id => pairIds.has(id));
 }
 
+const selectedCrosswalkCount = computed(() => selectedCrosswalkMatchedIds().length);
+
+const bulkSelectionHint = computed(() => {
+  const total = selectedIds.value.size;
+  const crosswalk = selectedCrosswalkCount.value;
+  if (total === 0 || crosswalk === total) {
+    return '';
+  }
+  const skipped = total - crosswalk;
+  return `${skipped} of ${total} selected cannot be bulk-reviewed (existing associations).`;
+});
+
+function formatBulkActionErrors(verbPast, verbFail, result) {
+  if (!result?.failed?.length) {
+    return '';
+  }
+  const detail = result.failed.map((f) => `${f.id}: ${f.error}`).join('; ');
+  if (result.succeeded.length > 0) {
+    return `${verbPast} ${result.succeeded.length} association(s); ${result.failed.length} failed. ${detail}`;
+  }
+  return `Could not ${verbFail} ${result.failed.length} association(s). ${detail}`;
+}
+
+function clearSucceededFromSelection(succeededIds) {
+  for (const id of succeededIds) {
+    selectedIds.value.delete(id);
+  }
+}
+
 async function onBulkApprove() {
-  const ids = selectedMatchedIds();
+  const ids = selectedCrosswalkMatchedIds();
   if (ids.length === 0) {
     return;
   }
-  await bulkApprove(new Set(ids));
+  actionError.value = '';
+  const result = await bulkApprove(new Set(ids));
+  clearSucceededFromSelection(result.succeeded);
+  if (!result.success) {
+    actionError.value = formatBulkActionErrors('Approved', 'approve', result);
+    return;
+  }
   selectedIds.value.clear();
 }
 
@@ -551,7 +682,7 @@ function onReject(id) {
 }
 
 function onBulkReject() {
-  const ids = selectedMatchedIds();
+  const ids = selectedCrosswalkMatchedIds();
   if (ids.length === 0) {
     return;
   }
@@ -569,7 +700,12 @@ async function onConfirmReject() {
     if (rejectModal.pair) {
       await deleteAssociation(rejectModal.pair.id);
     } else if (rejectModal.bulkIds.length > 0) {
-      await bulkReject(new Set(rejectModal.bulkIds));
+      const result = await bulkReject(new Set(rejectModal.bulkIds));
+      clearSucceededFromSelection(result.succeeded);
+      if (!result.success) {
+        rejectModal.error = formatBulkActionErrors('Removed', 'remove', result);
+        return;
+      }
       selectedIds.value.clear();
     }
     rejectModal.show = false;

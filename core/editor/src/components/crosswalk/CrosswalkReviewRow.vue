@@ -45,15 +45,20 @@
     </td>
     <td>
       <span
+        v-if="showConfidence"
         class="badge"
         :class="confidenceBadgeClass"
       >{{ confidencePercentage }}%</span>
+      <span
+        v-else
+        class="text-muted"
+      >—</span>
     </td>
     <td>
       <span
-        class="badge"
-        :class="pair.type === 'exactMatchOf' ? 'bg-success' : 'bg-info'"
-      >{{ pair.type === 'exactMatchOf' ? 'Exact' : 'Related' }}</span>
+        class="badge bg-secondary text-wrap text-start"
+        :title="associationType"
+      >{{ typeDisplayLabel }}</span>
     </td>
     <td class="col-destination">
       <ItemStatementPopover
@@ -94,12 +99,12 @@
         <button
           type="button"
           class="btn btn-outline-secondary"
-          title="Edit"
-          @click="$emit('edit', pair.association)"
+          title="Review match"
+          @click="$emit('review', pair.id)"
         >
-          <i class="bi bi-pencil" />
+          <i class="bi bi-card-text" />
         </button>
-        <template v-if="!isApproved">
+        <template v-if="isCrosswalkSuggestion && !isApproved">
           <button
             type="button"
             class="btn btn-outline-success"
@@ -117,15 +122,6 @@
             <i class="bi bi-x" />
           </button>
         </template>
-        <button
-          v-else
-          type="button"
-          class="btn btn-outline-danger"
-          title="Delete"
-          @click="$emit('delete', pair.association)"
-        >
-          <i class="bi bi-trash" />
-        </button>
       </div>
     </td>
   </tr>
@@ -268,6 +264,7 @@
 <script setup>
 import { computed } from 'vue';
 import ItemStatementPopover from '@/components/common/ItemStatementPopover.vue';
+import { getAssociationTypeLabel } from '@/utils/associationHelpers.js';
 
 const props = defineProps({
   row: { type: Object, required: true },
@@ -276,17 +273,45 @@ const props = defineProps({
   destinationFrameworkId: { type: String, default: null },
 });
 
-const emit = defineEmits(['select', 'approve', 'reject', 'edit', 'delete', 'find-match']);
+const emit = defineEmits(['select', 'approve', 'reject', 'review', 'find-match']);
 
 const pair = computed(() => (props.row.type === 'matched' ? props.row.pair : null));
 const unmatchedOriginItem = computed(() => (props.row.type === 'unmatched-origin' ? props.row.item : null));
 const unmatchedDestinationItem = computed(() => (props.row.type === 'unmatched-destination' ? props.row.item : null));
 
+const hasConfidence = computed(() => {
+  const c = pair.value?.confidence;
+  return c !== null && c !== undefined;
+});
 const confidence = computed(() => pair.value?.confidence || 0);
 const confidencePercentage = computed(() => Math.round(confidence.value * 100));
 
+const associationType = computed(() => {
+  const assoc = pair.value?.association;
+  return pair.value?.type || assoc?.associationType || assoc?.type || 'unknown';
+});
+
+const typeDisplayLabel = computed(() => getAssociationTypeLabel(associationType.value));
+
+// Hide the suggestion score after approval or when the user changed the type away from
+// the crosswalk guess — the table emphasizes review state, not historical scoring.
+const showConfidence = computed(() => {
+  if (!hasConfidence.value) {
+    return false;
+  }
+  if (isApproved.value) {
+    return false;
+  }
+  const suggested = pair.value?.suggestedType;
+  if (suggested && associationType.value !== suggested) {
+    return false;
+  }
+  return true;
+});
+
 const status = computed(() => pair.value?.status || 'pending');
 const isApproved = computed(() => status.value === 'approved');
+const isCrosswalkSuggestion = computed(() => pair.value?.isCrosswalkSuggestion === true);
 
 const confidenceBadgeClass = computed(() => {
   if (confidencePercentage.value >= 90) return 'bg-success';
@@ -295,7 +320,7 @@ const confidenceBadgeClass = computed(() => {
 });
 
 const statusBadgeClass = computed(() => {
-  const map = { pending: 'bg-secondary', approved: 'bg-success', rejected: 'bg-danger', modified: 'bg-info' };
+  const map = { pending: 'bg-secondary', approved: 'bg-success', rejected: 'bg-danger', modified: 'bg-info', existing: 'bg-secondary' };
   return map[status.value] || 'bg-secondary';
 });
 

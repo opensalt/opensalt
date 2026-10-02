@@ -3,6 +3,17 @@ import { useCurrentDocumentStore } from '../stores/currentDocumentStore.ts';
 import { useDocumentStore } from '../stores/documentStore.ts';
 import { api } from '../services/api.js';
 
+/** Association types omitted from crosswalk review list / type picker. */
+const EXCLUDED_REVIEW_ASSOCIATION_TYPES = new Set(['isChildOf', 'exemplar']);
+
+function getAssociationType(assoc) {
+  return assoc.associationType || assoc.type;
+}
+
+function isExcludedReviewAssociation(assoc) {
+  return EXCLUDED_REVIEW_ASSOCIATION_TYPES.has(getAssociationType(assoc));
+}
+
 export function useCrosswalkReview() {
   const currentDocumentStore = useCurrentDocumentStore();
   const documentStore = useDocumentStore();
@@ -13,6 +24,7 @@ export function useCrosswalkReview() {
     confidenceMax: 1,
     matchStatus: 'all',
     hideApproved: false,
+    showAllAssociations: false,
   });
 
   const selectedIds = ref(new Set());
@@ -30,14 +42,56 @@ export function useCrosswalkReview() {
 
   // Use a deep ref so mutating an association's extension (e.g. crosswalk:status)
   // reactively updates the table and stats.
-  const associations = ref([]);
+  const frameworkAssociations = ref([]);
 
-  const allAssociations = computed(() => associations.value);
+  /** Crosswalk job suggestions only (has crosswalk:confidence), not other framework links. */
+  const crosswalkSuggestions = computed(() => {
+    return frameworkAssociations.value.filter((assoc) => {
+      return assoc.extensions && assoc.extensions['crosswalk:confidence'] !== undefined;
+    });
+  });
+
+  function isCrossFrameworkAssociation(assoc) {
+    const originDoc = assoc.originNodeURI?.documentIdentifier;
+    const destDoc = assoc.destinationNodeURI?.documentIdentifier;
+    if (!originFrameworkId.value || !destinationFrameworkId.value) {
+      return false;
+    }
+    return (
+      (originDoc === originFrameworkId.value && destDoc === destinationFrameworkId.value) ||
+      (originDoc === destinationFrameworkId.value && destDoc === originFrameworkId.value)
+    );
+  }
+
+  const reviewableAssociations = computed(() => {
+    const crosswalk = crosswalkSuggestions.value;
+    if (!filters.value.showAllAssociations) {
+      return crosswalk;
+    }
+
+    const seen = new Set(crosswalk.map(a => a.identifier || a.id));
+    const extra = [];
+    for (const assoc of frameworkAssociations.value) {
+      if (isExcludedReviewAssociation(assoc)) {
+        continue;
+      }
+      const id = assoc.identifier || assoc.id;
+      if (!id || seen.has(id)) {
+        continue;
+      }
+      if (!isCrossFrameworkAssociation(assoc)) {
+        continue;
+      }
+      seen.add(id);
+      extra.push(assoc);
+    }
+    return [...crosswalk, ...extra];
+  });
 
   async function loadCrosswalkAssociations() {
     const crosswalkDocId = currentDocumentStore.currentDocument?.identifier;
     if (!crosswalkDocId) {
-      associations.value = [];
+      frameworkAssociations.value = [];
       return;
     }
 
@@ -46,37 +100,60 @@ export function useCrosswalkReview() {
       // Ensure we see associations created by a (possibly just-finished) job.
       currentDocumentStore.invalidateItemDetailsCache(crosswalkDocId);
       const data = await currentDocumentStore.fetchFrameworkAssociations(crosswalkDocId);
-      const list = Array.isArray(data) ? data : [];
-      associations.value = list.filter((assoc) => {
-        return assoc.extensions && assoc.extensions['crosswalk:confidence'] !== undefined;
-      });
+      frameworkAssociations.value = Array.isArray(data) ? data : [];
     } catch (err) {
       console.error('Failed to load crosswalk associations:', err);
-      associations.value = [];
+      frameworkAssociations.value = [];
     } finally {
       loadingAssociations.value = false;
     }
   }
 
+  const originItemsById = computed(() => {
+    const map = new Map();
+    for (const item of originItems.value) {
+      map.set(item.identifier, item);
+    }
+    return map;
+  });
+
+  const destinationItemsById = computed(() => {
+    const map = new Map();
+    for (const item of destinationItems.value) {
+      map.set(item.identifier, item);
+    }
+    return map;
+  });
+
   const matchedPairs = computed(() => {
     const pairs = [];
-    for (const assoc of allAssociations.value) {
+    for (const assoc of reviewableAssociations.value) {
+      if (isExcludedReviewAssociation(assoc)) {
+        continue;
+      }
       const originId = assoc.originNodeURI?.identifier;
       const destId = assoc.destinationNodeURI?.identifier;
       if (!originId || !destId) continue;
 
-      const originItem = originItems.value.find(i => i.identifier === originId);
-      const destItem = destinationItems.value.find(i => i.identifier === destId);
+      const originItem = originItemsById.value.get(originId);
+      const destItem = destinationItemsById.value.get(destId);
       if (originItem && destItem) {
+        const hasCrosswalkConfidence = assoc.extensions?.['crosswalk:confidence'] !== undefined;
+        const crosswalkSubtype = assoc.extensions?.['crosswalk:subtype'] || 'related';
+        const actualType = getAssociationType(assoc);
         pairs.push({
           id: assoc.identifier || assoc.id,
           originItem,
           destinationItem: destItem,
           association: assoc,
-          confidence: assoc.extensions?.['crosswalk:confidence'] || 0,
-          status: assoc.extensions?.['crosswalk:status'] || 'pending',
-          type: assoc.associationType,
-          subtype: assoc.extensions?.['crosswalk:subtype'] || 'related',
+          confidence: hasCrosswalkConfidence ? assoc.extensions['crosswalk:confidence'] : null,
+          status: assoc.extensions?.['crosswalk:status'] || (hasCrosswalkConfidence ? 'pending' : 'existing'),
+          type: actualType,
+          subtype: crosswalkSubtype,
+          suggestedType: hasCrosswalkConfidence
+            ? (crosswalkSubtype === 'exact' ? 'exactMatchOf' : 'isRelatedTo')
+            : null,
+          isCrosswalkSuggestion: hasCrosswalkConfidence,
         });
       }
     }
@@ -123,10 +200,15 @@ export function useCrosswalkReview() {
     }
 
     if (filters.value.confidenceMin > 0 || filters.value.confidenceMax < 1) {
-      pairs = pairs.filter(p =>
-        p.confidence >= filters.value.confidenceMin &&
-        p.confidence <= filters.value.confidenceMax
-      );
+      pairs = pairs.filter((p) => {
+        if (p.confidence === null || p.confidence === undefined) {
+          return filters.value.confidenceMin <= 0;
+        }
+        return (
+          p.confidence >= filters.value.confidenceMin &&
+          p.confidence <= filters.value.confidenceMax
+        );
+      });
     }
 
     if (filters.value.hideApproved) {
@@ -196,7 +278,14 @@ export function useCrosswalkReview() {
 
   // Reset to the first page whenever the filters change.
   watch(
-    () => [filters.value.search, filters.value.matchStatus, filters.value.confidenceMin, filters.value.confidenceMax, filters.value.hideApproved],
+    () => [
+      filters.value.search,
+      filters.value.matchStatus,
+      filters.value.confidenceMin,
+      filters.value.confidenceMax,
+      filters.value.hideApproved,
+      filters.value.showAllAssociations,
+    ],
     () => { currentPage.value = 1; }
   );
 
@@ -210,22 +299,25 @@ export function useCrosswalkReview() {
   }
 
   const stats = computed(() => {
-    const all = allAssociations.value;
+    const suggestions = crosswalkSuggestions.value;
+    const suggestionPairCount = matchedPairs.value.filter(p => p.isCrosswalkSuggestion).length;
     return {
       originTotal: originItems.value.length,
       destinationTotal: destinationItems.value.length,
-      matched: matchedPairs.value.length,
+      // Crosswalk suggestions only (unchanged when "show all" adds existing links).
+      matched: suggestionPairCount,
+      listedPairs: matchedPairs.value.length,
       unmatchedOrigin: unmatchedOriginItems.value.length,
       unmatchedDestination: unmatchedDestinationItems.value.length,
-      pending: all.filter(a => (a.extensions?.['crosswalk:status'] || 'pending') === 'pending').length,
-      approved: all.filter(a => a.extensions?.['crosswalk:status'] === 'approved').length,
-      rejected: all.filter(a => a.extensions?.['crosswalk:status'] === 'rejected').length,
-      modified: all.filter(a => a.extensions?.['crosswalk:status'] === 'modified').length,
+      pending: suggestions.filter(a => (a.extensions?.['crosswalk:status'] || 'pending') === 'pending').length,
+      approved: suggestions.filter(a => a.extensions?.['crosswalk:status'] === 'approved').length,
+      rejected: suggestions.filter(a => a.extensions?.['crosswalk:status'] === 'rejected').length,
+      modified: suggestions.filter(a => a.extensions?.['crosswalk:status'] === 'modified').length,
     };
   });
 
   function extractFrameworkIds() {
-    const assocs = allAssociations.value;
+    const assocs = frameworkAssociations.value;
     for (const assoc of assocs) {
       const originDoc = assoc.originNodeURI?.documentIdentifier;
       const destDoc = assoc.destinationNodeURI?.documentIdentifier;
@@ -283,44 +375,63 @@ export function useCrosswalkReview() {
     return items;
   }
 
+  /**
+   * @returns {Promise<{ success: boolean, error?: string }>}
+   */
   async function updateAssociationStatus(assocId, status) {
-    const assoc = allAssociations.value.find(a => (a.id || a.identifier) === assocId);
+    const assoc = frameworkAssociations.value.find(a => (a.id || a.identifier) === assocId);
     if (!assoc) {
-      return;
+      return { success: false, error: 'Association not found.' };
     }
 
-    // Optimistic in-memory update (reactive via the deep ref).
+    const previousStatus = assoc.extensions?.['crosswalk:status'] ?? 'pending';
+
+    // Optimistic in-memory update (reactive via objects held in frameworkAssociations).
     if (!assoc.extensions) {
       assoc.extensions = {};
     }
     assoc.extensions['crosswalk:status'] = status;
 
-    // Persist the status extension on the association.
+    // Persist the status extension on the association (merge so other crosswalk extensions remain).
     try {
       await currentDocumentStore.updateAssociation(assocId, {
-        extensions: { 'crosswalk:status': status },
+        extensions: {
+          ...(assoc.extensions || {}),
+          'crosswalk:status': status,
+        },
       });
       const crosswalkDocId = currentDocumentStore.currentDocument?.identifier;
       if (crosswalkDocId) {
         currentDocumentStore.invalidateItemDetailsCache(crosswalkDocId);
       }
+      return { success: true };
     } catch (err) {
       console.error('Failed to persist association status:', err);
-      assoc.extensions['crosswalk:status'] = 'pending';
+      assoc.extensions['crosswalk:status'] = previousStatus;
+      return {
+        success: false,
+        error: err?.message || 'Failed to update association status.',
+      };
     }
   }
 
+  /**
+   * @returns {Promise<{ success: boolean, error?: string }>}
+   */
   async function approveAssociation(assocId) {
-    await updateAssociationStatus(assocId, 'approved');
+    return updateAssociationStatus(assocId, 'approved');
   }
 
   /**
-   * Persist an edited association from the EditAssociationModal, then reload.
+   * Persist an edited association from the Review Match modal, then reload.
    * @param {object} updatedAssoc - partial association data with identifier
+   * @returns {Promise<{ success: boolean, error?: string }>}
    */
   async function editAssociation(updatedAssoc) {
     const assocId = updatedAssoc.identifier || updatedAssoc.id;
-    if (!assocId) return;
+    if (!assocId) {
+      return { success: false, error: 'Missing association identifier.' };
+    }
 
     const payload = { ...updatedAssoc };
     delete payload.identifier;
@@ -332,10 +443,15 @@ export function useCrosswalkReview() {
       if (crosswalkDocId) {
         currentDocumentStore.invalidateItemDetailsCache(crosswalkDocId);
       }
+      await loadCrosswalkAssociations();
+      return { success: true };
     } catch (err) {
       console.error('Failed to persist association edit:', err);
+      return {
+        success: false,
+        error: err?.message || 'Failed to save association changes.',
+      };
     }
-    await loadCrosswalkAssociations();
   }
 
   /**
@@ -355,34 +471,71 @@ export function useCrosswalkReview() {
    * Approve every selected matched-pair association.
    * Only IDs that correspond to real associations (not unmatched rows) are processed.
    * @param {Set<string>|string[]} ids
+   * @returns {Promise<{ success: boolean, succeeded: string[], failed: { id: string, error: string }[] }>}
    */
   async function bulkApprove(ids) {
     const idSet = ids instanceof Set ? ids : new Set(ids);
-    const pairIds = new Set(matchedPairs.value.map(p => p.id));
+    const pairIds = new Set(
+      matchedPairs.value.filter(p => p.isCrosswalkSuggestion).map(p => p.id)
+    );
+    const succeeded = [];
+    const failed = [];
     for (const id of idSet) {
-      if (pairIds.has(id)) {
-        await updateAssociationStatus(id, 'approved');
+      if (!pairIds.has(id)) {
+        continue;
+      }
+      const result = await updateAssociationStatus(id, 'approved');
+      if (result.success) {
+        succeeded.push(id);
+      } else {
+        failed.push({ id, error: result.error || 'Failed to approve association.' });
       }
     }
+    return {
+      success: failed.length === 0,
+      succeeded,
+      failed,
+    };
   }
 
   /**
    * Delete every selected matched-pair association from the framework, then reload.
    * @param {Set<string>|string[]} ids
+   * @returns {Promise<{ success: boolean, succeeded: string[], failed: { id: string, error: string }[] }>}
    */
   async function bulkReject(ids) {
     const idSet = ids instanceof Set ? ids : new Set(ids);
-    const pairIds = new Set(matchedPairs.value.map(p => p.id));
+    const pairIds = new Set(
+      matchedPairs.value.filter(p => p.isCrosswalkSuggestion).map(p => p.id)
+    );
+    const succeeded = [];
+    const failed = [];
     for (const id of idSet) {
-      if (pairIds.has(id)) {
+      if (!pairIds.has(id)) {
+        continue;
+      }
+      try {
         await currentDocumentStore.removeAssociation(id);
+        succeeded.push(id);
+      } catch (err) {
+        failed.push({
+          id,
+          error: err?.message || 'Failed to remove association.',
+        });
       }
     }
-    const crosswalkDocId = currentDocumentStore.currentDocument?.identifier;
-    if (crosswalkDocId) {
-      currentDocumentStore.invalidateItemDetailsCache(crosswalkDocId);
+    if (succeeded.length > 0) {
+      const crosswalkDocId = currentDocumentStore.currentDocument?.identifier;
+      if (crosswalkDocId) {
+        currentDocumentStore.invalidateItemDetailsCache(crosswalkDocId);
+      }
+      await loadCrosswalkAssociations();
     }
-    await loadCrosswalkAssociations();
+    return {
+      success: failed.length === 0,
+      succeeded,
+      failed,
+    };
   }
 
   /**
@@ -442,11 +595,12 @@ export function useCrosswalkReview() {
       confidenceMax: 1,
       matchStatus: 'all',
       hideApproved: false,
+      showAllAssociations: false,
     };
   }
 
   return {
-    allAssociations,
+    crosswalkSuggestions,
     matchedPairs,
     unmatchedOriginItems,
     unmatchedDestinationItems,
