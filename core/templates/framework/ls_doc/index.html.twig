@@ -7,3 +7,7 @@
 
     {% include 'framework/ls_doc/wizard.html.twig' %}
 {% endblock %}
+
+{% block javascripts %}
+    {{ vite_entry_script_tags('importFramework') }}
+{% endblock %}

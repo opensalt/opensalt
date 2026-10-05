@@ -11,7 +11,7 @@ use App\Entity\Framework\LsDefLicence;
 use App\Entity\Framework\LsDefSubject;
 use App\Entity\Framework\LsItem;
 use App\Form\DataTransformer\EducationAlignmentTransformer;
-use App\Form\DataTransformer\ItemTypeTransformer;
+use App\Util\ChoiceDeduper;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -22,7 +22,6 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Valid;
-use Tetranz\Select2EntityBundle\Form\Type\Select2EntityType;
 
 /**
  * @extends AbstractType<LsItem>
@@ -36,6 +35,9 @@ class LsItemType extends AbstractType
     #[\Override]
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        /** @var LsItem $item */
+        $item = $builder->getData();
+
         if (!$options['ajax']) {
             $builder
                 ->add('uri')
@@ -66,36 +68,33 @@ class LsItemType extends AbstractType
                 'multiple' => true,
                 'query_builder' => static fn (EntityRepository $er): QueryBuilder => $er->createQueryBuilder('g')->addOrderBy('g.rank'),
             ])
-            ->add('itemType', Select2EntityType::class, [
-                'multiple' => false,
-                'remote_route' => 'lsdef_item_type_index_json',
+            ->add('itemType', EntityType::class, [
+                'autocomplete' => true,
+                'required' => false,
                 'class' => LsDefItemType::class,
-                'primary_key' => 'id',
-                'text_property' => 'title',
-                'transformer' => ItemTypeTransformer::class,
-                'minimum_input_length' => 0,
-                'page_limit' => 1000,
-                'scroll' => true,
-                'allow_clear' => true,
-                'delay' => 250,
+                'choice_label' => 'title',
+                'multiple' => false,
+                'choices' => ChoiceDeduper::onePerLabel(
+                    $this->em->getRepository(LsDefItemType::class)->findAll(),
+                    [$item->getItemType()],
+                    static fn (LsDefItemType $itemType): ?string => $itemType->getTitle(),
+                ),
                 'placeholder' => 'Select Item Type',
             ])
-            ->add('subjects', Select2EntityType::class, [
-                'multiple' => true,
-                'remote_route' => 'lsdef_subject_index_json',
+            ->add('subjects', EntityType::class, [
+                'autocomplete' => true,
+                'required' => false,
                 'class' => LsDefSubject::class,
-                'primary_key' => 'id',
-                'text_property' => 'title',
-                'minimum_input_length' => 0,
-                'page_limit' => 50,
-                'allow_clear' => true,
-                'delay' => 250,
-                'placeholder' => 'Select Subjects',
-                'allow_add' => [
-                    'enable' => false,
-                    'new_tag_text' => '(NEW) ',
-                    'new_tag_prefix' => '___',
-                    'tag_separators' => ',',
+                'choice_label' => 'title',
+                'multiple' => true,
+                'choices' => ChoiceDeduper::onePerLabel(
+                    $this->em->getRepository(LsDefSubject::class)->findAll(),
+                    $item->getSubjects(),
+                    static fn (LsDefSubject $subject): ?string => $subject->getTitle(),
+                ),
+                'tom_select_options' => [
+                    'placeholder' => 'Select Subjects',
+                    'closeAfterSelect' => false,
                 ],
             ])
             ->add('licence', EntityType::class, [
@@ -103,6 +102,11 @@ class LsItemType extends AbstractType
                 'label' => 'License',
                 'choice_label' => 'title',
                 'required' => false,
+                'choices' => ChoiceDeduper::onePerLabel(
+                    $this->em->getRepository(LsDefLicence::class)->findAll(),
+                    [$item->getLicence()],
+                    static fn (LsDefLicence $licence): ?string => $licence->getTitle(),
+                ),
             ])
             ->add('notes')
         ;

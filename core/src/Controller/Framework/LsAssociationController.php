@@ -6,8 +6,6 @@ namespace App\Controller\Framework;
 
 use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\AddAssociationCommand;
-use App\Command\Framework\AddExemplarToItemCommand;
-use App\Command\Framework\AddTreeAssociationCommand;
 use App\Command\Framework\DeleteAssociationCommand;
 use App\Command\Framework\UpdateAssociationCommand;
 use App\Entity\Framework\LsAssociation;
@@ -32,6 +30,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class LsAssociationController extends AbstractController
 {
     use CommandDispatcherTrait;
+    use RedirectsToFrameworkEditorTrait;
 
     public function __construct(
         private readonly ManagerRegistry $managerRegistry,
@@ -87,7 +86,7 @@ class LsAssociationController extends AbstractController
                 $this->sendCommand($command);
 
                 if ($ajax) {
-                    return new Response($this->generateUrl('doc_tree_item_view', ['id' => $sourceLsItem->getId()]), Response::HTTP_CREATED);
+                    return new Response($this->frameworkEditorUrlForItem($sourceLsItem), Response::HTTP_CREATED);
                 }
 
                 return $this->redirectToRoute('lsassociation_show', ['id' => $lsAssociation->getId()]);
@@ -110,84 +109,6 @@ class LsAssociationController extends AbstractController
         }
 
         return $this->render('framework/ls_association/new.html.twig', $ret);
-    }
-
-    /**
-     * Creates a new LsAssociation entity -- tree-view version, called via ajax.
-     */
-    #[Route(path: '/treenew/{lsDoc}', name: 'lsassociation_tree_new', methods: ['POST'])]
-    #[IsGranted(Permission::ASSOCIATION_ADD_TO, 'lsDoc')]
-    public function treeNew(Request $request, LsDoc $lsDoc): Response
-    {
-        // type, origin['externalDoc', 'id', 'identifier'], dest['externalDoc', 'id', 'identifier'], assocGroup
-        foreach (['type', 'origin', 'dest'] as $value) {
-            if (!$request->request->has($value)) {
-                return new JsonResponse(['error' => ['message' => 'Missing value: ' . $value]], Response::HTTP_BAD_REQUEST);
-            }
-        }
-
-        try {
-            $command = new AddTreeAssociationCommand(
-                $lsDoc,
-                $request->request->all('origin'), // passed as an array
-                $request->request->get('type'),
-                $request->request->all('dest'), // passed as an array
-                $request->request->get('assocGroup'),
-                $request->request->get('annotation'),
-                $request->request->has('extensions') ? $request->request->all('extensions') : null
-            );
-            $this->sendCommand($command);
-            $lsAssociation = $command->getAssociation();
-
-            // return id of created association
-            $rv = [
-                'id' => $lsAssociation?->getId(),
-                'identifier' => $lsAssociation?->getIdentifier(),
-            ];
-
-            $response = new JsonResponse($rv);
-            $response->headers->set('Cache-Control', 'no-cache');
-
-            return $response;
-        } catch (\Exception $exception) {
-            return new JsonResponse(['error' => ['message' => $exception->getMessage()]], Response::HTTP_BAD_REQUEST);
-        }
-    }
-
-    /**
-     * Creates a new LsAssociation entity for an exemplar.
-     *
-     * @throws \InvalidArgumentException
-     */
-    #[Route(path: '/treenewexemplar/{originLsItem}', name: 'lsassociation_tree_new_exemplar', methods: ['GET', 'POST'])]
-    #[IsGranted(Permission::ASSOCIATION_ADD_TO, 'originLsItem')]
-    public function treeNewExemplar(Request $request, LsItem $originLsItem): Response
-    {
-        if (!$request->request->has('exemplarUrl')) {
-            return new JsonResponse(['error' => ['message' => 'Missing value: exemplarUrl']], Response::HTTP_BAD_REQUEST);
-        }
-
-        try {
-            $command = new AddExemplarToItemCommand(
-                $originLsItem,
-                $request->request->get('exemplarUrl'),
-                $request->request->get('annotation')
-            );
-            $this->sendCommand($command);
-            $lsAssociation = $command->getAssociation();
-
-            $rv = [
-                'id' => $lsAssociation?->getId(),
-                'identifier' => $lsAssociation?->getIdentifier(),
-            ];
-
-            $response = new JsonResponse($rv);
-            $response->headers->set('Cache-Control', 'no-cache');
-
-            return $response;
-        } catch (\Exception $exception) {
-            return new JsonResponse(['error' => ['message' => $exception->getMessage()]], Response::HTTP_BAD_REQUEST);
-        }
     }
 
     /**

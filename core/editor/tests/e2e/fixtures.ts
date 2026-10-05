@@ -5,34 +5,47 @@ type Role = 'Editor' | 'Admin' | 'User' | 'Super Editor' | 'Super User';
 interface TestFixtures {
   loginPage: LoginPage;
   lastFrameworkId: string;
+  lastFrameworkIdentifier: string;
+}
+
+async function pickLatestDraftFrameworkIdentifier(
+  request: import('@playwright/test').APIRequestContext,
+): Promise<string> {
+  const documents = await request.get(
+    'http://web.salt-default/ims/case/v1p0/CFDocuments?sort=updatedAt&orderBy=DESC&limit=1000',
+  );
+  const json = await documents.json();
+  const docs = json.CFDocuments || [];
+
+  let lastDoc = docs[0];
+  for (const doc of docs) {
+    if ((doc.adoptionStatus ?? 'Draft') !== 'Draft') continue;
+    if (!lastDoc || lastDoc.updatedAt < doc.updatedAt) {
+      lastDoc = doc;
+    }
+  }
+
+  const identifier = lastDoc?.identifier;
+  if (!identifier) {
+    throw new Error('No framework found');
+  }
+
+  return identifier;
 }
 
 export const test = base.extend<TestFixtures>({
   loginPage: async ({ page }, use) => {
     await use(new LoginPage(page));
   },
-  lastFrameworkId: async ({ page, request }, use) => {
-    const documents = await request.get('http://web.salt-default/ims/case/v1p0/CFDocuments?sort=updatedAt&orderBy=DESC&limit=1000');
-    const json = await documents.json();
-    const docs = json.CFDocuments || [];
+  lastFrameworkIdentifier: async ({ request }, use) => {
+    await use(await pickLatestDraftFrameworkIdentifier(request));
+  },
+  lastFrameworkId: async ({ request }, use) => {
+    const identifier = await pickLatestDraftFrameworkIdentifier(request);
 
-    let lastDoc = docs[0];
-    for (const doc of docs) {
-      if ((doc.adoptionStatus ?? 'Draft') !== 'Draft') continue;
-      if (!lastDoc || lastDoc.updatedAt < doc.updatedAt) {
-        lastDoc = doc;
-      }
-    }
-
-    const identifier = lastDoc?.identifier;
-    if (!identifier) {
-      throw new Error('No framework found');
-    }
-
-    // Get document ID from URI redirect
-    const uriPage = await page.goto(`http://web.salt-default/uri/${identifier}/${identifier}`);
-    const url = page.url();
-    const match = url.match(/\/cftree\/doc\/(\d+)/);
+    const response = await request.get(`http://web.salt-default/cfdoc/${identifier}.json`);
+    const body = await response.text();
+    const match = body.match(/\/cfdoc\/(\d+)\//) ?? body.match(/"id"\s*:\s*(\d+)/);
     const docId = match ? match[1] : '';
 
     await use(docId);

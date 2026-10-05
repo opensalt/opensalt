@@ -121,7 +121,7 @@ All HTTP requests go through the singleton `api` instance from `src/services/api
 - **Framework:** Vitest with Vue Test Utils
 - **Test structure:**
   - `tests/services/` — API service tests
-  - `tests/stores/` — Pinia store tests (documentStore, itemStore, associationStore)
+  - `tests/stores/` — Pinia store tests (documentStore, itemStore, etc.)
   - `tests/components/` — Vue component tests
 - **Run tests:**
   - `npm run test` — run all tests

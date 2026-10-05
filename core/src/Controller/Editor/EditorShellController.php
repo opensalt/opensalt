@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Editor;
 
 use App\Repository\Framework\LsDocRepository;
+use App\Repository\Framework\LsItemRepository;
 use App\Security\Feature;
 use Novaway\Bundle\FeatureFlagBundle\Manager\FeatureManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -23,16 +24,40 @@ final class EditorShellController extends AbstractController
     #[Route(path: '/editor/{path}', name: 'editor_shell_path', requirements: ['path' => Requirement::CATCH_ALL], methods: ['GET'])]
     public function index(
         LsDocRepository $docRepository,
+        LsItemRepository $itemRepository,
         ?string $path = null,
     ): Response {
-        $frameworkIdentifier = preg_split('#/#', $path ?? '')[0];
+        if (null === $path || '' === $path) {
+            throw $this->createNotFoundException('No framework requested');
+        }
+
+        $segments = explode('/', $path);
+        $frameworkIdentifier = $segments[0] ?? '';
 
         if ('' === $frameworkIdentifier) {
             throw $this->createNotFoundException('No framework requested');
         }
 
-        if (null !== $path && ctype_digit($path)) {
-            return $this->redirectToRoute('doc_tree_view', ['slug' => $path]);
+        if (ctype_digit($frameworkIdentifier)) {
+            $lsDoc = $docRepository->find((int) $frameworkIdentifier);
+            if (null === $lsDoc) {
+                throw $this->createNotFoundException("Framework {$frameworkIdentifier} not found");
+            }
+
+            $rest = array_slice($segments, 1);
+            if (1 === \count($rest) && ctype_digit($rest[0])) {
+                $lsItem = $itemRepository->find((int) $rest[0]);
+                if (null !== $lsItem && $lsItem->getLsDoc()->getId() === $lsDoc->getId()) {
+                    $rest = [$lsItem->getIdentifier()];
+                }
+            }
+
+            $canonicalPath = $lsDoc->getIdentifier();
+            if ([] !== $rest) {
+                $canonicalPath .= '/'.implode('/', $rest);
+            }
+
+            return $this->redirectToRoute('editor_shell_path', ['path' => $canonicalPath]);
         }
 
         $framework = $docRepository->findOneBy(['identifier' => $frameworkIdentifier]);

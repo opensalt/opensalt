@@ -1,4 +1,4 @@
-<div id="wizard" class="modal bs-example-modal-lg fade" role="dialog">
+<div id="wizard" class="modal bs-example-modal-lg fade" role="dialog"{% if redirect_url is defined %} data-redirect-url="{{ redirect_url }}"{% endif %}>
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">

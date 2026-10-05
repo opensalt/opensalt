@@ -9,8 +9,10 @@ use App\Command\Import\ImportCaseJsonCommand;
 use App\Entity\User\User;
 use App\Security\Permission;
 use App\Service\UrlSafety;
+use App\Util\ImportError;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -27,6 +29,7 @@ class CaseImportController extends AbstractController
 
     public function __construct(
         private readonly UrlSafety $urlSafety,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -47,7 +50,14 @@ class CaseImportController extends AbstractController
         $content = base64_decode($fileContent);
 
         $command = new ImportCaseJsonCommand($content, $user->getOrg(), $user);
-        $this->sendCommand($command);
+
+        try {
+            $this->sendCommand($command);
+        } catch (\Throwable $throwable) {
+            $this->logger->error('CASE import failed: {message}', ['message' => $throwable->getMessage(), 'exception' => $throwable]);
+
+            return new JsonResponse(['error' => ImportError::message($throwable)], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
 
         return new JsonResponse([
             'message' => 'Success',
@@ -111,7 +121,14 @@ class CaseImportController extends AbstractController
             $content = $response->getBody()->getContents();
 
             $command = new ImportCaseJsonCommand($content, $user->getOrg(), $user);
-            $this->sendCommand($command);
+
+            try {
+                $this->sendCommand($command);
+            } catch (\Throwable $throwable) {
+                $this->logger->error('CASE import failed: {message}', ['message' => $throwable->getMessage(), 'exception' => $throwable]);
+
+                return new JsonResponse(['error' => ['url' => $data['url'], 'message' => ImportError::message($throwable)]]);
+            }
 
             return new JsonResponse(['message' => 'Success']);
         }

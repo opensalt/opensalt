@@ -180,25 +180,6 @@ table.mirror_log-table {
     }
 }
 
-// Adjustments for Bootstrap 5 styling on multiselect
-.multiselect.dropdown-toggle {
-    & .caret {
-        margin-left: 5px;
-    }
-
-    &:after {
-        border-top: 3px solid transparent;
-    }
-}
-
-.multiselect-container {
-    width: max-content;
-}
-
-.multiselect-container > li > a > label {
-    padding: 3px 10px;
-}
-
 /*!
  * DataTables + Font Awesome integration
  * License: MIT - http://datatables.net/license
@@ -402,4 +383,35 @@ i.object-type-public_key {
         vertical-align: top;
         width: calc(100% - 42px);
     }
+}
+
+/* Loading spinner used by the framework import wizard (util-salt spinner()) */
+.spinnerOuter {
+    display: block;
+    width: 50%;
+    margin: 8px auto;
+    padding: 8px;
+    text-align: center;
+    border-radius: 5px;
+    background-color: $neutral-bg;
+    color: $white;
+}
+
+.spinnerCog {
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 1.6em;
+    animation: spin 1.5s infinite linear;
+}
+
+.spinnerText {
+    display: inline-block;
+    vertical-align: middle;
+    padding-left: 10px;
+    font-size: 1.2em;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }

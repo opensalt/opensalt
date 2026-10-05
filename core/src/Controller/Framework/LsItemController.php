@@ -47,6 +47,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class LsItemController extends AbstractController
 {
     use CommandDispatcherTrait;
+    use RedirectsToFrameworkEditorTrait;
 
     public function __construct(
         private readonly ?string $bucketProvider,
@@ -248,10 +249,10 @@ class LsItemController extends AbstractController
 
             if ($ajax) {
                 return new Response(
-                    $this->generateUrl('doc_tree_item_view', ['id' => $newItem->getId()]),
+                    $this->frameworkEditorUrlForItem($newItem),
                     Response::HTTP_CREATED,
                     [
-                        'Location' => $this->generateUrl('doc_tree_item_view', ['id' => $newItem->getId()], UrlGeneratorInterface::ABSOLUTE_URL),
+                        'Location' => $this->frameworkEditorUrlForItem($newItem, UrlGeneratorInterface::ABSOLUTE_URL),
                     ]
                 );
             }
@@ -287,7 +288,7 @@ class LsItemController extends AbstractController
             $this->sendCommand($changeCommand);
 
             if ($ajax) {
-                return new Response($this->generateUrl('doc_tree_item_view', ['id' => $lsItem->getId()]), Response::HTTP_ACCEPTED);
+                return new Response($this->frameworkEditorUrlForItem($lsItem), Response::HTTP_ACCEPTED);
             }
 
             return $this->redirectToRoute('lsitem_edit', ['id' => $lsItem->getId()]);

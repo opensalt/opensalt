@@ -11,7 +11,6 @@
         {% block stylesheets %}
             {# vite_entry_link_tags('app') #}
             {{ vite_entry_link_tags('main') }}
-            {{ vite_entry_link_tags('commentcss') }}
             {% block styles %}{% endblock %}
         {% endblock %}
         {# <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" /> #}
@@ -44,8 +43,8 @@
         </div>
         <div style="display: none;">
             {% block sitejavascripts %}
-                {{ vite_entry_script_tags('base') }}
-                {{ vite_entry_script_tags('site') }}
+                {{ vite_entry_script_tags('session') }}
+                {{ vite_entry_script_tags('admin') }}
             {% endblock %}
             {% block javascripts %}{% endblock %}
             {% block importmap %}{# importmap('app') #}{% endblock %}

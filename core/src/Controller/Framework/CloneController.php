@@ -35,6 +35,6 @@ class CloneController extends AbstractController
             return $this->redirect('/editor/' . $newLsDoc->getIdentifier());
         }
 
-        return $this->redirectToRoute('doc_tree_view', ['slug' => $newLsDoc->getId(), 'edit' => 1]);
+        return $this->redirectToRoute('editor_shell_path', ['path' => $newLsDoc->getIdentifier()]);
     }
 }

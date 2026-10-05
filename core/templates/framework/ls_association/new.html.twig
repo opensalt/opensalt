@@ -40,40 +40,51 @@
 
 {% block javascripts %}
     <script>
-        var $lsDoc = $('#ls_association_lsDoc');
-        $lsDoc.change(function(){
-            var $form = $(this).closest('form');
-            var data = {};
-            data[$lsDoc.attr('name')] = $lsDoc.val();
-            $.ajax({
-                url: $form.attr('action'),
-                type: $form.attr('method'),
-                data: data,
-                success: function(html) {
-                    var $list = $(html).find('#ls_association_destinationLsItem');
+        (function () {
+            const form = document.querySelector('form[name="ls_association"]');
+            const lsDocSelect = document.getElementById('ls_association_lsDoc');
+            if (!form || !lsDocSelect) {
+                return;
+            }
 
-                    var $replace = $('#ls_association_destinationNodeUri').length
-                        ?$('#ls_association_destinationNodeUri')
-                        :$('#ls_association_destinationLsItem');
+            function findDestinationField(doc) {
+                return doc.getElementById('ls_association_destinationLsItem')
+                    || doc.getElementById('ls_association_destinationNodeUri');
+            }
 
-                    var $replacement = $(html).find('#ls_association_destinationLsItem').length
-                        ?$(html).find('#ls_association_destinationLsItem')
-                        :$(html).find('#ls_association_destinationNodeUri');
+            lsDocSelect.addEventListener('change', async () => {
+                const data = new FormData();
+                data.append(lsDocSelect.name, lsDocSelect.value);
 
-                    $replace.replaceWith($replacement);
+                const response = await fetch(form.action, { method: form.method, body: data });
+                const newDoc = new DOMParser().parseFromString(await response.text(), 'text/html');
 
-                    $('#lsItemList').replaceWith($(html).find('#lsItemList'));
+                const replacement = findDestinationField(newDoc);
+                const current = findDestinationField(document);
+                if (replacement && current) {
+                    current.replaceWith(replacement);
                 }
-            })
-        });
 
-        var $lsItemList = $('#lsItemListWrap');
-        $lsItemList.on('click', function(e){
-            e.stopPropagation();
-            e.preventDefault();
+                const newList = newDoc.getElementById('lsItemList');
+                const currentList = document.getElementById('lsItemList');
+                if (newList && currentList) {
+                    currentList.replaceWith(newList);
+                }
+            });
 
-            var $target = $(e.target);
-            $('#ls_association_destinationLsItem').val($target.attr('name').replace(/mark-/, ''));
-        });
+            const itemListWrap = document.getElementById('lsItemListWrap');
+            if (itemListWrap) {
+                itemListWrap.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+
+                    const markLink = e.target.closest('[name^="mark-"]');
+                    const destination = document.getElementById('ls_association_destinationLsItem');
+                    if (markLink && destination) {
+                        destination.value = markLink.getAttribute('name').replace('mark-', '');
+                    }
+                });
+            }
+        })();
     </script>
 {% endblock %}

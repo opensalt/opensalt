@@ -6,43 +6,27 @@ namespace App\Controller\Framework;
 
 use App\Command\CommandDispatcherTrait;
 use App\Command\Framework\AddExternalDocCommand;
-use App\Command\Framework\DeleteAssociationGroupCommand;
-use App\Command\Framework\DeleteItemCommand;
-use App\Command\Framework\DeleteItemWithChildrenCommand;
-use App\Command\Framework\UpdateTreeItemsCommand;
-use App\Entity\Framework\AssociationSubtype;
-use App\Entity\Framework\LsAssociation;
-use App\Entity\Framework\LsDefAssociationGrouping;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
-use App\Entity\User\User;
-use App\Form\Type\LsDocListType;
 use App\Repository\ChangeEntryRepository;
-use App\Repository\Framework\AssociationSubtypeRepository;
 use App\Repository\Framework\LsDefAssociationGroupingRepository;
 use App\Repository\Framework\LsDocRepository;
-use App\Repository\Framework\ObjectLockRepository;
-use App\Security\Permission;
-use App\Util\Compare;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Cache\Adapter\DoctrineDbalAdapter;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Security\Http\Attribute\CurrentUser;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route(path: '/cf-tree')]
 class DocTreeController extends AbstractController
 {
     use CommandDispatcherTrait;
+    use RedirectsToFrameworkEditorTrait;
 
     private const string ETAG_SEED = '2';
 
@@ -50,9 +34,7 @@ class DocTreeController extends AbstractController
         private readonly DoctrineDbalAdapter $externalDocCache,
         private readonly LsDocRepository $docRepository,
         private readonly LsDefAssociationGroupingRepository $associationGroupingRepository,
-        private readonly AssociationSubtypeRepository $associationSubtypeRepository,
         private readonly ChangeEntryRepository $changeEntryRepository,
-        private readonly ObjectLockRepository $objectLockRepository,
         private readonly ?string $caseNetworkClientId,
         private readonly ?string $caseNetworkClientSecret,
         private readonly ?string $caseNetworkScope,
@@ -64,116 +46,17 @@ class DocTreeController extends AbstractController
     #[Route(path: '/doc/{slug}/av', name: 'doc_tree_view_av', requirements: ['slug' => '[a-zA-Z0-9.-]+'], defaults: ['lsItemId' => null], methods: ['GET'])]
     #[Route(path: '/doc/{slug}/lv', name: 'doc_tree_view_log', requirements: ['slug' => '[a-zA-Z0-9.-]+'], defaults: ['lsItemId' => null], methods: ['GET'])]
     #[Route(path: '/doc/{slug}/{assocGroup}', name: 'doc_tree_view_ag', requirements: ['slug' => '[a-zA-Z0-9.-]+'], defaults: ['lsItemId' => null], methods: ['GET'])]
-    public function view(#[MapEntity(expr: 'repository.findOneBySlug(slug)')] LsDoc $lsDoc, AuthorizationCheckerInterface $authChecker, #[CurrentUser] ?User $user, ?string $lsItemId = null, ?string $assocGroup = null): Response
-    {
-        // Get all association groups (for all documents);
-        // we need groups for other documents if/when we show a document on the right side
-        $lsDefAssociationGroupings = $this->associationGroupingRepository->findAll();
+    public function view(
+        Request $request,
+        #[MapEntity(expr: 'repository.findOneBySlug(slug)')] LsDoc $lsDoc,
+    ): Response {
+        $route = $request->attributes->getString('_route');
 
-        $assocSubTypes = $this->associationSubtypeRepository->findAll();
-        $assocFilterTypes = [];
-        $assocTypes = [];
-        $inverseAssocTypes = [];
-        $typeChoices = LsAssociation::allTypesHumanReadable();
-        foreach (array_keys($typeChoices) as $type) {
-            $assocFilterTypes[] = $typeChoices[$type];
-            $assocTypes[] = $type;
-            $inverseAssocTypes[] = LsAssociation::inverseName($type);
-            foreach ($assocSubTypes as $subtype) {
-                if ($type === $subtype->getParentType()) {
-                    $assocFilterTypes[] = '-'.$subtype->getName();
-                    if (AssociationSubtype::DIR_INVERSE !== $subtype->getDirection()) {
-                        $assocTypes[] = '-'.$subtype->getName();
-                        $inverseAssocTypes[] = null;
-                    }
-                    if (AssociationSubtype::DIR_FORWARD !== $subtype->getDirection()) {
-                        $assocTypes[] = null;
-                        $inverseAssocTypes[] = '-'.$subtype->getName();
-                    }
-                }
-            }
-        }
-
-        $editorRights = $authChecker->isGranted(Permission::FRAMEWORK_EDIT, $lsDoc);
-
-        $ret = [
-            'lsDoc' => $lsDoc,
-            'lsDocId' => $lsDoc->getId(),
-            'lsDocTitle' => $lsDoc->getTitle(),
-
-            'editorRights' => $editorRights,
-            'isDraft' => $lsDoc->isDraft(),
-            'isAdopted' => $lsDoc->isAdopted(),
-            'isDeprecated' => $lsDoc->isDeprecated(),
-            'manageEditorsRights' => $authChecker->isGranted(Permission::MANAGE_EDITORS, $lsDoc),
-            'createRights' => $authChecker->isGranted(Permission::FRAMEWORK_CREATE),
-
-            'lsItemId' => $lsItemId,
-            'assocGroup' => $assocGroup,
-            'assocFilterTypes' => $assocFilterTypes,
-            'assocTypes' => $assocTypes,
-            'inverseAssocTypes' => $inverseAssocTypes,
-            'assocGroups' => $lsDefAssociationGroupings,
-            'typeChoices' => $typeChoices,
-        ];
-
-        if ($editorRights) {
-            // get form field for selecting a document (for tree2)
-            $docList = $this->createForm(LsDocListType::class, null, ['ajax' => false])->createView();
-            $ret['docList'] = $docList;
-
-            $ret['lsDocs'] = $this->getViewableDocList($authChecker);
-            $ret['locks'] = $this->getLocks($lsDoc, $user);
-        }
-
-        return $this->render('framework/doc_tree/view.html.twig', $ret);
-    }
-
-    #[Route(path: '/remote', name: 'doc_tree_remote_view', methods: ['GET'])]
-    public function viewRemote(): Response
-    {
-        $assocSubTypes = $this->associationSubtypeRepository->findAll();
-        $assocFilterTypes = [];
-        $assocTypes = [];
-        $inverseAssocTypes = [];
-        $typeChoices = LsAssociation::typeChoiceList();
-        foreach (array_keys($typeChoices) as $type) {
-            $assocFilterTypes[] = $typeChoices[$type];
-            $assocTypes[] = $type;
-            $inverseAssocTypes[] = LsAssociation::inverseName($type);
-            foreach ($assocSubTypes as $subtype) {
-                $assocFilterTypes[] = '-'.$subtype->getName();
-                if ($type === $subtype->getParentType()) {
-                    if (AssociationSubtype::DIR_INVERSE !== $subtype->getDirection()) {
-                        $assocTypes[] = '-'.$subtype->getName();
-                        $inverseAssocTypes[] = null;
-                    }
-                    if (AssociationSubtype::DIR_FORWARD !== $subtype->getDirection()) {
-                        $assocTypes[] = null;
-                        $inverseAssocTypes[] = '-'.$subtype->getName();
-                    }
-                }
-            }
-        }
-
-        return $this->render('framework/doc_tree/view.html.twig', [
-            'lsDoc' => '',
-            'lsDocId' => 'url',
-            'lsDocTitle' => 'Remote Framework',
-
-            'editorRights' => false,
-            'manageEditorsRights' => false,
-            'createRights' => false,
-
-            'lsItemId' => null,
-            'assocGroup' => null,
-            'docList' => '',
-            'assocFilterTypes' => $assocFilterTypes,
-            'assocTypes' => $assocTypes,
-            'inverseAssocTypes' => $inverseAssocTypes,
-            'assocGroups' => [],
-            'lsDocs' => [],
-        ]);
+        return match ($route) {
+            'doc_tree_view_av' => $this->redirectToFrameworkEditor($lsDoc, 'association'),
+            'doc_tree_view_log' => $this->redirectToFrameworkEditor($lsDoc, 'log'),
+            default => $this->redirectToFrameworkEditor($lsDoc),
+        };
     }
 
     /**
@@ -371,148 +254,11 @@ class DocTreeController extends AbstractController
         }
     }
 
-    /**
-     * Note that this must come before viewItem for the url mapping to work properly.
-     */
-    #[Route(path: '/item/{id}/details', name: 'doc_tree_item_details', methods: ['GET'])]
-    public function treeItemDetails(LsItem $lsItem): Response
-    {
-        return $this->render('framework/doc_tree/tree_item_details.html.twig', ['lsItem' => $lsItem]);
-    }
-
     #[Route(path: '/item/{id}.{_format}', name: 'doc_tree_item_view', defaults: ['_format' => 'html'], methods: ['GET'])]
     #[Route(path: '/item/{id}/{assocGroup}.{_format}', name: 'doc_tree_item_view_ag', defaults: ['_format' => 'html'], methods: ['GET'])]
-    public function viewItem(LsItem $lsItem, ?string $assocGroup = null, string $_format = 'html'): Response
+    public function viewItem(LsItem $lsItem): Response
     {
-        return $this->forward(DocTreeController::class . '::view', ['slug' => $lsItem->getLsDoc()->getId(), '_format' => 'html', 'lsItemId' => $lsItem->getId(), 'assocGroup' => $assocGroup]);
-    }
-
-    /**
-     * PW: this is similar to the renderDocument function in the Editor directory, but different enough that I think it deserves a separate controller/view
-     */
-    #[Route(path: '/render/{id}.{_format}', name: 'doctree_render_document', defaults: ['_format' => 'json'], methods: ['GET'])]
-    public function renderDocument(LsDoc $lsDoc, string $_format = 'json'): Response
-    {
-        $docRepository = $this->docRepository;
-
-        $items = $docRepository->findAllChildrenArray($lsDoc);
-        $haveParents = $docRepository->findAllItemsWithParentsArray($lsDoc);
-        $topChildren = $docRepository->findTopChildrenIds($lsDoc);
-        $parentsElsewhere = [];
-
-        $orphaned = $items;
-        foreach ($haveParents as $child) {
-            // Not an orphan
-            $id = $child['id'];
-            if (!empty($orphaned[$id])) {
-                unset($orphaned[$id]);
-            }
-        }
-
-        foreach ($orphaned as $orphan) {
-            foreach ($orphan['associations'] as $association) {
-                if (LsAssociation::CHILD_OF === $association['type']) {
-                    $parentsElsewhere[] = $orphan;
-                    unset($orphaned[$orphan['id']]);
-                }
-            }
-        }
-
-        Compare::sortArrayByFields($orphaned, ['sequenceNumber', 'listEnumInSource', 'humanCodingScheme']);
-
-        return $this->render('framework/doc_tree/render_document.json.twig', [
-            'topItemIds' => $topChildren,
-            'lsDoc' => $lsDoc,
-            'items' => $items,
-            'parentsElsewhere' => $parentsElsewhere,
-            'orphaned' => $orphaned,
-        ]);
-    }
-
-    /**
-     * Deletes a LsItem entity, from the tree view.
-     *
-     * @throws \InvalidArgumentException
-     */
-    #[Route(path: '/item/{id}/delete/{includingChildren}', name: 'lsitem_tree_delete', defaults: ['includingChildren' => 0], methods: ['POST'])]
-    #[IsGranted(Permission::ITEM_EDIT, 'lsItem')]
-    public function deleteItem(Request $request, LsItem $lsItem, int $includingChildren = 0): Response
-    {
-        $ajax = false;
-        if ($request->isXmlHttpRequest()) {
-            $ajax = true;
-        }
-
-        $lsDocSlug = $lsItem->getLsDoc()->getSlug();
-
-        if (0 === $includingChildren) {
-            $command = new DeleteItemCommand($lsItem);
-            $this->sendCommand($command);
-        } else {
-            $command = new DeleteItemWithChildrenCommand($lsItem);
-            $this->sendCommand($command);
-        }
-
-        if ($ajax) {
-            return new Response($this->generateUrl('doc_tree_view', ['slug' => $lsDocSlug]), Response::HTTP_ACCEPTED);
-        }
-
-        return $this->redirectToRoute('doc_tree_view', ['slug' => $lsDocSlug]);
-    }
-
-    /**
-     * Updates a set of items in the document from the tree view
-     * Reorders are done by updating the listEnum fields of the items
-     * This also does copies, of either single items or folders.
-     * If we do a copy, the service returns an array of trees with the copied lsItemIds.
-     * For other operations, we return an empty array.
-     */
-    #[Route(path: '/doc/{id}/updateitems.{_format}', name: 'doctree_update_items', methods: ['POST'])]
-    #[IsGranted(Permission::FRAMEWORK_EDIT, 'lsDoc')]
-    public function updateItems(Request $request, LsDoc $lsDoc, string $_format = 'json'): Response
-    {
-        $lsItems = $request->request->all('lsItems');
-        $command = new UpdateTreeItemsCommand($lsDoc, $lsItems);
-        $this->sendCommand($command);
-        $rv = $command->getReturnValues();
-
-        // get ids for new associations and items
-        foreach (array_keys($rv) as $lsItemId) {
-            if (!empty($rv[$lsItemId]['association'])) {
-                $rv[$lsItemId]['assocId'] = $rv[$lsItemId]['association']->getId();
-                unset($rv[$lsItemId]['association']);
-            }
-
-            if (!empty($rv[$lsItemId]['lsItem'])) {
-                $rv[$lsItemId]['lsItemId'] = $rv[$lsItemId]['lsItem']->getId();
-                unset($rv[$lsItemId]['lsItem']);
-            }
-        }
-
-        return $this->render('framework/doc_tree/update_items.json.twig', ['returnedItems' => $rv]);
-    }
-
-    /**
-     * Deletes a LsDefAssociationGrouping entity, ajax/treeview version.
-     *
-     * @throws \InvalidArgumentException
-     */
-    #[Route(path: '/assocgroup/{id}/delete', name: 'lsdef_association_grouping_tree_delete', methods: ['POST'])]
-    public function deleteAssocGroup(LsDefAssociationGrouping $associationGrouping): Response
-    {
-        $command = new DeleteAssociationGroupCommand($associationGrouping);
-
-        try {
-            $this->sendCommand($command);
-        } catch (\Exception $exception) {
-            if (str_contains($exception->getMessage(), 'FOREIGN KEY')) {
-                return new JsonResponse(['error' => ['message' => 'An association group may only be deleted if there are no associations in it.']], Response::HTTP_BAD_REQUEST);
-            }
-
-            return new JsonResponse(['error' => ['message' => 'The association group could not be deleted.']], Response::HTTP_BAD_REQUEST);
-        }
-
-        return new JsonResponse('OK', Response::HTTP_ACCEPTED);
+        return $this->redirectToFrameworkItemEditor($lsItem);
     }
 
     /**
@@ -634,49 +380,4 @@ class DocTreeController extends AbstractController
         return $headers;
     }
 
-    /**
-     * Get a list of all documents viewable by the current user.
-     */
-    private function getViewableDocList(AuthorizationCheckerInterface $authChecker): array
-    {
-        $lsDocs = [];
-
-        $docs = $this->docRepository->findBy([], ['creator' => 'ASC', 'title' => 'ASC', 'adoptionStatus' => 'ASC']);
-        /** @var LsDoc $doc */
-        foreach ($docs as $doc) {
-            // Optimization: All but "Private Draft" are viewable to everyone, only auth check "Private Draft"
-            if (LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT !== $doc->getAdoptionStatus() || $authChecker->isGranted(Permission::FRAMEWORK_VIEW, $doc)) {
-                $lsDocs[] = $doc;
-            }
-        }
-
-        return $lsDocs;
-    }
-
-    /**
-     * Get a list of all locks for the document.
-     */
-    private function getLocks(LsDoc $lsDoc, #[CurrentUser] ?User $user): array
-    {
-        $docLocks = ['docs' => ['_' => ''], 'items' => ['_' => '']];
-        if ($user instanceof User) {
-            $locks = $this->objectLockRepository->findDocLocks($lsDoc);
-            foreach ($locks as $lock) {
-                $expiry = false;
-                if ($lock->getUser() !== $user) {
-                    $expiry = (int) \DateTime::createFromInterface($lock->getTimeout())->add(new \DateInterval('PT30S'))->format('Uv');
-                }
-
-                if (LsDoc::class === $lock->getObjectType()) {
-                    $docLocks['docs'][$lock->getObjectId()] = $expiry;
-                }
-
-                if (LsItem::class === $lock->getObjectType()) {
-                    $docLocks['items'][$lock->getObjectId()] = $expiry;
-                }
-            }
-        }
-
-        return $docLocks;
-    }
 }

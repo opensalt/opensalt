@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller\User;
 
+use App\Controller\Framework\RedirectsToFrameworkEditorTrait;
+
 use App\Command\CommandDispatcherTrait;
 use App\Command\User\AddFrameworkUserAclCommand;
 use App\Command\User\AddFrameworkUsernameAclCommand;
@@ -32,6 +34,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class FrameworkAclController extends AbstractController
 {
     use CommandDispatcherTrait;
+    use RedirectsToFrameworkEditorTrait;
 
     #[Route(path: '/{id}/acl', name: 'framework_acl_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
     #[Route(path: '/{identifier}/acl', name: 'framework_acl_edit_identifier', requirements: ['identifier' => '[a-fA-F0-9]{8}-([a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}'], methods: ['GET', 'POST'])]
@@ -85,11 +88,7 @@ class FrameworkAclController extends AbstractController
             $orgUsers = $lsDoc->getOrg()->getUsers();
         }
 
-        if ('framework_acl_edit' === $routeName) {
-            $frameworkUrl = $this->generateUrl('doc_tree_view', ['slug' => $lsDoc->getSlug()]);
-        } else {
-            $frameworkUrl = '/editor/'.$lsDoc->getIdentifier();
-        }
+        $frameworkUrl = $this->frameworkEditorUrlForDocument($lsDoc);
 
         return $this->render('user/framework_acl/edit.html.twig', [
             'lsDoc' => $lsDoc,

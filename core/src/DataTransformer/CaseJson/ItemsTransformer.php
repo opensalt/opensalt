@@ -10,6 +10,7 @@ use App\DTO\CaseJson\LinkURI;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Entity\Framework\LsItemKind;
+use App\Exception\ImportFailedException;
 use App\Repository\Framework\LsItemRepository;
 use App\Service\LoggerTrait;
 use App\Util\EducationLevelSet;
@@ -89,7 +90,7 @@ final class ItemsTransformer
         if ($item->getLsDoc()->getIdentifier() !== $doc->getIdentifier()) {
             $this->error(sprintf('Attempt to change the document from %s to %s of item %s', $item->getLsDoc()->getIdentifier(), $doc->getIdentifier(), $cfItem->identifier->toString()));
 
-            throw new \UnexpectedValueException('Cannot change the document of an item');
+            throw new ImportFailedException(sprintf('The file contains item "%s", which already exists in a different framework. Items cannot be moved between frameworks by importing.', $cfItem->identifier->toString()));
         }
 
         $item->setUri($cfItem->uri);

@@ -22,7 +22,12 @@ final class LegacyEditorRedirectController extends AbstractController
     #[Route(path: '/old-editor/{identifier}/{path}', name: 'old_editor_redirect', defaults: ['path' => null], requirements: ['identifier' => '[a-fA-F0-9]{8}-([a-fA-F0-9]{4}-){3}[a-fA-F0-9]{12}', 'path' => '.*'], methods: ['GET'])]
     public function redirectToLegacyEditor(#[MapEntity(expr: 'repository.findOneByIdentifier(identifier)')] LsDoc $lsDoc, ?string $path = null): RedirectResponse
     {
-        return $this->redirectToRoute('doc_tree_view', ['slug' => $lsDoc->getId()]);
+        $editorPath = $lsDoc->getIdentifier();
+        if (null !== $path && '' !== $path) {
+            $editorPath .= '/'.$path;
+        }
+
+        return $this->redirectToRoute('editor_shell_path', ['path' => $editorPath]);
     }
 
     #[Route(path: '/cftree/item/{id}', name: 'cftree_item_redirect', requirements: ['id' => '\d+'], methods: ['GET'])]
