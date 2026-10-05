@@ -122,11 +122,16 @@ RUN chown -R node:node /srv/core ; \
 	mkdir ./node_modules ; \
 	chown -R node:node node_modules
 
+# yarn.lock is Yarn 4 (Berry) format: enable corepack so that `yarn` resolves
+# to the version pinned in package.json instead of the image's classic Yarn 1.x
+USER root
+RUN corepack enable
 USER node
 
-COPY --chown=node:node package.json yarn.lock ./
+COPY --chown=node:node package.json yarn.lock .yarnrc.yml ./
 COPY --chown=node:node --from=salt_core_vendors /srv/core/vendor/symfony/ux-vue/assets ./vendor/symfony/ux-vue/assets/
-RUN yarn install --non-interactive
+COPY --chown=node:node --from=salt_core_vendors /srv/core/vendor/symfony/ux-autocomplete/assets ./vendor/symfony/ux-autocomplete/assets/
+RUN yarn install --immutable
 
 COPY --chown=node:node vite.config.js ./
 COPY --chown=node:node assets ./assets/

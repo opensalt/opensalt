@@ -4,6 +4,7 @@
   "description": "A competency framework management system that works with the CASE format",
   "repository": "git@github.com:opensalt/opensalt",
   "license": "MIT",
+  "packageManager": "yarn@4.17.1",
   "scripts": {
     "dev": "vite",
     "build": "vite build"
