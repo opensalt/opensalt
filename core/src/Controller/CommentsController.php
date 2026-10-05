@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Controller\Framework\RedirectsToFrameworkEditorTrait;
 use App\Command\CommandDispatcherTrait;
 use App\Command\Comment\AddCommentCommand;
 use App\Command\Comment\DeleteCommentCommand;
 use App\Command\Comment\DownvoteCommentCommand;
 use App\Command\Comment\UpdateCommentCommand;
 use App\Command\Comment\UpvoteCommentCommand;
+use App\Controller\Framework\RedirectsToFrameworkEditorTrait;
 use App\Entity\Comment\Comment;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;

@@ -9,9 +9,9 @@ use App\Entity\Framework\LsItem;
 use App\Repository\Framework\LsAssociationRepository;
 use App\Repository\Framework\LsDocRepository;
 use App\Repository\Framework\LsItemRepository;
+use App\Service\ItemDataApplier;
 use Doctrine\Persistence\ManagerRegistry;
 use PHPUnit\Framework\TestCase;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HtmlSanitizer\HtmlSanitizerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -128,11 +128,13 @@ class ItemControllerTest extends TestCase
     {
         $controller = new ItemController(
             $this->createMock(ManagerRegistry::class),
-            $this->createMock(HtmlSanitizerInterface::class),
             $this->createMock(LsDocRepository::class),
             $this->createMock(LsItemRepository::class),
             $this->createMock(LsAssociationRepository::class),
-            $this->createMock(Security::class),
+            new ItemDataApplier(
+                $this->createMock(ManagerRegistry::class),
+                $this->createMock(HtmlSanitizerInterface::class),
+            ),
         );
         $controller->setDispatcher($this->createMock(EventDispatcherInterface::class));
 

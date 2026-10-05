@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Controller\Api;
 
 use App\Controller\Framework\RedirectsToFrameworkEditorTrait;
-
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
@@ -335,56 +334,40 @@ xENDx;
             }
         };
 
-        $conceptCallback = function () use ($obj, $context): \Generator {
-            $items = $this->docRepository->findAllUsedConcepts($obj, Query::HYDRATE_OBJECT);
-            foreach ($items as $key => $item) {
-                yield $this->normalizer->normalize($item, 'json', $context);
-                unset($items[$key]);
-            }
-        };
+        $conceptCallback = $this->normalizedRecordsCallback(
+            fn (): iterable => $this->docRepository->findAllUsedConcepts($obj, Query::HYDRATE_OBJECT),
+            $context,
+        );
 
-        $subjectCallback = function () use ($obj, $context): \Generator {
-            $items = $obj->getSubjects();
-            foreach ($items as $key => $item) {
-                yield $this->normalizer->normalize($item, 'json', $context);
-                unset($items[$key]);
-            }
-        };
+        $subjectCallback = $this->normalizedRecordsCallback(
+            fn (): iterable => $obj->getSubjects(),
+            $context,
+        );
 
-        $licenseCallback = function () use ($obj, $context): \Generator {
-            $items = $this->docRepository->findAllUsedLicences($obj, Query::HYDRATE_OBJECT);
-            foreach ($items as $key => $item) {
-                yield $this->normalizer->normalize($item, 'json', $context);
-                unset($items[$key]);
-            }
-        };
+        $licenseCallback = $this->normalizedRecordsCallback(
+            fn (): iterable => $this->docRepository->findAllUsedLicences($obj, Query::HYDRATE_OBJECT),
+            $context,
+        );
 
-        $itemTypeCallback = function () use ($obj, $context): \Generator {
-            $items = $this->docRepository->findAllUsedItemTypes($obj, Query::HYDRATE_OBJECT);
-            foreach ($items as $key => $item) {
-                yield $this->normalizer->normalize($item, 'json', $context);
-                unset($items[$key]);
-            }
-        };
+        $itemTypeCallback = $this->normalizedRecordsCallback(
+            fn (): iterable => $this->docRepository->findAllUsedItemTypes($obj, Query::HYDRATE_OBJECT),
+            $context,
+        );
 
-        $groupCallback = function () use ($obj, $context): \Generator {
-            $items = $this->docRepository->findAllUsedAssociationGroups($obj, Query::HYDRATE_OBJECT);
-            foreach ($items as $key => $item) {
-                yield $this->normalizer->normalize($item, 'json', $context);
-                unset($items[$key]);
-            }
-        };
+        $groupCallback = $this->normalizedRecordsCallback(
+            fn (): iterable => $this->docRepository->findAllUsedAssociationGroups($obj, Query::HYDRATE_OBJECT),
+            $context,
+        );
 
-        $rubricCallback = function () use ($obj, $context): \Generator {
-            $items = $this->docRepository->findAllUsedRubrics($obj, Query::HYDRATE_OBJECT);
-            foreach ($items as $key => $item) {
-                yield $this->normalizer->normalize($item, 'json', $context);
-                unset($items[$key]);
-            }
-        };
+        $rubricCallback = $this->normalizedRecordsCallback(
+            fn (): iterable => $this->docRepository->findAllUsedRubrics($obj, Query::HYDRATE_OBJECT),
+            $context,
+        );
 
         if (in_array($_format, ['ndjson', 'csv'])) {
-            return new StreamedResponse(function () use ($obj, $itemCallback, $associationCallback, $conceptCallback, $subjectCallback, $licenseCallback, $itemTypeCallback, $groupCallback, $context): void {
+            $recordCallbacks = [$itemCallback, $associationCallback, $conceptCallback, $subjectCallback, $licenseCallback, $itemTypeCallback, $groupCallback];
+
+            return new StreamedResponse(function () use ($obj, $recordCallbacks, $rubricCallback, $context): void {
                 $context += [
                     'json_encode_options' => JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES,
                     'no_headers' => true,
@@ -392,31 +375,14 @@ xENDx;
                 ];
                 $eol = ('csv' === $context['useFormat']) ? '' : "\n";
                 echo $this->serializer->serialize($obj, $context['useFormat'], $context).$eol;
-                foreach ($itemCallback() as $item) {
-                    echo $this->serializer->serialize($item, $context['useFormat'], $context).$eol;
-                }
-                foreach ($associationCallback() as $item) {
-                    echo $this->serializer->serialize($item, $context['useFormat'], $context).$eol;
-                }
-                foreach ($conceptCallback() as $item) {
-                    echo $this->serializer->serialize($item, $context['useFormat'], $context).$eol;
-                }
-                foreach ($subjectCallback() as $item) {
-                    echo $this->serializer->serialize($item, $context['useFormat'], $context).$eol;
-                }
-                foreach ($licenseCallback() as $item) {
-                    echo $this->serializer->serialize($item, $context['useFormat'], $context).$eol;
-                }
-                foreach ($itemTypeCallback() as $item) {
-                    echo $this->serializer->serialize($item, $context['useFormat'], $context).$eol;
-                }
-                foreach ($groupCallback() as $item) {
-                    echo $this->serializer->serialize($item, $context['useFormat'], $context).$eol;
+                foreach ($recordCallbacks as $recordCallback) {
+                    foreach ($recordCallback() as $item) {
+                        echo $this->serializer->serialize($item, $context['useFormat'], $context).$eol;
+                    }
                 }
 
                 // Put criteria and levels on their own lines
-                $items = $this->docRepository->findAllUsedRubrics($obj, Query::HYDRATE_OBJECT);
-                foreach ($items as $item) {
+                foreach ($rubricCallback() as $item) {
                     echo $this->serializer->serialize($item, $context['useFormat'], $context).$eol;
                     foreach ($item->getCriteria() as $criteria) {
                         echo $this->serializer->serialize($criteria, $context['useFormat'], $context).$eol;
@@ -456,6 +422,22 @@ xENDx;
         ];
 
         return new StreamedJsonResponse($json, $originalResponse->getStatusCode(), $headers);
+    }
+
+    /**
+     * Builds a generator callback which yields each record found by $findRecords,
+     * normalized to json. Records are unset as they are processed to limit
+     * memory usage on large packages.
+     */
+    private function normalizedRecordsCallback(callable $findRecords, array $context): \Closure
+    {
+        return function () use ($findRecords, $context): \Generator {
+            $items = $findRecords();
+            foreach ($items as $key => $item) {
+                yield $this->normalizer->normalize($item, 'json', $context);
+                unset($items[$key]);
+            }
+        };
     }
 
     protected function canListDocument(LsAssociation $obj, string $which): bool

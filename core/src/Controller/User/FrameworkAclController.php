@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Controller\User;
 
-use App\Controller\Framework\RedirectsToFrameworkEditorTrait;
-
 use App\Command\CommandDispatcherTrait;
 use App\Command\User\AddFrameworkUserAclCommand;
 use App\Command\User\AddFrameworkUsernameAclCommand;
 use App\Command\User\DeleteFrameworkAclCommand;
+use App\Controller\Framework\RedirectsToFrameworkEditorTrait;
 use App\Entity\Framework\LsDoc;
 use App\Entity\User\User;
 use App\Entity\User\UserDocAcl;
