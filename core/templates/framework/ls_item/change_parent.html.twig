@@ -41,19 +41,27 @@
 
 {% block javascripts %}
     <script>
-        var $lsItemList = $('#lsItemListWrap-changeParent');
-        $lsItemList.on('click', '.lsItem', function(e){
-            e.stopPropagation();
-            e.preventDefault();
+        (function () {
+            const itemListWrap = document.getElementById('lsItemListWrap-changeParent');
+            const parentField = document.getElementById('ls_item_parent_parentItem');
+            if (!itemListWrap || !parentField) {
+                return;
+            }
 
-            var $target = $(e.target);
-            $('#ls_item_parent_parentItem').val($target.attr('name').replace(/mark-/, ''));
-        });
-        $lsItemList.on('click', '.lsDoc', function(e){
-            e.stopPropagation();
-            e.preventDefault();
+            itemListWrap.addEventListener('click', (e) => {
+                e.stopPropagation();
+                e.preventDefault();
 
-            $('#ls_item_parent_parentItem').val('');
-        });
+                if (e.target.closest('.lsDoc')) {
+                    parentField.value = '';
+                    return;
+                }
+
+                const itemLink = e.target.closest('.lsItem');
+                if (itemLink) {
+                    parentField.value = (itemLink.getAttribute('name') ?? '').replace('mark-', '');
+                }
+            });
+        })();
     </script>
 {% endblock %}

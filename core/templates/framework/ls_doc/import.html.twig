@@ -1,16 +1,10 @@
 {% extends 'layout.html.twig' %}
 
 {% block body %}
-    {% include 'framework/ls_doc/wizard.html.twig' %}
+    {% include 'framework/ls_doc/wizard.html.twig' with { redirect_url: path('lsdoc_index') } %}
 {% endblock %}
 
 {% block javascripts %}
-    <script type="module">
-        let wizard = $('#wizard');
-        wizard.on('hide.bs.modal', () => {
-            window.location.href = '{{ path('lsdoc_index') }}';
-        });
-        wizard.modal('show');
-    </script>
+    {{ vite_entry_script_tags('importFramework') }}
+    {{ vite_entry_script_tags('importPage') }}
 {% endblock %}
-

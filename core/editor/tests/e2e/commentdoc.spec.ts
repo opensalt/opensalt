@@ -1,47 +1,44 @@
 import { test, expect } from './fixtures';
 
+const editorUrl = (frameworkIdentifier: string) =>
+  `http://web.salt-default/editor/${frameworkIdentifier}`;
+
 test.describe('Document Comments', () => {
-  test('see comments section as anonymous user', async ({ page, lastFrameworkId }) => {
-    await page.goto(`http://web.salt-default/cftree/doc/${lastFrameworkId}`);
+  test('see comments section as anonymous user', async ({ page, lastFrameworkIdentifier }) => {
+    await page.goto(editorUrl(lastFrameworkIdentifier));
     await page.waitForLoadState('networkidle');
 
-    // Check for comments section
-    await expect(page.locator('.jquery-comments')).toBeVisible();
-    await expect(page.locator('text=To comment please login first')).toBeVisible();
+    await expect(page.locator('.comment-module')).toBeVisible();
+    await expect(page.locator('.login-prompt')).toContainText('Log in');
   });
 
-  test('do not see comments form as anonymous user', async ({ page, lastFrameworkId }) => {
-    await page.goto(`http://web.salt-default/cftree/doc/${lastFrameworkId}`);
+  test('do not see comments form as anonymous user', async ({ page, lastFrameworkIdentifier }) => {
+    await page.goto(editorUrl(lastFrameworkIdentifier));
     await page.waitForLoadState('networkidle');
 
-    // Comments form should not be visible for anonymous users
-    await expect(page.locator('.jquery-comments .commenting-field')).not.toBeVisible();
-    await expect(page.locator('text=To comment please login first')).toBeVisible();
+    await expect(page.locator('.comment-textarea')).toBeDisabled();
+    await expect(page.locator('.submit-btn')).toBeDisabled();
   });
 
-  test('see comments section as authenticated user', async ({ page, loginPage, lastFrameworkId }) => {
+  test('see comments section as authenticated user', async ({ page, loginPage, lastFrameworkIdentifier }) => {
     await loginPage.loginAsRole('Editor');
-    await page.goto(`http://web.salt-default/cftree/doc/${lastFrameworkId}`);
+    await page.goto(editorUrl(lastFrameworkIdentifier));
     await page.waitForLoadState('networkidle');
 
-    // Commenting field should be visible for authenticated users
-    await expect(page.locator('.commenting-field')).toBeVisible();
+    await expect(page.locator('.comment-textarea')).toBeEnabled();
   });
 
-  test('comment as authenticated user', async ({ page, loginPage, lastFrameworkId }) => {
+  test('comment as authenticated user', async ({ page, loginPage, lastFrameworkIdentifier }) => {
     await loginPage.loginAsRole('Editor');
-    await page.goto(`http://web.salt-default/cftree/doc/${lastFrameworkId}`);
+    await page.goto(editorUrl(lastFrameworkIdentifier));
     await page.waitForLoadState('networkidle');
 
-    const commentText = `acceptance doc comment ${lastFrameworkId}`;
+    const commentText = `acceptance doc comment ${lastFrameworkIdentifier}`;
 
-    // Create a comment
-    await page.click('.jquery-comments .commenting-field .textarea-wrapper .textarea');
-    await page.fill('.textarea', commentText);
-    await page.click('.jquery-comments .commenting-field .textarea-wrapper .control-row .send');
-    await page.waitForSelector('.comment-wrapper .wrapper .content', { timeout: 2000 });
+    await page.fill('.comment-textarea', commentText);
+    await page.click('.submit-btn');
+    await page.waitForSelector('.comment-body', { timeout: 5000 });
 
-    // Verify comment is visible
-    await expect(page.locator(`text=${commentText}`)).toBeVisible();
+    await expect(page.locator('.comment-body', { hasText: commentText })).toBeVisible();
   });
 });

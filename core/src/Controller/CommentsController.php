@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Controller\Framework\RedirectsToFrameworkEditorTrait;
 use App\Command\CommandDispatcherTrait;
 use App\Command\Comment\AddCommentCommand;
 use App\Command\Comment\DeleteCommentCommand;
@@ -38,6 +39,8 @@ use Symfony\Component\Serializer\SerializerInterface;
 #[FeatureEnabled(name: 'comments')]
 class CommentsController extends AbstractController
 {
+    use RedirectsToFrameworkEditorTrait;
+
     use CommandDispatcherTrait;
 
     public function __construct(
@@ -298,11 +301,11 @@ class CommentsController extends AbstractController
     private function url(string $itemType, Comment $comment): ?string
     {
         if ('item' === $itemType) {
-            return $this->generateUrl('doc_tree_item_view', ['id' => $comment->getItem()->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+            return $this->frameworkEditorUrlForItem($comment->getItem(), UrlGeneratorInterface::ABSOLUTE_URL);
         }
 
         if ('document' === $itemType) {
-            return $this->generateUrl('doc_tree_view', ['slug' => $comment->getDocument()->getSlug()], UrlGeneratorInterface::ABSOLUTE_URL);
+            return $this->frameworkEditorUrlForDocument($comment->getDocument(), UrlGeneratorInterface::ABSOLUTE_URL);
         }
 
         return null;

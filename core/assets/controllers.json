@@ -1,5 +1,11 @@
 {
     "controllers": {
+        "@symfony/ux-autocomplete": {
+            "autocomplete": {
+                "enabled": true,
+                "fetch": "eager"
+            }
+        },
         "@symfony/ux-vue": {
             "vue": {
                 "enabled": true,

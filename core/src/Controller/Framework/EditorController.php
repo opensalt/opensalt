@@ -15,29 +15,31 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route(path: '/cf')]
 class EditorController extends AbstractController
 {
+    use RedirectsToFrameworkEditorTrait;
+
     public function __construct(
         private readonly LsDocRepository $docRepository,
     ) {
     }
 
     #[Route(path: '/doc/{id}.{_format}', name: 'editor_lsdoc', defaults: ['_format' => 'html'], methods: ['GET'])]
-    public function viewDoc(LsDoc $lsDoc, string $_format = 'html'): Response
+    public function redirectDoc(LsDoc $lsDoc, string $_format = 'html'): Response
     {
         if ('json' === $_format) {
             return $this->forward(LsDocController::class.'::export', ['lsDoc' => $lsDoc]);
         }
 
-        return $this->render('framework/editor/view_doc.html.twig', ['lsDoc' => $lsDoc]);
+        return $this->redirectToFrameworkEditor($lsDoc);
     }
 
     #[Route(path: '/item/{id}.{_format}', name: 'editor_lsitem', defaults: ['_format' => 'html'], methods: ['GET'])]
-    public function viewItem(LsItem $lsItem, string $_format = 'html'): Response
+    public function redirectItem(LsItem $lsItem, string $_format = 'html'): Response
     {
         if ('json' === $_format) {
             return $this->forward(LsItemController::class.'::export', ['lsItem' => $lsItem]);
         }
 
-        return $this->render('framework/editor/view_item.html.twig', ['lsItem' => $lsItem]);
+        return $this->redirectToFrameworkItemEditor($lsItem);
     }
 
     #[Route(path: '/render/{id}.{_format}', name: 'editor_render_document_only', defaults: ['highlight' => null, '_format' => 'html'], methods: ['GET'])]

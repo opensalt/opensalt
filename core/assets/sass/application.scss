@@ -9,23 +9,12 @@
 @import "bootstrap/scss/bootstrap";
 
 @import "@fortawesome/fontawesome-free/css/all.min.css";
-@import "katex/dist/katex.min.css";
-@import "github-markdown-css/github-markdown.css";
-@import "easymde/dist/easymde.min.css";
-@import "jquery.fancytree/dist/skin-lion/ui.fancytree";
-@import "bootstrap-multiselect/dist/css/bootstrap-multiselect";
-@import "select2/dist/css/select2";
-@import "select2-bootstrap-5-theme/src/select2-bootstrap-5-theme";
+@import "tom-select/dist/css/tom-select.bootstrap5.css";
 
 @import "datatables.net-bs5/css/dataTables.bootstrap5";
-@import "datatables.net-fixedheader-bs5/css/fixedHeader.bootstrap5";
-@import "datatables.net-scroller-bs5/css/scroller.bootstrap5";
-@import "datatables.net-select-bs5/css/select.bootstrap5";
 
 @import "layout";
 @import "styles";
-@import "cftree/frameworkIndex";
-@import "cftree/view";
 
 @import "overrides";
 @import "brand-styles";

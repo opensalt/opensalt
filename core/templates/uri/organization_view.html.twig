@@ -9,7 +9,7 @@
         {% if is_granted(constant('App\\Security\\Permission::FRAMEWORK_VIEW'), obj.lsDoc) %}
             <div class="row mb-3">
                 <div class="col-12">
-                    <a class="btn btn-default float-end" href="{{ path('doc_tree_item_view', {'id': obj.id}) }}">Show in tree view</a>
+                    <a class="btn btn-default float-end" href="{{ path('editor_shell_path', {'path': obj.lsDoc.identifier ~ '/' ~ obj.identifier}) }}">Show in tree view</a>
                 </div>
             </div>
         {% endif %}

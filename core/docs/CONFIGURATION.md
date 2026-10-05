@@ -35,7 +35,7 @@ Optional Features
 
 ### Commenting
 
-OpenSALT uses the http://viima.github.io/jquery-comments/ bundle to allow editors to comment on and upvote published frameworks
+The Vue framework editor includes a comments panel that allows editors to comment on and upvote published frameworks when this feature is enabled
   - COMMENTS_FEATURE - *(optional)* set to **always-active** to enable, the default is **inactive**
 
 ### Mail Service/Self-Service Add a User

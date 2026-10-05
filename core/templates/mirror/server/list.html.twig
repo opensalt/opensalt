@@ -55,7 +55,7 @@
                     <td>
                         <span title="{{ framework.identifier }}">{{ framework.creator }} / {{ framework.title }}</span>
                         {% if framework.framework is not null %}
-                            <a href="{{ path('doc_tree_view', {'slug': framework.framework.slug}) }}"><i class="fa fa-external-link" title="Go to document view" aria-label="Go to document view"></i></a>
+                            <a href="{{ path('editor_shell_path', {'path': framework.framework.identifier}) }}"><i class="fa fa-external-link" title="Go to document view" aria-label="Go to document view"></i></a>
                         {% endif %}
                     </td>
                     <td>{{ framework.lastCheck ? framework.lastCheck|date('Y-m-d H:i') : '-' }}</td>

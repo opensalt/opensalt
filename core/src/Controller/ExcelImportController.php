@@ -8,8 +8,10 @@ use App\Command\CommandDispatcherTrait;
 use App\Command\Import\ImportExcelFileCommand;
 use App\Entity\User\User;
 use App\Security\Permission;
+use App\Util\ImportError;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Reader\Exception;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,6 +23,11 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class ExcelImportController extends AbstractController
 {
     use CommandDispatcherTrait;
+
+    public function __construct(
+        private readonly LoggerInterface $logger,
+    ) {
+    }
 
     #[Route(path: '/salt/excel/import', name: 'import_excel_file', methods: ['POST'])]
     #[IsGranted(Permission::FRAMEWORK_CREATE)]
@@ -39,7 +46,14 @@ class ExcelImportController extends AbstractController
         }
 
         $command = new ImportExcelFileCommand($file->getRealPath(), null, $user->getOrg());
-        $this->sendCommand($command);
+
+        try {
+            $this->sendCommand($command);
+        } catch (\Throwable $throwable) {
+            $this->logger->error('Excel import failed: {message}', ['message' => $throwable->getMessage(), 'exception' => $throwable]);
+
+            return new JsonResponse(['error' => ImportError::message($throwable)], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
 
         return new Response('OK', Response::HTTP_OK);
     }

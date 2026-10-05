@@ -16,11 +16,8 @@ use App\Entity\User\User;
 use App\Exception\AlreadyLockedException;
 use App\Form\Type\LsDocCreateType;
 use App\Form\Type\LsDocType;
-use App\Form\Type\RemoteCaseServerType;
 use App\Repository\Framework\LsDocRepository;
 use App\Security\Permission;
-use GuzzleHttp\Client;
-use Psr\Http\Message\ResponseInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
@@ -55,46 +52,6 @@ class LsDocController extends AbstractController
     public function import(): Response
     {
         return $this->render('framework/ls_doc/import.html.twig');
-    }
-
-    /**
-     * Show frameworks from a remote system.
-     */
-    #[Route(path: '/remote', name: 'lsdoc_remote_index', methods: ['GET', 'POST'])]
-    public function remoteIndex(Request $request): Response
-    {
-        $form = $this->createForm(RemoteCaseServerType::class);
-        $form->handleRequest($request);
-
-        $docs = null;
-        if ($form->isSubmitted() && $form->isValid()) {
-            try {
-                $docs = $this->loadDocumentListFromHost($form->getData()['hostname']);
-            } catch (\Exception $e) {
-                $form->get('hostname')->addError(new FormError($e->getMessage()));
-            }
-        }
-
-        return $this->render('framework/ls_doc/remote_index.html.twig', [
-            'form' => $form->createView(),
-            'docs' => $docs,
-        ]);
-    }
-
-    protected function loadDocumentsFromServer(string $urlPrefix): ResponseInterface
-    {
-        $jsonClient = new Client();
-
-        return $jsonClient->request(
-            'GET',
-            $urlPrefix.'/ims/case/v1p0/CFDocuments',
-            [
-                'timeout' => 60,
-                'headers' => [
-                    'Accept' => 'application/vnd.opensalt+json, application/json;q=0.8',
-                ],
-            ]
-        );
     }
 
     /**
@@ -315,59 +272,6 @@ class LsDocController extends AbstractController
             'lsDoc' => $lsDoc,
             'items' => $items,
         ]);
-    }
-
-    /**
-     * Load the document list from a remote host.
-     *
-     * @throws \Exception
-     */
-    protected function loadDocumentListFromHost(string $hostname): ?array
-    {
-        // Remove any scheme or path from the passed value
-        $hostname = preg_replace('#^(?:https?://)?([^/]+).*#', '$1', $hostname);
-
-        try {
-            $remoteResponse = $this->loadDocumentsFromServer(
-                'https://'.$hostname
-            );
-        } catch (\Exception) {
-            try {
-                $remoteResponse = $this->loadDocumentsFromServer(
-                    'http://'.$hostname
-                );
-            } catch (\Exception) {
-                throw new \Exception(sprintf('Could not access CASE API on %s.', $hostname));
-            }
-        }
-
-        try {
-            $docJson = $remoteResponse->getBody()->getContents();
-            $docs = json_decode($docJson, true, 512, JSON_THROW_ON_ERROR);
-            $docs = $docs['CFDocuments'];
-            foreach ($docs as $key => $doc) {
-                if (empty($doc['creator'])) {
-                    $docs[$key]['creator'] = 'Unknown';
-                }
-                if (empty($doc['title'])) {
-                    $docs[$key]['title'] = 'Unknown';
-                }
-            }
-            usort(
-                $docs,
-                function (array $a, array $b): int {
-                    if ($a['creator'] !== $b['creator']) {
-                        return $a['creator'] <=> $b['creator'];
-                    }
-
-                    return $a['title'] <=> $b['title'];
-                }
-            );
-        } catch (\Exception) {
-            $docs = null;
-        }
-
-        return $docs;
     }
 
     protected function deleteFramework(LsDoc $lsDoc): void

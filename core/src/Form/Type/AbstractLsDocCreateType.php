@@ -8,7 +8,9 @@ use App\Entity\Framework\FrameworkType;
 use App\Entity\Framework\LsDefLicence;
 use App\Entity\Framework\LsDefSubject;
 use App\Entity\Framework\LsDoc;
+use App\Util\ChoiceDeduper;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -16,7 +18,6 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\LanguageType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tetranz\Select2EntityBundle\Form\Type\Select2EntityType;
 
 /**
  * @extends AbstractType<LsDoc>
@@ -80,23 +81,21 @@ abstract class AbstractLsDocCreateType extends AbstractType
             ])
             // ->add('subject')
             // ->add('subjectUri')
-            ->add('subjects', Select2EntityType::class, [
+            ->add('subjects', EntityType::class, [
                 'disabled' => $disableAsAdopted,
-                'multiple' => true,
-                'remote_route' => 'lsdef_subject_index_json',
+                'autocomplete' => true,
+                'required' => false,
                 'class' => LsDefSubject::class,
-                'primary_key' => 'id',
-                'text_property' => 'title',
-                'minimum_input_length' => 0,
-                'page_limit' => 50,
-                'allow_clear' => true,
-                'delay' => 250,
-                'placeholder' => 'Select Subjects',
-                'allow_add' => [
-                    'enable' => false,
-                    'new_tag_text' => '(NEW) ',
-                    'new_tag_prefix' => '___',
-                    'tag_separators' => ',',
+                'choice_label' => 'title',
+                'multiple' => true,
+                'choices' => ChoiceDeduper::onePerLabel(
+                    $this->em->getRepository(LsDefSubject::class)->findAll(),
+                    $doc->getSubjects(),
+                    static fn (LsDefSubject $subject): ?string => $subject->getTitle(),
+                ),
+                'tom_select_options' => [
+                    'placeholder' => 'Select Subjects',
+                    'closeAfterSelect' => false,
                 ],
             ])
             ->add('language', LanguageType::class, [
@@ -119,24 +118,19 @@ abstract class AbstractLsDocCreateType extends AbstractType
             ])
             ->add('note', null, [
             ])
-            ->add('licence', Select2EntityType::class, [
+            ->add('licence', EntityType::class, [
                 'disabled' => $disableAsAdopted,
-                'multiple' => false,
-                'remote_route' => 'lsdef_licence_index_json',
+                'autocomplete' => true,
+                'required' => false,
                 'class' => LsDefLicence::class,
-                'primary_key' => 'id',
-                'text_property' => 'title',
-                'minimum_input_length' => 0,
-                'page_limit' => 50,
-                'allow_clear' => true,
-                'delay' => 250,
+                'choice_label' => 'title',
+                'multiple' => false,
+                'choices' => ChoiceDeduper::onePerLabel(
+                    $this->em->getRepository(LsDefLicence::class)->findAll(),
+                    [$doc->getLicence()],
+                    static fn (LsDefLicence $licence): ?string => $licence->getTitle(),
+                ),
                 'placeholder' => 'Select Licence',
-                'allow_add' => [
-                    'enable' => false,
-                    'new_tag_text' => '(NEW) ',
-                    'new_tag_prefix' => '___',
-                    'tag_separators' => ',',
-                ],
             ])
             ->add('frameworkType', DatalistType::class, [
                 'required' => false,

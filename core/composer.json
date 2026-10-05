@@ -12,8 +12,7 @@
             ],
             "LocalApp\\": "local-src/"
         },
-        "exclude-from-classmap": [
-        ]
+        "exclude-from-classmap": []
     },
     "autoload-dev": {
         "psr-4": {
@@ -31,10 +30,6 @@
         {
             "type": "vcs",
             "url": "https://github.com/opensalt/module-sequence.git"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/opensalt/select2entity-bundle.git"
         },
         {
             "type": "vcs",
@@ -136,6 +131,7 @@
         "symfony/translation": "*",
         "symfony/twig-bundle": "*",
         "symfony/uid": "*",
+        "symfony/ux-autocomplete": "^3.5",
         "symfony/ux-icons": "^3.0",
         "symfony/ux-twig-component": "^3.0",
         "symfony/ux-vue": "^3.0",
@@ -144,7 +140,6 @@
         "symfony/yaml": "*",
         "symfonycasts/sass-bundle": "^0.10.0",
         "tecnickcom/tcpdf": "^6.2",
-        "tetranz/select2entity-bundle": "dev-symfony-8 as 3.0.0.2",
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/markdown-extra": "^3.8",
         "twig/string-extra": "^3.1",

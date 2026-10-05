@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller\Api;
 
+use App\Controller\Framework\RedirectsToFrameworkEditorTrait;
+
 use App\Entity\Framework\LsAssociation;
 use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
@@ -32,6 +34,8 @@ use Symfony\Component\WebLink\Link;
 
 class UriController extends AbstractController
 {
+    use RedirectsToFrameworkEditorTrait;
+
     public function __construct(
         private readonly IdentifiableObjectHelper $objectHelper,
         private readonly SerializerInterface $symfonySerializer,
@@ -92,10 +96,10 @@ class UriController extends AbstractController
         if ('tree' === $request->getRequestFormat()) {
             switch ($obj::class) {
                 case LsDoc::class:
-                    return $this->redirectToRoute('doc_tree_view', ['slug' => $obj->getId()]);
+                    return $this->redirectToFrameworkEditor($obj);
 
                 case LsItem::class:
-                    return $this->redirectToRoute('doc_tree_item_view', ['id' => $obj->getId()]);
+                    return $this->redirectToFrameworkItemEditor($obj);
             }
 
             $request->setRequestFormat('html');

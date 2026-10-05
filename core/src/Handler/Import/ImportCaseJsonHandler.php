@@ -7,6 +7,7 @@ namespace App\Handler\Import;
 use App\Command\Import\ImportCaseJsonCommand;
 use App\Event\CommandEvent;
 use App\Event\NotificationEvent;
+use App\Exception\ImportFailedException;
 use App\Handler\AbstractDoctrineHandler;
 use App\Security\Permission;
 use App\Service\CaseImport;
@@ -39,7 +40,7 @@ class ImportCaseJsonHandler extends AbstractDoctrineHandler
         $doc = $this->caseImport->importCaseFile($command->getCaseJson());
 
         if (null !== $user && null !== $doc->getOrg() && !$this->authChecker->isGranted(Permission::FRAMEWORK_EDIT, $doc)) {
-            throw new \RuntimeException('The current user cannot update this framework');
+            throw new ImportFailedException('The current user cannot update this framework');
         }
 
         if (null !== $organization && null === $doc->getOrg() && null === $doc->getUser()) {
