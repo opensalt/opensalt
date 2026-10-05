@@ -34,6 +34,7 @@
     "vue": "^3.0"
   },
   "resolutions": {
-    "linkify-it": "5.0.2"
+    "linkify-it": "5.0.2",
+    "braces": "npm:@dieub/braces-depth-guard@3.0.3-pn.0"
   }
 }

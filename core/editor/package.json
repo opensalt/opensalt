@@ -24,7 +24,7 @@
     "bootstrap-icons": "^1.11.0",
     "easymde": "^2.20.0",
     "github-markdown-css": "^5.8.1",
-    "katex": "0.16.28",
+    "katex": "^0.19.0",
     "markdown-it": "^15.0.0",
     "markdown-it-underline": "^1.0.1",
     "papaparse": "^5.4.1",
@@ -55,7 +55,7 @@
     "sass": "^1.98.0",
     "typescript": "^6.0.2",
     "vite": "^8.0.3",
-    "vitest": "^4.1.2",
+    "vitest": "^5.0.3",
     "vue-eslint-parser": "^10.2.0",
     "vue-tsc": "^3.2.6"
   },

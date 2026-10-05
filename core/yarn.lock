@@ -1105,12 +1105,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"braces@npm:^3.0.3":
-  version: 3.0.3
-  resolution: "braces@npm:3.0.3"
+"braces@npm:@dieub/braces-depth-guard@3.0.3-pn.0":
+  version: 3.0.3-pn.0
+  resolution: "@dieub/braces-depth-guard@npm:3.0.3-pn.0"
   dependencies:
     fill-range: "npm:^7.1.1"
-  checksum: 10c0/7c6dfd30c338d2997ba77500539227b9d1f85e388a5f43220865201e407e076783d0881f2d297b9f80951b4c957fcf0b51c1d2d24227631643c3f7c284b0aa04
+  checksum: 10c0/1ff5fa412fefb00a709652b186868a46050586cb1426ab26a0fe18f3e5ed1e45bca673ec80a189abd1f238fb6984a0d4bb07961a0cec672b826496a8e1ba3b2d
   languageName: node
   linkType: hard
 

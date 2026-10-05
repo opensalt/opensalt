@@ -36,7 +36,7 @@
               :href="linkInfo.href"
               target="_blank"
               rel="noopener noreferrer"
-              class="ms-2 association-title-link"
+              class="ms-2 association-title-link association-title-clamp"
               v-html="displayTitle"
             />
             <a
@@ -44,19 +44,19 @@
               :href="linkInfo.href"
               target="_blank"
               rel="noopener noreferrer"
-              class="ms-2 association-title-link"
+              class="ms-2 association-title-link association-title-clamp"
               v-html="displayTitle"
             />
             <a
               v-else-if="linkInfo.type === 'same-framework'"
               :href="linkInfo.href"
-              class="ms-2 association-title-link"
+              class="ms-2 association-title-link association-title-clamp"
               @click.prevent="onNavigateToItem"
               v-html="displayTitle"
             />
             <span
               v-else
-              class="ms-2"
+              class="ms-2 association-title-clamp"
               v-html="displayTitle"
             />
           </template>
@@ -331,11 +331,9 @@ const displayTitle = computed(() => {
       parts.push('<span class="item-humanCodingScheme">' + (render.value ? render.value.escaped(item.humanCodingScheme) : item.humanCodingScheme) + '</span>');
     }
     if (item.abbreviatedStatement) {
-      parts.push(render.value ? render.value.escaped(item.abbreviatedStatement) : item.abbreviatedStatement);
+      parts.push(render.value ? render.value.inline(item.abbreviatedStatement) : item.abbreviatedStatement);
     } else if (item.fullStatement) {
-      const statement = item.fullStatement;
-      const truncated = statement.length > 100 ? statement.substring(0, 100) + '...' : statement;
-      parts.push(render.value ? render.value.inline(truncated) : truncated);
+      parts.push(render.value ? render.value.inline(item.fullStatement) : item.fullStatement);
     }
 
     if (parts.length > 0) {
@@ -344,7 +342,7 @@ const displayTitle = computed(() => {
   }
 
   // Fallback to itemTitle from composable (which includes nodeURI title fallback)
-  return render.value ? render.value.escaped(title) : title;
+  return render.value ? render.value.inline(title) : title;
 });
 
 const nodeLabel = computed(() => {
@@ -399,6 +397,15 @@ watch(
 
 .association-item:hover {
   background-color: #f8f9fa;
+}
+
+/* Keep long statements from stretching the row: clamp to 3 lines; line-clamp adds the ellipsis */
+.association-title-clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
 }
 
 /* Cross-framework association background */
