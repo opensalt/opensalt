@@ -9,7 +9,9 @@ ARG BUILD_DATE=0
 ARG COMMIT=unknown
 
 ARG PHP_VERSION=8.5
-ARG FRANKENPHP_VERSION=1
+# Pinned to the minor so base image drift (e.g. Caddy/Mercure config changes)
+# cannot break builds; upgrade deliberately together with frankenphp/Caddyfile.
+ARG FRANKENPHP_VERSION=1.13
 ARG NODE_VERSION=24
 
 # https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact

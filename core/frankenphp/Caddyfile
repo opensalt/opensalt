@@ -58,15 +58,21 @@
 	}
 
 	mercure {
+		# Named hub: Mercure 1.0 refuses multiple unnamed hubs when the site is
+		# served over both HTTP and HTTPS. The public URL stays /.well-known/mercure.
+		name app
+		# The legacy publisher_jwt/subscriber_jwt directives require explicit
+		# compatibility mode with the Mercure module bundled in Caddy >= 2.10
+		protocol_version_compatibility 8
 		# Transport to use (default to Bolt)
 		transport bolt {
 			path {$MERCURE_BOLT_PATH:/data/caddy/mercure.db}
 			{$MERCURE_BOLT_EXTRA_DIRECTIVES}
         }
 		# Publisher JWT key
-		publisher_jwt {env.MERCURE_PUBLISHER_JWT_KEY} {env.MERCURE_PUBLISHER_JWT_ALG}
+		publisher_jwt {env.MERCURE_PUBLISHER_JWT_KEY} {env.MERCURE_PUBLISHER_JWT_ALG:-HS256}
 		# Subscriber JWT key
-		subscriber_jwt {env.MERCURE_SUBSCRIBER_JWT_KEY} {env.MERCURE_SUBSCRIBER_JWT_ALG}
+		subscriber_jwt {env.MERCURE_SUBSCRIBER_JWT_KEY} {env.MERCURE_SUBSCRIBER_JWT_ALG:-HS256}
 		# Allow anonymous subscribers (double-check that it's what you want)
 		anonymous
 		# Enable the subscription API (double-check that it's what you want)
