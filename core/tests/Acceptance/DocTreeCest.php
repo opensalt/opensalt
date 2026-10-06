@@ -57,7 +57,7 @@ class DocTreeCest
         $I->attachFile('input#file-url', str_replace(codecept_data_dir(), '', $filename . '.json'));
 
         $I->click('.btn-import-case');
-        $I->waitForJS('return ("function" === typeof $ && $.active == 0);', 30);
+        $I->waitForElementNotVisible('#wizard', 60);
 
         $I::$staticLsDocId = $docUuid;
         $I->setDocId(null);

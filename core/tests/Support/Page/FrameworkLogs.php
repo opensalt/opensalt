@@ -98,7 +98,7 @@ class FrameworkLogs implements Context
      */
     public function iSelectFromTheDropdown($count, $selectBox)
     {
-        $this->I->selectOption('.dataTables_wrapper select', $count);
+        $this->I->selectOption('.log-pagination-size select', $count);
         $this->I->wait(1);
     }
 

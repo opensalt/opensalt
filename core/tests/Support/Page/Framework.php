@@ -875,14 +875,22 @@ class Framework implements Context
         $I->selectOption('ls_doc_create[adoptionStatus]', ['text' => $this->frameworkData['adoptionStatus']]);
         $statusStart = $this->frameworkData['statusStart'];
         //$I->fillField('#ls_doc_statusStart', $statusStart);
-        $I->executeJS("$('#ls_doc_create_statusStart').val('{$statusStart}');");
+        $I->executeJS("document.getElementById('ls_doc_create_statusStart').value = '{$statusStart}';");
         $statusEnd = $this->frameworkData['statusEnd'];
-        $I->executeJS("$('#ls_doc_create_statusEnd').val('{$statusEnd}');");
+        $I->executeJS("document.getElementById('ls_doc_create_statusEnd').value = '{$statusEnd}';");
         $I->fillField('#ls_doc_create_note', $note);
-        // Choose one license
-        $I->click(Locator::lastElement('.select2-container--bootstrap-5'));
-        $I->waitForElementVisible('.select2-results__option--highlighted');
-        $I->clickWithLeftButton(['xpath' => '*//ul[@role="listbox"]/li[text()="'.$this->frameworkData['license'].'"]']);
+        // Choose one license (Tom Select, rendered by symfony/ux-autocomplete).
+        // Set the value through the Tom Select API: the dropdown options render
+        // below the fold and WebDriver clicks cannot reach them on this layout.
+        $licence = $this->frameworkData['license'];
+        $I->executeJS("
+            var ts = document.getElementById('ls_doc_create_licence').tomselect;
+            var match = Object.entries(ts.options).find(function (entry) {
+                return (entry[1].text || '').trim() === '{$licence}';
+            });
+            if (!match) { throw new Error('Licence option not found: {$licence}'); }
+            ts.setValue(match[0]);
+        ");
 
         $I->submitForm(['css' => 'form[name="ls_doc_create"]'], []);
         //$I->scrollTo(['css' => 'footer']);

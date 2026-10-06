@@ -19,6 +19,20 @@ class User implements Context
     }
 
     /**
+     * Click an action link/button in a user's row. Clicked via JS because the
+     * user list renders all rows without pagination and WebDriver cannot
+     * scroll an off-screen row into view on this layout.
+     */
+    private function clickUserRowAction(string $username, string $action): void
+    {
+        $xpath = "//td[text()='{$username}']/..//*[(self::a and normalize-space(text())='{$action}') or (self::input and @value='{$action}')]";
+        $js = 'var el = document.evaluate(' . json_encode($xpath) . ', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;'
+            . ' if (!el) { throw new Error("No ' . $action . ' action found for user ' . $username . '"); }'
+            . ' el.click();';
+        $this->I->executeJS($js);
+    }
+
+    /**
      * @Then /^I add a new user with "([^"]*)" role$/
      */
     public function iAddANewUserWithRole(string $role): void
@@ -104,7 +118,6 @@ class User implements Context
 
         $username = $I->getRememberedString('lastNewUsername');
         $I->amOnPage('/admin/user');
-        $I->click('th.sorting_asc');
         $I->seeElement("//td[text()='{$username}']/..//input[@value='Approve']");
         $I->seeElement("//td[text()='{$username}']/..//input[@value='Reject']");
     }
@@ -119,12 +132,7 @@ class User implements Context
         if ('/admin/user/' !== $I->grabFromCurrentUrl()) {
             $I->amOnPage('/admin/user/');
         }
-        try {
-            $I->click('th.sorting_asc');
-        } catch (\Exception $e) {
-            // Ignore error if we are already sorting in descending order
-        }
-        $I->click("//td[text()='{$username}']/..//a[text()='show']");
+        $this->clickUserRowAction($username, 'show');
         $I->see($username);
         $I->click('Delete');
         $I->waitForElementVisible('header .navbar .dropdown-toggle');
@@ -140,17 +148,11 @@ class User implements Context
 
         $username = $this->userName;
         $I->amOnPage('/admin/user/');
-        $I->click('th.sorting_asc');
-        $I->click("//td[text()='{$username}']/..//a[text()='edit']");
+        $this->clickUserRowAction($username, 'edit');
         $rows = $table->getRows();
         $row = current($rows); // Get first row, first element is new username
         $I->fillField('#salt_userbundle_user_username', $row[0]);
         $I->click('Save');
-        try {
-            $I->click('th.sorting_asc'); // reset sort to desc
-        } catch (\Exception $e) {
-            // Ignore error
-        }
         $I->waitForText($row[0], 10);
         $I->see($row[0]);
         $this->userName = $row[0];
@@ -168,11 +170,9 @@ class User implements Context
 
         $username = $this->userName;
         $I->amOnPage('/admin/user/');
-        $I->click('th.sorting_asc');
-        $I->click("//td[text()='{$username}']/..//a[text()='edit']");
+        $this->clickUserRowAction($username, 'edit');
         $I->fillField('#salt_userbundle_user_username', $newUsername);
         $I->click('Save');
-        $I->click('th.sorting_asc');
         $I->waitForText($newUsername, 10);
         $I->see($newUsername);
         $this->userName = $newUsername;
@@ -188,8 +188,7 @@ class User implements Context
         $username = $this->userName;
 
         $I->amOnPage('/admin/user/');
-        $I->click('th.sorting_asc');
-        $I->click("//td[text()='{$username}']/..//input[@value='Suspend']");
+        $this->clickUserRowAction($username, 'Suspend');
         $I->dontSee('Edit', "//td[text()='{$username}']/..//a[text()='edit']");
     }
 
@@ -202,9 +201,7 @@ class User implements Context
         $username = $this->userName;
 
         $I->amOnPage('/admin/user/');
-        $I->click('th.sorting_asc');
-        $I->click("//td[text()='{$username}']/..//input[@value='Unsuspend']");
-        $I->click('th.sorting_asc');
+        $this->clickUserRowAction($username, 'Unsuspend');
         $I->see('Edit', "//td[text()='{$username}']/..//a[text()='edit']");
     }
 
@@ -217,7 +214,6 @@ class User implements Context
         $username = $this->userName;
 
         $I->amOnPage('/admin/user/');
-        $I->click('th.sorting_asc');
         $I->see($username);
     }
 
@@ -271,12 +267,7 @@ class User implements Context
 
         $username = $this->userName;
         $I->amOnPage('/admin/user/');
-        try {
-            $I->click('th.sorting_asc');
-        } catch (\Exception $e) {
-            // Ignore error if we are already sorting in descending order
-        }
-        $I->click("//td[text()='{$username}']/..//a[text()='edit']");
+        $this->clickUserRowAction($username, 'edit');
     }
 
     /**
@@ -288,12 +279,7 @@ class User implements Context
 
         $username = $this->userName;
         $I->amOnPage('/admin/user/');
-        try {
-            $I->click('th.sorting_asc');
-        } catch (\Exception $e) {
-            // Ignore error if we are already sorting in descending order
-        }
-        $I->click("//td[text()='{$username}']/..//a[text()='show']");
+        $this->clickUserRowAction($username, 'show');
     }
 
     /**
@@ -305,8 +291,7 @@ class User implements Context
 
         $username = $this->userName;
         $I->amOnPage('/admin/user');
-        $I->click('th.sorting_asc');
-        $I->click("//td[text()='{$username}']/..//input[@value='Approve']");
+        $this->clickUserRowAction($username, 'Approve');
     }
 
     /**
@@ -355,8 +340,7 @@ class User implements Context
 
         $username = $I->getRememberedString('lastNewUsername');
         $I->amOnPage('/admin/user');
-        $I->click('th.sorting_asc');
-        $I->click("//td[text()='{$username}']/..//input[@value='Reject']");
+        $this->clickUserRowAction($username, 'Reject');
     }
 
     /**
@@ -366,7 +350,6 @@ class User implements Context
     {
         $I = $this->I;
         $I->amOnPage('/admin/user');
-        $I->click('th.sorting_asc');
         $I->assertEquals($I->grabTextFrom('//*[@id="datatable"]/tbody/tr[1]/td[5]'), 'Pending', 'Can not see status column');
     }
 

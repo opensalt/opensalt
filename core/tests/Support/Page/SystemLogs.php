@@ -27,7 +27,6 @@ class SystemLogs implements Context
     {
         $this->I->amOnPage(self::SYSTEM_LOGS_PAGE);
 
-        $this->I->waitForJS('return $.active == 0', 30);
         $this->I->waitForElementVisible(['xpath' => '//*[@id="systemLogTable"]/tbody/tr[1]/td[2]'], 30);
     }
 
@@ -129,7 +128,7 @@ class SystemLogs implements Context
      */
     public function iEnterInTheSytemLogSearchField($term)
     {
-        $this->I->fillField('#systemLogTable_filter input', $term);
+        $this->I->fillField('.dt-search input', $term);
     }
 
     /**
