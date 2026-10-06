@@ -113,7 +113,7 @@
         "symfony/lock": "*",
         "symfony/mailer": "*",
         "symfony/mcp-bundle": "^0.12",
-        "symfony/mercure-bundle": "^0.4",
+        "symfony/mercure-bundle": "^0.5",
         "symfony/messenger": "*",
         "symfony/mime": "*",
         "symfony/monolog-bundle": "^4.0",
