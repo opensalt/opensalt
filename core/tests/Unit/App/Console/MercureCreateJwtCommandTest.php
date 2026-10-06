@@ -92,6 +92,7 @@ class MercureCreateJwtCommandTest extends TestCase
             ->method('writeln')
             ->with(self::callback(function (string $token) use (&$captured): bool {
                 $captured = $token;
+
                 return true;
             }));
 
@@ -115,6 +116,7 @@ class MercureCreateJwtCommandTest extends TestCase
             ->method('writeln')
             ->with(self::callback(function (string $token) use (&$captured): bool {
                 $captured = $token;
+
                 return true;
             }));
 
@@ -123,5 +125,98 @@ class MercureCreateJwtCommandTest extends TestCase
         $decoded = JWT::decode($captured, new Key('this-is-a-secret-key-long-enough-for-hs256', 'HS256'));
         self::assertIsArray($decoded->mercure->publish);
         self::assertContains('*', $decoded->mercure->publish);
+    }
+
+    public function testProtocol10MintsRfc9068AccessToken(): void
+    {
+        $captured = null;
+        $this->io->expects(self::once())
+            ->method('writeln')
+            ->with(self::callback(function (string $token) use (&$captured): bool {
+                $captured = $token;
+
+                return true;
+            }));
+
+        $result = ($this->command)(
+            $this->io,
+            key: 'this-is-a-secret-key-long-enough-for-hs256',
+            protocol: '1.0',
+            issuer: 'opensalt',
+            audience: 'http://localhost/.well-known/mercure',
+            expiry: 600,
+        );
+
+        self::assertSame(Command::SUCCESS, $result);
+
+        $decoded = JWT::decode($captured, new Key('this-is-a-secret-key-long-enough-for-hs256', 'HS256'));
+        self::assertSame('opensalt', $decoded->iss);
+        self::assertSame('opensalt', $decoded->sub);
+        self::assertSame('opensalt', $decoded->client_id);
+        self::assertSame('http://localhost/.well-known/mercure', $decoded->aud);
+
+        $details = $decoded->authorization_details;
+        self::assertSame('https://mercure.rocks/authorization-detail', $details[0]->type);
+        self::assertSame(['publish'], $details[0]->actions);
+        self::assertSame('*', $details[0]->topics[0]->match);
+        self::assertSame(600, $decoded->exp - $decoded->iat);
+    }
+
+    public function testProtocol10WithSubscribeAction(): void
+    {
+        $captured = null;
+        $this->io->expects(self::once())
+            ->method('writeln')
+            ->with(self::callback(function (string $token) use (&$captured): bool {
+                $captured = $token;
+
+                return true;
+            }));
+
+        ($this->command)(
+            $this->io,
+            key: 'this-is-a-secret-key-long-enough-for-hs256',
+            protocol: '1.0',
+            audience: 'http://localhost/.well-known/mercure',
+            topics: '/doc-updates/abc,/doc-updates/def',
+            actions: 'subscribe',
+        );
+
+        $decoded = JWT::decode($captured, new Key('this-is-a-secret-key-long-enough-for-hs256', 'HS256'));
+        $details = $decoded->authorization_details;
+        self::assertSame(['subscribe'], $details[0]->actions);
+        self::assertSame('/doc-updates/abc', $details[0]->topics[0]->match);
+        self::assertSame('/doc-updates/def', $details[0]->topics[1]->match);
+    }
+
+    public function testProtocol10WithInvalidActionFails(): void
+    {
+        $this->io->expects(self::once())
+            ->method('error')
+            ->with(self::stringContains('Invalid action(s): fly.'));
+
+        $result = ($this->command)(
+            $this->io,
+            key: 'this-is-a-secret-key-long-enough-for-hs256',
+            protocol: '1.0',
+            actions: 'fly',
+        );
+
+        self::assertSame(Command::FAILURE, $result);
+    }
+
+    public function testProtocol10WithoutAudienceFails(): void
+    {
+        $this->io->expects(self::once())
+            ->method('error')
+            ->with(self::stringContains('An audience is required for protocol 1.0 tokens.'));
+
+        $result = ($this->command)(
+            $this->io,
+            key: 'this-is-a-secret-key-long-enough-for-hs256',
+            protocol: '1.0',
+        );
+
+        self::assertSame(Command::FAILURE, $result);
     }
 }

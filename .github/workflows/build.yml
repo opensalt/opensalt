@@ -22,7 +22,8 @@ name: Build and Test
 jobs:
   build:
     name: Build OpenSALT
-    runs-on: ubuntu-latest
+    # Pinned so a runner image swap doesn't change free disk space or tooling under us.
+    runs-on: ubuntu-26.04
     env:
       COMPOSE_FILE: "docker-compose.yml:docker-compose.test.yml"
       RUN_TEST_ARGS: ${{ secrets.RUN_TEST_ARGS }}
@@ -33,17 +34,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      # https://github.com/marketplace/actions/docker-layer-caching
-      # Pull the latest image to build, and avoid caching pull-only images.
-      # (docker pull is faster than caching in most cases.)
-      - name: Pull images
-        env:
-          REPO: opensalt/opensalt
+      # The job loads ~7GB of images plus build cache, which can exhaust the runner's
+      # free space during the acceptance-test chrome pull. Drop preinstalled toolchains
+      # we never use (Android SDK, .NET, GHC, CodeQL, Boost) to make room.
+      - name: Free disk space
         run: |
-          env
-          cp -f .env.test .env
-          docker pull $REPO:web-develop
-          docker pull $REPO:db-develop
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc \
+            /usr/local/.ghcup /opt/hostedtoolcache/CodeQL /usr/local/share/boost
+          sudo docker image prune -af
+          df -h /
+
+      - name: Set up test environment
+        run: cp -f .env.test .env
 #      # In this step, this action saves a list of existing images,
 #      # the cache is created without them in the post run.
 #      # It also restores the cache if it exists.
@@ -59,6 +61,12 @@ jobs:
       - name: Build the images
         run: |
           BUILD_NUMBER=${GITHUB_RUN_NUMBER} COMMIT=${GITHUB_SHA::8} make docker-build
+
+      # The buildx cache is dead weight once the images are exported. Free it before tests run.
+      - name: Free build leftovers
+        run: |
+          docker builder prune -f
+          df -h /
 
       # - name: Run Trivy vulnerability scanner
       #   if: github.event_name != 'schedule'
