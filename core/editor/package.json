@@ -59,7 +59,11 @@
     "vue-eslint-parser": "^10.2.0",
     "vue-tsc": "^3.2.6"
   },
+  "overrides": {
+    "katex": "^0.19.0"
+  },
   "resolutions": {
-    "vite": "8.0.3"
+    "vite": "8.0.3",
+    "katex": "^0.19.0"
   }
 }
