@@ -98,7 +98,12 @@ class FrameworkLogs implements Context
      */
     public function iSelectFromTheDropdown($count, $selectBox)
     {
-        $this->I->selectOption('.log-pagination-size select', $count);
+        // The per-page select is rendered by DataTables on the system log page
+        // and by the Vue log view on the framework log page.
+        $this->I->selectOption(
+            ['xpath' => "//div[contains(@class, 'log-pagination-size')]//select | //div[contains(@class, 'dt-length')]//select"],
+            $count
+        );
         $this->I->wait(1);
     }
 
