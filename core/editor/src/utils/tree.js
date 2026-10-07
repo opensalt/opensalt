@@ -96,7 +96,7 @@ function compareFields(a, b, key) {
   return 0;
 }
 
-function treeItemComparator(a, b) {
+export function treeItemComparator(a, b) {
   let cmp = compareFields(a, b, 'sequenceNumber');
   if (cmp !== 0) return cmp;
   cmp = compareFields(a, b, 'humanCodingScheme');

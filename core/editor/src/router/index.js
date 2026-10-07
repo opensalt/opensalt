@@ -14,6 +14,11 @@ const routes = [
     component: () => import('../components/crosswalk/CrosswalkView.vue')
   },
   {
+    path: '/:frameworkId/alignment-report',
+    name: 'AlignmentReportView',
+    component: () => import('../components/alignmentReport/AlignmentReportView.vue')
+  },
+  {
     path: '/:frameworkId/log',
     name: 'LogView',
     component: () => import('../components/log/LogView.vue')
