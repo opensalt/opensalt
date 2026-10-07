@@ -78,6 +78,7 @@
             role="option"
             class="singleselect__option singleselect__option--create"
             :class="{ 'singleselect__option--highlighted': highlightedIndex === -2 }"
+            :aria-selected="false"
             @click="selectCreateOption"
             @mouseenter="highlightedIndex = -2"
           >
