@@ -1,9 +1,6 @@
 {
 	{$CADDY_GLOBAL_OPTIONS}
 
-	servers {
-	}
-
 	auto_https off
 
 	frankenphp {
@@ -20,7 +17,7 @@
 
 {$SERVER_NAME:localhost} {
 	header /* {
-		-Server
+		Server "OpenSALT"
 	}
 
 	header ?X-Content-Type-Options nosniff

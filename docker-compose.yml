@@ -47,6 +47,9 @@ services:
       #APP_RUNTIME: "${APP_RUNTIME:-Symfony\\Component\\Runtime\\Runner\\FrankenPhpWorkerRunner}"
       APP_RUNTIME: "${APP_RUNTIME:-Symfony\\Component\\Runtime\\SymfonyRuntime}"
       SERVER_NAME: ${SERVER_NAME:-localhost}, :80
+      CADDY_GLOBAL_OPTIONS:
+      CADDY_EXTRA_CONFIG:
+      CADDY_SERVER_EXTRA_DIRECTIVES:
       DEFAULT_URI: http://web
       MYSQL_DATABASE:
       MYSQL_USER:
