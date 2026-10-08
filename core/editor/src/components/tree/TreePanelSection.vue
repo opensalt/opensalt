@@ -28,6 +28,7 @@
       :side="'treeView'"
       :hide-external="true"
       :compact="true"
+      :label="'Viewed framework'"
       :related-framework-ids="relatedFrameworkIds"
       @viewed-document-changed="onViewedDocumentChanged"
     />

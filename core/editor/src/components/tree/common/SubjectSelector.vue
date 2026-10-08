@@ -14,7 +14,7 @@
         :name="name"
         :options="availableSubjects"
         option-value="id"
-        option-label="title"
+        option-label="text"
         :show-select-all="false"
         placeholder="Select subjects"
         search-placeholder="Search subjects..."

@@ -4,7 +4,10 @@
       v-if="!compact"
       class="card-header d-flex justify-content-between align-items-center"
     >
-      <h6 class="mb-0">
+      <h6
+        :id="labelId"
+        class="mb-0"
+      >
         {{ label }}
       </h6>
       <span
@@ -34,100 +37,27 @@
     </div>
 
     <div :class="compact ? 'mx-2' : 'card-body'">
-      <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
-      <label
+      <span
         v-if="compact"
-        class="form-label fw-semibold small mb-0"
+        :id="labelId"
+        class="form-label fw-semibold small mb-0 visually-hidden"
       >
-        <select
-          :id="selectorId"
-          v-model="selectedDoc"
-          class="form-select form-select-sm"
-          :class="{ 'viewing-different-framework': isViewingDifferentFramework }"
-          @change="onDocumentChange"
-        >
-          <optgroup
-            v-if="mappedFrameworks.length > 0"
-            label="Mapped Frameworks"
-          >
-            <option
-              v-for="doc in mappedFrameworks"
-              :key="doc.identifier"
-              :value="doc.identifier"
-              :class="doc.identifier === (currentDoc?.identifier || currentDoc?.id) ? 'text-primary fw-semibold' : ''"
-            >
-              {{ doc.identifier === (currentDoc?.identifier || currentDoc?.id) ? 'Main framework - ' : '' }}
-              {{ doc.title || 'Unknown Name' }} ({{ doc.identifier || 'No Identifier' }})
-              {{ (doc.identifier === selectedDoc && isViewingDifferentFramework) ? ' - Read-only' : '' }}
-            </option>
-          </optgroup>
-          <optgroup
-            v-for="group in otherGroupedDocuments"
-            :key="group.creator"
-            :label="group.creator"
-          >
-            <option
-              v-for="doc in group.documents"
-              :key="doc.identifier"
-              :value="doc.identifier"
-              :class="doc.identifier === (currentDoc?.identifier || currentDoc?.id) ? 'text-primary fw-semibold' : ''"
-            >
-              {{ doc.identifier === (currentDoc?.identifier || currentDoc?.id) ? 'Main framework - ' : '' }}
-              {{ doc.title || 'Unknown Name' }} ({{ doc.identifier || 'No Identifier' }})
-              {{ (doc.identifier === selectedDoc && isViewingDifferentFramework) ? ' - Read-only' : '' }}
-            </option>
-          </optgroup>
-        </select>
-      </label>
-      <select
-        v-else
+        {{ label }}
+      </span>
+      <SingleSelect
         :id="selectorId"
-        v-model="selectedDoc"
-        class="form-select"
-        :class="{ 'viewing-different-framework': isViewingDifferentFramework }"
-        @change="onDocumentChange"
-      >
-        <option value="">
-          Select a document...
-        </option>
-        <optgroup
-          v-if="mappedFrameworks.length > 0"
-          label="Mapped Frameworks"
-        >
-          <option
-            v-for="doc in mappedFrameworks"
-            :key="doc.identifier"
-            :value="doc.identifier"
-            :class="doc.identifier === (currentDoc?.identifier || currentDoc?.id) ? 'text-primary fw-semibold' : ''"
-          >
-            {{ doc.identifier === (currentDoc?.identifier || currentDoc?.id) ? 'Main Document - ' : '' }}
-            {{ doc.title || 'Unknown Name' }} ({{ doc.identifier || 'No Identifier' }})
-          </option>
-        </optgroup>
-        <optgroup
-          v-for="group in otherGroupedDocuments"
-          :key="group.creator"
-          :label="group.creator"
-        >
-          <option
-            v-for="doc in group.documents"
-            :key="doc.identifier"
-            :value="doc.identifier"
-            :class="doc.identifier === (currentDoc?.identifier || currentDoc?.id) ? 'text-primary fw-semibold' : ''"
-          >
-            {{ doc.identifier === (currentDoc?.identifier || currentDoc?.id) ? 'Main Document - ' : '' }}
-            {{ doc.title || 'Unknown Name' }} ({{ doc.identifier || 'No Identifier' }})
-          </option>
-        </optgroup>
-        <optgroup
-          v-if="!hideExternal"
-          label="External Documents"
-        >
-          <option value="external">
-            Load external document...
-          </option>
-        </optgroup>
-      </select>
+        :model-value="selectedDoc || null"
+        :options="selectorOptions"
+        :placeholder="compact ? '' : 'Select a document...'"
+        option-value="id"
+        option-label="text"
+        :searchable="true"
+        :search-placeholder="'Filter frameworks…'"
+        :allow-clear="false"
+        :no-results-text="'No frameworks match the filter'"
+        :labelledby-id="labelId"
+        @update:model-value="onDocumentChange"
+      />
 
       <div
         v-if="!compact && isViewingDifferentFramework && viewedDoc"
@@ -142,6 +72,7 @@
 
 <script setup>
 import { ref, watch, computed, useId } from 'vue';
+import SingleSelect from '@/components/tree/SingleSelect.vue';
 import { useDocumentStore } from '@/stores/documentStore';
 import { useDocumentGroups } from '@/composables/useDocumentGroups.js';
 
@@ -181,7 +112,7 @@ const props = defineProps({
   /**
    * Set of framework identifiers that are referenced by the current crosswalk
    * framework's associations. When non-empty, these frameworks are shown in a
-   * "Mapped Frameworks" optgroup at the top of the selector.
+   * "Mapped Frameworks" group at the top of the selector.
    */
   relatedFrameworkIds: {
     type: Set,
@@ -212,17 +143,50 @@ const otherDocuments = computed(() => {
 
 const { groupedDocuments: otherGroupedDocuments } = useDocumentGroups(otherDocuments);
 
-const emit = defineEmits(['viewed-document-changed', 'external-document-requested']);
-
 const selectedDoc = ref('');
 
 function getDocumentId(document) {
   return document?.identifier || document?.id || '';
 }
 
+function toOption(document) {
+  const id = getDocumentId(document);
+  const isMain = id === (props.currentDoc?.identifier || props.currentDoc?.id);
+  let text = `${document.title || 'Unknown Name'} (${id || 'No Identifier'})`;
+  if (isMain) {
+    text = `${props.compact ? 'Main framework - ' : 'Main Document - '}${text}`;
+  }
+  if (props.compact && id === selectedDoc.value && props.isViewingDifferentFramework) {
+    text = `${text} - Read-only`;
+  }
+  return { id, text };
+}
+
+// Grouped options for the single-box select: mapped frameworks first, then
+// creator groups, then the external-document action.
+const selectorOptions = computed(() => {
+  const groups = [];
+  if (mappedFrameworks.value.length > 0) {
+    groups.push({ label: 'Mapped Frameworks', options: mappedFrameworks.value.map(toOption) });
+  }
+  for (const group of otherGroupedDocuments.value) {
+    groups.push({ label: group.creator, options: group.documents.map(toOption) });
+  }
+  if (!props.hideExternal) {
+    groups.push({
+      label: 'External Documents',
+      options: [{ id: 'external', text: 'Load external document...' }],
+    });
+  }
+  return groups;
+});
+
+const emit = defineEmits(['viewed-document-changed', 'external-document-requested']);
+
 // Unique per-instance suffix so co-rendered selectors never collide on id
 const instanceId = useId();
 const selectorId = computed(() => `documentSelector-${props.side}-${instanceId}`);
+const labelId = computed(() => `documentSelector-label-${props.side}-${instanceId}`);
 
 watch(() => props.currentDoc, (newDoc) => {
   // Don't clobber an active viewed-framework selection when the edited doc updates
@@ -246,13 +210,12 @@ watch(() => props.viewedDoc, (newViewedDoc) => {
   }
 }, { immediate: true });
 
-function onDocumentChange() {
-  const selectedValue = selectedDoc.value;
-
+function onDocumentChange(selectedValue) {
   if (selectedValue === 'external') {
     emit('external-document-requested', { side: props.side });
     selectedDoc.value = getDocumentId(props.currentDoc);
   } else if (selectedValue) {
+    selectedDoc.value = selectedValue;
     emit('viewed-document-changed', {
       side: props.side,
       documentId: selectedValue
@@ -271,8 +234,5 @@ function changeDocument() {
 }
 .card-body {
   padding: 1rem;
-}
-.form-select {
-  font-size: 0.875rem;
 }
 </style>

@@ -1,5 +1,6 @@
 <template>
   <div
+    ref="rootRef"
     class="multiselect"
     :class="{ 'multiselect--active': isOpen }"
   >
@@ -106,7 +107,6 @@
               :checked="isSelected(createOption)"
               class="multiselect__checkbox"
               tabindex="-1"
-              @change="toggleCreateOption"
             >
             <span class="multiselect__option-text">{{ getOptionLabel(createOption) }}</span>
           </li>
@@ -130,7 +130,6 @@
               :checked="isSelected(option)"
               class="multiselect__checkbox"
               tabindex="-1"
-              @change="toggleOption(option)"
             >
             <span class="multiselect__option-text">{{ getOptionLabel(option) }}</span>
           </li>
@@ -141,9 +140,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-
-let _msIdCounter = 0
+import { ref, computed, watch, onMounted, onUnmounted, useId } from 'vue'
 
 const props = defineProps({
   id: {
@@ -200,10 +197,10 @@ const searchQuery = ref('')
 const filteredOptions = ref([])
 const highlightedIndex = ref(null)
 const showCount = ref(10)
+const rootRef = ref(null)
 
 // Unique IDs for ARIA relationships
-const componentId = _msIdCounter++
-const listboxId = `ms-listbox-${componentId}`
+const listboxId = useId()
 const getOptionId = (index) => `${listboxId}-opt-${index}`
 const createOptionId = `${listboxId}-create`
 
@@ -255,11 +252,14 @@ const getOptionValue = (option) => {
 }
 
 const getOptionLabel = (option) => {
-  if (typeof option === 'object') {
-    // Try the specified label property first, then common fallbacks
-    if (option[props.optionLabel]) return option[props.optionLabel]
-    // Try common label properties as fallbacks
-    return option.label || option.text || option.title || option.name || String(option)
+  if (typeof option === 'object' && option !== null) {
+    // Try the specified label property first, then common fallbacks.
+    // Nullish coalescing keeps empty strings, which we then resolve to the
+    // option value so options with blank titles stay identifiable.
+    const label = option[props.optionLabel] ?? option.label ?? option.text ?? option.title ?? option.name
+    if (label !== undefined && label !== null && label !== '') return label
+    const value = getOptionValue(option)
+    return (value !== null && value !== undefined) ? String(value) : ''
   }
   return option
 }
@@ -444,19 +444,17 @@ const handleKeydown = (event) => {
   }
 }
 
+// Close only when the click lands outside this instance, so opening another
+// select (or clicking anywhere else) closes this one.
 const handleClickOutside = (event) => {
-  const target = event.target
-  const multiselect = target.closest('.multiselect')
-  if (!multiselect) {
+  if (rootRef.value && !rootRef.value.contains(event.target)) {
     isOpen.value = false
   }
 }
 
 // Also handle mousedown events to catch clicks that might be prevented
 const handleMouseDownOutside = (event) => {
-  const target = event.target
-  const multiselect = target.closest('.multiselect')
-  if (!multiselect) {
+  if (rootRef.value && !rootRef.value.contains(event.target)) {
     isOpen.value = false
   }
 }

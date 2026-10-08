@@ -40,7 +40,9 @@ export default [
       'vuejs-accessibility/click-events-have-key-events': 'error',
       'vuejs-accessibility/form-control-has-label': 'warn',
       'vuejs-accessibility/interactive-supports-focus': 'error',
-      'vuejs-accessibility/label-has-for': 'warn',
+      // A label is valid with EITHER a nested control OR a for/id reference
+      // (the plugin default demands both, which is stricter than the HTML spec).
+      'vuejs-accessibility/label-has-for': ['warn', { required: { some: ['nesting', 'id'] } }],
       'vuejs-accessibility/mouse-events-have-key-events': 'error',
       'vuejs-accessibility/no-access-key': 'error',
       'vuejs-accessibility/no-autofocus': 'error',

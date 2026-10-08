@@ -14,7 +14,7 @@
         :name="name"
         :options="availableLicenses"
         option-value="id"
-        option-label="title"
+        option-label="text"
         placeholder="Select License"
         search-placeholder="Search licenses..."
         :allow-clear="true"

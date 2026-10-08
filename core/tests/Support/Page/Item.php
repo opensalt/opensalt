@@ -170,6 +170,36 @@ class Item implements Context
     }
 
     /**
+     * Select a framework in the Copy / Associate pane's single-box selector
+     * (SingleSelect combobox). Filtering by identifier makes the target option
+     * unique, and clicking it emits the selection regardless of the previous
+     * value, so no deselect dance is needed for the same-framework case.
+     */
+    private function selectFrameworkInSidePanel($identifier)
+    {
+        $I = $this->I;
+
+        // Wait for the SingleSelect combobox in the Copy / Associate pane
+        $I->waitForElementVisible('.side-by-side-panel .document-selector [role=combobox]', 30);
+
+        // Options render (hidden) once the document list has loaded from the API
+        $I->waitForElement('.side-by-side-panel .document-selector [role=option]', 30);
+
+        // Open the dropdown, filter to the target, and click the matching option
+        $I->executeJS(
+            "var root = document.querySelector('.side-by-side-panel .document-selector');" .
+            "var combo = root.querySelector('[role=\"combobox\"]');" .
+            "var content = root.querySelector('.singleselect__content');" .
+            "if (content && content.style.display === 'none') { combo.click(); }" .
+            "var input = root.querySelector('.singleselect__input');" .
+            "input.value = '{$identifier}'; input.dispatchEvent(new Event('input', {bubbles: true}));" .
+            "var target = Array.prototype.find.call(root.querySelectorAll('[role=\"option\"]'), function (o) { return o.textContent.indexOf('{$identifier}') !== -1; });" .
+            "if (target) { target.click(); }"
+        );
+        $I->wait(1);
+    }
+
+    /**
      * @Then /^I copy a Item$/
      */
     public function iCopyAItem()
@@ -180,28 +210,9 @@ class Item implements Context
         $I->waitForElementVisible('#tab-externalDocument');
         $I->click('#tab-externalDocument');
 
-        // Wait for SideBySideTreePanel to mount
-        $I->waitForElementVisible('.side-by-side-panel .document-selector select.form-select', 30);
-
-        // Get the framework identifier FIRST (needed for option wait)
         $lastDoc = $I->getLastFramework();
         $identifier = $lastDoc['identifier'];
-
-        // Wait for the specific option to exist (ensures documents are loaded from API)
-        $I->waitForElement(".side-by-side-panel .document-selector select.form-select option[value='{$identifier}']", 30);
-
-        // Deselect first to ensure Vue detects a change (handles same-framework case)
-        $I->executeJS(
-            "var sel = document.querySelector('.side-by-side-panel .document-selector select.form-select');" .
-            "if (sel) { sel.value = ''; sel.dispatchEvent(new Event('change', {bubbles: true})); }"
-        );
-        $I->wait(1);
-
-        // Now select the target framework
-        $I->executeJS(
-            "var sel = document.querySelector('.side-by-side-panel .document-selector select.form-select');" .
-            "if (sel) { sel.value = '{$identifier}'; sel.dispatchEvent(new Event('change', {bubbles: true})); }"
-        );
+        $this->selectFrameworkInSidePanel($identifier);
 
         // Wait for side tree to load and expand
         $I->waitForElementVisible('.side-by-side-panel .side-tree .tree-node .tree-node .tree-node-label', 30);
@@ -235,28 +246,9 @@ class Item implements Context
         $I->waitForElementVisible('#tab-externalDocument');
         $I->click('#tab-externalDocument');
 
-        // Wait for SideBySideTreePanel to mount
-        $I->waitForElementVisible('.side-by-side-panel .document-selector select.form-select', 30);
-
-        // Get the framework identifier FIRST (needed for option wait)
         $lastDoc = $I->getLastFramework();
         $identifier = $lastDoc['identifier'];
-
-        // Wait for the specific option to exist (ensures documents are loaded from API)
-        $I->waitForElement(".side-by-side-panel .document-selector select.form-select option[value='{$identifier}']", 30);
-
-        // Deselect first to ensure Vue detects a change (handles same-framework case)
-        $I->executeJS(
-            "var sel = document.querySelector('.side-by-side-panel .document-selector select.form-select');" .
-            "if (sel) { sel.value = ''; sel.dispatchEvent(new Event('change', {bubbles: true})); }"
-        );
-        $I->wait(1);
-
-        // Now select the target framework
-        $I->executeJS(
-            "var sel = document.querySelector('.side-by-side-panel .document-selector select.form-select');" .
-            "if (sel) { sel.value = '{$identifier}'; sel.dispatchEvent(new Event('change', {bubbles: true})); }"
-        );
+        $this->selectFrameworkInSidePanel($identifier);
 
         // Wait for side tree to load and expand
         $I->waitForElementVisible('.side-by-side-panel .side-tree .tree-node .tree-node .tree-node-label', 30);
@@ -295,82 +287,9 @@ class Item implements Context
         // Switch to Copy / Associate mode
         $I->click('#tab-externalDocument');
 
-        // Wait for the DocumentSelector to be present
-        $I->waitForElementVisible('.side-by-side-panel .document-selector select.form-select', 30);
-
-        // Get the framework identifier FIRST (needed for option wait)
         $lastDoc = $I->getLastFramework();
         $identifier = $lastDoc['identifier'];
-
-        // Wait for the specific option to exist (ensures documents are loaded from API)
-        $I->waitForElement(".side-by-side-panel .document-selector select.form-select option[value='{$identifier}']", 30);
-
-        // Select the target framework using executeJS
-        // First ensure the value is different by selecting a different option, then select the target
-        $I->executeJS(
-            "var sel = document.querySelector('.side-by-side-panel .document-selector select.form-select');" .
-            "if (sel) { " .
-                // First, find and select a DIFFERENT option (not the target)
-                "var changed = false; " .
-                "for (var i = sel.options.length - 1; i >= 0; i--) { " .
-                    "if (sel.options[i].value && sel.options[i].value !== '{$identifier}') { " .
-                        "sel.selectedIndex = i; " .
-                        "sel.dispatchEvent(new Event('change', {bubbles: true})); " .
-                        "changed = true; " .
-                        "break; " .
-                    "} " .
-                "} " .
-                // If no different option found, try setting to empty first
-                "if (!changed) { " .
-                    "sel.selectedIndex = -1; " .
-                "} " .
-            "}"
-        );
-
-        // Brief wait for Vue to process the first change
-        $I->wait(0.5);
-
-        // Now select the target option
-        $I->executeJS(
-            "var sel = document.querySelector('.side-by-side-panel .document-selector select.form-select');" .
-            "if (sel) { " .
-                "for (var i = 0; i < sel.options.length; i++) { " .
-                    "if (sel.options[i].value === '{$identifier}') { " .
-                        "sel.selectedIndex = i; " .
-                        "sel.dispatchEvent(new Event('change', {bubbles: true})); " .
-                        "break; " .
-                    "} " .
-                "} " .
-            "}"
-        );
-
-        // Close loadExternalDocumentModal if it was opened by the first select step
-        $I->executeJS("
-            var modal = document.getElementById('loadExternalDocumentModal');
-            if (modal && (modal.classList.contains('show') || modal.style.display === 'block')) {
-                // Try Bootstrap 5 modal API first
-                if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-                    var bsModal = bootstrap.Modal.getInstance(modal);
-                    if (bsModal) {
-                        bsModal.hide();
-                    } else {
-                        modal.classList.remove('show');
-                        modal.style.display = 'none';
-                    }
-                } else {
-                    modal.classList.remove('show');
-                    modal.style.display = 'none';
-                }
-                // Remove backdrop
-                var backdrops = document.querySelectorAll('.modal-backdrop');
-                backdrops.forEach(function(b) { b.remove(); });
-                // Remove body overflow hidden
-                document.body.classList.remove('modal-open');
-                document.body.style.removeProperty('overflow');
-                document.body.style.removeProperty('padding-right');
-            }
-        ");
-        $I->waitForElementNotVisible('#loadExternalDocumentModal', 5);
+        $this->selectFrameworkInSidePanel($identifier);
 
         // Wait for side tree nodes to appear
         $I->waitForElementVisible('.side-by-side-panel .side-tree .tree-node', 30);

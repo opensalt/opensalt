@@ -1,17 +1,21 @@
 <template>
   <div
+    ref="rootRef"
     class="singleselect"
-    :class="{ 'singleselect--active': isOpen }"
+    :class="{ 'singleselect--active': isOpen, 'singleselect--disabled': disabled }"
   >
     <div
       :id="id"
       class="singleselect__tags"
       role="combobox"
       tabindex="0"
+      :aria-disabled="disabled"
       :aria-expanded="isOpen"
       aria-haspopup="listbox"
       :aria-controls="listboxId"
       :aria-activedescendant="activeDescendantId"
+      :aria-labelledby="labelledbyId || undefined"
+      :aria-label="labelledbyId ? undefined : placeholder"
       @click="toggleDropdown"
       @keydown="handleKeydown"
     >
@@ -43,20 +47,29 @@
       :aria-label="placeholder"
       class="singleselect__content"
     >
-      <div class="singleselect__content-wrapper">
-        <div
-          v-if="searchable"
-          class="singleselect__search"
+      <!-- Search stays pinned above the scrolling options -->
+      <div
+        v-if="searchable"
+        class="singleselect__search"
+      >
+        <input
+          v-model="searchQuery"
+          type="text"
+          class="singleselect__input"
+          :placeholder="searchPlaceholder"
+          :aria-label="searchPlaceholder"
+          @keydown="handleSearchKeydown"
         >
-          <input
-            v-model="searchQuery"
-            type="text"
-            class="singleselect__input"
-            :placeholder="searchPlaceholder"
-            @input="filterOptions"
-          >
-        </div>
+      </div>
 
+      <div
+        aria-live="polite"
+        class="visually-hidden"
+      >
+        {{ resultStatusMessage }}
+      </div>
+
+      <div class="singleselect__content-wrapper">
         <ul class="singleselect__options">
           <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/interactive-supports-focus, vuejs-accessibility/mouse-events-have-key-events -->
           <li
@@ -85,24 +98,39 @@
             <span class="singleselect__option-text">{{ getOptionLabel(createOption) }}</span>
           </li>
           <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/interactive-supports-focus, vuejs-accessibility/mouse-events-have-key-events -->
-          <li
-            v-for="(option, index) in filteredOptions"
-            :id="getOptionId(index)"
-            :key="getOptionValue(option)"
-            role="option"
-            class="singleselect__option"
-            :class="{
-              'singleselect__option--selected': isSelected(option),
-              'singleselect__option--highlighted': highlightedIndex === index
-            }"
-            :aria-selected="isSelected(option)"
-            @click="selectOption(option)"
-            @mouseenter="highlightedIndex = index"
+          <template
+            v-for="(group, groupIndex) in renderedGroups"
+            :key="groupIndex"
           >
-            <span class="singleselect__option-text">{{ getOptionLabel(option) }}</span>
-          </li>
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/interactive-supports-focus, vuejs-accessibility/mouse-events-have-key-events -->
+            <li
+              v-if="group.label"
+              role="presentation"
+              class="singleselect__option-group"
+            >
+              {{ group.label }}
+            </li>
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/interactive-supports-focus, vuejs-accessibility/mouse-events-have-key-events -->
+            <li
+              v-for="entry in group.entries"
+              :id="getOptionId(entry.index)"
+              :key="getOptionValue(entry.option)"
+              role="option"
+              class="singleselect__option"
+              :class="{
+                'singleselect__option--selected': isSelected(entry.option),
+                'singleselect__option--highlighted': highlightedIndex === entry.index,
+                'singleselect__option--grouped': Boolean(group.label)
+              }"
+              :aria-selected="isSelected(entry.option)"
+              @click="selectOption(entry.option)"
+              @mouseenter="highlightedIndex = entry.index"
+            >
+              <span class="singleselect__option-text">{{ getOptionLabel(entry.option) }}</span>
+            </li>
+          </template>
           <li
-            v-if="filteredOptions.length === 0 && !createOption"
+            v-if="selectableOptions.length === 0 && !createOption"
             class="singleselect__option singleselect__option--disabled"
             role="presentation"
           >
@@ -115,9 +143,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-
-let _ssIdCounter = 0
+import { ref, computed, watch, onMounted, onUnmounted, useId } from 'vue'
 
 const props = defineProps({
   id: {
@@ -128,6 +154,11 @@ const props = defineProps({
     type: [String, Number, null],
     default: null
   },
+  /**
+   * Flat option list, or grouped entries shaped { label, options }.
+   * Group entries are auto-detected by their options array; their labels
+   * render as non-selectable headers (like optgroups).
+   */
   options: {
     type: Array,
     default: () => []
@@ -171,6 +202,16 @@ const props = defineProps({
   createOptionText: {
     type: String,
     default: "Create '{text}'"
+  },
+  /** id of an element to reference as the combobox's accessible name */
+  labelledbyId: {
+    type: String,
+    default: ''
+  },
+  /** Disables the control: not focusable, will not open, visually muted */
+  disabled: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -179,12 +220,11 @@ const emit = defineEmits(['update:modelValue'])
 const isOpen = ref(false)
 const isLoading = ref(false)
 const searchQuery = ref('')
-const filteredOptions = ref([])
 const highlightedIndex = ref(null)
+const rootRef = ref(null)
 
 // Unique IDs for ARIA relationships
-const componentId = _ssIdCounter++
-const listboxId = `ss-listbox-${componentId}`
+const listboxId = useId()
 const clearOptionId = `${listboxId}-clear`
 const createOptionId = `${listboxId}-create`
 const getOptionId = (index) => `${listboxId}-opt-${index}`
@@ -202,6 +242,68 @@ const activeDescendantId = computed(() => {
   return getOptionId(highlightedIndex.value)
 })
 
+const isGroup = (option) => Boolean(option && Array.isArray(option.options))
+
+const allFlatOptions = computed(() =>
+  props.options.flatMap((option) => (isGroup(option) ? option.options : [option]))
+)
+
+const optionMatchesQuery = (option, query) => {
+  const label = String(getOptionLabel(option) ?? '').toLowerCase()
+  if (label.includes(query)) return true
+  // Also match the option's other string fields (e.g. id, description)
+  return Object.values(option).some(
+    (value) => typeof value === 'string' && value.toLowerCase().includes(query)
+  )
+}
+
+const filteredOptions = computed(() => {
+  const query = searchQuery.value.trim().toLowerCase()
+  if (!query) return props.options
+
+  if (!props.options.some(isGroup)) {
+    return props.options.filter((option) => optionMatchesQuery(option, query))
+  }
+
+  const groups = []
+  for (const option of props.options) {
+    if (!isGroup(option)) {
+      if (optionMatchesQuery(option, query)) groups.push(option)
+      continue
+    }
+    // A query matching the group label keeps the whole group visible
+    const groupLabel = String(option.label ?? '').toLowerCase()
+    const options = groupLabel.includes(query)
+      ? option.options
+      : option.options.filter((child) => optionMatchesQuery(child, query))
+    if (options.length > 0) groups.push({ label: option.label, options })
+  }
+  return groups
+})
+
+// Selectable entries only (group headers are skipped), in list order
+const selectableOptions = computed(() =>
+  filteredOptions.value.flatMap((option) => (isGroup(option) ? option.options : [option]))
+)
+
+// Render model pairing each selectable option with its flat index for ARIA ids
+const renderedGroups = computed(() => {
+  let index = 0
+  return filteredOptions.value.map((option) => {
+    if (isGroup(option)) {
+      const entries = option.options.map((child) => ({ option: child, index: index++ }))
+      return { label: option.label, entries }
+    }
+    return { label: null, entries: [{ option, index: index++ }] }
+  })
+})
+
+const resultStatusMessage = computed(() => {
+  if (!searchQuery.value.trim()) return ''
+  const count = selectableOptions.value.length
+  return count === 0 ? props.noResultsText : `${count} option${count === 1 ? '' : 's'} available`
+})
+
 const getOptionValue = (option) => {
   if (option === null || option === undefined) return null
   if (typeof option === 'object') {
@@ -213,7 +315,12 @@ const getOptionValue = (option) => {
 const getOptionLabel = (option) => {
   if (option === null || option === undefined) return ''
   if (typeof option === 'object') {
-    return option[props.optionLabel] ?? option.text ?? option.label ?? option.title ?? option
+    // Keep empty strings out of the fallback chain: resolve them to the
+    // option value so options with blank titles stay identifiable.
+    const label = option[props.optionLabel] ?? option.text ?? option.label ?? option.title
+    if (label !== undefined && label !== null && label !== '') return label
+    const value = getOptionValue(option)
+    return (value !== null && value !== undefined) ? String(value) : ''
   }
   return option
 }
@@ -242,7 +349,7 @@ const selectedItem = computed(() => {
   if (props.modelValue === null || props.modelValue === undefined || props.modelValue === '') {
     return null
   }
-  const found = props.options.find(opt => getOptionValue(opt) === props.modelValue)
+  const found = allFlatOptions.value.find((opt) => getOptionValue(opt) === props.modelValue)
   if (found) return found
 
   if (typeof props.modelValue === 'string' && props.modelValue.startsWith('__')) {
@@ -266,11 +373,11 @@ const isSelected = (option) => {
 }
 
 const toggleDropdown = () => {
+  if (props.disabled) return
   isOpen.value = !isOpen.value
   if (isOpen.value) {
-    // Reset search when opening and sync with current options
+    // Reset search when opening so the full list is visible again
     searchQuery.value = ''
-    filteredOptions.value = [...props.options] // Create a new array to ensure reactivity
     highlightedIndex.value = null
   }
 }
@@ -287,19 +394,6 @@ const clearSelection = () => {
   isOpen.value = false
 }
 
-const filterOptions = () => {
-  if (!searchQuery.value) {
-    filteredOptions.value = props.options
-    return
-  }
-
-  const query = searchQuery.value.toLowerCase()
-  filteredOptions.value = props.options.filter(option => {
-    const label = getOptionLabel(option).toLowerCase()
-    return label.includes(query)
-  })
-}
-
 const selectCreateOption = () => {
   if (createOption.value) {
     emit('update:modelValue', getOptionValue(createOption.value))
@@ -310,11 +404,11 @@ const selectCreateOption = () => {
 
 // Keyboard navigation
 const moveHighlight = (direction) => {
-  if (filteredOptions.value.length === 0 && !hasCreateOption.value) return
+  if (selectableOptions.value.length === 0 && !hasCreateOption.value) return
 
   const hasClear = props.allowClear
   const hasCreate = hasCreateOption.value
-  const totalFlatCount = filteredOptions.value.length + (hasClear ? 1 : 0) + (hasCreate ? 1 : 0)
+  const totalFlatCount = selectableOptions.value.length + (hasClear ? 1 : 0) + (hasCreate ? 1 : 0)
 
   let flatIndex
   if (highlightedIndex.value === null || highlightedIndex.value === undefined) {
@@ -347,7 +441,7 @@ const moveHighlight = (direction) => {
 }
 
 const highlightFirst = () => {
-  if (filteredOptions.value.length === 0 && !hasCreateOption.value) return
+  if (selectableOptions.value.length === 0 && !hasCreateOption.value) return
   if (hasCreateOption.value) {
     highlightedIndex.value = -2
   } else {
@@ -356,15 +450,50 @@ const highlightFirst = () => {
 }
 
 const highlightLast = () => {
-  if (filteredOptions.value.length === 0 && !hasCreateOption.value) return
-  if (filteredOptions.value.length === 0) {
+  if (selectableOptions.value.length === 0 && !hasCreateOption.value) return
+  if (selectableOptions.value.length === 0) {
     highlightedIndex.value = -2
   } else {
-    highlightedIndex.value = filteredOptions.value.length - 1
+    highlightedIndex.value = selectableOptions.value.length - 1
+  }
+}
+
+const handleSearchKeydown = (event) => {
+  if (props.disabled) return
+  switch (event.key) {
+    case 'ArrowDown':
+      event.preventDefault()
+      moveHighlight(1)
+      break
+
+    case 'ArrowUp':
+      event.preventDefault()
+      moveHighlight(-1)
+      break
+
+    case 'Enter':
+      event.preventDefault()
+      if (highlightedIndex.value === -2) {
+        selectCreateOption()
+      } else if (highlightedIndex.value === -1) {
+        clearSelection()
+      } else if (highlightedIndex.value !== null && highlightedIndex.value !== undefined) {
+        selectOption(selectableOptions.value[highlightedIndex.value])
+      } else if (selectableOptions.value.length > 0) {
+        // Enter with no highlight picks the first matching option
+        selectOption(selectableOptions.value[0])
+      }
+      break
+
+    case 'Escape':
+      event.preventDefault()
+      isOpen.value = false
+      break
   }
 }
 
 const handleKeydown = (event) => {
+  if (props.disabled) return
   switch (event.key) {
     case 'Enter':
     case ' ':
@@ -377,7 +506,7 @@ const handleKeydown = (event) => {
         } else if (highlightedIndex.value === -1) {
           clearSelection()
         } else {
-          selectOption(filteredOptions.value[highlightedIndex.value])
+          selectOption(selectableOptions.value[highlightedIndex.value])
         }
       }
       break
@@ -419,19 +548,17 @@ const handleKeydown = (event) => {
   }
 }
 
+// Close only when the click lands outside this instance, so opening another
+// select (or clicking anywhere else) closes this one.
 const handleClickOutside = (event) => {
-  const target = event.target
-  const singleselect = target.closest('.singleselect')
-  if (!singleselect) {
+  if (rootRef.value && !rootRef.value.contains(event.target)) {
     isOpen.value = false
   }
 }
 
 // Also handle mousedown events to catch clicks that might be prevented
 const handleMouseDownOutside = (event) => {
-  const target = event.target
-  const singleselect = target.closest('.singleselect')
-  if (!singleselect) {
+  if (rootRef.value && !rootRef.value.contains(event.target)) {
     isOpen.value = false
   }
 }
@@ -442,10 +569,6 @@ watch(isOpen, (newVal) => {
     highlightedIndex.value = null
   }
 })
-
-watch(() => props.options, (newOptions) => {
-  filteredOptions.value = newOptions
-}, { immediate: true })
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
@@ -540,12 +663,16 @@ onUnmounted(() => {
   border-radius: 0 0 0.375rem 0.375rem;
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
   z-index: 1000;
+  display: flex;
+  flex-direction: column;
   max-height: 300px;
   overflow: hidden;
 }
 
+/* Only the options scroll; the search box stays pinned above them */
 .singleselect__content-wrapper {
-  max-height: 300px;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
 }
 
@@ -566,8 +693,6 @@ onUnmounted(() => {
   list-style: none;
   margin: 0;
   padding: 0;
-  max-height: 250px;
-  overflow-y: auto;
 }
 
 .singleselect__option {
@@ -621,6 +746,18 @@ onUnmounted(() => {
   background-color: transparent;
 }
 
+.singleselect__option-group {
+  padding: 6px 12px 4px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #212529;
+}
+
+/* Options inside a group are indented under their bold header, like optgroups */
+.singleselect__option--grouped {
+  padding-left: 26px;
+}
+
 .singleselect__option-text {
   flex: 1;
   font-size: 0.875rem;
@@ -636,5 +773,16 @@ onUnmounted(() => {
 .singleselect__tags:focus-within {
   border-color: #86b7fe;
   box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Disabled control */
+.singleselect--disabled .singleselect__tags {
+  background-color: #e9ecef;
+  cursor: not-allowed;
+}
+
+.singleselect--disabled .singleselect__selected-value,
+.singleselect--disabled .singleselect__placeholder {
+  color: #6c757d;
 }
 </style>

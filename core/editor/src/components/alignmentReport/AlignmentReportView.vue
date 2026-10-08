@@ -8,79 +8,49 @@
 
     <div class="row g-3 mb-2">
       <div class="col-md-6">
-        <div class="form-label small mb-1">
-          Select framework for alignment
-        </div>
-        <VueMultiselect
-          v-model="leftDoc"
-          class="framework-select"
-          :options="groupedDocuments"
-          group-label="creator"
-          group-values="documents"
-          :group-select="false"
-          label="title"
-          track-by="identifier"
-          :searchable="true"
-          :close-on-select="true"
-          :clear-on-select="false"
-          placeholder="Type to search frameworks…"
-          select-label=""
-          deselect-label=""
-          selected-label=""
+        <span
+          :id="sourceLabelId"
+          class="form-label small mb-1"
         >
-          <template #singleLabel="{ option }">
-            {{ option.title }} ({{ option.identifier }})
-          </template>
-          <template #option="{ option }">
-            <template v-if="option.$isLabel">
-              {{ option.$groupLabel }}
-            </template>
-            <template v-else>
-              {{ option.title }} ({{ option.identifier }})
-            </template>
-          </template>
-          <template #noOptions>
-            No frameworks available
-          </template>
-        </VueMultiselect>
+          Select framework for alignment
+        </span>
+        <SingleSelect
+          id="alignment-source-framework"
+          :model-value="leftId || null"
+          :options="frameworkOptions"
+          placeholder="Type to search frameworks…"
+          option-value="id"
+          option-label="text"
+          :searchable="true"
+          search-placeholder="Filter frameworks…"
+          :allow-clear="false"
+          no-results-text="No frameworks available"
+          :labelledby-id="sourceLabelId"
+          @update:model-value="onLeftChange"
+        />
       </div>
       <div class="col-md-6">
-        <div class="form-label small mb-1">
-          Select aligned framework
-        </div>
-        <VueMultiselect
-          v-model="rightDoc"
-          class="framework-select"
-          :options="groupedDocuments"
-          group-label="creator"
-          group-values="documents"
-          :group-select="false"
-          label="title"
-          track-by="identifier"
-          :searchable="true"
-          :close-on-select="true"
-          :clear-on-select="false"
-          placeholder="Type to search frameworks…"
-          :disabled="!leftId"
-          select-label=""
-          deselect-label=""
-          selected-label=""
+        <span
+          :id="targetLabelId"
+          class="form-label small mb-1"
         >
-          <template #singleLabel="{ option }">
-            {{ option.title }} ({{ option.identifier }})
-          </template>
-          <template #option="{ option }">
-            <template v-if="option.$isLabel">
-              {{ option.$groupLabel }}
-            </template>
-            <template v-else>
-              {{ option.title }} ({{ option.identifier }})
-            </template>
-          </template>
-          <template #noOptions>
-            No frameworks available
-          </template>
-        </VueMultiselect>
+          Select aligned framework
+        </span>
+        <SingleSelect
+          id="alignment-target-framework"
+          :model-value="rightId || null"
+          :options="frameworkOptions"
+          placeholder="Type to search frameworks…"
+          option-value="id"
+          option-label="text"
+          :searchable="true"
+          search-placeholder="Filter frameworks…"
+          :allow-clear="false"
+          no-results-text="No frameworks available"
+          :labelledby-id="targetLabelId"
+          :disabled="!leftId"
+          @update:model-value="onRightChange"
+        />
       </div>
     </div>
 
@@ -159,8 +129,7 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import VueMultiselect from 'vue-multiselect';
-import 'vue-multiselect/dist/vue-multiselect.css';
+import SingleSelect from '../tree/SingleSelect.vue';
 import { useDocumentStore } from '../../stores/documentStore';
 import { useDocumentGroups } from '../../composables/useDocumentGroups.js';
 import { useAlignmentReport } from '../../composables/useAlignmentReport.js';
@@ -177,28 +146,36 @@ const routeLeftId = typeof route.params.frameworkId === 'string' ? route.params.
 const leftId = ref(routeLeftId);
 const rightId = ref('');
 
+// Static ids: this view renders one instance of each picker per page
+const sourceLabelId = 'alignment-source-framework-label';
+const targetLabelId = 'alignment-target-framework-label';
+
 // Keep the left picker in sync on in-SPA navigation between frameworks.
 watch(() => route.params.frameworkId, (id) => {
-  const newId = typeof id === 'string' ? id : '';
-  if (newId === leftId.value) {
-    return;
-  }
-  leftId.value = newId;
-  leftDoc.value = newId ? findDoc(newId) : null;
+  leftId.value = typeof id === 'string' ? id : '';
 });
 
 const allDocuments = computed(() => documentStore.documents);
 const { groupedDocuments } = useDocumentGroups(allDocuments);
 
-// Searchable pickers hold the whole document object; the ids stay the source of truth.
-const leftDoc = ref(null);
-const rightDoc = ref(null);
-watch(leftDoc, (doc) => {
-  leftId.value = doc?.identifier ?? '';
-});
-watch(rightDoc, (doc) => {
-  rightId.value = doc?.identifier ?? '';
-});
+// Creator groups with "Title (identifier)" options, matching the old picker
+const frameworkOptions = computed(() =>
+  groupedDocuments.value.map((group) => ({
+    label: group.creator,
+    options: group.documents.map((doc) => ({
+      id: doc.identifier,
+      text: `${doc.title} (${doc.identifier})`,
+    })),
+  }))
+);
+
+function onLeftChange(id) {
+  leftId.value = id ?? '';
+}
+
+function onRightChange(id) {
+  rightId.value = id ?? '';
+}
 
 function findDoc(identifier) {
   return documentStore.documents.find((d) => d.identifier === identifier) ?? null;
@@ -208,12 +185,8 @@ onMounted(async () => {
   if (documentStore.documents.length === 0) {
     await documentStore.fetchDocuments();
   }
-  // Show the URL-preselected framework in the picker once the list is loaded.
-  // If it is not visible to this user (draft/private), the picker stays blank
-  // while leftId still drives generation.
-  if (routeLeftId && !leftDoc.value) {
-    leftDoc.value = findDoc(routeLeftId);
-  }
+  // If the URL framework is not visible to this user (draft/private), the
+  // picker shows its placeholder while leftId still drives generation.
 });
 
 async function determineDifferences() {
@@ -251,68 +224,7 @@ async function downloadExcel() {
 </script>
 
 <style scoped>
-/* Match vue-multiselect to Bootstrap .form-select (see native selects elsewhere). */
-/* Group headers render as disabled options; the library's disabled rule uses
-   !important, so these overrides must too. */
-.framework-select :deep(.multiselect__option--group),
-.framework-select :deep(.multiselect__group) {
-  font-weight: 700 !important;
-  background: transparent !important;
-  color: var(--bs-secondary-color) !important;
-}
-.framework-select :deep(.multiselect__element .multiselect__option) {
-  padding-left: 1.625rem;
-}
-.framework-select :deep(.multiselect__element .multiselect__option--group) {
-  padding-left: 0.625rem;
-}
-.framework-select :deep(.multiselect__tags) {
-  min-height: calc(1.5em + 0.75rem + 2px);
-  padding: 0.375rem 40px 0.375rem 0.75rem;
-  border: 1px solid var(--bs-border-color);
-  border-radius: var(--bs-border-radius);
-  background-color: var(--bs-body-bg);
-  font-size: 1rem;
-}
-.framework-select.multiselect--active :deep(.multiselect__tags) {
-  border-color: #86b7fe;
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-}
-.framework-select :deep(.multiselect__single),
-.framework-select :deep(.multiselect__input),
-.framework-select :deep(.multiselect__placeholder) {
-  font-size: 1rem;
-  line-height: 1.5;
-  margin-bottom: 0;
-  padding: 0;
-}
-.framework-select :deep(.multiselect__single) {
-  color: var(--bs-body-color);
-}
-.framework-select :deep(.multiselect__placeholder) {
-  color: var(--bs-secondary-color);
-}
-.framework-select :deep(.multiselect__select)::before {
-  border-color: var(--bs-body-color) transparent transparent;
-  top: 70%;
-}
-.framework-select.multiselect--disabled :deep(.multiselect__tags) {
-  background-color: var(--bs-secondary-bg);
-  border-color: var(--bs-border-color);
-}
-.framework-select.multiselect--disabled :deep(.multiselect__single) {
-  color: var(--bs-secondary-color);
-}
-.framework-select :deep(.multiselect__option--highlight) {
-  background: var(--bs-primary);
-  color: #fff;
-}
-.framework-select :deep(.multiselect__option--selected.multiselect__option--highlight) {
-  background: var(--bs-primary);
-}
-.framework-select :deep(.multiselect__option--selected) {
-  background: var(--bs-tertiary-bg);
-  color: var(--bs-body-color);
-  font-weight: 600;
+.form-label {
+  display: block;
 }
 </style>
