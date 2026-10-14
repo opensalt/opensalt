@@ -34,6 +34,15 @@ export function useTreeNodeSearch({ resolvedItem, searchQuery, matchingItemIds, 
         return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 
+    function escapeHtml(string) {
+        return string
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
     const highlightedTitle = computed(() => {
         const title =
             resolvedItem.value.abbreviatedStatement ||
@@ -44,7 +53,16 @@ export function useTreeNodeSearch({ resolvedItem, searchQuery, matchingItemIds, 
         if (!searchQuery.value || !hasMatch.value) return title;
         const sanitizedQuery = escapeRegExp(searchQuery.value);
         const regex = new RegExp(`(${sanitizedQuery})`, 'gi');
-        return title.replace(regex, '<mark class="search-highlight">$1</mark>');
+        // The result is rendered via v-html, so escape every segment and let
+        // only our own <mark> wrapper through.
+        return title
+            .split(regex)
+            .map((part, i) =>
+                i % 2 === 1
+                    ? `<mark class="search-highlight">${escapeHtml(part)}</mark>`
+                    : escapeHtml(part)
+            )
+            .join('');
     });
 
     // Auto-expand when descendants match

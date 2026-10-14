@@ -22,6 +22,11 @@ export default [
     },
     rules: {
       'vue/multi-word-component-names': 'off',
+      // Every v-html binding renders either sanitize-html output
+      // (src/utils/render-md.js, src/utils/markdownRenderer.js) or escaped
+      // text (render.escaped, useTreeNodeSearch). Keep it that way when
+      // adding new ones.
+      'vue/no-v-html': 'off',
       'vue/no-unused-vars': 'warn',
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
       'no-redeclare': 'off', // allow redundant global comments
@@ -56,6 +61,10 @@ export default [
       globals: {
         ...globals.vitest,
       },
+    },
+    rules: {
+      // Test files legitimately define several throwaway stub components inline.
+      'vue/one-component-per-file': 'off',
     },
   },
   {

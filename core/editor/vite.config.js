@@ -63,6 +63,9 @@ export default defineConfig({
   },
   build: {
     manifest: true,
+    // katex ships as a single ~530 kB minified module (fonts/metrics included)
+    // and cannot be split further by the bundler; allow its vendor chunk.
+    chunkSizeWarningLimit: 600,
     rollupOptions: {
       input: 'src/main.js',
       output: {

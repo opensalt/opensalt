@@ -5,7 +5,12 @@ import EditAssociationModal from '@/components/association/EditAssociationModal.
 
 const ExtensionsEditorStub = defineComponent({
   name: 'ExtensionsEditor',
-  props: ['modelValue', 'show', 'entityLabel', 'reservedKeys'],
+  props: {
+    modelValue: { type: Object, default: null },
+    show: { type: Boolean, default: false },
+    entityLabel: { type: String, default: '' },
+    reservedKeys: { type: Array, default: () => [] }
+  },
   emits: ['update:modelValue', 'update:show'],
   template: '<div />'
 });

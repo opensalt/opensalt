@@ -61,12 +61,14 @@
           type="text"
           class="form-control form-control-sm"
           placeholder="Search items..."
+          aria-label="Search items"
         >
       </div>
       <div class="col-md-3">
         <select
           v-model="filters.matchStatus"
           class="form-select form-select-sm"
+          aria-label="Filter by match status"
         >
           <option value="all">
             All Items
@@ -109,8 +111,12 @@
         </div>
       </div>
       <div class="col-md-2">
-        <label class="form-label small mb-0">Min Confidence: {{ (filters.confidenceMin * 100).toFixed(0) }}%</label>
+        <label
+          class="form-label small mb-0"
+          for="review-confidence-min"
+        >Min Confidence: {{ (filters.confidenceMin * 100).toFixed(0) }}%</label>
         <input
+          id="review-confidence-min"
           v-model.number="filters.confidenceMin"
           type="range"
           min="0"
@@ -216,8 +222,12 @@
               Showing {{ pageStart + 1 }}–{{ pageEnd }} of {{ totalRows }}
             </small>
             <div class="d-flex align-items-center gap-2">
-              <label class="small text-muted mb-0">Per page:</label>
+              <label
+                class="small text-muted mb-0"
+                for="review-per-page"
+              >Per page:</label>
               <select
+                id="review-per-page"
                 v-model.number="itemsPerPage"
                 class="form-select form-select-sm"
                 style="width: auto;"

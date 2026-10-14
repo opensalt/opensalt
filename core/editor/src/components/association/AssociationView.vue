@@ -40,7 +40,10 @@
         </h5>
 
         <div class="mb-3">
-          <label class="form-label">Search</label>
+          <label
+            class="form-label"
+            for="association-search"
+          >Search</label>
           <div class="input-group">
             <span class="input-group-text">
               <i
@@ -49,6 +52,7 @@
               />
             </span>
             <input
+              id="association-search"
               v-model="searchFilter"
               type="text"
               class="form-control"
@@ -58,7 +62,10 @@
         </div>
 
         <div class="mb-3">
-          <label class="form-label">Association Types</label>
+          <!-- Group heading, not a control label: the checkboxes below are labelled individually. -->
+          <div class="form-label">
+            Association Types
+          </div>
           <div
             v-if="allAssociationTypes.length === 0"
             class="text-muted small"
@@ -92,8 +99,12 @@
         </div>
 
         <div class="mb-3">
-          <label class="form-label">Association Group</label>
+          <label
+            class="form-label"
+            for="association-group"
+          >Association Group</label>
           <select
+            id="association-group"
             v-model="selectedGroup"
             class="form-select"
           >

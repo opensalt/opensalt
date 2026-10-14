@@ -9,6 +9,7 @@
         type="checkbox"
         :checked="isSelected"
         class="form-check-input"
+        aria-label="Select match row"
         @change="toggleSelect"
       >
     </td>
@@ -134,6 +135,7 @@
         type="checkbox"
         :checked="isSelectedUnmatched"
         class="form-check-input"
+        aria-label="Select unmatched origin row"
         @change="toggleSelect"
       >
     </td>
@@ -201,6 +203,7 @@
         type="checkbox"
         :checked="isSelectedUnmatched"
         class="form-check-input"
+        aria-label="Select unmatched destination row"
         @change="toggleSelect"
       >
     </td>

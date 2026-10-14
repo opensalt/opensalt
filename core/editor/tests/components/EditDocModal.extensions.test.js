@@ -17,7 +17,11 @@ function mountDoc(props = {}) {
       stubs: {
         BaseModal: defineComponent({
           name: 'BaseModal',
-          props: { isOpen: Boolean, title: String, size: String },
+          props: {
+            isOpen: { type: Boolean, default: false },
+            title: { type: String, default: '' },
+            size: { type: String, default: undefined }
+          },
           template: '<div><slot /><template v-if="$slots.footer"><footer><slot name="footer" /></footer></template></div>'
         }),
         SubjectSelector: true,

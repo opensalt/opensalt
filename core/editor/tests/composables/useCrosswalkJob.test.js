@@ -30,7 +30,7 @@ describe('useCrosswalkJob', () => {
 
   it('initializes with idle state', async () => {
     const { useCrosswalkJob } = await import('../../src/composables/useCrosswalkJob.js');
-    const { jobState, startJob } = useCrosswalkJob();
+    const { jobState } = useCrosswalkJob();
 
     expect(jobState.value.status).toBe('idle');
   });

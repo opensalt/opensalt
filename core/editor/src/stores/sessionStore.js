@@ -74,7 +74,7 @@ export const useSessionStore = defineStore('session', () => {
 
     function handleRemainingTime(time) {
         // Schedule next check based on time remaining logic
-        let nextCheckDelay = 0;
+        let nextCheckDelay;
 
         if (time < 11) {
             setWarning('warning-2');

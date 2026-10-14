@@ -7,6 +7,7 @@
             <input
               type="checkbox"
               class="form-check-input"
+              aria-label="Select all rows"
               :checked="allSelected"
               @change="toggleSelectAll"
             >

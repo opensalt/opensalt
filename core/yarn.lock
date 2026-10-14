@@ -453,7 +453,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opensalt/ob3-definer@npm:^1.2.0":
+"@opensalt/ob3-definer@npm:^1.2.10":
   version: 1.2.12
   resolution: "@opensalt/ob3-definer@npm:1.2.12"
   dependencies:
@@ -885,22 +885,22 @@ __metadata:
   linkType: hard
 
 "@symfony/ux-autocomplete@file:vendor/symfony/ux-autocomplete/assets::locator=opensalt%40workspace%3A.":
-  version: 3.5.1
-  resolution: "@symfony/ux-autocomplete@file:vendor/symfony/ux-autocomplete/assets#vendor/symfony/ux-autocomplete/assets::hash=a0410e&locator=opensalt%40workspace%3A."
+  version: 3.6.0
+  resolution: "@symfony/ux-autocomplete@file:vendor/symfony/ux-autocomplete/assets#vendor/symfony/ux-autocomplete/assets::hash=f1964b&locator=opensalt%40workspace%3A."
   peerDependencies:
     "@hotwired/stimulus": ^3.0.0
     tom-select: ^2.2.2
-  checksum: 10c0/8e6df2c32ed66dc3c1ffb50e0d1633fd9fbf590a86664463db5219675f1bfebee50c1fc9bbbf438af87a0010c742ef32abf66f864a6cc34674a3c09b7cb3b918
+  checksum: 10c0/fa1b3e77218938313a7d2fb073461bda61bc952f8f1da4b85bdb32e52c472119d4740bf25c5ac406fc17020a77d71960bfd4892548ff9f8b25e26db04a968cfa
   languageName: node
   linkType: hard
 
 "@symfony/ux-vue@file:vendor/symfony/ux-vue/assets::locator=opensalt%40workspace%3A.":
-  version: 3.5.1
-  resolution: "@symfony/ux-vue@file:vendor/symfony/ux-vue/assets#vendor/symfony/ux-vue/assets::hash=41ba8b&locator=opensalt%40workspace%3A."
+  version: 3.6.0
+  resolution: "@symfony/ux-vue@file:vendor/symfony/ux-vue/assets#vendor/symfony/ux-vue/assets::hash=a2f338&locator=opensalt%40workspace%3A."
   peerDependencies:
     "@hotwired/stimulus": ^3.0.0
     vue: ^3.0
-  checksum: 10c0/6a716a8b7a803477cdf1271cf7953b6ee7ae1f063e2d3a2c8073b3b79e4f8dd1ed449e72ed2754fad45f4139b42fcd7a801751c09cc447b7530c778b477a4635
+  checksum: 10c0/645efd8215d814cecc6e92035f30efd18e78e36fd793fee894a062feef777512441f744d2e64359a951960682097d76f15cda2cee4ed25df177ef074db894fb7
   languageName: node
   linkType: hard
 
@@ -1791,7 +1791,7 @@ __metadata:
   dependencies:
     "@fortawesome/fontawesome-free": "npm:^6.6.0"
     "@hotwired/stimulus": "npm:^3.0.0"
-    "@opensalt/ob3-definer": "npm:^1.2.0"
+    "@opensalt/ob3-definer": "npm:^1.2.10"
     "@popperjs/core": "npm:^2.11.8"
     "@rollup/plugin-commonjs": "npm:^29.0.0"
     "@rollup/plugin-inject": "npm:^5.0.5"

@@ -56,6 +56,7 @@
                 type="text"
                 class="form-control form-control-sm"
                 placeholder="Search logs..."
+                aria-label="Search logs"
               >
             </div>
             <div
@@ -234,8 +235,12 @@
               </ul>
             </nav>
             <div class="d-flex align-items-center gap-2 log-pagination-size">
-              <label class="small text-muted mb-0">Per page:</label>
+              <label
+                class="small text-muted mb-0"
+                for="log-per-page"
+              >Per page:</label>
               <select
+                id="log-per-page"
                 v-model="pageSize"
                 class="form-select form-select-sm"
                 style="width: auto;"

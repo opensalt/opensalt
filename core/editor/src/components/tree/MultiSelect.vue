@@ -65,6 +65,7 @@
             type="text"
             class="multiselect__input"
             :placeholder="searchPlaceholder"
+            aria-label="Search options"
             @input="filterOptions"
           >
         </div>
@@ -107,6 +108,7 @@
               :checked="isSelected(createOption)"
               class="multiselect__checkbox"
               tabindex="-1"
+              :aria-label="getOptionLabel(createOption)"
             >
             <span class="multiselect__option-text">{{ getOptionLabel(createOption) }}</span>
           </li>
@@ -130,6 +132,7 @@
               :checked="isSelected(option)"
               class="multiselect__checkbox"
               tabindex="-1"
+              :aria-label="getOptionLabel(option)"
             >
             <span class="multiselect__option-text">{{ getOptionLabel(option) }}</span>
           </li>
