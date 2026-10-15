@@ -8,6 +8,7 @@
 {% endblock header %}
 
 {% block swagger_initialization %}
+    {% cspscript %}
     <script type="text/javascript">
         const tagOrder = [
             'Document',
@@ -37,4 +38,5 @@
             tagsSorter: tagSorter
         });
     </script>
+    {% endcspscript %}
 {% endblock swagger_initialization %}

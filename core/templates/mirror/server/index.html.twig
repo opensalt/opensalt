@@ -27,17 +27,17 @@
                                 {% for name, val in statuses[server.id] %}
                                     {% if val != 0 %}
                                         {% if name == 'new' %}
-                                            <i class="fa fa-star" title="New: {{ val }}" aria-label="New"></i> {{ val }} &nbsp;
+                                            {{ ux_icon('fa-solid:star', {class: 'fa-icon fa-star', title: 'New: ' ~ val, 'aria-label': 'New'}) }} {{ val }} &nbsp;
                                         {% elseif name == 'ok' %}
-                                            <i class="fa fa-check-circle" title="Okay: {{ val }}" aria-label="Okay"></i> {{ val }} &nbsp;
+                                            {{ ux_icon('fa-solid:check-circle', {class: 'fa-icon fa-check-circle', title: 'Okay: ' ~ val, 'aria-label': 'Okay'}) }} {{ val }} &nbsp;
                                         {% elseif name == 'scheduled' %}
-                                            <i class="fa fa-calendar-check" title="Scheduled: {{ val }}" aria-label="Scheduled"></i> {{ val }} &nbsp;
+                                            {{ ux_icon('fa-solid:calendar-check', {class: 'fa-icon fa-calendar-check', title: 'Scheduled: ' ~ val, 'aria-label': 'Scheduled'}) }} {{ val }} &nbsp;
                                         {% elseif name == 'processing' %}
-                                            <i class="fa fa-refresh fa-spin" title="Processing: {{ val }}" aria-label="Processing"></i> {{ val }} &nbsp;
+                                            {{ ux_icon('fa-solid:sync', {class: 'fa-icon fa-refresh fa-spin', title: 'Processing: ' ~ val, 'aria-label': 'Processing'}) }} {{ val }} &nbsp;
                                         {% elseif name == 'error' %}
-                                            <i class="fa fa-warning" title="Error: {{ val }}" aria-label="Error"></i> {{ val }} &nbsp;
+                                            {{ ux_icon('fa-solid:exclamation-triangle', {class: 'fa-icon fa-warning', title: 'Error: ' ~ val, 'aria-label': 'Error'}) }} {{ val }} &nbsp;
                                         {% elseif name == 'not-included' %}
-                                            <i class="fa fa-minus-circle" title="Excluded: {{ val }}" aria-label="Excluded"></i> {{ val }} &nbsp;
+                                            {{ ux_icon('fa-solid:minus-circle', {class: 'fa-icon fa-minus-circle', title: 'Excluded: ' ~ val, 'aria-label': 'Excluded'}) }} {{ val }} &nbsp;
                                         {% endif %}
                                     {% endif %}
                                 {% endfor %}

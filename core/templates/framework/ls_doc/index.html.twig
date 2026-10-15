@@ -9,5 +9,5 @@
 {% endblock %}
 
 {% block javascripts %}
-    {{ vite_entry_script_tags('importFramework') }}
+    {{ importmap('importFramework', { nonce: csp_nonce('script') }) }}
 {% endblock %}

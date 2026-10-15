@@ -22,9 +22,9 @@
                 <tr>
                     <td class="mirror_log-status status">
                         {% if log.status == 'success' %}
-                            <i class="fa fa-check-circle" title="Success" aria-label="Success"></i>
+                            {{ ux_icon('fa-solid:check-circle', {class: 'fa-icon fa-check-circle', title: 'Success', 'aria-label': 'Success'}) }}
                         {% elseif log.status == 'failure' %}
-                            <i class="fa fa-warning" title="Failure" aria-label="Failure"></i>
+                            {{ ux_icon('fa-solid:exclamation-triangle', {class: 'fa-icon fa-warning', title: 'Failure', 'aria-label': 'Failure'}) }}
                         {% endif %}
                     </td>
                     <td class="mirror_log-occurred">{{ log.occurredAt|date('Y-m-d H:i:s') }}</td>

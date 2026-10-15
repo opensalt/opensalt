@@ -35,5 +35,5 @@
 
 {% block javascripts %}
     {{ parent() }}
-    {{ vite_entry_script_tags('signup') }}
+    {{ importmap('signup', { nonce: csp_nonce('script') }) }}
 {% endblock %}

@@ -17,13 +17,13 @@
                                 <input id="file-url" type="file" class="form-control" title="CASE file to import">
                                 <br/>
                                 <div class="alert alert-danger case-error-msg d-none" role="alert"></div>
-                                <a type="button" class="btn btn-primary btn-import btn-import-case" onclick="SaltLocal.handleFile('case', 'file-url');">Import Framework</a>
+                                <a type="button" class="btn btn-primary btn-import btn-import-case" data-salt-import="handleFile:case:file-url">Import Framework</a>
                             </div>
                             <div class="tab-pane fade" id="spreadsheet">
                                 <input id="excel-url" type="file" class="form-control" title="Spreadsheet to import">
                                 <br/>
                                 <div class="alert alert-danger case-error-msg d-none" role="alert"></div>
-                                <a type="button" class="btn btn-primary btn-import btn-import-spreadsheet" onclick="SaltLocal.handleExcelFile('spreadsheet', 'file-url');">Import Framework</a>
+                                <a type="button" class="btn btn-primary btn-import btn-import-spreadsheet" data-salt-import="handleExcelFile:spreadsheet:file-url">Import Framework</a>
                             </div>
                         </div>
                     </div>

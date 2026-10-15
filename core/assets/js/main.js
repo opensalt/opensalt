@@ -1,2 +1,2 @@
-import './application';
-import './user-admin';
+import './application.js';
+import './user-admin.js';

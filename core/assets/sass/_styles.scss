@@ -149,6 +149,46 @@ span.notification-url-indicator {
     }
 }
 
+// Font Awesome glyphs were replaced by symfony/ux-icons (Font Awesome 5 solid
+// set, assets/icons/fa-solid/). The legacy fa-* class names are kept on the
+// SVGs so the status colors above keep applying; sizing mirrors the old
+// webfont glyphs (1em box, baseline offset -0.125em).
+svg.fa-icon {
+    height: 1em;
+    width: auto;
+    vertical-align: -0.125em;
+}
+
+svg.fa-icon.fa-5x {
+    height: 5em;
+}
+
+.fa-spin {
+    animation: spin 1.5s infinite linear;
+}
+
+// JS-generated HTML (util-salt spinner, signup hints) cannot embed
+// Twig-rendered SVGs; those two icons load as masked elements and take their
+// color from currentColor.
+.fa.fa-cog {
+    --uxi-icon: url("../icons/fa-solid/cog.svg");
+}
+
+.fa.fa-exclamation-circle {
+    --uxi-icon: url("../icons/fa-solid/exclamation-circle.svg");
+}
+
+.fa.fa-cog,
+.fa.fa-exclamation-circle {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.125em;
+    background-color: currentColor;
+    -webkit-mask: var(--uxi-icon) no-repeat center / contain;
+    mask: var(--uxi-icon) no-repeat center / contain;
+}
+
 table.mirror_log-table {
     .mirror_log-occurred {
         min-width: 150px;

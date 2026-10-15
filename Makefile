@@ -49,40 +49,28 @@ composer-update:
 .PHONY: composer-install composer-update
 
 
-# Encore commands
-js: encore cache-clear
+# Front-end build commands (core/ uses Symfony AssetMapper + symfonycasts/sass-bundle)
+js: assets-build cache-clear
 .PHONY: js
 
-encore: yarn-install
-	core/bin/yarn build
-encore-dev: yarn-install
-	core/bin/yarn build
-encore-build: encore
-.PHONY: encore encore-dev encore-build
-
-node_modules: core/yarn.lock core/package.json
-	core/bin/yarn install --non-interactive
-	touch core/node_modules
-yarn-install: node_modules
-.PHONY: yarn-install
+assets-build:
+	core/bin/console sass:build
+	core/bin/console asset-map:compile
+.PHONY: assets-build
 
 # Install and build commands
 assets-install:
 	core/bin/console assets:install public --symlink --relative
 .PHONY: assets-install
 
-build: vendor encore-build assets-install cache-clear
+build: vendor assets-build assets-install cache-clear
 .PHONY: build
 
 force-vendor:
 	touch -c core/composer.lock
 .PHONY: force-vendor
 
-force-node-modules:
-	touch -c core/yarn.lock
-.PHONY: force-node-modules
-
-force-build: force-vendor force-node-modules build
+force-build: force-vendor build
 .PHONY: force-build
 
 update: force-build migrate

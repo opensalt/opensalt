@@ -40,28 +40,5 @@
 
 
 {% block javascripts %}
-    <script>
-        (function () {
-            const itemListWrap = document.getElementById('lsItemListWrap-changeParent');
-            const parentField = document.getElementById('ls_item_parent_parentItem');
-            if (!itemListWrap || !parentField) {
-                return;
-            }
-
-            itemListWrap.addEventListener('click', (e) => {
-                e.stopPropagation();
-                e.preventDefault();
-
-                if (e.target.closest('.lsDoc')) {
-                    parentField.value = '';
-                    return;
-                }
-
-                const itemLink = e.target.closest('.lsItem');
-                if (itemLink) {
-                    parentField.value = (itemLink.getAttribute('name') ?? '').replace('mark-', '');
-                }
-            });
-        })();
-    </script>
+    {# List-click behavior lives in assets/js/forms.js (loaded via the app entry). #}
 {% endblock %}

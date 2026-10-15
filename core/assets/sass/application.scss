@@ -1,4 +1,4 @@
-@import "bootstrap/scss/functions";
+@import "../../vendor/twbs/bootstrap/scss/functions";
 @import "brand-variables";
 @import "variables";
 
@@ -6,12 +6,11 @@
     --bs-border-color: #{$border-color};
 }
 
-@import "bootstrap/scss/bootstrap";
+@import "../../vendor/twbs/bootstrap/scss/bootstrap";
 
-@import "@fortawesome/fontawesome-free/css/all.min.css";
-@import "tom-select/dist/css/tom-select.bootstrap5.css";
+@import "../vendor/tom-select/dist/css/tom-select.bootstrap5";
 
-@import "datatables.net-bs5/css/dataTables.bootstrap5";
+@import "../../vendor/datatables.net/datatables.net-bs5/css/dataTables.bootstrap5";
 
 @import "layout";
 @import "styles";

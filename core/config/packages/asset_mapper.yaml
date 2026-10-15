@@ -1,15 +1,44 @@
 framework:
     asset_mapper:
-        # The paths to make available to the asset mapper.
+        # The paths to make available to the asset mapper. The value is the
+        # logical-path namespace ('' = files map to their basename).
         paths:
-            - assets/
+            assets: ''
+            # Bootstrap's built UMD bundle (window.bootstrap) from the
+            # composer package; exposed as bootstrap/bootstrap.bundle.min.js.
+            'vendor/twbs/bootstrap/dist/js': bootstrap
+            # DataTables ships built ESM in its composer package; expose the js
+            # dirs so the import map can serve them from vendor/. Only the .mjs
+            # builds are imported; the excludes below drop the UMD/min variants.
+            'vendor/datatables.net/datatables.net/js': ''
+            'vendor/datatables.net/datatables.net-bs5/js': ''
         excluded_patterns:
             - '*/icons/**/LICENSE'
+            # Sass partials are pulled in by the root stylesheets (see
+            # symfonycasts_sass.yaml); only the roots themselves may be mapped.
+            - '*/assets/sass/_*.scss'
+            - '*/assets/sass/**/_*.scss'
             - '*/assets/styles/_*.scss'
             - '*/assets/styles/**/_*.scss'
-            - '*/assets/sass/**'
-            - '*/assets/js/**'
+            # Keep only the two ESM builds the import map uses.
+            - '*/datatables.net/js/dataTables.js'
+            - '*/datatables.net/js/dataTables.min.js'
+            - '*/datatables.net/js/dataTables.min.mjs'
+            - '*/datatables.net-bs5/js/dataTables.bootstrap5.js'
+            - '*/datatables.net-bs5/js/dataTables.bootstrap5.min.js'
+            - '*/datatables.net-bs5/js/dataTables.bootstrap5.min.mjs'
+            # Only the UMD bundle (window.bootstrap) is used from the dist.
+            - '*/bootstrap/dist/js/bootstrap.js'
+            - '*/bootstrap/dist/js/bootstrap.bundle.js'
+            - '*/bootstrap/dist/js/bootstrap.esm.js'
+            - '*/bootstrap/dist/js/bootstrap.esm.min.js'
+            - '*/bootstrap/dist/js/bootstrap.min.js'
+            - '*/bootstrap/dist/js/*.map'
         missing_import_mode: strict
+        # All supported browsers implement import maps natively; disabling the
+        # es-module-shims polyfill keeps its ga.jspm.io script out of the CSP
+        # script-src allowlist.
+        importmap_polyfill: false
         precompress:
             # possible values: 'brotli', 'zstandard', 'gzip'
             format: 'gzip'

@@ -35,18 +35,18 @@
                     <td class="status">
                         {%- if framework.include -%}
                             {% if framework.status == 'new' %}
-                                <i class="fa fa-star" title="New" aria-label="New"></i>
+                                {{ ux_icon('fa-solid:star', {class: 'fa-icon fa-star', title: 'New', 'aria-label': 'New'}) }}
                             {% elseif framework.status == 'ok' %}
-                                <i class="fa fa-check-circle" title="Okay" aria-label="Okay"></i>
+                                {{ ux_icon('fa-solid:check-circle', {class: 'fa-icon fa-check-circle', title: 'Okay', 'aria-label': 'Okay'}) }}
                             {% elseif framework.status == 'scheduled' %}
-                                <i class="fa fa-calendar-check text-info" title="Scheduled" aria-label="Scheduled"></i>
+                                {{ ux_icon('fa-solid:calendar-check', {class: 'fa-icon fa-calendar-check text-info', title: 'Scheduled', 'aria-label': 'Scheduled'}) }}
                             {% elseif framework.status == 'processing' %}
-                                <i class="fa fa-refresh fa-spin" title="Processing" aria-label="Processing"></i>
+                                {{ ux_icon('fa-solid:sync', {class: 'fa-icon fa-refresh fa-spin', title: 'Processing', 'aria-label': 'Processing'}) }}
                             {% elseif framework.status == 'error' %}
-                                <i class="fa fa-warning" title="Error" aria-label="Error"></i>
+                                {{ ux_icon('fa-solid:exclamation-triangle', {class: 'fa-icon fa-warning', title: 'Error', 'aria-label': 'Error'}) }}
                             {% endif %}
                         {%- else -%}
-                            <i class="fa fa-minus-circle" title="Excluded" aria-label="Excluded"></i>
+                            {{ ux_icon('fa-solid:minus-circle', {class: 'fa-icon fa-minus-circle', title: 'Excluded', 'aria-label': 'Excluded'}) }}
                         {%- endif -%}
                     </td>
                     <td>
@@ -55,7 +55,7 @@
                     <td>
                         <span title="{{ framework.identifier }}">{{ framework.creator }} / {{ framework.title }}</span>
                         {% if framework.framework is not null %}
-                            <a href="{{ path('editor_shell_path', {'path': framework.framework.identifier}) }}"><i class="fa fa-external-link" title="Go to document view" aria-label="Go to document view"></i></a>
+                            <a href="{{ path('editor_shell_path', {'path': framework.framework.identifier}) }}">{{ ux_icon('fa-solid:external-link-alt', {class: 'fa-icon fa-external-link', title: 'Go to document view', 'aria-label': 'Go to document view'}) }}</a>
                         {% endif %}
                     </td>
                     <td>{{ framework.lastCheck ? framework.lastCheck|date('Y-m-d H:i') : '-' }}</td>

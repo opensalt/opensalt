@@ -51,10 +51,12 @@
 
 {% block javascripts %}
     {% if google_captcha_site_key is not empty %}
+        {% cspscript %}
         <script>
             function onSubmit(token) {
                 document.getElementById('login-form').submit();
             }
         </script>
+        {% endcspscript %}
     {% endif %}
 {% endblock %}

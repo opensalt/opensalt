@@ -22,7 +22,7 @@
                         <img src="{{ logo }}" class="img-fluid organization-logo" alt="Organization Logo"/>
                     {% else %}
                         <div class="organization-logo-placeholder">
-                            <i class="fa fa-building fa-5x text-muted"></i>
+                            {{ ux_icon('fa-solid:building', {class: 'fa-icon fa-building fa-5x text-muted'}) }}
                         </div>
                     {% endif %}
                 </div>
@@ -79,7 +79,7 @@
         {% if webpage is not empty %}
             {% set organizationDetails = organizationDetails | merge([{
                 'label': 'Website',
-                'value': '<a href="' ~ webpage ~ '" target="_blank" rel="noopener noreferrer">' ~ webpage ~ ' <i class="fa fa-external-link"></i></a>',
+                'value': '<a href="' ~ webpage ~ '" target="_blank" rel="noopener noreferrer">' ~ webpage ~ ' ' ~ ux_icon('fa-solid:external-link-alt') ~ '</a>',
                 'isHtml': true
             }]) %}
         {% endif %}
@@ -104,7 +104,7 @@
         {% if rorId is not empty %}
             {% set organizationDetails = organizationDetails | merge([{
                 'label': 'ROR ID',
-                'value': '<a href="https://ror.org/' ~ rorId ~ '" target="_blank" rel="noopener noreferrer">' ~ rorId ~ ' <i class="fa fa-external-link"></i></a>',
+                'value': '<a href="https://ror.org/' ~ rorId ~ '" target="_blank" rel="noopener noreferrer">' ~ rorId ~ ' ' ~ ux_icon('fa-solid:external-link-alt') ~ '</a>',
                 'isHtml': true
             }]) %}
         {% endif %}

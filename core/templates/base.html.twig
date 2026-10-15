@@ -7,10 +7,9 @@
             <meta name="viewport" content="width=device-width, initial-scale=1">
         {% endblock %}
         <title>{% block title %}OpenSALT™{% endblock %}</title>
-        <script>const x = document.getElementsByTagName("html")[0];x.className=x.className.replace(/(^|\s)no-js(\s|$)/,"$1js$2");</script>
+        {% cspscript %}<script>const x = document.getElementsByTagName("html")[0];x.className=x.className.replace(/(^|\s)no-js(\s|$)/,"$1js$2");</script>{% endcspscript %}
         {% block stylesheets %}
-            {# vite_entry_link_tags('app') #}
-            {{ vite_entry_link_tags('main') }}
+            <link rel="stylesheet" href="{{ asset('sass/application.scss') }}">
             {% block styles %}{% endblock %}
         {% endblock %}
         {# <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" /> #}
@@ -42,13 +41,13 @@
             </footer>
         </div>
         <div style="display: none;">
+            {# The Bootstrap UMD bundle provides window.bootstrap for the classic
+               (non-module) scripts; the import map drives the ES-module entries. #}
             {% block sitejavascripts %}
-                {{ vite_entry_script_tags('session') }}
-                {{ vite_entry_script_tags('admin') }}
+                <script defer src="{{ asset('bootstrap/bootstrap.bundle.min.js') }}"></script>
+                {{ importmap(['app', 'session', 'admin'], { nonce: csp_nonce('script') }) }}
             {% endblock %}
             {% block javascripts %}{% endblock %}
-            {% block importmap %}{# importmap('app') #}{% endblock %}
-            {{ vite_entry_script_tags('app') }}
         </div>
     </body>
 </html>

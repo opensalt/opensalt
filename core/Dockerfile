@@ -117,31 +117,6 @@ COPY --chown=node:node ./editor/ ./
 RUN npm run build
 
 #=======================================================================
-FROM node:${NODE_VERSION} AS salt_core_js_build
-
-WORKDIR /srv/core
-RUN chown -R node:node /srv/core ; \
-	mkdir ./node_modules ; \
-	chown -R node:node node_modules
-
-# yarn.lock is Yarn 4 (Berry) format: enable corepack so that `yarn` resolves
-# to the version pinned in package.json instead of the image's classic Yarn 1.x
-USER root
-RUN corepack enable
-USER node
-
-COPY --chown=node:node package.json yarn.lock .yarnrc.yml ./
-COPY --chown=node:node --from=salt_core_vendors /srv/core/vendor/symfony/ux-vue/assets ./vendor/symfony/ux-vue/assets/
-COPY --chown=node:node --from=salt_core_vendors /srv/core/vendor/symfony/ux-autocomplete/assets ./vendor/symfony/ux-autocomplete/assets/
-RUN yarn install --immutable
-
-COPY --chown=node:node vite.config.js ./
-COPY --chown=node:node assets ./assets/
-
-RUN mkdir -p public/build \
-  && yarn build
-
-#=======================================================================
 # Squash the COPY layers into 1 layer
 FROM salt_core_php AS salt_code_layer
 
@@ -154,7 +129,6 @@ COPY --chown=1000:1000 --from=salt_core_vendors /srv/core/vendor/ ./vendor/
 # hack to avoid "Service 'php' failed to build : failed to export image: failed to create image: failed to get layer sha256:38c02bf8b1bff96084338f7e6835b713185e091467e11f08001d41375f078e0e: layer does not exist"
 # as mentioned in https://github.com/moby/moby/issues/37965#issuecomment-426853382
 RUN true
-COPY --chown=1000:1000 --from=salt_core_js_build /srv/core/public/ ./public/
 
 RUN set -eux; \
 	mkdir -p var/cache var/log; \

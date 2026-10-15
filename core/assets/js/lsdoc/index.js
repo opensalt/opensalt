@@ -1,10 +1,10 @@
 /**
  * Framework import wizard: imports CASE files and spreadsheets from the
- * #wizard modal included on /cfdoc/ and /cfdoc/import. The wizard template
- * calls SaltLocal.handleFile()/SaltLocal.handleExcelFile() from inline
- * onclick handlers, so SaltLocal must stay a global.
+ * #wizard modal included on /cfdoc/ and /cfdoc/import. The wizard's buttons
+ * carry data-salt-import="method:type:inputId" attributes, wired to the
+ * handlers below.
  */
-import { spinner } from '../util-salt';
+import { spinner } from '../util-salt.js';
 
 function reloadPage() {
     if (window.location.pathname === '/cfdoc/import') {
@@ -137,4 +137,13 @@ const SaltLocal = {
     handleFile: handleFileSelect,
     handleExcelFile: handleExcelFile,
 };
-globalThis.SaltLocal = SaltLocal;
+
+// The wizard buttons previously called these via inline
+// onclick="SaltLocal.…" handlers; they now dispatch from data-salt-import
+// attributes so no global has to be exposed (CSP-friendly).
+document.querySelectorAll('[data-salt-import]').forEach((el) => {
+    el.addEventListener('click', () => {
+        const [method, type, inputId] = el.dataset.saltImport.split(':');
+        SaltLocal[method](type, inputId);
+    });
+});

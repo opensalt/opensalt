@@ -20,7 +20,7 @@
                 {%  if criterion.humanCodingScheme is not empty %}<strong class="cred-hcs">{{ criterion.humanCodingScheme }}</strong> {% endif %}
                 {{ criterion.abbreviatedStatment|default(criterion.fullStatement) }}
                 <a class="" href="{{ path('uri_lookup', {'uri': criterion.identifier}) }}">
-                    <i class="fa fa-external-link"></i>
+                    {{ ux_icon('fa-solid:external-link-alt', {class: 'fa-icon fa-external-link'}) }}
                 </a>
                 </span>
             </summary>

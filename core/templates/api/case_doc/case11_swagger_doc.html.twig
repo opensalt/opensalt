@@ -62,6 +62,7 @@
 {% block javascripts %}
     <script src="//unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js" crossorigin></script>
     <script src="//unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js" crossorigin></script>
+    {% cspscript %}
     <script>
     const ui = SwaggerUIBundle({
         url: '/case-v1p1-openapi.json',
@@ -72,6 +73,7 @@
         ]
     });
     </script>
+    {% endcspscript %}
 {% endblock %}
 
 {% block body %}

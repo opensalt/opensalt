@@ -51,7 +51,10 @@ nelmio_security:
         content_types: []
         enforce:
             # see full description below
-            level1_fallback: true
+            # CSP level 1 browsers don't support nonces/hashes; the fallback
+            # would re-add 'unsafe-inline' next to them. The app requires
+            # ES modules anyway, so modern-browser-only is the consistent choice.
+            level1_fallback: false
             # only send directives supported by the browser, defaults to false
             # this is a port of https://github.com/twitter/secureheaders/blob/83a564a235c8be1a8a3901373dbc769da32f6ed7/lib/secure_headers/headers/policy_management.rb#L97
             browser_adaptive:
@@ -63,11 +66,17 @@ nelmio_security:
                 - cdn.jsdelivr.net
             script-src:
                 - 'self'
-                - 'unsafe-inline'
+                # Inline scripts are allowlisted per-response via {% cspscript %}
+                # hashes (script-src-attr handlers were removed); no
+                # 'unsafe-inline'. The ga.jspm.io importmap polyfill was
+                # disabled along with this change (asset_mapper.yaml).
                 - 'data:'
                 - 'blob:'
                 - unpkg.com
                 - cdn.jsdelivr.net
+                # reCAPTCHA (login/signup, only when a site key is configured)
+                - https://www.google.com
+                - https://www.gstatic.com
             img-src:
                 - '*'
                 - 'data:'

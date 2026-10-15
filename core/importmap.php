@@ -23,21 +23,33 @@
  * }>
  */
 return [
+    // Symfony UX / Stimulus (local vendor files)
     '@symfony/stimulus-bundle' => ['path' => './vendor/symfony/stimulus-bundle/assets/dist/loader.js'],
-    '@symfony/ux-vue' => ['path' => './vendor/symfony/ux-vue/assets/dist/loader.js'],
+    '@symfony/ux-autocomplete' => ['path' => './vendor/symfony/ux-autocomplete/assets/dist/controller.js'],
     '@hotwired/stimulus' => ['version' => '3.2.2'],
-    'vue' => ['version' => '3.5.44', 'package_specifier' => 'vue/dist/vue.esm-bundler.js'],
-    '@vue/runtime-dom' => ['version' => '3.5.44'],
-    '@vue/compiler-dom' => ['version' => '3.5.44'],
-    '@vue/shared' => ['version' => '3.5.44'],
-    '@vue/runtime-core' => ['version' => '3.5.44'],
-    '@vue/compiler-core' => ['version' => '3.5.44'],
-    '@vue/reactivity' => ['version' => '3.5.44'],
+
+    // Remote packages (downloaded locally by "importmap:install")
     'tom-select' => ['version' => '2.6.2'],
     '@orchidjs/sifter' => ['version' => '1.1.0'],
     '@orchidjs/unicode-variants' => ['version' => '1.2.2'],
-    'tom-select/dist/css/tom-select.default.min.css' => ['version' => '2.6.2', 'type' => 'css'],
     'tom-select/dist/css/tom-select.default.css' => ['version' => '2.6.2', 'type' => 'css'],
-    'tom-select/dist/css/tom-select.bootstrap4.css' => ['version' => '2.6.2', 'type' => 'css'],
+    // The BS5 skin is @imported by assets/sass/application.scss (downloaded by
+    // "importmap:install", which runs before "sass:build" in the auto-scripts).
     'tom-select/dist/css/tom-select.bootstrap5.css' => ['version' => '2.6.2', 'type' => 'css'],
+    '@opensalt/ob3-definer' => ['version' => '1.2.12', 'package_specifier' => '@opensalt/ob3-definer/dist/ob3-definer.js'],
+    '@opensalt/ob3-definer/dist/ob3-definer.css' => ['version' => '1.2.12', 'type' => 'css'],
+
+    // Composer packages (built JS from vendor/)
+    'datatables.net' => ['path' => './vendor/datatables.net/datatables.net/js/dataTables.mjs'],
+    'datatables.net-bs5' => ['path' => './vendor/datatables.net/datatables.net-bs5/js/dataTables.bootstrap5.mjs'],
+
+    // Entrypoints
+    'app' => ['path' => './assets/app.js', 'entrypoint' => true],
+    'session' => ['path' => './assets/js/site.js', 'entrypoint' => true],
+    'admin' => ['path' => './assets/js/main.js', 'entrypoint' => true],
+    'signup' => ['path' => './assets/js/signup.js', 'entrypoint' => true],
+    'systemLogs' => ['path' => './assets/js/system-logs.js', 'entrypoint' => true],
+    'importFramework' => ['path' => './assets/js/import-framework.js', 'entrypoint' => true],
+    'importPage' => ['path' => './assets/js/import-page.js', 'entrypoint' => true],
+    'credential' => ['path' => './assets/js/credential.js', 'entrypoint' => true],
 ];

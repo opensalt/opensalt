@@ -39,52 +39,5 @@
 {% endblock %}
 
 {% block javascripts %}
-    <script>
-        (function () {
-            const form = document.querySelector('form[name="ls_association"]');
-            const lsDocSelect = document.getElementById('ls_association_lsDoc');
-            if (!form || !lsDocSelect) {
-                return;
-            }
-
-            function findDestinationField(doc) {
-                return doc.getElementById('ls_association_destinationLsItem')
-                    || doc.getElementById('ls_association_destinationNodeUri');
-            }
-
-            lsDocSelect.addEventListener('change', async () => {
-                const data = new FormData();
-                data.append(lsDocSelect.name, lsDocSelect.value);
-
-                const response = await fetch(form.action, { method: form.method, body: data });
-                const newDoc = new DOMParser().parseFromString(await response.text(), 'text/html');
-
-                const replacement = findDestinationField(newDoc);
-                const current = findDestinationField(document);
-                if (replacement && current) {
-                    current.replaceWith(replacement);
-                }
-
-                const newList = newDoc.getElementById('lsItemList');
-                const currentList = document.getElementById('lsItemList');
-                if (newList && currentList) {
-                    currentList.replaceWith(newList);
-                }
-            });
-
-            const itemListWrap = document.getElementById('lsItemListWrap');
-            if (itemListWrap) {
-                itemListWrap.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-
-                    const markLink = e.target.closest('[name^="mark-"]');
-                    const destination = document.getElementById('ls_association_destinationLsItem');
-                    if (markLink && destination) {
-                        destination.value = markLink.getAttribute('name').replace('mark-', '');
-                    }
-                });
-            }
-        })();
-    </script>
+    {# Form behaviors live in assets/js/forms.js (loaded via the app entry). #}
 {% endblock %}

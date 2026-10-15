@@ -10,12 +10,6 @@
                     "tom-select/dist/css/tom-select.bootstrap5.css": false
                 }
             }
-        },
-        "@symfony/ux-vue": {
-            "vue": {
-                "enabled": true,
-                "fetch": "eager"
-            }
         }
     },
     "entrypoints": []

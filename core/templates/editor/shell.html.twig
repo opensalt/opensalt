@@ -63,11 +63,13 @@
 
 {% block body %}
     <div id="app"></div>
+    {% cspscript %}
     <script>
         window.openSaltEditor = Object.assign({}, window.openSaltEditor || {}, {
             features: {{ editorFeatures|default({})|json_encode(constant('JSON_THROW_ON_ERROR'))|raw }},
         });
     </script>
+    {% endcspscript %}
 {% endblock %}
 
 {% block sitejavascripts %}{% endblock %}
@@ -82,6 +84,7 @@
             <script type="module" src="{{ scriptUrl|e('html_attr') }}"></script>
         {% endfor %}
     {% endif %}
+    {% cspscript %}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             if (!window.bootstrap || !window.bootstrap.Dropdown) {
@@ -92,4 +95,5 @@
             });
         });
     </script>
+    {% endcspscript %}
 {% endblock %}
