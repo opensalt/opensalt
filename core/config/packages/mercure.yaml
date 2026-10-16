@@ -3,6 +3,9 @@ mercure:
         default:
             url: '%env(MERCURE_URL)%'
             public_url: '%env(MERCURE_PUBLIC_URL)%'
+            # The Caddy-embedded hub speaks the classic Mercure protocol; 0.6
+            # defaults to 1.0, which requires RFC 9068 claims we can't provide.
+            protocol_version: '0.x'
             jwt:
                 secret: '%env(MERCURE_JWT_SECRET)%'
                 publish: '*'

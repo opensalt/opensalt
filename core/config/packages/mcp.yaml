@@ -1,19 +1,23 @@
 mcp:
-    app: 'OpenSALT MCP Server'
-    version: '1.0.0'
-    description: 'Model Context Protocol server for OpenSALT documents and competency items.'
-    instructions: |
-        Use this server to inspect OpenSALT frameworks and items.
-        Prefer tools for targeted lookups and related-item discovery.
-        Use vector-powered tools for semantic matching when keyword search is insufficient.
-    pagination_limit: 50
-    client_transports:
-        stdio: true
-        http: true
-    http:
-        path: /_mcp
-        allowed_hosts: false
-        session:
-            store: file
-            directory: '%kernel.cache_dir%/mcp-sessions'
-            ttl: 3600
+    servers:
+        opensalt:
+            name: 'OpenSALT MCP Server'
+            version: '1.0.0'
+            description: 'Model Context Protocol server for OpenSALT documents and competency items.'
+            instructions: |
+                Use this server to inspect OpenSALT frameworks and items.
+                Prefer tools for targeted lookups and related-item discovery.
+                Use vector-powered tools for semantic matching when keyword search is insufficient.
+            registry:
+                - 'App\Mcp\'
+            pagination_limit: 50
+            transports:
+                stdio: true
+                http: true
+            http:
+                path: /_mcp
+                allowed_hosts: false
+            session:
+                store: file
+                directory: '%kernel.cache_dir%/mcp-sessions'
+                ttl: 3600

@@ -13,7 +13,7 @@ readonly class OpenSaltMcpResources
         private OpenSaltMcpQueryService $queryService,
         private OpenSaltMcpPayloadFactory $payloadFactory,
         private VectorSearchService $vectorSearchService,
-        private int $paginationLimit = 50,
+        private int $mcpPaginationLimit = 50,
     ) {
     }
 
@@ -23,7 +23,7 @@ readonly class OpenSaltMcpResources
     #[McpResource(uri: 'opensalt://documents', name: 'opensalt-documents')]
     public function documents(): array
     {
-        $documents = $this->queryService->listPublicDocuments(limit: $this->paginationLimit);
+        $documents = $this->queryService->listPublicDocuments(limit: $this->mcpPaginationLimit);
 
         return $this->jsonResource(
             'opensalt://documents',
@@ -41,7 +41,7 @@ readonly class OpenSaltMcpResources
     #[McpResource(uri: 'opensalt://items/recent', name: 'opensalt-items-recent')]
     public function recentItems(): array
     {
-        $items = $this->queryService->listPublicItems(limit: $this->paginationLimit);
+        $items = $this->queryService->listPublicItems(limit: $this->mcpPaginationLimit);
 
         return $this->jsonResource(
             'opensalt://items/recent',
