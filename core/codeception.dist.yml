@@ -16,11 +16,4 @@ extensions:
 params:
     - env
 class_name: FunctionalTester
-modules:
-    enabled:
-        - Mailtrap
-    config:
-        Mailtrap:
-            inbox_id: '%MAILTRAP_INBOX_ID%'
-            api_token: '%MAILTRAP_API_KEY%'
 

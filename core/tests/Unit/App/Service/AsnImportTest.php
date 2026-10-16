@@ -6,7 +6,7 @@ namespace App\Tests\Unit\App\Service;
 
 use App\Service\AsnImport;
 use Doctrine\ORM\EntityManagerInterface;
-use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\ResponseException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
@@ -36,7 +36,7 @@ class AsnImportTest extends TestCase
 
         $import->method('requestAsnDocument')
             ->willThrowException(
-                new RequestException('Not found', new Request('GET', 'test'), new Response(404))
+                new ResponseException('Not found', new Request('GET', 'test'), new Response(404))
             );
 
         $this->expectException(\RuntimeException::class);
@@ -84,7 +84,7 @@ class AsnImportTest extends TestCase
 
         $import->method('requestAsnDocument')
             ->willThrowException(
-                new RequestException('Not found', new Request('GET', 'test'), new Response(404))
+                new ResponseException('Not found', new Request('GET', 'test'), new Response(404))
             );
 
         try {

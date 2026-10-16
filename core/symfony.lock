@@ -140,12 +140,6 @@
     "egulias/email-validator": {
         "version": "2.1.4"
     },
-    "ericmartel/codeception-email": {
-        "version": "1.0.3"
-    },
-    "ericmartel/codeception-email-mailtrap": {
-        "version": "1.0.5"
-    },
     "fakerphp/faker": {
         "version": "v1.13.0"
     },
@@ -425,9 +419,6 @@
     },
     "psy/psysh": {
         "version": "v0.11.4"
-    },
-    "ralouphie/getallheaders": {
-        "version": "2.0.5"
     },
     "ramsey/uuid": {
         "version": "3.7.3"
