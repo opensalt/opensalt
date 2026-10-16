@@ -14,6 +14,7 @@ use App\Repository\Framework\LsDocRepository;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\ResponseException;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Cache\Adapter\DoctrineDbalAdapter;
@@ -246,10 +247,13 @@ class DocTreeController extends AbstractController
             );
 
             return json_decode($response->getBody()->getContents(), false, 512, JSON_THROW_ON_ERROR)->access_token;
+        } catch (ResponseException $e) {
+            // The token endpoint answers {"error": "..."} on bad credentials.
+            $body = json_decode((string) $e->getResponse()->getBody(), true);
+            throw new NotFoundHttpException($body['error'] ?? 'Document not found.');
         } catch (RequestException $e) {
-            $message = $e->getHandlerContext();
-
-            throw new NotFoundHttpException($message['error']);
+            // Transport-level failure (DNS, timeout, TLS): no response body.
+            throw new NotFoundHttpException($e->getMessage());
         } catch (\Exception) {
             throw new NotFoundHttpException('Document not found.');
         }

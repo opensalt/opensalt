@@ -61,7 +61,9 @@ class Guzzle extends \Codeception\Module
 
     public function fetchJson(string $url): array
     {
-        return \GuzzleHttp\json_decode($this->fetch($url), true);
+        // Guzzle 8 removed the GuzzleHttp\json_decode() function; native
+        // json_decode() has the same signature and semantics.
+        return json_decode($this->fetch($url), true);
     }
 
     public function fetch(string $url, string $accept = 'application/json'): string
