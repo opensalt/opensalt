@@ -22,3 +22,28 @@
 .editor-toolbar button.table {
     width: unset;
 }
+
+/* TomSelect (ux-autocomplete): the BS5 skin paints selected multi-select
+ * chips brand blue with white text, which is hard to read. Use the light
+ * grey surface the Vue editor uses instead (dark text on --bs-secondary-bg,
+ * ~12.9:1 contrast). The extra element/attribute selectors out-specify the
+ * stock theme's "[data-value].active" gradient rule; the dropdown highlight
+ * (.option.active) is left untouched. */
+.ts-wrapper.multi .ts-control div[data-value],
+.ts-wrapper.multi .ts-control div[data-value].active {
+    background: var(--bs-secondary-bg);
+    background-image: none;
+    color: var(--bs-body-color);
+    border-color: var(--bs-border-color);
+    text-shadow: none;
+    box-shadow: none;
+}
+
+/* Disabled selects keep the stock muted chip look. */
+.ts-wrapper.multi.disabled .ts-control div[data-value] {
+    background: none;
+    color: #999;
+    border-color: transparent;
+    text-shadow: none;
+    box-shadow: none;
+}

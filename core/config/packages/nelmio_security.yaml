@@ -68,10 +68,11 @@ nelmio_security:
                 - 'self'
                 # Inline scripts are allowlisted per-response via {% cspscript %}
                 # hashes (script-src-attr handlers were removed); no
-                # 'unsafe-inline'. The ga.jspm.io importmap polyfill was
-                # disabled along with this change (asset_mapper.yaml).
-                - 'data:'
-                - 'blob:'
+                # 'unsafe-inline', 'data:' or 'blob:'. The ga.jspm.io importmap
+                # polyfill was disabled along with this change
+                # (asset_mapper.yaml). CSS that used to load via importmap
+                # data: loaders is compiled into the stylesheets instead
+                # (see controllers.json / credential.scss).
                 - unpkg.com
                 - cdn.jsdelivr.net
                 # reCAPTCHA (login/signup, only when a site key is configured)

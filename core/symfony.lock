@@ -915,7 +915,7 @@
         }
     },
     "symfony/ux-autocomplete": {
-        "version": "3.5",
+        "version": "3.6",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
