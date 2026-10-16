@@ -343,9 +343,6 @@
     "phpoffice/phpspreadsheet": {
         "version": "1.2.1"
     },
-    "phpoffice/phpword": {
-        "version": "v0.14.0"
-    },
     "phpoption/phpoption": {
         "version": "1.5.0"
     },
@@ -980,9 +977,6 @@
     },
     "symfonycasts/sass-bundle": {
         "version": "v0.8.2"
-    },
-    "tecnickcom/tcpdf": {
-        "version": "6.2.17"
     },
     "tetranz/select2entity-bundle": {
         "version": "v2.9.5"

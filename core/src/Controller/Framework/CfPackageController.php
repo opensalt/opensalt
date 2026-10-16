@@ -26,8 +26,8 @@ class CfPackageController extends AbstractController
     /**
      * Export a CFPackage.
      */
-    #[Route(path: '/doc/{id}.{_format}', name: 'cfpackage_export', requirements: ['_format' => '(json|html|pdf|csv)'], defaults: ['_format' => 'json'], methods: ['GET'])]
-    #[Route(path: '/doc/{id}/export.{_format}', name: 'cfpackage_export2', requirements: ['_format' => '(json|html|pdf|csv)'], defaults: ['_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/doc/{id}.{_format}', name: 'cfpackage_export', requirements: ['_format' => '(json|html)'], defaults: ['_format' => 'json'], methods: ['GET'])]
+    #[Route(path: '/doc/{id}/export.{_format}', name: 'cfpackage_export2', requirements: ['_format' => '(json|html)'], defaults: ['_format' => 'json'], methods: ['GET'])]
     public function export(Request $request, LsDoc $lsDoc, string $_format = 'json'): Response
     {
         if ('json' === $_format) {
@@ -51,7 +51,7 @@ class CfPackageController extends AbstractController
             return $response;
         }
 
-        if (!in_array($_format, ['json', 'html', 'pdf', 'csv'])) {
+        if (!in_array($_format, ['json', 'html'])) {
             $_format = 'json';
         }
 
