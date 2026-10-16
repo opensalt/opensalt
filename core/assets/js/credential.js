@@ -1,8 +1,8 @@
-// The ob3-definer CSS is compiled into credential.css via
-// assets/sass/credential.scss (not imported here: CSS imports from JS would
-// require 'data:' in the script-src CSP directive).
+// The ob3-definer CSS loads through the importmap data: loader (requires
+// 'data:' in script-src — see nelmio_security.yaml).
 
 import '@opensalt/ob3-definer/dist/ob3-definer';
+import '@opensalt/ob3-definer/dist/ob3-definer.css';
 
 // The credential pages render the ob3-definer widget mount point plus a
 // definition form; wake the widget and capture its saveDefinition event into

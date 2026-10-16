@@ -66,13 +66,13 @@ nelmio_security:
                 - cdn.jsdelivr.net
             script-src:
                 - 'self'
-                # Inline scripts are allowlisted per-response via {% cspscript %}
-                # hashes (script-src-attr handlers were removed); no
-                # 'unsafe-inline', 'data:' or 'blob:'. The ga.jspm.io importmap
-                # polyfill was disabled along with this change
-                # (asset_mapper.yaml). CSS that used to load via importmap
-                # data: loaders is compiled into the stylesheets instead
-                # (see controllers.json / credential.scss).
+                # 'data:' is required by the ux-autocomplete recipe: its
+                # autoimport loads tom-select's stylesheet through an importmap
+                # data: loader, and Flex re-adds that autoimport on every
+                # require/update. (If the policy is ever tightened again,
+                # disable the autoimport in assets/controllers.json and load
+                # the css via application.scss instead.)
+                - 'data:'
                 - unpkg.com
                 - cdn.jsdelivr.net
                 # reCAPTCHA (login/signup, only when a site key is configured)
