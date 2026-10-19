@@ -17,6 +17,7 @@ readonly class RequestFormat
             'text/html' => 'html',
             'text/csv' => 'csv',
             'application/x-ndjson' => 'ndjson',
+            'text/markdown' => 'md',
         ],
     ): void {
         if ($request->headers->has('x-opensalt')) {

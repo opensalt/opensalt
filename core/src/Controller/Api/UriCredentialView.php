@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Controller\Api;
 
-use App\Entity\Framework\LsAssociation;
-use App\Entity\Framework\LsDoc;
 use App\Entity\Framework\LsItem;
 use App\Repository\Framework\LsAssociationRepository;
 use App\Repository\Framework\LsItemRepository;
 use App\Service\Api1Uris;
+use App\Service\Markdown\CredentialAssociationsResolver;
 use App\Service\UriGenerator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,6 +19,7 @@ class UriCredentialView extends AbstractController
 {
     public function __construct(
         private readonly UriGenerator $uriGenerator,
+        private readonly CredentialAssociationsResolver $credentialAssociationsResolver,
         private readonly LsAssociationRepository $associationRepository,
         private readonly LsItemRepository $itemRepository,
         private readonly Api1Uris $api1Uris,
@@ -35,94 +35,50 @@ class UriCredentialView extends AbstractController
             $credential = json5_decode($credential, true);
         }
 
-        $credential ??= [
+        if (!is_array($credential)) {
+            $credential = [];
+        }
+
+        // Fill in the keys the template and jsonld output always expect;
+        // decoded ob3 values win over the defaults.
+        $credential = array_merge([
             'type' => ['Achievement'],
             'achievementType' => null,
             'name' => $obj->getAbbreviatedStatement() ?? $obj->getFullStatement(),
             'description' => $obj->getFullStatement(),
             'humanCode' => $obj->getHumanCodingScheme() ?? '',
-            'criteria' => [
-                'narrative' => '',
-                'id' => $this->uriGenerator->getUri($obj).'.html',
-            ],
             'alignment' => [],
-            'image' => [
-                'id' => '',
-                'type' => 'Image',
-            ],
+            'image' => ['id' => '', 'type' => 'Image'],
+        ], $credential);
+
+        $criteria = is_array($credential['criteria'] ?? null) ? $credential['criteria'] : [];
+        $criteria += [
+            'narrative' => '',
+            'id' => $this->uriGenerator->getUri($obj).'.html',
         ];
+        $credential['criteria'] = $criteria;
 
         $iri = $this->api1Uris->getUri($obj);
         $credential = array_merge(['@context' => [], 'id' => $iri], $credential);
 
+        if (!is_array($credential['image'] ?? null)) {
+            $credential['image'] = ['id' => '', 'type' => 'Image'];
+        }
+
         $img = ('' !== ($credential['image']['id'] ?? '')) ? $credential['image']['id'] : '';
 
-        $allAssociations = $this->associationRepository->findAllAssociationsForAsSplitArray($obj->getIdentifier());
-        $associations = $allAssociations['associations'];
-        $criteria = [];
-        $alignments = [];
-        foreach ($associations as $association) {
-            $destination = $association->getDestination();
+        $resolved = $this->credentialAssociationsResolver->resolve($obj);
+        $criteria = $resolved['criteria'];
+        $alignments = $resolved['alignments'];
 
-            if ($destination instanceof LsDoc) {
-                continue;
-            }
-
-            switch ($association->getType()) {
-                case LsAssociation::PRECEDES:
-                    // case LsAssociation::CHILD_OF:
-                    break;
-
-                case LsAssociation::EXEMPLAR:
-                    if (is_string($destination) && (str_ends_with($destination, '.png') || str_ends_with($destination, '.svg'))) {
-                        $img = $destination;
-                    }
-                    break;
-
-                default:
-                    if ($destination instanceof LsItem) {
-                        $alignments[$destination->getIdentifier()] = $destination;
-                    }
-                    break;
-            }
+        $images = $this->credentialAssociationsResolver->getExemplarImages($obj);
+        if ('' === $img && [] !== $images) {
+            $img = $images[0];
         }
 
         $credential['image']['id'] = $img;
 
-        $associations = $allAssociations['inverseAssociations'];
-        foreach ($associations as $association) {
-            $origin = $association->getOrigin();
-            if (is_string($origin)) {
-                $origin = $this->itemRepository->findOneBy(['identifier' => $association->getOriginNodeIdentifier()]);
-            }
-            if (!$origin instanceof LsItem) {
-                continue;
-            }
-
-            switch ($association->getType()) {
-                case LsAssociation::EXEMPLAR:
-                    // case LsAssociation::CHILD_OF:
-                case LsAssociation::EXACT_MATCH_OF:
-                    break;
-
-                case LsAssociation::PRECEDES:
-                    $criteria[$origin->getIdentifier()] = $origin;
-                    break;
-
-                default:
-                    $alignments[$origin->getIdentifier()] = $origin;
-                    break;
-            }
-        }
-
-        // If we have an alignment in the criteria, remove it from the alignments
-        foreach (array_keys($criteria) as $key) {
-            if (array_key_exists($key, $alignments)) {
-                unset($alignments[$key]);
-            }
-        }
-
-        if (null === $credential['achievementType']) {
+        if (null === ($credential['achievementType'] ?? null)) {
             $achievementType = preg_replace('/Credential - /', '', $obj->getItemType()?->getTitle() ?? 'Credential - Achievement');
             if (!in_array($achievementType, [
                 'Achievement',
@@ -168,15 +124,22 @@ class UriCredentialView extends AbstractController
             foreach ($criteria as $criterion) {
                 $narrative[] = '- '.($criterion->getAbbreviatedStatement() ?? $criterion->getFullStatement());
             }
-            if ('' !== ($credential['criteria']['narrative'] ?? '')) {
-                $credential['criteria']['narrative'] .= "\n\n";
-            }
-            $credential['criteria']['narrative'] .= implode("\n", $narrative);
 
-            if ('' === $credential['criteria']['narrative']) {
+            $combinedNarrative = (string) ($credential['criteria']['narrative'] ?? '');
+            if ('' !== $combinedNarrative) {
+                $combinedNarrative .= "\n\n";
+            }
+            $combinedNarrative .= implode("\n", $narrative);
+
+            if ('' !== $combinedNarrative) {
+                $credential['criteria']['narrative'] = $combinedNarrative;
+            } else {
                 unset($credential['criteria']['narrative']);
             }
 
+            if (!is_array($credential['alignment'] ?? null)) {
+                $credential['alignment'] = [];
+            }
             foreach ($alignments as $alignment) {
                 $credential['alignment'][] = [
                     'type' => 'Alignment',
