@@ -13,6 +13,7 @@ use App\Repository\Framework\LsDocRepository;
 use App\Security\Permission;
 use App\Service\Api1Uris;
 use App\Service\IdentifiableObjectHelper;
+use App\Service\Markdown\PackageMarkdownStreamer;
 use App\Service\UriGenerator;
 use App\Util\RequestFormat;
 use Doctrine\ORM\EntityManagerInterface;
@@ -47,6 +48,7 @@ class UriController extends AbstractController
         private readonly SerializerInterface $serializer,
         private readonly UriCredentialView $uriCredentialView,
         private readonly UriOrganizationView $uriOrganizationView,
+        private readonly PackageMarkdownStreamer $markdownPackageStreamer,
     ) {
     }
 
@@ -61,6 +63,10 @@ class UriController extends AbstractController
             ], Response::HTTP_NOT_FOUND, [
                 'Content-Type' => $request->getMimeType($request->getRequestFormat()),
             ]);
+        }
+
+        if ('md' === $request->getRequestFormat()) {
+            return new Response("# Not Found\n\nNo identifier was provided.\n", Response::HTTP_NOT_FOUND, ['Content-Type' => 'text/markdown; charset=utf-8']);
         }
 
         return $this->render('uri/no_uri.html.twig', ['uri' => null], new Response('', Response::HTTP_NOT_FOUND));
@@ -120,7 +126,9 @@ class UriController extends AbstractController
             return $response;
         }
 
-        $response->headers->set('Content-Type', $request->getMimeType($request->getRequestFormat()));
+        $response->headers->set('Content-Type', 'md' === $request->getRequestFormat()
+            ? 'text/markdown; charset=utf-8'
+            : $request->getMimeType($request->getRequestFormat()));
 
         $headers['TCN'] = 'choice';
         $response->headers->add($headers);
@@ -161,6 +169,7 @@ class UriController extends AbstractController
 
         $serializationFormat = match ($request->getRequestFormat()) {
             'json', 'jsonld', 'opensalt', 'ndjson', 'html' => 'json',
+            'md' => 'md',
             default => $request->getRequestFormat(),
         };
         $serialized = $this->symfonySerializer->serialize($obj, $serializationFormat, $context);
@@ -203,6 +212,10 @@ class UriController extends AbstractController
             $request,
             new Link(Link::REL_ALTERNATE, sprintf('/uri/%s.html', $originalUri))->withAttribute('type', 'text/html')
         );
+        $this->addLink(
+            $request,
+            new Link(Link::REL_ALTERNATE, sprintf('/uri/%s.md', $originalUri))->withAttribute('type', 'text/markdown')
+        );
     }
 
     protected function generateTcnHeaders(string $originalUri): array
@@ -217,6 +230,7 @@ class UriController extends AbstractController
                     sprintf('{"/uri/%s.html" 0.9 {type text/html}}', $originalUri),
                     sprintf('{"/uri/%s.json" 1.0 {type application/json}}', $originalUri),
                     sprintf('{"/uri/%s.jsonld" 1.0 {type application/ld+json}}', $originalUri),
+                    sprintf('{"/uri/%s.md" 0.8 {type text/markdown}}', $originalUri),
                 ]
             ),
         ];
@@ -230,6 +244,7 @@ class UriController extends AbstractController
 <li><a href="/uri/{$originalUri}.html">HTML</a></li>
 <li><a href="/uri/{$originalUri}.json">JSON</a></li>
 <li><a href="/uri/{$originalUri}.jsonld">JSON-LD</a></li>
+<li><a href="/uri/{$originalUri}.md">Markdown</a></li>
 </ul>
 
 xENDx;
@@ -247,6 +262,14 @@ xENDx;
             );
         }
 
+        if ('md' === $request->getRequestFormat()) {
+            return new Response(
+                sprintf("# Not Found\n\nNo CASE object with identifier `%s` was found.\n", $uri),
+                Response::HTTP_NOT_FOUND,
+                ['Content-Type' => 'text/markdown; charset=utf-8']
+            );
+        }
+
         throw new NotFoundHttpException(sprintf('Object with identifier "%s" was not found', $uri));
     }
 
@@ -255,6 +278,10 @@ xENDx;
         set_time_limit(60);
 
         $_format = $request->getRequestFormat();
+
+        if ('md' === $_format) {
+            return $this->markdownPackageStreamer->stream($obj, $originalResponse);
+        }
 
         $jsonLd = $context['case-json-ld'] ?? null;
         $addContext = (null !== $jsonLd) ? ($context['add-case-context'] ?? null) : null;

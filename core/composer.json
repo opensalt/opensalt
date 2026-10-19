@@ -81,6 +81,7 @@
         "league/flysystem": "^3.0",
         "league/flysystem-aws-s3-v3": "^3.0",
         "league/flysystem-bundle": "^3.4",
+        "league/html-to-markdown": "^5.0",
         "league/oauth2-github": "^3.0",
         "league/uri": "^7.0",
         "milo/github-api": "^2.0",

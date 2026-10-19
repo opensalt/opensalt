@@ -1269,6 +1269,127 @@ class LsDocRepository extends ServiceEntityRepository
     }
 
     /**
+     * Map of item identifier => parent item identifier for the document.
+     * Items whose isChildOf destination is the document (top level) or unknown map to null.
+     *
+     * @return array<string, ?string>
+     */
+    public function findItemParentMap(LsDoc $lsDoc): array
+    {
+        $query = $this->getEntityManager()->createQuery('
+            SELECT a.originNodeIdentifier AS child, a.destinationNodeIdentifier AS parent
+            FROM '.LsAssociation::class.' a
+            WHERE a.lsDoc = :lsDocId
+              AND a.type = :childOfType
+              AND a.originNodeIdentifier IS NOT NULL
+        ');
+        $query->setParameters(['lsDocId' => $lsDoc->getId(), 'childOfType' => LsAssociation::CHILD_OF]);
+
+        $map = [];
+        foreach ($query->getArrayResult() as $row) {
+            $map[$row['child']] = $row['parent'];
+        }
+
+        return $map;
+    }
+
+    /**
+     * Light rows for building the package table of contents, kind counts and
+     * crosswalk-free document summaries.
+     *
+     * @return array<int, array{identifier: string, title: string, code: ?string, listEnum: ?string, kind: string, itemType: ?string}>
+     */
+    public function findItemTocRows(LsDoc $lsDoc): array
+    {
+        $query = $this->getEntityManager()->createQuery('
+            SELECT i.identifier, i.abbreviatedStatement, i.fullStatement, i.humanCodingScheme,
+                   i.listEnumInSource, i.discriminator, t.title AS itemTypeTitle
+            FROM '.LsItem::class.' i
+            LEFT JOIN i.itemType t
+            WHERE i.lsDoc = :lsDocId
+        ');
+        $query->setParameter('lsDocId', $lsDoc->getId());
+
+        return array_map(
+            static fn (array $row): array => [
+                'identifier' => $row['identifier'],
+                'title' => \App\Service\Markdown\DisplayTitle::from($row['abbreviatedStatement'], $row['fullStatement']),
+                'code' => $row['humanCodingScheme'],
+                'listEnum' => $row['listEnumInSource'],
+                'kind' => LsItem::objectTypeForDiscriminator((int) $row['discriminator']),
+                'itemType' => $row['itemTypeTitle'],
+            ],
+            $query->getArrayResult()
+        );
+    }
+
+    /**
+     * Cross-document association summary for the package crosswalk index:
+     * other frameworks linked to this package by an association whose near
+     * end belongs to this document (the association itself may be stored in
+     * any document).  Private-draft frameworks are excluded.
+     *
+     * @return array<int, array{title: ?string, identifier: ?string, types: array<string, int>}>
+     */
+    public function findCrosswalkSummary(LsDoc $lsDoc): array
+    {
+        $em = $this->getEntityManager();
+        $docId = $lsDoc->getId();
+        $notPrivate = LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT;
+        $queries = [
+            // outgoing: origin in this doc, target item in another doc
+            'SELECT td.title AS title, td.identifier AS identifier, a.type AS type, COUNT(a.id) AS cnt
+             FROM '.LsAssociation::class.' a
+             JOIN a.originLsItem oi JOIN oi.lsDoc od
+             JOIN a.destinationLsItem di JOIN di.lsDoc td
+             WHERE od.id = :docId AND td.id != :docId AND td.adoptionStatus != :notPrivate
+             GROUP BY td.id, td.title, td.identifier, a.type',
+            // incoming: destination in this doc, origin item in another doc
+            'SELECT td.title AS title, td.identifier AS identifier, a.type AS type, COUNT(a.id) AS cnt
+             FROM '.LsAssociation::class.' a
+             JOIN a.destinationLsItem di JOIN di.lsDoc td
+             JOIN a.originLsItem oi JOIN oi.lsDoc od
+             WHERE td.id = :docId AND od.id != :docId AND od.adoptionStatus != :notPrivate
+             GROUP BY od.id, od.title, od.identifier, a.type',
+            // doc-level: destination is this doc, origin item in another doc
+            'SELECT od.title AS title, od.identifier AS identifier, a.type AS type, COUNT(a.id) AS cnt
+             FROM '.LsAssociation::class.' a
+             JOIN a.destinationLsDoc dd
+             JOIN a.originLsItem oi JOIN oi.lsDoc od
+             WHERE dd.id = :docId AND od.id != :docId AND od.adoptionStatus != :notPrivate
+             GROUP BY od.id, od.title, od.identifier, a.type',
+            // doc-level: origin is this doc, destination item in another doc
+            'SELECT dd.title AS title, dd.identifier AS identifier, a.type AS type, COUNT(a.id) AS cnt
+             FROM '.LsAssociation::class.' a
+             JOIN a.originLsDoc od
+             JOIN a.destinationLsItem di JOIN di.lsDoc dd
+             WHERE od.id = :docId AND dd.id != :docId AND dd.adoptionStatus != :notPrivate
+             GROUP BY dd.id, dd.title, dd.identifier, a.type',
+        ];
+
+        $summary = [];
+        foreach ($queries as $dql) {
+            $query = $em->createQuery($dql);
+            $query->setParameters(['docId' => $docId, 'notPrivate' => $notPrivate]);
+            foreach ($query->getArrayResult() as $row) {
+                $key = $row['identifier'] ?? $row['title'] ?? '';
+                if ('' === $key) {
+                    continue;
+                }
+                if (!isset($summary[$key])) {
+                    $summary[$key] = ['title' => $row['title'], 'identifier' => $row['identifier'], 'types' => []];
+                }
+                $type = (string) $row['type'];
+                $summary[$key]['types'][$type] = ($summary[$key]['types'][$type] ?? 0) + (int) $row['cnt'];
+            }
+        }
+
+        uasort($summary, static fn (array $a, array $b) => strnatcmp((string) $a['title'], (string) $b['title']));
+
+        return $summary;
+    }
+
+    /**
      * Get a list of all association groups used in an LsDoc.
      *
      * @psalm-param AbstractQuery::HYDRATE_* $format

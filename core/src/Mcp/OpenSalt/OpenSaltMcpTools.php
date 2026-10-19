@@ -5,8 +5,13 @@ declare(strict_types=1);
 namespace App\Mcp\OpenSalt;
 
 use App\Entity\Framework\LsItem;
+use App\Entity\Framework\LsItemKind;
+use App\Service\Markdown\DisplayTitle;
+use App\Service\Markdown\MarkdownBuilder;
+use App\Service\UriGenerator;
 use App\VectorSearch\Service\VectorSearchService;
 use Mcp\Capability\Attribute\McpTool;
+use Symfony\Component\Serializer\SerializerInterface;
 
 readonly class OpenSaltMcpTools
 {
@@ -14,6 +19,8 @@ readonly class OpenSaltMcpTools
         private OpenSaltMcpQueryService $queryService,
         private OpenSaltMcpPayloadFactory $payloadFactory,
         private VectorSearchService $vectorSearchService,
+        private SerializerInterface $serializer,
+        private UriGenerator $uriGenerator,
     ) {
     }
 
@@ -48,10 +55,13 @@ readonly class OpenSaltMcpTools
     /**
      * Fetch one public OpenSALT document by identifier.
      *
-     * @return array<string, mixed>
+     * Returns a markdown document (front matter, About, Top-level items, link
+     * to the full package) by default; pass format "json" for structured data.
+     *
+     * @return string|array<string, mixed>
      */
     #[McpTool(name: 'opensalt_get_document')]
-    public function getDocument(string $documentIdentifier, bool $includeItems = false, int $itemLimit = 25): array
+    public function getDocument(string $documentIdentifier, bool $includeItems = false, int $itemLimit = 25, string $format = 'markdown'): string|array
     {
         $documentIdentifier = trim($documentIdentifier);
         $document = $this->queryService->getPublicDocumentByIdentifier($documentIdentifier);
@@ -60,6 +70,19 @@ readonly class OpenSaltMcpTools
                 'error' => 'Document not found or not publicly visible.',
                 'document_identifier' => $documentIdentifier,
             ];
+        }
+
+        if ('json' !== strtolower($format)) {
+            $markdown = $this->serializer->serialize($document, 'md');
+            if ($includeItems) {
+                $items = $this->queryService->listPublicItems(
+                    limit: $this->normalizeLimit($itemLimit, 25, 100),
+                    documentIdentifier: $documentIdentifier,
+                );
+                $markdown = $this->appendSection($markdown, 'Items', $this->itemBullets($items));
+            }
+
+            return $markdown;
         }
 
         $response = [
@@ -116,7 +139,12 @@ readonly class OpenSaltMcpTools
     /**
      * Fetch one public OpenSALT item by identifier.
      *
-     * @return array<string, mixed>
+     * Returns a markdown document (front matter, Ancestor Path, statement,
+     * kind sections, associations) by default; pass format "json" for
+     * structured data.  Related items, when included, are appended as a
+     * markdown section.
+     *
+     * @return string|array<string, mixed>
      */
     #[McpTool(name: 'opensalt_get_item')]
     public function getItem(
@@ -124,7 +152,8 @@ readonly class OpenSaltMcpTools
         ?string $documentIdentifier = null,
         bool $includeRelated = true,
         int $relatedLimit = 10,
-    ): array {
+        string $format = 'markdown',
+    ): string|array {
         $item = $this->queryService->getPublicItemByIdentifier($itemIdentifier, $documentIdentifier);
         if (null === $item) {
             return [
@@ -132,6 +161,19 @@ readonly class OpenSaltMcpTools
                 'item_identifier' => trim($itemIdentifier),
                 'document_identifier' => $documentIdentifier,
             ];
+        }
+
+        if ('json' !== strtolower($format)) {
+            $markdown = $this->serializer->serialize($item, 'md');
+            if ($includeRelated) {
+                $related = $this->queryService->findAssociationRelatedItems(
+                    $item,
+                    $this->normalizeLimit($relatedLimit, 10, 100),
+                );
+                $markdown = $this->appendRelatedItems($markdown, $related);
+            }
+
+            return $markdown;
         }
 
         $response = [
@@ -455,5 +497,80 @@ readonly class OpenSaltMcpTools
         }
 
         return min($limit, $max);
+    }
+
+    /**
+     * @param array<int, LsItem> $markdown
+     */
+    private function appendSection(string $markdown, string $title, array $lines): string
+    {
+        if ([] === $lines) {
+            return $markdown;
+        }
+
+        return $markdown."\n\n".MarkdownBuilder::joinBlocks([
+            MarkdownBuilder::h(2, $title),
+            implode("\n", $lines),
+        ]);
+    }
+
+    /**
+     * @param array<int, LsItem> $items
+     */
+    private function itemBullets(array $items): array
+    {
+        $lines = [];
+        foreach ($items as $item) {
+            $label = $this->itemLabel($item);
+            $uri = $this->uriGenerator->getUri($item);
+            $kind = LsItemKind::tryFrom($item->getDiscriminator())?->objectType() ?? 'item';
+            $lines[] = '- '.(null !== $uri ? MarkdownBuilder::link($label, $uri) : $label).' — '.$kind;
+        }
+
+        return $lines;
+    }
+
+    /**
+     * @param array<int, array{item: LsItem, relationCount: int, relations: array<mixed>}> $related
+     */
+    private function appendRelatedItems(string $markdown, array $related): string
+    {
+        if ([] === $related) {
+            return $markdown;
+        }
+
+        $lines = [];
+        foreach ($related as $match) {
+            $label = $this->itemLabel($match['item']);
+            $uri = $this->uriGenerator->getUri($match['item']);
+            $relations = $match['relations'] ?? [];
+            $types = [];
+            foreach ($relations as $relation) {
+                $relationType = (string) ($relation['displayType'] ?? $relation['type'] ?? '');
+                if ('' !== $relationType && !in_array($relationType, $types, true)) {
+                    $types[] = $relationType;
+                }
+            }
+            $suffix = [] !== $types ? ' — '.implode(', ', $types) : '';
+            $lines[] = '- '.(null !== $uri ? MarkdownBuilder::link($label, $uri) : $label)
+                .' — '.$match['relationCount'].' relation'.(1 === $match['relationCount'] ? '' : 's').$suffix;
+        }
+
+        return $this->appendSection($markdown, 'Related Items', $lines);
+    }
+
+    private function itemLabel(LsItem $item): string
+    {
+        $label = DisplayTitle::from($item->getAbbreviatedStatement(), $item->getFullStatement(), $item->getHumanCodingScheme());
+        if ('' === $label) {
+            $label = $item->getIdentifier() ?? 'Item';
+        }
+
+        $code = $item->getHumanCodingScheme();
+        if (null !== $code && '' !== $code && $code !== $label) {
+            $label .= ' ('.$code.')';
+        }
+
+        return $label;
     }
 }

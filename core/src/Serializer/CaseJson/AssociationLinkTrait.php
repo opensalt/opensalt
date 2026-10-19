@@ -51,7 +51,7 @@ trait AssociationLinkTrait
         return $associationSet;
     }
 
-    private function createAssociationLink(LsAssociation $association, string $which, ?string $caseVersion = null): ?array
+    protected function createAssociationLink(LsAssociation $association, string $which, ?string $caseVersion = null): ?array
     {
         if (!in_array($which, ['origin', 'destination'])) {
             throw new \InvalidArgumentException('Expecting "origin" or "destination" for which part of the association is wanted');
