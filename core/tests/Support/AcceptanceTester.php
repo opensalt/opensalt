@@ -381,42 +381,22 @@ class AcceptanceTester extends \Codeception\Actor implements Context
     }
 
     /**
-     * The editor closes the add-item modal before the async save finishes; poll editor tree and CASE
-     * package APIs so acceptance steps do not race the tree reload.
+     * The add-item modal stays open until the create request finishes, so the editor tree already
+     * includes the item once the modal is gone.
      */
-    private function waitForHumanCodingSchemeInPackage(string $humanCodingScheme, int $timeoutSeconds = 90): string
+    private function findHumanCodingSchemeInEditorTree(string $humanCodingScheme): string
     {
         $docId = $this->getDocId();
-
-        for ($elapsed = 0; $elapsed < $timeoutSeconds; ++$elapsed) {
-            try {
-                $tree = $this->fetchJson('/framework/editor/tree/'.$docId);
-                $identifier = $this->findItemIdentifierByHumanCodingSchemeInTree($tree['items'] ?? [], $humanCodingScheme);
-                if (null !== $identifier) {
-                    return $identifier;
-                }
-            } catch (\Throwable) {
-                // Retry on transient API errors while the save completes.
-            }
-
-            try {
-                $framework = $this->fetchJson(self::$packagesApi.$docId);
-                foreach ($framework['CFItems'] ?? [] as $cfItem) {
-                    if (($cfItem['humanCodingScheme'] ?? null) === $humanCodingScheme) {
-                        return $cfItem['identifier'];
-                    }
-                }
-            } catch (\Throwable) {
-                // CASE package serialization can fail under load; the editor tree is authoritative.
-            }
-
-            $this->wait(1);
+        $tree = $this->fetchJson('/framework/editor/tree/'.$docId);
+        $identifier = $this->findItemIdentifierByHumanCodingSchemeInTree($tree['tree'] ?? [], $humanCodingScheme);
+        if (null !== $identifier) {
+            return $identifier;
         }
 
         throw new \RuntimeException(sprintf(
-            'Item with human coding scheme "%s" was not found in the framework package after %d seconds',
+            'Item with human coding scheme "%s" was not in the editor tree after the add-item modal closed (response keys: %s)',
             $humanCodingScheme,
-            $timeoutSeconds
+            implode(', ', array_keys($tree))
         ));
     }
 
@@ -462,23 +442,27 @@ class AcceptanceTester extends \Codeception\Actor implements Context
         $I->waitForElementVisible('#ls_item_fullStatement + .EasyMDEContainer .CodeMirror', 30);
 
         $fullStatementJson = json_encode($fullStatement, JSON_THROW_ON_ERROR);
-        // Sync EasyMDE/CodeMirror and the underlying textarea so ChildModal's v-model has fullStatement before save.
-        $I->executeJS(<<<JS
-(function () {
+        // EasyMDE copies CodeMirror into the Vue model only after its change listener is attached.
+        // Retry setValue until that write-back shows up on the textarea. CodeMirror text alone is not enough:
+        // save bails out when formData.fullStatement is still empty.
+        $I->waitForJS(<<<JS
+return (function () {
   const text = {$fullStatementJson};
   const textarea = document.getElementById('ls_item_fullStatement');
+  if (textarea && textarea.value === text) {
+    return true;
+  }
   const cm = document.querySelector('#ls_item_fullStatement + .EasyMDEContainer .CodeMirror')?.CodeMirror;
-  if (cm) {
-    cm.setValue(text);
+  if (!cm) {
+    return false;
   }
-  if (textarea) {
-    textarea.value = text;
-    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+  if (cm.getValue() === text) {
+    cm.setValue(text + '\u200b');
   }
-  return !!(cm?.getValue()?.trim() || textarea?.value?.trim());
+  cm.setValue(text);
+  return false;
 })();
-JS);
-        $I->waitForJS('return document.querySelector("#ls_item_fullStatement + .EasyMDEContainer .CodeMirror")?.CodeMirror?.getValue()?.trim().length > 0', 10);
+JS, 10);
         $I->fillField('#ls_item_humanCodingScheme', $item);
         $I->fillField('#ls_item_listEnumInSource', $enum);
         $I->fillField('#ls_item_abbreviatedStatement', $statement);
@@ -492,8 +476,25 @@ JS);
         }
 
         $I->click('[data-testid="save-item"]');
-        $itemIdentifier = $this->waitForHumanCodingSchemeInPackage($item);
-        $I->waitForElementNotVisible('#addNewChildModal', 10);
+        try {
+            $I->waitForElementNotVisible('#addNewChildModal', 90);
+        } catch (\Exception $e) {
+            $alert = 'no alert was shown';
+            try {
+                $alertText = trim($I->grabTextFrom('#addNewChildModal .alert-danger'));
+                if ('' !== $alertText) {
+                    $alert = $alertText;
+                }
+            } catch (\Throwable) {
+            }
+
+            throw new \RuntimeException(sprintf(
+                'Add-item modal stayed open after saving "%s": %s',
+                $item,
+                $alert
+            ), 0, $e);
+        }
+        $itemIdentifier = $this->findHumanCodingSchemeInEditorTree($item);
 
         $codingSchemeXpath = sprintf(
             "//section[@id='tree1Section']//span[contains(concat(' ',normalize-space(@class),' '),' item-humanCodingScheme ')][contains(normalize-space(.), '%s')]",
