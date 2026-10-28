@@ -214,10 +214,18 @@ class LsItem implements CaseApiInterface, LockableInterface, ItemTypeInterface
     /**
      * Create a copy of the lsItem into a new document.
      *
+     * @param array<int, LsItem>|null        $itemMap         Populated with source item id => copied item when provided
+     * @param array<string, LsItem>|null    $identifierMap   Populated with source item identifier => copied item when provided
+     *
      * @throws \UnexpectedValueException
      */
-    public function copyToLsDoc(LsDoc $newLsDoc, ?LsDefAssociationGrouping $assocGroup = null, bool $exactMatchAssocs = true): static
-    {
+    public function copyToLsDoc(
+        LsDoc $newLsDoc,
+        ?LsDefAssociationGrouping $assocGroup = null,
+        bool $exactMatchAssocs = true,
+        ?array &$itemMap = null,
+        ?array &$identifierMap = null,
+    ): static {
         // Clear out values so the clone will work without an out of memory error
         $associations = $this->associations;
         $this->associations = new ArrayCollection();
@@ -249,12 +257,23 @@ class LsItem implements CaseApiInterface, LockableInterface, ItemTypeInterface
 
         $newItem->setLsDoc($newLsDoc);
 
+        if (null !== $itemMap && null !== $this->getId()) {
+            $itemMap[$this->getId()] = $newItem;
+        }
+        if (null !== $identifierMap) {
+            $identifierMap[$this->getIdentifier()] = $newItem;
+            $humanCodingScheme = $this->getHumanCodingScheme();
+            if (null !== $humanCodingScheme && '' !== $humanCodingScheme) {
+                $identifierMap[$humanCodingScheme] = $newItem;
+            }
+        }
+
         // Add an "Exact" relationship to the original
         if ($exactMatchAssocs) {
             $exactMatch = $newLsDoc->createAssociation();
-            $exactMatch->setOrigin($newItem);
+            $exactMatch->setOrigin($newItem, null, 'item');
             $exactMatch->setType(LsAssociation::EXACT_MATCH_OF);
-            $exactMatch->setDestination($this);
+            $exactMatch->setDestination($this, null, 'item');
 
             // PW: set assocGroup if provided and non-null
             // TODO: should the assocGroup be on both associations, or just the first association, or just the inverse association??
@@ -267,7 +286,7 @@ class LsItem implements CaseApiInterface, LockableInterface, ItemTypeInterface
 
         $seq = 0;
         foreach ($this->getChildren() as $child) {
-            $newChild = $child->copyToLsDoc($newLsDoc, $assocGroup, $exactMatchAssocs);
+            $newChild = $child->copyToLsDoc($newLsDoc, $assocGroup, $exactMatchAssocs, $itemMap, $identifierMap);
             $newItem->addChild($newChild, $assocGroup, ++$seq);
         }
 

@@ -633,11 +633,13 @@ function onCloneFramework() {
   cloneFrameworkTitle.value = currentDoc.value?.title || '';
 }
 
-async function onCloneFrameworkConfirmed() {
+async function onCloneFrameworkConfirmed(options = {}) {
   const frameworkIdentifier = currentDoc.value?.identifier;
+  const onError = typeof options.onError === 'function' ? options.onError : null;
+
   if (!frameworkIdentifier) {
     logger.error('No framework identifier available for cloning');
-    showCloneFrameworkModal.value = false;
+    onError?.('No framework identifier available for cloning.');
     return;
   }
 
@@ -647,19 +649,24 @@ async function onCloneFrameworkConfirmed() {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
-      }
+      },
+      body: JSON.stringify({
+        associateWithOriginal: Boolean(options.associateWithOriginal),
+        copyAssociations: Boolean(options.copyAssociations)
+      })
     });
 
     if (!response.ok) {
       throw new Error(`Failed to clone framework: ${response.statusText} (${response.status})`);
     }
 
-    window.location.href = response.url;
+    const data = await response.json();
+    const redirectUrl = data.redirectUrl || `/editor/${data.identifier}`;
+    window.location.href = redirectUrl;
 
   } catch (error) {
     logger.error('Failed to clone framework:', error);
-  } finally {
-    showCloneFrameworkModal.value = false;
+    onError?.(error instanceof Error ? error.message : 'Failed to clone framework.');
   }
 }
 

@@ -24,6 +24,8 @@ class CloneFrameworkHandler extends BaseDoctrineHandler
     #[\Override]
     public function handle(CommandEvent $event, string $eventName, EventDispatcherInterface $dispatcher): void
     {
+        set_time_limit(300);
+
         /** @var CloneFrameworkCommand $command */
         $command = $event->getCommand();
         $this->validate($command, $command);
@@ -35,7 +37,12 @@ class CloneFrameworkHandler extends BaseDoctrineHandler
         $newDoc->setTitle('Clone '.$newDoc->getTitle());
         $newDoc->setFrameworkType(null);
 
-        $this->repository->copyDocumentContentToDoc($doc, $newDoc, false);
+        $this->repository->copyDocumentContentToDoc(
+            $doc,
+            $newDoc,
+            $command->associateWithOriginal(),
+            $command->copyAssociations(),
+        );
         $this->em->persist($newDoc);
         $this->em->flush();
 

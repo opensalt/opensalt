@@ -936,12 +936,646 @@ class LsDocRepository extends ServiceEntityRepository
         $progressCallback('Done');
     }
 
-    public function copyDocumentContentToDoc(LsDoc $fromDoc, LsDoc $toDoc, bool $exactMatchAssocs = false): void
-    {
+    public function copyDocumentContentToDoc(
+        LsDoc $fromDoc,
+        LsDoc $toDoc,
+        bool $exactMatchAssocs = false,
+        bool $copyRemappedAssociations = false,
+    ): void {
+        $itemMap = [];
+        $identifierMap = [];
         foreach ($fromDoc->getTopLsItems() as $oldItem) {
-            $newItem = $oldItem->copyToLsDoc($toDoc, null, $exactMatchAssocs);
+            $newItem = $oldItem->copyToLsDoc($toDoc, null, $exactMatchAssocs, $itemMap, $identifierMap);
             $toDoc->addTopLsItem($newItem);
         }
+
+        if ($copyRemappedAssociations) {
+            $referenceLookup = $this->buildCloneAssociationReferenceLookup($fromDoc, $itemMap, $identifierMap);
+            $this->copyRemappedAssociationsToDoc($fromDoc, $toDoc, $itemMap, $referenceLookup);
+        }
+    }
+
+    /**
+     * @param array<int, LsItem>    $itemMap
+     * @param array<string, LsItem> $identifierMap
+     *
+     * @return array{
+     *     mappedByReference: array<string, LsItem>,
+     *     sourceReferenceKeys: array<string, bool>
+     * }
+     */
+    private function buildCloneAssociationReferenceLookup(
+        LsDoc $fromDoc,
+        array $itemMap,
+        array $identifierMap,
+    ): array {
+        $mappedByReference = $identifierMap;
+        $sourceReferenceKeys = [];
+
+        $query = $this->getEntityManager()->createQuery(
+            'SELECT i.id, i.identifier, i.uri, i.humanCodingScheme
+             FROM '.LsItem::class.' i
+             WHERE i.lsDoc = :lsDocId'
+        );
+        $query->setParameter('lsDocId', $fromDoc->getId());
+        $query->setMaxResults(self::MAX_RESULTS);
+
+        foreach ($query->getArrayResult() as $row) {
+            $referenceKeys = $this->referenceKeysForItemFields(
+                $row['identifier'] ?? null,
+                $row['uri'] ?? null,
+                $row['humanCodingScheme'] ?? null,
+            );
+            foreach ($referenceKeys as $key) {
+                $sourceReferenceKeys[$key] = true;
+            }
+
+            $newItem = null;
+            $sourceId = $row['id'] ?? null;
+            if (null !== $sourceId && isset($itemMap[$sourceId])) {
+                $newItem = $itemMap[$sourceId];
+            } elseif (isset($identifierMap[$row['identifier'] ?? ''])) {
+                $newItem = $identifierMap[$row['identifier']];
+            }
+
+            if (null === $newItem) {
+                continue;
+            }
+
+            foreach ($referenceKeys as $key) {
+                $mappedByReference[$key] = $newItem;
+            }
+        }
+
+        return [
+            'mappedByReference' => $mappedByReference,
+            'sourceReferenceKeys' => $sourceReferenceKeys,
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function referenceKeysForSourceItem(LsItem $item): array
+    {
+        return $this->referenceKeysForItemFields(
+            $item->getIdentifier(),
+            $item->getUri(),
+            $item->getHumanCodingScheme(),
+        );
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function referenceKeysForItemFields(?string $identifier, ?string $uri, ?string $humanCodingScheme): array
+    {
+        $keys = $this->collectAssociationNodeIdentifierCandidates($identifier, $uri);
+        if (null !== $humanCodingScheme && '' !== $humanCodingScheme) {
+            $keys[] = $humanCodingScheme;
+        }
+
+        return array_values(array_unique($keys));
+    }
+
+    /**
+     * @param array<int, LsItem> $itemMap
+     * @param array{
+     *     mappedByReference: array<string, LsItem>,
+     *     sourceReferenceKeys: array<string, bool>
+     * } $referenceLookup
+     */
+    private function copyRemappedAssociationsToDoc(
+        LsDoc $fromDoc,
+        LsDoc $toDoc,
+        array $itemMap,
+        array $referenceLookup,
+    ): void {
+        $em = $this->getEntityManager();
+
+        $mappedByReference = $referenceLookup['mappedByReference'];
+        $sourceReferenceKeys = $referenceLookup['sourceReferenceKeys'];
+
+        $groupMap = [];
+        foreach ($fromDoc->getAssociationGroupings() as $oldGroup) {
+            $newGroup = $oldGroup->duplicateToLsDoc($toDoc);
+            $toDoc->addAssociationGrouping($newGroup);
+            $em->persist($newGroup);
+            if (null !== $oldGroup->getId()) {
+                $groupMap[$oldGroup->getId()] = $newGroup;
+            }
+        }
+
+        $associations = $this->findAllAssociationsForDocumentClone($fromDoc);
+        $referencedItemsLookup = $this->buildReferencedItemsLookupForClone($associations, $mappedByReference);
+        foreach ($associations as $oldAssoc) {
+            if (!$oldAssoc instanceof LsAssociation) {
+                continue;
+            }
+
+            if (LsAssociation::CHILD_OF === $oldAssoc->getType()) {
+                continue;
+            }
+
+            $originEndpoint = $this->resolveCloneAssociationEndpoint(
+                $oldAssoc,
+                true,
+                $fromDoc,
+                $toDoc,
+                $itemMap,
+                $mappedByReference,
+                $sourceReferenceKeys,
+                $referencedItemsLookup,
+            );
+            $destinationEndpoint = $this->resolveCloneAssociationEndpoint(
+                $oldAssoc,
+                false,
+                $fromDoc,
+                $toDoc,
+                $itemMap,
+                $mappedByReference,
+                $sourceReferenceKeys,
+                $referencedItemsLookup,
+            );
+
+            if (null === $originEndpoint || null === $destinationEndpoint) {
+                continue;
+            }
+
+            $newAssoc = $toDoc->createAssociation();
+            $newAssoc->setType($oldAssoc->getType());
+            $newAssoc->setSubtype($oldAssoc->getSubtype());
+            $newAssoc->setNotes($oldAssoc->getNotes());
+            $newAssoc->setExtensions($oldAssoc->getExtensions());
+            $newAssoc->setSequenceNumber($oldAssoc->getSequenceNumber());
+
+            $oldGroup = $oldAssoc->getGroup();
+            if (null !== $oldGroup && null !== $oldGroup->getId() && isset($groupMap[$oldGroup->getId()])) {
+                $newAssoc->setGroup($groupMap[$oldGroup->getId()]);
+            }
+
+            $this->applyCloneAssociationEndpoint($newAssoc, $originEndpoint, true);
+            $this->applyCloneAssociationEndpoint($newAssoc, $destinationEndpoint, false);
+
+            $mappedOrigin = $originEndpoint['entity'] ?? null;
+            $mappedDestination = $destinationEndpoint['entity'] ?? null;
+
+            if ($mappedOrigin instanceof LsItem) {
+                $mappedOrigin->addAssociation($newAssoc);
+            } elseif ($mappedOrigin instanceof LsDoc) {
+                $mappedOrigin->addAssociation($newAssoc);
+            }
+
+            if ($mappedDestination instanceof LsItem) {
+                $mappedDestination->addInverseAssociation($newAssoc);
+            } elseif ($mappedDestination instanceof LsDoc) {
+                $mappedDestination->addInverseAssociation($newAssoc);
+            }
+
+            $em->persist($newAssoc);
+        }
+    }
+
+    /**
+     * @param array<int, LsItem>       $itemMap
+     * @param array<string, LsItem>    $mappedByReference
+     * @param array<string, bool>      $sourceReferenceKeys
+     * @param array<string, LsItem>    $referencedItemsLookup
+     *
+     * @return array{
+     *     kind: 'entity',
+     *     entity: LsItem|LsDoc,
+     *     targetType: ?string
+     * }|array{
+     *     kind: 'external',
+     *     uri: string,
+     *     identifier: ?string,
+     *     targetType: ?string,
+     *     entity: null
+     * }|null
+     */
+    private function resolveCloneAssociationEndpoint(
+        LsAssociation $association,
+        bool $isOrigin,
+        LsDoc $fromDoc,
+        LsDoc $toDoc,
+        array $itemMap,
+        array $mappedByReference,
+        array $sourceReferenceKeys,
+        array $referencedItemsLookup,
+    ): ?array {
+        $nodeIdentifier = $isOrigin ? $association->getOriginNodeIdentifier() : $association->getDestinationNodeIdentifier();
+        $nodeUri = $isOrigin ? $association->getOriginNodeUri() : $association->getDestinationNodeUri();
+        $targetType = $isOrigin ? $association->getOriginNodeTargetType() : $association->getDestinationNodeTargetType();
+
+        if ($isOrigin) {
+            $originItem = $association->getOriginLsItem();
+            if (null !== $originItem) {
+                return $this->cloneEndpointFromItem($originItem, $fromDoc, $itemMap, $mappedByReference, $targetType);
+            }
+
+            $originDoc = $association->getOriginLsDoc();
+            if (null !== $originDoc) {
+                return $this->cloneEndpointFromDoc($originDoc, $fromDoc, $toDoc, $targetType);
+            }
+        } else {
+            $destinationItem = $association->getDestinationLsItem();
+            if (null !== $destinationItem) {
+                return $this->cloneEndpointFromItem($destinationItem, $fromDoc, $itemMap, $mappedByReference, $targetType);
+            }
+
+            $destinationDoc = $association->getDestinationLsDoc();
+            if (null !== $destinationDoc) {
+                return $this->cloneEndpointFromDoc($destinationDoc, $fromDoc, $toDoc, $targetType);
+            }
+        }
+
+        $mappedItem = $this->findMappedCloneItemByNodeReference($nodeIdentifier, $nodeUri, $mappedByReference);
+        if (null !== $mappedItem) {
+            return [
+                'kind' => 'entity',
+                'entity' => $mappedItem,
+                'targetType' => $targetType ?? 'item',
+            ];
+        }
+
+        $referencedItem = $this->findReferencedItemInLookup($nodeIdentifier, $nodeUri, $referencedItemsLookup);
+        if (null !== $referencedItem) {
+            $endpoint = $this->cloneEndpointFromItem(
+                $referencedItem,
+                $fromDoc,
+                $itemMap,
+                $mappedByReference,
+                $targetType,
+            );
+            if (null !== $endpoint) {
+                return $endpoint;
+            }
+
+            if ($referencedItem->getLsDoc()?->getId() === $fromDoc->getId()) {
+                return null;
+            }
+        }
+
+        $normalizedNodeIdentifier = $this->normalizeAssociationNodeIdentifier($nodeIdentifier);
+        if ($fromDoc->getIdentifier() === $nodeIdentifier || $fromDoc->getIdentifier() === $normalizedNodeIdentifier) {
+            return [
+                'kind' => 'entity',
+                'entity' => $toDoc,
+                'targetType' => $targetType ?? 'document',
+            ];
+        }
+
+        if ($this->nodeReferencePointsToSourceFramework($nodeIdentifier, $nodeUri, $sourceReferenceKeys)) {
+            return null;
+        }
+
+        if ($this->looksLikeUnresolvedLocalItemReference($nodeIdentifier, $nodeUri)) {
+            return null;
+        }
+
+        $uri = $nodeUri ?? '';
+        if ('' === $uri && null === $nodeIdentifier) {
+            return null;
+        }
+
+        return [
+            'kind' => 'external',
+            'uri' => $uri,
+            'identifier' => $nodeIdentifier,
+            'targetType' => $targetType,
+            'entity' => null,
+        ];
+    }
+
+    /**
+     * @param array<int, LsItem>       $itemMap
+     * @param array<string, LsItem>    $mappedByReference
+     *
+     * @return array{kind: 'entity', entity: LsItem|LsDoc, targetType: ?string}|null
+     */
+    private function cloneEndpointFromItem(
+        LsItem $item,
+        LsDoc $fromDoc,
+        array $itemMap,
+        array $mappedByReference,
+        ?string $targetType,
+    ): ?array {
+        if ($item->getLsDoc()?->getId() !== $fromDoc->getId()) {
+            return [
+                'kind' => 'entity',
+                'entity' => $item,
+                'targetType' => $targetType ?? 'item',
+            ];
+        }
+
+        $oldId = $item->getId();
+        if (null !== $oldId && isset($itemMap[$oldId])) {
+            return [
+                'kind' => 'entity',
+                'entity' => $itemMap[$oldId],
+                'targetType' => $targetType ?? 'item',
+            ];
+        }
+
+        if (isset($mappedByReference[$item->getIdentifier()])) {
+            return [
+                'kind' => 'entity',
+                'entity' => $mappedByReference[$item->getIdentifier()],
+                'targetType' => $targetType ?? 'item',
+            ];
+        }
+
+        $mapped = $this->findMappedCloneItemByNodeReference($item->getIdentifier(), $item->getUri(), $mappedByReference);
+        if (null !== $mapped) {
+            return [
+                'kind' => 'entity',
+                'entity' => $mapped,
+                'targetType' => $targetType ?? 'item',
+            ];
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array{kind: 'entity', entity: LsDoc, targetType: ?string}
+     */
+    private function cloneEndpointFromDoc(LsDoc $doc, LsDoc $fromDoc, LsDoc $toDoc, ?string $targetType): array
+    {
+        if ($doc->getId() === $fromDoc->getId()) {
+            return [
+                'kind' => 'entity',
+                'entity' => $toDoc,
+                'targetType' => $targetType ?? 'document',
+            ];
+        }
+
+        return [
+            'kind' => 'entity',
+            'entity' => $doc,
+            'targetType' => $targetType ?? 'document',
+        ];
+    }
+
+    private function nodeReferencePointsToSourceFramework(
+        ?string $nodeIdentifier,
+        ?string $nodeUri,
+        array $sourceReferenceKeys,
+    ): bool {
+        foreach ($this->collectAssociationNodeIdentifierCandidates($nodeIdentifier, $nodeUri) as $candidate) {
+            if (isset($sourceReferenceKeys[$candidate])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param array{
+     *     kind: 'entity',
+     *     entity: LsItem|LsDoc,
+     *     targetType: ?string
+     * }|array{
+     *     kind: 'external',
+     *     uri: string,
+     *     identifier: ?string,
+     *     targetType: ?string,
+     *     entity: null
+     * } $endpoint
+     */
+    private function applyCloneAssociationEndpoint(LsAssociation $association, array $endpoint, bool $isOrigin): void
+    {
+        if ('entity' === $endpoint['kind']) {
+            $entity = $endpoint['entity'];
+            $resolvedTargetType = $endpoint['targetType'] ?? ($entity instanceof LsDoc ? 'document' : 'item');
+            if ($isOrigin) {
+                $association->setOrigin($entity, null, $resolvedTargetType);
+            } else {
+                $association->setDestination($entity, null, $resolvedTargetType);
+            }
+
+            return;
+        }
+
+        if ($isOrigin) {
+            $association->setOrigin($endpoint['uri'], $endpoint['identifier'], $endpoint['targetType']);
+        } else {
+            $association->setDestination($endpoint['uri'], $endpoint['identifier'], $endpoint['targetType']);
+        }
+    }
+
+    /**
+     * @param array<string, LsItem> $mappedByReference
+     */
+    private function findMappedCloneItemByNodeReference(
+        ?string $nodeIdentifier,
+        ?string $nodeUri,
+        array $mappedByReference,
+    ): ?LsItem {
+        foreach ($this->collectAssociationNodeIdentifierCandidates($nodeIdentifier, $nodeUri) as $candidate) {
+            if (isset($mappedByReference[$candidate])) {
+                return $mappedByReference[$candidate];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param list<LsAssociation>      $associations
+     * @param array<string, LsItem>  $mappedByReference
+     *
+     * @return array<string, LsItem>
+     */
+    private function buildReferencedItemsLookupForClone(array $associations, array $mappedByReference): array
+    {
+        $identifierKeys = [];
+        $humanCodingSchemeKeys = [];
+
+        foreach ($associations as $association) {
+            if (!$association instanceof LsAssociation) {
+                continue;
+            }
+
+            foreach ([
+                [$association->getOriginNodeIdentifier(), $association->getOriginNodeUri()],
+                [$association->getDestinationNodeIdentifier(), $association->getDestinationNodeUri()],
+            ] as [$nodeIdentifier, $nodeUri]) {
+                foreach ($this->collectAssociationNodeIdentifierCandidates($nodeIdentifier, $nodeUri) as $candidate) {
+                    if (isset($mappedByReference[$candidate])) {
+                        continue;
+                    }
+
+                    if ($this->isAssociationItemUuidKey($candidate)) {
+                        $identifierKeys[$candidate] = true;
+                    } elseif ($this->isAssociationHumanCodingSchemeLookupKey($candidate)) {
+                        $humanCodingSchemeKeys[$candidate] = true;
+                    }
+                }
+            }
+        }
+
+        if ([] === $identifierKeys && [] === $humanCodingSchemeKeys) {
+            return [];
+        }
+
+        $lookup = [];
+        $itemRepo = $this->getEntityManager()->getRepository(LsItem::class);
+
+        foreach (array_chunk(array_keys($identifierKeys), 500) as $chunk) {
+            /** @var list<LsItem> $items */
+            $items = $itemRepo->createQueryBuilder('i')
+                ->where('i.identifier IN (:keys)')
+                ->setParameter('keys', $chunk)
+                ->getQuery()
+                ->getResult();
+
+            foreach ($items as $item) {
+                foreach ($this->referenceKeysForSourceItem($item) as $key) {
+                    if (isset($identifierKeys[$key]) || isset($humanCodingSchemeKeys[$key])) {
+                        $lookup[$key] = $item;
+                    }
+                }
+            }
+        }
+
+        $remainingHcsKeys = array_diff_key($humanCodingSchemeKeys, $lookup);
+        foreach (array_chunk(array_keys($remainingHcsKeys), 500) as $chunk) {
+            /** @var list<LsItem> $items */
+            $items = $itemRepo->createQueryBuilder('i')
+                ->where('i.humanCodingScheme IN (:keys)')
+                ->setParameter('keys', $chunk)
+                ->getQuery()
+                ->getResult();
+
+            foreach ($items as $item) {
+                foreach ($this->referenceKeysForSourceItem($item) as $key) {
+                    if (isset($humanCodingSchemeKeys[$key])) {
+                        $lookup[$key] = $item;
+                    }
+                }
+            }
+        }
+
+        return $lookup;
+    }
+
+    private function isAssociationItemUuidKey(string $value): bool
+    {
+        return 1 === preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $value);
+    }
+
+    private function isAssociationHumanCodingSchemeLookupKey(string $value): bool
+    {
+        if ('' === $value || strlen($value) > 255) {
+            return false;
+        }
+
+        if (str_starts_with($value, 'local:') || preg_match('#^https?://#i', $value)) {
+            return false;
+        }
+
+        if ($this->isAssociationItemUuidKey($value)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param array<string, LsItem> $referencedItemsLookup
+     */
+    private function findReferencedItemInLookup(
+        ?string $nodeIdentifier,
+        ?string $nodeUri,
+        array $referencedItemsLookup,
+    ): ?LsItem {
+        foreach ($this->collectAssociationNodeIdentifierCandidates($nodeIdentifier, $nodeUri) as $candidate) {
+            if (isset($referencedItemsLookup[$candidate])) {
+                return $referencedItemsLookup[$candidate];
+            }
+        }
+
+        return null;
+    }
+
+    private function looksLikeUnresolvedLocalItemReference(?string $nodeIdentifier, ?string $nodeUri): bool
+    {
+        if (null !== $nodeUri && '' !== $nodeUri) {
+            if (preg_match('#^https?://#i', $nodeUri)) {
+                return false;
+            }
+
+            if (str_starts_with($nodeUri, 'local:')) {
+                return true;
+            }
+        }
+
+        $normalized = $this->normalizeAssociationNodeIdentifier($nodeIdentifier);
+        if (null !== $normalized && 1 === preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $normalized)) {
+            return null === $nodeUri || '' === $nodeUri || str_starts_with($nodeUri, 'local:');
+        }
+
+        return false;
+    }
+
+    /**
+     * @return list<LsAssociation>
+     */
+    private function findAllAssociationsForDocumentClone(LsDoc $lsDoc): array
+    {
+        $query = $this->getEntityManager()->createQuery('
+            SELECT a, ag, aoi, adi
+            FROM '.LsAssociation::class.' a
+            LEFT JOIN a.group ag
+            LEFT JOIN a.originLsItem aoi
+            LEFT JOIN a.destinationLsItem adi
+            WHERE a.lsDoc = :lsDocId
+        ');
+        $query->setParameter('lsDocId', $lsDoc->getId());
+        $query->setMaxResults(self::MAX_RESULTS);
+
+        $result = $query->getResult();
+        if (!is_array($result)) {
+            return [];
+        }
+
+        return array_values(array_filter($result, static fn ($row): bool => $row instanceof LsAssociation));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function collectAssociationNodeIdentifierCandidates(?string $nodeIdentifier, ?string $nodeUri): array
+    {
+        $candidates = [];
+        foreach ([$nodeIdentifier, $nodeUri] as $value) {
+            if (null === $value || '' === $value) {
+                continue;
+            }
+            $candidates[] = $value;
+            $normalized = $this->normalizeAssociationNodeIdentifier($value);
+            if (null !== $normalized && $normalized !== $value) {
+                $candidates[] = $normalized;
+            }
+        }
+
+        return array_values(array_unique($candidates));
+    }
+
+    private function normalizeAssociationNodeIdentifier(?string $value): ?string
+    {
+        if (null === $value || '' === $value) {
+            return null;
+        }
+
+        if (str_starts_with($value, 'local:')) {
+            return substr($value, 6);
+        }
+
+        return $value;
     }
 
     public function makeDerivative(LsDoc $oldLsDoc, ?LsDoc $newLsDoc = null): LsDoc

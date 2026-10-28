@@ -97,6 +97,18 @@ class LsAssociationTest extends \Codeception\Test\Unit
         $this->assertEquals($destinationNodeUri, $lsAssociation->getDestinationNodeUri());
     }
 
+    public function testSetDestinationWithLocalUriRequiresExplicitNodeIdentifier()
+    {
+        $lsAssociation = new LsAssociation();
+        $itemUuid = Uuid::uuid4()->toString();
+        $localUri = 'local:'.$itemUuid;
+
+        $lsAssociation->setDestination($localUri, $itemUuid);
+
+        $this->assertEquals($localUri, $lsAssociation->getDestinationNodeUri());
+        $this->assertEquals($itemUuid, $lsAssociation->getDestinationNodeIdentifier());
+    }
+
     public function testSetAndGetDestinationNodeTargetType()
     {
         $lsAssociation = new LsAssociation();

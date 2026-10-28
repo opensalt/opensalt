@@ -122,21 +122,20 @@ class Framework implements Context
     }
 
     /**
-     * @When /^I click on copy framework modal button$/
+     * @When /^I click on clone framework modal button$/
      */
-    public function iClickOnCopyFrameworkModalButton()
+    public function iClickOnCloneFrameworkModalButton()
     {
-        $this->I->click('#js-copy-framework-modal-button');
+        $this->I->click('#js-clone-framework-modal-button');
 
         return $this;
     }
 
     /**
-     * @When /^I click on copy framework$/
+     * @When /^I click on clone framework$/
      */
-    public function IClickOnCopyFramework()
+    public function iClickOnCloneFramework()
     {
-        // New VueJS CloneFrameworkModal: single "Clone Framework" confirmation button
         $this->I->waitForElementClickable('#cloneFrameworkModal .btn-primary', 10);
         $this->I->click('#cloneFrameworkModal .btn-primary');
 
@@ -144,20 +143,20 @@ class Framework implements Context
     }
 
     /**
-     * @Then /^I should not see the copy framework modal button$/
+     * @Then /^I should not see the clone framework modal button$/
      */
-    public function iShouldNotSeeTheCopyFrameworkModalButton(): Framework
+    public function iShouldNotSeeTheCloneFrameworkModalButton(): Framework
     {
-        $this->I->dontSee('#js-copy-framework-modal-button');
+        $this->I->dontSee('#js-clone-framework-modal-button');
         return $this;
     }
 
     /**
-     * @Then /^I should see the copy framework modal button$/
+     * @Then /^I should see the clone framework modal button$/
      */
-    public function iShouldSeeTheCopyFrameworkModalButton(): Framework
+    public function iShouldSeeTheCloneFrameworkModalButton(): Framework
     {
-        $this->I->seeElement('#js-copy-framework-modal-button');
+        $this->I->seeElement('#js-clone-framework-modal-button');
         return $this;
     }
 
@@ -174,32 +173,11 @@ class Framework implements Context
     }
 
     /**
-     * @Then /^I should see the copy framework modal$/
+     * @Then /^I should see the clone framework modal$/
      */
-    public function iShouldSeeTheCopyFrameworkModal(): Framework
+    public function iShouldSeeTheCloneFrameworkModal(): Framework
     {
-        // New VueJS CloneFrameworkModal uses id="cloneFrameworkModal"
         $this->I->waitForElementVisible('#cloneFrameworkModal .btn-primary');
-        return $this;
-    }
-
-    /**
-     * @When /^I click on copy from button$/
-     */
-    public function iClickOnCopyFromButton(): Framework
-    {
-        // New VueJS CloneFrameworkModal: single confirmation button (no separate "copy from" button)
-        $this->I->click('#cloneFrameworkModal .btn-primary');
-        return $this;
-    }
-
-    /**
-     * @Then /^I should see the copy from button active$/
-     */
-    public function iShouldSeeTheCopyFromButtonActive(): Framework
-    {
-        // New VueJS CloneFrameworkModal: single confirmation button (no separate "copy from" button)
-        $this->I->click('#cloneFrameworkModal .btn-primary');
         return $this;
     }
 

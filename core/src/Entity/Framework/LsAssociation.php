@@ -304,6 +304,8 @@ class LsAssociation implements CaseApiInterface
         $this->setOriginNodeTargetType($targetType);
 
         if (is_string($origin)) {
+            $this->setOriginLsItem(null);
+            $this->setOriginLsDoc(null);
             $this->setOriginNodeUri($origin);
             $this->setOriginNodeIdentifier($identifier ?? $origin);
 
@@ -311,8 +313,10 @@ class LsAssociation implements CaseApiInterface
         }
 
         if ($origin instanceof LsDoc) {
+            $this->setOriginLsItem(null);
             $this->setOriginLsDoc($origin);
         } elseif ($origin instanceof LsItem) {
+            $this->setOriginLsDoc(null);
             $this->setOriginLsItem($origin);
         }
         $this->setOriginNodeUri($origin->getUri());
@@ -363,6 +367,8 @@ class LsAssociation implements CaseApiInterface
         $this->setDestinationNodeTargetType($targetType);
 
         if (is_string($destination)) {
+            $this->setDestinationLsItem(null);
+            $this->setDestinationLsDoc(null);
             $this->setDestinationNodeUri($destination);
             $this->setDestinationNodeIdentifier($identifier ?? $destination);
 
@@ -370,8 +376,10 @@ class LsAssociation implements CaseApiInterface
         }
 
         if ($destination instanceof LsDoc) {
+            $this->setDestinationLsItem(null);
             $this->setDestinationLsDoc($destination);
         } elseif ($destination instanceof LsItem) {
+            $this->setDestinationLsDoc(null);
             $this->setDestinationLsItem($destination);
         }
         $this->setDestinationNodeUri($destination->getUri());
