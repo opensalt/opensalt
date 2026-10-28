@@ -458,8 +458,8 @@ function onExportModalHidden() {
   emit('export-modal-hidden');
 }
 
-function onCloneFrameworkConfirmed() {
-  emit('clone-framework-confirmed');
+function onCloneFrameworkConfirmed(options) {
+  emit('clone-framework-confirmed', options);
 }
 
 function onCloneFrameworkModalHidden() {

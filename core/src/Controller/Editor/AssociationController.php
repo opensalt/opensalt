@@ -135,9 +135,15 @@ class AssociationController extends AbstractController
 
     private function buildAssociationResponse(LsAssociation $assocEntity, array $assoc): ?array
     {
-        $originItem = $assocEntity->getOriginLsItem();
+        $originItem = $this->resolveAssociationEndpointItem(
+            $assocEntity->getOriginLsItem(),
+            $assocEntity->getOriginNodeIdentifier(),
+        );
         $originDoc = $assocEntity->getOriginLsDoc();
-        $destItem = $assocEntity->getDestinationLsItem();
+        $destItem = $this->resolveAssociationEndpointItem(
+            $assocEntity->getDestinationLsItem(),
+            $assocEntity->getDestinationNodeIdentifier(),
+        );
         $destDoc = $assocEntity->getDestinationLsDoc();
 
         $originFrameworkDoc = $originItem?->getLsDoc() ?? $originDoc;
@@ -245,6 +251,29 @@ class AssociationController extends AbstractController
         }
 
         return $displayStatement ?? $fallback;
+    }
+
+    private function resolveAssociationEndpointItem(?LsItem $linkedItem, ?string $nodeIdentifier): ?LsItem
+    {
+        if (null !== $linkedItem) {
+            return $linkedItem;
+        }
+
+        if (null === $nodeIdentifier || '' === $nodeIdentifier) {
+            return null;
+        }
+
+        $normalized = str_starts_with($nodeIdentifier, 'local:')
+            ? substr($nodeIdentifier, 6)
+            : $nodeIdentifier;
+
+        if ('' === $normalized) {
+            return null;
+        }
+
+        return $this->associationRepository->getEntityManager()
+            ->getRepository(LsItem::class)
+            ->findOneBy(['identifier' => $normalized]);
     }
 
     #[Route(path: '/association/new/{identifier}', name: 'editor_association_new', methods: ['POST'])]

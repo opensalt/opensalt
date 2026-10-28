@@ -306,7 +306,7 @@
               </button>
               <button
                 v-if="!isAdopted"
-                id="js-copy-framework-modal-button"
+                id="js-clone-framework-modal-button"
                 type="button"
                 class="btn btn-outline-secondary"
                 @click="$emit('clone-framework')"
