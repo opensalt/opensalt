@@ -33,7 +33,7 @@ readonly class OpenSaltMcpQueryService
         $conn = $this->entityManager->getConnection();
         $sql = 'SELECT d.id
                 FROM ls_doc d
-                STRAIGHT_JOIN mirror_framework m ON m.id = d.mirrored_framework_id
+                LEFT JOIN mirror_framework m ON m.id = d.mirrored_framework_id
                 WHERE (d.adoption_status IS NULL OR d.adoption_status <> :privateDraft)
                   AND (m.visible IS NULL OR m.visible = 1)';
         $params = ['privateDraft' => LsDoc::ADOPTION_STATUS_PRIVATE_DRAFT];
