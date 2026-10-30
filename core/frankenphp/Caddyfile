@@ -18,6 +18,7 @@
 {$SERVER_NAME:localhost} {
 	header /* {
 		Server "OpenSALT"
+		+Link `</llms.txt>; rel="describedby"`
 	}
 
 	header ?X-Content-Type-Options nosniff

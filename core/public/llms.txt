@@ -1,0 +1,34 @@
+# OpenSALT
+
+> OpenSALT is a Learning and Employment Record (LER) and competency-framework registry. This host publishes frameworks, items, and associations primarily as 1EdTech CASE JSON, and can also return the same objects as markdown for language models. Paths below are on this origin.
+
+Read the linked files before calling APIs. Prefer CASE and `/uri/` for reading published content. Prefer `/api/v1` (see OpenAPI) for authenticated create and update. Do not treat the HTML UI or `/framework/editor/` as a public integration API.
+
+Identifiers are UUIDs. A framework (CFDocument) and each competency or record (CFItem) has its own identifier. The public catalog is `GET /ims/case/v1p1/CFDocuments`. A full framework export is a CFPackage. For LLM-oriented text, fetch `/uri/{identifier}.md` or `/uri/p{documentIdentifier}.md`.
+
+## CASE
+
+- [CASE HTTP API](/llms/case-api.md): CASE 1.1 and 1.0 read endpoints, packages, catalog filters, and caching
+
+## Reading content
+
+- [URI lookup and markdown](/llms/uri.md): `/uri/` content negotiation, markdown for agents, and JSON-LD
+
+## Model Context Protocol
+
+- [MCP server](/llms/mcp.md): read-only tool and resource access to public documents and items at `/_mcp`
+
+## Issuer registry
+
+- [Issuer registry](/llms/issuer-registry.md): OpenID Federation entity statements and public issuer listings
+
+## Writing content
+
+- [Authentication](/llms/authentication.md): Bearer API tokens and which routes require them
+- [OpenAPI](/llms/openapi.md): `/api/v1` documents, packages, items, associations, and articulations
+
+## Optional
+
+- [Editor and UI routes](/llms/editor-routes.md): Browser editor paths that are not the integration API
+- [OpenSALT on GitHub](https://github.com/opensalt/opensalt): Source and product overview
+- [1EdTech CASE](https://www.1edtech.org/standards/case): The competency framework specification these CASE routes implement
