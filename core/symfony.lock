@@ -981,9 +981,6 @@
     "tetranz/select2entity-bundle": {
         "version": "v2.9.5"
     },
-    "theseer/tokenizer": {
-        "version": "1.1.0"
-    },
     "twig/extra-bundle": {
         "version": "v3.0.0"
     },
