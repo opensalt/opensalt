@@ -71,7 +71,7 @@
         "ecotone/symfony-bundle": "^1.234",
         "endroid/qr-code": "^6.0",
         "firebase/php-jwt": "^7.0",
-        "google/recaptcha": "~1.1",
+        "google/recaptcha": "~2.1",
         "guzzlehttp/guzzle": "^8.2",
         "kamermans/guzzle-oauth2-subscriber": "^1.0.11",
         "laminas/laminas-code": "^4.0",
